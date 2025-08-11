@@ -5,7 +5,8 @@ import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/nati
 import RootNavigator from './src/navigation';
 import { StoreProvider } from './src/store/StoreContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ProductProvider } from './src/store/ProductContext'; // Import ProductProvider
+import { ProductProvider } from './src/store/ProductContext';
+import { CartProvider } from './src/store/CartContext'; // Importer CartProvider
 
 export default function App() {
   const theme: Theme = {
@@ -16,11 +17,13 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ProductProvider>
-        <StoreProvider>
-          <NavigationContainer theme={theme}>
-            <RootNavigator />
-          </NavigationContainer>
-        </StoreProvider>
+        <CartProvider>
+          <StoreProvider>
+            <NavigationContainer theme={theme}>
+              <RootNavigator />
+            </NavigationContainer>
+          </StoreProvider>
+        </CartProvider>
       </ProductProvider>
     </SafeAreaProvider>
   );
