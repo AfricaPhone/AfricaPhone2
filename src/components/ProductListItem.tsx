@@ -1,9 +1,11 @@
+// src/components/ProductListItem.tsx
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Product } from '../types';
 import { useStore } from '../store/StoreContext';
 import { Ionicons } from '@expo/vector-icons';
 import RatingStars from './RatingStars';
+import { formatPrice } from '../utils/formatPrice';
 
 type Props = {
   product: Product;
@@ -30,7 +32,7 @@ const ProductListItem: React.FC<Props> = ({ product, onPress }) => {
         <Text style={styles.description} numberOfLines={2}>
           {product.description}
         </Text>
-        <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+        <Text style={styles.price}>{formatPrice(product.price)}</Text>
       </View>
       <TouchableOpacity style={styles.heartBtn} onPress={() => toggleFavorite(product.id)}>
         <Ionicons name={fav ? 'heart' : 'heart-outline'} size={22} color={fav ? '#E91E63' : '#111'} />

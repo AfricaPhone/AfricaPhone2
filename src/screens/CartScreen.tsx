@@ -1,30 +1,31 @@
+// src/screens/CartScreen.tsx
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
 import { useStore } from '../store/StoreContext';
-import { getProductById } from '../data/products';
+import { formatPrice } from '../utils/formatPrice';
 
 const CartScreen: React.FC = () => {
   const { cartItems, setQty, removeFromCart, total, clearCart } = useStore();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.h1}>My cart</Text>
+      <Text style={styles.h1}>Mon Panier</Text>
 
       <FlatList
         data={cartItems}
         keyExtractor={(i) => i.productId}
-        ListEmptyComponent={<Text style={styles.empty}>Your cart is empty.</Text>}
+        ListEmptyComponent={<Text style={styles.empty}>Votre panier est vide.</Text>}
         renderItem={({ item }) => (
           <View style={styles.item}>
             <Image source={{ uri: item.image }} style={styles.image} />
             <View style={{ flex: 1 }}>
               <Text numberOfLines={2} style={styles.title}>{item.title}</Text>
-              <Text style={styles.price}>${item.price.toFixed(2)}</Text>
+              <Text style={styles.price}>{formatPrice(item.price)}</Text>
               <View style={styles.qtyRow}>
                 <TouchableOpacity onPress={() => setQty(item.productId, Math.max(0, item.qty - 1))} style={styles.qtyBtn}><Text>-</Text></TouchableOpacity>
                 <Text style={styles.qty}>{item.qty}</Text>
                 <TouchableOpacity onPress={() => setQty(item.productId, item.qty + 1)} style={styles.qtyBtn}><Text>+</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => removeFromCart(item.productId)} style={styles.removeBtn}><Text>Remove</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => removeFromCart(item.productId)} style={styles.removeBtn}><Text>Retirer</Text></TouchableOpacity>
               </View>
             </View>
           </View>
@@ -32,17 +33,17 @@ const CartScreen: React.FC = () => {
       />
 
       <View style={styles.footer}>
-        <Text style={styles.total}>Total: ${total.toFixed(2)}</Text>
+        <Text style={styles.total}>Total: {formatPrice(total)}</Text>
         <TouchableOpacity
           onPress={() => {
             if (cartItems.length === 0) return;
-            Alert.alert('Checkout', 'Demo checkout — implement Stripe plus tard.');
+            Alert.alert('Paiement', 'Démo de paiement — à implémenter plus tard.');
             clearCart();
           }}
           style={[styles.checkout, { opacity: cartItems.length ? 1 : 0.5 }]}
           disabled={cartItems.length === 0}
         >
-          <Text style={{ color: '#fff', fontWeight: '700' }}>Checkout</Text>
+          <Text style={{ color: '#fff', fontWeight: '700' }}>Payer</Text>
         </TouchableOpacity>
       </View>
     </View>

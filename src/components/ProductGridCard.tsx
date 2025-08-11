@@ -1,8 +1,10 @@
+// src/components/ProductGridCard.tsx
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Product } from '../types';
 import { useStore } from '../store/StoreContext';
 import { Ionicons } from '@expo/vector-icons';
+import { formatPrice } from '../utils/formatPrice';
 
 type Props = {
   product: Product;
@@ -20,7 +22,7 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
         <Image source={{ uri: product.image }} style={styles.image} />
         {promoted ? (
           <View style={styles.adBadge}>
-            <Text style={styles.adTxt}>AD</Text>
+            <Text style={styles.adTxt}>PUB</Text>
           </View>
         ) : null}
         <TouchableOpacity style={styles.heartBtn} onPress={() => toggleFavorite(product.id)}>
@@ -32,7 +34,7 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
 
       <View style={styles.priceRow}>
         <Ionicons name="flash-outline" size={16} />
-        <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+        <Text style={styles.price}>{formatPrice(product.price)}</Text>
       </View>
     </TouchableOpacity>
   );

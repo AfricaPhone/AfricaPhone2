@@ -1,3 +1,4 @@
+// src/types.ts
 import { DimensionValue } from 'react-native';
 
 export type Category = string;
@@ -92,6 +93,7 @@ export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | Sho
 export type RootStackParamList = {
   Main: undefined; // This will render the MainStack navigator
   ProductDetail: { productId: string };
+  Brand: { brandId: string };
   Cart: undefined;
 };
 
