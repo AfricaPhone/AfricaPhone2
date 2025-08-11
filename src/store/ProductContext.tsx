@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import firestore from '@react-native-firebase/firestore';
+import { collection, getDocs, query, orderBy, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { db } from '../firebase/config'; // Importer l'instance db
 import { fetchProductsFromDB } from '../data/products';
 import { Product, Brand } from '../types';
 
@@ -7,9 +8,11 @@ import { Product, Brand } from '../types';
 export const fetchBrandsFromDB = async (): Promise<Brand[]> => {
   try {
     console.log("Fetching brands from Firestore...");
-    const querySnapshot = await firestore().collection('brands').orderBy('sortOrder', 'asc').get();
+    const brandsCollection = collection(db, 'brands'); // Utiliser db
+    const q = query(brandsCollection, orderBy('sortOrder', 'asc'));
+    const querySnapshot = await getDocs(q);
 
-    const brands: Brand[] = querySnapshot.docs.map((doc) => {
+    const brands: Brand[] = querySnapshot.docs.map((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
       const data = doc.data();
       return {
         id: doc.id,

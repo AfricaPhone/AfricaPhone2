@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useMemo, useReducer, useEffect } from 'react';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { FirebaseAuthTypes, onAuthStateChanged, signOut } from '@react-native-firebase/auth';
+import { auth } from '../firebase/config'; // Importer l'instance auth
 import { FavoritesState, FavoriteCollection, User } from '../types';
-import { useProducts } from './ProductContext'; // Importer le nouveau hook
+import { useProducts } from './ProductContext';
 
 type CartState = Record<string, number>; // productId -> qty
 
@@ -117,11 +118,11 @@ const StoreContext = createContext<StoreContextType | null>(null);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { getProductById, products } = useProducts(); // Utiliser le nouveau hook
+  const { getProductById, products } = useProducts();
 
   useEffect(() => {
     // Écouteur d'état d'authentification Firebase
-    const subscriber = auth().onAuthStateChanged((firebaseUser: FirebaseAuthTypes.User | null) => {
+    const subscriber = onAuthStateChanged(auth, (firebaseUser: FirebaseAuthTypes.User | null) => {
       if (firebaseUser) {
         // L'utilisateur est connecté
         const formattedUser: User = {
@@ -139,7 +140,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return subscriber; // Se désabonner lors du démontage
   }, []);
 
-  const logout = () => auth().signOut();
+  const logout = () => signOut(auth);
   const addToCart = (productId: string, qty?: number) => dispatch({ type: 'ADD_TO_CART', productId, qty });
   const removeFromCart = (productId: string) => dispatch({ type: 'REMOVE_FROM_CART', productId });
   const setQty = (productId: string, qty: number) => dispatch({ type: 'SET_QTY', productId, qty });
@@ -169,7 +170,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const collections = Object.values(state.favorites);
 
     return { cartItems, cartCount, total, isFav, collections };
-  }, [state.cart, state.favorites, products, getProductById]); // `products` et `getProductById` sont maintenant des dépendances
+  }, [state.cart, state.favorites, products, getProductById]);
 
   const value: StoreContextType = {
     state,

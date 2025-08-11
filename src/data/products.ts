@@ -1,13 +1,15 @@
 // src/data/products.ts
-import firestore from '@react-native-firebase/firestore';
+import { collection, getDocs, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { db } from '../firebase/config'; // Importer l'instance db
 import { Product } from '../types';
 
 export const fetchProductsFromDB = async (): Promise<Product[]> => {
   try {
     console.log("Fetching products from Firestore...");
-    const querySnapshot = await firestore().collection('products').get();
+    const productsCollection = collection(db, 'products'); // Utiliser db
+    const querySnapshot = await getDocs(productsCollection);
 
-    const products: Product[] = querySnapshot.docs.map((doc) => {
+    const products: Product[] = querySnapshot.docs.map((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
       const data = doc.data();
       return {
         id: doc.id,

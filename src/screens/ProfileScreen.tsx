@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useStore } from '../store/StoreContext';
 import ProfileListItem from '../components/ProfileListItem';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { auth } from '../firebase/config'; // Importer l'instance auth
+import { FirebaseAuthTypes, signInWithPhoneNumber as firebaseSignInWithPhoneNumber } from '@react-native-firebase/auth';
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useStore();
@@ -27,7 +28,7 @@ const ProfileScreen: React.FC = () => {
     }
     // IMPORTANT: Use international format, e.g., +229XXXXXXXX for Benin
     try {
-      const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+      const confirmation = await firebaseSignInWithPhoneNumber(auth, phoneNumber);
       setConfirm(confirmation);
       Alert.alert('Code envoyé', `Un code de vérification a été envoyé au ${phoneNumber}`);
     } catch (error) {
