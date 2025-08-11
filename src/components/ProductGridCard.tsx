@@ -83,4 +83,4 @@ const styles = StyleSheet.create({
   price: { marginLeft: 6, fontSize: 15, fontWeight: '800', color: '#111' },
 });
 
-export default ProductGridCard;
+export default React.memo(ProductGridCard);
