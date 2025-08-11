@@ -20,17 +20,17 @@ const { width: screenWidth } = Dimensions.get('window');
 const SEGMENTS = ['Best', 'Promotions', 'Bestsellers', 'New in'] as const;
 type Segment = typeof SEGMENTS[number];
 
-const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string }> = [
-  { id: 'p-free', icon: 'car-outline', title: 'Free delivery', subtitle: 'on any order' },
-  { id: 'p-70',  icon: 'flash-outline', title: 'Up to 70% off', subtitle: 'when ordering 3+ items' },
+const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string; color: string }> = [
+  { id: 'p-free', icon: 'car-outline', title: 'Free delivery', subtitle: 'on any order', color: '#fff1e6' },
+  { id: 'p-70',  icon: 'flash-outline', title: 'Up to 70% off', subtitle: 'when ordering 3+ items', color: '#e0f2fe' },
 ];
 
-const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string }> = [
-  { id: 'f-wheel', icon: 'cog-outline', label: 'Wheel of fortune' },
-  { id: 'f-gift',  icon: 'gift-outline', label: 'Get free gift' },
-  { id: 'f-60',    icon: 'sale', label: '60% off jewellery' },
-  { id: 'f-out',   icon: 'store-outline', label: 'Outlet' },
-  { id: 'f-pick',  icon: 'star-outline', label: 'Popular picks' },
+const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; color: string }> = [
+  { id: 'f-wheel', icon: 'cog-outline', label: 'Wheel of fortune', color: '#fffbeb' },
+  { id: 'f-gift',  icon: 'tablet-dashboard', label: 'Tablette', color: '#ecfeff' },
+  { id: 'f-60',    icon: 'headphones', label: 'Accessoires', color: '#f5f3ff' },
+  { id: 'f-out',   icon: 'store-outline', label: 'Outlet', color: '#f0fdf4' },
+  { id: 'f-pick',  icon: 'star-outline', label: 'Popular picks', color: '#fff1f2' },
 ];
 
 const TAB_BAR_HEIGHT = 58;
@@ -189,7 +189,7 @@ const HomeScreen: React.FC = () => {
               contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
               ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
               renderItem={({ item }) => (
-                <View style={styles.promoCard}>
+                <View style={[styles.promoCard, { backgroundColor: item.color }]}>
                   <Ionicons name={item.icon} size={22} color="#111" />
                   <View style={{ marginLeft: 10 }}><Text style={styles.promoTitle}>{item.title}</Text><Text style={styles.promoSub}>{item.subtitle}</Text></View>
                 </View>
@@ -205,7 +205,7 @@ const HomeScreen: React.FC = () => {
               contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
               ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
               renderItem={({ item }) => (
-                <View style={styles.featureTile}>
+                <View style={[styles.featureTile, { backgroundColor: item.color }]}>
                   <MaterialCommunityIcons name={item.icon} size={20} color="#111" />
                   <Text numberOfLines={1} style={styles.featureLabel}>{item.label}</Text>
                 </View>
@@ -263,10 +263,10 @@ const styles = StyleSheet.create({
   segmentTextActive: { color: '#FF7A00' },
   segmentUnderline: { height: 3, width: '80%', marginTop: 6, borderRadius: 2, backgroundColor: 'transparent' },
   segmentUnderlineActive: { backgroundColor: '#FF7A00' },
-  promoCard: { height: 64, borderRadius: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#eee', paddingHorizontal: 12, alignItems: 'center', flexDirection: 'row' },
+  promoCard: { height: 64, borderRadius: 12, borderWidth: 1, borderColor: '#eee', paddingHorizontal: 12, alignItems: 'center', flexDirection: 'row' },
   promoTitle: { fontWeight: '700', fontSize: 14, color: '#111' },
   promoSub: { color: '#6B7280', fontSize: 12, marginTop: 2 },
-  featureTile: { width: 120, height: 56, borderRadius: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#eee', paddingHorizontal: 12, alignItems: 'center', flexDirection: 'row' },
+  featureTile: { width: 120, height: 56, borderRadius: 12, borderWidth: 1, borderColor: '#eee', paddingHorizontal: 12, alignItems: 'center', flexDirection: 'row' },
   featureLabel: { marginLeft: 8, fontSize: 12, fontWeight: '600', color: '#111', flexShrink: 1 },
   coupon: { position: 'absolute', left: 16, right: 16, height: COUPON_BANNER_HEIGHT, borderRadius: 12, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center' },
   couponText: { color: '#fff', fontWeight: '700', flex: 1 },
