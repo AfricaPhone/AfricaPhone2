@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DiscoverFeedItem } from '../types';
@@ -17,7 +17,7 @@ const DiscoverScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { getProductById } = useStore();
 
-  const renderItem = ({ item }: { item: DiscoverFeedItem }) => {
+  const renderItem = useCallback(({ item }: { item: DiscoverFeedItem }) => {
     switch (item.type) {
       case 'hero':
         return <View style={styles.heroWrapper}><HeroBanner item={item} /></View>;
@@ -50,7 +50,7 @@ const DiscoverScreen: React.FC = () => {
       default:
         return null;
     }
-  };
+  }, [navigation, getProductById]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
