@@ -30,6 +30,10 @@ type ViewMode = 'grid' | 'list';
 
 const { width } = Dimensions.get('window');
 
+const ITEM_HEIGHT = 120;
+const ITEM_SEPARATOR_HEIGHT = 12;
+const TOTAL_ITEM_SIZE = ITEM_HEIGHT + ITEM_SEPARATOR_HEIGHT;
+
 // Debounce hook
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -113,6 +117,12 @@ const CatalogScreen: React.FC = () => {
     return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
   }, [viewMode, navigation]);
 
+  const getItemLayout = (data: any, index: number) => ({
+    length: ITEM_HEIGHT,
+    offset: TOTAL_ITEM_SIZE * index,
+    index,
+  });
+
   const ListSkeletonComponent = () => (
     <View style={{ paddingTop: headerH + 10 }}>
       {viewMode === 'grid' ? (
@@ -174,11 +184,12 @@ const CatalogScreen: React.FC = () => {
           keyExtractor={(item) => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
           columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          ItemSeparatorComponent={() => <View style={{ height: ITEM_SEPARATOR_HEIGHT }} />}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           onScrollBeginDrag={() => Keyboard.dismiss()}
           contentContainerStyle={{ paddingTop: headerH, paddingBottom: 20 }}
+          getItemLayout={viewMode === 'list' ? getItemLayout : undefined}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun produit trouvé.</Text>

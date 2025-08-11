@@ -11,6 +11,10 @@ import ProductListItem from '../components/ProductListItem';
 type ViewMode = 'grid' | 'list';
 type SortKey = 'date' | 'priceAsc' | 'priceDesc';
 
+const ITEM_HEIGHT = 120; // height of ProductListItem card (100 for image + 20 for padding)
+const ITEM_SEPARATOR_HEIGHT = 12;
+const TOTAL_ITEM_SIZE = ITEM_HEIGHT + ITEM_SEPARATOR_HEIGHT;
+
 const FavoritesScreen: React.FC = () => {
   const { collections, createCollection, getProductById } = useStore();
   const navigation = useNavigation<any>();
@@ -71,6 +75,12 @@ const FavoritesScreen: React.FC = () => {
     return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
   };
 
+  const getItemLayout = (data: any, index: number) => ({
+    length: ITEM_HEIGHT,
+    offset: TOTAL_ITEM_SIZE * index,
+    index,
+  });
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -117,10 +127,11 @@ const FavoritesScreen: React.FC = () => {
         keyExtractor={(item) => item.id}
         numColumns={viewMode === 'grid' ? 2 : 1}
         columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        ItemSeparatorComponent={() => <View style={{ height: ITEM_SEPARATOR_HEIGHT }} />}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        getItemLayout={viewMode === 'list' ? getItemLayout : undefined}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Aucun favori</Text>

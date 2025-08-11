@@ -24,6 +24,10 @@ type RouteParams = {
 
 type ViewMode = 'grid' | 'list';
 
+const ITEM_HEIGHT = 120;
+const ITEM_SEPARATOR_HEIGHT = 12;
+const TOTAL_ITEM_SIZE = ITEM_HEIGHT + ITEM_SEPARATOR_HEIGHT;
+
 const BrandScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
@@ -49,6 +53,12 @@ const BrandScreen: React.FC = () => {
     }
     return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
   }, [viewMode, navigation]);
+  
+  const getItemLayout = (data: any, index: number) => ({
+    length: ITEM_HEIGHT,
+    offset: TOTAL_ITEM_SIZE * index,
+    index,
+  });
 
   const Header = () => (
     <View>
@@ -96,10 +106,11 @@ const BrandScreen: React.FC = () => {
           keyExtractor={(item) => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
           columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          ItemSeparatorComponent={() => <View style={{ height: ITEM_SEPARATOR_HEIGHT }} />}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          getItemLayout={viewMode === 'list' ? getItemLayout : undefined}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun produit trouvé</Text>
