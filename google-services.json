@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "203471818329",
+    "project_id": "africaphone-vente",
+    "storage_bucket": "africaphone-vente.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:203471818329:android:4f620baacf1dc5fa596b48",
+        "android_client_info": {
+          "package_name": "com.africaphone.africaphone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
