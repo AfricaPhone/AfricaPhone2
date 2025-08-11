@@ -1,0 +1,8 @@
+. Gestion de l'État et Logique JavaScript ⚙️
+Optimiser la logique JS permet de libérer le thread principal et d'éviter les blocages.
+
+Séparer le StoreContext
+
+Problème : Votre StoreContext est un monolithe. Il gère l'utilisateur, les produits, le panier et les favoris. Le problème est que si un composant n'a besoin que des informations de l'utilisateur (par exemple, une icône de profil), il se re-rendra quand même si un article est ajouté au panier, car il est abonné au contexte entier qui a changé.
+
+Solution : Diviser le contexte en plusieurs contextes plus petits et spécialisés (UserContext, CartContext, FavoritesContext). Ainsi, les composants ne s'abonnent qu'aux changements qui les concernent, ce qui réduit considérablement le nombre de re-rendus inutiles dans l'application.

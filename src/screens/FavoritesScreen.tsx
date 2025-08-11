@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useStore } from '../store/StoreContext';
+import { useProducts } from '../store/ProductContext'; // Importer useProducts
 import { Product } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
@@ -16,7 +17,8 @@ const ITEM_SEPARATOR_HEIGHT = 12;
 const TOTAL_ITEM_SIZE = ITEM_HEIGHT + ITEM_SEPARATOR_HEIGHT;
 
 const FavoritesScreen: React.FC = () => {
-  const { collections, createCollection, getProductById } = useStore();
+  const { collections, createCollection } = useStore();
+  const { getProductById } = useProducts(); // Utiliser useProducts pour getProductById
   const navigation = useNavigation<any>();
 
   const [selectedCollectionId, setSelectedCollectionId] = useState(collections[0]?.id || null);

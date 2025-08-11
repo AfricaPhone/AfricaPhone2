@@ -22,7 +22,7 @@ import ProductListItem from '../components/ProductListItem';
 import { GridSkeleton, ListSkeleton } from '../components/SkeletonLoader';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import RatingStars from '../components/RatingStars';
-import { useStore } from '../store/StoreContext';
+import { useProducts } from '../store/ProductContext'; // Importer useProducts
 
 type RouteParams = { category?: Category };
 type SortKey = 'relevance' | 'priceAsc' | 'priceDesc' | 'ratingDesc';
@@ -53,7 +53,7 @@ const CatalogScreen: React.FC = () => {
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
   const initialCategory: Category | undefined = route?.params?.category;
-  const { products, productsLoading } = useStore();
+  const { products, productsLoading } = useProducts(); // Utiliser useProducts
 
   // --- State Management ---
   const [searchQuery, setSearchQuery] = useState('');

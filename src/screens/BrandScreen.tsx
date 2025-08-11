@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useStore } from '../store/StoreContext';
+import { useProducts } from '../store/ProductContext'; // Importer useProducts
 import { Product } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
@@ -33,7 +33,7 @@ const BrandScreen: React.FC = () => {
   const route = useRoute<any>();
   const { brandId } = route.params as RouteParams;
 
-  const { products, productsLoading, brands } = useStore();
+  const { products, productsLoading, brands } = useProducts(); // Utiliser useProducts
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   const brand = useMemo(() => brands.find(b => b.id === brandId), [brands, brandId]);

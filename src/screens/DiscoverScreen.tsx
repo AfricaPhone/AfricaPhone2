@@ -4,18 +4,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DiscoverFeedItem } from '../types';
 import { DISCOVER_FEED_DATA } from '../data/discoverFeed';
 
-// Import all the new components
+// Importer tous les nouveaux composants
 import HeroBanner from '../components/HeroBanner';
 import ProductCarousel from '../components/ProductCarousel';
 import ShopTheLook from '../components/ShopTheLook';
 import ArticleCard from '../components/ArticleCard';
 import ProductGridCard from '../components/ProductGridCard';
-import { useStore } from '../store/StoreContext';
+import { useProducts } from '../store/ProductContext'; // Importer useProducts
 import { useNavigation } from '@react-navigation/native';
 
 const DiscoverScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { getProductById } = useStore();
+  const { getProductById } = useProducts(); // Utiliser useProducts
 
   const renderItem = useCallback(({ item }: { item: DiscoverFeedItem }) => {
     switch (item.type) {

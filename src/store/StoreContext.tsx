@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useMemo, useReducer, useEffect } from 'react';
-import firestore from '@react-native-firebase/firestore';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { fetchProductsFromDB } from '../data/products';
-import { FavoritesState, FavoriteCollection, User, Product, Brand } from '../types';
+import { FavoritesState, FavoriteCollection, User } from '../types';
+import { useProducts } from './ProductContext'; // Importer le nouveau hook
 
 type CartState = Record<string, number>; // productId -> qty
 
@@ -12,10 +11,6 @@ type State = {
   cart: CartState;
   favorites: FavoritesState;
   user: User | null;
-  products: Product[];
-  productsLoading: boolean;
-  brands: Brand[];
-  brandsLoading: boolean;
 };
 
 type Action =
@@ -25,9 +20,7 @@ type Action =
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_FAVORITE'; productId: string; collectionId?: string }
   | { type: 'CREATE_COLLECTION'; name: string }
-  | { type: 'SET_USER'; user: User | null }
-  | { type: 'SET_PRODUCTS'; products: Product[] }
-  | { type: 'SET_BRANDS'; brands: Brand[] };
+  | { type: 'SET_USER'; user: User | null };
 
 const initialState: State = {
   cart: {},
@@ -38,37 +31,8 @@ const initialState: State = {
       productIds: new Set(),
     },
   },
-  user: null, // Initially logged out
-  products: [],
-  productsLoading: true,
-  brands: [],
-  brandsLoading: true,
+  user: null, // Initialement déconnecté
 };
-
-// --- Brand Fetching ---
-export const fetchBrandsFromDB = async (): Promise<Brand[]> => {
-  try {
-    console.log("Fetching brands from Firestore...");
-    const querySnapshot = await firestore().collection('brands').orderBy('sortOrder', 'asc').get();
-
-    const brands: Brand[] = querySnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        name: data.name,
-        logoUrl: data.logoUrl,
-        sortOrder: data.sortOrder,
-      };
-    });
-
-    console.log("Brands fetched successfully:", brands.length);
-    return brands;
-  } catch (error) {
-    console.error("Error fetching brands: ", error);
-    return [];
-  }
-};
-
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -127,10 +91,6 @@ function reducer(state: State, action: Action): State {
     }
     case 'SET_USER':
       return { ...state, user: action.user };
-    case 'SET_PRODUCTS':
-      return { ...state, products: action.products, productsLoading: false };
-    case 'SET_BRANDS':
-      return { ...state, brands: action.brands, brandsLoading: false };
     default:
       return state;
   }
@@ -151,23 +111,19 @@ type StoreContextType = {
   cartCount: number;
   total: number;
   cartItems: Array<{ productId: string; qty: number; title: string; price: number; image: string }>;
-  products: Product[];
-  productsLoading: boolean;
-  brands: Brand[];
-  brandsLoading: boolean;
-  getProductById: (id: string) => Product | undefined;
 };
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { getProductById, products } = useProducts(); // Utiliser le nouveau hook
 
   useEffect(() => {
-    // Firebase Auth state listener
+    // Écouteur d'état d'authentification Firebase
     const subscriber = auth().onAuthStateChanged((firebaseUser: FirebaseAuthTypes.User | null) => {
       if (firebaseUser) {
-        // User is signed in
+        // L'utilisateur est connecté
         const formattedUser: User = {
           id: firebaseUser.uid,
           name: firebaseUser.displayName || firebaseUser.phoneNumber || 'Utilisateur',
@@ -176,22 +132,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
         dispatch({ type: 'SET_USER', user: formattedUser });
       } else {
-        // User is signed out
+        // L'utilisateur est déconnecté
         dispatch({ type: 'SET_USER', user: null });
       }
     });
-    return subscriber; // unsubscribe on unmount
-  }, []);
-
-  useEffect(() => {
-    const loadData = async () => {
-      const products = await fetchProductsFromDB();
-      dispatch({ type: 'SET_PRODUCTS', products });
-
-      const brands = await fetchBrandsFromDB();
-      dispatch({ type: 'SET_BRANDS', brands });
-    };
-    loadData();
+    return subscriber; // Se désabonner lors du démontage
   }, []);
 
   const logout = () => auth().signOut();
@@ -201,8 +146,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const clearCart = () => dispatch({ type: 'CLEAR_CART' });
   const toggleFavorite = (productId: string, collectionId?: string) => dispatch({ type: 'TOGGLE_FAVORITE', productId, collectionId });
   const createCollection = (name: string) => dispatch({ type: 'CREATE_COLLECTION', name });
-
-  const getProductById = (id: string) => state.products.find(p => p.id === id);
 
   const derived = useMemo(() => {
     const cartEntries = Object.entries(state.cart);
@@ -226,7 +169,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const collections = Object.values(state.favorites);
 
     return { cartItems, cartCount, total, isFav, collections };
-  }, [state.cart, state.favorites, state.products]);
+  }, [state.cart, state.favorites, products, getProductById]); // `products` et `getProductById` sont maintenant des dépendances
 
   const value: StoreContextType = {
     state,
@@ -243,11 +186,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     cartCount: derived.cartCount,
     total: derived.total,
     cartItems: derived.cartItems,
-    products: state.products,
-    productsLoading: state.productsLoading,
-    brands: state.brands,
-    brandsLoading: state.brandsLoading,
-    getProductById,
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

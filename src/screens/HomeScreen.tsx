@@ -9,9 +9,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { Category, Product, Brand } from '../types';
+import { Product, Brand } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
-import { useStore } from '../store/StoreContext';
+import { useProducts } from '../store/ProductContext'; // Importer useProducts
 
 type Nav = ReturnType<typeof useNavigation<any>>;
 
@@ -59,7 +59,7 @@ function makeFeed(products: Product[], seg: Segment): Array<{ key: string; produ
 
 const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
-  const { products, productsLoading, brands, brandsLoading } = useStore();
+  const { products, productsLoading, brands, brandsLoading } = useProducts(); // Utiliser useProducts
   const insets = useSafeAreaInsets();
   const [segment, setSegment] = useState<Segment>('Top');
   const [couponDismissed, setCouponDismissed] = useState(false);

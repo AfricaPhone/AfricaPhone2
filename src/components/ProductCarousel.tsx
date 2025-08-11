@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Product } from '../types';
-import { useStore } from '../store/StoreContext';
+import { useProducts } from '../store/ProductContext'; // Importer useProducts
 import ProductGridCard from './ProductGridCard';
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 
 const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
   const navigation = useNavigation<any>();
-  const { getProductById } = useStore();
+  const { getProductById } = useProducts(); // Utiliser useProducts
   const products = productIds.map(getProductById).filter(Boolean) as Product[];
 
   const renderItem = useCallback(({ item }: { item: Product }) => {
