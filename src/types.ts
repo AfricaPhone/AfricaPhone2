@@ -25,7 +25,8 @@ export type Brand = {
 export type User = {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
+  phoneNumber?: string | null; // Ajout de la propriété optionnelle
   initials: string;
 };
 
