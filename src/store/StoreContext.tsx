@@ -1,20 +1,12 @@
 import React, { createContext, useContext, useMemo, useReducer, useEffect } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
+import firestore from '@react-native-firebase/firestore';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { fetchProductsFromDB } from '../data/products';
 import { FavoritesState, FavoriteCollection, User, Product, Brand } from '../types';
 
 type CartState = Record<string, number>; // productId -> qty
 
 const DEFAULT_COLLECTION_ID = 'default';
-
-// A mock user for demonstration
-const MOCK_USER: User = {
-  id: 'user_123',
-  name: 'Marie',
-  email: 'marie@ecommerce.com',
-  initials: 'M',
-};
 
 type State = {
   cart: CartState;
@@ -33,8 +25,7 @@ type Action =
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_FAVORITE'; productId: string; collectionId?: string }
   | { type: 'CREATE_COLLECTION'; name: string }
-  | { type: 'LOGIN' }
-  | { type: 'LOGOUT' }
+  | { type: 'SET_USER'; user: User | null }
   | { type: 'SET_PRODUCTS'; products: Product[] }
   | { type: 'SET_BRANDS'; brands: Brand[] };
 
@@ -58,9 +49,7 @@ const initialState: State = {
 export const fetchBrandsFromDB = async (): Promise<Brand[]> => {
   try {
     console.log("Fetching brands from Firestore...");
-    const brandsCollection = collection(db, 'brands');
-    const q = query(brandsCollection, orderBy('sortOrder', 'asc'));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await firestore().collection('brands').orderBy('sortOrder', 'asc').get();
 
     const brands: Brand[] = querySnapshot.docs.map((doc) => {
       const data = doc.data();
@@ -136,10 +125,8 @@ function reducer(state: State, action: Action): State {
         },
       };
     }
-    case 'LOGIN':
-      return { ...state, user: MOCK_USER };
-    case 'LOGOUT':
-      return { ...state, user: null };
+    case 'SET_USER':
+      return { ...state, user: action.user };
     case 'SET_PRODUCTS':
       return { ...state, products: action.products, productsLoading: false };
     case 'SET_BRANDS':
@@ -152,7 +139,6 @@ function reducer(state: State, action: Action): State {
 type StoreContextType = {
   state: State;
   user: User | null;
-  login: () => void;
   logout: () => void;
   addToCart: (productId: string, qty?: number) => void;
   removeFromCart: (productId: string) => void;
@@ -178,6 +164,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    // Firebase Auth state listener
+    const subscriber = auth().onAuthStateChanged((firebaseUser: FirebaseAuthTypes.User | null) => {
+      if (firebaseUser) {
+        // User is signed in
+        const formattedUser: User = {
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName || firebaseUser.phoneNumber || 'Utilisateur',
+          email: firebaseUser.email || '',
+          initials: firebaseUser.displayName ? firebaseUser.displayName.charAt(0) : 'U',
+        };
+        dispatch({ type: 'SET_USER', user: formattedUser });
+      } else {
+        // User is signed out
+        dispatch({ type: 'SET_USER', user: null });
+      }
+    });
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+  useEffect(() => {
     const loadData = async () => {
       const products = await fetchProductsFromDB();
       dispatch({ type: 'SET_PRODUCTS', products });
@@ -188,8 +194,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     loadData();
   }, []);
 
-  const login = () => dispatch({ type: 'LOGIN' });
-  const logout = () => dispatch({ type: 'LOGOUT' });
+  const logout = () => auth().signOut();
   const addToCart = (productId: string, qty?: number) => dispatch({ type: 'ADD_TO_CART', productId, qty });
   const removeFromCart = (productId: string) => dispatch({ type: 'REMOVE_FROM_CART', productId });
   const setQty = (productId: string, qty: number) => dispatch({ type: 'SET_QTY', productId, qty });
@@ -226,7 +231,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const value: StoreContextType = {
     state,
     user: state.user,
-    login,
     logout,
     addToCart,
     removeFromCart,
