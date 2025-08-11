@@ -1,3 +1,4 @@
+// src/navigation/index.tsx
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -11,6 +12,7 @@ import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
+import BrandScreen from '../screens/BrandScreen'; // Import the new screen
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useStore } from '../store/StoreContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -100,6 +102,7 @@ const RootNavigator: React.FC = () => {
     <RootStack.Navigator>
       <RootStack.Screen name="Main" component={MainStack} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="Brand" component={BrandScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Cart" component={CartScreen} options={{ presentation: 'modal', headerShown: false }} />
     </RootStack.Navigator>
   );

@@ -1,3 +1,4 @@
+// src/components/ShopTheLook.tsx
 import React from 'react';
 import { View, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';

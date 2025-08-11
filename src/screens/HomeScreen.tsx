@@ -1,3 +1,4 @@
+// src/screens/HomeScreen.tsx
 import React, { useMemo, useState, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, Image,
@@ -17,20 +18,20 @@ type Nav = ReturnType<typeof useNavigation<any>>;
 // --- Mocks & Constants ---
 const { width: screenWidth } = Dimensions.get('window');
 
-const SEGMENTS = ['Best', 'Promotions', 'Bestsellers', 'New in'] as const;
+const SEGMENTS = ['Top', 'Promotions', 'Best-sellers', 'Nouveautés'] as const;
 type Segment = typeof SEGMENTS[number];
 
 const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string }> = [
-  { id: 'p-free', icon: 'car-outline', title: 'Free delivery', subtitle: 'on any order' },
-  { id: 'p-70',  icon: 'flash-outline', title: 'Up to 70% off', subtitle: 'when ordering 3+ items' },
+  { id: 'p-free', icon: 'car-outline', title: 'Livraison gratuite', subtitle: 'sur toutes les commandes' },
+  { id: 'p-70',  icon: 'flash-outline', title: 'Jusqu\'à -70%', subtitle: 'dès 3 articles achetés' },
 ];
 
 const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string }> = [
-  { id: 'f-wheel', icon: 'cog-outline', label: 'Wheel of fortune' },
-  { id: 'f-gift',  icon: 'gift-outline', label: 'Get free gift' },
-  { id: 'f-60',    icon: 'sale', label: '60% off jewellery' },
+  { id: 'f-wheel', icon: 'cog-outline', label: 'Roue de la fortune' },
+  { id: 'f-gift',  icon: 'gift-outline', label: 'Cadeau gratuit' },
+  { id: 'f-60',    icon: 'sale', label: '-60% sur les bijoux' },
   { id: 'f-out',   icon: 'store-outline', label: 'Outlet' },
-  { id: 'f-pick',  icon: 'star-outline', label: 'Popular picks' },
+  { id: 'f-pick',  icon: 'star-outline', label: 'Populaires' },
 ];
 
 const TAB_BAR_HEIGHT = 58;
@@ -42,8 +43,8 @@ function makeFeed(products: Product[], seg: Segment): Array<{ key: string; produ
   if (base.length === 0) return [];
 
   if (seg === 'Promotions') base.reverse();
-  if (seg === 'Bestsellers') base.sort((a, b) => a.title.localeCompare(b.title));
-  if (seg === 'New in') base.sort((a, b) => b.title.localeCompare(a.title));
+  if (seg === 'Best-sellers') base.sort((a, b) => a.title.localeCompare(b.title));
+  if (seg === 'Nouveautés') base.sort((a, b) => b.title.localeCompare(a.title));
 
   const items: Array<{ key: string; product: Product; promoted?: boolean }> = [];
   const loopCount = Math.min(10, base.length);
@@ -58,7 +59,7 @@ const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
   const { products, productsLoading, brands, brandsLoading } = useStore();
   const insets = useSafeAreaInsets();
-  const [segment, setSegment] = useState<Segment>('Best');
+  const [segment, setSegment] = useState<Segment>('Top');
   const [couponDismissed, setCouponDismissed] = useState(false);
   const [headerH, setHeaderH] = useState<number>(60);
   const pagerRef = useRef<FlatList>(null);
@@ -125,7 +126,7 @@ const HomeScreen: React.FC = () => {
         <View style={styles.pinnedHeader}>
           <Pressable onPress={() => nav.navigate('Catalog' as never)} style={styles.searchBar}>
             <Ionicons name="search-outline" size={20} color="#8A8A8E" />
-            <Text style={styles.searchPlaceholder}>Search</Text>
+            <Text style={styles.searchPlaceholder}>Rechercher</Text>
             <Ionicons name="camera-outline" size={20} color="#8A8A8E" />
           </Pressable>
         </View>
@@ -152,7 +153,7 @@ const HomeScreen: React.FC = () => {
                 ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
                 renderItem={({ item }: { item: Brand }) => (
                   <TouchableOpacity
-                    onPress={() => nav.navigate('Catalog' as never, { category: item.id as Category } as never)}
+                    onPress={() => nav.navigate('Brand', { brandId: item.id })}
                     activeOpacity={0.8}
                   >
                     <View style={styles.circle}><Image source={{ uri: item.logoUrl }} style={styles.circleImg} /></View>
@@ -238,7 +239,7 @@ const HomeScreen: React.FC = () => {
           end={{ x: 1, y: 0.5 }}
           style={[styles.coupon, { bottom: TAB_BAR_HEIGHT + insets.bottom + 8 }]}
         >
-          <Text style={styles.couponText}>25% off coupon ends on 10 August</Text>
+          <Text style={styles.couponText}>Coupon de -25% expire le 10 août</Text>
           <TouchableOpacity onPress={() => setCouponDismissed(true)} style={styles.couponClose}>
             <Ionicons name="close" size={18} color="#fff" />
           </TouchableOpacity>
