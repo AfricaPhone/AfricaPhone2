@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { collection, addDoc, serverTimestamp, onSnapshot, query, where, doc, getDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { collection, addDoc, serverTimestamp, onSnapshot, query, where, doc, getDoc, updateDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { useStore } from '../store/StoreContext';
 import { Prediction, Match } from '../types';
@@ -70,7 +70,6 @@ const PredictionGameScreen: React.FC = () => {
 
     setLoading(true);
 
-    // Fetch match data
     const matchDocRef = doc(db, 'matches', matchId);
     const unsubscribeMatch = onSnapshot(matchDocRef, (matchDoc) => {
       if (matchDoc.exists()) {
@@ -83,7 +82,6 @@ const PredictionGameScreen: React.FC = () => {
       console.error("Erreur de lecture du match: ", error);
     });
 
-    // Fetch predictions for this match
     const predictionsRef = collection(db, 'predictions');
     const q = query(predictionsRef, where('matchId', '==', matchId));
 
@@ -105,6 +103,17 @@ const PredictionGameScreen: React.FC = () => {
     };
   }, [matchId]);
 
+  const handleOpenModal = () => {
+    if (currentUserPrediction) {
+      setScoreA(String(currentUserPrediction.scoreA));
+      setScoreB(String(currentUserPrediction.scoreB));
+    } else {
+      setScoreA('');
+      setScoreB('');
+    }
+    setModalVisible(true);
+  };
+
   const handleSubmit = async () => {
     if (!user) {
       Alert.alert('Connexion requise', 'Vous devez être connecté pour placer un pronostic.', [
@@ -120,24 +129,32 @@ const PredictionGameScreen: React.FC = () => {
       Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
       return;
     }
-    if (currentUserPrediction) {
-      Alert.alert('Déjà voté', 'Vous avez déjà placé un pronostic pour ce match.');
-      return;
-    }
 
     setIsSubmitting(true);
     try {
-      const newPrediction: Omit<Prediction, 'id'> = {
-        userId: user.id,
-        userName: user.name,
-        matchId: matchId,
+      const newScores = {
         scoreA: parseInt(scoreA, 10),
         scoreB: parseInt(scoreB, 10),
-        createdAt: serverTimestamp(),
       };
-      await addDoc(collection(db, 'predictions'), newPrediction);
+
+      if (currentUserPrediction?.id) {
+        // Update existing prediction
+        const predictionRef = doc(db, 'predictions', currentUserPrediction.id);
+        await updateDoc(predictionRef, newScores);
+        Alert.alert('Pronostic mis à jour !', 'Votre pronostic a été modifié.');
+      } else {
+        // Create new prediction
+        const newPrediction: Omit<Prediction, 'id'> = {
+          userId: user.id,
+          userName: user.name,
+          matchId: matchId,
+          ...newScores,
+          createdAt: serverTimestamp(),
+        };
+        await addDoc(collection(db, 'predictions'), newPrediction);
+        Alert.alert('Pronostic validé !', 'Votre pronostic a été enregistré. Bonne chance !');
+      }
       setModalVisible(false);
-      Alert.alert('Pronostic validé !', 'Votre pronostic a été enregistré. Bonne chance !');
     } catch (error) {
       console.error("Erreur d'enregistrement du pronostic: ", error);
       Alert.alert('Erreur', 'Une erreur est survenue. Veuillez réessayer.');
@@ -157,14 +174,14 @@ const PredictionGameScreen: React.FC = () => {
     }
     if (currentUserPrediction) {
       return (
-        <View style={styles.votedCard}>
-          <Text style={styles.votedTitle}>Votre pronostic</Text>
-          <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
-        </View>
+        <TouchableOpacity style={styles.submitButton} onPress={handleOpenModal}>
+          <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
+          <Text style={styles.submitButtonText}>Modifier mon pronostic</Text>
+        </TouchableOpacity>
       );
     }
     return (
-      <TouchableOpacity style={styles.submitButton} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity style={styles.submitButton} onPress={handleOpenModal}>
         <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
         <Text style={styles.submitButtonText}>Placer mon pronostic</Text>
       </TouchableOpacity>
@@ -243,6 +260,13 @@ const PredictionGameScreen: React.FC = () => {
           </View>
         </View>
 
+        {currentUserPrediction && !matchStarted && (
+            <View style={styles.votedCard}>
+                <Text style={styles.votedTitle}>Votre pronostic actuel</Text>
+                <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
+            </View>
+        )}
+
         {renderActionButton()}
 
         <View style={styles.card}>
@@ -280,7 +304,7 @@ const PredictionGameScreen: React.FC = () => {
             <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                 <Ionicons name="close-circle" size={28} color="#9ca3af" />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Votre Pronostic</Text>
+            <Text style={styles.modalTitle}>{currentUserPrediction ? 'Modifier' : 'Votre'} Pronostic</Text>
             <Text style={styles.modalSubtitle}>{match.teamA} vs {match.teamB}</Text>
             
             <View style={styles.modalScoreContainer}>
@@ -307,7 +331,7 @@ const PredictionGameScreen: React.FC = () => {
             </View>
 
             <TouchableOpacity style={[styles.modalSubmitButton, isSubmitting && styles.buttonDisabled]} onPress={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalSubmitText}>Valider le pronostic</Text>}
+              {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalSubmitText}>{currentUserPrediction ? 'Valider la modification' : 'Valider le pronostic'}</Text>}
             </TouchableOpacity>
           </Pressable>
         </Pressable>

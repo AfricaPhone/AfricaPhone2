@@ -35,8 +35,13 @@ service cloud.firestore {
                     && request.resource.data.userId == request.auth.uid
                     && request.time < get(/databases/$(database)/documents/matches/$(request.resource.data.matchId)).data.startTime;
 
-      // Personne ne peut modifier ou supprimer un pronostic.
-      allow update, delete: if false;
+      // Un utilisateur authentifié peut METTRE À JOUR son propre pronostic SI le match n'a pas commencé.
+      allow update: if request.auth != null
+                    && request.auth.uid == resource.data.userId
+                    && request.time < get(/databases/$(database)/documents/matches/$(request.resource.data.matchId)).data.startTime;
+
+      // Personne ne peut supprimer un pronostic.
+      allow delete: if false;
     }
 
     // --- CONCOURS (Anciennes règles) ---
@@ -44,8 +49,8 @@ service cloud.firestore {
       match /candidates/{userId} {
         allow read: if true;
         allow create: if request.auth != null
-                        && request.auth.uid == userId
-                        && request.resource.data.deviceId != null;
+                          && request.auth.uid == userId
+                          && request.resource.data.deviceId != null;
         allow update: if request.auth != null;
       }
 
