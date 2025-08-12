@@ -27,7 +27,7 @@ export type User = {
   id: string;
   name: string;
   email: string | null;
-  phoneNumber?: string | null; // Ajout de la propriété optionnelle
+  phoneNumber?: string | null;
   initials: string;
 };
 
@@ -92,12 +92,13 @@ export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | Sho
 // --- Navigation Types ---
 
 export type RootStackParamList = {
-  Main: undefined; // This will render the MainStack navigator
+  Main: undefined;
   ProductDetail: { productId: string };
   Brand: { brandId: string };
   Cart: undefined;
-  MatchList: undefined; // Add the new screen to the stack
-  PredictionGame: { matchId: string }; // Update to accept matchId
+  MatchList: undefined;
+  PredictionGame: { matchId: string };
+  SignUp: undefined; // Add the new screen
 };
 
 // This is for the navigator that wraps the tabs
