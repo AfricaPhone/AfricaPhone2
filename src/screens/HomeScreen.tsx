@@ -9,7 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { Product, Brand } from '../types';
+import { Product, Brand, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import { useProducts } from '../store/ProductContext'; // Importer useProducts
 
@@ -28,8 +28,8 @@ const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; tit
 ];
 
 // RESOLVED: Combined French labels and icons with the new 'color' property from the master branch.
-const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; color: string }> = [
-  { id: 'f-wheel', icon: 'cog-outline', label: 'Roue de la fortune', color: '#fffbeb' },
+const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; color: string, screen?: keyof RootStackParamList }> = [
+  { id: 'f-wheel', icon: 'gamepad-variant-outline', label: 'Jeu pronostique', color: '#fffbeb', screen: 'PredictionGame' },
   { id: 'f-gift',  icon: 'gift-outline', label: 'Cadeau gratuit', color: '#ecfeff' },
   { id: 'f-60',    icon: 'sale', label: '-60% sur les bijoux', color: '#f5f3ff' },
   { id: 'f-out',   icon: 'store-outline', label: 'Outlet', color: '#f0fdf4' },
@@ -208,10 +208,14 @@ const HomeScreen: React.FC = () => {
               contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
               ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
               renderItem={({ item }) => (
-                <View style={[styles.featureTile, { backgroundColor: item.color }]}>
+                <TouchableOpacity
+                  style={[styles.featureTile, { backgroundColor: item.color }]}
+                  onPress={() => item.screen && nav.navigate(item.screen as never)}
+                  activeOpacity={0.8}
+                >
                   <MaterialCommunityIcons name={item.icon} size={20} color="#111" />
                   <Text numberOfLines={1} style={styles.featureLabel}>{item.label}</Text>
-                </View>
+                </TouchableOpacity>
               )}
             />
             <View style={{ height: 4, backgroundColor: '#f4f4f5', marginBottom: 8 }} />

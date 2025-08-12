@@ -17,7 +17,8 @@ import {
   Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../types';
 
 /**
  * DiscoverScreen — Fil de découverte “façon Facebook”, lecture seule (admins publient).
@@ -532,7 +533,7 @@ const formatTimeAgo = (iso: string) => {
 
 /** -------- Écran principal -------- */
 const DiscoverScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
@@ -601,7 +602,6 @@ const DiscoverScreen: React.FC = () => {
             <ProductPostCard
               post={item}
               onOpen={() => {
-                // @ts-ignore — adapte la route si besoin
                 navigation.navigate('ProductDetail', { productId: item.product.id });
               }}
             />
@@ -612,7 +612,7 @@ const DiscoverScreen: React.FC = () => {
           return (
             <CollectionPostCard
               post={item}
-              onOpen={(p) => navigation.navigate('ProductDetail' as never, { productId: p.id } as never)}
+              onOpen={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
             />
           );
         case 'hero':
@@ -623,7 +623,7 @@ const DiscoverScreen: React.FC = () => {
           return (
             <ShopLookPostCard
               post={item}
-              onOpen={(p) => navigation.navigate('ProductDetail' as never, { productId: p.id } as never)}
+              onOpen={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
             />
           );
         case 'poll':
