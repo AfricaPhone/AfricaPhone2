@@ -36,3 +36,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# New ignored files
+prompt_work
+pronostic_logique
+firebase_rules

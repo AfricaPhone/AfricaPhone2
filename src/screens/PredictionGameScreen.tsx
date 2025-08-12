@@ -15,17 +15,17 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { collection, addDoc, serverTimestamp, onSnapshot, query, where, doc, getDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { useStore } from '../store/StoreContext';
 import { Prediction, Match } from '../types';
 
-const MATCH_ID = 'CAN2025-FINALE'; // ID unique pour ce match
-
 const PredictionGameScreen: React.FC = () => {
   const navigation = useNavigation();
+  const route = useRoute<any>();
+  const { matchId } = route.params as { matchId: string };
   const { user } = useStore();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,7 +38,7 @@ const PredictionGameScreen: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const matchStarted = useMemo(() => {
-    if (!match) return true; // Block by default
+    if (!match) return true; // Block by default if match data is not yet loaded
     return new Date() > match.startTime.toDate();
   }, [match]);
 
@@ -66,26 +66,28 @@ const PredictionGameScreen: React.FC = () => {
   }, [predictions]);
 
   useEffect(() => {
-    const fetchMatchData = async () => {
-      try {
-        const matchDocRef = doc(db, 'matches', MATCH_ID);
-        const matchDoc = await getDoc(matchDocRef);
-        if (matchDoc.exists()) {
-          setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
-        } else {
-          console.error("Match non trouvé !");
-        }
-      } catch (error) {
-        console.error("Erreur de lecture du match: ", error);
+    if (!matchId) return;
+
+    setLoading(true);
+
+    // Fetch match data
+    const matchDocRef = doc(db, 'matches', matchId);
+    const unsubscribeMatch = onSnapshot(matchDocRef, (matchDoc) => {
+      if (matchDoc.exists()) {
+        setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
+      } else {
+        console.error("Match non trouvé !");
+        setMatch(null);
       }
-    };
+    }, (error) => {
+      console.error("Erreur de lecture du match: ", error);
+    });
 
-    fetchMatchData();
-
+    // Fetch predictions for this match
     const predictionsRef = collection(db, 'predictions');
-    const q = query(predictionsRef, where('matchId', '==', MATCH_ID));
+    const q = query(predictionsRef, where('matchId', '==', matchId));
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const unsubscribePredictions = onSnapshot(q, (querySnapshot) => {
       const preds: Prediction[] = [];
       querySnapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
         preds.push({ id: doc.id, ...doc.data() } as Prediction);
@@ -97,8 +99,11 @@ const PredictionGameScreen: React.FC = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      unsubscribeMatch();
+      unsubscribePredictions();
+    };
+  }, [matchId]);
 
   const handleSubmit = async () => {
     if (!user) {
@@ -125,7 +130,7 @@ const PredictionGameScreen: React.FC = () => {
       const newPrediction: Omit<Prediction, 'id'> = {
         userId: user.id,
         userName: user.name,
-        matchId: MATCH_ID,
+        matchId: matchId,
         scoreA: parseInt(scoreA, 10),
         scoreB: parseInt(scoreB, 10),
         createdAt: serverTimestamp(),
@@ -166,6 +171,39 @@ const PredictionGameScreen: React.FC = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#111" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Jeu Pronostique</Text>
+            <View style={{ width: 40 }} />
+          </View>
+          <ActivityIndicator style={{ flex: 1 }} size="large" color="#FF7A00" />
+      </SafeAreaView>
+    )
+  }
+
+  if (!match) {
+    return (
+       <SafeAreaView style={styles.container} edges={['top']}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#111" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Erreur</Text>
+            <View style={{ width: 40 }} />
+          </View>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Match non trouvé</Text>
+            <Text style={styles.emptySubText}>Ce match n'existe pas ou a été supprimé.</Text>
+          </View>
+      </SafeAreaView>
+    )
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="dark-content" />
@@ -181,17 +219,17 @@ const PredictionGameScreen: React.FC = () => {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="trophy-outline" size={20} color="#FF7A00" />
-            <Text style={styles.competitionText}>{match?.competition || '...'}</Text>
+            <Text style={styles.competitionText}>{match.competition}</Text>
           </View>
-          <Text style={styles.dateText}>{match ? `${match.startTime.toDate().toLocaleDateString('fr-FR')} - ${match.startTime.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}` : '...'}</Text>
+          <Text style={styles.dateText}>{`${match.startTime.toDate().toLocaleDateString('fr-FR')} - ${match.startTime.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}`}</Text>
           <View style={styles.matchContainer}>
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
                 <Image source={{ uri: 'https://flagcdn.com/w320/sn.png' }} style={styles.flag} />
               </View>
-              <Text style={styles.teamName}>{match?.teamA || '...'}</Text>
+              <Text style={styles.teamName}>{match.teamA}</Text>
             </View>
-            {typeof match?.finalScoreA === 'number' && typeof match?.finalScoreB === 'number' ? (
+            {typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number' ? (
               <Text style={styles.finalScoreText}>{`${match.finalScoreA} - ${match.finalScoreB}`}</Text>
             ) : (
               <Text style={styles.vsText}>VS</Text>
@@ -200,7 +238,7 @@ const PredictionGameScreen: React.FC = () => {
               <View style={styles.flagContainer}>
                 <Image source={{ uri: 'https://flagcdn.com/w320/ci.png' }} style={styles.flag} />
               </View>
-              <Text style={styles.teamName}>{match?.teamB || '...'}</Text>
+              <Text style={styles.teamName}>{match.teamB}</Text>
             </View>
           </View>
         </View>
@@ -215,9 +253,7 @@ const PredictionGameScreen: React.FC = () => {
               <Text style={styles.participantsText}>{predictions.length} participants</Text>
             </View>
           </View>
-          {loading ? (
-            <ActivityIndicator color="#FF7A00" />
-          ) : communityTrends.length > 0 ? (
+          {communityTrends.length > 0 ? (
             communityTrends.map((pred, index) => (
               <View key={index} style={styles.predictionRow}>
                 <Text style={styles.predictionScore}>{pred.score}</Text>
@@ -245,7 +281,7 @@ const PredictionGameScreen: React.FC = () => {
                 <Ionicons name="close-circle" size={28} color="#9ca3af" />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Votre Pronostic</Text>
-            <Text style={styles.modalSubtitle}>{match?.teamA} vs {match?.teamB}</Text>
+            <Text style={styles.modalSubtitle}>{match.teamA} vs {match.teamB}</Text>
             
             <View style={styles.modalScoreContainer}>
               <TextInput
@@ -295,7 +331,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e7eb',
     backgroundColor: '#fff',
   },
-  backButton: { padding: 8 },
+  backButton: { padding: 8, marginLeft: -8 },
   headerTitle: { color: '#111', fontSize: 20, fontWeight: 'bold' },
   scrollContent: {
     padding: 16,
@@ -502,7 +538,25 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: '#9ca3af',
-  }
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 100,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  emptySubText: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 8,
+    textAlign: 'center',
+    paddingHorizontal: 40,
+  },
 });
 
 export default PredictionGameScreen;
