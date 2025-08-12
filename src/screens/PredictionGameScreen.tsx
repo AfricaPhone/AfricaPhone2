@@ -17,10 +17,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { collection, addDoc, serverTimestamp, onSnapshot, query, where, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { collection, addDoc, serverTimestamp, onSnapshot, query, where, doc, getDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { useStore } from '../store/StoreContext';
-import { Prediction } from '../types';
+import { Prediction, Match } from '../types';
 
 const MATCH_ID = 'CAN2025-FINALE'; // ID unique pour ce match
 
@@ -32,20 +32,23 @@ const PredictionGameScreen: React.FC = () => {
   const [scoreA, setScoreA] = useState('');
   const [scoreB, setScoreB] = useState('');
   
+  const [match, setMatch] = useState<Match | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Trouver le pronostic de l'utilisateur actuel
+  const matchStarted = useMemo(() => {
+    if (!match) return true; // Block by default
+    return new Date() > match.startTime.toDate();
+  }, [match]);
+
   const currentUserPrediction = useMemo(() => 
     predictions.find(p => p.userId === user?.id),
     [predictions, user]
   );
 
-  // Calculer les tendances des pronostics
   const communityTrends = useMemo(() => {
     if (predictions.length === 0) return [];
-
     const scoreCounts: { [key: string]: number } = {};
     predictions.forEach(p => {
       const key = `${p.scoreA}-${p.scoreB}`;
@@ -62,8 +65,23 @@ const PredictionGameScreen: React.FC = () => {
       .slice(0, 5);
   }, [predictions]);
 
-  // Écouter les pronostics en temps réel
   useEffect(() => {
+    const fetchMatchData = async () => {
+      try {
+        const matchDocRef = doc(db, 'matches', MATCH_ID);
+        const matchDoc = await getDoc(matchDocRef);
+        if (matchDoc.exists()) {
+          setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
+        } else {
+          console.error("Match non trouvé !");
+        }
+      } catch (error) {
+        console.error("Erreur de lecture du match: ", error);
+      }
+    };
+
+    fetchMatchData();
+
     const predictionsRef = collection(db, 'predictions');
     const q = query(predictionsRef, where('matchId', '==', MATCH_ID));
 
@@ -87,6 +105,10 @@ const PredictionGameScreen: React.FC = () => {
       Alert.alert('Connexion requise', 'Vous devez être connecté pour placer un pronostic.', [
         { text: 'OK', onPress: () => navigation.navigate('Profile' as never) }
       ]);
+      return;
+    }
+    if (matchStarted) {
+      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminés.');
       return;
     }
     if (!scoreA.trim() || !scoreB.trim()) {
@@ -119,6 +141,31 @@ const PredictionGameScreen: React.FC = () => {
     }
   };
 
+  const renderActionButton = () => {
+    if (matchStarted) {
+      return (
+        <View style={[styles.submitButton, styles.buttonDisabled]}>
+          <MaterialCommunityIcons name="lock-outline" size={20} color="#fff" />
+          <Text style={styles.submitButtonText}>Pronostics terminés</Text>
+        </View>
+      );
+    }
+    if (currentUserPrediction) {
+      return (
+        <View style={styles.votedCard}>
+          <Text style={styles.votedTitle}>Votre pronostic</Text>
+          <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
+        </View>
+      );
+    }
+    return (
+      <TouchableOpacity style={styles.submitButton} onPress={() => setModalVisible(true)}>
+        <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
+        <Text style={styles.submitButtonText}>Placer mon pronostic</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="dark-content" />
@@ -131,46 +178,43 @@ const PredictionGameScreen: React.FC = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Match Info Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="trophy-outline" size={20} color="#FF7A00" />
-            <Text style={styles.competitionText}>Coupe d'Afrique des Nations</Text>
+            <Text style={styles.competitionText}>{match?.competition || '...'}</Text>
           </View>
-          <Text style={styles.dateText}>FINALE • AUJOURD'HUI, 20:00</Text>
+          <Text style={styles.dateText}>{match ? `${match.startTime.toDate().toLocaleDateString('fr-FR')} - ${match.startTime.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}` : '...'}</Text>
           <View style={styles.matchContainer}>
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
                 <Image source={{ uri: 'https://flagcdn.com/w320/sn.png' }} style={styles.flag} />
               </View>
-              <Text style={styles.teamName}>Sénégal</Text>
+              <Text style={styles.teamName}>{match?.teamA || '...'}</Text>
             </View>
-            <Text style={styles.vsText}>VS</Text>
+            {typeof match?.finalScoreA === 'number' && typeof match?.finalScoreB === 'number' ? (
+              <Text style={styles.finalScoreText}>{`${match.finalScoreA} - ${match.finalScoreB}`}</Text>
+            ) : (
+              <Text style={styles.vsText}>VS</Text>
+            )}
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
                 <Image source={{ uri: 'https://flagcdn.com/w320/ci.png' }} style={styles.flag} />
               </View>
-              <Text style={styles.teamName}>Côte d'Ivoire</Text>
+              <Text style={styles.teamName}>{match?.teamB || '...'}</Text>
             </View>
           </View>
         </View>
 
-        {/* Action Button */}
-        {currentUserPrediction ? (
-          <View style={styles.votedCard}>
-            <Text style={styles.votedTitle}>Votre pronostic</Text>
-            <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
-          </View>
-        ) : (
-          <TouchableOpacity style={styles.submitButton} onPress={() => setModalVisible(true)}>
-            <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
-            <Text style={styles.submitButtonText}>Placer mon pronostic</Text>
-          </TouchableOpacity>
-        )}
+        {renderActionButton()}
 
-        {/* Community Predictions Card */}
         <View style={styles.card}>
-          <Text style={styles.communityTitle}>Tendances des pronostics</Text>
+          <View style={styles.communityHeader}>
+            <Text style={styles.communityTitle}>Tendances des pronostics</Text>
+            <View style={styles.participantsChip}>
+              <Ionicons name="people" size={14} color="#1d4ed8" />
+              <Text style={styles.participantsText}>{predictions.length} participants</Text>
+            </View>
+          </View>
           {loading ? (
             <ActivityIndicator color="#FF7A00" />
           ) : communityTrends.length > 0 ? (
@@ -189,7 +233,6 @@ const PredictionGameScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Prediction Modal */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -202,7 +245,7 @@ const PredictionGameScreen: React.FC = () => {
                 <Ionicons name="close-circle" size={28} color="#9ca3af" />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Votre Pronostic</Text>
-            <Text style={styles.modalSubtitle}>Sénégal vs Côte d'Ivoire</Text>
+            <Text style={styles.modalSubtitle}>{match?.teamA} vs {match?.teamB}</Text>
             
             <View style={styles.modalScoreContainer}>
               <TextInput
@@ -295,21 +338,33 @@ const styles = StyleSheet.create({
   flag: { width: 70, height: 70, borderRadius: 35 },
   teamName: { color: '#111', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   vsText: { color: '#9ca3af', fontSize: 14, fontWeight: '900', marginTop: 30 },
+  finalScoreText: { color: '#111', fontSize: 36, fontWeight: 'bold', marginTop: 20},
   
-  communityCard: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    borderColor: '#e5e7eb',
-    borderWidth: 1,
+  communityHeader: {
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
   communityTitle: {
     color: '#111',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'left',
+  },
+  participantsChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#dbeafe',
+    borderRadius: 99,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    gap: 6,
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  participantsText: {
+    color: '#1e40af',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   predictionRow: {
     flexDirection: 'row',

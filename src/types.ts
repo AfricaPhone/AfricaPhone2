@@ -1,5 +1,6 @@
 // src/types.ts
 import { DimensionValue } from 'react-native';
+import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 export type Category = string;
 
@@ -120,4 +121,14 @@ export type Prediction = {
   scoreA: number;
   scoreB: number;
   createdAt: any; // Firestore ServerTimestamp
+};
+
+export type Match = {
+  id?: string;
+  startTime: FirebaseFirestoreTypes.Timestamp;
+  finalScoreA?: number | null;
+  finalScoreB?: number | null;
+  teamA: string;
+  teamB: string;
+  competition: string;
 };
