@@ -25,7 +25,9 @@ export type Brand = {
 // --- User ---
 export type User = {
   id: string;
-  name: string;
+  name: string; // Full name: "John Doe"
+  firstName?: string;
+  lastName?: string;
   email: string | null;
   phoneNumber?: string | null;
   initials: string;
