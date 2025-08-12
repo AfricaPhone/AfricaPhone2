@@ -1,93 +1,40 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useStore } from '../store/StoreContext';
 import ProfileListItem from '../components/ProfileListItem';
-import { auth } from '../firebase/config'; // Importer l'instance auth
-import { FirebaseAuthTypes, signInWithPhoneNumber as firebaseSignInWithPhoneNumber } from '@react-native-firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useStore();
+  const navigation = useNavigation<any>();
   const [theme, setTheme] = useState('system'); // 'light', 'dark', 'system'
   const [notifications, setNotifications] = useState(true);
-  
-  // State for phone authentication flow
-  const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
-  const [code, setCode] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
 
   const handleAction = (action: string) => {
     Alert.alert('Action', `Navigation vers ${action}`);
   };
 
-  // Function to sign in with a phone number
-  const signInWithPhoneNumber = async () => {
-    if (!phoneNumber) {
-      Alert.alert('Erreur', 'Veuillez entrer un numéro de téléphone.');
-      return;
-    }
-    // IMPORTANT: Use international format, e.g., +229XXXXXXXX for Benin
-    try {
-      const confirmation = await firebaseSignInWithPhoneNumber(auth, phoneNumber);
-      setConfirm(confirmation);
-      Alert.alert('Code envoyé', `Un code de vérification a été envoyé au ${phoneNumber}`);
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Erreur', 'Impossible d\'envoyer le code. Vérifiez le numéro de téléphone et réessayez.');
-    }
-  };
-
-  // Function to confirm the SMS code
-  const confirmCode = async () => {
-    if (!confirm) return;
-    try {
-      await confirm.confirm(code);
-      // User is automatically signed in at this point,
-      // the onAuthStateChanged listener in StoreContext will handle the rest.
-      setConfirm(null);
-      setCode('');
-      setPhoneNumber('');
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Erreur', 'Le code est invalide.');
-    }
-  };
-
   const GuestView = () => (
     <View style={styles.guestCard}>
-      {!confirm ? (
-        <>
-          <Text style={styles.guestTitle}>Votre Espace Personnel</Text>
-          <Text style={styles.guestSubtitle}>Entrez votre numéro de téléphone pour vous connecter ou créer un compte.</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ex: +22912345678"
-            keyboardType="phone-pad"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-            autoComplete="tel"
-          />
-          <TouchableOpacity style={[styles.btn, styles.btnPrimary, { width: '100%', marginTop: 12 }]} onPress={signInWithPhoneNumber}>
-            <Text style={[styles.btnText, styles.btnTextPrimary]}>Envoyer le code</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          <Text style={styles.guestTitle}>Vérification</Text>
-          <Text style={styles.guestSubtitle}>Entrez le code à 6 chiffres reçu par SMS.</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Code à 6 chiffres"
-            keyboardType="number-pad"
-            value={code}
-            onChangeText={setCode}
-            maxLength={6}
-          />
-          <TouchableOpacity style={[styles.btn, styles.btnPrimary, { width: '100%', marginTop: 12 }]} onPress={confirmCode}>
-            <Text style={[styles.btnText, styles.btnTextPrimary]}>Vérifier et se connecter</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      <Text style={styles.guestTitle}>Votre Espace Personnel</Text>
+      <Text style={styles.guestSubtitle}>
+        Connectez-vous pour suivre vos commandes, gérer vos favoris et participer à nos jeux exclusifs.
+      </Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity 
+          style={[styles.btn, styles.btnPrimary]} 
+          onPress={() => navigation.navigate('SignUp')}
+        >
+          <Text style={[styles.btnText, styles.btnTextPrimary]}>Créer un compte</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.btn, styles.btnSecondary]}
+          onPress={() => Alert.alert('Connexion', 'Écran de connexion à créer.')}
+        >
+          <Text style={[styles.btnText, styles.btnTextSecondary]}>Se connecter</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -175,23 +122,19 @@ const styles = StyleSheet.create({
   },
   guestTitle: { fontSize: 18, fontWeight: 'bold', color: '#111', marginBottom: 8 },
   guestSubtitle: { fontSize: 14, color: '#555', textAlign: 'center', lineHeight: 20 },
-  buttonContainer: { flexDirection: 'row', gap: 12, marginTop: 16 },
-  btn: { flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
+  buttonContainer: { width: '100%', gap: 12, marginTop: 20 },
+  btn: { 
+    height: 50,
+    borderRadius: 12, 
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
   btnPrimary: { backgroundColor: '#111' },
-  btnText: { fontWeight: 'bold' },
+  btnText: { fontWeight: 'bold', fontSize: 16 },
   btnTextPrimary: { color: '#fff' },
   btnSecondary: { backgroundColor: '#e5e7eb' },
   btnTextSecondary: { color: '#111' },
-  input: {
-    width: '100%',
-    height: 44,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb'
-  },
 
   // Logged-in View
   profileHeader: {
