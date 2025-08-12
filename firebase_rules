@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- COLLECTIONS PUBLIQUES (LECTURE SEULE) ---
+    match /products/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /contests_config/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /brands/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /matches/{matchId} {
+      allow read: if true;
+      allow write: if false; // Seul un admin doit pouvoir écrire ici
+    }
+
+    // --- PRONOSTICS ---
+    match /predictions/{predictionId} {
+      // Tout le monde peut lire la liste des pronostics pour voir les tendances.
+      allow read: if true;
+
+      // Un utilisateur authentifié peut créer un pronostic SI le match n'a pas commencé.
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.time < get(/databases/$(database)/documents/matches/$(request.resource.data.matchId)).data.startTime;
+
+      // Personne ne peut modifier ou supprimer un pronostic.
+      allow update, delete: if false;
+    }
+
+    // --- CONCOURS (Anciennes règles) ---
+    match /contests/{contestId} {
+      match /candidates/{userId} {
+        allow read: if true;
+        allow create: if request.auth != null
+                        && request.auth.uid == userId
+                        && request.resource.data.deviceId != null;
+        allow update: if request.auth != null;
+      }
+
+      match /votes/{deviceId} {
+        // AUTORISER LA LECTURE est NÉCESSAIRE pour que la transaction
+        // puisse vérifier si un vote existe déjà avant d'écrire.
+        allow read: if request.auth != null;
+        allow create: if request.auth != null;
+      }
+
+      match /metadata/{docId} {
+        // Seuls les utilisateurs authentifiés peuvent lire et écrire
+        // (utilisé dans la transaction d'inscription).
+        allow read, write: if request.auth != null;
+      }
+    }
+  }
+}
