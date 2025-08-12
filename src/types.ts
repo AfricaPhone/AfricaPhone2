@@ -96,7 +96,8 @@ export type RootStackParamList = {
   ProductDetail: { productId: string };
   Brand: { brandId: string };
   Cart: undefined;
-  PredictionGame: undefined;
+  MatchList: undefined; // Add the new screen to the stack
+  PredictionGame: { matchId: string }; // Update to accept matchId
 };
 
 // This is for the navigator that wraps the tabs

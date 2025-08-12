@@ -12,10 +12,11 @@ import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
-import BrandScreen from '../screens/BrandScreen'; // Import the new screen
+import BrandScreen from '../screens/BrandScreen';
 import PredictionGameScreen from '../screens/PredictionGameScreen';
+import MatchListScreen from '../screens/MatchListScreen'; // Import the new screen
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
-import { useCart } from '../store/CartContext'; // Importer useCart
+import { useCart } from '../store/CartContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -24,7 +25,7 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 const CartButton = () => {
   const navigation = useNavigation<any>();
-  const { cartCount } = useCart(); // Utiliser useCart
+  const { cartCount } = useCart();
   return (
     <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.cartButton}>
       <Ionicons name="cart-outline" size={24} color="#111" />
@@ -104,6 +105,7 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="Main" component={MainStack} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Brand" component={BrandScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="MatchList" component={MatchListScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="PredictionGame" component={PredictionGameScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Cart" component={CartScreen} options={{ presentation: 'modal', headerShown: false }} />
     </RootStack.Navigator>
