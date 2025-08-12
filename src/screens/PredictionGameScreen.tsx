@@ -23,7 +23,7 @@ import { useStore } from '../store/StoreContext';
 import { Prediction, Match } from '../types';
 
 const PredictionGameScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { matchId } = route.params as { matchId: string };
   const { user } = useStore();
@@ -104,6 +104,12 @@ const PredictionGameScreen: React.FC = () => {
   }, [matchId]);
 
   const handleOpenModal = () => {
+    // CORRECTION : Vérifier si l'utilisateur est connecté
+    if (!user) {
+      navigation.navigate('AuthPrompt');
+      return;
+    }
+
     if (currentUserPrediction) {
       setScoreA(String(currentUserPrediction.scoreA));
       setScoreB(String(currentUserPrediction.scoreB));
@@ -115,10 +121,10 @@ const PredictionGameScreen: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    // La vérification principale est maintenant dans handleOpenModal,
+    // mais nous gardons celle-ci comme sécurité.
     if (!user) {
-      Alert.alert('Connexion requise', 'Vous devez être connecté pour placer un pronostic.', [
-        { text: 'OK', onPress: () => navigation.navigate('Profile' as never) }
-      ]);
+      Alert.alert('Erreur', 'Vous devez être connecté pour effectuer cette action.');
       return;
     }
     if (matchStarted) {

@@ -100,7 +100,8 @@ export type RootStackParamList = {
   Cart: undefined;
   MatchList: undefined;
   PredictionGame: { matchId: string };
-  SignUp: undefined; // Add the new screen
+  SignUp: undefined;
+  AuthPrompt: undefined; // Add the new screen
 };
 
 // This is for the navigator that wraps the tabs
