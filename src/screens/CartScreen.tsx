@@ -1,11 +1,11 @@
 // src/screens/CartScreen.tsx
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
-import { useStore } from '../store/StoreContext';
+import { useCart } from '../store/CartContext'; // Importer useCart
 import { formatPrice } from '../utils/formatPrice';
 
 const CartScreen: React.FC = () => {
-  const { cartItems, setQty, removeFromCart, total, clearCart } = useStore();
+  const { cartItems, setQty, removeFromCart, total, clearCart } = useCart(); // Utiliser useCart
 
   return (
     <View style={styles.container}>

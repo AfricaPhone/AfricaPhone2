@@ -47,4 +47,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ArticleCard;
+export default React.memo(ArticleCard);

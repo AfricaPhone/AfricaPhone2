@@ -21,7 +21,8 @@ import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { useStore } from '../store/StoreContext';
+import { useFavorites } from '../store/FavoritesContext'; // Importer useFavorites
+import { useProducts } from '../store/ProductContext';
 import RatingStars from '../components/RatingStars';
 import { formatPrice } from '../utils/formatPrice';
 
@@ -60,7 +61,8 @@ const ProductDetailScreen: React.FC = () => {
   const route = useRoute<any>();
   const { productId } = route.params as RouteParams;
 
-  const { toggleFavorite, isFav, getProductById } = useStore();
+  const { toggleFavorite, isFav } = useFavorites(); // Utiliser useFavorites
+  const { getProductById } = useProducts();
   const product = getProductById(productId);
 
   const [color, setColor] = useState(COLORS[0].key);

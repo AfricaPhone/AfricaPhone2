@@ -95,6 +95,7 @@ export type RootStackParamList = {
   ProductDetail: { productId: string };
   Brand: { brandId: string };
   Cart: undefined;
+  PredictionGame: undefined;
 };
 
 // This is for the navigator that wraps the tabs
@@ -108,4 +109,15 @@ export type TabParamList = {
   Catalog: { category?: Category } | undefined;
   Favorites: undefined;
   Profile: undefined;
+};
+
+// --- Prediction Game ---
+export type Prediction = {
+  id?: string;
+  userId: string;
+  userName: string;
+  matchId: string;
+  scoreA: number;
+  scoreB: number;
+  createdAt: any; // Firestore ServerTimestamp
 };

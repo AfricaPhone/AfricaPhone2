@@ -3,7 +3,7 @@ import React from 'react';
 import { View, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ShopTheLookItem } from '../types';
-import { useStore } from '../store/StoreContext';
+import { useProducts } from '../store/ProductContext'; // Remplacer useStore par useProducts
 import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 
 const ShopTheLook: React.FC<Props> = ({ item }) => {
   const navigation = useNavigation<any>();
-  const { getProductById } = useStore();
+  const { getProductById } = useProducts(); // Utiliser le hook correct
 
   return (
     <View style={styles.container}>

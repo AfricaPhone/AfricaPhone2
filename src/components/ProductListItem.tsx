@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Product } from '../types';
-import { useStore } from '../store/StoreContext';
+import { useFavorites } from '../store/FavoritesContext'; // Importer useFavorites
 import { Ionicons } from '@expo/vector-icons';
 import RatingStars from './RatingStars';
 import { formatPrice } from '../utils/formatPrice';
@@ -13,7 +13,7 @@ type Props = {
 };
 
 const ProductListItem: React.FC<Props> = ({ product, onPress }) => {
-  const { toggleFavorite, isFav } = useStore();
+  const { toggleFavorite, isFav } = useFavorites(); // Utiliser useFavorites
   const fav = isFav(product.id);
 
   return (
