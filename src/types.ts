@@ -1,5 +1,6 @@
 // src/types.ts
 import { DimensionValue } from 'react-native';
+import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 export type Category = string;
 
@@ -95,7 +96,8 @@ export type RootStackParamList = {
   ProductDetail: { productId: string };
   Brand: { brandId: string };
   Cart: undefined;
-  PredictionGame: undefined;
+  MatchList: undefined; // Add the new screen to the stack
+  PredictionGame: { matchId: string }; // Update to accept matchId
 };
 
 // This is for the navigator that wraps the tabs
@@ -120,4 +122,14 @@ export type Prediction = {
   scoreA: number;
   scoreB: number;
   createdAt: any; // Firestore ServerTimestamp
+};
+
+export type Match = {
+  id?: string;
+  startTime: FirebaseFirestoreTypes.Timestamp;
+  finalScoreA?: number | null;
+  finalScoreB?: number | null;
+  teamA: string;
+  teamB: string;
+  competition: string;
 };

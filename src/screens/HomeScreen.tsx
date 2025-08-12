@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { Product, Brand, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
-import { useProducts } from '../store/ProductContext'; // Importer useProducts
+import { useProducts } from '../store/ProductContext';
 
 type Nav = ReturnType<typeof useNavigation<any>>;
 
@@ -21,15 +21,13 @@ const { width: screenWidth } = Dimensions.get('window');
 const SEGMENTS = ['Top', 'Promotions', 'Best-sellers', 'Nouveautés'] as const;
 type Segment = typeof SEGMENTS[number];
 
-// RESOLVED: Combined French text with the new 'color' property from the master branch.
 const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string; color: string }> = [
   { id: 'p-free', icon: 'car-outline', title: 'Livraison gratuite', subtitle: 'sur toutes les commandes', color: '#fff1e6' },
   { id: 'p-70',  icon: 'flash-outline', title: 'Jusqu\'à -70%', subtitle: 'dès 3 articles achetés', color: '#e0f2fe' },
 ];
 
-// RESOLVED: Combined French labels and icons with the new 'color' property from the master branch.
 const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; color: string, screen?: keyof RootStackParamList }> = [
-  { id: 'f-wheel', icon: 'gamepad-variant-outline', label: 'Jeu pronostique', color: '#fffbeb', screen: 'PredictionGame' },
+  { id: 'f-wheel', icon: 'gamepad-variant-outline', label: 'Jeu pronostique', color: '#fffbeb', screen: 'MatchList' }, // Changed from PredictionGame to MatchList
   { id: 'f-gift',  icon: 'gift-outline', label: 'Cadeau gratuit', color: '#ecfeff' },
   { id: 'f-60',    icon: 'sale', label: '-60% sur les bijoux', color: '#f5f3ff' },
   { id: 'f-out',   icon: 'store-outline', label: 'Outlet', color: '#f0fdf4' },
@@ -59,7 +57,7 @@ function makeFeed(products: Product[], seg: Segment): Array<{ key: string; produ
 
 const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
-  const { products, productsLoading, brands, brandsLoading } = useProducts(); // Utiliser useProducts
+  const { products, productsLoading, brands, brandsLoading } = useProducts();
   const insets = useSafeAreaInsets();
   const [segment, setSegment] = useState<Segment>('Top');
   const [couponDismissed, setCouponDismissed] = useState(false);

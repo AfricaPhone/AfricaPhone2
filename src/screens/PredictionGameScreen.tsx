@@ -15,37 +15,40 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { collection, addDoc, serverTimestamp, onSnapshot, query, where, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { collection, addDoc, serverTimestamp, onSnapshot, query, where, doc, getDoc, updateDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { useStore } from '../store/StoreContext';
-import { Prediction } from '../types';
-
-const MATCH_ID = 'CAN2025-FINALE'; // ID unique pour ce match
+import { Prediction, Match } from '../types';
 
 const PredictionGameScreen: React.FC = () => {
   const navigation = useNavigation();
+  const route = useRoute<any>();
+  const { matchId } = route.params as { matchId: string };
   const { user } = useStore();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [scoreA, setScoreA] = useState('');
   const [scoreB, setScoreB] = useState('');
   
+  const [match, setMatch] = useState<Match | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Trouver le pronostic de l'utilisateur actuel
+  const matchStarted = useMemo(() => {
+    if (!match) return true; // Block by default if match data is not yet loaded
+    return new Date() > match.startTime.toDate();
+  }, [match]);
+
   const currentUserPrediction = useMemo(() => 
     predictions.find(p => p.userId === user?.id),
     [predictions, user]
   );
 
-  // Calculer les tendances des pronostics
   const communityTrends = useMemo(() => {
     if (predictions.length === 0) return [];
-
     const scoreCounts: { [key: string]: number } = {};
     predictions.forEach(p => {
       const key = `${p.scoreA}-${p.scoreB}`;
@@ -62,12 +65,27 @@ const PredictionGameScreen: React.FC = () => {
       .slice(0, 5);
   }, [predictions]);
 
-  // Écouter les pronostics en temps réel
   useEffect(() => {
-    const predictionsRef = collection(db, 'predictions');
-    const q = query(predictionsRef, where('matchId', '==', MATCH_ID));
+    if (!matchId) return;
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    setLoading(true);
+
+    const matchDocRef = doc(db, 'matches', matchId);
+    const unsubscribeMatch = onSnapshot(matchDocRef, (matchDoc) => {
+      if (matchDoc.exists()) {
+        setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
+      } else {
+        console.error("Match non trouvé !");
+        setMatch(null);
+      }
+    }, (error) => {
+      console.error("Erreur de lecture du match: ", error);
+    });
+
+    const predictionsRef = collection(db, 'predictions');
+    const q = query(predictionsRef, where('matchId', '==', matchId));
+
+    const unsubscribePredictions = onSnapshot(q, (querySnapshot) => {
       const preds: Prediction[] = [];
       querySnapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
         preds.push({ id: doc.id, ...doc.data() } as Prediction);
@@ -79,8 +97,22 @@ const PredictionGameScreen: React.FC = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      unsubscribeMatch();
+      unsubscribePredictions();
+    };
+  }, [matchId]);
+
+  const handleOpenModal = () => {
+    if (currentUserPrediction) {
+      setScoreA(String(currentUserPrediction.scoreA));
+      setScoreB(String(currentUserPrediction.scoreB));
+    } else {
+      setScoreA('');
+      setScoreB('');
+    }
+    setModalVisible(true);
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -89,28 +121,40 @@ const PredictionGameScreen: React.FC = () => {
       ]);
       return;
     }
-    if (!scoreA.trim() || !scoreB.trim()) {
-      Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
+    if (matchStarted) {
+      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminés.');
       return;
     }
-    if (currentUserPrediction) {
-      Alert.alert('Déjà voté', 'Vous avez déjà placé un pronostic pour ce match.');
+    if (!scoreA.trim() || !scoreB.trim()) {
+      Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const newPrediction: Omit<Prediction, 'id'> = {
-        userId: user.id,
-        userName: user.name,
-        matchId: MATCH_ID,
+      const newScores = {
         scoreA: parseInt(scoreA, 10),
         scoreB: parseInt(scoreB, 10),
-        createdAt: serverTimestamp(),
       };
-      await addDoc(collection(db, 'predictions'), newPrediction);
+
+      if (currentUserPrediction?.id) {
+        // Update existing prediction
+        const predictionRef = doc(db, 'predictions', currentUserPrediction.id);
+        await updateDoc(predictionRef, newScores);
+        Alert.alert('Pronostic mis à jour !', 'Votre pronostic a été modifié.');
+      } else {
+        // Create new prediction
+        const newPrediction: Omit<Prediction, 'id'> = {
+          userId: user.id,
+          userName: user.name,
+          matchId: matchId,
+          ...newScores,
+          createdAt: serverTimestamp(),
+        };
+        await addDoc(collection(db, 'predictions'), newPrediction);
+        Alert.alert('Pronostic validé !', 'Votre pronostic a été enregistré. Bonne chance !');
+      }
       setModalVisible(false);
-      Alert.alert('Pronostic validé !', 'Votre pronostic a été enregistré. Bonne chance !');
     } catch (error) {
       console.error("Erreur d'enregistrement du pronostic: ", error);
       Alert.alert('Erreur', 'Une erreur est survenue. Veuillez réessayer.');
@@ -118,6 +162,64 @@ const PredictionGameScreen: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  const renderActionButton = () => {
+    if (matchStarted) {
+      return (
+        <View style={[styles.submitButton, styles.buttonDisabled]}>
+          <MaterialCommunityIcons name="lock-outline" size={20} color="#fff" />
+          <Text style={styles.submitButtonText}>Pronostics terminés</Text>
+        </View>
+      );
+    }
+    if (currentUserPrediction) {
+      return (
+        <TouchableOpacity style={styles.submitButton} onPress={handleOpenModal}>
+          <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
+          <Text style={styles.submitButtonText}>Modifier mon pronostic</Text>
+        </TouchableOpacity>
+      );
+    }
+    return (
+      <TouchableOpacity style={styles.submitButton} onPress={handleOpenModal}>
+        <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
+        <Text style={styles.submitButtonText}>Placer mon pronostic</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#111" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Jeu Pronostique</Text>
+            <View style={{ width: 40 }} />
+          </View>
+          <ActivityIndicator style={{ flex: 1 }} size="large" color="#FF7A00" />
+      </SafeAreaView>
+    )
+  }
+
+  if (!match) {
+    return (
+       <SafeAreaView style={styles.container} edges={['top']}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#111" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Erreur</Text>
+            <View style={{ width: 40 }} />
+          </View>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Match non trouvé</Text>
+            <Text style={styles.emptySubText}>Ce match n'existe pas ou a été supprimé.</Text>
+          </View>
+      </SafeAreaView>
+    )
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -131,49 +233,51 @@ const PredictionGameScreen: React.FC = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Match Info Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MaterialCommunityIcons name="trophy-outline" size={20} color="#FF7A00" />
-            <Text style={styles.competitionText}>Coupe d'Afrique des Nations</Text>
+            <Text style={styles.competitionText}>{match.competition}</Text>
           </View>
-          <Text style={styles.dateText}>FINALE • AUJOURD'HUI, 20:00</Text>
+          <Text style={styles.dateText}>{`${match.startTime.toDate().toLocaleDateString('fr-FR')} - ${match.startTime.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}`}</Text>
           <View style={styles.matchContainer}>
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
                 <Image source={{ uri: 'https://flagcdn.com/w320/sn.png' }} style={styles.flag} />
               </View>
-              <Text style={styles.teamName}>Sénégal</Text>
+              <Text style={styles.teamName}>{match.teamA}</Text>
             </View>
-            <Text style={styles.vsText}>VS</Text>
+            {typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number' ? (
+              <Text style={styles.finalScoreText}>{`${match.finalScoreA} - ${match.finalScoreB}`}</Text>
+            ) : (
+              <Text style={styles.vsText}>VS</Text>
+            )}
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
                 <Image source={{ uri: 'https://flagcdn.com/w320/ci.png' }} style={styles.flag} />
               </View>
-              <Text style={styles.teamName}>Côte d'Ivoire</Text>
+              <Text style={styles.teamName}>{match.teamB}</Text>
             </View>
           </View>
         </View>
 
-        {/* Action Button */}
-        {currentUserPrediction ? (
-          <View style={styles.votedCard}>
-            <Text style={styles.votedTitle}>Votre pronostic</Text>
-            <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
-          </View>
-        ) : (
-          <TouchableOpacity style={styles.submitButton} onPress={() => setModalVisible(true)}>
-            <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
-            <Text style={styles.submitButtonText}>Placer mon pronostic</Text>
-          </TouchableOpacity>
+        {currentUserPrediction && !matchStarted && (
+            <View style={styles.votedCard}>
+                <Text style={styles.votedTitle}>Votre pronostic actuel</Text>
+                <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
+            </View>
         )}
 
-        {/* Community Predictions Card */}
+        {renderActionButton()}
+
         <View style={styles.card}>
-          <Text style={styles.communityTitle}>Tendances des pronostics</Text>
-          {loading ? (
-            <ActivityIndicator color="#FF7A00" />
-          ) : communityTrends.length > 0 ? (
+          <View style={styles.communityHeader}>
+            <Text style={styles.communityTitle}>Tendances des pronostics</Text>
+            <View style={styles.participantsChip}>
+              <Ionicons name="people" size={14} color="#1d4ed8" />
+              <Text style={styles.participantsText}>{predictions.length} participants</Text>
+            </View>
+          </View>
+          {communityTrends.length > 0 ? (
             communityTrends.map((pred, index) => (
               <View key={index} style={styles.predictionRow}>
                 <Text style={styles.predictionScore}>{pred.score}</Text>
@@ -189,7 +293,6 @@ const PredictionGameScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Prediction Modal */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -201,8 +304,8 @@ const PredictionGameScreen: React.FC = () => {
             <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                 <Ionicons name="close-circle" size={28} color="#9ca3af" />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Votre Pronostic</Text>
-            <Text style={styles.modalSubtitle}>Sénégal vs Côte d'Ivoire</Text>
+            <Text style={styles.modalTitle}>{currentUserPrediction ? 'Modifier' : 'Votre'} Pronostic</Text>
+            <Text style={styles.modalSubtitle}>{match.teamA} vs {match.teamB}</Text>
             
             <View style={styles.modalScoreContainer}>
               <TextInput
@@ -228,7 +331,7 @@ const PredictionGameScreen: React.FC = () => {
             </View>
 
             <TouchableOpacity style={[styles.modalSubmitButton, isSubmitting && styles.buttonDisabled]} onPress={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalSubmitText}>Valider le pronostic</Text>}
+              {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalSubmitText}>{currentUserPrediction ? 'Valider la modification' : 'Valider le pronostic'}</Text>}
             </TouchableOpacity>
           </Pressable>
         </Pressable>
@@ -252,7 +355,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e7eb',
     backgroundColor: '#fff',
   },
-  backButton: { padding: 8 },
+  backButton: { padding: 8, marginLeft: -8 },
   headerTitle: { color: '#111', fontSize: 20, fontWeight: 'bold' },
   scrollContent: {
     padding: 16,
@@ -295,21 +398,33 @@ const styles = StyleSheet.create({
   flag: { width: 70, height: 70, borderRadius: 35 },
   teamName: { color: '#111', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   vsText: { color: '#9ca3af', fontSize: 14, fontWeight: '900', marginTop: 30 },
+  finalScoreText: { color: '#111', fontSize: 36, fontWeight: 'bold', marginTop: 20},
   
-  communityCard: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    borderColor: '#e5e7eb',
-    borderWidth: 1,
+  communityHeader: {
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
   communityTitle: {
     color: '#111',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'left',
+  },
+  participantsChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#dbeafe',
+    borderRadius: 99,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    gap: 6,
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  participantsText: {
+    color: '#1e40af',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   predictionRow: {
     flexDirection: 'row',
@@ -447,7 +562,25 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: '#9ca3af',
-  }
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 100,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  emptySubText: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 8,
+    textAlign: 'center',
+    paddingHorizontal: 40,
+  },
 });
 
 export default PredictionGameScreen;
