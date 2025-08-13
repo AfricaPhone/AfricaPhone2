@@ -16,7 +16,8 @@ import BrandScreen from '../screens/BrandScreen';
 import PredictionGameScreen from '../screens/PredictionGameScreen';
 import MatchListScreen from '../screens/MatchListScreen';
 import SignUpScreen from '../screens/SignUpScreen';
-import AuthPromptScreen from '../screens/AuthPromptScreen'; // Import the new screen
+import AuthPromptScreen from '../screens/AuthPromptScreen';
+import CreateProfileScreen from '../screens/CreateProfileScreen'; // Importer le nouvel écran
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useCart } from '../store/CartContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -111,6 +112,7 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="PredictionGame" component={PredictionGameScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false, presentation: 'modal' }} />
       <RootStack.Screen name="AuthPrompt" component={AuthPromptScreen} options={{ headerShown: false, presentation: 'modal' }} />
+      <RootStack.Screen name="CreateProfile" component={CreateProfileScreen} options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }} />
       <RootStack.Screen name="Cart" component={CartScreen} options={{ presentation: 'modal', headerShown: false }} />
     </RootStack.Navigator>
   );

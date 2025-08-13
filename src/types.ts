@@ -101,7 +101,9 @@ export type RootStackParamList = {
   MatchList: undefined;
   PredictionGame: { matchId: string };
   SignUp: undefined;
-  AuthPrompt: undefined; // Add the new screen
+  AuthPrompt: undefined;
+  // MISE À JOUR : Les paramètres pour CreateProfile ont changé pour correspondre aux données de Google
+  CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null; };
 };
 
 // This is for the navigator that wraps the tabs
