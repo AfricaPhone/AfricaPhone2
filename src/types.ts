@@ -12,6 +12,10 @@ export type Product = {
   category: Category;
   rating?: number;
   description?: string;
+  rom?: number;
+  ram?: number;
+  ram_base?: number;
+  ram_extension?: number;
 };
 
 // --- Brand ---
