@@ -19,8 +19,10 @@ import {
   isErrorWithCode,
 } from '@react-native-google-signin/google-signin';
 
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
+// MODIFICATION: Importations modulaires de Firebase
+import { GoogleAuthProvider, signInWithCredential } from '@react-native-firebase/auth';
+import { doc, getDoc } from '@react-native-firebase/firestore';
+import { auth, db } from '../firebase/config';
 
 import LoadingModal from '../components/LoadingModal';
 
@@ -42,7 +44,6 @@ const SignUpScreen: React.FC = () => {
 
       const signInResponse = await GoogleSignin.signIn();
 
-      // If sign-in didn't succeed (e.g., user cancelled), just exit
       if (!isSuccessResponse(signInResponse)) {
         setIsSubmitting(false);
         return;
@@ -53,15 +54,15 @@ const SignUpScreen: React.FC = () => {
         throw new Error('ID token manquant dans la réponse Google.');
       }
 
-      // RN Firebase: build credential and sign in
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      const userCredential = await auth().signInWithCredential(googleCredential);
+      // MODIFICATION: Utilisation de l'API modulaire pour l'authentification
+      const googleCredential = GoogleAuthProvider.credential(idToken);
+      const userCredential = await signInWithCredential(auth, googleCredential);
       const user = userCredential.user;
 
       if (user) {
-        // Check if user exists in Firestore
-        const userDocRef = firestore().collection('users').doc(user.uid);
-        const userDoc = await userDocRef.get();
+        // MODIFICATION: Utilisation de l'API modulaire pour Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists()) {
           Alert.alert('Bienvenue à nouveau !', 'Heureux de vous revoir.', [
@@ -81,7 +82,6 @@ const SignUpScreen: React.FC = () => {
         }
       }
     } catch (error: unknown) {
-      // ✅ Call the predicate instead of checking the function object
       if (isErrorWithCode(error)) {
         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
           // User cancelled: no alert necessary

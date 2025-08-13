@@ -100,9 +100,9 @@ export type RootStackParamList = {
   Cart: undefined;
   MatchList: undefined;
   PredictionGame: { matchId: string };
+  Store: undefined; // Ajout de la nouvelle route
   SignUp: undefined;
   AuthPrompt: undefined;
-  // MISE À JOUR : Les paramètres pour CreateProfile ont changé pour correspondre aux données de Google
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null; };
 };
 

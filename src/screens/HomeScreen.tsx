@@ -21,13 +21,14 @@ const { width: screenWidth } = Dimensions.get('window');
 const SEGMENTS = ['Top', 'Promotions', 'Best-sellers', 'Nouveautés'] as const;
 type Segment = typeof SEGMENTS[number];
 
-const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string; color: string }> = [
-  { id: 'p-free', icon: 'car-outline', title: 'Livraison gratuite', subtitle: 'sur toutes les commandes', color: '#fff1e6' },
+// MODIFICATION: Ajout de la navigation vers l'écran de la boutique
+const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string; color: string; screen?: keyof RootStackParamList }> = [
+  { id: 'p-store', icon: 'map-outline', title: 'Notre boutique', subtitle: 'Nous sommes situés à Cotonou', color: '#f0fdf4', screen: 'Store' },
   { id: 'p-70',  icon: 'flash-outline', title: 'Jusqu\'à -70%', subtitle: 'dès 3 articles achetés', color: '#e0f2fe' },
 ];
 
 const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; color: string, screen?: keyof RootStackParamList }> = [
-  { id: 'f-wheel', icon: 'gamepad-variant-outline', label: 'Jeu pronostique', color: '#fffbeb', screen: 'MatchList' }, // Changed from PredictionGame to MatchList
+  { id: 'f-wheel', icon: 'gamepad-variant-outline', label: 'Jeu pronostique', color: '#fffbeb', screen: 'MatchList' },
   { id: 'f-gift',  icon: 'gift-outline', label: 'Cadeau gratuit', color: '#ecfeff' },
   { id: 'f-60',    icon: 'sale', label: '-60% sur les bijoux', color: '#f5f3ff' },
   { id: 'f-out',   icon: 'store-outline', label: 'Outlet', color: '#f0fdf4' },
@@ -190,10 +191,12 @@ const HomeScreen: React.FC = () => {
               contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
               ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
               renderItem={({ item }) => (
-                <View style={[styles.promoCard, { backgroundColor: item.color }]}>
-                  <Ionicons name={item.icon} size={22} color="#111" />
-                  <View style={{ marginLeft: 10 }}><Text style={styles.promoTitle}>{item.title}</Text><Text style={styles.promoSub}>{item.subtitle}</Text></View>
-                </View>
+                <TouchableOpacity onPress={() => item.screen && nav.navigate(item.screen as never)}>
+                  <View style={[styles.promoCard, { backgroundColor: item.color }]}>
+                    <Ionicons name={item.icon} size={22} color="#111" />
+                    <View style={{ marginLeft: 10 }}><Text style={styles.promoTitle}>{item.title}</Text><Text style={styles.promoSub}>{item.subtitle}</Text></View>
+                  </View>
+                </TouchableOpacity>
               )}
             />
 
