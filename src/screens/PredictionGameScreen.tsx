@@ -17,8 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { collection, onSnapshot, query, where, doc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
+import { collection, addDoc, serverTimestamp, onSnapshot, query, where, doc, getDoc, updateDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { useStore } from '../store/StoreContext';
 import { Prediction, Match } from '../types';
@@ -130,6 +129,10 @@ const PredictionGameScreen: React.FC = () => {
       Alert.alert('Erreur', 'Vous devez être connecté pour effectuer cette action.');
       return;
     }
+    if (matchStarted) {
+      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminés.');
+      return;
+    }
     if (!scoreA.trim() || !scoreB.trim()) {
       Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
       return;
@@ -137,24 +140,32 @@ const PredictionGameScreen: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // MODIFICATION: Appel de la Cloud Function
-      const functions = getFunctions();
-      const placePrediction = httpsCallable(functions, 'placePrediction');
-
-      const result = await placePrediction({
-        matchId: matchId,
+      const newScores = {
         scoreA: parseInt(scoreA, 10),
         scoreB: parseInt(scoreB, 10),
-      });
+      };
 
-      const data = result.data as { success: boolean, message: string };
-      Alert.alert('Succès', data.message);
+      if (currentUserPrediction?.id) {
+        // Mettre à jour la prédiction existante
+        const predictionRef = doc(db, 'predictions', currentUserPrediction.id);
+        await updateDoc(predictionRef, newScores);
+        Alert.alert('Pronostic mis à jour !', 'Votre pronostic a été modifié.');
+      } else {
+        // Créer une nouvelle prédiction
+        const newPrediction: Omit<Prediction, 'id'> = {
+          userId: user.id,
+          userName: user.name,
+          matchId: matchId,
+          ...newScores,
+          createdAt: serverTimestamp(),
+        };
+        await addDoc(collection(db, 'predictions'), newPrediction);
+        Alert.alert('Pronostic validé !', 'Votre pronostic a été enregistré. Bonne chance !');
+      }
       setModalVisible(false);
-
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erreur d'enregistrement du pronostic: ", error);
-      const message = error.details?.message || 'Une erreur est survenue. Veuillez réessayer.';
-      Alert.alert('Erreur', message);
+      Alert.alert('Erreur', 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setIsSubmitting(false);
     }
