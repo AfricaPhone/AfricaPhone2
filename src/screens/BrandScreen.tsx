@@ -1,5 +1,5 @@
 // src/screens/BrandScreen.tsx
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useProducts } from '../store/ProductContext'; // Importer useProducts
+import { useProducts } from '../store/ProductContext';
 import { Product } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
@@ -23,25 +23,56 @@ type RouteParams = {
 };
 
 type ViewMode = 'grid' | 'list';
-
-const ITEM_HEIGHT = 120;
-const ITEM_SEPARATOR_HEIGHT = 12;
-const TOTAL_ITEM_SIZE = ITEM_HEIGHT + ITEM_SEPARATOR_HEIGHT;
+const PAGE_SIZE = 10;
 
 const BrandScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { brandId } = route.params as RouteParams;
 
-  const { products, productsLoading, brands } = useProducts(); // Utiliser useProducts
+  const { products, productsLoading, brands } = useProducts();
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+
+  // --- Pagination State ---
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const brand = useMemo(() => brands.find(b => b.id === brandId), [brands, brandId]);
 
-  const brandProducts = useMemo(() => {
+  const sourceProducts = useMemo(() => {
     if (!brand) return [];
     return products.filter(p => p.category.toLowerCase() === brand.id.toLowerCase());
   }, [products, brand]);
+  
+  // --- Effect to reset pagination when source changes ---
+  useEffect(() => {
+    if (sourceProducts.length > 0) {
+      const firstPage = sourceProducts.slice(0, PAGE_SIZE);
+      setDisplayedProducts(firstPage);
+      setCurrentPage(1);
+      setHasMore(firstPage.length < sourceProducts.length);
+    } else {
+        setDisplayedProducts([]);
+    }
+  }, [sourceProducts]);
+  
+  // --- Load More Function ---
+  const loadMoreProducts = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    setTimeout(() => {
+      const nextPage = currentPage + 1;
+      const newProducts = sourceProducts.slice(0, nextPage * PAGE_SIZE);
+      
+      setDisplayedProducts(newProducts);
+      setCurrentPage(nextPage);
+      setHasMore(newProducts.length < sourceProducts.length);
+      setLoadingMore(false);
+    }, 500);
+  }, [loadingMore, hasMore, currentPage, sourceProducts]);
 
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
@@ -53,12 +84,6 @@ const BrandScreen: React.FC = () => {
     }
     return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
   }, [viewMode, navigation]);
-  
-  const getItemLayout = (data: any, index: number) => ({
-    length: ITEM_HEIGHT,
-    offset: TOTAL_ITEM_SIZE * index,
-    index,
-  });
 
   const Header = () => (
     <View>
@@ -73,7 +98,7 @@ const BrandScreen: React.FC = () => {
         <View style={{ width: 40 }} />
       </View>
       <View style={styles.actionsRow}>
-        <Text style={styles.productCount}>{brandProducts.length} produits</Text>
+        <Text style={styles.productCount}>{sourceProducts.length} produits</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <TouchableOpacity onPress={() => setViewMode('grid')} style={styles.viewBtn}>
             <Ionicons name="grid" size={20} color={viewMode === 'grid' ? '#111' : '#999'} />
@@ -101,16 +126,18 @@ const BrandScreen: React.FC = () => {
         </View>
       ) : (
         <FlatList
-          data={brandProducts}
+          data={displayedProducts}
           key={viewMode}
           keyExtractor={(item) => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
           columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-          ItemSeparatorComponent={() => <View style={{ height: ITEM_SEPARATOR_HEIGHT }} />}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
-          getItemLayout={viewMode === 'list' ? getItemLayout : undefined}
+          onEndReached={loadMoreProducts}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }} /> : null}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun produit trouvé</Text>

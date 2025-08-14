@@ -1,3 +1,4 @@
+// src/screens/CatalogScreen.tsx
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import {
   View,
@@ -13,6 +14,7 @@ import {
   Platform,
   Dimensions,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -22,17 +24,14 @@ import ProductListItem from '../components/ProductListItem';
 import { GridSkeleton, ListSkeleton } from '../components/SkeletonLoader';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import RatingStars from '../components/RatingStars';
-import { useProducts } from '../store/ProductContext'; // Importer useProducts
+import { useProducts } from '../store/ProductContext';
 
 type RouteParams = { category?: Category };
 type SortKey = 'relevance' | 'priceAsc' | 'priceDesc' | 'ratingDesc';
 type ViewMode = 'grid' | 'list';
 
 const { width } = Dimensions.get('window');
-
-const ITEM_HEIGHT = 120;
-const ITEM_SEPARATOR_HEIGHT = 12;
-const TOTAL_ITEM_SIZE = ITEM_HEIGHT + ITEM_SEPARATOR_HEIGHT;
+const PAGE_SIZE = 12;
 
 // Debounce hook
 const useDebounce = (value: string, delay: number) => {
@@ -53,7 +52,7 @@ const CatalogScreen: React.FC = () => {
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
   const initialCategory: Category | undefined = route?.params?.category;
-  const { products, productsLoading } = useProducts(); // Utiliser useProducts
+  const { products, productsLoading } = useProducts();
 
   // --- State Management ---
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,17 +64,21 @@ const CatalogScreen: React.FC = () => {
   const [sort, setSort] = useState<SortKey>('relevance');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [headerH, setHeaderH] = useState<number>(60);
+  const [headerH, setHeaderH] = useState<number>(0);
 
-  // --- Data Fetching & Filtering ---
-  const baseProducts: Product[] = useMemo(() => {
-    if (!category) return products;
-    return products.filter(p => p.category === category);
-  }, [category, products]);
+  // --- Pagination State ---
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const filteredProducts: Product[] = useMemo(() => {
+  // --- Data Filtering & Sorting (Source for Pagination) ---
+  const sourceProducts = useMemo(() => {
     const q = debouncedQuery.trim().toLowerCase();
-    let out = baseProducts.filter((p) => {
+    
+    let base = category ? products.filter(p => p.category === category) : products;
+
+    let out = base.filter((p) => {
       const okText = q ? p.title.toLowerCase().includes(q) : true;
       const okPrice = p.price >= priceMin && (Number.isFinite(priceMax) ? p.price <= priceMax : true);
       const r = p.rating ?? 0;
@@ -90,7 +93,31 @@ const CatalogScreen: React.FC = () => {
     }
     
     return out;
-  }, [baseProducts, debouncedQuery, priceMin, priceMax, ratingMin, sort]);
+  }, [category, products, debouncedQuery, priceMin, priceMax, ratingMin, sort]);
+
+  // --- Effect to reset pagination when filters change ---
+  useEffect(() => {
+    const firstPage = sourceProducts.slice(0, PAGE_SIZE);
+    setDisplayedProducts(firstPage);
+    setCurrentPage(1);
+    setHasMore(firstPage.length < sourceProducts.length);
+  }, [sourceProducts]);
+
+  // --- Load More Function ---
+  const loadMoreProducts = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    setTimeout(() => {
+      const nextPage = currentPage + 1;
+      const newProducts = sourceProducts.slice(0, nextPage * PAGE_SIZE);
+      
+      setDisplayedProducts(newProducts);
+      setCurrentPage(nextPage);
+      setHasMore(newProducts.length < sourceProducts.length);
+      setLoadingMore(false);
+    }, 500);
+  }, [loadingMore, hasMore, currentPage, sourceProducts]);
 
   // --- UI Helpers ---
   const hasActiveFilters = ratingMin > 0 || priceMin > 0 || Number.isFinite(priceMax);
@@ -116,12 +143,6 @@ const CatalogScreen: React.FC = () => {
     }
     return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
   }, [viewMode, navigation]);
-
-  const getItemLayout = (data: any, index: number) => ({
-    length: ITEM_HEIGHT,
-    offset: TOTAL_ITEM_SIZE * index,
-    index,
-  });
 
   const ListSkeletonComponent = () => (
     <View style={{ paddingTop: headerH + 10 }}>
@@ -179,17 +200,19 @@ const CatalogScreen: React.FC = () => {
       ) : (
         <FlatList
           ref={listRef}
-          data={filteredProducts}
-          key={viewMode} // Change key to force re-render on view mode change
+          data={displayedProducts}
+          key={viewMode}
           keyExtractor={(item) => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
           columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-          ItemSeparatorComponent={() => <View style={{ height: ITEM_SEPARATOR_HEIGHT }} />}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           onScrollBeginDrag={() => Keyboard.dismiss()}
           contentContainerStyle={{ paddingTop: headerH, paddingBottom: 20 }}
-          getItemLayout={viewMode === 'list' ? getItemLayout : undefined}
+          onEndReached={loadMoreProducts}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }}/> : null}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun produit trouvé.</Text>

@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+// src/screens/FavoritesScreen.tsx
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useFavorites } from '../store/FavoritesContext'; // Importer useFavorites
+import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
 import { Product } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
@@ -11,13 +12,10 @@ import ProductListItem from '../components/ProductListItem';
 
 type ViewMode = 'grid' | 'list';
 type SortKey = 'date' | 'priceAsc' | 'priceDesc';
-
-const ITEM_HEIGHT = 120; // height of ProductListItem card (100 for image + 20 for padding)
-const ITEM_SEPARATOR_HEIGHT = 12;
-const TOTAL_ITEM_SIZE = ITEM_HEIGHT + ITEM_SEPARATOR_HEIGHT;
+const PAGE_SIZE = 10;
 
 const FavoritesScreen: React.FC = () => {
-  const { collections, createCollection } = useFavorites(); // Utiliser useFavorites
+  const { collections, createCollection } = useFavorites();
   const { getProductById } = useProducts();
   const navigation = useNavigation<any>();
 
@@ -25,9 +23,15 @@ const FavoritesScreen: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [sort, setSort] = useState<SortKey>('date');
 
+  // --- Pagination State ---
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   const selectedCollection = collections.find(c => c.id === selectedCollectionId);
 
-  const products = useMemo(() => {
+  const sourceProducts = useMemo(() => {
     if (!selectedCollection) return [];
     
     let productList = Array.from(selectedCollection.productIds)
@@ -43,11 +47,34 @@ const FavoritesScreen: React.FC = () => {
         break;
       case 'date':
       default:
-        // The default order is insertion order from the Set
         break;
     }
     return productList;
   }, [selectedCollection, sort, getProductById]);
+
+  // --- Effect to reset pagination ---
+  useEffect(() => {
+    const firstPage = sourceProducts.slice(0, PAGE_SIZE);
+    setDisplayedProducts(firstPage);
+    setCurrentPage(1);
+    setHasMore(firstPage.length < sourceProducts.length);
+  }, [sourceProducts, selectedCollectionId]);
+
+  // --- Load More Function ---
+  const loadMoreProducts = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    setTimeout(() => {
+      const nextPage = currentPage + 1;
+      const newProducts = sourceProducts.slice(0, nextPage * PAGE_SIZE);
+      
+      setDisplayedProducts(newProducts);
+      setCurrentPage(nextPage);
+      setHasMore(newProducts.length < sourceProducts.length);
+      setLoadingMore(false);
+    }, 500);
+  }, [loadingMore, hasMore, currentPage, sourceProducts]);
 
   const handleCreateCollection = () => {
     Alert.prompt(
@@ -76,12 +103,6 @@ const FavoritesScreen: React.FC = () => {
     }
     return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
   };
-
-  const getItemLayout = (data: any, index: number) => ({
-    length: ITEM_HEIGHT,
-    offset: TOTAL_ITEM_SIZE * index,
-    index,
-  });
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -124,16 +145,18 @@ const FavoritesScreen: React.FC = () => {
       </View>
 
       <FlatList
-        data={products}
+        data={displayedProducts}
         key={viewMode}
         keyExtractor={(item) => item.id}
         numColumns={viewMode === 'grid' ? 2 : 1}
         columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-        ItemSeparatorComponent={() => <View style={{ height: ITEM_SEPARATOR_HEIGHT }} />}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
-        getItemLayout={viewMode === 'list' ? getItemLayout : undefined}
+        onEndReached={loadMoreProducts}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }} /> : null}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Aucun favori</Text>
