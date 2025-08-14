@@ -132,6 +132,7 @@ export type Prediction = {
   scoreA: number;
   scoreB: number;
   createdAt: any; // Firestore ServerTimestamp
+  isWinner?: boolean; // Indique si le pronostic est gagnant
 };
 
 export type Match = {

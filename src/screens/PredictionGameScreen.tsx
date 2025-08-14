@@ -17,7 +17,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { collection, addDoc, serverTimestamp, onSnapshot, query, where, doc, getDoc, updateDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { collection, onSnapshot, query, where, doc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { db } from '../firebase/config';
 import { useStore } from '../store/StoreContext';
 import { Prediction, Match } from '../types';
@@ -38,8 +39,13 @@ const PredictionGameScreen: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const matchStarted = useMemo(() => {
-    if (!match) return true; // Block by default if match data is not yet loaded
+    if (!match) return true; // Bloquer par défaut si les données du match ne sont pas encore chargées
     return new Date() > match.startTime.toDate();
+  }, [match]);
+  
+  const matchEnded = useMemo(() => {
+      if (!match) return false;
+      return typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number';
   }, [match]);
 
   const currentUserPrediction = useMemo(() => 
@@ -104,7 +110,6 @@ const PredictionGameScreen: React.FC = () => {
   }, [matchId]);
 
   const handleOpenModal = () => {
-    // CORRECTION : Vérifier si l'utilisateur est connecté
     if (!user) {
       navigation.navigate('AuthPrompt');
       return;
@@ -121,14 +126,8 @@ const PredictionGameScreen: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    // La vérification principale est maintenant dans handleOpenModal,
-    // mais nous gardons celle-ci comme sécurité.
     if (!user) {
       Alert.alert('Erreur', 'Vous devez être connecté pour effectuer cette action.');
-      return;
-    }
-    if (matchStarted) {
-      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminés.');
       return;
     }
     if (!scoreA.trim() || !scoreB.trim()) {
@@ -138,35 +137,55 @@ const PredictionGameScreen: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const newScores = {
+      // MODIFICATION: Appel de la Cloud Function
+      const functions = getFunctions();
+      const placePrediction = httpsCallable(functions, 'placePrediction');
+
+      const result = await placePrediction({
+        matchId: matchId,
         scoreA: parseInt(scoreA, 10),
         scoreB: parseInt(scoreB, 10),
-      };
+      });
 
-      if (currentUserPrediction?.id) {
-        // Update existing prediction
-        const predictionRef = doc(db, 'predictions', currentUserPrediction.id);
-        await updateDoc(predictionRef, newScores);
-        Alert.alert('Pronostic mis à jour !', 'Votre pronostic a été modifié.');
-      } else {
-        // Create new prediction
-        const newPrediction: Omit<Prediction, 'id'> = {
-          userId: user.id,
-          userName: user.name,
-          matchId: matchId,
-          ...newScores,
-          createdAt: serverTimestamp(),
-        };
-        await addDoc(collection(db, 'predictions'), newPrediction);
-        Alert.alert('Pronostic validé !', 'Votre pronostic a été enregistré. Bonne chance !');
-      }
+      const data = result.data as { success: boolean, message: string };
+      Alert.alert('Succès', data.message);
       setModalVisible(false);
-    } catch (error) {
+
+    } catch (error: any) {
       console.error("Erreur d'enregistrement du pronostic: ", error);
-      Alert.alert('Erreur', 'Une erreur est survenue. Veuillez réessayer.');
+      const message = error.details?.message || 'Une erreur est survenue. Veuillez réessayer.';
+      Alert.alert('Erreur', message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  const renderResultCard = () => {
+    if (!matchEnded || !currentUserPrediction) return null;
+
+    if (currentUserPrediction.isWinner) {
+      return (
+        <View style={[styles.resultCard, styles.winnerCard]}>
+          <Ionicons name="trophy" size={24} color="#f59e0b" />
+          <View style={styles.resultTextContainer}>
+            <Text style={styles.resultTitle}>Score Exact !</Text>
+            <Text style={styles.resultSubtitle}>Bravo, vous êtes éligible pour l'étape suivante !</Text>
+          </View>
+        </View>
+      );
+    }
+
+    return (
+        <View style={[styles.resultCard, styles.loserCard]}>
+          <Ionicons name="sad-outline" size={24} color="#4b5563" />
+          <View style={styles.resultTextContainer}>
+            <Text style={styles.resultTitle}>Dommage, ce n'est pas le bon score.</Text>
+            <Text style={styles.resultSubtitle}>
+              Votre pronostic : {currentUserPrediction.scoreA} - {currentUserPrediction.scoreB}
+            </Text>
+          </View>
+        </View>
+    );
   };
 
   const renderActionButton = () => {
@@ -252,7 +271,7 @@ const PredictionGameScreen: React.FC = () => {
               </View>
               <Text style={styles.teamName}>{match.teamA}</Text>
             </View>
-            {typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number' ? (
+            {matchEnded ? (
               <Text style={styles.finalScoreText}>{`${match.finalScoreA} - ${match.finalScoreB}`}</Text>
             ) : (
               <Text style={styles.vsText}>VS</Text>
@@ -265,8 +284,10 @@ const PredictionGameScreen: React.FC = () => {
             </View>
           </View>
         </View>
+        
+        {renderResultCard()}
 
-        {currentUserPrediction && !matchStarted && (
+        {currentUserPrediction && !matchEnded && (
             <View style={styles.votedCard}>
                 <Text style={styles.votedTitle}>Votre pronostic actuel</Text>
                 <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
@@ -499,6 +520,40 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 4,
   },
+
+  // Result Cards
+  resultCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    gap: 12,
+  },
+  winnerCard: {
+    backgroundColor: '#fefce8',
+    borderColor: '#facc15',
+    borderWidth: 1,
+  },
+  loserCard: {
+      backgroundColor: '#f3f4f6',
+      borderColor: '#e5e7eb',
+      borderWidth: 1,
+  },
+  resultTextContainer: {
+    flex: 1,
+  },
+  resultTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1f2937',
+  },
+  resultSubtitle: {
+    fontSize: 14,
+    color: '#4b5563',
+    marginTop: 2,
+  },
+
 
   modalBackdrop: {
     flex: 1,
