@@ -7,15 +7,26 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  getDocs,
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
 
 import { Product, Brand, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import { useProducts } from '../store/ProductContext';
-import { usePaginatedProducts } from '../hooks/usePaginatedProducts';
+import { db } from '../firebase/config';
 
 type Nav = ReturnType<typeof useNavigation<any>>;
 
 // --- Constantes ---
+const PAGE_SIZE = 10;
 const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
 type Segment = typeof SEGMENTS[number];
 
@@ -32,17 +43,131 @@ const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIco
     { id: 'f-pick',  icon: 'star-outline', label: 'Populaires', color: '#fff1f2' },
 ];
 
+// --- Helpers (copié depuis le hook usePaginatedProducts) ---
+const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
+  const data = doc.data();
+  return {
+    id: doc.id,
+    title: data.name,
+    price: data.price,
+    image: data.imageUrl,
+    category: data.brand?.toLowerCase() || 'inconnu',
+    rating: data.rating || 4.5,
+    description: data.description,
+    rom: data.rom,
+    ram: data.ram,
+    ram_base: data.ram_base,
+    ram_extension: data.ram_extension,
+  };
+};
+
+// --- État pour la gestion du cache par segment ---
+interface SegmentData {
+  products: Product[];
+  lastDoc: FirebaseFirestoreTypes.QueryDocumentSnapshot | null;
+  hasMore: boolean;
+}
+
 // --- Écran principal HomeScreen ---
 const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
   const { brands, brandsLoading } = useProducts();
   const [activeSegment, setActiveSegment] = useState<Segment>('Populaires');
   
-  const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts({ category: activeSegment });
+  // State pour le cache et le chargement
+  const [dataBySegment, setDataBySegment] = useState<Partial<Record<Segment, SegmentData>>>({});
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
+  // Fonction de chargement principale
+  const fetchProducts = useCallback(async (segment: Segment, isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
+    try {
+      let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
+      if (segment && segment !== 'Populaires') {
+        const categoryCapitalized = segment.charAt(0).toUpperCase() + segment.slice(1);
+        q = query(q, where('category', '==', categoryCapitalized));
+      }
+      q = query(q, orderBy('name', 'asc'), limit(PAGE_SIZE));
+
+      const querySnapshot = await getDocs(q);
+      const newProducts = querySnapshot.docs.map(mapDocToProduct);
+      const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+
+      setDataBySegment(prev => ({
+        ...prev,
+        [segment]: {
+          products: newProducts,
+          lastDoc: lastVisible,
+          hasMore: newProducts.length === PAGE_SIZE,
+        }
+      }));
+
+    } catch (error) {
+      console.error(`Erreur de chargement pour le segment ${segment}:`, error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  // Chargement des données initiales
   useEffect(() => {
-    refresh();
-  }, [activeSegment, refresh]);
+    fetchProducts('Populaires');
+  }, [fetchProducts]);
+
+  // Gestion du changement de segment
+  const handleSegmentChange = (segment: Segment) => {
+    setActiveSegment(segment);
+    if (!dataBySegment[segment]) {
+      fetchProducts(segment);
+    }
+  };
+  
+  // Pagination
+  const loadMore = useCallback(async () => {
+    const segmentState = dataBySegment[activeSegment];
+
+    if (loadingMore || !segmentState || !segmentState.hasMore) {
+      return;
+    }
+
+    setLoadingMore(true);
+
+    try {
+      let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
+       if (activeSegment && activeSegment !== 'Populaires') {
+        const categoryCapitalized = activeSegment.charAt(0).toUpperCase() + activeSegment.slice(1);
+        q = query(q, where('category', '==', categoryCapitalized));
+      }
+      q = query(q, orderBy('name', 'asc'), startAfter(segmentState.lastDoc), limit(PAGE_SIZE));
+
+      const querySnapshot = await getDocs(q);
+      const newProducts = querySnapshot.docs.map(mapDocToProduct);
+      const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+
+      setDataBySegment(prev => ({
+        ...prev,
+        [activeSegment]: {
+          products: [...(prev[activeSegment]?.products || []), ...newProducts],
+          lastDoc: lastVisible,
+          hasMore: newProducts.length === PAGE_SIZE,
+        }
+      }));
+
+    } catch (error) {
+      console.error(`Erreur de pagination pour ${activeSegment}:`, error);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [activeSegment, dataBySegment, loadingMore]);
+
 
   const renderItem = useCallback(({ item }: { item: Product }) => (
     <View style={styles.gridItem}>
@@ -52,6 +177,8 @@ const HomeScreen: React.FC = () => {
       />
     </View>
   ), [nav]);
+  
+  const currentData = dataBySegment[activeSegment]?.products || [];
 
   const HeaderComponent = (
     <>
@@ -113,7 +240,7 @@ const HomeScreen: React.FC = () => {
             {SEGMENTS.map((s) => {
             const active = s === activeSegment;
             return (
-                <Pressable key={s} onPress={() => setActiveSegment(s)} style={styles.segmentBtn}>
+                <Pressable key={s} onPress={() => handleSegmentChange(s)} style={styles.segmentBtn}>
                 <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{s}</Text>
                 <View style={[styles.segmentUnderline, active && styles.segmentUnderlineActive]} />
                 </Pressable>
@@ -136,27 +263,27 @@ const HomeScreen: React.FC = () => {
       </View>
 
       <FlatList
-        data={products}
+        data={currentData}
         renderItem={renderItem}
         keyExtractor={(item) => `${activeSegment}-${item.id}`}
         numColumns={2}
         ListHeaderComponent={HeaderComponent}
         ListFooterComponent={loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" /> : null}
-        onEndReached={() => hasMore && !loadingMore && loadMore()}
+        onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         columnWrapperStyle={styles.gridContainer}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 10 }}
         refreshControl={
           <RefreshControl
-            refreshing={loading}
-            onRefresh={refresh}
+            refreshing={refreshing}
+            onRefresh={() => fetchProducts(activeSegment, true)}
             tintColor="#FF7A00"
           />
         }
         ListEmptyComponent={
             <View style={styles.emptyContainer}>
-                {loading ? null : <Text style={styles.emptyText}>Aucun produit dans cette catégorie.</Text>}
+                {loading && !refreshing ? <ActivityIndicator size="large" color="#FF7A00" /> : <Text style={styles.emptyText}>Aucun produit dans cette catégorie.</Text>}
             </View>
         }
       />
@@ -224,6 +351,7 @@ const styles = StyleSheet.create({
   emptyContainer: {
     paddingVertical: 40,
     alignItems: 'center',
+    minHeight: 200,
   },
   emptyText: {
       textAlign: 'center',
