@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, Image,
-  TouchableOpacity, ScrollView, Dimensions, ActivityIndicator
+  TouchableOpacity, ScrollView, Dimensions, ActivityIndicator, RefreshControl
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -48,32 +48,40 @@ const HomeScreen: React.FC = () => {
   });
 
   const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // État pour le pull-to-refresh
   const listRef = useRef<FlatList>(null);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      const newPaginationState = { ...pagination };
-      let updated = false;
+  const resetAndInitializePagination = useCallback(() => {
+      if (products.length === 0) return;
+      
+      const newPaginationState = {} as typeof pagination;
       SEGMENTS.forEach(seg => {
-        const sourceProducts = seg === 'Populaires' 
-          ? products 
-          : products.filter(p => p.category.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === seg.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
-        
-        if (newPaginationState[seg].items.length === 0) {
-            const initialItems = sourceProducts.slice(0, PAGE_SIZE);
-            newPaginationState[seg] = {
-                page: 1,
-                hasMore: initialItems.length < sourceProducts.length,
-                items: initialItems
-            };
-            updated = true;
-        }
+          const sourceProducts = seg === 'Populaires' 
+            ? products 
+            : products.filter(p => p.category.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === seg.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
+          
+          const initialItems = sourceProducts.slice(0, PAGE_SIZE);
+          newPaginationState[seg] = {
+              page: 1,
+              hasMore: initialItems.length < sourceProducts.length,
+              items: initialItems
+          };
       });
-      if(updated) {
-        setPagination(newPaginationState);
-      }
-    }
+      setPagination(newPaginationState);
   }, [products]);
+
+  useEffect(() => {
+    resetAndInitializePagination();
+  }, [products, resetAndInitializePagination]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // Simuler un appel réseau
+    setTimeout(() => {
+      resetAndInitializePagination();
+      setRefreshing(false);
+    }, 1000);
+  }, [resetAndInitializePagination]);
 
   const handleSegmentPress = (segment: Segment) => {
     if (segment !== activeSegment) {
@@ -220,6 +228,13 @@ const HomeScreen: React.FC = () => {
         columnWrapperStyle={styles.gridContainer}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 10 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#FF7A00"
+          />
+        }
       />
     </SafeAreaView>
   );
