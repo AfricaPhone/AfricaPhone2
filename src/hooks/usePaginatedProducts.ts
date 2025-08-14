@@ -18,6 +18,7 @@ const PAGE_SIZE = 10;
 // Options pour la requête
 export interface ProductQueryOptions {
   category?: string;
+  brandId?: string; // NOUVELLE OPTION
   sortBy?: 'price' | 'rating' | 'name';
   sortDirection?: 'asc' | 'desc';
   searchQuery?: string;
@@ -54,8 +55,10 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
   const buildQuery = (): FirebaseFirestoreTypes.Query => {
     let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
 
-    if (options.category && options.category !== 'Populaires') {
-      // Correction pour utiliser le nom de la catégorie tel quel (ex: 'Tablettes')
+    // MODIFICATION: Logique de filtrage mise à jour
+    if (options.brandId) {
+      q = query(q, where('brand', '==', options.brandId));
+    } else if (options.category && options.category !== 'Populaires') {
       const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
       q = query(q, where('category', '==', categoryCapitalized));
     }
@@ -110,7 +113,7 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [options.category, options.sortBy, options.sortDirection, options.searchQuery]);
+  }, [options.category, options.brandId, options.sortBy, options.sortDirection, options.searchQuery]);
 
   const refresh = useCallback(() => {
     fetchProducts(true);

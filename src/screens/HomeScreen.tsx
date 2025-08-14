@@ -68,6 +68,21 @@ interface SegmentData {
   hasMore: boolean;
 }
 
+// --- Fonction pour construire la requête de base pour un segment ---
+const buildSegmentQuery = (segment: Segment): FirebaseFirestoreTypes.Query => {
+    let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
+    
+    if (segment === 'Portables a Touches') {
+        q = query(q, where('ram', '==', null));
+    } else if (segment && segment !== 'Populaires') {
+        const categoryCapitalized = segment.charAt(0).toUpperCase() + segment.slice(1);
+        q = query(q, where('category', '==', categoryCapitalized));
+    }
+    
+    return q;
+};
+
+
 // --- Écran principal HomeScreen ---
 const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
@@ -89,11 +104,7 @@ const HomeScreen: React.FC = () => {
     }
 
     try {
-      let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
-      if (segment && segment !== 'Populaires') {
-        const categoryCapitalized = segment.charAt(0).toUpperCase() + segment.slice(1);
-        q = query(q, where('category', '==', categoryCapitalized));
-      }
+      let q = buildSegmentQuery(segment);
       q = query(q, orderBy('name', 'asc'), limit(PAGE_SIZE));
 
       const querySnapshot = await getDocs(q);
@@ -141,11 +152,7 @@ const HomeScreen: React.FC = () => {
     setLoadingMore(true);
 
     try {
-      let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
-       if (activeSegment && activeSegment !== 'Populaires') {
-        const categoryCapitalized = activeSegment.charAt(0).toUpperCase() + activeSegment.slice(1);
-        q = query(q, where('category', '==', categoryCapitalized));
-      }
+      let q = buildSegmentQuery(activeSegment);
       q = query(q, orderBy('name', 'asc'), startAfter(segmentState.lastDoc), limit(PAGE_SIZE));
 
       const querySnapshot = await getDocs(q);
@@ -255,11 +262,19 @@ const HomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Barre de recherche FIXE */}
       <View style={styles.fixedHeader}>
-        <Pressable onPress={() => nav.navigate('Catalog' as never)} style={styles.searchBar}>
-            <Ionicons name="search-outline" size={20} color="#8A8A8E" />
-            <Text style={styles.searchPlaceholder}>Rechercher</Text>
-            <Ionicons name="camera-outline" size={20} color="#8A8A8E" />
-        </Pressable>
+        <View style={styles.searchContainer}>
+          <Pressable onPress={() => nav.navigate('Catalog' as never)} style={styles.searchBar}>
+              <Ionicons name="search-outline" size={20} color="#8A8A8E" />
+              <Text style={styles.searchPlaceholder}>Rechercher</Text>
+          </Pressable>
+          <TouchableOpacity 
+            onPress={() => nav.navigate('Catalog' as never)} 
+            style={styles.filterButton}
+          >
+            <MaterialCommunityIcons name="filter-variant" size={18} color="#111" />
+            <Text style={styles.filterButtonText}>Filtrer</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -296,13 +311,38 @@ const styles = StyleSheet.create({
   fixedHeader: {
     backgroundColor: '#fff',
     paddingBottom: 6,
+    paddingTop: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    gap: 12,
+  },
   searchBar: { 
-    marginHorizontal: 16, marginTop: 10,
-    backgroundColor: '#F2F3F5', borderRadius: 16, height: 44, 
-    paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center' 
+    flex: 1,
+    backgroundColor: '#F2F3F5', 
+    borderRadius: 16, 
+    height: 44, 
+    paddingHorizontal: 12, 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+  filterButton: {
+    height: 44,
+    borderRadius: 16,
+    backgroundColor: '#F2F3F5',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 14,
+    gap: 6,
+  },
+  filterButtonText: {
+    color: '#111',
+    fontWeight: '600',
+    fontSize: 15,
   },
   searchPlaceholder: { color: '#8A8A8E', fontSize: 15, marginLeft: 8, flex: 1 },
   brandCarousel: { paddingHorizontal: 16, paddingVertical: 12, },

@@ -35,11 +35,14 @@ const BrandScreen: React.FC = () => {
 
   const brand = useMemo(() => brands.find(b => b.id === brandId), [brands, brandId]);
 
-  const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts({ category: brandId });
+  // MODIFICATION: Utilisation de `brandId` au lieu de `category`
+  const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts({ brandId: brand?.name });
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (brand) { // On s'assure que la marque est chargée avant de rafraîchir
+      refresh();
+    }
+  }, [refresh, brand]);
 
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
