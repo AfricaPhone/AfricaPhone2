@@ -1,69 +1,109 @@
-import * as functions from "firebase-functions";
+import {logger} from "firebase-functions";
+import {onDocumentUpdated} from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 
+// Initialise l'app Firebase Admin pour interagir avec Firestore.
 admin.initializeApp();
 const db = admin.firestore();
 
-type CheckPhoneData = {
-  phoneNumber: string;
-};
-
 /**
- * Une fonction appelable pour vérifier si un numéro de téléphone existe déjà.
- * @param {object} rawData - Données envoyées par le client.
- * @returns {Promise<{exists: boolean}>} Indique si le numéro existe.
+ * Déclenchée à chaque update d'un doc de la collection 'matches'.
+ * Vérifie les pronostics quand les scores finaux sont ajoutés/modifiés.
  */
-export const checkPhoneNumberExists = functions.https.onCall(
-  async (rawData: unknown) => {
-    // 1. Valider l'entrée de manière sûre
-    const phoneNumber = (rawData as CheckPhoneData)?.phoneNumber;
+export const processMatchResults = onDocumentUpdated(
+  "matches/{matchId}",
+  async (event) => {
+    const matchId = event.params.matchId as string;
 
-    if (
-      !phoneNumber ||
-      typeof phoneNumber !== "string" ||
-      !/^\+[1-9]\d{1,14}$/.test(phoneNumber)
-    ) {
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "Le numéro de téléphone fourni est invalide."
+    const beforeSnap = event.data?.before;
+    const afterSnap = event.data?.after;
+
+    if (!beforeSnap || !afterSnap) {
+      logger.warn(
+        `[Match ${matchId}] Données before/after absentes.`
       );
+      return;
     }
 
-    functions.logger.info(`Vérification du numéro : ${phoneNumber}`);
+    const beforeData = beforeSnap.data() as {
+      finalScoreA?: number;
+      finalScoreB?: number;
+    };
+
+    const afterData = afterSnap.data() as {
+      finalScoreA?: number;
+      finalScoreB?: number;
+    };
+
+    // Sortie si pas de vrai changement ou scores invalides.
+    const aChanged = beforeData.finalScoreA !== afterData.finalScoreA;
+    const bChanged = beforeData.finalScoreB !== afterData.finalScoreB;
+
+    const aIsNum = typeof afterData.finalScoreA === "number";
+    const bIsNum = typeof afterData.finalScoreB === "number";
+
+    if ((!aChanged && !bChanged) || !aIsNum || !bIsNum) {
+      logger.info(
+        `[Match ${matchId}] Arrêt: scores inchangés ou invalides.`
+      );
+      return;
+    }
+
+    logger.info(
+      `[Match ${matchId}] Score final: ` +
+        `${afterData.finalScoreA}-${afterData.finalScoreB}`
+    );
 
     try {
-      // 2. Interroger la collection 'users'
-      const usersRef = db.collection("users");
-      const snapshot = await usersRef
-        .where("phoneNumber", "==", phoneNumber)
-        .limit(1)
+      // 1) Récupérer tous les pronostics du match.
+      const snap = await db
+        .collection("predictions")
+        .where("matchId", "==", matchId)
         .get();
 
-      // 3. Renvoyer le résultat
-      if (snapshot.empty) {
-        functions.logger.info(
-          "Le numéro " +
-            phoneNumber +
-            " n'existe pas dans la collection users."
-        );
-        return {exists: false};
+      if (snap.empty) {
+        logger.info(`[Match ${matchId}] Aucun pronostic.`);
+        return;
       }
 
-      functions.logger.warn(
-        "Le numéro " +
-          phoneNumber +
-          " existe déjà dans la collection users."
+      // 2) Batch pour les MAJ.
+      const batch = db.batch();
+
+      // 3) Vérifier chaque pronostic.
+      snap.forEach((doc) => {
+        const p = doc.data() as {
+          userId?: string;
+          scoreA?: number;
+          scoreB?: number;
+          isWinner?: boolean;
+        };
+
+        const ok =
+          typeof p.scoreA === "number" &&
+          typeof p.scoreB === "number" &&
+          p.scoreA === afterData.finalScoreA &&
+          p.scoreB === afterData.finalScoreB;
+
+        if (ok) {
+          logger.info(
+            `[Match ${matchId}] Gagnant: ` +
+              `${p.userId ?? "?"} (${doc.id}).`
+          );
+          batch.update(doc.ref, {isWinner: true});
+        } else {
+          // Optionnel: remettre à false si le score final a changé.
+          batch.update(doc.ref, {isWinner: false});
+        }
+      });
+
+      // 4) Commit.
+      await batch.commit();
+
+      logger.info(
+        `[Match ${matchId}] Fin. ${snap.size} pronostics vérifiés.`
       );
-      return {exists: true};
     } catch (err) {
-      functions.logger.error(
-        "Erreur lors de la vérification du numéro:",
-        err
-      );
-      throw new functions.https.HttpsError(
-        "internal",
-        "Une erreur s'est produite lors de la vérification du numéro."
-      );
+      logger.error(`[Match ${matchId}] Erreur:`, err);
     }
   }
 );
