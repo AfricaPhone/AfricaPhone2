@@ -61,7 +61,7 @@ export type HeroItem = {
 
 export type ProductGridItem = {
   type: 'product_grid';
-  id: string;
+  id:string;
   title: string;
   productIds: string[];
 };
@@ -143,4 +143,23 @@ export type Match = {
   teamA: string;
   teamB: string;
   competition: string;
+  // --- NOUVEAUX CHAMPS POUR L'AGRÉGATION ---
+  predictionCount?: number;
+  trends?: { [score: string]: number }; // Ex: { "1-0": 50, "2-1": 120 }
+};
+
+// --- Boutique Info ---
+export type BoutiqueInfo = {
+  name: string;
+  description: string;
+  coverImageUrl: string;
+  profileImageUrl: string;
+  googleMapsUrl: string;
+  whatsappNumber: string;
+  phoneNumber?: string;
+  email?: string;
+  websiteUrl?: string;
+  address?: string;
+  openingHours?: string;
+  category?: string;
 };

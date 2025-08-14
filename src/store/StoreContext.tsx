@@ -1,3 +1,4 @@
+// src/store/StoreContext.tsx
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { FirebaseAuthTypes, onAuthStateChanged, signOut } from '@react-native-firebase/auth';
 import { doc, getDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
@@ -29,6 +30,8 @@ function reducer(state: State, action: Action): State {
 type StoreContextType = {
   user: User | null;
   logout: () => void;
+  // NOUVELLE FONCTION POUR RAFRAÎCHIR LE JETON
+  getFreshToken: () => Promise<string | null>;
 };
 
 const StoreContext = createContext<StoreContextType | null>(null);
@@ -81,9 +84,30 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const logout = () => signOut(auth);
 
+  /**
+   * Force le rafraîchissement du jeton d'identification de l'utilisateur.
+   * @returns Le nouveau jeton ou null si l'utilisateur n'est pas connecté.
+   */
+  const getFreshToken = async (): Promise<string | null> => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      try {
+        // Le paramètre `true` force le rafraîchissement du jeton.
+        const token = await currentUser.getIdToken(true);
+        return token;
+      } catch (error) {
+        console.error("Erreur lors du rafraîchissement du jeton:", error);
+        return null;
+      }
+    }
+    return null;
+  };
+
+
   const value: StoreContextType = {
     user: state.user,
     logout,
+    getFreshToken, // Exposer la nouvelle fonction
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

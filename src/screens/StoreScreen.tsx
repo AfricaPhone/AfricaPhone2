@@ -1,5 +1,5 @@
 // src/screens/StoreScreen.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,14 +9,19 @@ import {
   Image,
   Linking,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { doc, getDoc } from '@react-native-firebase/firestore';
+import { db } from '../firebase/config';
+import { BoutiqueInfo } from '../types';
 
 // --- Design Tokens ---
 const COLORS = {
-  primary: '#007AFF', // Un bleu standard pour les liens
+  primary: '#000000', // Modifié pour le noir
   surface: '#f2f2f7', // Fond de l'écran (gris clair)
   background: '#ffffff', // Fond des sections
   textPrimary: '#000000',
@@ -45,21 +50,73 @@ const InfoRow: React.FC<{
 
 const StoreScreen: React.FC = () => {
   const navigation = useNavigation();
+  const [info, setInfo] = useState<BoutiqueInfo | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleGetDirections = () => {
-    const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
-    const latLng = '6.452302, 2.378749'; // Coordonnées Abomey Calavi
-    const label = 'Africa Phone';
-    const url = Platform.select({
-      ios: `${scheme}${label}@${latLng}`,
-      android: `${scheme}${latLng}(${label})`,
-    });
-    if (url) Linking.openURL(url);
+  useEffect(() => {
+    const fetchStoreInfo = async () => {
+      try {
+        const docRef = doc(db, 'config', 'boutiqueInfo');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setInfo(docSnap.data() as BoutiqueInfo);
+        } else {
+          console.log("Aucun document d'information sur la boutique trouvé !");
+          Alert.alert("Erreur", "Impossible de charger les informations de la boutique.");
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des informations de la boutique:", error);
+        Alert.alert("Erreur réseau", "Une erreur est survenue. Veuillez vérifier votre connexion.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStoreInfo();
+  }, []);
+
+  const handleOpenUrl = (url: string | undefined) => {
+    if (!url) return;
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          Alert.alert("Erreur", `Impossible d'ouvrir cette URL: ${url}`);
+        }
+      })
+      .catch(err => console.error('An error occurred', err));
   };
+  
+  const handleCall = (number: string | undefined) => {
+    if(!number) return;
+    handleOpenUrl(`tel:${number}`);
+  }
 
-  const handleCall = (number: string) => Linking.openURL(`tel:${number}`);
-  const handleEmail = (email: string) => Linking.openURL(`mailto:${email}`);
-  const handleWeb = (url: string) => Linking.openURL(url);
+  if (loading) {
+    return (
+      <View style={styles.centerScreen}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{marginTop: 10, color: COLORS.textSecondary}}>Chargement...</Text>
+      </View>
+    );
+  }
+
+  if (!info) {
+    return (
+       <SafeAreaView style={styles.safeArea} edges={[]}>
+         <View style={styles.centerScreen}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backButton, { top: 60, backgroundColor: 'rgba(0,0,0,0.1)'}]}>
+                <Ionicons name="arrow-back" size={24} color="#000" />
+            </TouchableOpacity>
+            <Text>Informations non disponibles.</Text>
+         </View>
+       </SafeAreaView>
+    );
+  }
+  
+  const phoneNumber = info.phoneNumber || info.whatsappNumber;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={[]}>
@@ -67,7 +124,7 @@ const StoreScreen: React.FC = () => {
         {/* Header */}
         <View style={styles.headerContainer}>
           <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1556742044-5a7ed7e4a7ee?q=80&w=1600' }}
+            source={{ uri: info.coverImageUrl || 'https://placehold.co/600x400/cccccc/ffffff?text=Image' }}
             style={styles.headerBackground}
           />
           <View style={styles.headerOverlay} />
@@ -76,7 +133,7 @@ const StoreScreen: React.FC = () => {
           </TouchableOpacity>
           <View style={styles.logoContainer}>
             <Image
-              source={{ uri: 'https://placehold.co/100x100/FF7A00/FFFFFF?text=A' }} // Remplacez par votre vrai logo
+              source={{ uri: info.profileImageUrl || 'https://placehold.co/100x100/FF7A00/FFFFFF?text=A' }}
               style={styles.logo}
             />
           </View>
@@ -84,22 +141,22 @@ const StoreScreen: React.FC = () => {
 
         {/* Info Header */}
         <View style={styles.infoHeader}>
-          <Text style={styles.storeName}>Africa Phone</Text>
-          <Text style={styles.storeCategory}>Boutique d'électronique</Text>
+          <Text style={styles.storeName}>{info.name || 'Nom de la boutique'}</Text>
+          <Text style={styles.storeCategory}>{info.category || "Boutique d'électronique"}</Text>
         </View>
         
         {/* Actions Rapides */}
         <View style={styles.quickActionsContainer}>
-            <TouchableOpacity style={styles.actionButton} onPress={() => handleCall('+22954151522')}>
-                <Ionicons name="call" size={22} color={COLORS.primary} />
+            <TouchableOpacity style={styles.actionButton} onPress={() => handleCall(phoneNumber)}>
+                <Ionicons name="call" size={22} color={COLORS.textPrimary} />
                 <Text style={styles.actionButtonText}>Appeler</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={handleGetDirections}>
-                <Ionicons name="map" size={22} color={COLORS.primary} />
+            <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenUrl(info.googleMapsUrl)}>
+                <Ionicons name="map" size={22} color={COLORS.textPrimary} />
                 <Text style={styles.actionButtonText}>Itinéraire</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={() => handleWeb('https://africaphone-africaphone.web.app/')}>
-                <Ionicons name="globe" size={22} color={COLORS.primary} />
+            <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenUrl(info.websiteUrl)}>
+                <Ionicons name="globe" size={22} color={COLORS.textPrimary} />
                 <Text style={styles.actionButtonText}>Site Web</Text>
             </TouchableOpacity>
         </View>
@@ -110,58 +167,54 @@ const StoreScreen: React.FC = () => {
           <InfoRow
             icon="map-marker-outline"
             label="Adresse"
-            value="Abomey Calavi, Bénin"
-            onPress={handleGetDirections}
-            isLink
+            value={info.address || "Adresse non disponible"}
+            onPress={() => handleOpenUrl(info.googleMapsUrl)}
+            isLink={!!info.googleMapsUrl}
           />
-          <View style={styles.mapPreview}>
-            <Image
-              source={{ uri: 'https://storage.googleapis.com/gweb-uniblog-publish-prod/images/New-pins-on-Google-Maps_1.max-1000x1000.png' }}
-              style={styles.mapImage}
-            />
-          </View>
           <View style={styles.divider} />
           <InfoRow
             icon="clock-outline"
             label="Horaires"
-            value="Ouvert 24h/24"
+            value={info.openingHours || "Non spécifiés"}
           />
         </View>
 
         <View style={styles.section}>
-          <InfoRow
+          {phoneNumber && <InfoRow
             icon="phone-outline"
             label="Mobile"
-            value="+229 54 15 15 22"
-            onPress={() => handleCall('+22954151522')}
+            value={phoneNumber}
+            onPress={() => handleCall(phoneNumber)}
             isLink
-          />
+          />}
            <View style={styles.divider} />
           <InfoRow
             icon="whatsapp"
             label="WhatsApp"
-            value="Discuter avec nous"
-            onPress={() => handleWeb('https://wa.me/22954151522')}
+            value={info.whatsappNumber}
+            onPress={() => handleOpenUrl(`https://wa.me/${info.whatsappNumber.replace('+', '')}`)}
             isLink
           />
         </View>
 
         <View style={styles.section}>
-          <InfoRow
-            icon="email-outline"
-            label="E-mail"
-            value="africaphone24@gmail.com"
-            onPress={() => handleEmail('africaphone24@gmail.com')}
-            isLink
-          />
-          <View style={styles.divider} />
-          <InfoRow
+          {info.email && <>
+            <InfoRow
+                icon="email-outline"
+                label="E-mail"
+                value={info.email}
+                onPress={() => handleOpenUrl(`mailto:${info.email}`)}
+                isLink
+            />
+            <View style={styles.divider} />
+          </>}
+          {info.websiteUrl && <InfoRow
             icon="web"
             label="Site web"
-            value="africaphone-africaphone.web.app"
-            onPress={() => handleWeb('https://africaphone-africaphone.web.app/')}
+            value={info.websiteUrl.replace('https://','').replace('http://','')}
+            onPress={() => handleOpenUrl(info.websiteUrl)}
             isLink
-          />
+          />}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -171,10 +224,17 @@ const StoreScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: COLORS.surface },
   container: { flex: 1 },
+  centerScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+  },
   headerContainer: {
     height: 200,
     alignItems: 'center',
     position: 'relative',
+    backgroundColor: COLORS.divider,
   },
   headerBackground: {
     ...StyleSheet.absoluteFillObject,
@@ -239,7 +299,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionButtonText: {
-    color: COLORS.primary,
+    color: COLORS.textPrimary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -269,7 +329,8 @@ const styles = StyleSheet.create({
   },
   infoValueLink: {
     fontSize: 16,
-    color: COLORS.primary,
+    color: COLORS.textPrimary,
+    fontWeight: '600',
   },
   infoLabel: {
     fontSize: 12,

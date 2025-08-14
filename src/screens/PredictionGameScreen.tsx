@@ -17,10 +17,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { collection, addDoc, serverTimestamp, onSnapshot, query, where, doc, getDoc, updateDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+// MODIFICATION: Importez les dépendances pour les fonctions Firebase
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
+import { collection, onSnapshot, query, where, doc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { useStore } from '../store/StoreContext';
 import { Prediction, Match } from '../types';
+
+// MODIFICATION: Initialisez l'instance des Fonctions
+const functions = getFunctions();
 
 const PredictionGameScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -33,13 +38,15 @@ const PredictionGameScreen: React.FC = () => {
   const [scoreB, setScoreB] = useState('');
   
   const [match, setMatch] = useState<Match | null>(null);
-  const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [predictions, setPredictions] = useState<Prediction[]>([]); 
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const matchStarted = useMemo(() => {
-    if (!match) return true; // Bloquer par défaut si les données du match ne sont pas encore chargées
-    return new Date() > match.startTime.toDate();
+    if (!match) return true;
+    const GRACE_PERIOD_MS = 60 * 1000;
+    const cutOffTime = match.startTime.toDate().getTime() - GRACE_PERIOD_MS;
+    return new Date().getTime() > cutOffTime;
   }, [match]);
   
   const matchEnded = useMemo(() => {
@@ -53,26 +60,23 @@ const PredictionGameScreen: React.FC = () => {
   );
 
   const communityTrends = useMemo(() => {
-    if (predictions.length === 0) return [];
-    const scoreCounts: { [key: string]: number } = {};
-    predictions.forEach(p => {
-      const key = `${p.scoreA}-${p.scoreB}`;
-      scoreCounts[key] = (scoreCounts[key] || 0) + 1;
-    });
+    if (!match || !match.trends || !match.predictionCount) return [];
+    
+    const totalPredictions = match.predictionCount;
+    if (totalPredictions === 0) return [];
 
-    return Object.entries(scoreCounts)
+    return Object.entries(match.trends)
       .map(([score, count]) => ({
         score,
         count,
-        percentage: Math.round((count / predictions.length) * 100),
+        percentage: Math.round((count / totalPredictions) * 100),
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
-  }, [predictions]);
+  }, [match]);
 
   useEffect(() => {
     if (!matchId) return;
-
     setLoading(true);
 
     const matchDocRef = doc(db, 'matches', matchId);
@@ -83,37 +87,41 @@ const PredictionGameScreen: React.FC = () => {
         console.error("Match non trouvé !");
         setMatch(null);
       }
+      if (loading) setLoading(false);
     }, (error) => {
       console.error("Erreur de lecture du match: ", error);
+      if (loading) setLoading(false);
     });
 
-    const predictionsRef = collection(db, 'predictions');
-    const q = query(predictionsRef, where('matchId', '==', matchId));
+    let unsubscribePredictions = () => {};
+    if (user) {
+        const predictionsRef = collection(db, 'predictions');
+        const q = query(predictionsRef, where('matchId', '==', matchId), where('userId', '==', user.id));
 
-    const unsubscribePredictions = onSnapshot(q, (querySnapshot) => {
-      const preds: Prediction[] = [];
-      querySnapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
-        preds.push({ id: doc.id, ...doc.data() } as Prediction);
-      });
-      setPredictions(preds);
-      setLoading(false);
-    }, (error) => {
-      console.error("Erreur de lecture des pronostics: ", error);
-      setLoading(false);
-    });
+        unsubscribePredictions = onSnapshot(q, (querySnapshot) => {
+            const preds: Prediction[] = [];
+            querySnapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
+              preds.push({ id: doc.id, ...doc.data() } as Prediction);
+            });
+            setPredictions(preds);
+        }, (error) => {
+            console.error("Erreur de lecture du pronostic utilisateur: ", error);
+        });
+    } else {
+        setPredictions([]);
+    }
 
     return () => {
       unsubscribeMatch();
       unsubscribePredictions();
     };
-  }, [matchId]);
+  }, [matchId, user]);
 
   const handleOpenModal = () => {
     if (!user) {
       navigation.navigate('AuthPrompt');
       return;
     }
-
     if (currentUserPrediction) {
       setScoreA(String(currentUserPrediction.scoreA));
       setScoreB(String(currentUserPrediction.scoreB));
@@ -140,32 +148,28 @@ const PredictionGameScreen: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const newScores = {
-        scoreA: parseInt(scoreA, 10),
-        scoreB: parseInt(scoreB, 10),
-      };
-
-      if (currentUserPrediction?.id) {
-        // Mettre à jour la prédiction existante
-        const predictionRef = doc(db, 'predictions', currentUserPrediction.id);
-        await updateDoc(predictionRef, newScores);
-        Alert.alert('Pronostic mis à jour !', 'Votre pronostic a été modifié.');
-      } else {
-        // Créer une nouvelle prédiction
-        const newPrediction: Omit<Prediction, 'id'> = {
-          userId: user.id,
-          userName: user.name,
+      // MODIFICATION: Appeler la fonction Cloud au lieu d'écrire directement
+      const submitPredictionFn = httpsCallable(functions, 'submitPrediction');
+      
+      const payload = {
           matchId: matchId,
-          ...newScores,
-          createdAt: serverTimestamp(),
-        };
-        await addDoc(collection(db, 'predictions'), newPrediction);
-        Alert.alert('Pronostic validé !', 'Votre pronostic a été enregistré. Bonne chance !');
+          scoreA: parseInt(scoreA, 10),
+          scoreB: parseInt(scoreB, 10),
+          predictionId: currentUserPrediction?.id, // Envoyer l'ID pour les mises à jour
+      };
+      
+      const result = await submitPredictionFn(payload);
+      const data = result.data as { success: boolean, message: string };
+
+      Alert.alert(data.success ? 'Succès' : 'Erreur', data.message);
+
+      if (data.success) {
+        setModalVisible(false);
       }
-      setModalVisible(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur d'enregistrement du pronostic: ", error);
-      Alert.alert('Erreur', 'Une erreur est survenue. Veuillez réessayer.');
+      // Les erreurs HttpsError ont un message lisible par l'utilisateur
+      Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setIsSubmitting(false);
     }
@@ -312,7 +316,7 @@ const PredictionGameScreen: React.FC = () => {
             <Text style={styles.communityTitle}>Tendances des pronostics</Text>
             <View style={styles.participantsChip}>
               <Ionicons name="people" size={14} color="#1d4ed8" />
-              <Text style={styles.participantsText}>{predictions.length} participants</Text>
+              <Text style={styles.participantsText}>{match.predictionCount || 0} participants</Text>
             </View>
           </View>
           {communityTrends.length > 0 ? (
