@@ -1,5 +1,5 @@
 // src/screens/CatalogScreen.tsx
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react'; // Ajout de useMemo
 import {
   View,
   Text,
@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   Keyboard,
   LayoutChangeEvent,
-  Platform,
   Dimensions,
   Animated,
   ActivityIndicator,
@@ -23,15 +22,13 @@ import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 import { GridSkeleton, ListSkeleton } from '../components/SkeletonLoader';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import RatingStars from '../components/RatingStars';
-import { useProducts } from '../store/ProductContext';
+import { usePaginatedProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
 
 type RouteParams = { category?: Category };
 type SortKey = 'relevance' | 'priceAsc' | 'priceDesc' | 'ratingDesc';
 type ViewMode = 'grid' | 'list';
 
 const { width } = Dimensions.get('window');
-const PAGE_SIZE = 12;
 
 // Debounce hook
 const useDebounce = (value: string, delay: number) => {
@@ -52,87 +49,52 @@ const CatalogScreen: React.FC = () => {
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
   const initialCategory: Category | undefined = route?.params?.category;
-  const { products, productsLoading } = useProducts();
 
-  // --- State Management ---
+  // --- State Management for Filters ---
   const [searchQuery, setSearchQuery] = useState('');
-  const debouncedQuery = useDebounce(searchQuery, 300);
+  const debouncedQuery = useDebounce(searchQuery, 400);
   const [category, setCategory] = useState<Category | undefined>(initialCategory);
-  const [priceMin, setPriceMin] = useState<number>(0);
-  const [priceMax, setPriceMax] = useState<number>(Infinity);
-  const [ratingMin, setRatingMin] = useState<number>(0);
   const [sort, setSort] = useState<SortKey>('relevance');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [headerH, setHeaderH] = useState<number>(0);
 
-  // --- Pagination State ---
-  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-
-  // --- Data Filtering & Sorting (Source for Pagination) ---
-  const sourceProducts = useMemo(() => {
-    const q = debouncedQuery.trim().toLowerCase();
-    
-    let base = category ? products.filter(p => p.category === category) : products;
-
-    let out = base.filter((p) => {
-      const okText = q ? p.title.toLowerCase().includes(q) : true;
-      const okPrice = p.price >= priceMin && (Number.isFinite(priceMax) ? p.price <= priceMax : true);
-      const r = p.rating ?? 0;
-      const okRating = r >= ratingMin;
-      return okText && okPrice && okRating;
-    });
-
-    switch (sort) {
-      case 'priceAsc': out.sort((a, b) => a.price - b.price); break;
-      case 'priceDesc': out.sort((a, b) => b.price - a.price); break;
-      case 'ratingDesc': out.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)); break;
+  // --- Map UI state to Firestore query options ---
+  const queryOptions = useMemo((): ProductQueryOptions => {
+    const options: ProductQueryOptions = { category };
+    if (debouncedQuery) {
+        options.searchQuery = debouncedQuery;
     }
-    
-    return out;
-  }, [category, products, debouncedQuery, priceMin, priceMax, ratingMin, sort]);
+    switch (sort) {
+      case 'priceAsc':
+        options.sortBy = 'price';
+        options.sortDirection = 'asc';
+        break;
+      case 'priceDesc':
+        options.sortBy = 'price';
+        options.sortDirection = 'desc';
+        break;
+      case 'ratingDesc':
+        options.sortBy = 'rating';
+        options.sortDirection = 'desc';
+        break;
+    }
+    return options;
+  }, [category, debouncedQuery, sort]);
 
-  // --- Effect to reset pagination when filters change ---
+  // --- Data Fetching using the custom hook ---
+  const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts(queryOptions);
+
   useEffect(() => {
-    const firstPage = sourceProducts.slice(0, PAGE_SIZE);
-    setDisplayedProducts(firstPage);
-    setCurrentPage(1);
-    setHasMore(firstPage.length < sourceProducts.length);
-  }, [sourceProducts]);
-
-  // --- Load More Function ---
-  const loadMoreProducts = useCallback(() => {
-    if (loadingMore || !hasMore) return;
-
-    setLoadingMore(true);
-    setTimeout(() => {
-      const nextPage = currentPage + 1;
-      const newProducts = sourceProducts.slice(0, nextPage * PAGE_SIZE);
-      
-      setDisplayedProducts(newProducts);
-      setCurrentPage(nextPage);
-      setHasMore(newProducts.length < sourceProducts.length);
-      setLoadingMore(false);
-    }, 500);
-  }, [loadingMore, hasMore, currentPage, sourceProducts]);
+    refresh();
+  }, [queryOptions, refresh]);
 
   // --- UI Helpers ---
-  const hasActiveFilters = ratingMin > 0 || priceMin > 0 || Number.isFinite(priceMax);
   const onHeaderLayout = (e: LayoutChangeEvent) => {
     const h = e.nativeEvent.layout.height;
     if (h > 0 && h !== headerH) setHeaderH(h);
   };
-  const listRef = useRef<FlatList<Product>>(null);
 
-  const clearFilters = () => {
-    setRatingMin(0);
-    setPriceMin(0);
-    setPriceMax(Infinity);
-  };
-  
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
       product: item,
@@ -186,8 +148,7 @@ const CatalogScreen: React.FC = () => {
             <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
               <TouchableOpacity onPress={() => setFiltersOpen(true)} style={styles.actionBtn}>
                 <MaterialCommunityIcons name="filter-variant" size={18} color="#111" />
-                <Text style={styles.actionBtnTxt}>Filtres</Text>
-                {hasActiveFilters && <View style={styles.dotBadge} />}
+                <Text style={styles.actionBtnTxt}>Trier</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -195,12 +156,11 @@ const CatalogScreen: React.FC = () => {
       </SafeAreaView>
 
       {/* Product List */}
-      {productsLoading ? (
+      {loading ? (
         <ListSkeletonComponent />
       ) : (
         <FlatList
-          ref={listRef}
-          data={displayedProducts}
+          data={products}
           key={viewMode}
           keyExtractor={(item) => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
@@ -210,7 +170,7 @@ const CatalogScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
           onScrollBeginDrag={() => Keyboard.dismiss()}
           contentContainerStyle={{ paddingTop: headerH, paddingBottom: 20 }}
-          onEndReached={loadMoreProducts}
+          onEndReached={() => hasMore && !loadingMore && loadMore()}
           onEndReachedThreshold={0.5}
           ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }}/> : null}
           ListEmptyComponent={
@@ -227,44 +187,22 @@ const CatalogScreen: React.FC = () => {
         <Pressable style={styles.modalBackdrop} onPress={() => setFiltersOpen(false)} />
         <Animated.View style={[styles.sheet, { paddingBottom: insets.bottom + 12 }]}>
           <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>Filtres</Text>
+            <Text style={styles.sheetTitle}>Trier par</Text>
             <TouchableOpacity onPress={() => setFiltersOpen(false)}>
               <Ionicons name="close-circle" size={26} color="#ccc" />
             </TouchableOpacity>
           </View>
 
           <View style={styles.sheetSection}>
-            <Text style={styles.sheetLabel}>Trier par</Text>
             <View style={styles.pillsRow}>
               {(['relevance', 'priceAsc', 'priceDesc', 'ratingDesc'] as SortKey[]).map(s => (
-                <TouchableOpacity key={s} onPress={() => setSort(s)} style={[styles.pill, sort === s && styles.pillActive]}>
+                <TouchableOpacity key={s} onPress={() => { setSort(s); setFiltersOpen(false); }} style={[styles.pill, sort === s && styles.pillActive]}>
                   <Text style={[styles.pillTxt, sort === s && styles.pillTxtActive]}>
                     {s === 'relevance' ? 'Pertinence' : s === 'priceAsc' ? 'Prix ↑' : s === 'priceDesc' ? 'Prix ↓' : 'Mieux notés'}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
-
-          <View style={styles.sheetSection}>
-            <Text style={styles.sheetLabel}>Notes minimales</Text>
-            <View style={styles.pillsRow}>
-              {[4.5, 4, 3, 0].map(r => (
-                <TouchableOpacity key={r} onPress={() => setRatingMin(r)} style={[styles.pill, ratingMin === r && styles.pillActive]}>
-                  <Text style={[styles.pillTxt, ratingMin === r && styles.pillTxtActive]}>{r === 0 ? 'Toutes' : `${r}+`}</Text>
-                  {r > 0 && <Ionicons name="star" size={12} color={ratingMin === r ? '#fff' : '#f59e0b'} style={{ marginLeft: 4 }} />}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-          
-          <View style={styles.sheetFooter}>
-            <TouchableOpacity onPress={clearFilters} style={[styles.btn, styles.btnGhost]}>
-              <Text style={[styles.btnTxt, styles.btnGhostTxt]}>Réinitialiser</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setFiltersOpen(false)} style={[styles.btn, styles.btnPrimary]}>
-              <Text style={[styles.btnTxt, styles.btnPrimaryTxt]}>Voir les produits</Text>
-            </TouchableOpacity>
           </View>
         </Animated.View>
       </Modal>
@@ -304,7 +242,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f3f5',
   },
   actionBtnTxt: { color: '#111', fontWeight: '600' },
-  dotBadge: { position: 'absolute', top: -2, right: -2, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF7A00' },
   gridContainer: { paddingHorizontal: 16, justifyContent: 'space-between' },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100 },
   emptyText: { fontSize: 18, fontWeight: '600', color: '#333' },
@@ -322,38 +259,23 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 12,
-    height: '60%',
+    paddingBottom: 24,
   },
   sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   sheetTitle: { fontSize: 20, fontWeight: '800', color: '#111' },
   sheetSection: { marginBottom: 24 },
-  sheetLabel: { fontWeight: '700', marginBottom: 12, color: '#111', fontSize: 16 },
   pillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 99,
     backgroundColor: '#f2f3f5',
   },
   pillActive: { backgroundColor: '#111' },
   pillTxt: { color: '#111', fontWeight: '600' },
   pillTxtActive: { color: '#fff' },
-  sheetFooter: {
-    marginTop: 'auto',
-    flexDirection: 'row',
-    columnGap: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingTop: 12,
-  },
-  btn: { flex: 1, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  btnTxt: { fontWeight: '800', fontSize: 16 },
-  btnGhost: { backgroundColor: '#f2f3f5' },
-  btnGhostTxt: { color: '#111' },
-  btnPrimary: { backgroundColor: '#111' },
-  btnPrimaryTxt: { color: '#fff' },
 });
 
 export default CatalogScreen;

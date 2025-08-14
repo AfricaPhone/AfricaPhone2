@@ -1,5 +1,5 @@
 // src/screens/ProductDetailScreen.tsx
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,16 +15,18 @@ import {
   NativeSyntheticEvent,
   Linking,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { useFavorites } from '../store/FavoritesContext'; // Importer useFavorites
+import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
 import RatingStars from '../components/RatingStars';
 import { formatPrice } from '../utils/formatPrice';
+import { Product } from '../types';
 
 const { width } = Dimensions.get('window');
 
@@ -61,14 +63,41 @@ const ProductDetailScreen: React.FC = () => {
   const route = useRoute<any>();
   const { productId } = route.params as RouteParams;
 
-  const { toggleFavorite, isFav } = useFavorites(); // Utiliser useFavorites
-  const { getProductById } = useProducts();
-  const product = getProductById(productId);
+  const { toggleFavorite, isFav } = useFavorites();
+  const { getProductById, getProductFromCache } = useProducts();
+  
+  const [product, setProduct] = useState<Product | null>(null);
+  // Le chargement n'est vrai que si le produit n'est pas du tout dans le cache
+  const [loading, setLoading] = useState(true);
 
   const [color, setColor] = useState(COLORS[0].key);
   const [storage, setStorage] = useState(STORAGES[1]);
   const [headerH, setHeaderH] = useState(56);
   const onHeaderLayout = (e: LayoutChangeEvent) => setHeaderH(e.nativeEvent.layout.height);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      // 1. Essayer de charger depuis le cache pour un affichage instantané
+      const cachedProduct = getProductFromCache(productId);
+      if (cachedProduct) {
+        setProduct(cachedProduct);
+        setLoading(false); // On a des données, donc on n'est plus en "chargement initial"
+      } else {
+        setLoading(true); // Pas de cache, on affiche le loader
+      }
+
+      // 2. Toujours récupérer depuis Firestore pour mettre à jour les données en arrière-plan
+      const freshProduct = await getProductById(productId);
+      if (freshProduct) {
+        setProduct(freshProduct);
+      }
+      // Si c'était le premier chargement, on l'arrête
+      if (loading) {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [productId, getProductById, getProductFromCache]);
 
   const gallery = useMemo(() => {
     if (!product) return [] as string[];
@@ -100,10 +129,21 @@ const ProductDetailScreen: React.FC = () => {
       .catch(err => console.error('An error occurred', err));
   };
 
+  if (loading) {
+    return (
+        <View style={styles.center}>
+            <ActivityIndicator size="large" color="#FF7A00" />
+        </View>
+    );
+  }
+
   if (!product) {
     return (
       <View style={[styles.center, { paddingTop: insets.top + 40 }]}>
         <Text>Produit non trouvé.</Text>
+        <TouchableOpacity onPress={() => nav.goBack()} style={{marginTop: 20}}>
+            <Text>Retour</Text>
+        </TouchableOpacity>
       </View>
     );
   }

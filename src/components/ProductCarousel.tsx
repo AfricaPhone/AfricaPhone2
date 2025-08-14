@@ -1,8 +1,9 @@
-import React, { useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+// src/components/ProductCarousel.tsx
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Product } from '../types';
-import { useProducts } from '../store/ProductContext'; // Importer useProducts
+import { useProducts } from '../store/ProductContext';
 import ProductGridCard from './ProductGridCard';
 
 interface Props {
@@ -12,8 +13,21 @@ interface Props {
 
 const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
   const navigation = useNavigation<any>();
-  const { getProductById } = useProducts(); // Utiliser useProducts
-  const products = productIds.map(getProductById).filter(Boolean) as Product[];
+  const { getProductById } = useProducts();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      // Utilisation de Promise.all pour attendre toutes les promesses
+      const fetchedProductsPromises = productIds.map(id => getProductById(id));
+      const resolvedProducts = await Promise.all(fetchedProductsPromises);
+      setProducts(resolvedProducts.filter(Boolean) as Product[]);
+      setLoading(false);
+    };
+    fetchProducts();
+  }, [productIds, getProductById]);
 
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const handlePress = () => {
@@ -29,6 +43,15 @@ const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
       </View>
     );
   }, [navigation]);
+  
+  if (loading) {
+      return (
+          <View style={styles.container}>
+              <Text style={styles.title}>{title}</Text>
+              <ActivityIndicator color="#FF7A00" style={{ height: 180 }} />
+          </View>
+      )
+  }
 
   return (
     <View style={styles.container}>

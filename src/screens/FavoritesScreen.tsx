@@ -12,7 +12,6 @@ import ProductListItem from '../components/ProductListItem';
 
 type ViewMode = 'grid' | 'list';
 type SortKey = 'date' | 'priceAsc' | 'priceDesc';
-const PAGE_SIZE = 10;
 
 const FavoritesScreen: React.FC = () => {
   const { collections, createCollection } = useFavorites();
@@ -22,59 +21,44 @@ const FavoritesScreen: React.FC = () => {
   const [selectedCollectionId, setSelectedCollectionId] = useState(collections[0]?.id || null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [sort, setSort] = useState<SortKey>('date');
-
-  // --- Pagination State ---
-  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const selectedCollection = collections.find(c => c.id === selectedCollectionId);
 
-  const sourceProducts = useMemo(() => {
-    if (!selectedCollection) return [];
-    
-    let productList = Array.from(selectedCollection.productIds)
-      .map(getProductById)
-      .filter(Boolean) as Product[];
+  useEffect(() => {
+    const fetchFavoriteProducts = async () => {
+      if (!selectedCollection) {
+        setProducts([]);
+        return;
+      }
+      setLoading(true);
+      const productIds = Array.from(selectedCollection.productIds);
+      const fetchedProducts = await Promise.all(
+        productIds.map(id => getProductById(id))
+      );
+      
+      let productList = fetchedProducts.filter(Boolean) as Product[];
 
-    switch (sort) {
-      case 'priceAsc':
-        productList.sort((a, b) => a.price - b.price);
-        break;
-      case 'priceDesc':
-        productList.sort((a, b) => b.price - a.price);
-        break;
-      case 'date':
-      default:
-        break;
-    }
-    return productList;
+      switch (sort) {
+        case 'priceAsc':
+          productList.sort((a, b) => a.price - b.price);
+          break;
+        case 'priceDesc':
+          productList.sort((a, b) => b.price - a.price);
+          break;
+        case 'date':
+        default:
+          break;
+      }
+      setProducts(productList);
+      setLoading(false);
+    };
+
+    fetchFavoriteProducts();
   }, [selectedCollection, sort, getProductById]);
 
-  // --- Effect to reset pagination ---
-  useEffect(() => {
-    const firstPage = sourceProducts.slice(0, PAGE_SIZE);
-    setDisplayedProducts(firstPage);
-    setCurrentPage(1);
-    setHasMore(firstPage.length < sourceProducts.length);
-  }, [sourceProducts, selectedCollectionId]);
-
-  // --- Load More Function ---
-  const loadMoreProducts = useCallback(() => {
-    if (loadingMore || !hasMore) return;
-
-    setLoadingMore(true);
-    setTimeout(() => {
-      const nextPage = currentPage + 1;
-      const newProducts = sourceProducts.slice(0, nextPage * PAGE_SIZE);
-      
-      setDisplayedProducts(newProducts);
-      setCurrentPage(nextPage);
-      setHasMore(newProducts.length < sourceProducts.length);
-      setLoadingMore(false);
-    }, 500);
-  }, [loadingMore, hasMore, currentPage, sourceProducts]);
 
   const handleCreateCollection = () => {
     Alert.prompt(
@@ -144,26 +128,25 @@ const FavoritesScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={displayedProducts}
-        key={viewMode}
-        keyExtractor={(item) => item.id}
-        numColumns={viewMode === 'grid' ? 2 : 1}
-        columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        onEndReached={loadMoreProducts}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }} /> : null}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Aucun favori</Text>
-            <Text style={styles.emptySubText}>Appuyez sur l'icône ❤️ sur un produit pour l'ajouter.</Text>
-          </View>
-        }
-      />
+      {loading ? <ActivityIndicator size="large" color="#FF7A00" style={{ flex: 1}}/> : (
+        <FlatList
+            data={products}
+            key={viewMode}
+            keyExtractor={(item) => item.id}
+            numColumns={viewMode === 'grid' ? 2 : 1}
+            columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
+            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Aucun favori</Text>
+                <Text style={styles.emptySubText}>Appuyez sur l'icône ❤️ sur un produit pour l'ajouter.</Text>
+            </View>
+            }
+        />
+      )}
     </SafeAreaView>
   );
 };

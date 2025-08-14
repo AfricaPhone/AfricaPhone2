@@ -17,62 +17,29 @@ import { Product } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 import { GridSkeleton, ListSkeleton } from '../components/SkeletonLoader';
+import { usePaginatedProducts } from '../hooks/usePaginatedProducts';
 
 type RouteParams = {
   brandId: string;
 };
 
 type ViewMode = 'grid' | 'list';
-const PAGE_SIZE = 10;
 
 const BrandScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { brandId } = route.params as RouteParams;
 
-  const { products, productsLoading, brands } = useProducts();
+  const { brands } = useProducts();
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-
-  // --- Pagination State ---
-  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
 
   const brand = useMemo(() => brands.find(b => b.id === brandId), [brands, brandId]);
 
-  const sourceProducts = useMemo(() => {
-    if (!brand) return [];
-    return products.filter(p => p.category.toLowerCase() === brand.id.toLowerCase());
-  }, [products, brand]);
-  
-  // --- Effect to reset pagination when source changes ---
-  useEffect(() => {
-    if (sourceProducts.length > 0) {
-      const firstPage = sourceProducts.slice(0, PAGE_SIZE);
-      setDisplayedProducts(firstPage);
-      setCurrentPage(1);
-      setHasMore(firstPage.length < sourceProducts.length);
-    } else {
-        setDisplayedProducts([]);
-    }
-  }, [sourceProducts]);
-  
-  // --- Load More Function ---
-  const loadMoreProducts = useCallback(() => {
-    if (loadingMore || !hasMore) return;
+  const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts({ category: brandId });
 
-    setLoadingMore(true);
-    setTimeout(() => {
-      const nextPage = currentPage + 1;
-      const newProducts = sourceProducts.slice(0, nextPage * PAGE_SIZE);
-      
-      setDisplayedProducts(newProducts);
-      setCurrentPage(nextPage);
-      setHasMore(newProducts.length < sourceProducts.length);
-      setLoadingMore(false);
-    }, 500);
-  }, [loadingMore, hasMore, currentPage, sourceProducts]);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
@@ -98,7 +65,7 @@ const BrandScreen: React.FC = () => {
         <View style={{ width: 40 }} />
       </View>
       <View style={styles.actionsRow}>
-        <Text style={styles.productCount}>{sourceProducts.length} produits</Text>
+        <Text style={styles.productCount}>{products.length} produits</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <TouchableOpacity onPress={() => setViewMode('grid')} style={styles.viewBtn}>
             <Ionicons name="grid" size={20} color={viewMode === 'grid' ? '#111' : '#999'} />
@@ -114,7 +81,7 @@ const BrandScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Header />
-      {productsLoading ? (
+      {loading ? (
         <View style={{ flex: 1, paddingTop: 10 }}>
           {viewMode === 'grid' ? (
             <View style={styles.gridContainer}>
@@ -126,7 +93,7 @@ const BrandScreen: React.FC = () => {
         </View>
       ) : (
         <FlatList
-          data={displayedProducts}
+          data={products}
           key={viewMode}
           keyExtractor={(item) => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
@@ -135,7 +102,7 @@ const BrandScreen: React.FC = () => {
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
-          onEndReached={loadMoreProducts}
+          onEndReached={() => hasMore && !loadingMore && loadMore()}
           onEndReachedThreshold={0.5}
           ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }} /> : null}
           ListEmptyComponent={

@@ -11,11 +11,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Product, Brand, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import { useProducts } from '../store/ProductContext';
+import { usePaginatedProducts } from '../hooks/usePaginatedProducts';
 
 type Nav = ReturnType<typeof useNavigation<any>>;
 
 // --- Constantes ---
-const PAGE_SIZE = 10;
 const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
 type Segment = typeof SEGMENTS[number];
 
@@ -35,87 +35,14 @@ const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIco
 // --- Écran principal HomeScreen ---
 const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
-  const { products, productsLoading, brands, brandsLoading } = useProducts();
-  
+  const { brands, brandsLoading } = useProducts();
   const [activeSegment, setActiveSegment] = useState<Segment>('Populaires');
   
-  const [pagination, setPagination] = useState<Record<Segment, { page: number, hasMore: boolean, items: Product[] }>>(() => {
-    const initialState = {} as Record<Segment, { page: number, hasMore: boolean, items: Product[] }>;
-    SEGMENTS.forEach(seg => {
-      initialState[seg] = { page: 0, hasMore: true, items: [] };
-    });
-    return initialState;
-  });
-
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [refreshing, setRefreshing] = useState(false); // État pour le pull-to-refresh
-  const listRef = useRef<FlatList>(null);
-
-  const resetAndInitializePagination = useCallback(() => {
-      if (products.length === 0) return;
-      
-      const newPaginationState = {} as typeof pagination;
-      SEGMENTS.forEach(seg => {
-          const sourceProducts = seg === 'Populaires' 
-            ? products 
-            : products.filter(p => p.category.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === seg.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
-          
-          const initialItems = sourceProducts.slice(0, PAGE_SIZE);
-          newPaginationState[seg] = {
-              page: 1,
-              hasMore: initialItems.length < sourceProducts.length,
-              items: initialItems
-          };
-      });
-      setPagination(newPaginationState);
-  }, [products]);
+  const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts({ category: activeSegment });
 
   useEffect(() => {
-    resetAndInitializePagination();
-  }, [products, resetAndInitializePagination]);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    // Simuler un appel réseau
-    setTimeout(() => {
-      resetAndInitializePagination();
-      setRefreshing(false);
-    }, 1000);
-  }, [resetAndInitializePagination]);
-
-  const handleSegmentPress = (segment: Segment) => {
-    if (segment !== activeSegment) {
-        setActiveSegment(segment);
-        listRef.current?.scrollToOffset({ offset: 0, animated: false });
-    }
-  };
-
-  const loadMoreProducts = useCallback(() => {
-    if (loadingMore || !pagination[activeSegment].hasMore) return;
-
-    setLoadingMore(true);
-    
-    setTimeout(() => {
-        const currentSegmentState = pagination[activeSegment];
-        const nextPage = currentSegmentState.page + 1;
-
-        const sourceProducts = activeSegment === 'Populaires' 
-          ? products 
-          : products.filter(p => p.category.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === activeSegment.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
-
-        const newItems = sourceProducts.slice(0, nextPage * PAGE_SIZE);
-
-        setPagination(prev => ({
-            ...prev,
-            [activeSegment]: {
-                page: nextPage,
-                hasMore: newItems.length < sourceProducts.length,
-                items: newItems
-            }
-        }));
-        setLoadingMore(false);
-    }, 500);
-  }, [loadingMore, pagination, activeSegment, products]);
+    refresh();
+  }, [activeSegment, refresh]);
 
   const renderItem = useCallback(({ item }: { item: Product }) => (
     <View style={styles.gridItem}>
@@ -179,30 +106,23 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         )}
       />
-      <View style={{ height: 4, backgroundColor: '#f4f4f5', marginBottom: 8 }} />
-
+      
       {/* Onglets de segment */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
-        {SEGMENTS.map((s) => {
-          const active = s === activeSegment;
-          return (
-            <Pressable key={s} onPress={() => handleSegmentPress(s)} style={styles.segmentBtn}>
-              <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{s}</Text>
-              <View style={[styles.segmentUnderline, active && styles.segmentUnderlineActive]} />
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      <View style={styles.segmentContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
+            {SEGMENTS.map((s) => {
+            const active = s === activeSegment;
+            return (
+                <Pressable key={s} onPress={() => setActiveSegment(s)} style={styles.segmentBtn}>
+                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{s}</Text>
+                <View style={[styles.segmentUnderline, active && styles.segmentUnderlineActive]} />
+                </Pressable>
+            );
+            })}
+        </ScrollView>
+      </View>
     </>
   );
-
-  if (productsLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#FF7A00"/>
-      </View>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -216,24 +136,28 @@ const HomeScreen: React.FC = () => {
       </View>
 
       <FlatList
-        ref={listRef}
-        data={pagination[activeSegment].items}
+        data={products}
         renderItem={renderItem}
-        keyExtractor={(item, index) => `${activeSegment}-${item.id}-${index}`}
+        keyExtractor={(item) => `${activeSegment}-${item.id}`}
         numColumns={2}
         ListHeaderComponent={HeaderComponent}
         ListFooterComponent={loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" /> : null}
-        onEndReached={loadMoreProducts}
+        onEndReached={() => hasMore && !loadingMore && loadMore()}
         onEndReachedThreshold={0.5}
         columnWrapperStyle={styles.gridContainer}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 10 }}
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
+            refreshing={loading}
+            onRefresh={refresh}
             tintColor="#FF7A00"
           />
+        }
+        ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+                {loading ? null : <Text style={styles.emptyText}>Aucun produit dans cette catégorie.</Text>}
+            </View>
         }
       />
     </SafeAreaView>
@@ -278,8 +202,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, alignItems: 'center', flexDirection: 'row' 
   },
   featureLabel: { marginLeft: 8, fontSize: 12, fontWeight: '600', color: '#111', flexShrink: 1 },
-  segmentScrollContainer: { paddingHorizontal: 16, marginBottom: 12 },
-  segmentBtn: { paddingVertical: 8, paddingHorizontal: 10, marginRight: 6, alignItems: 'center' },
+  segmentContainer: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  segmentScrollContainer: { paddingHorizontal: 16 },
+  segmentBtn: { paddingVertical: 12, paddingHorizontal: 10, marginRight: 6, alignItems: 'center' },
   segmentText: { fontSize: 16, color: '#8A8A8E', fontWeight: '600' },
   segmentTextActive: { color: '#FF7A00' },
   segmentUnderline: { height: 3, width: '80%', marginTop: 6, borderRadius: 2, backgroundColor: 'transparent' },
@@ -292,6 +221,14 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 16,
   },
+  emptyContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+  emptyText: {
+      textAlign: 'center',
+      color: '#666'
+  }
 });
 
 export default HomeScreen;
