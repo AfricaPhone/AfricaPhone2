@@ -71,8 +71,7 @@ const PredictionGameScreen: React.FC = () => {
         count,
         percentage: Math.round((count / totalPredictions) * 100),
       }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
+      .sort((a, b) => b.count - a.count); // Suppression du .slice(0, 5)
   }, [match]);
 
   useEffect(() => {
@@ -282,7 +281,11 @@ const PredictionGameScreen: React.FC = () => {
           <View style={styles.matchContainer}>
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
-                <Image source={{ uri: 'https://flagcdn.com/w320/sn.png' }} style={styles.flag} />
+                {/* MODIFICATION: Utilisation du logo de l'équipe A depuis Firebase */}
+                <Image 
+                  source={{ uri: match.teamALogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }} 
+                  style={styles.flag} 
+                />
               </View>
               <Text style={styles.teamName}>{match.teamA}</Text>
             </View>
@@ -293,7 +296,11 @@ const PredictionGameScreen: React.FC = () => {
             )}
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
-                <Image source={{ uri: 'https://flagcdn.com/w320/ci.png' }} style={styles.flag} />
+                {/* MODIFICATION: Utilisation du logo de l'équipe B depuis Firebase */}
+                <Image 
+                  source={{ uri: match.teamBLogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }} 
+                  style={styles.flag} 
+                />
               </View>
               <Text style={styles.teamName}>{match.teamB}</Text>
             </View>
@@ -326,7 +333,9 @@ const PredictionGameScreen: React.FC = () => {
                 <View style={styles.progressBarContainer}>
                   <View style={[styles.progressBar, { width: `${pred.percentage}%` }]} />
                 </View>
-                <Text style={styles.predictionPercentage}>{`${pred.percentage}%`}</Text>
+                <Text style={styles.predictionPercentage}>
+                  {`${pred.percentage}% (${pred.count})`}
+                </Text>
               </View>
             ))
           ) : (
@@ -494,7 +503,7 @@ const styles = StyleSheet.create({
   predictionPercentage: {
     color: '#6b7280',
     fontSize: 14,
-    width: 40,
+    width: 80, // Augmenté pour faire de la place
     textAlign: 'right',
   },
   noPredictionsText: {

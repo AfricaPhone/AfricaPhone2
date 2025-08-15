@@ -31,8 +31,8 @@ const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'
 type Segment = typeof SEGMENTS[number];
 
 const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string; color: string; screen?: keyof RootStackParamList }> = [
-    { id: 'p-store', icon: 'map-outline', title: 'Notre boutique', subtitle: 'Nous sommes situés à Cotonou', color: '#f0fdf4', screen: 'Store' },
-    { id: 'p-70',  icon: 'flash-outline', title: 'Jusqu\'à -70%', subtitle: 'dès 3 articles achetés', color: '#e0f2fe' },
+    { id: 'p-store', icon: 'map-outline', title: "Notre boutique", subtitle: "Nous sommes situés près de l'E...", color: '#f0fdf4', screen: 'Store' },
+    { id: 'p-70',  icon: 'flash-outline', title: 'Nous offrons', subtitle: 'les meilleurs prix du marché ', color: '#e0f2fe' },
 ];
   
 const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; color: string, screen?: keyof RootStackParamList }> = [
@@ -53,6 +53,7 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     ram: data.ram,
     ram_base: data.ram_base,
     ram_extension: data.ram_extension,
+    ordreVedette: data.ordreVedette,
   };
 };
 
@@ -62,29 +63,16 @@ interface SegmentData {
   hasMore: boolean;
 }
 
-const buildSegmentQuery = (
-  segment: Segment,
-): FirebaseFirestoreTypes.Query => {
-    let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
-    
-    if (segment === 'Portables a Touches') {
-        q = query(q, where('ram', '==', null));
-    } else if (segment && segment !== 'Populaires') {
-        const categoryCapitalized = segment.charAt(0).toUpperCase() + segment.slice(1);
-        q = query(q, where('category', '==', categoryCapitalized));
-    }
-    
-    q = query(q, orderBy('name', 'asc'));
-    
-    return q;
-};
-
 // --- Écran principal HomeScreen ---
 const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
   const { brands, brandsLoading } = useProducts();
   const [activeSegment, setActiveSegment] = useState<Segment>('Populaires');
   
+  // États séparés pour la logique complexe des "Populaires"
+  const [vedetteProducts, setVedetteProducts] = useState<Product[]>([]);
+  const [regularProducts, setRegularProducts] = useState<SegmentData>({ products: [], lastDoc: null, hasMore: true });
+
   const [dataBySegment, setDataBySegment] = useState<Partial<Record<Segment, SegmentData>>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -101,13 +89,54 @@ const HomeScreen: React.FC = () => {
     isRefresh = false,
   ) => {
     if (isRefresh) setRefreshing(true); else setLoading(true);
+
     try {
-      let q = buildSegmentQuery(segment);
-      q = query(q, limit(PAGE_SIZE));
-      const querySnapshot = await getDocs(q);
-      const newProducts = querySnapshot.docs.map(mapDocToProduct);
-      const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-      setDataBySegment(prev => ({ ...prev, [segment]: { products: newProducts, lastDoc: lastVisible, hasMore: newProducts.length === PAGE_SIZE }}));
+      if (segment === 'Populaires') {
+        // --- Logique spéciale pour l'onglet "Populaires" ---
+        // 1. Récupérer les 6 produits vedettes
+        const vedetteQuery = query(
+          collection(db, 'products'),
+          where('ordreVedette', '>=', 1),
+          where('ordreVedette', '<=', 6),
+          orderBy('ordreVedette', 'asc')
+        );
+        const vedetteSnapshot = await getDocs(vedetteQuery);
+        const fetchedVedette = vedetteSnapshot.docs.map(mapDocToProduct);
+        setVedetteProducts(fetchedVedette);
+
+        // 2. Récupérer la première page des autres produits
+        const regularQuery = query(
+          collection(db, 'products'),
+          where('ordreVedette', 'not-in', [1, 2, 3, 4, 5, 6]),
+          orderBy('ordreVedette', 'asc'), // Tri principal pour la compatibilité
+          orderBy('name', 'asc'), // Tri secondaire
+          limit(PAGE_SIZE)
+        );
+        const regularSnapshot = await getDocs(regularQuery);
+        const fetchedRegular = regularSnapshot.docs.map(mapDocToProduct);
+        const lastVisible = regularSnapshot.docs[regularSnapshot.docs.length - 1] || null;
+        setRegularProducts({
+          products: fetchedRegular,
+          lastDoc: lastVisible,
+          hasMore: fetchedRegular.length === PAGE_SIZE,
+        });
+
+      } else {
+        // --- Logique pour les autres onglets ---
+        let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
+        if (segment === 'Portables a Touches') {
+            q = query(q, where('ram', '==', null), orderBy('name', 'asc'));
+        } else {
+            const categoryCapitalized = segment.charAt(0).toUpperCase() + segment.slice(1);
+            q = query(q, where('category', '==', categoryCapitalized), orderBy('name', 'asc'));
+        }
+        q = query(q, limit(PAGE_SIZE));
+        
+        const querySnapshot = await getDocs(q);
+        const newProducts = querySnapshot.docs.map(mapDocToProduct);
+        const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+        setDataBySegment(prev => ({ ...prev, [segment]: { products: newProducts, lastDoc: lastVisible, hasMore: newProducts.length === PAGE_SIZE }}));
+      }
     } catch (error) { console.error(`Erreur de chargement pour le segment ${segment}:`, error); } 
     finally { setLoading(false); setRefreshing(false); }
   }, []);
@@ -121,25 +150,58 @@ const HomeScreen: React.FC = () => {
   };
   
   const loadMore = useCallback(async () => {
-    const segmentState = dataBySegment[activeSegment];
+    const segmentState = activeSegment === 'Populaires' ? regularProducts : dataBySegment[activeSegment];
     if (loadingMore || !segmentState || !segmentState.hasMore) return;
+
     setLoadingMore(true);
     try {
-      let q = buildSegmentQuery(activeSegment);
-      q = query(q, startAfter(segmentState.lastDoc), limit(PAGE_SIZE));
-      const querySnapshot = await getDocs(q);
-      const newProducts = querySnapshot.docs.map(mapDocToProduct);
-      const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-      setDataBySegment(prev => ({ ...prev, [activeSegment]: { products: [...(prev[activeSegment]?.products || []), ...newProducts], lastDoc: lastVisible, hasMore: newProducts.length === PAGE_SIZE }}));
+        let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
+
+        if (activeSegment === 'Populaires') {
+            q = query(q, 
+                where('ordreVedette', 'not-in', [1, 2, 3, 4, 5, 6]), 
+                orderBy('ordreVedette', 'asc'), // CORRECTION: Ajout du tri principal
+                orderBy('name', 'asc')
+            );
+        } else if (activeSegment === 'Portables a Touches') {
+            q = query(q, where('ram', '==', null), orderBy('name', 'asc'));
+        } else {
+            const categoryCapitalized = activeSegment.charAt(0).toUpperCase() + activeSegment.slice(1);
+            q = query(q, where('category', '==', categoryCapitalized), orderBy('name', 'asc'));
+        }
+      
+        q = query(q, startAfter(segmentState.lastDoc), limit(PAGE_SIZE));
+        const querySnapshot = await getDocs(q);
+        const newProducts = querySnapshot.docs.map(mapDocToProduct);
+        const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+
+        if (activeSegment === 'Populaires') {
+            setRegularProducts(prev => ({
+                products: [...prev.products, ...newProducts],
+                lastDoc: lastVisible,
+                hasMore: newProducts.length === PAGE_SIZE,
+            }));
+        } else {
+            setDataBySegment(prev => ({ 
+                ...prev, 
+                [activeSegment]: { 
+                    products: [...(prev[activeSegment]?.products || []), ...newProducts], 
+                    lastDoc: lastVisible, 
+                    hasMore: newProducts.length === PAGE_SIZE 
+                }
+            }));
+        }
     } catch (error) { console.error(`Erreur de pagination pour ${activeSegment}:`, error); } 
     finally { setLoadingMore(false); }
-  }, [activeSegment, dataBySegment, loadingMore]);
+  }, [activeSegment, dataBySegment, regularProducts, loadingMore]);
 
   const renderItem = useCallback(({ item }: { item: Product }) => (
     <View style={styles.gridItem}><ProductGridCard product={item} onPress={() => nav.navigate('ProductDetail' as never, { productId: item.id } as never)}/></View>
   ), [nav]);
   
-  const currentData = dataBySegment[activeSegment]?.products || [];
+  const currentData = activeSegment === 'Populaires'
+    ? [...vedetteProducts, ...regularProducts.products]
+    : dataBySegment[activeSegment]?.products || [];
   
   const resetFilters = () => {
     setMinPrice('');

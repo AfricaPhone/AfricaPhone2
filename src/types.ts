@@ -15,6 +15,7 @@ export type Product = {
   ram?: number;
   ram_base?: number;
   ram_extension?: number;
+  ordreVedette?: number; // Ligne ajoutée pour corriger l'erreur
 };
 
 // --- Brand ---
@@ -142,6 +143,8 @@ export type Match = {
   finalScoreB?: number | null;
   teamA: string;
   teamB: string;
+  teamALogo?: string; // MODIFICATION: Ajout du logo de l'équipe A
+  teamBLogo?: string; // MODIFICATION: Ajout du logo de l'équipe B
   competition: string;
   // --- NOUVEAUX CHAMPS POUR L'AGRÉGATION ---
   predictionCount?: number;

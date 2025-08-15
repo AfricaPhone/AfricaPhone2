@@ -34,13 +34,7 @@ const useDebounce = (value: string, delay: number) => {
 };
 
 // --- Composants ---
-const RECENT_SEARCHES = ['iPhone 14 Pro', 'Samsung S23 Ultra', 'Chargeur Rapide'];
-const CATEGORIES = [
-  { name: 'Téléphones', icon: 'phone-portrait-outline', key: 'Téléphones' },
-  { name: 'Tablettes', icon: 'tablet-portrait-outline', key: 'Tablettes' },
-  { name: 'Accessoires', icon: 'headset-outline', key: 'Accessoires' },
-  { name: 'À Touches', icon: 'keypad-outline', key: 'Portables a Touches' },
-];
+const RECENT_SEARCHES = ['Oale', 'Villaon', 'Redmi'];
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <View style={styles.section}>
@@ -143,20 +137,9 @@ const CatalogScreen: React.FC = () => {
     });
   };
 
-  const handleCategoryPress = (category: { name: string; key: string }) => {
-    navigation.navigate('ProductList', {
-      title: category.name,
-      category: category.key,
-    });
-  };
-  
-  const handleBrandPress = (brand: Brand) => {
-    navigation.navigate('Brand', { brandId: brand.id });
-  };
-
   const renderSearchHub = () => (
     <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-      <Section title="Recherches récentes">
+      <Section title="Recherches Populaires">
         <View style={styles.chipContainer}>
           {RECENT_SEARCHES.map(item => (
             <TouchableOpacity key={item} style={styles.chip} onPress={() => setSearchQuery(item)}>
@@ -166,18 +149,6 @@ const CatalogScreen: React.FC = () => {
           ))}
         </View>
       </Section>
-      
-      <Section title="Parcourir par catégorie">
-        <View style={styles.categoryGrid}>
-          {CATEGORIES.map(cat => (
-            <TouchableOpacity key={cat.key} style={styles.categoryCard} onPress={() => handleCategoryPress(cat)}>
-              <Ionicons name={cat.icon as any} size={28} color="#111" />
-              <Text style={styles.categoryText}>{cat.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </Section>
-      
     </ScrollView>
   );
 
@@ -276,27 +247,6 @@ const styles = StyleSheet.create({
   chipText: {
     color: '#333',
     fontWeight: '500',
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  categoryCard: {
-    width: '48%',
-    height: 100,
-    backgroundColor: '#f2f3f5',
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-  },
-  categoryText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111',
   },
   brandCarousel: {
     paddingHorizontal: 16,
