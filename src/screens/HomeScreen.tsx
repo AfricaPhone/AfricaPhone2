@@ -37,10 +37,6 @@ const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; tit
   
 const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; color: string, screen?: keyof RootStackParamList }> = [
     { id: 'f-wheel', icon: 'gamepad-variant-outline', label: 'Jeu pronostique', color: '#fffbeb', screen: 'MatchList' },
-    { id: 'f-gift',  icon: 'gift-outline', label: 'Cadeau gratuit', color: '#ecfeff' },
-    { id: 'f-60',    icon: 'sale', label: '-60% sur les bijoux', color: '#f5f3ff' },
-    { id: 'f-out',   icon: 'store-outline', label: 'Outlet', color: '#f0fdf4' },
-    { id: 'f-pick',  icon: 'star-outline', label: 'Populaires', color: '#fff1f2' },
 ];
 
 // --- Helpers ---
@@ -182,14 +178,19 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         )}
       />
-      <FlatList data={FEATURE_TILES} keyExtractor={(i) => i.id} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }} ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={[styles.featureTile, { backgroundColor: item.color }]} onPress={() => item.screen && nav.navigate(item.screen as never)} activeOpacity={0.8}>
-            <MaterialCommunityIcons name={item.icon} size={20} color="#111" />
-            <Text numberOfLines={1} style={styles.featureLabel}>{item.label}</Text>
+      <View style={{paddingHorizontal: 16, paddingBottom: 8, gap: 10}}>
+        {FEATURE_TILES.map((item) => (
+          <TouchableOpacity 
+            key={item.id} 
+            style={[styles.promoCard, { backgroundColor: item.color }]} 
+            onPress={() => item.screen && nav.navigate(item.screen as never)} 
+            activeOpacity={0.8}
+          >
+            <MaterialCommunityIcons name={item.icon} size={22} color="#111" />
+            <Text style={[styles.promoTitle, { marginLeft: 10 }]}>{item.label}</Text>
           </TouchableOpacity>
-        )}
-      />
+        ))}
+      </View>
       <View style={styles.segmentContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
             {SEGMENTS.map((s) => {
@@ -345,12 +346,6 @@ const styles = StyleSheet.create({
   },
   promoTitle: { fontWeight: '700', fontSize: 14, color: '#111' },
   promoSub: { color: '#6B7280', fontSize: 12, marginTop: 2 },
-  featureTile: { 
-    width: 120, height: 56, borderRadius: 12, 
-    borderWidth: 1, borderColor: '#eee', 
-    paddingHorizontal: 12, alignItems: 'center', flexDirection: 'row' 
-  },
-  featureLabel: { marginLeft: 8, fontSize: 12, fontWeight: '600', color: '#111', flexShrink: 1 },
   segmentContainer: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,

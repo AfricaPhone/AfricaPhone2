@@ -1,5 +1,5 @@
 // src/screens/StoreScreen.tsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -15,15 +15,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { doc, getDoc } from '@react-native-firebase/firestore';
-import { db } from '../firebase/config';
-import { BoutiqueInfo } from '../types';
+import { useBoutique } from '../store/BoutiqueContext'; // Importer useBoutique
 
 // --- Design Tokens ---
 const COLORS = {
-  primary: '#000000', // Modifié pour le noir
-  surface: '#f2f2f7', // Fond de l'écran (gris clair)
-  background: '#ffffff', // Fond des sections
+  primary: '#000000',
+  surface: '#f2f2f7',
+  background: '#ffffff',
   textPrimary: '#000000',
   textSecondary: '#6e6e73',
   divider: '#e5e5ea',
@@ -50,31 +48,7 @@ const InfoRow: React.FC<{
 
 const StoreScreen: React.FC = () => {
   const navigation = useNavigation();
-  const [info, setInfo] = useState<BoutiqueInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStoreInfo = async () => {
-      try {
-        const docRef = doc(db, 'config', 'boutiqueInfo');
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setInfo(docSnap.data() as BoutiqueInfo);
-        } else {
-          console.log("Aucun document d'information sur la boutique trouvé !");
-          Alert.alert("Erreur", "Impossible de charger les informations de la boutique.");
-        }
-      } catch (error) {
-        console.error("Erreur lors de la récupération des informations de la boutique:", error);
-        Alert.alert("Erreur réseau", "Une erreur est survenue. Veuillez vérifier votre connexion.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStoreInfo();
-  }, []);
+  const { boutiqueInfo: info, loading } = useBoutique(); // Utiliser le hook
 
   const handleOpenUrl = (url: string | undefined) => {
     if (!url) return;
@@ -221,6 +195,7 @@ const StoreScreen: React.FC = () => {
   );
 };
 
+// ... le reste des styles reste inchangé
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: COLORS.surface },
   container: { flex: 1 },

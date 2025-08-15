@@ -7,7 +7,8 @@ import { StoreProvider } from './src/store/StoreContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ProductProvider } from './src/store/ProductContext';
 import { CartProvider } from './src/store/CartContext';
-import { FavoritesProvider } from './src/store/FavoritesContext'; // Importer FavoritesProvider
+import { FavoritesProvider } from './src/store/FavoritesContext';
+import { BoutiqueProvider } from './src/store/BoutiqueContext'; // Importer BoutiqueProvider
 
 export default function App() {
   const theme: Theme = {
@@ -17,17 +18,19 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <ProductProvider>
-        <CartProvider>
-          <FavoritesProvider>
-            <StoreProvider>
-              <NavigationContainer theme={theme}>
-                <RootNavigator />
-              </NavigationContainer>
-            </StoreProvider>
-          </FavoritesProvider>
-        </CartProvider>
-      </ProductProvider>
+      <BoutiqueProvider>
+        <ProductProvider>
+          <CartProvider>
+            <FavoritesProvider>
+              <StoreProvider>
+                <NavigationContainer theme={theme}>
+                  <RootNavigator />
+                </NavigationContainer>
+              </StoreProvider>
+            </FavoritesProvider>
+          </CartProvider>
+        </ProductProvider>
+      </BoutiqueProvider>
     </SafeAreaProvider>
   );
 }

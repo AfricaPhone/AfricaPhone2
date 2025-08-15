@@ -24,6 +24,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
+import { useBoutique } from '../store/BoutiqueContext'; // Importer useBoutique
 import { formatPrice } from '../utils/formatPrice';
 import { Product } from '../types';
 
@@ -56,6 +57,7 @@ const ProductDetailScreen: React.FC = () => {
 
   const { toggleFavorite, isFav } = useFavorites();
   const { getProductById, getProductFromCache } = useProducts();
+  const { boutiqueInfo } = useBoutique(); // Utiliser le hook
   
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,8 +100,11 @@ const ProductDetailScreen: React.FC = () => {
   };
   
   const handleWhatsAppPress = async () => {
-    if (!product) return;
-    const phoneNumber = "22900000000"; // Remplacez par votre numéro WhatsApp
+    if (!product || !boutiqueInfo?.whatsappNumber) {
+      Alert.alert("Erreur", "Le numéro de contact n'est pas disponible pour le moment.");
+      return;
+    }
+    const phoneNumber = boutiqueInfo.whatsappNumber;
     const message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     
@@ -237,6 +242,7 @@ const ProductDetailScreen: React.FC = () => {
   );
 };
 
+// ... le reste des styles reste inchangé
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   safeHeader: {
