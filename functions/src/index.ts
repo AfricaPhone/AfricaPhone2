@@ -85,7 +85,10 @@ export const submitPrediction = onCall(async (request) => {
     }
 });
 
-
+/**
+ * Gère l'agrégation lors de la CRÉATION d'un pronostic.
+ * Se déclenche uniquement quand un nouveau pronostic est ajouté.
+ */
 export const aggregatePredictions = onDocumentCreated("predictions/{predictionId}", async (event) => {
     const snap = event.data;
     if (!snap) {
@@ -110,7 +113,6 @@ export const aggregatePredictions = onDocumentCreated("predictions/{predictionId
 
     try {
         // Utilise une transaction pour garantir que les mises à jour sont atomiques.
-        // C'est essentiel quand plusieurs utilisateurs font des pronostics en même temps.
         await db.runTransaction(async (transaction) => {
             const matchDoc = await transaction.get(matchRef);
             if (!matchDoc.exists) {
@@ -120,10 +122,6 @@ export const aggregatePredictions = onDocumentCreated("predictions/{predictionId
             const data = matchDoc.data() || {};
             const trends = data.trends || {};
             
-            // La transaction doit relire l'ancien score pour le décrémenter s'il existe
-            // Ceci n'est pas géré ici pour garder l'exemple simple, mais serait
-            // nécessaire si un utilisateur pouvait changer son vote.
-            // Pour l'instant, on se contente d'incrémenter.
             const currentTotal = data.predictionCount || 0;
             const currentScoreCount = trends[scoreKey] || 0;
 
@@ -139,6 +137,68 @@ export const aggregatePredictions = onDocumentCreated("predictions/{predictionId
         logger.error(`Erreur lors de la transaction pour le match ${matchId}:`, err);
     }
 });
+
+/**
+ * NOUVELLE FONCTION
+ * Gère l'agrégation lors de la MISE À JOUR d'un pronostic.
+ * Décrémente l'ancien score et incrémente le nouveau.
+ */
+export const updateAggregatedPredictions = onDocumentUpdated("predictions/{predictionId}", async (event) => {
+    const beforeSnap = event.data?.before;
+    const afterSnap = event.data?.after;
+
+    if (!beforeSnap || !afterSnap) {
+        logger.warn(`[Update] Données before/after absentes pour le pronostic ${event.params.predictionId}.`);
+        return;
+    }
+
+    const beforeData = beforeSnap.data();
+    const afterData = afterSnap.data();
+
+    // Si le score n'a pas changé, on ne fait rien.
+    if (beforeData.scoreA === afterData.scoreA && beforeData.scoreB === afterData.scoreB) {
+        logger.info(`[Update] Le score pour le pronostic ${beforeSnap.id} n'a pas changé.`);
+        return;
+    }
+
+    const matchId = afterData.matchId;
+    if (!matchId) {
+        logger.error(`[Update] Le pronostic ${afterSnap.id} n'a pas de matchId.`);
+        return;
+    }
+
+    logger.info(`[Update] Mise à jour de l'agrégation pour le pronostic ${afterSnap.id} sur le match ${matchId}.`);
+
+    const matchRef = db.collection("matches").doc(matchId);
+
+    const oldScoreKey = `${beforeData.scoreA}-${beforeData.scoreB}`;
+    const newScoreKey = `${afterData.scoreA}-${afterData.scoreB}`;
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const matchDoc = await transaction.get(matchRef);
+            if (!matchDoc.exists) {
+                throw new Error(`Match ${matchId} non trouvé!`);
+            }
+
+            const data = matchDoc.data() || {};
+            const trends = data.trends || {};
+
+            const oldScoreCount = trends[oldScoreKey] || 0;
+            const newScoreCount = trends[newScoreKey] || 0;
+
+            // Le nombre total de pronostics (predictionCount) ne change pas lors d'une mise à jour.
+            transaction.update(matchRef, {
+                [`trends.${oldScoreKey}`]: Math.max(0, oldScoreCount - 1), // On décrémente l'ancien score.
+                [`trends.${newScoreKey}`]: newScoreCount + 1,             // On incrémente le nouveau score.
+            });
+        });
+        logger.info(`[Update] Tendances du match ${matchId} mises à jour avec succès après modification.`);
+    } catch (err) {
+        logger.error(`[Update] Erreur lors de la transaction de mise à jour pour le match ${matchId}:`, err);
+    }
+});
+
 
 /**
  * Déclenchée à chaque update d'un doc de la collection 'matches'.

@@ -24,21 +24,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
-import RatingStars from '../components/RatingStars';
 import { formatPrice } from '../utils/formatPrice';
 import { Product } from '../types';
 
 const { width } = Dimensions.get('window');
 
 type RouteParams = { productId: string };
-
-const COLORS = [
-  { key: 'black', label: 'Noir', swatch: '#111827' },
-  { key: 'silver', label: 'Argent', swatch: '#d1d5db' },
-  { key: 'blue', label: 'Bleu', swatch: '#3b82f6' },
-];
-
-const STORAGES = ['64 GO', '128 GO', '256 GO', '512 GO'];
 
 const Section: React.FC<{
   title: string;
@@ -67,31 +58,25 @@ const ProductDetailScreen: React.FC = () => {
   const { getProductById, getProductFromCache } = useProducts();
   
   const [product, setProduct] = useState<Product | null>(null);
-  // Le chargement n'est vrai que si le produit n'est pas du tout dans le cache
   const [loading, setLoading] = useState(true);
 
-  const [color, setColor] = useState(COLORS[0].key);
-  const [storage, setStorage] = useState(STORAGES[1]);
   const [headerH, setHeaderH] = useState(56);
   const onHeaderLayout = (e: LayoutChangeEvent) => setHeaderH(e.nativeEvent.layout.height);
 
   useEffect(() => {
     const fetchProduct = async () => {
-      // 1. Essayer de charger depuis le cache pour un affichage instantané
       const cachedProduct = getProductFromCache(productId);
       if (cachedProduct) {
         setProduct(cachedProduct);
-        setLoading(false); // On a des données, donc on n'est plus en "chargement initial"
+        setLoading(false);
       } else {
-        setLoading(true); // Pas de cache, on affiche le loader
+        setLoading(true);
       }
 
-      // 2. Toujours récupérer depuis Firestore pour mettre à jour les données en arrière-plan
       const freshProduct = await getProductById(productId);
       if (freshProduct) {
         setProduct(freshProduct);
       }
-      // Si c'était le premier chargement, on l'arrête
       if (loading) {
         setLoading(false);
       }
@@ -112,21 +97,17 @@ const ProductDetailScreen: React.FC = () => {
     if (idx !== activeIndex) setActiveIndex(idx);
   };
   
-  const handleWhatsAppPress = () => {
+  const handleWhatsAppPress = async () => {
     if (!product) return;
     const phoneNumber = "22900000000"; // Remplacez par votre numéro WhatsApp
     const message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     
-    Linking.canOpenURL(url)
-      .then(supported => {
-        if (supported) {
-          return Linking.openURL(url);
-        } else {
-          Alert.alert("Erreur", "WhatsApp n'est pas installé sur votre appareil.");
-        }
-      })
-      .catch(err => console.error('An error occurred', err));
+    try {
+      await Linking.openURL(url);
+    } catch (error) {
+      Alert.alert("Erreur", "Impossible d'ouvrir WhatsApp. L'application est-elle bien installée sur votre appareil ?");
+    }
   };
 
   if (loading) {
@@ -149,7 +130,6 @@ const ProductDetailScreen: React.FC = () => {
   }
 
   const oldPrice = product.price * 1.12;
-  const rating = product.rating ?? 4.6;
 
   return (
     <View style={styles.container}>
@@ -203,10 +183,6 @@ const ProductDetailScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={styles.ratingRow}>
-            <RatingStars rating={rating} size={14} />
-            <Text style={styles.ratingTxt}>{rating.toFixed(1)} · 530 avis</Text>
-          </View>
         </View>
 
         <View style={styles.priceCard}>
@@ -214,46 +190,21 @@ const ProductDetailScreen: React.FC = () => {
             <Text style={styles.price}>{formatPrice(product.price)}</Text>
             <Text style={styles.oldPrice}>{formatPrice(oldPrice)}</Text>
           </View>
-          <View style={styles.freeDelivery}>
-            <Ionicons name="car-outline" size={16} color="#111" />
-            <Text style={styles.freeDeliveryTxt}>Livraison gratuite</Text>
-          </View>
-        </View>
-
-        <View style={styles.optionBlock}>
-          <Text style={styles.optionLabel}>Couleur</Text>
-          <View style={styles.colorRow}>
-            {COLORS.map(c => (
-              <Pressable key={c.key} onPress={() => setColor(c.key)} style={[styles.colorBtn, color === c.key && styles.colorBtnActive]}>
-                <View style={[styles.swatch, { backgroundColor: c.swatch }]} />
-                <Text style={[styles.colorTxt, color === c.key && styles.colorTxtActive]}>{c.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.optionBlock}>
-          <Text style={styles.optionLabel}>Stockage</Text>
-          <View style={styles.pillsRow}>
-            {STORAGES.map(s => {
-              const active = storage === s;
-              return (
-                <Pressable key={s} onPress={() => setStorage(s)} style={[styles.pill, active && styles.pillActive]}>
-                  <Text style={[styles.pillTxt, active && styles.pillTxtActive]}>{s}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          {product.ram && product.rom && (
+            <Text style={styles.specsText}>
+              {product.rom}GB ROM / {product.ram}GB RAM
+            </Text>
+          )}
         </View>
 
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="truck-delivery-outline" size={20} color="#111" />
-            <Text style={styles.infoTxt}>Livraison entre le 24 août et le 23 sept.</Text>
+            <Text style={styles.infoTxt}>Nous livrons partout au Bénin !</Text>
           </View>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="shield-check-outline" size={20} color="#111" />
-            <Text style={styles.infoTxt}>Retours sous 30 jours • Garantie 2 ans</Text>
+            <Text style={styles.infoTxt}>Retours sous 30 jours • Garantie 1 an</Text>
           </View>
         </View>
 
@@ -272,16 +223,6 @@ const ProductDetailScreen: React.FC = () => {
           <View style={styles.specRow}><Text style={styles.specKey}>Connectivité</Text><Text style={styles.specVal}>5G • Wi-Fi 6 • NFC</Text></View>
         </Section>
 
-        <Section title="Avis (530)">
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <RatingStars rating={rating} size={16} />
-            <Text style={{ color: '#374151' }}>{rating.toFixed(1)} en moyenne</Text>
-          </View>
-          <View style={{ height: 8 }} />
-          <View style={{ backgroundColor: '#f3f4f6', borderRadius: 12, padding: 12 }}>
-            <Text style={{ color: '#6b7280' }}>L'interface des avis arrive bientôt.</Text>
-          </View>
-        </Section>
       </ScrollView>
 
       <SafeAreaView edges={['bottom']} style={styles.actionsSafe}>
@@ -351,8 +292,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
-  ratingTxt: { color: '#6b7280' },
   priceCard: {
     marginTop: 10,
     marginHorizontal: 16,
@@ -364,31 +303,12 @@ const styles = StyleSheet.create({
   },
   price: { fontSize: 22, fontWeight: '900', color: '#111' },
   oldPrice: { fontSize: 14, color: '#9ca3af', textDecorationLine: 'line-through' },
-  freeDelivery: { marginTop: 8, flexDirection: 'row', alignItems: 'center', columnGap: 6 },
-  freeDeliveryTxt: { fontSize: 12, color: '#111', fontWeight: '600' },
-  optionBlock: { marginTop: 14, paddingHorizontal: 16 },
-  optionLabel: { fontWeight: '700', marginBottom: 8, color: '#111' },
-  colorRow: { flexDirection: 'row', columnGap: 10 },
-  colorBtn: {
-    paddingHorizontal: 10, paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1, borderColor: '#e5e7eb',
-    flexDirection: 'row', alignItems: 'center', columnGap: 8,
+  specsText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '600',
   },
-  colorBtnActive: { borderColor: '#111' },
-  swatch: { width: 16, height: 16, borderRadius: 8 },
-  colorTxt: { color: '#374151', fontWeight: '600' },
-  colorTxtActive: { color: '#111' },
-  pillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: {
-    paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1, borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
-  },
-  pillActive: { borderColor: '#111', backgroundColor: '#111' },
-  pillTxt: { color: '#374151', fontWeight: '600' },
-  pillTxtActive: { color: '#fff' },
   infoCard: {
     marginTop: 14,
     marginHorizontal: 16,

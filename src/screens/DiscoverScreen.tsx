@@ -44,7 +44,6 @@ type Product = {
   price: number;
   image: string;
   category?: string;
-  rating?: number;
 };
 
 type ProductPost = PostBase & {
@@ -400,7 +399,6 @@ const makeProduct = (i: number): Product => ({
     ` ${100 + i}`,
   price: [59, 95, 129, 199, 279, 349][i % 6],
   image: rand(IMAGES),
-  rating: 3.8 + (i % 12) * 0.1,
   category: ['Audio', 'Wearables', 'Photo', 'Accessoires'][i % 4],
 });
 

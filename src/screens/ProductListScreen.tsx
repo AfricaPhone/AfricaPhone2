@@ -25,6 +25,7 @@ type RouteParams = {
 
 type ViewMode = 'grid' | 'list';
 
+// CORRECTION: Le composant n'attend plus de props, il utilise les paramètres de la route.
 const ProductListScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();

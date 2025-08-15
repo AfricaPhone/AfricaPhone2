@@ -11,7 +11,6 @@ import CartScreen from '../screens/CartScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
-import DiscoverScreen from '../screens/DiscoverScreen';
 import BrandScreen from '../screens/BrandScreen';
 import PredictionGameScreen from '../screens/PredictionGameScreen';
 import MatchListScreen from '../screens/MatchListScreen';
@@ -20,7 +19,7 @@ import AuthPromptScreen from '../screens/AuthPromptScreen';
 import CreateProfileScreen from '../screens/CreateProfileScreen';
 import StoreScreen from '../screens/StoreScreen';
 import FilterScreenResults from '../screens/FilterScreenResults';
-import ProductListScreen from '../screens/ProductListScreen'; // NOUVEL IMPORT
+import ProductListScreen from '../screens/ProductListScreen';
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useCart } from '../store/CartContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -66,9 +65,6 @@ function Tabs() {
             case 'Home':
               name = focused ? 'home' : 'home-outline';
               break;
-            case 'Discover':
-              name = focused ? 'compass' : 'compass-outline';
-              break;
             case 'Catalog':
               name = focused ? 'search' : 'search-outline';
               break;
@@ -86,7 +82,6 @@ function Tabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'Accueil' }} />
-      <Tab.Screen name="Discover" component={DiscoverScreen} options={{ tabBarLabel: 'Découvrir' }} />
       <Tab.Screen name="Catalog" component={CatalogScreen} options={{ tabBarLabel: 'Recherche' }} />
       <Tab.Screen name="Favorites" component={FavoritesScreen} options={{ tabBarLabel: 'Favoris' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: 'Profil' }} />
@@ -119,7 +114,6 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="CreateProfile" component={CreateProfileScreen} options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }} />
       <RootStack.Screen name="Cart" component={CartScreen} options={{ presentation: 'modal', headerShown: false }} />
       <RootStack.Screen name="FilterScreenResults" component={FilterScreenResults} options={{ headerShown: false, presentation: 'modal' }} />
-      {/* NOUVEL ÉCRAN POUR LES LISTES DE PRODUITS */}
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
     </RootStack.Navigator>
   );

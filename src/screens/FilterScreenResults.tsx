@@ -19,7 +19,7 @@ import { Category, Product } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useAllProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts'; // MODIFICATION: Importer le nouveau hook
+import { useAllProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
 
 type RouteParams = {
   initialCategory?: Category;
@@ -28,7 +28,7 @@ type RouteParams = {
   maxPrice?: string;
 };
 
-type SortKey = 'priceAsc' | 'priceDesc' | 'ratingDesc';
+type SortKey = 'priceAsc' | 'priceDesc';
 type ViewMode = 'grid' | 'list';
 
 const { width } = Dimensions.get('window');
@@ -58,15 +58,10 @@ const FilterScreenResults: React.FC = () => {
         options.sortBy = 'price';
         options.sortDirection = 'desc';
         break;
-      case 'ratingDesc':
-        options.sortBy = 'rating';
-        options.sortDirection = 'desc';
-        break;
     }
     return options;
   }, [category, searchQuery, sort, minPrice, maxPrice]);
 
-  // MODIFICATION: Utiliser le nouveau hook qui charge tout
   const { products, loading, refresh } = useAllProducts(queryOptions);
 
   useEffect(() => {
@@ -126,7 +121,6 @@ const FilterScreenResults: React.FC = () => {
                 showsVerticalScrollIndicator={false}
                 onScrollBeginDrag={() => Keyboard.dismiss()}
                 contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
-                // MODIFICATION: Suppression des props de pagination
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <Text style={styles.emptyText}>Aucun produit ne correspond à ces filtres.</Text>
@@ -174,10 +168,10 @@ const FilterScreenResults: React.FC = () => {
           <View style={styles.sheetSection}>
             <Text style={styles.filterSectionTitle}>Trier par</Text>
             <View style={styles.pillsRow}>
-              {(['priceAsc', 'priceDesc', 'ratingDesc'] as SortKey[]).map(s => (
+              {(['priceAsc', 'priceDesc'] as SortKey[]).map(s => (
                 <TouchableOpacity key={s} onPress={() => { setSort(s); }} style={[styles.pill, sort === s && styles.pillActive]}>
                   <Text style={[styles.pillTxt, sort === s && styles.pillTxtActive]}>
-                    {s === 'priceAsc' ? 'Prix ↑' : s === 'priceDesc' ? 'Prix ↓' : 'Mieux notés'}
+                    {s === 'priceAsc' ? 'Prix ↑' : 'Prix ↓'}
                   </Text>
                 </TouchableOpacity>
               ))}

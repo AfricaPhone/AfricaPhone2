@@ -52,7 +52,6 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     price: data.price,
     image: data.imageUrl,
     category: data.brand?.toLowerCase() || 'inconnu',
-    rating: data.rating || 4.5,
     description: data.description,
     rom: data.rom,
     ram: data.ram,

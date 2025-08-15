@@ -10,7 +10,6 @@ export type Product = {
   price: number;
   image: string;
   category: Category;
-  rating?: number;
   description?: string;
   rom?: number;
   ram?: number;
@@ -119,7 +118,6 @@ export type MainStackParamList = {
 
 export type TabParamList = {
   Home: undefined;
-  Discover: undefined;
   Catalog: { category?: Category, minPrice?: string, maxPrice?: string } | undefined;
   Favorites: undefined;
   Profile: undefined;

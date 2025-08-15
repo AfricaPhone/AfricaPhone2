@@ -19,7 +19,7 @@ const PAGE_SIZE = 10;
 export interface ProductQueryOptions {
   category?: string;
   brandId?: string;
-  sortBy?: 'price' | 'rating' | 'name';
+  sortBy?: 'price' | 'name';
   sortDirection?: 'asc' | 'desc';
   searchQuery?: string;
   minPrice?: string;
@@ -35,7 +35,6 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     price: data.price,
     image: data.imageUrl,
     category: data.brand?.toLowerCase() || 'inconnu',
-    rating: data.rating || 4.5,
     description: data.description,
     rom: data.rom,
     ram: data.ram,
