@@ -1,281 +1,370 @@
 // src/screens/CatalogScreen.tsx
-import React, { useEffect, useState, useCallback, useMemo } from 'react'; // Ajout de useMemo
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   TextInput,
-  FlatList,
   StyleSheet,
-  Pressable,
-  Modal,
   TouchableOpacity,
+  ScrollView,
+  Image,
   Keyboard,
-  LayoutChangeEvent,
-  Dimensions,
-  Animated,
+  FlatList,
   ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Category, Product } from '../types';
-import ProductGridCard from '../components/ProductGridCard';
-import ProductListItem from '../components/ProductListItem';
-import { GridSkeleton, ListSkeleton } from '../components/SkeletonLoader';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { usePaginatedProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { useProducts } from '../store/ProductContext';
+import { Brand, Product } from '../types';
+import { collection, query, where, orderBy, limit, getDocs, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { db } from '../firebase/config';
+import { formatPrice } from '../utils/formatPrice';
 
-type RouteParams = { category?: Category };
-type SortKey = 'relevance' | 'priceAsc' | 'priceDesc' | 'ratingDesc';
-type ViewMode = 'grid' | 'list';
-
-const { width } = Dimensions.get('window');
-
-// Debounce hook
+// --- Hooks ---
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
+    return () => clearTimeout(handler);
   }, [value, delay]);
   return debouncedValue;
 };
 
-const CatalogScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
-  const insets = useSafeAreaInsets();
-  const initialCategory: Category | undefined = route?.params?.category;
+// --- Composants ---
+const RECENT_SEARCHES = ['iPhone 14 Pro', 'Samsung S23 Ultra', 'Chargeur Rapide'];
+const CATEGORIES = [
+  { name: 'Téléphones', icon: 'phone-portrait-outline', key: 'Téléphones' },
+  { name: 'Tablettes', icon: 'tablet-portrait-outline', key: 'Tablettes' },
+  { name: 'Accessoires', icon: 'headset-outline', key: 'Accessoires' },
+  { name: 'À Touches', icon: 'keypad-outline', key: 'Portables a Touches' },
+];
 
-  // --- State Management for Filters ---
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedQuery = useDebounce(searchQuery, 400);
-  const [category, setCategory] = useState<Category | undefined>(initialCategory);
-  const [sort, setSort] = useState<SortKey>('relevance');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [headerH, setHeaderH] = useState<number>(0);
+const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+  <View style={styles.section}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    {children}
+  </View>
+);
 
-  // --- Map UI state to Firestore query options ---
-  const queryOptions = useMemo((): ProductQueryOptions => {
-    const options: ProductQueryOptions = { category };
-    if (debouncedQuery) {
-        options.searchQuery = debouncedQuery;
+const SearchResultItem: React.FC<{ item: Product; query: string; onPress: () => void }> = ({ item, query, onPress }) => {
+  const renderHighlightedText = () => {
+    const title = item.title || ''; 
+    if (!query) {
+      return <Text style={styles.resultTitle}>{title}</Text>;
     }
-    switch (sort) {
-      case 'priceAsc':
-        options.sortBy = 'price';
-        options.sortDirection = 'asc';
-        break;
-      case 'priceDesc':
-        options.sortBy = 'price';
-        options.sortDirection = 'desc';
-        break;
-      case 'ratingDesc':
-        options.sortBy = 'rating';
-        options.sortDirection = 'desc';
-        break;
-    }
-    return options;
-  }, [category, debouncedQuery, sort]);
-
-  // --- Data Fetching using the custom hook ---
-  const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts(queryOptions);
-
-  useEffect(() => {
-    refresh();
-  }, [queryOptions, refresh]);
-
-  // --- UI Helpers ---
-  const onHeaderLayout = (e: LayoutChangeEvent) => {
-    const h = e.nativeEvent.layout.height;
-    if (h > 0 && h !== headerH) setHeaderH(h);
+    const parts = title.split(new RegExp(`(${query})`, 'gi'));
+    return (
+      <Text style={styles.resultTitle} numberOfLines={2}>
+        {parts.map((part, index) =>
+          part.toLowerCase() === query.toLowerCase() ? (
+            <Text key={index} style={styles.highlightedText}>
+              {part}
+            </Text>
+          ) : (
+            part
+          )
+        )}
+      </Text>
+    );
   };
 
-  const renderItem = useCallback(({ item }: { item: Product }) => {
-    const props = {
-      product: item,
-      onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
-    };
-    if (viewMode === 'grid') {
-      return <View style={{ width: '48%' }}><ProductGridCard {...props} /></View>;
-    }
-    return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
-  }, [viewMode, navigation]);
+  return (
+    <TouchableOpacity style={styles.resultItem} onPress={onPress}>
+      <Image source={{ uri: item.image }} style={styles.resultImage} />
+      <View style={styles.resultInfo}>
+        {renderHighlightedText()}
+        {item.rom && item.ram && <Text style={styles.resultSpecs}>{item.rom}GB ROM / {item.ram}GB RAM</Text>}
+        <Text style={styles.resultPrice}>{formatPrice(item.price)}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
-  const ListSkeletonComponent = () => (
-    <View style={{ paddingTop: headerH + 10 }}>
-      {viewMode === 'grid' ? (
-        <View style={styles.gridContainer}>
-          {Array.from({ length: 6 }).map((_, i) => <GridSkeleton key={i} />)}
+
+const CatalogScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const { brands } = useProducts();
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedQuery = useDebounce(searchQuery, 300);
+
+  const [results, setResults] = useState<Product[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (debouncedQuery.trim().length < 2) {
+        setResults([]);
+        return;
+      }
+      setIsSearching(true);
+      try {
+        const q = query(
+          collection(db, 'products'),
+          where('name', '>=', debouncedQuery),
+          where('name', '<=', debouncedQuery + '\uf8ff'),
+          limit(10)
+        );
+        const snapshot = await getDocs(q);
+        const fetchedProducts = snapshot.docs.map((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                title: data.name,
+                price: data.price,
+                image: data.imageUrl,
+                category: data.brand?.toLowerCase() || 'inconnu',
+                rating: data.rating,
+                description: data.description,
+                rom: data.rom,
+                ram: data.ram,
+                ram_base: data.ram_base,
+                ram_extension: data.ram_extension,
+            } as Product;
+        });
+        setResults(fetchedProducts);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+    fetchResults();
+  }, [debouncedQuery]);
+
+  const handleSearchSubmit = () => {
+    if (!searchQuery.trim()) return;
+    Keyboard.dismiss();
+    navigation.navigate('ProductList', {
+      title: `Recherche: "${searchQuery}"`,
+      searchQuery: searchQuery.trim(),
+    });
+  };
+
+  const handleCategoryPress = (category: { name: string; key: string }) => {
+    navigation.navigate('ProductList', {
+      title: category.name,
+      category: category.key,
+    });
+  };
+  
+  const handleBrandPress = (brand: Brand) => {
+    navigation.navigate('Brand', { brandId: brand.id });
+  };
+
+  const renderSearchHub = () => (
+    <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <Section title="Recherches récentes">
+        <View style={styles.chipContainer}>
+          {RECENT_SEARCHES.map(item => (
+            <TouchableOpacity key={item} style={styles.chip} onPress={() => setSearchQuery(item)}>
+              <Ionicons name="time-outline" size={16} color="#555" />
+              <Text style={styles.chipText}>{item}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
+      </Section>
+      
+      <Section title="Parcourir par catégorie">
+        <View style={styles.categoryGrid}>
+          {CATEGORIES.map(cat => (
+            <TouchableOpacity key={cat.key} style={styles.categoryCard} onPress={() => handleCategoryPress(cat)}>
+              <Ionicons name={cat.icon as any} size={28} color="#111" />
+              <Text style={styles.categoryText}>{cat.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </Section>
+      
+    </ScrollView>
+  );
+
+  const renderSearchResults = () => (
+    <View style={styles.resultsContainer}>
+      {isSearching ? (
+        <ActivityIndicator size="large" color="#FF7A00" style={{ marginTop: 20 }}/>
       ) : (
-        Array.from({ length: 4 }).map((_, i) => <ListSkeleton key={i} />)
+        <FlatList
+          data={results}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <SearchResultItem
+              item={item}
+              query={debouncedQuery}
+              onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+            />
+          )}
+          ListEmptyComponent={
+            <View style={styles.emptyResults}>
+              <Text style={styles.emptyResultsText}>Aucun résultat pour "{debouncedQuery}"</Text>
+            </View>
+          }
+        />
       )}
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      {/* Pinned Header */}
-      <SafeAreaView edges={['top']} style={styles.pinnedSafe} onLayout={onHeaderLayout}>
-        <View style={styles.pinnedHeader}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search-outline" size={20} color="#8A8A8E" />
-            <TextInput
-              placeholder="Rechercher des produits…"
-              placeholderTextColor="#8A8A8E"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              returnKeyType="search"
-              style={styles.searchInput}
-            />
-          </View>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Recherche</Text>
+      </View>
 
-          <View style={styles.actionsRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <TouchableOpacity onPress={() => setViewMode('grid')} style={styles.viewBtn}>
-                <Ionicons name="grid" size={20} color={viewMode === 'grid' ? '#111' : '#999'} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setViewMode('list')} style={styles.viewBtn}>
-                <Ionicons name="list" size={22} color={viewMode === 'list' ? '#111' : '#999'} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
-              <TouchableOpacity onPress={() => setFiltersOpen(true)} style={styles.actionBtn}>
-                <MaterialCommunityIcons name="filter-variant" size={18} color="#111" />
-                <Text style={styles.actionBtnTxt}>Trier</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+      <View style={styles.searchBarContainer}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={20} color="#8A8A8E" />
+          <TextInput
+            placeholder="Rechercher des produits…"
+            placeholderTextColor="#8A8A8E"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            onSubmitEditing={handleSearchSubmit}
+            style={styles.searchInput}
+            autoFocus={false}
+          />
         </View>
-      </SafeAreaView>
+      </View>
+      
+      {searchQuery.trim().length > 0 ? renderSearchResults() : renderSearchHub()}
 
-      {/* Product List */}
-      {loading ? (
-        <ListSkeletonComponent />
-      ) : (
-        <FlatList
-          data={products}
-          key={viewMode}
-          keyExtractor={(item) => item.id}
-          numColumns={viewMode === 'grid' ? 2 : 1}
-          columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
-          onScrollBeginDrag={() => Keyboard.dismiss()}
-          contentContainerStyle={{ paddingTop: headerH, paddingBottom: 20 }}
-          onEndReached={() => hasMore && !loadingMore && loadMore()}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }}/> : null}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Aucun produit trouvé.</Text>
-              <Text style={styles.emptySubText}>Essayez d'ajuster votre recherche ou vos filtres.</Text>
-            </View>
-          }
-        />
-      )}
-
-      {/* Filter Panel (Side Modal) */}
-      <Modal visible={filtersOpen} transparent animationType="fade">
-        <Pressable style={styles.modalBackdrop} onPress={() => setFiltersOpen(false)} />
-        <Animated.View style={[styles.sheet, { paddingBottom: insets.bottom + 12 }]}>
-          <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>Trier par</Text>
-            <TouchableOpacity onPress={() => setFiltersOpen(false)}>
-              <Ionicons name="close-circle" size={26} color="#ccc" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.sheetSection}>
-            <View style={styles.pillsRow}>
-              {(['relevance', 'priceAsc', 'priceDesc', 'ratingDesc'] as SortKey[]).map(s => (
-                <TouchableOpacity key={s} onPress={() => { setSort(s); setFiltersOpen(false); }} style={[styles.pill, sort === s && styles.pillActive]}>
-                  <Text style={[styles.pillTxt, sort === s && styles.pillTxtActive]}>
-                    {s === 'relevance' ? 'Pertinence' : s === 'priceAsc' ? 'Prix ↑' : s === 'priceDesc' ? 'Prix ↓' : 'Mieux notés'}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </Animated.View>
-      </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  pinnedSafe: { backgroundColor: '#fff', position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 },
-  pinnedHeader: { backgroundColor: '#fff', paddingTop: 6, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  header: { paddingHorizontal: 16, paddingBottom: 8 },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#111' },
+  searchBarContainer: { paddingHorizontal: 16, paddingVertical: 8 },
   searchBar: {
     backgroundColor: '#F2F3F5',
     borderRadius: 16,
-    height: 44,
+    height: 48,
     paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 16,
   },
-  searchInput: { color: '#111', fontSize: 15, marginLeft: 8, flex: 1 },
-  actionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  searchInput: { color: '#111', fontSize: 16, marginLeft: 8, flex: 1 },
+  section: {
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111',
+    marginBottom: 12,
     paddingHorizontal: 16,
-    paddingVertical: 10,
   },
-  viewBtn: { padding: 4 },
-  actionBtn: {
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    paddingHorizontal: 16,
+  },
+  chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    columnGap: 6,
+    gap: 6,
+    backgroundColor: '#f2f3f5',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 99,
-    backgroundColor: '#f2f3f5',
   },
-  actionBtnTxt: { color: '#111', fontWeight: '600' },
-  gridContainer: { paddingHorizontal: 16, justifyContent: 'space-between' },
-  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100 },
-  emptyText: { fontSize: 18, fontWeight: '600', color: '#333' },
-  emptySubText: { fontSize: 14, color: '#888', marginTop: 8 },
-  
-  // Filter Panel
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
-  sheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 24,
+  chipText: {
+    color: '#333',
+    fontWeight: '500',
   },
-  sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  sheetTitle: { fontSize: 20, fontWeight: '800', color: '#111' },
-  sheetSection: { marginBottom: 24 },
-  pillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  pill: {
+  categoryGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 99,
-    backgroundColor: '#f2f3f5',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    gap: 12,
   },
-  pillActive: { backgroundColor: '#111' },
-  pillTxt: { color: '#111', fontWeight: '600' },
-  pillTxtActive: { color: '#fff' },
+  categoryCard: {
+    width: '48%',
+    height: 100,
+    backgroundColor: '#f2f3f5',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  categoryText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111',
+  },
+  brandCarousel: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  brandCard: {
+      width: 100,
+      height: 60,
+      backgroundColor: '#f2f3f5',
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 8,
+  },
+  brandLogo: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'contain',
+  },
+  // Styles for real-time results
+  resultsContainer: {
+    flex: 1,
+  },
+  resultItem: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    alignItems: 'center',
+  },
+  resultImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    backgroundColor: '#f2f3f5',
+    marginRight: 12,
+  },
+  resultInfo: {
+    flex: 1,
+  },
+  resultTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111',
+  },
+  highlightedText: {
+    color: '#FF7A00', // Orange color for highlighting
+  },
+  resultSpecs: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  resultPrice: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#111',
+    marginTop: 4,
+  },
+  emptyResults: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  emptyResultsText: {
+    fontSize: 16,
+    color: '#666',
+  },
 });
 
 export default CatalogScreen;

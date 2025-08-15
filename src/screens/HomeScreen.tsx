@@ -1,8 +1,8 @@
 // src/screens/HomeScreen.tsx
-import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, Image,
-  TouchableOpacity, ScrollView, Dimensions, ActivityIndicator, RefreshControl
+  TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, TextInput
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -17,7 +17,7 @@ import {
   getDocs,
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
-
+import CustomBottomSheet from '../components/CustomBottomSheet'; 
 import { Product, Brand, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import { useProducts } from '../store/ProductContext';
@@ -43,7 +43,7 @@ const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIco
     { id: 'f-pick',  icon: 'star-outline', label: 'Populaires', color: '#fff1f2' },
 ];
 
-// --- Helpers (copié depuis le hook usePaginatedProducts) ---
+// --- Helpers ---
 const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
   const data = doc.data();
   return {
@@ -61,15 +61,15 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
   };
 };
 
-// --- État pour la gestion du cache par segment ---
 interface SegmentData {
   products: Product[];
   lastDoc: FirebaseFirestoreTypes.QueryDocumentSnapshot | null;
   hasMore: boolean;
 }
 
-// --- Fonction pour construire la requête de base pour un segment ---
-const buildSegmentQuery = (segment: Segment): FirebaseFirestoreTypes.Query => {
+const buildSegmentQuery = (
+  segment: Segment,
+): FirebaseFirestoreTypes.Query => {
     let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
     
     if (segment === 'Portables a Touches') {
@@ -79,9 +79,10 @@ const buildSegmentQuery = (segment: Segment): FirebaseFirestoreTypes.Query => {
         q = query(q, where('category', '==', categoryCapitalized));
     }
     
+    q = query(q, orderBy('name', 'asc'));
+    
     return q;
 };
-
 
 // --- Écran principal HomeScreen ---
 const HomeScreen: React.FC = () => {
@@ -89,115 +90,81 @@ const HomeScreen: React.FC = () => {
   const { brands, brandsLoading } = useProducts();
   const [activeSegment, setActiveSegment] = useState<Segment>('Populaires');
   
-  // State pour le cache et le chargement
   const [dataBySegment, setDataBySegment] = useState<Partial<Record<Segment, SegmentData>>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
-  // Fonction de chargement principale
-  const fetchProducts = useCallback(async (segment: Segment, isRefresh = false) => {
-    if (isRefresh) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
+  // Filtres temporaires pour le modal
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
 
+  const fetchProducts = useCallback(async (
+    segment: Segment, 
+    isRefresh = false,
+  ) => {
+    if (isRefresh) setRefreshing(true); else setLoading(true);
     try {
       let q = buildSegmentQuery(segment);
-      q = query(q, orderBy('name', 'asc'), limit(PAGE_SIZE));
-
+      q = query(q, limit(PAGE_SIZE));
       const querySnapshot = await getDocs(q);
       const newProducts = querySnapshot.docs.map(mapDocToProduct);
       const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-
-      setDataBySegment(prev => ({
-        ...prev,
-        [segment]: {
-          products: newProducts,
-          lastDoc: lastVisible,
-          hasMore: newProducts.length === PAGE_SIZE,
-        }
-      }));
-
-    } catch (error) {
-      console.error(`Erreur de chargement pour le segment ${segment}:`, error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+      setDataBySegment(prev => ({ ...prev, [segment]: { products: newProducts, lastDoc: lastVisible, hasMore: newProducts.length === PAGE_SIZE }}));
+    } catch (error) { console.error(`Erreur de chargement pour le segment ${segment}:`, error); } 
+    finally { setLoading(false); setRefreshing(false); }
   }, []);
 
-  // Chargement des données initiales
-  useEffect(() => {
-    fetchProducts('Populaires');
-  }, [fetchProducts]);
+  useEffect(() => { 
+    fetchProducts(activeSegment);
+  }, [fetchProducts, activeSegment]);
 
-  // Gestion du changement de segment
   const handleSegmentChange = (segment: Segment) => {
     setActiveSegment(segment);
-    if (!dataBySegment[segment]) {
-      fetchProducts(segment);
-    }
   };
   
-  // Pagination
   const loadMore = useCallback(async () => {
     const segmentState = dataBySegment[activeSegment];
-
-    if (loadingMore || !segmentState || !segmentState.hasMore) {
-      return;
-    }
-
+    if (loadingMore || !segmentState || !segmentState.hasMore) return;
     setLoadingMore(true);
-
     try {
       let q = buildSegmentQuery(activeSegment);
-      q = query(q, orderBy('name', 'asc'), startAfter(segmentState.lastDoc), limit(PAGE_SIZE));
-
+      q = query(q, startAfter(segmentState.lastDoc), limit(PAGE_SIZE));
       const querySnapshot = await getDocs(q);
       const newProducts = querySnapshot.docs.map(mapDocToProduct);
       const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-
-      setDataBySegment(prev => ({
-        ...prev,
-        [activeSegment]: {
-          products: [...(prev[activeSegment]?.products || []), ...newProducts],
-          lastDoc: lastVisible,
-          hasMore: newProducts.length === PAGE_SIZE,
-        }
-      }));
-
-    } catch (error) {
-      console.error(`Erreur de pagination pour ${activeSegment}:`, error);
-    } finally {
-      setLoadingMore(false);
-    }
+      setDataBySegment(prev => ({ ...prev, [activeSegment]: { products: [...(prev[activeSegment]?.products || []), ...newProducts], lastDoc: lastVisible, hasMore: newProducts.length === PAGE_SIZE }}));
+    } catch (error) { console.error(`Erreur de pagination pour ${activeSegment}:`, error); } 
+    finally { setLoadingMore(false); }
   }, [activeSegment, dataBySegment, loadingMore]);
 
-
   const renderItem = useCallback(({ item }: { item: Product }) => (
-    <View style={styles.gridItem}>
-      <ProductGridCard
-        product={item}
-        onPress={() => nav.navigate('ProductDetail' as never, { productId: item.id } as never)}
-      />
-    </View>
+    <View style={styles.gridItem}><ProductGridCard product={item} onPress={() => nav.navigate('ProductDetail' as never, { productId: item.id } as never)}/></View>
   ), [nav]);
   
   const currentData = dataBySegment[activeSegment]?.products || [];
+  
+  const resetFilters = () => {
+    setMinPrice('');
+    setMaxPrice('');
+    setIsFilterVisible(false);
+  }
+
+  const handleApplyFilter = () => {
+    setIsFilterVisible(false);
+    nav.navigate('FilterScreenResults', { 
+        minPrice: minPrice, 
+        maxPrice: maxPrice,
+        initialCategory: activeSegment !== 'Populaires' ? activeSegment : undefined
+    });
+  }
 
   const HeaderComponent = (
     <>
-      {/* Carrousel des marques */}
       {brandsLoading ? <ActivityIndicator style={{ marginVertical: 20 }} /> :
-        <FlatList
-          data={brands}
-          keyExtractor={(i) => i.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.brandCarousel}
-          ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+        <FlatList data={brands} keyExtractor={(i) => i.id} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.brandCarousel} ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
           renderItem={({ item }: { item: Brand }) => (
             <TouchableOpacity onPress={() => nav.navigate('Brand', { brandId: item.id })} activeOpacity={0.8}>
               <View style={styles.circle}><Image source={{ uri: item.logoUrl }} style={styles.circleImg} /></View>
@@ -206,15 +173,7 @@ const HomeScreen: React.FC = () => {
           )}
         />
       }
-      
-      {/* Promo strip cards */}
-      <FlatList
-        data={PROMO_CARDS}
-        keyExtractor={(i) => i.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
-        ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+      <FlatList data={PROMO_CARDS} keyExtractor={(i) => i.id} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }} ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => item.screen && nav.navigate(item.screen as never)}>
             <View style={[styles.promoCard, { backgroundColor: item.color }]}>
@@ -224,15 +183,7 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         )}
       />
-
-      {/* Feature tiles row */}
-      <FlatList
-        data={FEATURE_TILES}
-        keyExtractor={(i) => i.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
-        ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+      <FlatList data={FEATURE_TILES} keyExtractor={(i) => i.id} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }} ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
         renderItem={({ item }) => (
           <TouchableOpacity style={[styles.featureTile, { backgroundColor: item.color }]} onPress={() => item.screen && nav.navigate(item.screen as never)} activeOpacity={0.8}>
             <MaterialCommunityIcons name={item.icon} size={20} color="#111" />
@@ -240,8 +191,6 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         )}
       />
-      
-      {/* Onglets de segment */}
       <View style={styles.segmentContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
             {SEGMENTS.map((s) => {
@@ -260,17 +209,13 @@ const HomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Barre de recherche FIXE */}
       <View style={styles.fixedHeader}>
         <View style={styles.searchContainer}>
           <Pressable onPress={() => nav.navigate('Catalog' as never)} style={styles.searchBar}>
               <Ionicons name="search-outline" size={20} color="#8A8A8E" />
               <Text style={styles.searchPlaceholder}>Rechercher</Text>
           </Pressable>
-          <TouchableOpacity 
-            onPress={() => nav.navigate('Catalog' as never)} 
-            style={styles.filterButton}
-          >
+          <TouchableOpacity onPress={() => setIsFilterVisible(true)} style={styles.filterButton}>
             <MaterialCommunityIcons name="filter-variant" size={18} color="#111" />
             <Text style={styles.filterButtonText}>Filtrer</Text>
           </TouchableOpacity>
@@ -278,30 +223,68 @@ const HomeScreen: React.FC = () => {
       </View>
 
       <FlatList
-        data={currentData}
-        renderItem={renderItem}
-        keyExtractor={(item) => `${activeSegment}-${item.id}`}
-        numColumns={2}
+        data={currentData} renderItem={renderItem} keyExtractor={(item) => `${activeSegment}-${item.id}`} numColumns={2}
         ListHeaderComponent={HeaderComponent}
         ListFooterComponent={loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" /> : null}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        columnWrapperStyle={styles.gridContainer}
-        showsVerticalScrollIndicator={false}
+        onEndReached={loadMore} onEndReachedThreshold={0.5} columnWrapperStyle={styles.gridContainer} showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 10 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => fetchProducts(activeSegment, true)}
-            tintColor="#FF7A00"
-          />
-        }
+        refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={() => fetchProducts(activeSegment, true)} tintColor="#FF7A00"/> }
         ListEmptyComponent={
             <View style={styles.emptyContainer}>
                 {loading && !refreshing ? <ActivityIndicator size="large" color="#FF7A00" /> : <Text style={styles.emptyText}>Aucun produit dans cette catégorie.</Text>}
             </View>
         }
       />
+
+      <CustomBottomSheet
+        visible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+      >
+        <View style={styles.sheetContent}>
+          <View style={styles.sheetHeader}>
+            <Text style={styles.sheetTitle}>Filtres</Text>
+            <TouchableOpacity onPress={() => setIsFilterVisible(false)}>
+              <Ionicons name="close-circle" size={26} color="#ccc" />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.filterSection}>
+            <Text style={styles.filterSectionTitle}>Prix</Text>
+            <View style={styles.priceInputsRow}>
+              <View style={styles.priceInputWrap}>
+                <TextInput
+                  style={styles.priceInput}
+                  keyboardType="numeric"
+                  placeholder="Min"
+                  value={minPrice}
+                  onChangeText={setMinPrice}
+                />
+                <Text style={styles.priceUnit}>FCFA</Text>
+              </View>
+              <View style={styles.priceInputWrap}>
+                <TextInput
+                  style={styles.priceInput}
+                  keyboardType="numeric"
+                  placeholder="Max"
+                  value={maxPrice}
+                  onChangeText={setMaxPrice}
+                />
+                <Text style={styles.priceUnit}>FCFA</Text>
+              </View>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.showButton}
+            onPress={handleApplyFilter}
+          >
+            <Text style={styles.showButtonText}>Voir les résultats</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={resetFilters} style={styles.resetButton}>
+            <Text style={styles.resetButtonText}>Réinitialiser les filtres</Text>
+          </TouchableOpacity>
+        </View>
+      </CustomBottomSheet>
     </SafeAreaView>
   );
 };
@@ -396,7 +379,77 @@ const styles = StyleSheet.create({
   emptyText: {
       textAlign: 'center',
       color: '#666'
-  }
+  },
+  sheetContent: {
+    paddingTop: 24,
+    paddingHorizontal: 16,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111',
+  },
+  filterSection: { 
+    marginBottom: 24,
+  },
+  filterSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111',
+    marginBottom: 12,
+  },
+  priceInputsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  priceInputWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f2f3f5',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 48,
+  },
+  priceInput: {
+    flex: 1,
+    color: '#111',
+    fontSize: 16,
+  },
+  priceUnit: {
+    color: '#6b7280',
+    marginLeft: 4,
+    fontWeight: '600',
+  },
+  showButton: {
+    backgroundColor: '#111',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  showButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  resetButton: {
+    marginTop: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  resetButtonText: {
+    color: '#555',
+    fontSize: 15,
+    fontWeight: '600',
+  },
 });
 
 export default HomeScreen;

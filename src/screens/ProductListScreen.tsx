@@ -1,48 +1,48 @@
-// src/screens/BrandScreen.tsx
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
+// src/screens/ProductListScreen.tsx
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { useProducts } from '../store/ProductContext';
 import { Product } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
-import { GridSkeleton, ListSkeleton } from '../components/SkeletonLoader';
-import { useAllProducts } from '../hooks/usePaginatedProducts'; // MODIFICATION: Importer le bon hook
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { usePaginatedProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
 
-type RouteParams = {
-  brandId: string;
+type RouteParams = { 
+  title: string;
+  category?: string;
+  brandId?: string;
+  searchQuery?: string;
 };
 
 type ViewMode = 'grid' | 'list';
 
-const BrandScreen: React.FC = () => {
+const ProductListScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { brandId } = route.params as RouteParams;
+  const { title, category, brandId, searchQuery } = route.params as RouteParams;
 
-  const { brands } = useProducts();
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
-  const brand = useMemo(() => brands.find(b => b.id === brandId), [brands, brandId]);
+  const queryOptions = useMemo((): ProductQueryOptions => ({
+    category,
+    brandId,
+    searchQuery,
+  }), [category, brandId, searchQuery]);
 
-  // MODIFICATION: Utiliser useAllProducts au lieu de usePaginatedProducts
-  const { products, loading, refresh } = useAllProducts({ brandId: brand?.name });
+  const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts(queryOptions);
 
   useEffect(() => {
-    if (brand) { 
-      refresh();
-    }
-  }, [refresh, brand]);
+    refresh();
+  }, [queryOptions, refresh]);
 
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
@@ -55,16 +55,13 @@ const BrandScreen: React.FC = () => {
     return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
   }, [viewMode, navigation]);
 
-  const Header = () => (
-    <View>
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
-        <View style={styles.headerContent}>
-          {brand?.logoUrl && <Image source={{ uri: brand.logoUrl }} style={styles.brandLogo} />}
-          <Text style={styles.headerTitle}>{brand?.name}</Text>
-        </View>
+        <Text style={styles.headerTitle}>{title}</Text>
         <View style={{ width: 40 }} />
       </View>
       <View style={styles.actionsRow}>
@@ -78,25 +75,14 @@ const BrandScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
-  );
 
-  return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <Header />
       {loading ? (
-        <View style={{ flex: 1, paddingTop: 10 }}>
-          {viewMode === 'grid' ? (
-            <View style={styles.gridContainer}>
-              {Array.from({ length: 6 }).map((_, i) => <GridSkeleton key={i} />)}
-            </View>
-          ) : (
-            Array.from({ length: 4 }).map((_, i) => <ListSkeleton key={i} />)
-          )}
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#FF7A00" />
         </View>
       ) : (
         <FlatList
-          style={{ flex: 1 }} // Assure que la liste prend tout l'espace
+          style={{ flex: 1 }}
           data={products}
           key={viewMode}
           keyExtractor={(item) => item.id}
@@ -105,12 +91,13 @@ const BrandScreen: React.FC = () => {
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-          // MODIFICATION: Suppression des props de pagination
+          contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }}
+          onEndReached={() => hasMore && !loadingMore && loadMore()}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }}/> : null}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Aucun produit trouvé</Text>
-              <Text style={styles.emptySubText}>Cette marque n'a pas encore de produits disponibles.</Text>
+              <Text style={styles.emptyText}>Aucun produit trouvé.</Text>
             </View>
           }
         />
@@ -130,23 +117,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  backButton: {
-    padding: 4,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  brandLogo: {
-    width: 32,
-    height: 32,
-    resizeMode: 'contain',
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
+  backButton: { padding: 4 },
+  headerTitle: { fontSize: 20, fontWeight: 'bold' },
   actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -154,39 +126,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  productCount: {
-    color: '#6b7280',
-    fontWeight: '600',
-  },
-  viewBtn: {
-    padding: 4,
-  },
-  listContent: {
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  gridContainer: {
-    paddingHorizontal: 16,
-    justifyContent: 'space-between',
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 100,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  emptySubText: {
-    fontSize: 14,
-    color: '#888',
-    marginTop: 8,
-    textAlign: 'center',
-    paddingHorizontal: 40,
-  },
+  productCount: { color: '#6b7280', fontWeight: '600' },
+  viewBtn: { padding: 4 },
+  centerContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  gridContainer: { paddingHorizontal: 16, justifyContent: 'space-between' },
+  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100 },
+  emptyText: { fontSize: 18, fontWeight: '600', color: '#333' },
 });
 
-export default BrandScreen;
+export default ProductListScreen;

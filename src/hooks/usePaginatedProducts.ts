@@ -1,5 +1,5 @@
 // src/hooks/usePaginatedProducts.ts
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   collection,
   query,
@@ -18,10 +18,12 @@ const PAGE_SIZE = 10;
 // Options pour la requête
 export interface ProductQueryOptions {
   category?: string;
-  brandId?: string; // NOUVELLE OPTION
+  brandId?: string;
   sortBy?: 'price' | 'rating' | 'name';
   sortDirection?: 'asc' | 'desc';
   searchQuery?: string;
+  minPrice?: string;
+  maxPrice?: string;
 }
 
 // Convertit un document Firestore en type Product
@@ -42,78 +44,176 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
   };
 };
 
-export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
+// --- NOUVEAU HOOK POUR CHARGER TOUS LES PRODUITS SANS PAGINATION ---
+export const useAllProducts = (options: ProductQueryOptions = {}) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  
-  // Garde une référence au dernier document pour la pagination
-  const lastDocRef = useRef<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fonction pour construire la requête Firestore
-  const buildQuery = (): FirebaseFirestoreTypes.Query => {
+  const buildQuery = useCallback((): FirebaseFirestoreTypes.Query => {
     let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
+    const minPriceNum = Number(options.minPrice);
+    const maxPriceNum = Number(options.maxPrice);
+    const hasPriceFilter = !isNaN(minPriceNum) && minPriceNum > 0 || !isNaN(maxPriceNum) && maxPriceNum > 0;
+    const hasSearchQuery = !!options.searchQuery;
 
-    // MODIFICATION: Logique de filtrage mise à jour
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
       const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
       q = query(q, where('category', '==', categoryCapitalized));
     }
-    
-    // Note: La recherche plein texte complexe nécessite des services comme Algolia ou Typesense.
-    // Firestore ne supporte pas nativement la recherche de sous-chaînes.
-    if (options.searchQuery) {
-       q = query(q, where('name', '>=', options.searchQuery), where('name', '<=', options.searchQuery + '\uf8ff'));
+
+    if (!isNaN(minPriceNum) && minPriceNum > 0) {
+      q = query(q, where('price', '>=', minPriceNum));
+    }
+    if (!isNaN(maxPriceNum) && maxPriceNum > 0) {
+      q = query(q, where('price', '<=', maxPriceNum));
     }
 
-    if (options.sortBy) {
+    if (options.searchQuery) {
+      q = query(
+        q,
+        where('name', '>=', options.searchQuery),
+        where('name', '<=', options.searchQuery + '\uf8ff')
+      );
+    }
+
+    if (hasSearchQuery) {
+      q = query(q, orderBy('name', 'asc'));
+    } else if (hasPriceFilter) {
+      q = query(q, orderBy('price', options.sortDirection || 'asc'));
+    } else if (options.sortBy) {
       q = query(q, orderBy(options.sortBy, options.sortDirection || 'asc'));
     } else {
-      q = query(q, orderBy('name', 'asc')); // Tri par défaut
+      q = query(q, orderBy('name', 'asc'));
+    }
+    return q;
+  }, [options.category, options.brandId, options.sortBy, options.sortDirection, options.searchQuery, options.minPrice, options.maxPrice]);
+
+  const fetchAllProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const q = buildQuery();
+      const querySnapshot = await getDocs(q);
+      const allProducts = querySnapshot.docs.map(mapDocToProduct);
+      setProducts(allProducts);
+    } catch (error) {
+      console.error('Erreur de chargement de tous les produits: ', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [buildQuery]);
+
+  const refresh = useCallback(() => {
+    fetchAllProducts();
+  }, [fetchAllProducts]);
+
+  useEffect(() => {
+    fetchAllProducts();
+  }, [fetchAllProducts]);
+
+  return { products, loading, refresh };
+};
+
+
+// --- HOOK ORIGINAL POUR LA PAGINATION ---
+export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const lastDocRef = useRef<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
+
+  const buildQuery = useCallback((): FirebaseFirestoreTypes.Query => {
+    let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
+
+    const minPriceNum = Number(options.minPrice);
+    const maxPriceNum = Number(options.maxPrice);
+    const hasPriceFilter = !isNaN(minPriceNum) && minPriceNum > 0 || !isNaN(maxPriceNum) && maxPriceNum > 0;
+    const hasSearchQuery = !!options.searchQuery;
+
+    if (options.brandId) {
+      q = query(q, where('brand', '==', options.brandId));
+    } else if (options.category && options.category !== 'Populaires') {
+      const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
+      q = query(q, where('category', '==', categoryCapitalized));
+    }
+
+    if (!isNaN(minPriceNum) && minPriceNum > 0) {
+      q = query(q, where('price', '>=', minPriceNum));
+    }
+    if (!isNaN(maxPriceNum) && maxPriceNum > 0) {
+      q = query(q, where('price', '<=', maxPriceNum));
+    }
+
+    if (options.searchQuery) {
+      q = query(
+        q,
+        where('name', '>=', options.searchQuery),
+        where('name', '<=', options.searchQuery + '\uf8ff')
+      );
+    }
+
+    if (hasSearchQuery) {
+      q = query(q, orderBy('name', 'asc'));
+    } else if (hasPriceFilter) {
+      q = query(q, orderBy('price', options.sortDirection || 'asc'));
+    } else if (options.sortBy) {
+      q = query(q, orderBy(options.sortBy, options.sortDirection || 'asc'));
+    } else {
+      q = query(q, orderBy('name', 'asc'));
     }
 
     return q;
-  };
+  }, [
+    options.category,
+    options.brandId,
+    options.sortBy,
+    options.sortDirection,
+    options.searchQuery,
+    options.minPrice,
+    options.maxPrice,
+  ]);
 
-  const fetchProducts = useCallback(async (isInitial = false) => {
-    if (isInitial) {
-      setLoading(true);
-      lastDocRef.current = null; // Réinitialiser pour le premier chargement
-    } else {
-      if (loadingMore || !hasMore) return;
-      setLoadingMore(true);
-    }
-
-    try {
-      let q = buildQuery();
-      q = query(q, limit(PAGE_SIZE));
-
-      if (!isInitial && lastDocRef.current) {
-        q = query(q, startAfter(lastDocRef.current));
-      }
-
-      const querySnapshot = await getDocs(q);
-      const newProducts = querySnapshot.docs.map(mapDocToProduct);
-      
-      lastDocRef.current = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-      setHasMore(newProducts.length === PAGE_SIZE);
-
+  const fetchProducts = useCallback(
+    async (isInitial = false) => {
       if (isInitial) {
-        setProducts(newProducts);
+        setLoading(true);
+        lastDocRef.current = null;
       } else {
-        setProducts(prev => [...prev, ...newProducts]);
+        if (loadingMore || !hasMore) return;
+        setLoadingMore(true);
       }
 
-    } catch (error) {
-      console.error("Erreur de chargement des produits: ", error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [options.category, options.brandId, options.sortBy, options.sortDirection, options.searchQuery]);
+      try {
+        let q = buildQuery();
+        q = query(q, limit(PAGE_SIZE));
+
+        if (!isInitial && lastDocRef.current) {
+          q = query(q, startAfter(lastDocRef.current));
+        }
+
+        const querySnapshot = await getDocs(q);
+        const newProducts = querySnapshot.docs.map(mapDocToProduct);
+
+        lastDocRef.current = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+        setHasMore(newProducts.length === PAGE_SIZE);
+
+        if (isInitial) {
+          setProducts(newProducts);
+        } else {
+          setProducts(prev => [...prev, ...newProducts]);
+        }
+      } catch (error) {
+        console.error('Erreur de chargement des produits: ', error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [buildQuery, hasMore, loadingMore]
+  );
 
   const refresh = useCallback(() => {
     fetchProducts(true);

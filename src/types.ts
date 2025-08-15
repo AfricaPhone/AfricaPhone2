@@ -104,10 +104,12 @@ export type RootStackParamList = {
   Cart: undefined;
   MatchList: undefined;
   PredictionGame: { matchId: string };
-  Store: undefined; // Ajout de la nouvelle route
+  Store: undefined;
   SignUp: undefined;
   AuthPrompt: undefined;
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null; };
+  FilterScreenResults: { initialCategory?: string, initialSearchQuery?: string, minPrice?: string, maxPrice?: string };
+  ProductList: { title: string, category?: string, brandId?: string, searchQuery?: string };
 };
 
 // This is for the navigator that wraps the tabs
@@ -118,7 +120,7 @@ export type MainStackParamList = {
 export type TabParamList = {
   Home: undefined;
   Discover: undefined;
-  Catalog: { category?: Category } | undefined;
+  Catalog: { category?: Category, minPrice?: string, maxPrice?: string } | undefined;
   Favorites: undefined;
   Profile: undefined;
 };
