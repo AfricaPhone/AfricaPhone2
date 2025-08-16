@@ -61,7 +61,7 @@ const HORIZONTAL_CARDS: Array<{
     {
       id: 'p-store',
       title: "Notre boutique",
-      subtitle: "Situé près de l'Etoile Rouge",
+      subtitle: "Situé près de ...",
       cta: "Découvrir",
       screen: 'Store',
       image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1200&auto=format&fit=crop',
