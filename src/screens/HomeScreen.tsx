@@ -1,8 +1,8 @@
 // src/screens/HomeScreen.tsx
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, Image,
-  TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, TextInput, ImageBackground, Dimensions
+  TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, TextInput, ImageBackground, Dimensions, Animated
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -32,7 +32,6 @@ const PAGE_SIZE = 10;
 const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
 type Segment = typeof SEGMENTS[number];
 
-// MODIFICATION: Ajout d'icônes et de labels pour les segments
 const SEGMENTS_DATA: Array<{
   key: Segment;
   label: string;
@@ -99,19 +98,13 @@ const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
   const { brands, brandsLoading } = useProducts();
   const [activeSegment, setActiveSegment] = useState<Segment>('Populaires');
-
-  // États séparés pour la logique complexe des "Populaires"
   const [vedetteProducts, setVedetteProducts] = useState<Product[]>([]);
   const [regularProducts, setRegularProducts] = useState<SegmentData>({ products: [], lastDoc: null, hasMore: true });
-
   const [dataBySegment, setDataBySegment] = useState<Partial<Record<Segment, SegmentData>>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-
-  // Filtres temporaires pour le modal
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
@@ -249,7 +242,7 @@ const HomeScreen: React.FC = () => {
     });
   }
 
-  const ListHeader = (
+  const HeaderComponent = (
     <>
       {brandsLoading ? <ActivityIndicator style={{ marginVertical: 20 }} /> :
         <FlatList data={brands} keyExtractor={(i) => i.id} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.brandCarousel} ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
@@ -287,6 +280,20 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         )}
       />
+      <View style={styles.segmentContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
+            {SEGMENTS_DATA.map((s) => {
+            const active = s.key === activeSegment;
+            const iconName = active ? s.icon.replace('-outline', '') as keyof typeof Ionicons.glyphMap : s.icon;
+            return (
+                <TouchableOpacity key={s.key} onPress={() => handleSegmentChange(s.key)} style={[styles.segmentPill, active && styles.segmentPillActive]}>
+                  <Ionicons name={iconName} size={18} color={active ? '#FF7A00' : '#111'} />
+                  <Text style={[styles.segmentPillText, active && styles.segmentPillTextActive]}>{s.label}</Text>
+                </TouchableOpacity>
+            );
+            })}
+        </ScrollView>
+      </View>
     </>
   );
 
@@ -305,33 +312,12 @@ const HomeScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* MODIFICATION: Barre de segments "collante" (sticky) */}
-      <View style={styles.segmentContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
-            {SEGMENTS_DATA.map((s) => {
-            const active = s.key === activeSegment;
-            const iconName = active ? s.icon.replace('-outline', '') as keyof typeof Ionicons.glyphMap : s.icon;
-            return (
-                <TouchableOpacity key={s.key} onPress={() => handleSegmentChange(s.key)} style={[styles.segmentPill, active && styles.segmentPillActive]}>
-                  <Ionicons name={iconName} size={18} color={active ? '#FF7A00' : '#111'} />
-                  <Text style={[styles.segmentPillText, active && styles.segmentPillTextActive]}>{s.label}</Text>
-                </TouchableOpacity>
-            );
-            })}
-        </ScrollView>
-      </View>
-
       <FlatList
-        data={currentData}
-        renderItem={renderItem}
-        keyExtractor={(item) => `${activeSegment}-${item.id}`}
-        numColumns={2}
-        ListHeaderComponent={ListHeader}
+        data={currentData} renderItem={renderItem} keyExtractor={(item) => `${activeSegment}-${item.id}`} numColumns={2}
+        ListHeaderComponent={HeaderComponent}
         ListFooterComponent={loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" /> : null}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        columnWrapperStyle={styles.gridContainer}
-        showsVerticalScrollIndicator={false}
+        onEndReached={loadMore} onEndReachedThreshold={0.5} columnWrapperStyle={styles.gridContainer} showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: 10 }}
         refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={() => fetchProducts(activeSegment, true)} tintColor="#FF7A00"/> }
         ListEmptyComponent={
             <View style={styles.emptyContainer}>
@@ -449,7 +435,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  segmentScrollContainer: {
+  segmentScrollContainer: { 
     paddingHorizontal: 16,
     gap: 10,
   },
@@ -482,10 +468,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyContainer: {
-    flex: 1, // Prend l'espace restant
     paddingVertical: 40,
     alignItems: 'center',
-    justifyContent: 'center',
     minHeight: 200,
   },
   emptyText: {
