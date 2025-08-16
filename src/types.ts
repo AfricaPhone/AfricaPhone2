@@ -10,8 +10,12 @@ export type Product = {
   price: number;
   image: string;
   category: Category;
-  rating?: number;
   description?: string;
+  rom?: number;
+  ram?: number;
+  ram_base?: number;
+  ram_extension?: number;
+  ordreVedette?: number; // Ligne ajoutée pour corriger l'erreur
 };
 
 // --- Brand ---
@@ -25,9 +29,11 @@ export type Brand = {
 // --- User ---
 export type User = {
   id: string;
-  name: string;
+  name: string; // Full name: "John Doe"
+  firstName?: string;
+  lastName?: string;
   email: string | null;
-  phoneNumber?: string | null; // Ajout de la propriété optionnelle
+  phoneNumber?: string | null;
   initials: string;
 };
 
@@ -55,7 +61,7 @@ export type HeroItem = {
 
 export type ProductGridItem = {
   type: 'product_grid';
-  id: string;
+  id:string;
   title: string;
   productIds: string[];
 };
@@ -92,12 +98,18 @@ export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | Sho
 // --- Navigation Types ---
 
 export type RootStackParamList = {
-  Main: undefined; // This will render the MainStack navigator
+  Main: undefined;
   ProductDetail: { productId: string };
   Brand: { brandId: string };
   Cart: undefined;
-  MatchList: undefined; // Add the new screen to the stack
-  PredictionGame: { matchId: string }; // Update to accept matchId
+  MatchList: undefined;
+  PredictionGame: { matchId: string };
+  Store: undefined;
+  SignUp: undefined;
+  AuthPrompt: undefined;
+  CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null; };
+  FilterScreenResults: { initialCategory?: string, initialSearchQuery?: string, minPrice?: string, maxPrice?: string };
+  ProductList: { title: string, category?: string, brandId?: string, searchQuery?: string };
 };
 
 // This is for the navigator that wraps the tabs
@@ -107,8 +119,7 @@ export type MainStackParamList = {
 
 export type TabParamList = {
   Home: undefined;
-  Discover: undefined;
-  Catalog: { category?: Category } | undefined;
+  Catalog: { category?: Category, minPrice?: string, maxPrice?: string } | undefined;
   Favorites: undefined;
   Profile: undefined;
 };
@@ -122,6 +133,7 @@ export type Prediction = {
   scoreA: number;
   scoreB: number;
   createdAt: any; // Firestore ServerTimestamp
+  isWinner?: boolean; // Indique si le pronostic est gagnant
 };
 
 export type Match = {
@@ -131,5 +143,26 @@ export type Match = {
   finalScoreB?: number | null;
   teamA: string;
   teamB: string;
+  teamALogo?: string; // MODIFICATION: Ajout du logo de l'équipe A
+  teamBLogo?: string; // MODIFICATION: Ajout du logo de l'équipe B
   competition: string;
+  // --- NOUVEAUX CHAMPS POUR L'AGRÉGATION ---
+  predictionCount?: number;
+  trends?: { [score: string]: number }; // Ex: { "1-0": 50, "2-1": 120 }
+};
+
+// --- Boutique Info ---
+export type BoutiqueInfo = {
+  name: string;
+  description: string;
+  coverImageUrl: string;
+  profileImageUrl: string;
+  googleMapsUrl: string;
+  whatsappNumber: string;
+  phoneNumber?: string;
+  email?: string;
+  websiteUrl?: string;
+  address?: string;
+  openingHours?: string;
+  category?: string;
 };

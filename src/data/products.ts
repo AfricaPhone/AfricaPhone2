@@ -17,8 +17,11 @@ export const fetchProductsFromDB = async (): Promise<Product[]> => {
         price: data.price,
         image: data.imageUrl,
         category: data.brand.toLowerCase(),
-        rating: data.rating || 4.5,
         description: data.description,
+        rom: data.rom,
+        ram: data.ram,
+        ram_base: data.ram_base,
+        ram_extension: data.ram_extension,
       };
     });
 

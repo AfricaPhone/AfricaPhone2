@@ -16,6 +16,9 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
   const { toggleFavorite, isFav } = useFavorites(); // Utiliser useFavorites
   const fav = isFav(product.id);
 
+  // Vérifier si les données de RAM et de ROM sont disponibles
+  const hasSpecs = typeof product.ram === 'number' && typeof product.rom === 'number';
+
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.9} onPress={onPress}>
       <View style={styles.imageWrap}>
@@ -30,11 +33,19 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
         </TouchableOpacity>
       </View>
 
-      <Text numberOfLines={2} style={styles.title}>{product.title}</Text>
+      <View style={styles.infoContainer}>
+        <Text numberOfLines={2} style={styles.title}>{product.title}</Text>
 
-      <View style={styles.priceRow}>
-        <Ionicons name="flash-outline" size={16} />
-        <Text style={styles.price}>{formatPrice(product.price)}</Text>
+        {hasSpecs && (
+          <Text style={styles.specsText}>
+            {product.rom}GB + {product.ram}RAM
+          </Text>
+        )}
+
+        <View style={styles.priceRow}>
+          <Ionicons name="flash-outline" size={16} />
+          <Text style={styles.price}>{formatPrice(product.price)}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -73,12 +84,27 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   adTxt: { color: '#fff', fontSize: 10, fontWeight: '700' },
-  title: { paddingHorizontal: 10, paddingTop: 8, fontSize: 13, color: '#111' },
+  infoContainer: {
+    paddingHorizontal: 10,
+    paddingBottom: 8,
+    paddingTop: 8,
+    gap: 2, // Ajoute un petit espace entre les éléments
+  },
+  title: { 
+    fontSize: 13, 
+    color: '#111',
+    minHeight: 32, // Assure que le titre prend 2 lignes pour éviter les sauts de mise en page
+  },
+  specsText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4b5563', // Une couleur légèrement atténuée
+    marginTop: 2,
+  },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    marginTop: 4,
   },
   price: { marginLeft: 6, fontSize: 15, fontWeight: '800', color: '#111' },
 });
