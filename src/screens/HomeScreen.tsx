@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, Image,
-  TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, TextInput, ImageBackground
+  TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, TextInput, ImageBackground, Dimensions
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -27,43 +27,34 @@ import { db } from '../firebase/config';
 type Nav = ReturnType<typeof useNavigation<any>>;
 
 // --- Constantes ---
+const { width: screenWidth } = Dimensions.get('window');
 const PAGE_SIZE = 10;
 const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
 type Segment = typeof SEGMENTS[number];
 
-// MODIFICATION: Mise à jour de la structure des cartes promotionnelles
-const PROMO_CARDS: Array<{
+// MODIFICATION: Regroupement des cartes pour le défilement horizontal
+const HORIZONTAL_CARDS: Array<{
   id: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   cta: string;
-  image?: string;
-  gradient?: string[];
+  image: string;
   screen?: keyof RootStackParamList
 }> = [
     {
-      id: 'p-store',
-      title: "Notre boutique",
-      subtitle: "Situé près de .....",
-      cta: "Découvrir",
-      screen: 'Store',
-      image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1200&auto=format&fit=crop',
-    },
-];
-
-const FEATURE_TILES: Array<{
-    id: string;
-    label: string;
-    cta: string;
-    image: string;
-    screen?: keyof RootStackParamList
-}> = [
-    {
         id: 'f-wheel',
-        label: 'Jeu pronostique',
+        title: 'Jeu pronostique',
         cta: 'Jouer maintenant',
         screen: 'MatchList',
         image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1200&auto=format&fit=crop',
+    },
+    {
+      id: 'p-store',
+      title: "Notre boutique",
+      subtitle: "Situé près de l'Etoile Rouge",
+      cta: "Découvrir",
+      screen: 'Store',
+      image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1200&auto=format&fit=crop',
     },
 ];
 
@@ -259,44 +250,33 @@ const HomeScreen: React.FC = () => {
           )}
         />
       }
-      {/* MODIFICATION: Remplacement des cartes promotionnelles */}
-      <View style={{ paddingHorizontal: 16, paddingVertical: 10, gap: 12 }}>
-        {PROMO_CARDS.map(item => (
-          <TouchableOpacity key={item.id} onPress={() => item.screen && nav.navigate(item.screen as never)} activeOpacity={0.9}>
-            {item.image ? (
-              <ImageBackground source={{ uri: item.image }} style={styles.promoCardLarge} imageStyle={{ borderRadius: 20 }}>
-                <LinearGradient colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.2)']} style={styles.promoOverlay}>
-                  <Text style={styles.promoTitleLarge}>{item.title}</Text>
-                  <Text style={styles.promoSubLarge}>{item.subtitle}</Text>
-                  <View style={styles.promoCta}>
-                    <Text style={styles.promoCtaText}>{item.cta}</Text>
-                  </View>
-                </LinearGradient>
-              </ImageBackground>
-            ) : (
-              <LinearGradient colors={item.gradient || ['#f2f2f2', '#e2e2e2']} style={[styles.promoCardLarge, { justifyContent: 'center' }]}>
-                <Text style={styles.promoTitleLarge}>{item.title}</Text>
-                <Text style={styles.promoSubLarge}>{item.subtitle}</Text>
-                <View style={styles.promoCta}>
-                  <Text style={styles.promoCtaText}>{item.cta}</Text>
-                </View>
-              </LinearGradient>
-            )}
-          </TouchableOpacity>
-        ))}
-        {FEATURE_TILES.map(item => (
-          <TouchableOpacity key={item.id} onPress={() => item.screen && nav.navigate(item.screen as never)} activeOpacity={0.9}>
+      {/* MODIFICATION: Remplacement par une FlatList horizontale */}
+      <FlatList
+        horizontal
+        data={HORIZONTAL_CARDS}
+        keyExtractor={(item) => item.id}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.horizontalCardContainer}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.promoCardWrapper}
+            onPress={() => item.screen && nav.navigate(item.screen as never)}
+            activeOpacity={0.9}
+          >
             <ImageBackground source={{ uri: item.image }} style={styles.promoCardLarge} imageStyle={{ borderRadius: 20 }}>
               <LinearGradient colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.2)']} style={styles.promoOverlay}>
-                <Text style={styles.promoTitleLarge}>{item.label}</Text>
+                <View>
+                  <Text style={styles.promoTitleLarge}>{item.title}</Text>
+                  {item.subtitle && <Text style={styles.promoSubLarge}>{item.subtitle}</Text>}
+                </View>
                 <View style={styles.promoCta}>
                   <Text style={styles.promoCtaText}>{item.cta}</Text>
                 </View>
               </LinearGradient>
             </ImageBackground>
           </TouchableOpacity>
-        ))}
-      </View>
+        )}
+      />
       <View style={styles.segmentContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
             {SEGMENTS.map((s) => {
@@ -544,8 +524,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   // NOUVEAUX STYLES POUR LES CARTES PROMO
+  horizontalCardContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 12,
+  },
+  promoCardWrapper: {
+    width: screenWidth * 0.80, // Chaque carte prend 80% de la largeur de l'écran
+  },
   promoCardLarge: {
-    height: 120,
+    height: 140, // Hauteur augmentée pour un meilleur impact
     borderRadius: 20,
     overflow: 'hidden',
   },
@@ -555,15 +543,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   promoTitleLarge: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '800',
     color: '#fff',
-    maxWidth: '80%',
+    maxWidth: '90%',
   },
   promoSubLarge: {
     fontSize: 14,
     color: '#f1f5f9',
-    maxWidth: '70%',
+    maxWidth: '80%',
   },
   promoCta: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -571,7 +559,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     alignSelf: 'flex-start',
-    marginTop: 8,
   },
   promoCtaText: {
     color: '#1e293b',
