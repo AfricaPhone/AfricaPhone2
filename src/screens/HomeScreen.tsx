@@ -2,11 +2,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, Image,
-  TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, TextInput
+  TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, TextInput, ImageBackground
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   collection,
   query,
@@ -17,7 +18,7 @@ import {
   getDocs,
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
-import CustomBottomSheet from '../components/CustomBottomSheet'; 
+import CustomBottomSheet from '../components/CustomBottomSheet';
 import { Product, Brand, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import { useProducts } from '../store/ProductContext';
@@ -30,14 +31,42 @@ const PAGE_SIZE = 10;
 const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
 type Segment = typeof SEGMENTS[number];
 
-const PROMO_CARDS: Array<{ id: string; icon: keyof typeof Ionicons.glyphMap; title: string; subtitle: string; color: string; screen?: keyof RootStackParamList }> = [
-    { id: 'p-store', icon: 'map-outline', title: "Notre boutique", subtitle: "Nous sommes situés près de l'E...", color: '#f0fdf4', screen: 'Store' },
-    { id: 'p-70',  icon: 'flash-outline', title: 'Nous offrons', subtitle: 'les meilleurs prix du marché ', color: '#e0f2fe' },
+// MODIFICATION: Mise à jour de la structure des cartes promotionnelles
+const PROMO_CARDS: Array<{
+  id: string;
+  title: string;
+  subtitle: string;
+  cta: string;
+  image?: string;
+  gradient?: string[];
+  screen?: keyof RootStackParamList
+}> = [
+    {
+      id: 'p-store',
+      title: "Notre boutique",
+      subtitle: "Situé près de .....",
+      cta: "Découvrir",
+      screen: 'Store',
+      image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1200&auto=format&fit=crop',
+    },
 ];
-  
-const FEATURE_TILES: Array<{ id: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string; color: string, screen?: keyof RootStackParamList }> = [
-    { id: 'f-wheel', icon: 'gamepad-variant-outline', label: 'Jeu pronostique', color: '#fffbeb', screen: 'MatchList' },
+
+const FEATURE_TILES: Array<{
+    id: string;
+    label: string;
+    cta: string;
+    image: string;
+    screen?: keyof RootStackParamList
+}> = [
+    {
+        id: 'f-wheel',
+        label: 'Jeu pronostique',
+        cta: 'Jouer maintenant',
+        screen: 'MatchList',
+        image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1200&auto=format&fit=crop',
+    },
 ];
+
 
 // --- Helpers ---
 const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
@@ -68,7 +97,7 @@ const HomeScreen: React.FC = () => {
   const nav: Nav = useNavigation<any>();
   const { brands, brandsLoading } = useProducts();
   const [activeSegment, setActiveSegment] = useState<Segment>('Populaires');
-  
+
   // États séparés pour la logique complexe des "Populaires"
   const [vedetteProducts, setVedetteProducts] = useState<Product[]>([]);
   const [regularProducts, setRegularProducts] = useState<SegmentData>({ products: [], lastDoc: null, hasMore: true });
@@ -77,7 +106,7 @@ const HomeScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  
+
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   // Filtres temporaires pour le modal
@@ -85,7 +114,7 @@ const HomeScreen: React.FC = () => {
   const [maxPrice, setMaxPrice] = useState('');
 
   const fetchProducts = useCallback(async (
-    segment: Segment, 
+    segment: Segment,
     isRefresh = false,
   ) => {
     if (isRefresh) setRefreshing(true); else setLoading(true);
@@ -131,24 +160,24 @@ const HomeScreen: React.FC = () => {
             q = query(q, where('category', '==', categoryCapitalized), orderBy('name', 'asc'));
         }
         q = query(q, limit(PAGE_SIZE));
-        
+
         const querySnapshot = await getDocs(q);
         const newProducts = querySnapshot.docs.map(mapDocToProduct);
         const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
         setDataBySegment(prev => ({ ...prev, [segment]: { products: newProducts, lastDoc: lastVisible, hasMore: newProducts.length === PAGE_SIZE }}));
       }
-    } catch (error) { console.error(`Erreur de chargement pour le segment ${segment}:`, error); } 
+    } catch (error) { console.error(`Erreur de chargement pour le segment ${segment}:`, error); }
     finally { setLoading(false); setRefreshing(false); }
   }, []);
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchProducts(activeSegment);
   }, [fetchProducts, activeSegment]);
 
   const handleSegmentChange = (segment: Segment) => {
     setActiveSegment(segment);
   };
-  
+
   const loadMore = useCallback(async () => {
     const segmentState = activeSegment === 'Populaires' ? regularProducts : dataBySegment[activeSegment];
     if (loadingMore || !segmentState || !segmentState.hasMore) return;
@@ -158,8 +187,8 @@ const HomeScreen: React.FC = () => {
         let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
 
         if (activeSegment === 'Populaires') {
-            q = query(q, 
-                where('ordreVedette', 'not-in', [1, 2, 3, 4, 5, 6]), 
+            q = query(q,
+                where('ordreVedette', 'not-in', [1, 2, 3, 4, 5, 6]),
                 orderBy('ordreVedette', 'asc'), // CORRECTION: Ajout du tri principal
                 orderBy('name', 'asc')
             );
@@ -169,7 +198,7 @@ const HomeScreen: React.FC = () => {
             const categoryCapitalized = activeSegment.charAt(0).toUpperCase() + activeSegment.slice(1);
             q = query(q, where('category', '==', categoryCapitalized), orderBy('name', 'asc'));
         }
-      
+
         q = query(q, startAfter(segmentState.lastDoc), limit(PAGE_SIZE));
         const querySnapshot = await getDocs(q);
         const newProducts = querySnapshot.docs.map(mapDocToProduct);
@@ -182,27 +211,27 @@ const HomeScreen: React.FC = () => {
                 hasMore: newProducts.length === PAGE_SIZE,
             }));
         } else {
-            setDataBySegment(prev => ({ 
-                ...prev, 
-                [activeSegment]: { 
-                    products: [...(prev[activeSegment]?.products || []), ...newProducts], 
-                    lastDoc: lastVisible, 
-                    hasMore: newProducts.length === PAGE_SIZE 
+            setDataBySegment(prev => ({
+                ...prev,
+                [activeSegment]: {
+                    products: [...(prev[activeSegment]?.products || []), ...newProducts],
+                    lastDoc: lastVisible,
+                    hasMore: newProducts.length === PAGE_SIZE
                 }
             }));
         }
-    } catch (error) { console.error(`Erreur de pagination pour ${activeSegment}:`, error); } 
+    } catch (error) { console.error(`Erreur de pagination pour ${activeSegment}:`, error); }
     finally { setLoadingMore(false); }
   }, [activeSegment, dataBySegment, regularProducts, loadingMore]);
 
   const renderItem = useCallback(({ item }: { item: Product }) => (
     <View style={styles.gridItem}><ProductGridCard product={item} onPress={() => nav.navigate('ProductDetail' as never, { productId: item.id } as never)}/></View>
   ), [nav]);
-  
+
   const currentData = activeSegment === 'Populaires'
     ? [...vedetteProducts, ...regularProducts.products]
     : dataBySegment[activeSegment]?.products || [];
-  
+
   const resetFilters = () => {
     setMinPrice('');
     setMaxPrice('');
@@ -211,8 +240,8 @@ const HomeScreen: React.FC = () => {
 
   const handleApplyFilter = () => {
     setIsFilterVisible(false);
-    nav.navigate('FilterScreenResults', { 
-        minPrice: minPrice, 
+    nav.navigate('FilterScreenResults', {
+        minPrice: minPrice,
         maxPrice: maxPrice,
         initialCategory: activeSegment !== 'Populaires' ? activeSegment : undefined
     });
@@ -230,26 +259,41 @@ const HomeScreen: React.FC = () => {
           )}
         />
       }
-      <FlatList data={PROMO_CARDS} keyExtractor={(i) => i.id} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }} ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => item.screen && nav.navigate(item.screen as never)}>
-            <View style={[styles.promoCard, { backgroundColor: item.color }]}>
-              <Ionicons name={item.icon} size={22} color="#111" />
-              <View style={{ marginLeft: 10 }}><Text style={styles.promoTitle}>{item.title}</Text><Text style={styles.promoSub}>{item.subtitle}</Text></View>
-            </View>
+      {/* MODIFICATION: Remplacement des cartes promotionnelles */}
+      <View style={{ paddingHorizontal: 16, paddingVertical: 10, gap: 12 }}>
+        {PROMO_CARDS.map(item => (
+          <TouchableOpacity key={item.id} onPress={() => item.screen && nav.navigate(item.screen as never)} activeOpacity={0.9}>
+            {item.image ? (
+              <ImageBackground source={{ uri: item.image }} style={styles.promoCardLarge} imageStyle={{ borderRadius: 20 }}>
+                <LinearGradient colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.2)']} style={styles.promoOverlay}>
+                  <Text style={styles.promoTitleLarge}>{item.title}</Text>
+                  <Text style={styles.promoSubLarge}>{item.subtitle}</Text>
+                  <View style={styles.promoCta}>
+                    <Text style={styles.promoCtaText}>{item.cta}</Text>
+                  </View>
+                </LinearGradient>
+              </ImageBackground>
+            ) : (
+              <LinearGradient colors={item.gradient || ['#f2f2f2', '#e2e2e2']} style={[styles.promoCardLarge, { justifyContent: 'center' }]}>
+                <Text style={styles.promoTitleLarge}>{item.title}</Text>
+                <Text style={styles.promoSubLarge}>{item.subtitle}</Text>
+                <View style={styles.promoCta}>
+                  <Text style={styles.promoCtaText}>{item.cta}</Text>
+                </View>
+              </LinearGradient>
+            )}
           </TouchableOpacity>
-        )}
-      />
-      <View style={{paddingHorizontal: 16, paddingBottom: 8, gap: 10}}>
-        {FEATURE_TILES.map((item) => (
-          <TouchableOpacity 
-            key={item.id} 
-            style={[styles.promoCard, { backgroundColor: item.color }]} 
-            onPress={() => item.screen && nav.navigate(item.screen as never)} 
-            activeOpacity={0.8}
-          >
-            <MaterialCommunityIcons name={item.icon} size={22} color="#111" />
-            <Text style={[styles.promoTitle, { marginLeft: 10 }]}>{item.label}</Text>
+        ))}
+        {FEATURE_TILES.map(item => (
+          <TouchableOpacity key={item.id} onPress={() => item.screen && nav.navigate(item.screen as never)} activeOpacity={0.9}>
+            <ImageBackground source={{ uri: item.image }} style={styles.promoCardLarge} imageStyle={{ borderRadius: 20 }}>
+              <LinearGradient colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.2)']} style={styles.promoOverlay}>
+                <Text style={styles.promoTitleLarge}>{item.label}</Text>
+                <View style={styles.promoCta}>
+                  <Text style={styles.promoCtaText}>{item.cta}</Text>
+                </View>
+              </LinearGradient>
+            </ImageBackground>
           </TouchableOpacity>
         ))}
       </View>
@@ -309,7 +353,7 @@ const HomeScreen: React.FC = () => {
               <Ionicons name="close-circle" size={26} color="#ccc" />
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.filterSection}>
             <Text style={styles.filterSectionTitle}>Prix</Text>
             <View style={styles.priceInputsRow}>
@@ -366,14 +410,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     gap: 12,
   },
-  searchBar: { 
+  searchBar: {
     flex: 1,
-    backgroundColor: '#F2F3F5', 
-    borderRadius: 16, 
-    height: 44, 
-    paddingHorizontal: 12, 
-    flexDirection: 'row', 
-    alignItems: 'center' 
+    backgroundColor: '#F2F3F5',
+    borderRadius: 16,
+    height: 44,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   filterButton: {
     height: 44,
@@ -391,23 +435,16 @@ const styles = StyleSheet.create({
   },
   searchPlaceholder: { color: '#8A8A8E', fontSize: 15, marginLeft: 8, flex: 1 },
   brandCarousel: { paddingHorizontal: 16, paddingVertical: 12, },
-  circle: { 
-    width: 68, height: 68, borderRadius: 34, 
-    backgroundColor: '#F2F3F5', overflow: 'hidden', 
-    alignItems: 'center', justifyContent: 'center' 
+  circle: {
+    width: 68, height: 68, borderRadius: 34,
+    backgroundColor: '#F2F3F5', overflow: 'hidden',
+    alignItems: 'center', justifyContent: 'center'
   },
   circleImg: { width: '100%', height: '100%' },
-  circleLabel: { 
-    textAlign: 'center', width: 68, marginTop: 6, 
-    fontSize: 12, color: '#111' 
+  circleLabel: {
+    textAlign: 'center', width: 68, marginTop: 6,
+    fontSize: 12, color: '#111'
   },
-  promoCard: { 
-    height: 64, borderRadius: 12, borderWidth: 1, 
-    borderColor: '#eee', paddingHorizontal: 12, 
-    alignItems: 'center', flexDirection: 'row' 
-  },
-  promoTitle: { fontWeight: '700', fontSize: 14, color: '#111' },
-  promoSub: { color: '#6B7280', fontSize: 12, marginTop: 2 },
   segmentContainer: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -451,7 +488,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#111',
   },
-  filterSection: { 
+  filterSection: {
     marginBottom: 24,
   },
   filterSectionTitle: {
@@ -505,6 +542,41 @@ const styles = StyleSheet.create({
     color: '#555',
     fontSize: 15,
     fontWeight: '600',
+  },
+  // NOUVEAUX STYLES POUR LES CARTES PROMO
+  promoCardLarge: {
+    height: 120,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  promoOverlay: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'space-between',
+  },
+  promoTitleLarge: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#fff',
+    maxWidth: '80%',
+  },
+  promoSubLarge: {
+    fontSize: 14,
+    color: '#f1f5f9',
+    maxWidth: '70%',
+  },
+  promoCta: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 99,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  promoCtaText: {
+    color: '#1e293b',
+    fontWeight: '700',
+    fontSize: 13,
   },
 });
 
