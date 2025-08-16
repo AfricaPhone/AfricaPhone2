@@ -32,7 +32,18 @@ const PAGE_SIZE = 10;
 const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
 type Segment = typeof SEGMENTS[number];
 
-// MODIFICATION: Regroupement des cartes pour le défilement horizontal
+// MODIFICATION: Ajout d'icônes et de labels pour les segments
+const SEGMENTS_DATA: Array<{
+  key: Segment;
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+}> = [
+  { key: 'Populaires', label: 'Populaires', icon: 'star-outline' },
+  { key: 'Tablettes', label: 'Tablettes', icon: 'tablet-portrait-outline' },
+  { key: 'Acessoires', label: 'Accessoires', icon: 'headset-outline' },
+  { key: 'Portables a Touches', label: 'Classiques', icon: 'keypad-outline' },
+];
+
 const HORIZONTAL_CARDS: Array<{
   id: string;
   title: string;
@@ -238,7 +249,7 @@ const HomeScreen: React.FC = () => {
     });
   }
 
-  const HeaderComponent = (
+  const ListHeader = (
     <>
       {brandsLoading ? <ActivityIndicator style={{ marginVertical: 20 }} /> :
         <FlatList data={brands} keyExtractor={(i) => i.id} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.brandCarousel} ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
@@ -250,7 +261,6 @@ const HomeScreen: React.FC = () => {
           )}
         />
       }
-      {/* MODIFICATION: Remplacement par une FlatList horizontale */}
       <FlatList
         horizontal
         data={HORIZONTAL_CARDS}
@@ -277,19 +287,6 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         )}
       />
-      <View style={styles.segmentContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
-            {SEGMENTS.map((s) => {
-            const active = s === activeSegment;
-            return (
-                <Pressable key={s} onPress={() => handleSegmentChange(s)} style={styles.segmentBtn}>
-                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{s}</Text>
-                <View style={[styles.segmentUnderline, active && styles.segmentUnderlineActive]} />
-                </Pressable>
-            );
-            })}
-        </ScrollView>
-      </View>
     </>
   );
 
@@ -308,12 +305,33 @@ const HomeScreen: React.FC = () => {
         </View>
       </View>
 
+      {/* MODIFICATION: Barre de segments "collante" (sticky) */}
+      <View style={styles.segmentContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
+            {SEGMENTS_DATA.map((s) => {
+            const active = s.key === activeSegment;
+            const iconName = active ? s.icon.replace('-outline', '') as keyof typeof Ionicons.glyphMap : s.icon;
+            return (
+                <TouchableOpacity key={s.key} onPress={() => handleSegmentChange(s.key)} style={[styles.segmentPill, active && styles.segmentPillActive]}>
+                  <Ionicons name={iconName} size={18} color={active ? '#FF7A00' : '#111'} />
+                  <Text style={[styles.segmentPillText, active && styles.segmentPillTextActive]}>{s.label}</Text>
+                </TouchableOpacity>
+            );
+            })}
+        </ScrollView>
+      </View>
+
       <FlatList
-        data={currentData} renderItem={renderItem} keyExtractor={(item) => `${activeSegment}-${item.id}`} numColumns={2}
-        ListHeaderComponent={HeaderComponent}
+        data={currentData}
+        renderItem={renderItem}
+        keyExtractor={(item) => `${activeSegment}-${item.id}`}
+        numColumns={2}
+        ListHeaderComponent={ListHeader}
         ListFooterComponent={loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" /> : null}
-        onEndReached={loadMore} onEndReachedThreshold={0.5} columnWrapperStyle={styles.gridContainer} showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 10 }}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        columnWrapperStyle={styles.gridContainer}
+        showsVerticalScrollIndicator={false}
         refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={() => fetchProducts(activeSegment, true)} tintColor="#FF7A00"/> }
         ListEmptyComponent={
             <View style={styles.emptyContainer}>
@@ -427,15 +445,34 @@ const styles = StyleSheet.create({
   },
   segmentContainer: {
     backgroundColor: '#fff',
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  segmentScrollContainer: { paddingHorizontal: 16 },
-  segmentBtn: { paddingVertical: 12, paddingHorizontal: 10, marginRight: 6, alignItems: 'center' },
-  segmentText: { fontSize: 16, color: '#8A8A8E', fontWeight: '600' },
-  segmentTextActive: { color: '#FF7A00' },
-  segmentUnderline: { height: 3, width: '80%', marginTop: 6, borderRadius: 2, backgroundColor: 'transparent' },
-  segmentUnderlineActive: { backgroundColor: '#FF7A00' },
+  segmentScrollContainer: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  segmentPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#F2F3F5',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 99,
+  },
+  segmentPillActive: {
+    backgroundColor: '#111',
+  },
+  segmentPillText: {
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#111',
+  },
+  segmentPillTextActive: {
+    color: '#fff',
+  },
   gridContainer: {
     paddingHorizontal: 16,
     justifyContent: 'space-between',
@@ -445,8 +482,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyContainer: {
+    flex: 1, // Prend l'espace restant
     paddingVertical: 40,
     alignItems: 'center',
+    justifyContent: 'center',
     minHeight: 200,
   },
   emptyText: {
@@ -523,17 +562,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
-  // NOUVEAUX STYLES POUR LES CARTES PROMO
   horizontalCardContainer: {
     paddingHorizontal: 16,
     paddingVertical: 10,
     gap: 12,
   },
   promoCardWrapper: {
-    width: screenWidth * 0.80, // Chaque carte prend 80% de la largeur de l'écran
+    width: screenWidth * 0.80,
   },
   promoCardLarge: {
-    height: 140, // Hauteur augmentée pour un meilleur impact
+    height: 140,
     borderRadius: 20,
     overflow: 'hidden',
   },
