@@ -101,7 +101,6 @@ export type RootStackParamList = {
   Main: undefined;
   ProductDetail: { productId: string };
   Brand: { brandId: string };
-  Cart: undefined;
   MatchList: undefined;
   PredictionGame: { matchId: string };
   Store: undefined;
