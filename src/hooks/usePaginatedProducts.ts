@@ -24,6 +24,8 @@ export interface ProductQueryOptions {
   searchQuery?: string;
   minPrice?: string;
   maxPrice?: string;
+  ram?: number; // Added RAM filter option
+  rom?: number; // Added ROM filter option
 }
 
 // Convertit un document Firestore en type Product
@@ -69,7 +71,15 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
       q = query(q, where('price', '<=', maxPriceNum));
     }
 
-    if (options.searchQuery) {
+    // Add RAM/ROM filters
+    if (typeof options.ram === 'number' && options.ram > 0) {
+      q = query(q, where('ram', '==', options.ram));
+    }
+    if (typeof options.rom === 'number' && options.rom > 0) {
+      q = query(q, where('rom', '==', options.rom));
+    }
+
+    if (hasSearchQuery) {
       q = query(
         q,
         where('name', '>=', options.searchQuery),
@@ -87,7 +97,7 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
       q = query(q, orderBy('name', 'asc'));
     }
     return q;
-  }, [options.category, options.brandId, options.sortBy, options.sortDirection, options.searchQuery, options.minPrice, options.maxPrice]);
+  }, [options.category, options.brandId, options.sortBy, options.sortDirection, options.searchQuery, options.minPrice, options.maxPrice, options.ram, options.rom]);
 
   const fetchAllProducts = useCallback(async () => {
     setLoading(true);
@@ -146,6 +156,14 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
       q = query(q, where('price', '<=', maxPriceNum));
     }
 
+    // Add RAM/ROM filters
+    if (typeof options.ram === 'number' && options.ram > 0) {
+      q = query(q, where('ram', '==', options.ram));
+    }
+    if (typeof options.rom === 'number' && options.rom > 0) {
+      q = query(q, where('rom', '==', options.rom));
+    }
+
     if (options.searchQuery) {
       q = query(
         q,
@@ -173,6 +191,8 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
     options.searchQuery,
     options.minPrice,
     options.maxPrice,
+    options.ram, // Added to dependencies
+    options.rom, // Added to dependencies
   ]);
 
   const fetchProducts = useCallback(

@@ -23,6 +23,7 @@ import { Product, Brand, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import { useProducts } from '../store/ProductContext';
 import { db } from '../firebase/config';
+import PriceRangeSlider from '../components/PriceRangeSlider'; // Import the new slider component
 
 type Nav = ReturnType<typeof useNavigation<any>>;
 
@@ -68,6 +69,10 @@ const HORIZONTAL_CARDS: Array<{
     },
 ];
 
+// NOUVEAU: Options pour les filtres RAM/ROM
+const RAM_OPTIONS = [2, 4, 6, 8, 12, 16];
+const ROM_OPTIONS = [32, 64, 128, 256, 512, 1024];
+
 
 // --- Helpers ---
 const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
@@ -105,8 +110,15 @@ const HomeScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
+  
+  // State for the price range slider
+  const [minPriceFilter, setMinPriceFilter] = useState(0);
+  const [maxPriceFilter, setMaxPriceFilter] = useState(1000000);
+
+  // NOUVEAU: États pour les filtres RAM/ROM
+  const [selectedRam, setSelectedRam] = useState<number | null>(null);
+  const [selectedRom, setSelectedRom] = useState<number | null>(null);
+
 
   const fetchProducts = useCallback(async (
     segment: Segment,
@@ -228,17 +240,21 @@ const HomeScreen: React.FC = () => {
     : dataBySegment[activeSegment]?.products || [];
 
   const resetFilters = () => {
-    setMinPrice('');
-    setMaxPrice('');
+    setMinPriceFilter(0);
+    setMaxPriceFilter(1000000);
+    setSelectedRam(null);
+    setSelectedRom(null);
     setIsFilterVisible(false);
   }
 
   const handleApplyFilter = () => {
     setIsFilterVisible(false);
     nav.navigate('FilterScreenResults', {
-        minPrice: minPrice,
-        maxPrice: maxPrice,
-        initialCategory: activeSegment !== 'Populaires' ? activeSegment : undefined
+        minPrice: String(minPriceFilter),
+        maxPrice: String(maxPriceFilter),
+        initialCategory: activeSegment !== 'Populaires' ? activeSegment : undefined,
+        ram: selectedRam,
+        rom: selectedRom,
     });
   }
 
@@ -287,7 +303,7 @@ const HomeScreen: React.FC = () => {
             const iconName = active ? s.icon.replace('-outline', '') as keyof typeof Ionicons.glyphMap : s.icon;
             return (
                 <TouchableOpacity key={s.key} onPress={() => handleSegmentChange(s.key)} style={[styles.segmentPill, active && styles.segmentPillActive]}>
-                  <Ionicons name={iconName} size={18} color={active ? '#FF7A00' : '#111'} />
+                  <Ionicons name={iconName} size={18} color={active ? '#fff' : '#111'} />
                   <Text style={[styles.segmentPillText, active && styles.segmentPillTextActive]}>{s.label}</Text>
                 </TouchableOpacity>
             );
@@ -330,7 +346,7 @@ const HomeScreen: React.FC = () => {
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}
       >
-        <View style={styles.sheetContent}>
+        <ScrollView style={styles.sheetContent} showsVerticalScrollIndicator={false}>
           <View style={styles.sheetHeader}>
             <Text style={styles.sheetTitle}>Filtres</Text>
             <TouchableOpacity onPress={() => setIsFilterVisible(false)}>
@@ -340,27 +356,49 @@ const HomeScreen: React.FC = () => {
 
           <View style={styles.filterSection}>
             <Text style={styles.filterSectionTitle}>Prix</Text>
-            <View style={styles.priceInputsRow}>
-              <View style={styles.priceInputWrap}>
-                <TextInput
-                  style={styles.priceInput}
-                  keyboardType="numeric"
-                  placeholder="Min"
-                  value={minPrice}
-                  onChangeText={setMinPrice}
-                />
-                <Text style={styles.priceUnit}>FCFA</Text>
-              </View>
-              <View style={styles.priceInputWrap}>
-                <TextInput
-                  style={styles.priceInput}
-                  keyboardType="numeric"
-                  placeholder="Max"
-                  value={maxPrice}
-                  onChangeText={setMaxPrice}
-                />
-                <Text style={styles.priceUnit}>FCFA</Text>
-              </View>
+            <PriceRangeSlider
+              min={0}
+              max={1000000}
+              initialMinValue={minPriceFilter}
+              initialMaxValue={maxPriceFilter}
+              onChange={(min, max) => {
+                setMinPriceFilter(min);
+                setMaxPriceFilter(max);
+              }}
+            />
+          </View>
+
+          <View style={styles.filterSection}>
+            <Text style={styles.filterSectionTitle}>RAM (Go)</Text>
+            <View style={styles.pillsRow}>
+              {RAM_OPTIONS.map(ram => (
+                <TouchableOpacity 
+                  key={`ram-${ram}`} 
+                  onPress={() => setSelectedRam(selectedRam === ram ? null : ram)} 
+                  style={[styles.pill, selectedRam === ram && styles.pillActive]}
+                >
+                  <Text style={[styles.pillTxt, selectedRam === ram && styles.pillTxtActive]}>
+                    {ram} Go
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          
+          <View style={styles.filterSection}>
+            <Text style={styles.filterSectionTitle}>Stockage (Go)</Text>
+            <View style={styles.pillsRow}>
+              {ROM_OPTIONS.map(rom => (
+                <TouchableOpacity 
+                  key={`rom-${rom}`} 
+                  onPress={() => setSelectedRom(selectedRom === rom ? null : rom)} 
+                  style={[styles.pill, selectedRom === rom && styles.pillActive]}
+                >
+                  <Text style={[styles.pillTxt, selectedRom === rom && styles.pillTxtActive]}>
+                    {rom < 1024 ? `${rom} Go` : '1 To'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
 
@@ -373,7 +411,7 @@ const HomeScreen: React.FC = () => {
           <TouchableOpacity onPress={resetFilters} style={styles.resetButton}>
             <Text style={styles.resetButtonText}>Réinitialiser les filtres</Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </CustomBottomSheet>
     </SafeAreaView>
   );
@@ -477,7 +515,7 @@ const styles = StyleSheet.create({
       color: '#666'
   },
   sheetContent: {
-    paddingTop: 24,
+    paddingTop: 8,
     paddingHorizontal: 16,
   },
   sheetHeader: {
@@ -485,6 +523,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+    paddingTop: 16,
   },
   sheetTitle: {
     fontSize: 22,
@@ -498,32 +537,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#111',
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  priceInputsRow: {
+  pillsRow: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    gap: 10 
+  },
+  pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-  },
-  priceInputWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 99,
     backgroundColor: '#f2f3f5',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 48,
   },
-  priceInput: {
-    flex: 1,
-    color: '#111',
-    fontSize: 16,
-  },
-  priceUnit: {
-    color: '#6b7280',
-    marginLeft: 4,
-    fontWeight: '600',
-  },
+  pillActive: { backgroundColor: '#111' },
+  pillTxt: { color: '#111', fontWeight: '600' },
+  pillTxtActive: { color: '#fff' },
   showButton: {
     backgroundColor: '#111',
     borderRadius: 16,
@@ -539,7 +570,7 @@ const styles = StyleSheet.create({
   resetButton: {
     marginTop: 12,
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 24,
   },
   resetButtonText: {
     color: '#555',

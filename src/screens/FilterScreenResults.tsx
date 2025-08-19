@@ -12,6 +12,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Modal,
+  ScrollView, // Added for filter options scroll
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -20,12 +21,15 @@ import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAllProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
+import PriceRangeSlider from '../components/PriceRangeSlider'; // Import the new slider component
 
 type RouteParams = {
   initialCategory?: Category;
   initialSearchQuery?: string;
   minPrice?: string;
   maxPrice?: string;
+  ram?: number;
+  rom?: number;
 };
 
 type SortKey = 'priceAsc' | 'priceDesc';
@@ -33,22 +37,45 @@ type ViewMode = 'grid' | 'list';
 
 const { width } = Dimensions.get('window');
 
+// Common RAM/ROM options for chips
+const RAM_OPTIONS = [2, 4, 6, 8, 12, 16]; // Added 16GB RAM option
+const ROM_OPTIONS = [32, 64, 128, 256, 512, 1024]; // Added 1024GB (1TB) ROM option
+
 const FilterScreenResults: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
-  const { initialCategory, initialSearchQuery, minPrice: initialMinPrice, maxPrice: initialMaxPrice } = route.params as RouteParams || {};
+  const { 
+    initialCategory, 
+    initialSearchQuery, 
+    minPrice: initialMinPrice, 
+    maxPrice: initialMaxPrice,
+    ram: initialRam,
+    rom: initialRom,
+  } = route.params as RouteParams || {};
 
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [category, setCategory] = useState<Category | undefined>(initialCategory);
   const [sort, setSort] = useState<SortKey>('priceAsc');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [minPrice, setMinPrice] = useState(initialMinPrice || '');
-  const [maxPrice, setMaxPrice] = useState(initialMaxPrice || '');
+  
+  // State for the price range slider
+  const [minPrice, setMinPrice] = useState(Number(initialMinPrice) || 0);
+  const [maxPrice, setMaxPrice] = useState(Number(initialMaxPrice) || 1000000);
+
+  // State for RAM/ROM filters
+  const [selectedRam, setSelectedRam] = useState<number | null>(initialRam || null);
+  const [selectedRom, setSelectedRom] = useState<number | null>(initialRom || null);
+
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const queryOptions = useMemo((): ProductQueryOptions => {
-    const options: ProductQueryOptions = { category, minPrice, maxPrice, searchQuery };
+    const options: ProductQueryOptions = { 
+      category, 
+      minPrice: String(minPrice), 
+      maxPrice: String(maxPrice), 
+      searchQuery 
+    };
     switch (sort) {
       case 'priceAsc':
         options.sortBy = 'price';
@@ -59,8 +86,15 @@ const FilterScreenResults: React.FC = () => {
         options.sortDirection = 'desc';
         break;
     }
+    // Add RAM/ROM to query options if selected
+    if (selectedRam !== null) {
+      options.ram = selectedRam;
+    }
+    if (selectedRom !== null) {
+      options.rom = selectedRom;
+    }
     return options;
-  }, [category, searchQuery, sort, minPrice, maxPrice]);
+  }, [category, searchQuery, sort, minPrice, maxPrice, selectedRam, selectedRom]);
 
   const { products, loading, refresh } = useAllProducts(queryOptions);
 
@@ -85,11 +119,13 @@ const FilterScreenResults: React.FC = () => {
   };
 
   const resetFilters = () => {
-    setMinPrice('');
-    setMaxPrice('');
+    setMinPrice(0);
+    setMaxPrice(1000000); // Reset to full range
     setSort('priceAsc');
     setSearchQuery('');
     setCategory(undefined);
+    setSelectedRam(null);
+    setSelectedRom(null);
   };
 
   return (
@@ -139,44 +175,69 @@ const FilterScreenResults: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.sheetSection}>
-            <Text style={styles.filterSectionTitle}>Prix</Text>
-            <View style={styles.priceInputsRow}>
-              <View style={styles.priceInputWrap}>
-                <TextInput
-                  style={styles.priceInput}
-                  keyboardType="numeric"
-                  placeholder="Min"
-                  value={minPrice}
-                  onChangeText={setMinPrice}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.sheetSection}>
+                <Text style={styles.filterSectionTitle}>Prix</Text>
+                <PriceRangeSlider
+                  min={0}
+                  max={1000000} // Example max price, adjust as needed
+                  initialMinValue={minPrice}
+                  initialMaxValue={maxPrice}
+                  onChange={(min, max) => {
+                    setMinPrice(min);
+                    setMaxPrice(max);
+                  }}
                 />
-                <Text style={styles.priceUnit}>FCFA</Text>
-              </View>
-              <View style={styles.priceInputWrap}>
-                <TextInput
-                  style={styles.priceInput}
-                  keyboardType="numeric"
-                  placeholder="Max"
-                  value={maxPrice}
-                  onChangeText={setMaxPrice}
-                />
-                <Text style={styles.priceUnit}>FCFA</Text>
-              </View>
             </View>
-          </View>
 
-          <View style={styles.sheetSection}>
-            <Text style={styles.filterSectionTitle}>Trier par</Text>
-            <View style={styles.pillsRow}>
-              {(['priceAsc', 'priceDesc'] as SortKey[]).map(s => (
-                <TouchableOpacity key={s} onPress={() => { setSort(s); }} style={[styles.pill, sort === s && styles.pillActive]}>
-                  <Text style={[styles.pillTxt, sort === s && styles.pillTxtActive]}>
-                    {s === 'priceAsc' ? 'Prix ↑' : 'Prix ↓'}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            <View style={styles.sheetSection}>
+                <Text style={styles.filterSectionTitle}>RAM (Go)</Text>
+                <View style={styles.pillsRow}>
+                    {RAM_OPTIONS.map(ram => (
+                        <TouchableOpacity 
+                            key={`ram-${ram}`} 
+                            onPress={() => setSelectedRam(selectedRam === ram ? null : ram)} 
+                            style={[styles.pill, selectedRam === ram && styles.pillActive]}
+                        >
+                            <Text style={[styles.pillTxt, selectedRam === ram && styles.pillTxtActive]}>
+                                {ram}Go
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
             </View>
-          </View>
+
+            <View style={styles.sheetSection}>
+                <Text style={styles.filterSectionTitle}>ROM (Go)</Text>
+                <View style={styles.pillsRow}>
+                    {ROM_OPTIONS.map(rom => (
+                        <TouchableOpacity 
+                            key={`rom-${rom}`} 
+                            onPress={() => setSelectedRom(selectedRom === rom ? null : rom)} 
+                            style={[styles.pill, selectedRom === rom && styles.pillActive]}
+                        >
+                            <Text style={[styles.pillTxt, selectedRom === rom && styles.pillTxtActive]}>
+                                {rom}Go
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
+            <View style={styles.sheetSection}>
+                <Text style={styles.filterSectionTitle}>Trier par</Text>
+                <View style={styles.pillsRow}>
+                {(['priceAsc', 'priceDesc'] as SortKey[]).map(s => (
+                    <TouchableOpacity key={s} onPress={() => { setSort(s); }} style={[styles.pill, sort === s && styles.pillActive]}>
+                    <Text style={[styles.pillTxt, sort === s && styles.pillTxtActive]}>
+                        {s === 'priceAsc' ? 'Prix ↑' : 'Prix ↓'}
+                    </Text>
+                    </TouchableOpacity>
+                ))}
+                </View>
+            </View>
+          </ScrollView>
+
           <TouchableOpacity onPress={handleApplyFilter} style={styles.showButton}>
             <Text style={styles.showButtonText}>Voir les résultats</Text>
           </TouchableOpacity>
@@ -230,6 +291,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 24,
+    maxHeight: '80%', // Limit height for scrollability
   },
   sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   sheetTitle: { fontSize: 20, fontWeight: '800', color: '#111' },
@@ -247,36 +309,12 @@ const styles = StyleSheet.create({
   pillTxt: { color: '#111', fontWeight: '600' },
   pillTxtActive: { color: '#fff' },
   
-  // Filter Panel (Prix)
+  // Filter Panel (Prix) - Removed priceInputsRow, priceInputWrap, priceInput, priceUnit styles
   filterSectionTitle: {
     fontSize: 16,
     fontWeight: '700',
     color: '#111',
     marginBottom: 12,
-  },
-  priceInputsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  priceInputWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f2f3f5',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 48,
-  },
-  priceInput: {
-    flex: 1,
-    color: '#111',
-    fontSize: 16,
-  },
-  priceUnit: {
-    color: '#6b7280',
-    marginLeft: 4,
-    fontWeight: '600',
   },
   showButton: {
     backgroundColor: '#111',
