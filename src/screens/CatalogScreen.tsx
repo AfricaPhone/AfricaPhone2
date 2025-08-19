@@ -1,5 +1,5 @@
 // src/screens/CatalogScreen.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,19 +15,21 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useProducts } from '../store/ProductContext';
-import { Brand, Product } from '../types';
-import { collection, query, where, orderBy, limit, getDocs, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-import { db } from '../firebase/config';
-import { formatPrice } from '../utils/formatPrice';
+import { Product } from '../types';
+
+import { searchClient as createSearchClient } from '@algolia/client-search';
+
+// --- Config Algolia ---
+const ALGOLIA_APP_ID = 'S18U9VKLQE';
+const ALGOLIA_SEARCH_API_KEY = '2a55d141d98d03a2b22b3836c7dee3f8'; // ← remplace par ta Search API Key (Search-Only)
+const ALGOLIA_INDEX_NAME = 'products';
+const algolia = createSearchClient(ALGOLIA_APP_ID, ALGOLIA_SEARCH_API_KEY);
 
 // --- Hooks ---
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(handler);
   }, [value, delay]);
   return debouncedValue;
@@ -45,11 +47,11 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
 
 const SearchResultItem: React.FC<{ item: Product; query: string; onPress: () => void }> = ({ item, query, onPress }) => {
   const renderHighlightedText = () => {
-    const title = item.title || ''; 
+    const title = item.title || '';
     if (!query) {
       return <Text style={styles.resultTitle}>{title}</Text>;
     }
-    const parts = title.split(new RegExp(`(${query})`, 'gi'));
+    const parts = title.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')})`, 'gi'));
     return (
       <Text style={styles.resultTitle} numberOfLines={2}>
         {parts.map((part, index) =>
@@ -70,62 +72,107 @@ const SearchResultItem: React.FC<{ item: Product; query: string; onPress: () => 
       <Image source={{ uri: item.image }} style={styles.resultImage} />
       <View style={styles.resultInfo}>
         {renderHighlightedText()}
-        {item.rom && item.ram && <Text style={styles.resultSpecs}>{item.rom}GB ROM / {item.ram}GB RAM</Text>}
+        {item.rom && item.ram && (
+          <Text style={styles.resultSpecs}>
+            {item.rom}GB ROM / {item.ram}GB RAM
+          </Text>
+        )}
         <Text style={styles.resultPrice}>{formatPrice(item.price)}</Text>
       </View>
     </TouchableOpacity>
   );
 };
 
+// --- Util ---
+const formatPrice = (value?: number) => {
+  if (value == null) return '';
+  try {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(
+      value
+    );
+  } catch {
+    return `${value} F`;
+  }
+};
+
+type AlgoliaHit = {
+  objectID: string;
+  name?: string;
+  brand?: string;
+  description?: string;
+  price?: number;
+  imageUrl?: string;
+  ordreVedette?: number;
+  rom?: number;
+  ram?: number;
+};
 
 const CatalogScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { brands } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedQuery = useDebounce(searchQuery, 300);
 
   const [results, setResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  // 🔎 Recherche en temps réel via Algolia (v5 + @algolia/client-search)
   useEffect(() => {
-    const fetchResults = async () => {
-      if (debouncedQuery.trim().length < 2) {
+    let cancelled = false;
+
+    const runSearch = async () => {
+      const q = debouncedQuery.trim();
+      if (q.length < 2) {
         setResults([]);
         return;
       }
       setIsSearching(true);
       try {
-        const q = query(
-          collection(db, 'products'),
-          where('name', '>=', debouncedQuery),
-          where('name', '<=', debouncedQuery + '\uf8ff'),
-          limit(10)
-        );
-        const snapshot = await getDocs(q);
-        const fetchedProducts = snapshot.docs.map((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                title: data.name,
-                price: data.price,
-                image: data.imageUrl,
-                category: data.brand?.toLowerCase() || 'inconnu',
-                rating: data.rating,
-                description: data.description,
-                rom: data.rom,
-                ram: data.ram,
-                ram_base: data.ram_base,
-                ram_extension: data.ram_extension,
-            } as Product;
+        const res = await algolia.searchSingleIndex<AlgoliaHit>({
+          indexName: ALGOLIA_INDEX_NAME,
+          searchParams: {
+            query: q,
+            hitsPerPage: 20,
+            attributesToRetrieve: [
+              'name',
+              'brand',
+              'description',
+              'price',
+              'imageUrl',
+              'ordreVedette',
+              'rom',
+              'ram',
+            ],
+          },
         });
-        setResults(fetchedProducts);
-      } catch (error) {
-        console.error("Error fetching search results:", error);
+
+        if (cancelled) return;
+
+        const mapped: Product[] = res.hits.map((hit: AlgoliaHit) => ({
+          id: hit.objectID,
+          title: hit.name || '',
+          price: hit.price ?? 0,
+          image: hit.imageUrl || '',
+          category: (hit.brand || 'inconnu').toLowerCase(),
+          rating: undefined,
+          description: hit.description,
+          rom: hit.rom,
+          ram: hit.ram,
+          ram_base: undefined,
+          ram_extension: undefined,
+        }));
+        setResults(mapped);
+      } catch (err) {
+        console.error('Algolia search error:', err);
+        setResults([]);
       } finally {
-        setIsSearching(false);
+        if (!cancelled) setIsSearching(false);
       }
     };
-    fetchResults();
+
+    runSearch();
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedQuery]);
 
   const handleSearchSubmit = () => {
@@ -141,7 +188,7 @@ const CatalogScreen: React.FC = () => {
     <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <Section title="Recherches Populaires">
         <View style={styles.chipContainer}>
-          {RECENT_SEARCHES.map(item => (
+          {RECENT_SEARCHES.map((item) => (
             <TouchableOpacity key={item} style={styles.chip} onPress={() => setSearchQuery(item)}>
               <Ionicons name="time-outline" size={16} color="#555" />
               <Text style={styles.chipText}>{item}</Text>
@@ -155,7 +202,7 @@ const CatalogScreen: React.FC = () => {
   const renderSearchResults = () => (
     <View style={styles.resultsContainer}>
       {isSearching ? (
-        <ActivityIndicator size="large" color="#FF7A00" style={{ marginTop: 20 }}/>
+        <ActivityIndicator size="large" color="#FF7A00" style={{ marginTop: 20 }} />
       ) : (
         <FlatList
           data={results}
@@ -198,9 +245,8 @@ const CatalogScreen: React.FC = () => {
           />
         </View>
       </View>
-      
-      {searchQuery.trim().length > 0 ? renderSearchResults() : renderSearchHub()}
 
+      {searchQuery.trim().length > 0 ? renderSearchResults() : renderSearchHub()}
     </SafeAreaView>
   );
 };
@@ -248,25 +294,6 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '500',
   },
-  brandCarousel: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  brandCard: {
-      width: 100,
-      height: 60,
-      backgroundColor: '#f2f3f5',
-      borderRadius: 12,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 8,
-  },
-  brandLogo: {
-      width: '100%',
-      height: '100%',
-      resizeMode: 'contain',
-  },
-  // Styles for real-time results
   resultsContainer: {
     flex: 1,
   },
@@ -294,7 +321,7 @@ const styles = StyleSheet.create({
     color: '#111',
   },
   highlightedText: {
-    color: '#FF7A00', // Orange color for highlighting
+    color: '#FF7A00',
   },
   resultSpecs: {
     fontSize: 12,

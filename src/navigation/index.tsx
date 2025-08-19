@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import CatalogScreen from '../screens/CatalogScreen';
-import CartScreen from '../screens/CartScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
@@ -21,27 +20,11 @@ import StoreScreen from '../screens/StoreScreen';
 import FilterScreenResults from '../screens/FilterScreenResults';
 import ProductListScreen from '../screens/ProductListScreen';
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
-import { useCart } from '../store/CartContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Main = createNativeStackNavigator<MainStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
-
-const CartButton = () => {
-  const navigation = useNavigation<any>();
-  const { cartCount } = useCart();
-  return (
-    <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.cartButton}>
-      <Ionicons name="cart-outline" size={24} color="#111" />
-      {cartCount > 0 && (
-        <View style={styles.cartBadge}>
-          <Text style={styles.cartBadgeText}>{cartCount}</Text>
-        </View>
-      )}
-    </TouchableOpacity>
-  );
-};
 
 function Tabs() {
   const insets = useSafeAreaInsets();
@@ -92,7 +75,6 @@ function Tabs() {
 const MainStack = () => (
   <Main.Navigator
     screenOptions={{
-      headerRight: () => <CartButton />,
       headerTitleAlign: 'left',
     }}
   >
@@ -112,7 +94,6 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false, presentation: 'modal' }} />
       <RootStack.Screen name="AuthPrompt" component={AuthPromptScreen} options={{ headerShown: false, presentation: 'modal' }} />
       <RootStack.Screen name="CreateProfile" component={CreateProfileScreen} options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }} />
-      <RootStack.Screen name="Cart" component={CartScreen} options={{ presentation: 'modal', headerShown: false }} />
       <RootStack.Screen name="FilterScreenResults" component={FilterScreenResults} options={{ headerShown: false, presentation: 'modal' }} />
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
     </RootStack.Navigator>
