@@ -23,12 +23,6 @@ const ProductListItem: React.FC<Props> = ({ product, onPress }) => {
         <Text numberOfLines={2} style={styles.title}>
           {product.title}
         </Text>
-        {product.rating ? (
-          <View style={styles.ratingRow}>
-            <RatingStars rating={product.rating} size={14} />
-            <Text style={styles.ratingText}>{product.rating.toFixed(1)}</Text>
-          </View>
-        ) : null}
         <Text style={styles.description} numberOfLines={2}>
           {product.description}
         </Text>

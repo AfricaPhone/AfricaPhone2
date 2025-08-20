@@ -257,7 +257,6 @@ const HomeScreen: React.FC = () => {
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}
         onApplyFilter={handleApplyFilter}
-        activeSegment={activeSegment}
       />
     </SafeAreaView>
   );

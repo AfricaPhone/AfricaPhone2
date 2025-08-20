@@ -1,28 +1,36 @@
 // src/screens/home/FilterBottomSheet.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import CustomBottomSheet from '../../components/CustomBottomSheet';
-import { Segment } from './ProductSegments';
+
+// Définition des fourchettes de prix
+const PRICE_RANGES = [
+  { label: 'Moins de 50k', min: 0, max: 49999 },
+  { label: '50k - 100k', min: 50000, max: 99999 },
+  { label: '100k - 200k', min: 100000, max: 199999 },
+  { label: 'Plus de 200k', min: 200000, max: 9999999 },
+];
+
+type PriceRange = typeof PRICE_RANGES[0] | null;
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   onApplyFilter: (minPrice: string, maxPrice: string) => void;
-  activeSegment: Segment;
 }
 
-const FilterBottomSheet: React.FC<Props> = ({ visible, onClose, onApplyFilter, activeSegment }) => {
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
+const FilterBottomSheet: React.FC<Props> = ({ visible, onClose, onApplyFilter }) => {
+  const [selectedRange, setSelectedRange] = useState<PriceRange>(null);
 
   const handleApply = () => {
+    const minPrice = selectedRange ? String(selectedRange.min) : '';
+    const maxPrice = selectedRange ? String(selectedRange.max) : '';
     onApplyFilter(minPrice, maxPrice);
   };
 
   const handleReset = () => {
-    setMinPrice('');
-    setMaxPrice('');
-    onClose();
+    setSelectedRange(null);
+    onApplyFilter('', ''); // Applique un filtre vide pour réinitialiser
   };
 
   return (
@@ -32,28 +40,22 @@ const FilterBottomSheet: React.FC<Props> = ({ visible, onClose, onApplyFilter, a
           <Text style={styles.sheetTitle}>Filtres</Text>
         </View>
         <View style={styles.filterSection}>
-          <Text style={styles.filterSectionTitle}>Prix</Text>
-          <View style={styles.priceInputsRow}>
-            <View style={styles.priceInputWrap}>
-              <TextInput
-                style={styles.priceInput}
-                keyboardType="numeric"
-                placeholder="Min"
-                value={minPrice}
-                onChangeText={setMinPrice}
-              />
-              <Text style={styles.priceUnit}>FCFA</Text>
-            </View>
-            <View style={styles.priceInputWrap}>
-              <TextInput
-                style={styles.priceInput}
-                keyboardType="numeric"
-                placeholder="Max"
-                value={maxPrice}
-                onChangeText={setMaxPrice}
-              />
-              <Text style={styles.priceUnit}>FCFA</Text>
-            </View>
+          <Text style={styles.filterSectionTitle}>Fourchette de prix (FCFA)</Text>
+          <View style={styles.chipContainer}>
+            {PRICE_RANGES.map((range) => {
+              const isActive = selectedRange?.label === range.label;
+              return (
+                <TouchableOpacity
+                  key={range.label}
+                  style={[styles.chip, isActive && styles.chipActive]}
+                  onPress={() => setSelectedRange(range)}
+                >
+                  <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                    {range.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
         <TouchableOpacity style={styles.showButton} onPress={handleApply}>
@@ -71,6 +73,7 @@ const styles = StyleSheet.create({
   sheetContent: {
     paddingTop: 12,
     paddingHorizontal: 16,
+    paddingBottom: 20,
   },
   sheetHeader: {
     flexDirection: 'row',
@@ -90,31 +93,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#111',
-    marginBottom: 12,
+    marginBottom: 16,
+    textAlign: 'center',
   },
-  priceInputsRow: {
+  chipContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: 12,
   },
-  priceInputWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+  chip: {
     backgroundColor: '#f2f3f5',
-    borderRadius: 12,
+    paddingVertical: 10,
     paddingHorizontal: 16,
-    height: 48,
+    borderRadius: 99,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
-  priceInput: {
-    flex: 1,
+  chipActive: {
+    backgroundColor: '#111',
+    borderColor: '#111',
+  },
+  chipText: {
     color: '#111',
-    fontSize: 16,
-  },
-  priceUnit: {
-    color: '#6b7280',
-    marginLeft: 4,
     fontWeight: '600',
+    fontSize: 14,
+  },
+  chipTextActive: {
+    color: '#fff',
   },
   showButton: {
     backgroundColor: '#111',
