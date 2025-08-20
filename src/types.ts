@@ -165,3 +165,14 @@ export type BoutiqueInfo = {
   openingHours?: string;
   category?: string;
 };
+
+// --- Carte Promotionnelle (HomeScreen) ---
+export type PromoCard = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  cta: string;
+  image: string;
+  screen?: keyof RootStackParamList;
+  sortOrder: number;
+};

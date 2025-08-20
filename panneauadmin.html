@@ -1,307 +1,434 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="auto">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-  />
-  <title>Panneau Admin</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>Panneau Admin — Pro</title>
 
-  <!-- Favicon to avoid 404 -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='12' fill='%23111827'/%3E%3Ctext x='50%25' y='55%25' font-size='36' text-anchor='middle' fill='white' font-family='Inter,Arial,sans-serif'%3EA%3C/text%3E%3C/svg%3E" />
+  <!-- Favicon (inline) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='12' fill='%231c64f2'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='32' fill='white' font-family='Inter,Arial,sans-serif'%3EA%3C/text%3E%3C/svg%3E" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+  <!-- Icons: Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    :root {
-      --bg: #f6f7f8;
+    :root{
+      /* Palette */
+      --bg: #f8fafc;
       --card: #ffffff;
-      --ink: #0f172a; /* slate-900 */
-      --ink-2: #334155; /* slate-700 */
-      --muted: #64748b; /* slate-500 */
-      --border: #e5e7eb;
-      --primary: #111827; /* gray-900 */
-      --primary-2: #1f2937; /* gray-800 */
-      --accent: #2563eb; /* blue-600 */
-      --success: #16a34a;
-      --error: #dc2626;
-      --warning: #f59e0b;
-      --radius-lg: 16px;
-      --radius-md: 12px;
-      --radius-sm: 10px;
-      --shadow-1: 0 1px 2px rgba(0,0,0,0.06), 0 8px 24px rgba(15,23,42,0.06);
-      --shadow-2: 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(15,23,42,0.08);
-      --focus: 0 0 0 3px rgba(37,99,235,0.18);
-    }
+      --card-2: #f1f5f9;
+      --ink-1:#0f172a; --ink-2:#334155; --ink-3:#64748b;
+      --primary:#1c64f2; --primary-600:#155eef; --primary-700:#0b4bd6;
+      --accent:#10b981;
+      --danger:#ef4444; --warning:#f59e0b; --info:#3b82f6; --success:#10b981;
+      --border:#e5e7eb;
+      --muted:#f1f5f9;
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
-    body {
-      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      color: var(--primary);
-      background: var(--bg);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+      /* Effects */
+      --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px;
+      --shadow-1:0 1px 2px rgba(0,0,0,.05);
+      --shadow-2:0 8px 30px rgba(2,6,23,.08);
+      --ring: 0 0 0 4px rgba(28,100,242,.15);
 
-    /* Auth */
-    .login-container {
-      min-height: 100dvh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background: var(--card);
+      /* Layout */
+      --sidebar-w:260px;
+      --header-h:64px;
+      --z-header:30; --z-sidebar:40; --z-drawer:50; --z-modal:60; --z-toast:70;
     }
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      box-shadow: var(--shadow-1);
+    [data-theme="dark"]{
+      --bg:#0b1220; --card:#0f172a; --card-2:#111827;
+      --ink-1:#e5e7eb; --ink-2:#cbd5e1; --ink-3:#94a3b8;
+      --primary:#3b82f6; --primary-600:#2563eb; --primary-700:#1d4ed8;
+      --accent:#22c55e;
+      --danger:#f87171; --warning:#fbbf24; --info:#60a5fa; --success:#34d399;
+      --border:#1f2937;
+      --muted:#0b1220;
+      --ring: 0 0 0 4px rgba(59,130,246,.2);
     }
-    .login-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-    .login-sub { color: var(--muted); margin-bottom: 20px; }
-    .field {
-      display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--ink-1);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
     }
-    .label { font-size: 14px; color: var(--ink-2); font-weight: 600; }
-    .input {
-      height: 46px;
-      border: 1px solid var(--border);
-      background: #f8fafc;
-      border-radius: var(--radius-md);
-      padding: 0 14px;
-      font-size: 15px;
-      transition: box-shadow .15s, border-color .15s, background .15s;
-    }
-    .input:focus { outline: none; border-color: #cbd5e1; box-shadow: var(--focus); background: #fff; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      height: 46px; padding: 0 16px; border: none; cursor: pointer;
-      border-radius: var(--radius-md); font-weight: 700; font-size: 15px;
-      transition: transform .06s ease, box-shadow .2s ease, background-color .2s ease;
-    }
-    .btn:active { transform: translateY(1px); }
-    .btn-primary { background: var(--primary); color: #fff; box-shadow: var(--shadow-1); }
-    .btn-primary:hover { background: var(--primary-2); }
-    .error { color: var(--error); font-weight: 600; text-align: center; margin-top: 10px; }
+    a{color:inherit; text-decoration:none}
+    button{font:inherit} input,select,textarea{font:inherit;color:inherit}
 
-    /* App Shell */
-    .app {
-      min-height: 100dvh;
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-    }
-    .header {
-      position: sticky; top: 0; z-index: 20;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 14px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .brand { font-weight: 800; letter-spacing: .2px; font-size: 18px; }
-    .header-actions { display: flex; gap: 10px; }
-    .btn-ghost {
-      background: #f8fafc; color: var(--primary); border: 1px solid var(--border);
-    }
-    .toolbar {
-      position: sticky; top: 56px; z-index: 19;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      display: grid; grid-template-columns: 1fr auto;
-      gap: 10px; padding: 10px 14px;
-    }
-    @media (min-width: 768px) {
-      .toolbar { grid-template-columns: 1fr auto auto auto; } /* Ajout d'une colonne */
-    }
-    .search {
-      height: 44px; border: 1px solid var(--border); background: #f8fafc;
-      border-radius: var(--radius-md); padding: 0 14px; font-size: 15px;
-    }
-    .btn-add { background: var(--accent); color: #fff; }
-    .hint { align-self: center; color: var(--muted); font-size: 13px; display: none; }
-    @media (min-width: 768px) { .hint { display: inline-block; } }
+    /* Utilities */
+    .hide{display:none !important}
+    .muted{color:var(--ink-3)}
+    .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+    .link{color:var(--primary); font-weight:600}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--card-2);font-weight:600;font-size:12px}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(16,185,129,.12);color:#059669;font-weight:700;font-size:11px}
+    .danger{background:rgba(239,68,68,.1); color:#ef4444}
+    .warning{background:rgba(245,158,11,.1); color:#f59e0b}
+    .success{background:rgba(16,185,129,.12); color:#10b981}
+    .kpi{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--card-2);border:1px solid var(--border);font-weight:700}
+    .center{display:grid;place-items:center}
+    .icon{width:1em;height:1em;stroke-width:2.5px}
 
-    .content {
-      padding: 14px;
-    }
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;box-shadow:var(--shadow-1);transition:.2s;font-weight:600}
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow-2)}
+    .btn:focus-visible{outline:none; box-shadow:var(--shadow-2), var(--ring)}
+    .btn-primary{background:var(--primary); color:#fff; border-color:transparent}
+    .btn-primary:hover{background:var(--primary-600)}
+    .btn-ghost{background:transparent}
+    .btn-danger{background:var(--danger); color:#fff; border-color:transparent}
+    .btn-icon{padding:10px;border-radius:12px;aspect-ratio:1/1}
+    .btn-small{padding:8px 10px; border-radius:10px; font-size:13px; gap:6px}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--primary)}
+    .btn:disabled{cursor:not-allowed;opacity:0.7}
 
-    /* ===== LISTE (pas de grille) ===== */
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-1);
-      min-height: 76px;
-      flex-wrap: wrap; /* mobile: passe en lignes */
-    }
-
-    .thumb {
-      width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: #f1f5f9;
-      flex: 0 0 56px;
-    }
-
-    .info {
-      display: grid; gap: 4px; min-width: 160px;
-    }
-    .title { font-weight: 700; font-size: 16px; line-height: 1.2; }
-    .sub { color: var(--muted); font-size: 13px; }
-
-    .spacer { flex: 1 1 auto; min-width: 16px; }
-
-    .price-line {
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    }
-    .price-input {
-      height: 42px; border: 1px solid var(--border); background: #f8fafc; border-radius: var(--radius-sm);
-      padding: 0 12px; font-size: 15px; width: 140px; -moz-appearance: textfield;
-    }
-    .price-input::-webkit-outer-spin-button, .price-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-    .actions {
-      display: flex; gap: 8px; align-items: center;
-      margin-left: auto;
-    }
-    /* Sur petits écrans: placer prix + actions sur une nouvelle ligne */
-    @media (max-width: 640px) {
-      .actions { width: 100%; justify-content: flex-end; }
-    }
-
-    .btn-update { background: var(--primary); color: #fff; }
-    .btn-edit { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
-    .btn-delete { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-
+    /* Button Loader */
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .loader {
-      width: 18px; height: 18px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.35); border-top-color: #fff;
-      animation: spin 1s linear infinite;
-    }
-    .loader-dark {
-      width: 28px; height: 28px; border: 3px solid rgba(0,0,0,.1); border-top-color: var(--primary);
-      border-radius: 50%; animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .center {
-      min-height: 40vh; display: grid; place-items: center; color: var(--muted);
+      width: 1em; height: 1em;
+      border: 2px solid currentColor;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin .6s linear infinite;
     }
 
-    /* EDIT & CREATE PAGE */
-    .form-wrap {
-      max-width: 860px; margin: 0 auto;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-2);
+    /* Inputs */
+    .input,.select,.textarea{
+      width:100%; padding:11px 12px; background:#fff; border:1px solid var(--border); border-radius:12px; outline:none;
     }
-    .form-head {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px;
-    }
-    .form-title { font-weight: 800; font-size: 18px; }
-    .form-main { display: grid; gap: 12px; margin-top: 8px; }
-    .twocol {
-      display: grid; gap: 12px;
-      grid-template-columns: 1fr 1fr;
-    }
-    @media (max-width: 640px) { .twocol { grid-template-columns: 1fr; } }
-    .textarea {
-      min-height: 120px; resize: vertical; padding: 12px;
-      border: 1px solid var(--border); background: #f8fafc; border-radius: var(--radius-md);
-      font-size: 15px;
-    }
-    .form-actions {
-      margin-top: 6px; display: flex; gap: 10px; justify-content: flex-end;
-    }
-    .btn-outline { background: #fff; color: var(--primary); border: 1px solid var(--border); }
-    .kpi {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 10px; border-radius: 999px; background: #f1f5f9; color: #0f172a; font-weight: 700; font-size: 13px;
-      border: 1px solid var(--border);
-    }
-    .image-preview {
-      width: 100px; height: 100px; border-radius: var(--radius-md); object-fit: cover;
-      border: 1px solid var(--border); background: #f8fafc;
+    [data-theme="dark"] .input,[data-theme="dark"] .select,[data-theme="dark"] .textarea{background:#0b1220}
+    .input:focus,.select:focus,.textarea:focus{box-shadow:var(--ring); border-color:var(--primary)}
+    .label{display:flex;align-items:center;justify-content:space-between;font-weight:700;margin:4px 0 8px 0}
+    .hint{font-size:12px;color:var(--ink-3);margin-top:4px}
+    .error{font-size:12px;color:var(--danger);margin-top:4px}
+    .toggle{display:inline-flex;cursor:pointer;align-items:center;gap:8px;user-select:none}
+    .toggle-switch{position:relative;display:inline-block;width:36px;height:20px}
+    .toggle-switch input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;cursor:pointer;inset:0;background-color:#ccc;border-radius:34px;transition:.2s}
+    .toggle-slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background-color:white;border-radius:50%;transition:.2s}
+    input:checked + .toggle-slider{background-color:var(--accent)}
+    input:checked + .toggle-slider:before{transform:translateX(16px)}
+
+    /* Skeleton */
+    @keyframes pulse{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
+    .skeleton{background:linear-gradient(90deg,rgba(148,163,184,.18),rgba(148,163,184,.1),rgba(148,163,184,.18)); border-radius:12px; height:42px; animation:pulse 1.2s ease-in-out infinite}
+
+    /* Layout */
+    .app{display:grid; grid-template-columns: var(--sidebar-w) 1fr; grid-template-rows: var(--header-h) auto 1fr; min-height:100dvh}
+    .sidebar{grid-row:1 / span 3; background:var(--card); border-right:1px solid var(--border); position:sticky; top:0; height:100dvh; z-index:var(--z-sidebar); display:flex; flex-direction:column}
+    .brand{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border)}
+    .brand-logo{width:36px;height:36px;border-radius:10px;background:var(--primary);display:grid;place-items:center;color:#fff;font-weight:800}
+    .nav{padding:10px}
+    .nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;color:var(--ink-2);font-weight:700}
+    .nav a.active{background:var(--primary); color:#fff}
+    .nav a:hover{background:var(--card-2)}
+    .nav .section{margin:14px 12px 6px; font-size:12px; color:var(--ink-3); font-weight:800; letter-spacing:.06em; text-transform:uppercase}
+    .sidebar-footer{margin-top:auto;padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+
+    header.appbar{grid-column:2; height:var(--header-h); position:sticky; top:0; z-index:var(--z-header);
+      display:grid; grid-template-columns: auto 1fr auto; gap:12px; align-items:center; padding:10px 16px; background:var(--card); border-bottom:1px solid var(--border)}
+    .hamburger{display:none}
+    .search{display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:8px 10px}
+    .search input{border:none; background:transparent; outline:none; width:100%}
+    .top-actions{display:flex;gap:8px}
+    .breadcrumbs{grid-column: 2; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--card-2); font-size: 14px;}
+    .breadcrumbs .crumb{color:var(--ink-3)}
+    .breadcrumbs .sep{margin:0 6px; color:var(--ink-3)}
+    main{grid-column:2; padding:16px}
+
+    /* Toolbar page */
+    .toolbar{display:grid; grid-template-columns: 1fr auto auto; gap:10px; margin-bottom:12px}
+    .view-toggle{display:flex; gap:6px}
+    .filters{display:flex; gap:8px; flex-wrap:wrap}
+
+    /* Table */
+    .table{width:100%; border-collapse:separate; border-spacing:0; background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden}
+    .table th,.table td{padding:12px 14px; border-bottom:1px solid var(--border); vertical-align:middle; text-align:left}
+    .table th{background:var(--card-2); font-size:12px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.04em}
+    .table th.sortable{cursor:pointer; user-select:none}
+    .table th.sortable:hover{background:var(--border)}
+    .table th .sort-icon{opacity:0.3; transition: .2s}
+    .table th.sorted .sort-icon{opacity:1}
+    .table tr:hover td{background:rgba(148,163,184,.08)}
+    .table .img{width:48px;height:48px;border-radius:12px;object-fit:cover;border:1px solid var(--border); background:#fff}
+    .table .actions{display:flex;gap:6px;justify-content:flex-end}
+
+    /* Cards grid */
+    .grid{display:grid; grid-template-columns: repeat( auto-fill, minmax(260px,1fr) ); gap:12px}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:12px; display:flex; gap:12px; box-shadow:var(--shadow-1)}
+    .card:hover{box-shadow:var(--shadow-2)}
+    .thumb{width:84px;height:84px;border-radius:12px;object-fit:cover;border:1px solid var(--border); background:#fff}
+    .grow{flex:1}
+
+    /* Forms */
+    .form-wrap{max-width:920px; margin:0 auto; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px}
+    .form-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px}
+    .form-main{display:grid; gap:12px}
+    .twocol{display:grid; gap:12px; grid-template-columns:1fr 1fr}
+    @media (max-width: 720px){ .twocol{grid-template-columns:1fr} }
+    .image-preview{width:180px;height:180px;border-radius:16px;object-fit:cover;border:1px solid var(--border); background:#fff}
+    .form-actions{display:flex; gap:10px; justify-content:flex-end}
+
+    /* Drawer (mobile) */
+    .drawer{position:fixed; inset:0; display:none; z-index:var(--z-drawer)}
+    .drawer.open{display:block}
+    .drawer .panel{position:absolute; inset:0 30% 0 0; background:var(--card); border-right:1px solid var(--border); padding:0; max-width:360px}
+    .drawer .backdrop{position:absolute; inset:0; background:rgba(2,6,23,.45); backdrop-filter: blur(2px)}
+    @media (min-width: 960px){ .drawer{display:none !important} .hamburger{display:none} }
+    @media (max-width: 959px){
+      .app{grid-template-columns: 1fr; grid-template-rows: var(--header-h) auto 1fr;}
+      .sidebar{display:none}
+      header.appbar{grid-column:1}
+      .breadcrumbs{grid-column:1}
+      main{grid-column:1}
+      .hamburger{display:inline-flex}
     }
 
-    /* Small helpers */
-    .hide { display: none !important; }
-    .text-danger { color: var(--error); }
-    .text-muted { color: var(--muted); }
+    /* Modal */
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:var(--z-modal)}
+    .modal.open{display:flex}
+    .modal .sheet{width:min(520px,calc(100vw - 32px)); background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow-2)}
+    .modal .head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--border); font-weight:800}
+    .modal .body{padding:14px 16px}
+    .modal .foot{padding:12px 16px; display:flex; gap:8px; justify-content:flex-end; border-top:1px solid var(--border)}
+
+    /* Toasts */
+    .toasts{position:fixed; right:16px; bottom:16px; display:flex; flex-direction:column; gap:8px; z-index:var(--z-toast)}
+    .toast{background:var(--card); border:1px solid var(--border); border-left:4px solid var(--primary); border-radius:12px; padding:10px 12px; min-width:260px; box-shadow:var(--shadow-2); display:flex; gap:10px; align-items:flex-start}
+    .toast.success{border-left-color:var(--success)}
+    .toast.error{border-left-color:var(--danger)}
+    .toast .title{font-weight:800}
+    .toast .msg{font-size:13px; color:var(--ink-2)}
+    .toast .icon{width:18px;height:18px}
+
+    /* Login */
+    .login{min-height:100dvh; display:grid; place-items:center; padding:24px}
+    .login-card{width:min(440px,100%); background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px; box-shadow:var(--shadow-2)}
+    .login-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .login-title{font-size:20px;font-weight:900}
+    .login-actions{display:flex;gap:8px;justify-content:space-between;align-items:center}
+    .small{font-size:12px;color:var(--ink-3)}
   </style>
 </head>
 <body>
+  <a class="sr-only" href="#content">Aller au contenu</a>
 
-  <div id="login" class="login-container">
+  <!-- Login -->
+  <section id="login" class="login">
     <div class="login-card">
-      <h1 class="login-title">Panneau Admin</h1>
-      <p class="login-sub">Connectez-vous pour gérer les produits.</p>
-      <form id="login-form">
+      <div class="login-header">
+        <div class="brand-logo">A</div>
+        <div>
+          <div class="login-title">Connexion Panneau Admin</div>
+          <div class="small muted">Entrez vos identifiants administrateur</div>
+        </div>
+      </div>
+      <form id="login-form" novalidate>
         <div class="field">
           <label class="label" for="email">Email</label>
-          <input id="email" type="email" class="input" placeholder="ex: admin@exemple.com" required />
+          <input id="email" class="input" type="email" autocomplete="username" required />
+          <div id="email-err" class="error hide"></div>
         </div>
         <div class="field">
           <label class="label" for="password">Mot de passe</label>
-          <input id="password" type="password" class="input" placeholder="••••••••" required />
+          <input id="password" class="input" type="password" autocomplete="current-password" required />
+          <div id="password-err" class="error hide"></div>
         </div>
-        <button class="btn btn-primary" type="submit">Se connecter</button>
+        <div id="login-error" class="error hide"></div>
+        <div class="login-actions">
+          <button class="btn btn-primary" type="submit">
+            <i data-lucide="arrow-right" class="icon"></i>
+            Se connecter
+          </button>
+          <div class="small">Besoin d'aide ? Contactez l'admin.</div>
+        </div>
       </form>
-      <p id="login-error" class="error hide"></p>
     </div>
+  </section>
+
+  <!-- Drawer mobile (clone de la sidebar) -->
+  <div id="drawer" class="drawer" aria-hidden="true">
+    <div class="backdrop" data-close-drawer></div>
+    <aside class="panel" role="dialog" aria-modal="true" aria-label="Navigation">
+      <div class="brand">
+        <div class="brand-logo">A</div>
+        <strong>Admin Pro</strong>
+      </div>
+      <nav class="nav">
+        <div class="section">Navigation</div>
+        <a data-route="#/products" class="link-item"><i data-lucide="package" class="icon"></i> Produits</a>
+        <a data-route="#/matches" class="link-item"><i data-lucide="swords" class="icon"></i> Matchs</a>
+        <a data-route="#/promocards" class="link-item"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
+        <div class="section">G&eacute;n&eacute;ral</div>
+        <a data-route="#/settings" class="link-item"><i data-lucide="settings" class="icon"></i> Param&egrave;tres</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="drawer-theme" class="btn btn-small"><i data-lucide="sun-moon" class="icon"></i> Th&egrave;me</button>
+        <button id="drawer-logout" class="btn btn-small"><i data-lucide="log-out" class="icon"></i> D&eacute;connexion</button>
+      </div>
+    </aside>
   </div>
 
-  <div id="app" class="app" style="display:none;">
-    <header class="header">
-      <div class="brand">Gestion des Produits</div>
-      <div class="header-actions">
-        <button id="logout" class="btn btn-ghost">Déconnexion</button>
+  <!-- App -->
+  <div id="app" class="app hide" aria-hidden="true">
+    <!-- Sidebar (desktop) -->
+    <aside class="sidebar" aria-label="Navigation lat&eacute;rale">
+      <div class="brand">
+        <div class="brand-logo">A</div>
+        <strong>Admin Pro</strong>
+      </div>
+      <nav class="nav">
+        <div class="section">Navigation</div>
+        <a id="nav-products" href="#/products" class="active"><i data-lucide="package" class="icon"></i> Produits</a>
+        <a id="nav-matches" href="#/matches"><i data-lucide="swords" class="icon"></i> Matchs</a>
+        <a id="nav-promocards" href="#/promocards"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
+        <div class="section">G&eacute;n&eacute;ral</div>
+        <a id="nav-settings" href="#/settings"><i data-lucide="settings" class="icon"></i> Param&egrave;tres</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="toggle-theme" class="btn btn-small" type="button" title="Basculer le th&egrave;me"><i data-lucide="sun-moon" class="icon"></i> Th&egrave;me</button>
+        <button id="logout" class="btn btn-small" type="button" title="Se d&eacute;connecter"><i data-lucide="log-out" class="icon"></i> D&eacute;connexion</button>
+      </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="appbar">
+      <button id="open-drawer" class="btn btn-icon hamburger" aria-label="Ouvrir la navigation">
+        <i data-lucide="menu" class="icon"></i>
+      </button>
+
+      <div class="search" role="search">
+        <i data-lucide="search" class="icon muted"></i>
+        <input id="global-search" type="search" placeholder="Rechercher (⇧ /)" autocomplete="off" />
+      </div>
+
+      <div class="top-actions">
+        <div class="kpi" title="Cartes promo actives"><i data-lucide="layout-template" class="icon"></i><span id="kpi-promocards">—</span></div>
+        <div class="kpi" title="Articles au catalogue"><i data-lucide="package" class="icon"></i><span id="kpi-products">—</span></div>
+        <div class="kpi" title="Matchs planifi&eacute;s"><i data-lucide="swords" class="icon"></i><span id="kpi-matches">—</span></div>
+        <button id="quick-add-promocard" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Carte</button>
+        <button id="quick-add-product" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Produit</button>
+        <button id="quick-add-match" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Match</button>
       </div>
     </header>
 
-    <div class="toolbar">
-      <input id="search" class="search" type="text" placeholder="Rechercher un produit..." />
-      <span class="hint">Astuce : tapez le nom du modèle.</span>
-      <button id="back-to-list" class="btn btn-outline hide">Retour à la liste</button>
-      <button id="add-product-btn" class="btn btn-add">Nouvel Article</button>
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs" aria-label="Fil d'Ariane">
+      <span class="crumb"><a class="link" href="#/products">Accueil</a></span>
+      <span class="sep">›</span>
+      <span id="crumb-current" class="crumb">Produits</span>
     </div>
 
-    <main id="view" class="content">
-      <div class="center" id="loading">
-        <div class="loader-dark"></div>
+    <!-- Content -->
+    <main id="content" tabindex="-1">
+      <!-- Toolbars par page -->
+      <div id="toolbar-products" class="toolbar hide">
+        <div class="filters">
+          <input id="search-products" class="input" type="search" placeholder="Rechercher un produit..." />
+          <select id="filter-category" class="select" aria-label="Filtrer par cat&eacute;gorie">
+            <option value="">Toutes cat&eacute;gories</option>
+            <option value="smartphone">Smartphone</option>
+            <option value="tablette">Tablette</option>
+            <option value="portable a touche">Portable à touche</option>
+            <option value="accessoire">Accessoire</option>
+          </select>
+        </div>
+        <div class="view-toggle" role="tablist" aria-label="Mode d'affichage">
+          <button id="view-table" class="btn btn-small" aria-selected="true"><i data-lucide="list" class="icon"></i> Table</button>
+          <button id="view-cards" class="btn btn-small"><i data-lucide="layout-grid" class="icon"></i> Cartes</button>
+        </div>
+        <div class="top-actions">
+          <button id="bulk-delete" class="btn btn-danger btn-small" disabled><i data-lucide="trash-2" class="icon"></i> Supprimer la s&eacute;lection</button>
+          <button id="add-product" class="btn btn-primary btn-small"><i data-lucide="plus" class="icon"></i> Nouveau produit</button>
+        </div>
       </div>
+
+      <div id="toolbar-matches" class="toolbar hide">
+        <div class="filters">
+          <input id="search-matches" class="input" type="search" placeholder="Rechercher un match..." />
+        </div>
+        <div class="view-toggle">
+          <button id="add-match" class="btn btn-primary btn-small"><i data-lucide="plus" class="icon"></i> Nouveau match</button>
+        </div>
+      </div>
+
+      <div id="toolbar-promocards" class="toolbar hide">
+          <div class="filters">
+              <input id="search-promocards" class="input" type="search" placeholder="Rechercher une carte promo..." />
+          </div>
+          <div class="view-toggle">
+              <button id="add-promocard" class="btn btn-primary btn-small"><i data-lucide="plus" class="icon"></i> Nouvelle carte</button>
+          </div>
+      </div>
+
+      <!-- Zones de rendu -->
+      <section id="page-products" class="page hide" aria-labelledby="nav-products">
+        <div id="products-content"></div>
+      </section>
+
+      <section id="page-matches" class="page hide" aria-labelledby="nav-matches">
+        <div id="matches-content"></div>
+      </section>
+
+      <section id="page-promocards" class="page hide" aria-labelledby="nav-promocards">
+          <div id="promocards-content"></div>
+      </section>
+
+      <section id="page-settings" class="page hide" aria-labelledby="nav-settings">
+        <div class="form-wrap">
+          <div class="form-head"><div class="form-title">Param&egrave;tres</div></div>
+          <div class="form-main">
+            <div class="field">
+              <label class="label">Th&egrave;me</label>
+              <div class="chip">Pr&eacute;f&eacute;rence : <strong id="theme-pref">Auto</strong></div>
+              <div class="hint">Le th&egrave;me se synchronise avec votre syst&egrave;me, mais vous pouvez forcer clair/sombre.</div>
+            </div>
+            <div class="form-actions">
+              <button class="btn" type="button" data-theme-choice="light"><i data-lucide="sun" class="icon"></i> Clair</button>
+              <button class="btn" type="button" data-theme-choice="dark"><i data-lucide="moon" class="icon"></i> Sombre</button>
+              <button class="btn" type="button" data-theme-choice="auto"><i data-lucide="computer" class="icon"></i> Automatique</button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
+  <!-- Modal / Toasts -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="head">
+        <div id="modal-title">Titre</div>
+        <button id="modal-close" class="btn btn-icon" aria-label="Fermer">
+          <i data-lucide="x" class="icon"></i>
+        </button>
+      </div>
+      <div id="modal-body" class="body">&hellip;</div>
+      <div id="modal-foot" class="foot"></div>
+    </div>
+  </div>
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+
   <script type="module">
-    /* -------------------- Firebase -------------------- */
+    /* ============================ Firebase ============================ */
     const firebaseConfig = {
       apiKey: "AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M",
-      authDomain: "africaphone-vente.firebaseapp.com",           // FIXED
+      authDomain: "africaphone-vente.firebaseapp.com",
       projectId: "africaphone-vente",
-      storageBucket: "africaphone-vente.firebasestorage.app",            // FIXED
+      storageBucket: "africaphone-vente.firebasestorage.app",
       messagingSenderId: "203471818329",
       appId: "1:203471818329:web:c2c77d48098c1a6a596b48"
     };
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, orderBy, query } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
 
     const appFB = initializeApp(firebaseConfig);
@@ -309,253 +436,934 @@
     const db = getFirestore(appFB);
     const storage = getStorage(appFB);
 
-    /* -------------------- DOM & State -------------------- */
-    const $ = (selector) => document.querySelector(selector);
+    /* ============================ Helpers ============================ */
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => document.querySelectorAll(sel);
+    const fmtXOF = new Intl.NumberFormat('fr-FR',{style:'currency', currency:'XOF'});
+    const fmtDate = (d) => new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium', timeStyle:'short'}).format(d);
+
+    function escapeHtml(s=''){
+      return String(s).replace(/[&<>"']/g, function(m){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+      });
+    }
+    function escapeAttr(s=''){
+      return escapeHtml(s).replace(/`/g,'&#96;');
+    }
+    
+    function setButtonLoading(button, isLoading) {
+        if (!button) return;
+        if (isLoading) {
+            button.disabled = true;
+            button.dataset.originalText = button.innerHTML;
+            button.innerHTML = '<span class="loader"></span>';
+        } else {
+            button.disabled = false;
+            if (button.dataset.originalText) {
+                button.innerHTML = button.dataset.originalText;
+            }
+        }
+    }
+
+    function toast(title, msg='', type='success', timeout=3500){
+      const host = $('#toasts');
+      const el = document.createElement('div');
+      const icons = { success: 'check-circle-2', error: 'alert-circle', info: 'info' };
+      el.className = 'toast ' + type;
+      el.innerHTML = `
+        <i data-lucide="${icons[type] || 'info'}" class="icon"></i>
+        <div class="grow">
+          <div class="title">${escapeHtml(title)}</div>
+          ${msg ? '<div class="msg">'+escapeHtml(msg)+'</div>' : ''}
+        </div>
+        <button class="btn btn-icon btn-small" aria-label="Fermer">
+          <i data-lucide="x" class="icon"></i>
+        </button>`;
+      host.appendChild(el);
+      lucide.createIcons();
+      const remove=()=>{ el.style.transform='translateX(8px)'; el.style.opacity='0'; setTimeout(()=>el.remove(),180); };
+      el.querySelector('button').addEventListener('click', remove);
+      if(timeout) setTimeout(remove, timeout);
+    }
+
+    function openModal(opts){
+      const {
+        title='Confirmation', body='', okText='Confirmer', cancelText='Annuler', danger=false
+      } = (opts || {});
+      return new Promise(function(resolve){
+        const modal = $('#modal');
+        const foot = $('#modal-foot');
+        const bodyEl = $('#modal-body');
+        $('#modal-title').textContent = title;
+        bodyEl.innerHTML = body;
+        foot.innerHTML = '';
+        const btnCancel = document.createElement('button'); btnCancel.className='btn'; btnCancel.textContent = cancelText;
+        const btnOk = document.createElement('button'); btnOk.className='btn '+(danger?'btn-danger':'btn-primary'); btnOk.textContent = okText;
+        foot.appendChild(btnCancel); foot.appendChild(btnOk);
+
+        const close = function(res){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; resolve(res); };
+        $('#modal-close').onclick = function(){ close(false); };
+        btnCancel.onclick = function(){ close(false); };
+        btnOk.onclick = function(){ close(true); };
+        modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+        modal.addEventListener('click', function(e){ if(e.target===modal){ close(false); } }, {once:true});
+        setTimeout(function(){ btnOk.focus(); },0);
+        function esc(e){ if(e.key==='Escape'){ close(false); document.removeEventListener('keydown', esc);} }
+        document.addEventListener('keydown', esc);
+      });
+    }
+
+    function setCrumb(name){ $('#crumb-current').textContent = name; }
+
+    /* ============================ State ============================ */
+    let allProducts = [];
+    let allMatches = [];
+    let allPromoCards = [];
+    let productSearchTerm = '';
+    let productCategoryFilter = '';
+    let viewMode = 'table'; // 'table' | 'cards'
+    let sortBy = { key:'name', dir:'asc' };
+    const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
+
+    /* ============================ Auth ============================ */
     const $login = $('#login'), $loginForm = $('#login-form'), $loginError = $('#login-error');
-    const $app = $('#app'), $view = $('#view'), $loading = $('#loading'), $logout = $('#logout');
-    const $search = $('#search'), $backToList = $('#back-to-list'), $addProductBtn = $('#add-product-btn');
-    
-    let allProducts = [], searchTerm = "";
-    const TRASH_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+    const $app = $('#app');
 
-    /* -------------------- Auth & Routing -------------------- */
-    onAuthStateChanged(auth, u => {
-      $login.style.display = u ? 'none' : 'grid';
-      $app.style.display = u ? 'grid' : 'none';
-      if (u && !location.hash) location.hash = '#/products';
-      router();
-    });
-    $loginForm.addEventListener('submit', async e => {
+    $loginForm?.addEventListener('submit', async function(e){
       e.preventDefault();
-      try { await signInWithEmailAndPassword(auth, email.value.trim(), password.value); }
-      catch(err) { $loginError.textContent = "Accès non autorisé."; $loginError.classList.remove('hide'); }
-    });
-    $logout.addEventListener('click', () => signOut(auth));
-
-    window.addEventListener('hashchange', router);
-    $backToList.addEventListener('click', () => location.hash = '#/products');
-    $addProductBtn.addEventListener('click', () => location.hash = '#/new');
-
-    async function router() {
-      const hash = location.hash || '#/products';
-      const [_, route, id] = hash.split('/');
-      $backToList.classList.toggle('hide', route !== 'edit' && route !== 'new');
-      $addProductBtn.classList.toggle('hide', route !== 'products');
-      $search.classList.toggle('hide', route !== 'products');
-
-      showLoading();
-      if (route === 'products') { await loadProductsOnce(); renderList(); }
-      else if (route === 'edit' && id) { await renderFormPage(id); }
-      else if (route === 'new') { renderFormPage(); }
-      else { location.hash = '#/products'; }
-      hideLoading();
-    }
-    const showLoading = () => { $view.innerHTML = ''; $view.appendChild($loading); $loading.classList.remove('hide'); }
-    const hideLoading = () => $loading.classList.add('hide');
-
-    /* -------------------- Data Fetching -------------------- */
-    async function loadProductsOnce() {
-      if (allProducts.length) return;
-      try {
-        const q = query(collection(db, "products"), orderBy("name"));
-        const snap = await getDocs(q);
-        allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      } catch (e) { console.error(e); $view.innerHTML = `<div class="center text-danger">Erreur de chargement.</div>`; }
-    }
-
-    async function refreshProducts() {
-      allProducts = []; await loadProductsOnce();
-    }
-
-    /* -------------------- LIST VIEW -------------------- */
-    function renderList() {
-      const listEl = document.createElement('div');
-      listEl.className = 'list';
-      const filtered = allProducts.filter(p => (p.name || '').toLowerCase().includes(searchTerm));
-      if (!filtered.length) {
-        $view.innerHTML = `<div class="center">Aucun produit trouvé.</div>`; return;
+      const submitBtn = $loginForm.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      const email = $('#email').value.trim();
+      const pass = $('#password').value.trim();
+      $('#email-err').classList.add('hide'); $('#password-err').classList.add('hide'); $loginError.classList.add('hide');
+      if(!email){ $('#email-err').textContent='Email requis.'; $('#email-err').classList.remove('hide'); setButtonLoading(submitBtn, false); return; }
+      if(!pass){ $('#password-err').textContent='Mot de passe requis.'; $('#password-err').classList.remove('hide'); setButtonLoading(submitBtn, false); return; }
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+        toast('Bienvenue','Connexion r&eacute;ussie','success');
+      }catch(err){
+        console.error(err);
+        $loginError.textContent = 'Identifiants invalides.'; $loginError.classList.remove('hide');
+        toast('Erreur', 'Impossible de se connecter', 'error');
+      } finally {
+        setButtonLoading(submitBtn, false);
       }
-      filtered.forEach(p => listEl.appendChild(productRow(p)));
-      $view.innerHTML = ''; $view.appendChild(listEl);
-    }
-
-    function productRow(p) {
-      const row = document.createElement('div');
-      row.className = 'item';
-      row.dataset.productId = p.id;
-      row.dataset.productName = (p.name || '').toLowerCase();
-      const specs = `Specs: ${p.rom||'?'}GB ROM / ${p.ram||'?'}GB RAM`;
-      row.innerHTML = `
-        <img class="thumb" src="${escapeAttr(p.imageUrl || '')}" alt="${escapeAttr(p.name)}" loading="lazy" />
-        <div class="info" style="min-width:0;">
-          <div class="title">${escapeHtml(p.name)}</div>
-          <div class="sub">${escapeHtml(specs)}</div>
-        </div>
-        <div class="spacer"></div>
-        <div class="price-line">
-          <input type="number" class="price-input" value="${Number(p.price || 0)}" />
-          <button class="btn btn-update">Mettre à jour</button>
-        </div>
-        <div class="actions">
-          <button class="btn btn-edit">Éditer</button>
-          <button class="btn btn-delete" title="Supprimer">${TRASH_ICON_SVG}</button>
-        </div>`;
-      row.querySelector('.btn-update').addEventListener('click', e => handlePriceUpdate(p.id, e.target.previousElementSibling, e.target));
-      row.querySelector('.btn-edit').addEventListener('click', () => location.hash = `#/edit/${p.id}`);
-      row.querySelector('.btn-delete').addEventListener('click', e => handleDelete(p.id, p.name, row));
-      return row;
-    }
-    
-    $search.addEventListener('input', e => {
-      searchTerm = (e.target.value || '').toLowerCase();
-      if (location.hash.startsWith('#/products')) renderList();
     });
 
-    /* -------------------- FORM VIEW (Create/Edit) -------------------- */
-    async function renderFormPage(id = null) {
+    onAuthStateChanged(auth, function(user){
+      const logged = !!user;
+      $login.classList.toggle('hide', logged);
+      $app.classList.toggle('hide', !logged);
+      $app.setAttribute('aria-hidden', String(!logged));
+      if(logged){ initAfterLogin(); }
+    });
+
+    $('#logout').addEventListener('click', async function(){
+      await signOut(auth);
+      toast('D&eacute;connect&eacute;', '', 'success');
+      location.hash = '#/products';
+    });
+
+    // Drawer mobile
+    const drawer = $('#drawer');
+    $('#open-drawer').addEventListener('click', function(){ drawer.classList.add('open'); });
+    $('[data-close-drawer]')?.addEventListener('click', function(){ drawer.classList.remove('open'); });
+    $('#drawer-logout')?.addEventListener('click', async function(){ await signOut(auth); drawer.classList.remove('open'); });
+
+    // Drawer links
+    $$('#drawer .link-item').forEach(function(a){
+      a.addEventListener('click', function(){ location.hash = a.dataset.route; drawer.classList.remove('open'); });
+    });
+
+    /* ============================ Theme ============================ */
+    const themePrefEl = $('#theme-pref');
+    function applyTheme(pref){
+      const root = document.documentElement;
+      if(pref==='light'){ root.setAttribute('data-theme','light'); if(themePrefEl){ themePrefEl.textContent='Clair'; } }
+      else if(pref==='dark'){ root.setAttribute('data-theme','dark'); if(themePrefEl){ themePrefEl.textContent='Sombre'; } }
+      else{
+        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', dark?'dark':'auto'); if(themePrefEl){ themePrefEl.textContent='Auto'; }
+      }
+      localStorage.setItem('theme-pref', pref);
+    }
+    applyTheme(localStorage.getItem('theme-pref') || 'auto');
+    $('#toggle-theme').addEventListener('click', function(){
+      const now = localStorage.getItem('theme-pref') || 'auto';
+      const next = now==='light' ? 'dark' : (now==='dark' ? 'auto' : 'light');
+      applyTheme(next);
+      toast('Th&egrave;me', 'Pr&eacute;f&eacute;rence: ' + (next==='light'?'Clair':(next==='dark'?'Sombre':'Auto')), 'info');
+    });
+    $('#drawer-theme')?.addEventListener('click', function(){ $('#toggle-theme').click(); });
+    $$('#page-settings [data-theme-choice]').forEach(function(btn){
+      btn.addEventListener('click', function(){ applyTheme(btn.dataset.themeChoice); });
+    });
+
+    /* ============================ Routing ============================ */
+    const $navProducts = $('#nav-products'), $navMatches = $('#nav-matches'), $navSettings = $('#nav-settings'), $navPromoCards = $('#nav-promocards');
+    const $toolbarProducts = $('#toolbar-products'), $toolbarMatches = $('#toolbar-matches'), $toolbarPromoCards = $('#toolbar-promocards');
+    const $productsContent = $('#products-content'), $matchesContent = $('#matches-content'), $promoCardsContent = $('#promocards-content');
+
+    window.addEventListener('hashchange', handleRoute);
+    async function handleRoute(){
+      const parts = (location.hash || '#/products').split('/');
+      const route = parts[1] || 'products';
+      const id = parts[2];
+
+      // Nav active
+      $navProducts.classList.toggle('active', route.includes('product'));
+      $navMatches.classList.toggle('active', route.includes('match'));
+      $navPromoCards.classList.toggle('active', route.includes('promocard'));
+      $navSettings.classList.toggle('active', route === 'settings');
+
+      // Toolbars affichage
+      $toolbarProducts.classList.toggle('hide', !route.includes('product'));
+      $toolbarMatches.classList.toggle('hide', !route.includes('match'));
+      $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
+      
+      // Pages
+      $('#page-products').classList.toggle('hide', !route.includes('product'));
+      $('#page-matches').classList.toggle('hide', !route.includes('match'));
+      $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
+      $('#page-settings').classList.toggle('hide', route !== 'settings');
+
+      if(route==='products'){ setCrumb('Produits'); await ensureProductsLoaded(); renderProductList(); }
+      else if(route==='new-product'){ setCrumb('Nouveau produit'); renderProductFormPage(); }
+      else if(route==='edit-product' && id){ setCrumb('Éditer produit'); await renderProductFormPage(id); }
+      else if(route==='matches'){ setCrumb('Matchs'); await ensureMatchesLoaded(); renderMatchList(); }
+      else if(route==='new-match'){ setCrumb('Nouveau match'); renderMatchFormPage(); }
+      else if(route==='edit-match' && id){ setCrumb('Éditer match'); await renderMatchFormPage(id); }
+      else if(route==='promocards'){ setCrumb('Cartes Promo'); await ensurePromoCardsLoaded(); renderPromoCardList(); }
+      else if(route==='new-promocard'){ setCrumb('Nouvelle Carte Promo'); renderPromoCardFormPage(); }
+      else if(route==='edit-promocard' && id){ setCrumb('Éditer Carte Promo'); await renderPromoCardFormPage(id); }
+      else if(route==='settings'){ setCrumb('Param&egrave;tres'); }
+      else { location.hash = '#/products'; }
+    }
+
+    async function initAfterLogin(){
+      lucide.createIcons();
+      // Raccourcis
+      $('#quick-add-product').onclick = function(){ location.hash = '#/new-product'; };
+      $('#quick-add-match').onclick = function(){ location.hash = '#/new-match'; };
+      $('#quick-add-promocard').onclick = function(){ location.hash = '#/new-promocard'; };
+      // Recherche globale
+      const gSearch = $('#global-search');
+      document.addEventListener('keydown', function(e){
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        const isInput = /input|textarea|select/i.test(tag);
+        if(!isInput && (e.key==='/' || (e.key && e.key.toLowerCase()==='k' && (e.metaKey||e.ctrlKey)))){
+          e.preventDefault(); gSearch.focus();
+        }
+      });
+      handleRoute();
+    }
+
+    /* ============================ Data Fetch ============================ */
+    async function ensureProductsLoaded(){
+      if(allProducts.length) return;
+      $productsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
+      const q = query(collection(db,'products'), orderBy('name','asc'));
+      const snap = await getDocs(q);
+      allProducts = snap.docs.map(function(d){ return {id:d.id, ...d.data()}; });
+      $('#kpi-products').textContent = String(allProducts.length);
+    }
+    async function ensureMatchesLoaded(){
+      if(allMatches.length) return;
+      $matchesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
+      const q = query(collection(db,'matches'), orderBy('startTime','desc'));
+      const snap = await getDocs(q);
+      allMatches = snap.docs.map(function(d){ return {id:d.id, ...d.data()}; });
+      $('#kpi-matches').textContent = String(allMatches.length);
+    }
+    async function ensurePromoCardsLoaded() {
+        if(allPromoCards.length > 0) return;
+        $promoCardsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+        const q = query(collection(db, 'promoCards'), orderBy('sortOrder', 'asc'));
+        const snap = await getDocs(q);
+        allPromoCards = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        $('#kpi-promocards').textContent = String(allPromoCards.length);
+    }
+
+
+    /* ============================ Products UI ============================ */
+    $('#search-products').addEventListener('input', function(e){ productSearchTerm = (e.target.value||'').toLowerCase(); if(location.hash.indexOf('#/products')===0) renderProductList(); });
+    $('#filter-category').addEventListener('change', function(e){ productCategoryFilter = e.target.value || ''; if(location.hash.indexOf('#/products')===0) renderProductList(); });
+    $('#add-product').addEventListener('click', function(){ location.hash = '#/new-product'; });
+    $('#view-table').addEventListener('click', function(){ viewMode='table'; $('#view-table').setAttribute('aria-selected','true'); $('#view-cards').setAttribute('aria-selected','false'); renderProductList(); });
+    $('#view-cards').addEventListener('click', function(){ viewMode='cards'; $('#view-table').setAttribute('aria-selected','false'); $('#view-cards').setAttribute('aria-selected','true'); renderProductList(); });
+
+    function filteredProducts(){
+      let arr = allProducts.slice();
+      if(productSearchTerm){
+        const t = productSearchTerm;
+        arr = arr.filter(function(p){
+          return ((p.name||'').toLowerCase().indexOf(t)!==-1) ||
+                 ((p.brand||'').toLowerCase().indexOf(t)!==-1) ||
+                 ((p.category||'').toLowerCase().indexOf(t)!==-1);
+        });
+      }
+      if(productCategoryFilter){
+        arr = arr.filter(function(p){ return (p.category||'') === productCategoryFilter; });
+      }
+      const dir = sortBy.dir==='asc' ? 1 : -1;
+      arr.sort(function(a,b){
+        const ka = (a[sortBy.key] ?? '').toString().toLowerCase();
+        const kb = (b[sortBy.key] ?? '').toString().toLowerCase();
+        if(ka<kb) return -1*dir; if(ka>kb) return 1*dir; return 0;
+      });
+      return arr;
+    }
+
+    function renderProductList(){
+      const items = filteredProducts();
+      $('#bulk-delete').disabled = true;
+
+      if(!items.length){
+        $productsContent.innerHTML = ''
+          + '<div class="center" style="padding:32px">'
+          + '  <div>'
+          + '    <div class="login-title" style="text-align:center;margin-bottom:6px">Aucun produit</div>'
+          + '    <div class="muted" style="text-align:center">Ajoutez votre premier produit pour d&eacute;marrer.</div>'
+          + '    <div style="display:flex;justify-content:center;margin-top:10px">'
+          + '      <button id="empty-add-product" class="btn btn-primary"><i data-lucide="plus" class="icon"></i> Nouveau produit</button>'
+          + '    </div>'
+          + '  </div>'
+          + '</div>';
+        $('#empty-add-product').onclick = () => location.hash='#/new-product';
+        lucide.createIcons();
+        return;
+      }
+
+      if(viewMode==='cards'){
+        const grid = document.createElement('div'); grid.className='grid';
+        items.forEach(function(p){
+          const el = document.createElement('div'); el.className='card'; el.dataset.id = p.id;
+          el.innerHTML = `
+            <img class="thumb" src="${escapeAttr(p.imageUrl||'')}" alt="${escapeAttr(p.name||'Image produit')}" loading="lazy" onerror="this.style.display='none'"/>
+            <div class="grow">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <div style="font-weight:800">${escapeHtml(p.name||'Sans nom')}</div>
+                <label class="chip" style="user-select:none">
+                  <input type="checkbox" data-select id="sel-${p.id}" />
+                  Sélection
+                </label>
+              </div>
+              <div class="muted">${escapeHtml(p.brand||'—')} • ${escapeHtml(p.category||'—')}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+                <div style="font-weight:900">${typeof p.price==='number' ? fmtXOF.format(p.price) : '—'}</div>
+                <div class="actions">
+                  <button class="btn btn-small" data-edit>Éditer</button>
+                  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+                </div>
+              </div>
+            </div>`;
+          el.querySelector('[data-edit]').addEventListener('click', function(){ location.hash = '#/edit-product/'+p.id; });
+          el.querySelector('[data-del]').addEventListener('click', function(){ handleDelete(p.id, p.name, 'products'); });
+          grid.appendChild(el);
+        });
+        $productsContent.innerHTML = ''; $productsContent.appendChild(grid);
+      } else {
+        const table = document.createElement('table'); table.className='table';
+        const sortIcon = (key) => {
+          if (sortBy.key !== key) return `<i data-lucide="chevrons-up-down" class="icon sort-icon"></i>`;
+          return sortBy.dir === 'asc' ? `<i data-lucide="chevron-up" class="icon sort-icon"></i>` : `<i data-lucide="chevron-down" class="icon sort-icon"></i>`;
+        };
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th style="width:38px"><input id="sel-all" type="checkbox"/></th>
+              <th style="width:60px">Image</th>
+              <th class="sortable ${sortBy.key === 'name' ? 'sorted' : ''}" data-sort="name">Nom ${sortIcon('name')}</th>
+              <th class="sortable ${sortBy.key === 'brand' ? 'sorted' : ''}" data-sort="brand">Marque ${sortIcon('brand')}</th>
+              <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Catégorie ${sortIcon('category')}</th>
+              <th style="width:140px">Prix</th>
+              <th style="width:90px">Stock</th>
+              <th style="width:180px;text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-products"></tbody>`;
+        const tb = table.querySelector('#tbody-products');
+        items.forEach(function(p){
+          const tr = document.createElement('tr'); tr.dataset.id = p.id;
+          tr.innerHTML = `
+            <td><input type="checkbox" data-select /></td>
+            <td>${p.imageUrl ? '<img class="img" src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name||'Image produit')+'" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
+            <td style="font-weight:800">${escapeHtml(p.name||'Sans nom')}</td>
+            <td>${escapeHtml(p.brand||'—')}</td>
+            <td><span class="chip">${escapeHtml(p.category||'—')}</span></td>
+            <td>
+              <input type="number" step="1" min="0" class="input" style="max-width:120px" value="${typeof p.price==='number' ? p.price : ''}" placeholder="0" data-price-update />
+            </td>
+            <td>${typeof p.stock==='number' ? p.stock : '—'}</td>
+            <td class="actions">
+              <button class="btn btn-small" data-edit>Éditer</button>
+              <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+            </td>`;
+          const sel = tr.querySelector('[data-select]');
+          const inp = tr.querySelector('[data-price-update]');
+          const btnEdit = tr.querySelector('[data-edit]');
+          const btnDel = tr.querySelector('[data-del]');
+          sel.addEventListener('change', updateBulkState);
+          inp.addEventListener('change', function(){ handlePriceUpdate(p.id, inp); });
+          btnEdit.addEventListener('click', function(){ location.hash = '#/edit-product/'+p.id; });
+          btnDel.addEventListener('click', function(){ handleDelete(p.id, p.name, 'products'); });
+          tb.appendChild(tr);
+        });
+        $productsContent.innerHTML=''; $productsContent.appendChild(table);
+        $('#sel-all').addEventListener('change', function(e){
+          $$('#tbody-products [data-select]').forEach(function(cb){ cb.checked = e.target.checked; });
+          updateBulkState();
+        });
+      }
+      lucide.createIcons();
+    }
+
+    function updateBulkState(){
+      const any = Array.prototype.slice.call($$('[data-select]')).some(function(cb){ return cb.checked; });
+      $('#bulk-delete').disabled = !any;
+    }
+    $('#bulk-delete').addEventListener('click', async function(){
+      const ids = Array.prototype.slice.call($$('[data-select]'))
+        .filter(function(cb){return cb.checked;})
+        .map(function(cb){return cb.closest('tr,.card').dataset.id;});
+      if(!ids.length) return;
+      const ok = await openModal({
+        title:'Supprimer la sélection',
+        body:'Êtes-vous sûr de vouloir supprimer <strong>' + ids.length + '</strong> élément(s) ? Cette action est irréversible.',
+        okText:'Supprimer', cancelText:'Annuler', danger:true
+      });
+      if(!ok) return;
+      let done=0, fail=0;
+      for(const id of ids){
+        try{ await deleteDoc(doc(db,'products',id)); allProducts = allProducts.filter(function(p){return p.id!==id;}); done++; }
+        catch(e){ console.error(e); fail++; }
+      }
+      toast('Suppression terminée', done + ' succès, ' + fail + ' échec(s)', fail? 'error':'success');
+      renderProductList();
+      $('#kpi-products').textContent = String(allProducts.length);
+    });
+
+    async function handlePriceUpdate(id, inputEl){
+      const val = parseFloat(inputEl.value);
+      if(Number.isNaN(val) || val<0){ toast('Prix invalide','Entrez un nombre positif','error'); inputEl.focus(); return; }
+      inputEl.disabled = true;
+      try{
+        await updateDoc(doc(db,'products',id), { price: val });
+        const p = allProducts.find(function(x){return x.id===id;}); if(p) p.price = val;
+        toast('Prix mis à jour', fmtXOF.format(val), 'success');
+      }catch(e){ console.error(e); toast('Erreur','Impossible de mettre à jour le prix','error'); }
+      finally{ inputEl.disabled=false; }
+    }
+
+    async function handleDelete(id, name, type) {
+        const ok = await openModal({
+            title: 'Supprimer',
+            body: 'Supprimer "<strong>' + escapeHtml(name || id) + '</strong>" ?',
+            okText: 'Supprimer',
+            cancelText: 'Annuler',
+            danger: true
+        });
+        if (!ok) return;
+        try {
+            await deleteDoc(doc(db, type, id));
+            if (type === 'products') {
+                allProducts = allProducts.filter(p => p.id !== id);
+                renderProductList();
+                $('#kpi-products').textContent = String(allProducts.length);
+            } else if (type === 'matches') {
+                allMatches = allMatches.filter(m => m.id !== id);
+                renderMatchList();
+                $('#kpi-matches').textContent = String(allMatches.length);
+            } else if (type === 'promoCards') {
+                allPromoCards = allPromoCards.filter(c => c.id !== id);
+                renderPromoCardList();
+                $('#kpi-promocards').textContent = String(allPromoCards.length);
+            }
+            toast('Supprimé', '', 'success');
+        } catch (e) {
+            console.error(e);
+            toast('Erreur', 'Suppression impossible', 'error');
+        }
+    }
+
+
+    /* ------------------- Product Form ------------------- */
+    async function renderProductFormPage(id){
       let p = {};
-      if (id) {
-        p = allProducts.find(prod => prod.id === id) || await getDoc(doc(db, 'products', id)).then(s => s.exists() ? {id: s.id, ...s.data()} : null);
-        if (!p) { $view.innerHTML = `<div class="center text-danger">Produit introuvable.</div>`; return; }
+      if(id){
+        p = allProducts.find(function(x){return x.id===id;}) || (await getDoc(doc(db,'products',id)).then(function(s){return s.exists()?{id:s.id,...s.data()}:null;}));
+        if(!p){ $productsContent.innerHTML = '<div class="center" style="padding:32px">Produit introuvable.</div>'; return; }
       }
       
-      const wrap = document.createElement('div');
-      wrap.className = 'form-wrap';
+      const categoryOptions = PREDEFINED_CATEGORIES.map(cat => `<option value="${escapeAttr(cat)}">${escapeHtml(cat.charAt(0).toUpperCase() + cat.slice(1))}</option>`).join('');
+
+      const wrap = document.createElement('div'); wrap.className='form-wrap';
       wrap.innerHTML = `
         <div class="form-head">
-          <div class="form-title">${id ? 'Modifier le produit' : 'Ajouter un nouveau produit'}</div>
-          ${id ? `<span class="kpi">ID: ${escapeHtml(p.id.slice(0,8))}…</span>` : ''}
+          <div class="form-title">${id?'Éditer':'Nouveau'} produit</div>
+          <div class="kpi">${id? 'ID: '+escapeHtml(id) : 'Création'}</div>
         </div>
-        <form id="product-form" class="form-main">
-          <div class="field">
-            <label class="label" for="p-name">Nom du produit</label>
-            <input id="p-name" class="input" type="text" value="${escapeAttr(p.name || '')}" required />
+        <form class="form-main" novalidate>
+          <div class="twocol">
+            <div class="field">
+              <label class="label" for="p-name">Nom</label>
+              <input id="p-name" class="input" type="text" value="${escapeAttr(p.name||'')}" required />
+              <div class="hint">Nom commercial lisible (ex. "iPhone 13 128 Go").</div>
+              <div id="err-name" class="error hide"></div>
+            </div>
+            <div class="field">
+              <label class="label" for="p-brand">Marque</label>
+              <input id="p-brand" class="input" type="text" value="${escapeAttr(p.brand||'')}" />
+            </div>
           </div>
           <div class="twocol">
+            <div class="field">
+              <label class="label" for="p-category">Catégorie</label>
+              <select id="p-category" class="select">
+                <option value="">— Sélectionner —</option>
+                ${categoryOptions}
+              </select>
+            </div>
             <div class="field">
               <label class="label" for="p-price">Prix (FCFA)</label>
-              <input id="p-price" class="input" type="number" min="0" value="${Number(p.price ?? '')}" />
-            </div>
-            <div class="field">
-                <label class="label" for="p-brand">Marque</label>
-                <input id="p-brand" class="input" type="text" value="${escapeAttr(p.brand || '')}" />
-            </div>
-          </div>
-          <div class="twocol">
-            <div class="field">
-              <label class="label" for="p-ram">RAM (GB)</label>
-              <input id="p-ram" class="input" type="number" min="0" step="1" value="${Number(p.ram ?? '')}" />
-            </div>
-            <div class="field">
-              <label class="label" for="p-rom">ROM (GB)</label>
-              <input id="p-rom" class="input" type="number" min="0" step="1" value="${Number(p.rom ?? '')}" />
+              <input id="p-price" class="input" type="number" min="0" step="1" value="${typeof p.price==='number'?p.price:''}" />
+              <div id="err-price" class="error hide"></div>
             </div>
           </div>
           <div class="field">
             <label class="label" for="p-desc">Description</label>
-            <textarea id="p-desc" class="textarea">${escapeHtml(p.description || '')}</textarea>
+            <textarea id="p-desc" class="textarea" rows="4">${escapeHtml(p.description||'')}</textarea>
           </div>
-          <div class="field">
-            <label class="label" for="p-image">Image</label>
-            <input id="p-image-file" class="input" type="file" accept="image/png, image/jpeg, image/webp" />
-            <img id="p-image-preview" class="image-preview" src="${escapeAttr(p.imageUrl || '')}" style="margin-top:10px; ${p.imageUrl ? '' : 'display:none;'}" />
+          <div class="twocol">
+            <div class="field">
+              <label class="label" for="p-stock">Stock</label>
+              <input id="p-stock" class="input" type="number" min="0" step="1" value="${typeof p.stock==='number'?p.stock:''}" />
+            </div>
+            <div class="field">
+              <label class="label" for="p-image">Image</label>
+              <input id="p-image-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" />
+              <img id="p-image-preview" class="image-preview" src="${escapeAttr(p.imageUrl||'')}" alt="Aperçu image" style="margin-top:10px; ${p.imageUrl?'':'display:none'}"/>
+            </div>
           </div>
           <div class="form-actions">
-            <button type="button" id="cancel" class="btn btn-outline">Annuler</button>
-            <button type="submit" id="save" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer le produit'}</button>
+            <button type="button" class="btn" data-cancel>Annuler</button>
+            <button type="submit" class="btn btn-primary">${id?'Enregistrer':'Créer le produit'}</button>
           </div>
         </form>`;
+      $productsContent.innerHTML=''; $productsContent.appendChild(wrap);
       
-      $view.innerHTML = ''; $view.appendChild(wrap);
+      if(p.category) $('#p-category').value = p.category;
 
-      const $imgFile = $('#p-image-file'), $imgPreview = $('#p-image-preview');
-      $imgFile.addEventListener('change', () => {
-        const file = $imgFile.files[0];
-        if (file) { $imgPreview.src = URL.createObjectURL(file); $imgPreview.style.display = 'block'; }
+      const fileEl = $('#p-image-file'), prev = $('#p-image-preview');
+      fileEl.addEventListener('change', function(){
+        const f = fileEl.files && fileEl.files[0]; if(f){ prev.src = URL.createObjectURL(f); prev.style.display='block'; }
       });
+
+      wrap.querySelector('[data-cancel]').addEventListener('click', function(){ if(history.length>1){ history.back(); } else { location.hash='#/products'; } });
+      wrap.querySelector('form').addEventListener('submit', function(e){ handleProductFormSubmit(e, id); });
+    }
+
+    async function handleProductFormSubmit(e, id){
+      e.preventDefault();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
       
-      $('#cancel').addEventListener('click', () => location.hash = '#/products');
-      $('#product-form').addEventListener('submit', e => handleFormSubmit(e, id));
+      const name = $('#p-name').value.trim();
+      const brand = $('#p-brand').value.trim();
+      const category = $('#p-category').value.trim() || '';
+      const price = parseFloat($('#p-price').value);
+      const stock = Number.isNaN(parseInt($('#p-stock').value,10)) ? null : parseInt($('#p-stock').value,10);
+      const description = $('#p-desc').value.trim();
+      const file = ($('#p-image-file').files && $('#p-image-file').files[0]) || null;
+
+      let hasErr=false;
+      $('#err-name').classList.add('hide'); $('#err-price').classList.add('hide');
+      if(!name){ $('#err-name').textContent='Le nom est obligatoire.'; $('#err-name').classList.remove('hide'); hasErr=true; }
+      if($('#p-price').value && (Number.isNaN(price) || price<0)){ $('#err-price').textContent='Le prix doit être un nombre positif.'; $('#err-price').classList.remove('hide'); hasErr=true; }
+      if(hasErr) {
+        setButtonLoading(submitBtn, false);
+        return;
+      }
+
+      let imageUrl = null;
+      try{
+        if(file){
+          const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+          const path = 'product-images/' + (id || ('p_'+Date.now())) + '.' + ext;
+          const r = ref(storage, path);
+          await uploadBytes(r, file);
+          imageUrl = await getDownloadURL(r);
+        }
+        if(id){
+          const data = { name, brand, category, price: Number.isNaN(price)? null : price, stock, description };
+          if(imageUrl) data.imageUrl = imageUrl;
+          await updateDoc(doc(db,'products',id), data);
+          const p = allProducts.find(function(x){return x.id===id;}); if(p) Object.assign(p, data);
+          toast('Produit mis à jour', name, 'success'); location.hash = '#/products';
+        }else{
+          const data = { name, brand, category, price: Number.isNaN(price)? null : price, stock, description, imageUrl: imageUrl || null, createdAt: serverTimestamp() };
+          const refDoc = await addDoc(collection(db,'products'), data);
+          allProducts.unshift({id: refDoc.id, ...data});
+          toast('Produit créé', name, 'success'); location.hash = '#/products';
+          $('#kpi-products').textContent = String(allProducts.length);
+        }
+      }catch(err){
+        console.error(err);
+        toast('Erreur','Enregistrement impossible','error');
+      } finally {
+        setButtonLoading(submitBtn, false);
+      }
     }
 
-    /* -------------------- Actions (Update, Delete, Create) -------------------- */
-    async function handlePriceUpdate(id, inputEl, btnEl) {
-      const val = parseFloat(inputEl.value);
-      if (isNaN(val) || val < 0) return alert('Prix invalide.');
-      const prevHTML = btnEl.innerHTML;
-      btnEl.innerHTML = '<div class="loader"></div>'; btnEl.disabled = true;
-      try {
-        await updateDoc(doc(db, 'products', id), { price: val });
-        const p = allProducts.find(p => p.id === id); if (p) p.price = val;
-        btnEl.textContent = '✓'; btnEl.style.background = 'var(--success)';
-        setTimeout(() => { btnEl.innerHTML = prevHTML; btnEl.style.background = 'var(--primary)'; btnEl.disabled = false; }, 1200);
-      } catch (e) { console.error(e); alert("Erreur."); btnEl.innerHTML = prevHTML; btnEl.disabled = false; }
+    /* ============================ Matches UI ============================ */
+    $('#add-match').addEventListener('click', function(){ location.hash = '#/new-match'; });
+    $('#search-matches').addEventListener('input', function(){ renderMatchList(); });
+
+    function renderMatchList(){
+      const term = ($('#search-matches').value||'').toLowerCase();
+      const arr = term ? allMatches.filter(function(m){
+        return (m.teamA||'').toLowerCase().indexOf(term)!==-1
+          || (m.teamB||'').toLowerCase().indexOf(term)!==-1
+          || (m.competition||'').toLowerCase().indexOf(term)!==-1;
+      }) : allMatches.slice();
+
+      if(!arr.length){
+        $matchesContent.innerHTML = '<div class="center" style="padding:32px">Aucun match.</div>'; return;
+      }
+      const table = document.createElement('table'); table.className='table';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Affiche</th>
+            <th>Compétition</th>
+            <th>Date</th>
+            <th style="width:180px;text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-matches"></tbody>`;
+      const tb = table.querySelector('#tbody-matches');
+
+      arr.forEach(function(m){
+        const date = m.startTime && m.startTime.toDate ? m.startTime.toDate() : (m.startTime ? new Date(m.startTime) : null);
+        const finalScore = (typeof m.finalScoreA==='number' && typeof m.finalScoreB==='number') ? (m.finalScoreA + ' - ' + m.finalScoreB) : '';
+        const tr = document.createElement('tr'); tr.dataset.id = m.id;
+        tr.innerHTML = `
+          <td style="font-weight:800">${escapeHtml(m.teamA || 'Équipe A')} vs ${escapeHtml(m.teamB || 'Équipe B')}</td>
+          <td>${escapeHtml(m.competition || '—')}</td>
+          <td>${date ? fmtDate(date) : '—'}</td>
+          <td class="actions">
+            <span class="badge ${finalScore? 'success':''}">${finalScore || 'À jouer'}</span>
+            <button class="btn btn-small" data-edit>Éditer</button>
+            <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+          </td>`;
+        tr.querySelector('[data-edit]').addEventListener('click', function(){ location.hash = '#/edit-match/'+m.id; });
+        tr.querySelector('[data-del]').addEventListener('click', function(){ handleDelete(m.id, (m.teamA||'')+' vs '+(m.teamB||''), 'matches'); });
+        tb.appendChild(tr);
+      });
+      $matchesContent.innerHTML=''; $matchesContent.appendChild(table);
     }
 
-    async function handleDelete(id, name, rowEl) {
-      if (!confirm(`Supprimer “${name}”?`)) return;
-      rowEl.style.opacity = '.5';
-      try {
-        await deleteDoc(doc(db, 'products', id));
-        allProducts = allProducts.filter(p => p.id !== id);
-        rowEl.remove();
-      } catch (e) { console.error(e); alert("Erreur."); rowEl.style.opacity = '1'; }
+    async function renderMatchFormPage(id){
+      let m = {};
+      if(id){
+        m = allMatches.find(function(x){return x.id===id;}) || (await getDoc(doc(db,'matches',id)).then(function(s){return s.exists()?{id:s.id,...s.data()}:null;}));
+        if(!m){ $matchesContent.innerHTML = '<div class="center" style="padding:32px">Match introuvable.</div>'; return; }
+      }
+      const start = m.startTime && m.startTime.toDate ? m.startTime.toDate() : (m.startTime ? new Date(m.startTime) : null);
+      const startVal = start ? new Date(start.getTime()-start.getTimezoneOffset()*60000).toISOString().slice(0,16) : '';
+
+      const wrap = document.createElement('div'); wrap.className='form-wrap';
+      wrap.innerHTML = `
+        <div class="form-head">
+          <div class="form-title">${id?'Éditer':'Nouveau'} match</div>
+        </div>
+        <form class="form-main" novalidate>
+          <div class="twocol">
+            <div class="field">
+              <label class="label" for="m-competition">Compétition</label>
+              <input id="m-competition" class="input" type="text" value="${escapeAttr(m.competition||'')}" />
+            </div>
+            <div class="field">
+              <label class="label" for="m-startTime">Date &amp; heure</label>
+              <input id="m-startTime" class="input" type="datetime-local" value="${startVal}" required />
+              <div id="err-mstart" class="error hide"></div>
+            </div>
+          </div>
+          <div class="twocol">
+            <div class="field">
+              <label class="label" for="m-teamA">Équipe A</label>
+              <input id="m-teamA" class="input" type="text" value="${escapeAttr(m.teamA||'')}" required />
+            </div>
+            <div class="field">
+              <label class="label" for="m-teamB">Équipe B</label>
+              <input id="m-teamB" class="input" type="text" value="${escapeAttr(m.teamB||'')}" required />
+            </div>
+          </div>
+          <div class="twocol">
+            <div class="field">
+              <label class="label" for="m-logoA">Logo &eacute;quipe A (URL)</label>
+              <input id="m-logoA" class="input" type="url" value="${escapeAttr(m.teamALogo||'')}" />
+            </div>
+            <div class="field">
+              <label class="label" for="m-logoB">Logo &eacute;quipe B (URL)</label>
+              <input id="m-logoB" class="input" type="url" value="${escapeAttr(m.teamBLogo||'')}" />
+            </div>
+          </div>
+          <div class="twocol">
+            <div class="field">
+              <label class="label" for="m-scoreA">Score A (final)</label>
+              <input id="m-scoreA" class="input" type="number" min="0" step="1" value="${typeof m.finalScoreA==='number'?m.finalScoreA:''}" />
+            </div>
+            <div class="field">
+              <label class="label" for="m-scoreB">Score B (final)</label>
+              <input id="m-scoreB" class="input" type="number" min="0" step="1" value="${typeof m.finalScoreB==='number'?m.finalScoreB:''}" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn" data-cancel>Annuler</button>
+            <button type="submit" class="btn btn-primary">${id?'Enregistrer':'Créer le match'}</button>
+          </div>
+        </form>`;
+      $matchesContent.innerHTML=''; $matchesContent.appendChild(wrap);
+      wrap.querySelector('[data-cancel]').addEventListener('click', function(){ if(history.length>1){ history.back(); } else { location.hash='#/matches'; } });
+      wrap.querySelector('form').addEventListener('submit', function(e){ handleMatchFormSubmit(e, id); });
+    }
+
+    async function handleMatchFormSubmit(e, id){
+      e.preventDefault();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+
+      const competition = $('#m-competition').value.trim();
+      const teamA = $('#m-teamA').value.trim();
+      const teamB = $('#m-teamB').value.trim();
+      const teamALogo = $('#m-logoA').value.trim() || null;
+      const teamBLogo = $('#m-logoB').value.trim() || null;
+      const scoreA = $('#m-scoreA').value==='' ? null : parseInt($('#m-scoreA').value,10);
+      const scoreB = $('#m-scoreB').value==='' ? null : parseInt($('#m-scoreB').value,10);
+      const startVal = $('#m-startTime').value;
+      $('#err-mstart').classList.add('hide');
+      if(!startVal){ $('#err-mstart').textContent='La date/heure est requise.'; $('#err-mstart').classList.remove('hide'); setButtonLoading(submitBtn, false); return; }
+
+      try{
+        const data = {
+          competition, teamA, teamB, teamALogo, teamBLogo,
+          finalScoreA: Number.isNaN(scoreA)? null : scoreA,
+          finalScoreB: Number.isNaN(scoreB)? null : scoreB,
+          startTime: new Date(startVal)
+        };
+        if(id){
+          await updateDoc(doc(db,'matches',id), data);
+          const m = allMatches.find(function(x){return x.id===id;}); if(m) Object.assign(m, data);
+          toast('Match mis à jour', teamA+' vs '+teamB, 'success'); location.hash = '#/matches';
+        }else{
+          const refDoc = await addDoc(collection(db,'matches'), data);
+          allMatches.unshift({id:refDoc.id, ...data});
+          toast('Match créé', teamA+' vs '+teamB, 'success'); location.hash = '#/matches';
+          $('#kpi-matches').textContent = String(allMatches.length);
+        }
+      }catch(err){
+        console.error(err);
+        toast('Erreur','Enregistrement impossible','error');
+      } finally {
+        setButtonLoading(submitBtn, false);
+      }
     }
     
-    async function handleFormSubmit(e, id) {
-        e.preventDefault();
-        const $saveBtn = $('#save');
-        const prevHTML = $saveBtn.innerHTML;
-        $saveBtn.innerHTML = '<div class="loader"></div>';
-        $saveBtn.disabled = true;
+    /* ============================ Promo Cards UI ============================ */
+    $('#add-promocard').addEventListener('click', () => location.hash = '#/new-promocard');
+    $('#search-promocards').addEventListener('input', () => renderPromoCardList());
 
-        const imageFile = $('#p-image-file').files[0];
-        let imageUrl = id ? allProducts.find(p=>p.id===id).imageUrl : ''; // Keep old image URL if not changed
+    function renderPromoCardList() {
+        const term = ($('#search-promocards').value || '').toLowerCase();
+        const arr = term ? allPromoCards.filter(c => (c.title || '').toLowerCase().includes(term)) : allPromoCards;
 
+        if (!arr.length) {
+            $promoCardsContent.innerHTML = '<div class="center" style="padding:32px">Aucune carte promo.</div>';
+            return;
+        }
+        const table = document.createElement('table');
+        table.className = 'table';
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th style="width:60px">Image</th>
+                    <th>Titre</th>
+                    <th>Destination</th>
+                    <th>Ordre</th>
+                    <th>Statut</th>
+                    <th style="width:180px;text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-promocards"></tbody>`;
+        const tb = table.querySelector('#tbody-promocards');
+        arr.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.dataset.id = c.id;
+            tr.innerHTML = `
+                <td>${c.image ? `<img class="img" src="${escapeAttr(c.image)}" />` : ''}</td>
+                <td style="font-weight:800">${escapeHtml(c.title || 'Sans titre')}</td>
+                <td><span class="chip">${escapeHtml(c.screen || 'Aucune')}</span></td>
+                <td><span class="badge">${c.sortOrder || 'N/A'}</span></td>
+                <td>
+                    <label class="toggle">
+                        <span class="toggle-switch">
+                            <input type="checkbox" data-active-toggle ${c.isActive ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </span>
+                    </label>
+                </td>
+                <td class="actions">
+                    <button class="btn btn-small" data-edit>Éditer</button>
+                    <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+                </td>`;
+            tr.querySelector('[data-edit]').onclick = () => location.hash = `#/edit-promocard/${c.id}`;
+            tr.querySelector('[data-del]').onclick = () => handleDelete(c.id, c.title, 'promoCards');
+            tr.querySelector('[data-active-toggle]').onchange = (e) => handlePromoCardStatusToggle(c.id, e.target.checked);
+            tb.appendChild(tr);
+        });
+        $promoCardsContent.innerHTML = '';
+        $promoCardsContent.appendChild(table);
+        lucide.createIcons();
+    }
+    
+    async function handlePromoCardStatusToggle(id, isActive) {
         try {
-            // 1. Si une nouvelle image est sélectionnée, on l'upload d'abord
-            if (imageFile) {
-                const imageName = `${Date.now()}-${imageFile.name}`;
-                const storageRef = ref(storage, `product-images/${imageName}`);
-                const snapshot = await uploadBytes(storageRef, imageFile);
-                imageUrl = await getDownloadURL(snapshot.ref);
-            }
-
-            const payload = {
-                name: $('#p-name').value.trim(),
-                price: parseFloat($('#p-price').value || '0'),
-                brand: $('#p-brand').value.trim(),
-                ram: parseInt($('#p-ram').value || '0') || null,
-                rom: parseInt($('#p-rom').value || '0') || null,
-                description: $('#p-desc').value.trim(),
-                imageUrl: imageUrl
-            };
-
-            if (!payload.name) { throw new Error('Le nom est obligatoire.'); }
-
-            // 2. Créer ou Mettre à jour le document Firestore
-            if (id) { // Mise à jour
-                await updateDoc(doc(db, "products", id), payload);
-            } else { // Création
-                await addDoc(collection(db, "products"), payload);
-            }
-            
-            $saveBtn.textContent = '✓ Enregistré';
-            $saveBtn.style.background = 'var(--success)';
-            await refreshProducts(); // Recharger les données
-            setTimeout(() => location.hash = '#/products', 800);
-
+            await updateDoc(doc(db, 'promoCards', id), { isActive: isActive });
+            const card = allPromoCards.find(c => c.id === id);
+            if (card) card.isActive = isActive;
+            toast('Statut mis à jour', `La carte est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
         } catch (error) {
-            console.error("Form submit error:", error);
-            alert(`Erreur : ${error.message}`);
-            $saveBtn.innerHTML = prevHTML;
-            $saveBtn.disabled = false;
+            console.error("Erreur de mise à jour du statut:", error);
+            toast('Erreur', 'Impossible de changer le statut.', 'error');
+            renderPromoCardList(); // Re-render to revert the toggle on error
         }
     }
 
-    /* -------------------- Utils -------------------- */
-    function escapeHtml(s = '') { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
-    function escapeAttr(s = '') { return escapeHtml(s).replace('`', '&#96;'); }
+    async function renderPromoCardFormPage(id) {
+        let card = {};
+        if (id) {
+            card = allPromoCards.find(c => c.id === id) || (await getDoc(doc(db, 'promoCards', id)).then(s => s.exists() ? { id: s.id, ...s.data() } : null));
+            if (!card) {
+                $promoCardsContent.innerHTML = '<div class="center" style="padding:32px">Carte introuvable.</div>';
+                return;
+            }
+        }
+        const wrap = document.createElement('div');
+        wrap.className = 'form-wrap';
+        wrap.innerHTML = `
+            <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouvelle'} Carte Promo</div></div>
+            <form class="form-main" novalidate>
+                <div class="twocol">
+                    <div class="field">
+                        <label class="label" for="pc-title">Titre</label>
+                        <input id="pc-title" class="input" type="text" value="${escapeAttr(card.title || '')}" required />
+                    </div>
+                    <div class="field">
+                        <label class="label" for="pc-subtitle">Sous-titre (optionnel)</label>
+                        <input id="pc-subtitle" class="input" type="text" value="${escapeAttr(card.subtitle || '')}" />
+                    </div>
+                </div>
+                <div class="twocol">
+                    <div class="field">
+                        <label class="label" for="pc-cta">Texte du bouton (CTA)</label>
+                        <input id="pc-cta" class="input" type="text" value="${escapeAttr(card.cta || '')}" />
+                    </div>
+                    <div class="field">
+                        <label class="label" for="pc-screen">Écran de destination</label>
+                        <input id="pc-screen" class="input" type="text" value="${escapeAttr(card.screen || '')}" placeholder="Ex: MatchList, Store..." />
+                    </div>
+                </div>
+                <div class="twocol">
+                    <div class="field">
+                      <label class="label" for="pc-image">URL de l'image</label>
+                      <input id="pc-image" class="input" type="url" value="${escapeAttr(card.image || '')}" />
+                    </div>
+                    <div class="field">
+                        <label class="label" for="pc-sortOrder">Ordre d'affichage</label>
+                        <input id="pc-sortOrder" class="input" type="number" min="1" step="1" value="${card.sortOrder || ''}" required />
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="toggle">
+                        <span class="toggle-switch">
+                            <input id="pc-isActive" type="checkbox" ${card.isActive !== false ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </span>
+                        <span>Active (visible dans l'application)</span>
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" data-cancel>Annuler</button>
+                    <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer la carte'}</button>
+                </div>
+            </form>`;
+        $promoCardsContent.innerHTML = '';
+        $promoCardsContent.appendChild(wrap);
+        wrap.querySelector('[data-cancel]').onclick = () => location.hash = '#/promocards';
+        wrap.querySelector('form').onsubmit = e => handlePromoCardFormSubmit(e, id);
+    }
+
+    async function handlePromoCardFormSubmit(e, id) {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        setButtonLoading(submitBtn, true);
+
+        const data = {
+            title: $('#pc-title').value.trim(),
+            subtitle: $('#pc-subtitle').value.trim(),
+            cta: $('#pc-cta').value.trim(),
+            screen: $('#pc-screen').value.trim(),
+            image: $('#pc-image').value.trim(),
+            sortOrder: parseInt($('#pc-sortOrder').value, 10) || 0,
+            isActive: $('#pc-isActive').checked,
+        };
+        if (!data.title || !data.sortOrder) {
+            toast('Erreur', 'Le titre et l\'ordre sont requis.', 'error');
+            setButtonLoading(submitBtn, false);
+            return;
+        }
+        try {
+            if (id) {
+                await updateDoc(doc(db, 'promoCards', id), data);
+                const i = allPromoCards.findIndex(c => c.id === id);
+                if (i > -1) allPromoCards[i] = { id, ...data };
+                toast('Carte mise à jour', data.title, 'success');
+            } else {
+                const refDoc = await addDoc(collection(db, 'promoCards'), data);
+                allPromoCards.push({ id: refDoc.id, ...data });
+                $('#kpi-promocards').textContent = String(allPromoCards.length);
+                toast('Carte créée', data.title, 'success');
+            }
+            allPromoCards.sort((a, b) => a.sortOrder - b.sortOrder);
+            location.hash = '#/promocards';
+        } catch (err) {
+            console.error(err);
+            toast('Erreur', 'Enregistrement impossible', 'error');
+        } finally {
+            setButtonLoading(submitBtn, false);
+        }
+    }
+
+
+    /* ============================ Sorting (click header) ============================ */
+    document.addEventListener('click', function(e){
+      const th = e.target.closest && e.target.closest('th[data-sort]');
+      if(!th) return;
+      if(location.hash.indexOf('#/products')!==0) return;
+      const key = th.dataset.sort;
+      if(sortBy.key === key){
+        sortBy.dir = sortBy.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortBy.key = key;
+        sortBy.dir = 'asc';
+      }
+      renderProductList();
+    });
+
+    /* ============================ Kickoff ============================ */
+    if(!location.hash) location.hash = '#/products';
+    setTimeout(function(){ const content = $('#content'); if(content){ content.setAttribute('tabindex','-1'); } }, 0);
   </script>
 </body>
 </html>

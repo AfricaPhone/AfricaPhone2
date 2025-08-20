@@ -94,4 +94,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductListItem;
+// Enveloppe le composant avec React.memo pour éviter les re-rendus inutiles
+export default React.memo(ProductListItem);
