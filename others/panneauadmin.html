@@ -416,25 +416,13 @@
   <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
 
   <script type="module">
-    /* ============================ Firebase ============================ */
-    const firebaseConfig = {
-      apiKey: "AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M",
-      authDomain: "africaphone-vente.firebaseapp.com",
-      projectId: "africaphone-vente",
-      storageBucket: "africaphone-vente.firebasestorage.app",
-      messagingSenderId: "203471818329",
-      appId: "1:203471818329:web:c2c77d48098c1a6a596b48"
-    };
-
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
-
-    const appFB = initializeApp(firebaseConfig);
-    const auth = getAuth(appFB);
-    const db = getFirestore(appFB);
-    const storage = getStorage(appFB);
+    // Importe la configuration et les services Firebase depuis le fichier dédié.
+    import { auth, db, storage } from './firebase-config.js';
+    
+    // Importe les fonctions spécifiques de Firebase Auth et Firestore.
+    import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+    import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
 
     /* ============================ Helpers ============================ */
     const $ = sel => document.querySelector(sel);
@@ -930,10 +918,21 @@
               <div id="err-price" class="error hide"></div>
             </div>
           </div>
+          <div class="twocol">
+            <div class="field">
+                <label class="label" for="p-rom">Stockage</label>
+                <input id="p-rom" class="input" type="number" min="0" step="1" value="${typeof p.rom==='number'?p.rom:''}" />
+            </div>
+            <div class="field">
+                <label class="label" for="p-ram">RAM </label>
+                <input id="p-ram" class="input" type="number" min="0" step="1" value="${typeof p.ram==='number'?p.ram:''}" />
+            </div>
+          </div>
           <div class="field">
             <label class="label" for="p-desc">Description</label>
             <textarea id="p-desc" class="textarea" rows="4">${escapeHtml(p.description||'')}</textarea>
           </div>
+          
           <div class="twocol">
             <div class="field">
               <label class="label" for="p-stock">Stock</label>
@@ -945,6 +944,7 @@
               <img id="p-image-preview" class="image-preview" src="${escapeAttr(p.imageUrl||'')}" alt="Aperçu image" style="margin-top:10px; ${p.imageUrl?'':'display:none'}"/>
             </div>
           </div>
+          
           <div class="form-actions">
             <button type="button" class="btn" data-cancel>Annuler</button>
             <button type="submit" class="btn btn-primary">${id?'Enregistrer':'Créer le produit'}</button>
@@ -973,6 +973,8 @@
       const category = $('#p-category').value.trim() || '';
       const price = parseFloat($('#p-price').value);
       const stock = Number.isNaN(parseInt($('#p-stock').value,10)) ? null : parseInt($('#p-stock').value,10);
+      const ram = Number.isNaN(parseInt($('#p-ram').value,10)) ? null : parseInt($('#p-ram').value,10);
+      const rom = Number.isNaN(parseInt($('#p-rom').value,10)) ? null : parseInt($('#p-rom').value,10);
       const description = $('#p-desc').value.trim();
       const file = ($('#p-image-file').files && $('#p-image-file').files[0]) || null;
 
@@ -995,13 +997,13 @@
           imageUrl = await getDownloadURL(r);
         }
         if(id){
-          const data = { name, brand, category, price: Number.isNaN(price)? null : price, stock, description };
+          const data = { name, brand, category, price: Number.isNaN(price)? null : price, stock, description, ram, rom };
           if(imageUrl) data.imageUrl = imageUrl;
           await updateDoc(doc(db,'products',id), data);
           const p = allProducts.find(function(x){return x.id===id;}); if(p) Object.assign(p, data);
           toast('Produit mis à jour', name, 'success'); location.hash = '#/products';
         }else{
-          const data = { name, brand, category, price: Number.isNaN(price)? null : price, stock, description, imageUrl: imageUrl || null, createdAt: serverTimestamp() };
+          const data = { name, brand, category, price: Number.isNaN(price)? null : price, stock, description, ram, rom, imageUrl: imageUrl || null, createdAt: serverTimestamp() };
           const refDoc = await addDoc(collection(db,'products'), data);
           allProducts.unshift({id: refDoc.id, ...data});
           toast('Produit créé', name, 'success'); location.hash = '#/products';
