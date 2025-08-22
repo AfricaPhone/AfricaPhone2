@@ -24,6 +24,8 @@ export interface ProductQueryOptions {
   searchQuery?: string;
   minPrice?: string;
   maxPrice?: string;
+  rom?: number;
+  ram?: number;
 }
 
 // Convertit un document Firestore en type Product
@@ -68,6 +70,13 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     if (!isNaN(maxPriceNum) && maxPriceNum > 0) {
       q = query(q, where('price', '<=', maxPriceNum));
     }
+    
+    if (options.rom) {
+      q = query(q, where('rom', '==', options.rom));
+    }
+    if (options.ram) {
+      q = query(q, where('ram', '==', options.ram));
+    }
 
     if (options.searchQuery) {
       q = query(
@@ -87,7 +96,7 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
       q = query(q, orderBy('name', 'asc'));
     }
     return q;
-  }, [options.category, options.brandId, options.sortBy, options.sortDirection, options.searchQuery, options.minPrice, options.maxPrice]);
+  }, [options.category, options.brandId, options.sortBy, options.sortDirection, options.searchQuery, options.minPrice, options.maxPrice, options.rom, options.ram]);
 
   const fetchAllProducts = useCallback(async () => {
     setLoading(true);

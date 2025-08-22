@@ -21,7 +21,7 @@ import { db } from '../../firebase/config';
 import HomeHeader from './HomeHeader';
 import HomeListHeader from './HomeListHeader';
 import ProductGrid from './ProductGrid';
-import FilterBottomSheet from './FilterBottomSheet';
+import FilterBottomSheet, { Capacity } from './FilterBottomSheet'; // MODIFICATION: J'importe le type Capacity
 import { Segment } from './ProductSegments';
 
 // --- Constantes ---
@@ -218,12 +218,15 @@ const HomeScreen: React.FC = () => {
       ? [...vedetteProducts, ...regularProducts.products]
       : dataBySegment[activeSegment]?.products || [];
   
-  const handleApplyFilter = (minPrice: string, maxPrice: string) => {
+  // MODIFICATION: J'utilise le type importé pour garantir la compatibilité
+  const handleApplyFilter = (minPrice: string, maxPrice: string, capacity?: Capacity) => {
     setIsFilterVisible(false);
     navigation.navigate('FilterScreenResults', {
       minPrice,
       maxPrice,
       initialCategory: activeSegment !== 'Populaires' ? activeSegment : undefined,
+      rom: capacity?.rom,
+      ram: capacity?.ram,
     });
   };
 

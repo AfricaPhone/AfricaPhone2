@@ -107,7 +107,14 @@ export type RootStackParamList = {
   SignUp: undefined;
   AuthPrompt: undefined;
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null; };
-  FilterScreenResults: { initialCategory?: string, initialSearchQuery?: string, minPrice?: string, maxPrice?: string };
+  FilterScreenResults: { 
+    initialCategory?: string, 
+    initialSearchQuery?: string, 
+    minPrice?: string, 
+    maxPrice?: string,
+    rom?: number;
+    ram?: number;
+  };
   ProductList: { title: string, category?: string, brandId?: string, searchQuery?: string };
 };
 
