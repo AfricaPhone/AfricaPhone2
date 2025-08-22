@@ -314,38 +314,45 @@ export const processProductImage = onObjectFinalized(
     region: "africa-south1",
     memory: "1GiB",
     timeoutSeconds: 120,
-    // Optionnel: verrouiller sur un bucket précis si vous voulez
-    // bucket: "africaphone-vente.appspot.com",
   },
   async (event) => {
-    const object = event.data; // StorageObjectData
+    const object = event.data;
     const bucketName = object.bucket || "";
     const filePath = object.name || "";
     const contentType = object.contentType || "";
 
     const bucket = getStorage().bucket(bucketName);
 
-    // Ignore: pas sous product-images, pas une image, ou déjà _processed.webp
+    // 1. Vérifications initiales
     if (
       !filePath.startsWith("product-images/") ||
-      !contentType?.startsWith("image/") ||
-      filePath.includes("_processed.webp")
+      !contentType.startsWith("image/") ||
+      filePath.includes("_processed") // *** BUG FIX: Ignorer les fichiers déjà traités ***
     ) {
-      return logger.log("Arrêt du traitement pour:", filePath);
+      return logger.log("Fichier ignoré :", filePath);
     }
+    
+    // Extrait l'ID du produit du chemin (ex: product-images/PRODUCT_ID/image.jpg)
+    const pathParts = filePath.split("/");
+    if (pathParts.length < 3) {
+        return logger.log("Chemin de fichier invalide, ID de produit manquant:", filePath);
+    }
+    const productId = pathParts[1];
 
-    logger.info(`Début du traitement pour : ${filePath}`);
+    logger.info(`Début du traitement pour l'image du produit ${productId} : ${filePath}`);
     const tempFilePath = path.join(os.tmpdir(), path.basename(filePath));
     const newFileName = `${path.parse(path.basename(filePath)).name}_processed.webp`;
     const tempNewPath = path.join(os.tmpdir(), newFileName);
 
     try {
+      // 2. Télécharger, redimensionner et convertir l'image
       await bucket.file(filePath).download({ destination: tempFilePath });
       await sharp(tempFilePath)
-        .resize({ width: 800, height: 800, fit: "inside" })
+        .resize({ width: 800, height: 800, fit: "inside", withoutEnlargement: true })
         .webp({ quality: 80 })
         .toFile(tempNewPath);
 
+      // 3. Envoyer la nouvelle image optimisée vers le même dossier
       const newFilePath = path.join(path.dirname(filePath), newFileName);
       await bucket.upload(tempNewPath, {
         destination: newFilePath,
@@ -353,28 +360,46 @@ export const processProductImage = onObjectFinalized(
       });
 
       const newFile = bucket.file(newFilePath);
-
-      // Rendre public (optionnel selon vos règles de bucket)
       await newFile.makePublic();
       const publicUrl = newFile.publicUrl();
 
-      const originalPublicUrl = `https://storage.googleapis.com/${bucketName}/${filePath}`;
-      const snapshot = await db
-        .collection("products")
-        .where("imageUrl", "==", originalPublicUrl)
-        .get();
+      // 4. Mettre à jour le document Firestore en utilisant une transaction
+      const productRef = db.collection("products").doc(productId);
+      
+      await db.runTransaction(async (transaction) => {
+          const productDoc = await transaction.get(productRef);
+          if (!productDoc.exists) {
+              throw new Error(`Produit ${productId} non trouvé!`);
+          }
 
-      if (snapshot.empty) {
-        logger.warn("Aucun produit trouvé avec l'URL:", originalPublicUrl);
-      } else {
-        const batch = db.batch();
-        snapshot.forEach((doc) => batch.update(doc.ref, { imageUrl: publicUrl }));
-        await batch.commit();
-        logger.log(`Produits mis à jour avec la nouvelle URL: ${publicUrl}`);
-      }
+          const productData = productDoc.data() || {};
+          const currentImageUrls = productData.imageUrls || [];
+          
+          // Ajoute la nouvelle URL à la liste
+          const updatedImageUrls = [...currentImageUrls, publicUrl];
+          
+          const updatePayload: { imageUrls: string[], imageUrl?: string } = {
+              imageUrls: updatedImageUrls,
+          };
+
+          // Si c'est la première image ajoutée à la liste, on la définit comme image principale
+          if (updatedImageUrls.length === 1) {
+              updatePayload.imageUrl = publicUrl;
+          }
+
+          transaction.update(productRef, updatePayload);
+      });
+
+      logger.info(`Produit ${productId} mis à jour avec la nouvelle URL : ${publicUrl}`);
+
+      // 5. Supprimer l'image originale non optimisée
+      await bucket.file(filePath).delete();
+      logger.info(`Image originale ${filePath} supprimée.`);
+
     } catch (error) {
       logger.error("Erreur lors du traitement de l'image:", error);
     } finally {
+      // 6. Nettoyer les fichiers temporaires
       await fs.unlink(tempFilePath).catch((err: any) => logger.error("Erreur suppression temp:", err));
       await fs.unlink(tempNewPath).catch((err: any) => logger.error("Erreur suppression temp webp:", err));
     }
