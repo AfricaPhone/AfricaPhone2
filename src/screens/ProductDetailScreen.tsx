@@ -87,8 +87,16 @@ const ProductDetailScreen: React.FC = () => {
   }, [productId, getProductById, getProductFromCache]);
 
   const gallery = useMemo(() => {
-    if (!product) return [] as string[];
-    return [product.image, product.image + '&1', product.image + '&2'];
+    // S'il y a une liste d'images, on l'utilise
+    if (product?.imageUrls && product.imageUrls.length > 0) {
+      return product.imageUrls;
+    }
+    // Sinon, on se rabat sur l'image principale unique si elle existe
+    if (product?.image) {
+      return [product.image];
+    }
+    // Si aucune image, on retourne un tableau vide
+    return [];
   }, [product]);
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -169,11 +177,13 @@ const ProductDetailScreen: React.FC = () => {
               </LinearGradient>
             </View>
           </View>
-          <View style={styles.dots}>
-            {gallery.map((_, i) => (
-              <View key={i} style={[styles.dot, activeIndex === i && styles.dotActive]} />
-            ))}
-          </View>
+          {gallery.length > 1 && (
+            <View style={styles.dots}>
+              {gallery.map((_, i) => (
+                <View key={i} style={[styles.dot, activeIndex === i && styles.dotActive]} />
+              ))}
+            </View>
+          )}
         </View>
 
         <View style={styles.titleWrap}>

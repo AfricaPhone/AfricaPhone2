@@ -5,15 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
   <title>Panneau Admin — Pro</title>
 
-  <!-- Favicon (inline) -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='12' fill='%231c64f2'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='32' fill='white' font-family='Inter,Arial,sans-serif'%3EA%3C/text%3E%3C/svg%3E" />
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
-  <!-- Icons: Lucide -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -114,6 +111,47 @@
     .toggle-slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background-color:white;border-radius:50%;transition:.2s}
     input:checked + .toggle-slider{background-color:var(--accent)}
     input:checked + .toggle-slider:before{transform:translateX(16px)}
+    
+    /* Image Preview Grid */
+    .image-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .image-preview-item {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* Aspect ratio 1:1 */
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .image-preview-item img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .image-preview-item .remove-btn {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
 
     /* Skeleton */
     @keyframes pulse{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
@@ -172,7 +210,6 @@
     .form-main{display:grid; gap:12px}
     .twocol{display:grid; gap:12px; grid-template-columns:1fr 1fr}
     @media (max-width: 720px){ .twocol{grid-template-columns:1fr} }
-    .image-preview{width:180px;height:180px;border-radius:16px;object-fit:cover;border:1px solid var(--border); background:#fff}
     .form-actions{display:flex; gap:10px; justify-content:flex-end}
 
     /* Drawer (mobile) */
@@ -219,7 +256,6 @@
 <body>
   <a class="sr-only" href="#content">Aller au contenu</a>
 
-  <!-- Login -->
   <section id="login" class="login">
     <div class="login-card">
       <div class="login-header">
@@ -252,7 +288,6 @@
     </div>
   </section>
 
-  <!-- Drawer mobile (clone de la sidebar) -->
   <div id="drawer" class="drawer" aria-hidden="true">
     <div class="backdrop" data-close-drawer></div>
     <aside class="panel" role="dialog" aria-modal="true" aria-label="Navigation">
@@ -275,9 +310,7 @@
     </aside>
   </div>
 
-  <!-- App -->
   <div id="app" class="app hide" aria-hidden="true">
-    <!-- Sidebar (desktop) -->
     <aside class="sidebar" aria-label="Navigation lat&eacute;rale">
       <div class="brand">
         <div class="brand-logo">A</div>
@@ -297,7 +330,6 @@
       </div>
     </aside>
 
-    <!-- Header -->
     <header class="appbar">
       <button id="open-drawer" class="btn btn-icon hamburger" aria-label="Ouvrir la navigation">
         <i data-lucide="menu" class="icon"></i>
@@ -318,16 +350,13 @@
       </div>
     </header>
 
-    <!-- Breadcrumbs -->
     <div class="breadcrumbs" aria-label="Fil d'Ariane">
       <span class="crumb"><a class="link" href="#/products">Accueil</a></span>
       <span class="sep">›</span>
       <span id="crumb-current" class="crumb">Produits</span>
     </div>
 
-    <!-- Content -->
     <main id="content" tabindex="-1">
-      <!-- Toolbars par page -->
       <div id="toolbar-products" class="toolbar hide">
         <div class="filters">
           <input id="search-products" class="input" type="search" placeholder="Rechercher un produit..." />
@@ -367,7 +396,6 @@
           </div>
       </div>
 
-      <!-- Zones de rendu -->
       <section id="page-products" class="page hide" aria-labelledby="nav-products">
         <div id="products-content"></div>
       </section>
@@ -400,7 +428,6 @@
     </main>
   </div>
 
-  <!-- Modal / Toasts -->
   <div id="modal" class="modal" aria-hidden="true">
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="head">
@@ -727,7 +754,7 @@
         items.forEach(function(p){
           const el = document.createElement('div'); el.className='card'; el.dataset.id = p.id;
           el.innerHTML = `
-            <img class="thumb" src="${escapeAttr(p.imageUrl||'')}" alt="${escapeAttr(p.name||'Image produit')}" loading="lazy" onerror="this.style.display='none'"/>
+            <img class="thumb" src="${escapeAttr((p.imageUrls && p.imageUrls[0]) || p.imageUrl || '')}" alt="${escapeAttr(p.name||'Image produit')}" loading="lazy" onerror="this.style.display='none'"/>
             <div class="grow">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
                 <div style="font-weight:800">${escapeHtml(p.name||'Sans nom')}</div>
@@ -773,9 +800,10 @@
         const tb = table.querySelector('#tbody-products');
         items.forEach(function(p){
           const tr = document.createElement('tr'); tr.dataset.id = p.id;
+          const mainImage = (p.imageUrls && p.imageUrls[0]) || p.imageUrl || '';
           tr.innerHTML = `
             <td><input type="checkbox" data-select /></td>
-            <td>${p.imageUrl ? '<img class="img" src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name||'Image produit')+'" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
+            <td>${mainImage ? '<img class="img" src="'+escapeAttr(mainImage)+'" alt="'+escapeAttr(p.name||'Image produit')+'" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
             <td style="font-weight:800">${escapeHtml(p.name||'Sans nom')}</td>
             <td>${escapeHtml(p.brand||'—')}</td>
             <td><span class="chip">${escapeHtml(p.category||'—')}</span></td>
@@ -884,6 +912,15 @@
       }
       
       const categoryOptions = PREDEFINED_CATEGORIES.map(cat => `<option value="${escapeAttr(cat)}">${escapeHtml(cat.charAt(0).toUpperCase() + cat.slice(1))}</option>`).join('');
+      const existingImagesHtml = (p.imageUrls || []).map((url, index) => `
+        <div class="image-preview-item" data-url="${escapeAttr(url)}">
+            <img src="${escapeAttr(url)}" alt="Aperçu ${index + 1}">
+            <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
+                <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
+            </button>
+        </div>
+      `).join('');
+
 
       const wrap = document.createElement('div'); wrap.className='form-wrap';
       wrap.innerHTML = `
@@ -924,7 +961,7 @@
                 <input id="p-rom" class="input" type="number" min="0" step="1" value="${typeof p.rom==='number'?p.rom:''}" />
             </div>
             <div class="field">
-                <label class="label" for="p-ram">RAM </label>
+                <label class="label" for="p-ram">RAM</label>
                 <input id="p-ram" class="input" type="number" min="0" step="1" value="${typeof p.ram==='number'?p.ram:''}" />
             </div>
           </div>
@@ -939,9 +976,12 @@
               <input id="p-stock" class="input" type="number" min="0" step="1" value="${typeof p.stock==='number'?p.stock:''}" />
             </div>
             <div class="field">
-              <label class="label" for="p-image">Image</label>
-              <input id="p-image-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" />
-              <img id="p-image-preview" class="image-preview" src="${escapeAttr(p.imageUrl||'')}" alt="Aperçu image" style="margin-top:10px; ${p.imageUrl?'':'display:none'}"/>
+              <label class="label" for="p-images">Images</label>
+              <input id="p-images-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+              <div class="hint">Sélectionnez une ou plusieurs images. La première sera l'image principale.</div>
+              <div id="p-images-preview" class="image-preview-grid">
+                ${existingImagesHtml}
+              </div>
             </div>
           </div>
           
@@ -954,68 +994,99 @@
       
       if(p.category) $('#p-category').value = p.category;
 
-      const fileEl = $('#p-image-file'), prev = $('#p-image-preview');
-      fileEl.addEventListener('change', function(){
-        const f = fileEl.files && fileEl.files[0]; if(f){ prev.src = URL.createObjectURL(f); prev.style.display='block'; }
+      const fileInput = $('#p-images-file');
+      const previewContainer = $('#p-images-preview');
+
+      fileInput.addEventListener('change', () => {
+          previewContainer.innerHTML = existingImagesHtml; // Reset to show only existing images first
+          if (fileInput.files) {
+              Array.from(fileInput.files).forEach(file => {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                      const div = document.createElement('div');
+                      div.className = 'image-preview-item';
+                      div.innerHTML = `<img src="${e.target.result}" alt="${escapeAttr(file.name)}">`;
+                      previewContainer.appendChild(div);
+                  };
+                  reader.readAsDataURL(file);
+              });
+          }
+          lucide.createIcons();
       });
 
       wrap.querySelector('[data-cancel]').addEventListener('click', function(){ if(history.length>1){ history.back(); } else { location.hash='#/products'; } });
       wrap.querySelector('form').addEventListener('submit', function(e){ handleProductFormSubmit(e, id); });
+      lucide.createIcons();
     }
 
-    async function handleProductFormSubmit(e, id){
-      e.preventDefault();
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      setButtonLoading(submitBtn, true);
-      
-      const name = $('#p-name').value.trim();
-      const brand = $('#p-brand').value.trim();
-      const category = $('#p-category').value.trim() || '';
-      const price = parseFloat($('#p-price').value);
-      const stock = Number.isNaN(parseInt($('#p-stock').value,10)) ? null : parseInt($('#p-stock').value,10);
-      const ram = Number.isNaN(parseInt($('#p-ram').value,10)) ? null : parseInt($('#p-ram').value,10);
-      const rom = Number.isNaN(parseInt($('#p-rom').value,10)) ? null : parseInt($('#p-rom').value,10);
-      const description = $('#p-desc').value.trim();
-      const file = ($('#p-image-file').files && $('#p-image-file').files[0]) || null;
+    async function handleProductFormSubmit(e, id) {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        setButtonLoading(submitBtn, true);
 
-      let hasErr=false;
-      $('#err-name').classList.add('hide'); $('#err-price').classList.add('hide');
-      if(!name){ $('#err-name').textContent='Le nom est obligatoire.'; $('#err-name').classList.remove('hide'); hasErr=true; }
-      if($('#p-price').value && (Number.isNaN(price) || price<0)){ $('#err-price').textContent='Le prix doit être un nombre positif.'; $('#err-price').classList.remove('hide'); hasErr=true; }
-      if(hasErr) {
-        setButtonLoading(submitBtn, false);
-        return;
-      }
+        const name = $('#p-name').value.trim();
+        if (!name) {
+            toast('Erreur', 'Le nom du produit est obligatoire.', 'error');
+            setButtonLoading(submitBtn, false);
+            return;
+        }
 
-      let imageUrl = null;
-      try{
-        if(file){
-          const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
-          const path = 'product-images/' + (id || ('p_'+Date.now())) + '.' + ext;
-          const r = ref(storage, path);
-          await uploadBytes(r, file);
-          imageUrl = await getDownloadURL(r);
+        try {
+            let productId = id;
+            const productData = {
+                name: name,
+                brand: $('#p-brand').value.trim(),
+                category: $('#p-category').value.trim() || '',
+                price: parseFloat($('#p-price').value) || null,
+                stock: parseInt($('#p-stock').value, 10) || null,
+                ram: parseInt($('#p-ram').value, 10) || null,
+                rom: parseInt($('#p-rom').value, 10) || null,
+                description: $('#p-desc').value.trim(),
+                updatedAt: serverTimestamp()
+            };
+
+            if (productId) {
+                // Mise à jour d'un produit existant
+                await updateDoc(doc(db, 'products', productId), productData);
+            } else {
+                // Création d'un nouveau produit
+                const newDocRef = await addDoc(collection(db, 'products'), {
+                    ...productData,
+                    imageUrls: [], // Initialise avec un tableau vide
+                    createdAt: serverTimestamp()
+                });
+                productId = newDocRef.id;
+            }
+
+            // Envoi des nouvelles images
+            const files = $('#p-images-file').files;
+            if (files && files.length > 0) {
+                toast('Envoi des images...', `${files.length} fichier(s) en cours de traitement.`, 'info');
+                for (const file of files) {
+                    const timestamp = Date.now();
+                    const randomSuffix = Math.random().toString(36).substring(2, 8);
+                    const ext = file.name.split('.').pop() || 'jpg';
+                    const fileName = `${timestamp}_${randomSuffix}.${ext}`;
+                    const filePath = `product-images/${productId}/${fileName}`;
+                    const storageRef = ref(storage, filePath);
+                    await uploadBytes(storageRef, file);
+                }
+            }
+
+            toast('Succès', `Produit ${id ? 'mis à jour' : 'créé'} avec succès.`, 'success');
+            // Recharger les données pour refléter les changements
+            allProducts = []; 
+            await ensureProductsLoaded();
+            location.hash = '#/products';
+
+        } catch (err) {
+            console.error(err);
+            toast('Erreur', 'Une erreur est survenue lors de la sauvegarde.', 'error');
+        } finally {
+            setButtonLoading(submitBtn, false);
         }
-        if(id){
-          const data = { name, brand, category, price: Number.isNaN(price)? null : price, stock, description, ram, rom };
-          if(imageUrl) data.imageUrl = imageUrl;
-          await updateDoc(doc(db,'products',id), data);
-          const p = allProducts.find(function(x){return x.id===id;}); if(p) Object.assign(p, data);
-          toast('Produit mis à jour', name, 'success'); location.hash = '#/products';
-        }else{
-          const data = { name, brand, category, price: Number.isNaN(price)? null : price, stock, description, ram, rom, imageUrl: imageUrl || null, createdAt: serverTimestamp() };
-          const refDoc = await addDoc(collection(db,'products'), data);
-          allProducts.unshift({id: refDoc.id, ...data});
-          toast('Produit créé', name, 'success'); location.hash = '#/products';
-          $('#kpi-products').textContent = String(allProducts.length);
-        }
-      }catch(err){
-        console.error(err);
-        toast('Erreur','Enregistrement impossible','error');
-      } finally {
-        setButtonLoading(submitBtn, false);
-      }
     }
+
 
     /* ============================ Matches UI ============================ */
     $('#add-match').addEventListener('click', function(){ location.hash = '#/new-match'; });

@@ -8,14 +8,15 @@ export type Product = {
   id: string;
   title: string;
   price: number;
-  image: string;
+  image: string; // Image principale pour les listes/grilles
+  imageUrls?: string[]; // Tableau pour la galerie d'images
   category: Category;
   description?: string;
   rom?: number;
   ram?: number;
   ram_base?: number;
   ram_extension?: number;
-  ordreVedette?: number; // Ligne ajoutée pour corriger l'erreur
+  ordreVedette?: number;
 };
 
 // --- Brand ---

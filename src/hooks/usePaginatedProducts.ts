@@ -31,11 +31,13 @@ export interface ProductQueryOptions {
 // Convertit un document Firestore en type Product
 const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
   const data = doc.data();
+  const imageUrls = data.imageUrls || [];
   return {
     id: doc.id,
     title: data.name,
     price: data.price,
-    image: data.imageUrl,
+    image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || '',
+    imageUrls: imageUrls,
     category: data.brand?.toLowerCase() || 'inconnu',
     description: data.description,
     rom: data.rom,
