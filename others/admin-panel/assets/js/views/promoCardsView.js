@@ -1,5 +1,5 @@
 // others/admin-panel/assets/js/views/promoCardsView.js
-import { $, escapeHtml, escapeAttr, openModal, toast, setButtonLoading } from '../ui.js';
+import { $, $$, escapeHtml, escapeAttr, openModal, toast, setButtonLoading } from '../ui.js';
 import * as promoCardsService from '../services/promoCardsService.js';
 
 const $promoCardsContent = $('#promocards-content');

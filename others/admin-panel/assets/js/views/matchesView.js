@@ -5,7 +5,7 @@ import * as matchesService from '../services/matchesService.js';
 const $matchesContent = $('#matches-content');
 let searchTerm = '';
 
-async function renderMatchList() {
+export async function renderMatchList() {
     $matchesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
     const allMatches = await matchesService.getMatches();
     $('#kpi-matches').textContent = String(allMatches.length);
@@ -58,7 +58,7 @@ async function renderMatchList() {
     $matchesContent.appendChild(table);
 }
 
-async function renderMatchFormPage(id) {
+export async function renderMatchFormPage(id) {
     let m = {};
     if (id) {
         m = await matchesService.getMatch(id);
