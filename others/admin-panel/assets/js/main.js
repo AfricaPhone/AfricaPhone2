@@ -1,28 +1,23 @@
 // others/admin-panel/assets/js/main.js
 // Importe la configuration et les services Firebase depuis le fichier dédié.
-import { auth, db, storage } from '../../firebase-config.js';
+import { db } from '../../firebase-config.js';
 
 // Importe les fonctions spécifiques de Firebase Firestore.
-import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
+import { collection, getDocs, doc, updateDoc, deleteDoc, addDoc, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 // Importe les fonctions UI depuis le nouveau module
-import { $, $$, fmtXOF, fmtDate, escapeHtml, escapeAttr, setButtonLoading, toast, openModal, setCrumb } from './ui.js';
+import { $, $$, toast } from './ui.js';
 // Importe le module d'authentification
 import { initAuth } from './auth.js';
 // Importe le module de routage
 import { initRouter } from './router.js';
+// Importe les fonctions de la vue des produits
+import { initProductsView, renderProductList, renderProductFormPage } from './views/productsView.js';
 
 
 /* ============================ State ============================ */
-let allProducts = [];
 let allMatches = [];
 let allPromoCards = [];
-let productSearchTerm = '';
-let productCategoryFilter = '';
-let viewMode = 'table'; // 'table' | 'cards'
-let sortBy = { key:'name', dir:'asc' };
-const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
 
 /* ============================ Theme ============================ */
 const themePrefEl = $('#theme-pref');
@@ -67,9 +62,12 @@ async function initAfterLogin(){
     }
   });
 
+  // Initialise les écouteurs de la vue des produits
+  initProductsView();
+
   // Initialise le routeur en lui passant les fonctions de rendu des pages
   initRouter({
-    renderProductListPage: async () => { await ensureProductsLoaded(); renderProductList(); },
+    renderProductListPage: renderProductList,
     renderProductFormPage,
     renderMatchListPage: async () => { await ensureMatchesLoaded(); renderMatchList(); },
     renderMatchFormPage,
@@ -78,19 +76,10 @@ async function initAfterLogin(){
   });
 }
 
-/* ============================ Data Fetch ============================ */
-const $productsContent = $('#products-content');
+/* ============================ Data Fetch (Matches & PromoCards) ============================ */
 const $matchesContent = $('#matches-content');
 const $promoCardsContent = $('#promocards-content');
 
-async function ensureProductsLoaded(){
-  if(allProducts.length) return;
-  $productsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
-  const q = query(collection(db,'products'), orderBy('name','asc'));
-  const snap = await getDocs(q);
-  allProducts = snap.docs.map(function(d){ return {id:d.id, ...d.data()}; });
-  $('#kpi-products').textContent = String(allProducts.length);
-}
 async function ensureMatchesLoaded(){
   if(allMatches.length) return;
   $matchesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
@@ -106,394 +95,6 @@ async function ensurePromoCardsLoaded() {
     const snap = await getDocs(q);
     allPromoCards = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     $('#kpi-promocards').textContent = String(allPromoCards.length);
-}
-
-
-/* ============================ Products UI ============================ */
-$('#search-products').addEventListener('input', function(e){ productSearchTerm = (e.target.value||'').toLowerCase(); if(location.hash.indexOf('#/products')===0) renderProductList(); });
-$('#filter-category').addEventListener('change', function(e){ productCategoryFilter = e.target.value || ''; if(location.hash.indexOf('#/products')===0) renderProductList(); });
-$('#add-product').addEventListener('click', function(){ location.hash = '#/new-product'; });
-$('#view-table').addEventListener('click', function(){ viewMode='table'; $('#view-table').setAttribute('aria-selected','true'); $('#view-cards').setAttribute('aria-selected','false'); renderProductList(); });
-$('#view-cards').addEventListener('click', function(){ viewMode='cards'; $('#view-table').setAttribute('aria-selected','false'); $('#view-cards').setAttribute('aria-selected','true'); renderProductList(); });
-
-function filteredProducts(){
-  let arr = allProducts.slice();
-  if(productSearchTerm){
-    const t = productSearchTerm;
-    arr = arr.filter(function(p){
-      return ((p.name||'').toLowerCase().indexOf(t)!==-1) ||
-             ((p.brand||'').toLowerCase().indexOf(t)!==-1) ||
-             ((p.category||'').toLowerCase().indexOf(t)!==-1);
-    });
-  }
-  if(productCategoryFilter){
-    arr = arr.filter(function(p){ return (p.category||'') === productCategoryFilter; });
-  }
-  const dir = sortBy.dir==='asc' ? 1 : -1;
-  arr.sort(function(a,b){
-    const ka = (a[sortBy.key] ?? '').toString().toLowerCase();
-    const kb = (b[sortBy.key] ?? '').toString().toLowerCase();
-    if(ka<kb) return -1*dir; if(ka>kb) return 1*dir; return 0;
-  });
-  return arr;
-}
-
-function renderProductList(){
-  const items = filteredProducts();
-  $('#bulk-delete').disabled = true;
-
-  if(!items.length){
-    $productsContent.innerHTML = ''
-      + '<div class="center" style="padding:32px">'
-      + '  <div>'
-      + '    <div class="login-title" style="text-align:center;margin-bottom:6px">Aucun produit</div>'
-      + '    <div class="muted" style="text-align:center">Ajoutez votre premier produit pour d&eacute;marrer.</div>'
-      + '    <div style="display:flex;justify-content:center;margin-top:10px">'
-      + '      <button id="empty-add-product" class="btn btn-primary"><i data-lucide="plus" class="icon"></i> Nouveau produit</button>'
-      + '    </div>'
-      + '  </div>'
-      + '</div>';
-    $('#empty-add-product').onclick = () => location.hash='#/new-product';
-    lucide.createIcons();
-    return;
-  }
-
-  if(viewMode==='cards'){
-    const grid = document.createElement('div'); grid.className='grid';
-    items.forEach(function(p){
-      const el = document.createElement('div'); el.className='card'; el.dataset.id = p.id;
-      el.innerHTML = `
-        <img class="thumb" src="${escapeAttr((p.imageUrls && p.imageUrls[0]) || p.imageUrl || '')}" alt="${escapeAttr(p.name||'Image produit')}" loading="lazy" onerror="this.style.display='none'"/>
-        <div class="grow">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <div style="font-weight:800">${escapeHtml(p.name||'Sans nom')}</div>
-            <label class="chip" style="user-select:none">
-              <input type="checkbox" data-select id="sel-${p.id}" />
-              Sélection
-            </label>
-          </div>
-          <div class="muted">${escapeHtml(p.brand||'—')} • ${escapeHtml(p.category||'—')}</div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-            <div style="font-weight:900">${typeof p.price==='number' ? fmtXOF.format(p.price) : '—'}</div>
-            <div class="actions">
-              <button class="btn btn-small" data-edit>Éditer</button>
-              <button class="btn btn-danger btn-small" data-del>Supprimer</button>
-            </div>
-          </div>
-        </div>`;
-      el.querySelector('[data-edit]').addEventListener('click', function(){ location.hash = '#/edit-product/'+p.id; });
-      el.querySelector('[data-del]').addEventListener('click', function(){ handleDelete(p.id, p.name, 'products'); });
-      grid.appendChild(el);
-    });
-    $productsContent.innerHTML = ''; $productsContent.appendChild(grid);
-  } else {
-    const table = document.createElement('table'); table.className='table';
-    const sortIcon = (key) => {
-      if (sortBy.key !== key) return `<i data-lucide="chevrons-up-down" class="icon sort-icon"></i>`;
-      return sortBy.dir === 'asc' ? `<i data-lucide="chevron-up" class="icon sort-icon"></i>` : `<i data-lucide="chevron-down" class="icon sort-icon"></i>`;
-    };
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th style="width:38px"><input id="sel-all" type="checkbox"/></th>
-          <th style="width:60px">Image</th>
-          <th class="sortable ${sortBy.key === 'name' ? 'sorted' : ''}" data-sort="name">Nom ${sortIcon('name')}</th>
-          <th class="sortable ${sortBy.key === 'brand' ? 'sorted' : ''}" data-sort="brand">Marque ${sortIcon('brand')}</th>
-          <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Catégorie ${sortIcon('category')}</th>
-          <th style="width:140px">Prix</th>
-          <th style="width:90px">Stock</th>
-          <th style="width:180px;text-align:right">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="tbody-products"></tbody>`;
-    const tb = table.querySelector('#tbody-products');
-    items.forEach(function(p){
-      const tr = document.createElement('tr'); tr.dataset.id = p.id;
-      const mainImage = (p.imageUrls && p.imageUrls[0]) || p.imageUrl || '';
-      tr.innerHTML = `
-        <td><input type="checkbox" data-select /></td>
-        <td>${mainImage ? '<img class="img" src="'+escapeAttr(mainImage)+'" alt="'+escapeAttr(p.name||'Image produit')+'" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
-        <td style="font-weight:800">${escapeHtml(p.name||'Sans nom')}</td>
-        <td>${escapeHtml(p.brand||'—')}</td>
-        <td><span class="chip">${escapeHtml(p.category||'—')}</span></td>
-        <td>
-          <input type="number" step="1" min="0" class="input" style="max-width:120px" value="${typeof p.price==='number' ? p.price : ''}" placeholder="0" data-price-update />
-        </td>
-        <td>${typeof p.stock==='number' ? p.stock : '—'}</td>
-        <td class="actions">
-          <button class="btn btn-small" data-edit>Éditer</button>
-          <button class="btn btn-danger btn-small" data-del>Supprimer</button>
-        </td>`;
-      const sel = tr.querySelector('[data-select]');
-      const inp = tr.querySelector('[data-price-update]');
-      const btnEdit = tr.querySelector('[data-edit]');
-      const btnDel = tr.querySelector('[data-del]');
-      sel.addEventListener('change', updateBulkState);
-      inp.addEventListener('change', function(){ handlePriceUpdate(p.id, inp); });
-      btnEdit.addEventListener('click', function(){ location.hash = '#/edit-product/'+p.id; });
-      btnDel.addEventListener('click', function(){ handleDelete(p.id, p.name, 'products'); });
-      tb.appendChild(tr);
-    });
-    $productsContent.innerHTML=''; $productsContent.appendChild(table);
-    $('#sel-all').addEventListener('change', function(e){
-      $$('#tbody-products [data-select]').forEach(function(cb){ cb.checked = e.target.checked; });
-      updateBulkState();
-    });
-  }
-  lucide.createIcons();
-}
-
-function updateBulkState(){
-  const any = Array.prototype.slice.call($$('[data-select]')).some(function(cb){ return cb.checked; });
-  $('#bulk-delete').disabled = !any;
-}
-$('#bulk-delete').addEventListener('click', async function(){
-  const ids = Array.prototype.slice.call($$('[data-select]'))
-    .filter(function(cb){return cb.checked;})
-    .map(function(cb){return cb.closest('tr,.card').dataset.id;});
-  if(!ids.length) return;
-  const ok = await openModal({
-    title:'Supprimer la sélection',
-    body:'Êtes-vous sûr de vouloir supprimer <strong>' + ids.length + '</strong> élément(s) ? Cette action est irréversible.',
-    okText:'Supprimer', cancelText:'Annuler', danger:true
-  });
-  if(!ok) return;
-  let done=0, fail=0;
-  for(const id of ids){
-    try{ await deleteDoc(doc(db,'products',id)); allProducts = allProducts.filter(function(p){return p.id!==id;}); done++; }
-    catch(e){ console.error(e); fail++; }
-  }
-  toast('Suppression terminée', done + ' succès, ' + fail + ' échec(s)', fail? 'error':'success');
-  renderProductList();
-  $('#kpi-products').textContent = String(allProducts.length);
-});
-
-async function handlePriceUpdate(id, inputEl){
-  const val = parseFloat(inputEl.value);
-  if(Number.isNaN(val) || val<0){ toast('Prix invalide','Entrez un nombre positif','error'); inputEl.focus(); return; }
-  inputEl.disabled = true;
-  try{
-    await updateDoc(doc(db,'products',id), { price: val });
-    const p = allProducts.find(function(x){return x.id===id;}); if(p) p.price = val;
-    toast('Prix mis à jour', fmtXOF.format(val), 'success');
-  }catch(e){ console.error(e); toast('Erreur','Impossible de mettre à jour le prix','error'); }
-  finally{ inputEl.disabled=false; }
-}
-
-async function handleDelete(id, name, type) {
-    const ok = await openModal({
-        title: 'Supprimer',
-        body: 'Supprimer "<strong>' + escapeHtml(name || id) + '</strong>" ?',
-        okText: 'Supprimer',
-        cancelText: 'Annuler',
-        danger: true
-    });
-    if (!ok) return;
-    try {
-        await deleteDoc(doc(db, type, id));
-        if (type === 'products') {
-            allProducts = allProducts.filter(p => p.id !== id);
-            renderProductList();
-            $('#kpi-products').textContent = String(allProducts.length);
-        } else if (type === 'matches') {
-            allMatches = allMatches.filter(m => m.id !== id);
-            renderMatchList();
-            $('#kpi-matches').textContent = String(allMatches.length);
-        } else if (type === 'promoCards') {
-            allPromoCards = allPromoCards.filter(c => c.id !== id);
-            renderPromoCardList();
-            $('#kpi-promocards').textContent = String(allPromoCards.length);
-        }
-        toast('Supprimé', '', 'success');
-    } catch (e) {
-        console.error(e);
-        toast('Erreur', 'Suppression impossible', 'error');
-    }
-}
-
-
-/* ------------------- Product Form ------------------- */
-async function renderProductFormPage(id){
-  let p = {};
-  if(id){
-    p = allProducts.find(function(x){return x.id===id;}) || (await getDoc(doc(db,'products',id)).then(function(s){return s.exists()?{id:s.id,...s.data()}:null;}));
-    if(!p){ $productsContent.innerHTML = '<div class="center" style="padding:32px">Produit introuvable.</div>'; return; }
-  }
-  
-  const categoryOptions = PREDEFINED_CATEGORIES.map(cat => `<option value="${escapeAttr(cat)}">${escapeHtml(cat.charAt(0).toUpperCase() + cat.slice(1))}</option>`).join('');
-  const existingImagesHtml = (p.imageUrls || []).map((url, index) => `
-    <div class="image-preview-item" data-url="${escapeAttr(url)}">
-        <img src="${escapeAttr(url)}" alt="Aperçu ${index + 1}">
-        <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
-            <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
-        </button>
-    </div>
-  `).join('');
-
-
-  const wrap = document.createElement('div'); wrap.className='form-wrap';
-  wrap.innerHTML = `
-    <div class="form-head">
-      <div class="form-title">${id?'Éditer':'Nouveau'} produit</div>
-      <div class="kpi">${id? 'ID: '+escapeHtml(id) : 'Création'}</div>
-    </div>
-    <form class="form-main" novalidate>
-      <div class="twocol">
-        <div class="field">
-          <label class="label" for="p-name">Nom</label>
-          <input id="p-name" class="input" type="text" value="${escapeAttr(p.name||'')}" required />
-          <div class="hint">Nom commercial lisible (ex. "iPhone 13 128 Go").</div>
-          <div id="err-name" class="error hide"></div>
-        </div>
-        <div class="field">
-          <label class="label" for="p-brand">Marque</label>
-          <input id="p-brand" class="input" type="text" value="${escapeAttr(p.brand||'')}" />
-        </div>
-      </div>
-      <div class="twocol">
-        <div class="field">
-          <label class="label" for="p-category">Catégorie</label>
-          <select id="p-category" class="select">
-            <option value="">— Sélectionner —</option>
-            ${categoryOptions}
-          </select>
-        </div>
-        <div class="field">
-          <label class="label" for="p-price">Prix (FCFA)</label>
-          <input id="p-price" class="input" type="number" min="0" step="1" value="${typeof p.price==='number'?p.price:''}" />
-          <div id="err-price" class="error hide"></div>
-        </div>
-      </div>
-      <div class="twocol">
-        <div class="field">
-            <label class="label" for="p-rom">Stockage</label>
-            <input id="p-rom" class="input" type="number" min="0" step="1" value="${typeof p.rom==='number'?p.rom:''}" />
-        </div>
-        <div class="field">
-            <label class="label" for="p-ram">RAM</label>
-            <input id="p-ram" class="input" type="number" min="0" step="1" value="${typeof p.ram==='number'?p.ram:''}" />
-        </div>
-      </div>
-      <div class="field">
-        <label class="label" for="p-desc">Description</label>
-        <textarea id="p-desc" class="textarea" rows="4">${escapeHtml(p.description||'')}</textarea>
-      </div>
-      
-      <div class="twocol">
-        <div class="field">
-          <label class="label" for="p-stock">Stock</label>
-          <input id="p-stock" class="input" type="number" min="0" step="1" value="${typeof p.stock==='number'?p.stock:''}" />
-        </div>
-        <div class="field">
-          <label class="label" for="p-images">Images</label>
-          <input id="p-images-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" multiple />
-          <div class="hint">Sélectionnez une ou plusieurs images. La première sera l'image principale.</div>
-          <div id="p-images-preview" class="image-preview-grid">
-            ${existingImagesHtml}
-          </div>
-        </div>
-      </div>
-      
-      <div class="form-actions">
-        <button type="button" class="btn" data-cancel>Annuler</button>
-        <button type="submit" class="btn btn-primary">${id?'Enregistrer':'Créer le produit'}</button>
-      </div>
-    </form>`;
-  $productsContent.innerHTML=''; $productsContent.appendChild(wrap);
-  
-  if(p.category) $('#p-category').value = p.category;
-
-  const fileInput = $('#p-images-file');
-  const previewContainer = $('#p-images-preview');
-
-  fileInput.addEventListener('change', () => {
-      previewContainer.innerHTML = existingImagesHtml; // Reset to show only existing images first
-      if (fileInput.files) {
-          Array.from(fileInput.files).forEach(file => {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                  const div = document.createElement('div');
-                  div.className = 'image-preview-item';
-                  div.innerHTML = `<img src="${e.target.result}" alt="${escapeAttr(file.name)}">`;
-                  previewContainer.appendChild(div);
-              };
-              reader.readAsDataURL(file);
-          });
-      }
-      lucide.createIcons();
-  });
-
-  wrap.querySelector('[data-cancel]').addEventListener('click', function(){ if(history.length>1){ history.back(); } else { location.hash='#/products'; } });
-  wrap.querySelector('form').addEventListener('submit', function(e){ handleProductFormSubmit(e, id); });
-  lucide.createIcons();
-}
-
-async function handleProductFormSubmit(e, id) {
-    e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    setButtonLoading(submitBtn, true);
-
-    const name = $('#p-name').value.trim();
-    if (!name) {
-        toast('Erreur', 'Le nom du produit est obligatoire.', 'error');
-        setButtonLoading(submitBtn, false);
-        return;
-    }
-
-    try {
-        let productId = id;
-        const productData = {
-            name: name,
-            brand: $('#p-brand').value.trim(),
-            category: $('#p-category').value.trim() || '',
-            price: parseFloat($('#p-price').value) || null,
-            stock: parseInt($('#p-stock').value, 10) || null,
-            ram: parseInt($('#p-ram').value, 10) || null,
-            rom: parseInt($('#p-rom').value, 10) || null,
-            description: $('#p-desc').value.trim(),
-            updatedAt: serverTimestamp()
-        };
-
-        if (productId) {
-            // Mise à jour d'un produit existant
-            await updateDoc(doc(db, 'products', productId), productData);
-        } else {
-            // Création d'un nouveau produit
-            const newDocRef = await addDoc(collection(db, 'products'), {
-                ...productData,
-                imageUrls: [], // Initialise avec un tableau vide
-                createdAt: serverTimestamp()
-            });
-            productId = newDocRef.id;
-        }
-
-        // Envoi des nouvelles images
-        const files = $('#p-images-file').files;
-        if (files && files.length > 0) {
-            toast('Envoi des images...', `${files.length} fichier(s) en cours de traitement.`, 'info');
-            for (const file of files) {
-                const timestamp = Date.now();
-                const randomSuffix = Math.random().toString(36).substring(2, 8);
-                const ext = file.name.split('.').pop() || 'jpg';
-                const fileName = `${timestamp}_${randomSuffix}.${ext}`;
-                const filePath = `product-images/${productId}/${fileName}`;
-                const storageRef = ref(storage, filePath);
-                await uploadBytes(storageRef, file);
-            }
-        }
-
-        toast('Succès', `Produit ${id ? 'mis à jour' : 'créé'} avec succès.`, 'success');
-        // Recharger les données pour refléter les changements
-        allProducts = []; 
-        await ensureProductsLoaded();
-        location.hash = '#/products';
-
-    } catch (err) {
-        console.error(err);
-        toast('Erreur', 'Une erreur est survenue lors de la sauvegarde.', 'error');
-    } finally {
-        setButtonLoading(submitBtn, false);
-    }
 }
 
 
@@ -827,21 +428,35 @@ async function handlePromoCardFormSubmit(e, id) {
     }
 }
 
+async function handleDelete(id, name, type) {
+    const ok = await openModal({
+        title: 'Supprimer',
+        body: `Supprimer "<strong>${escapeHtml(name || id)}</strong>" ?`,
+        okText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true
+    });
+    if (!ok) return;
 
-/* ============================ Sorting (click header) ============================ */
-document.addEventListener('click', function(e){
-  const th = e.target.closest && e.target.closest('th[data-sort]');
-  if(!th) return;
-  if(location.hash.indexOf('#/products')!==0) return;
-  const key = th.dataset.sort;
-  if(sortBy.key === key){
-    sortBy.dir = sortBy.dir === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortBy.key = key;
-    sortBy.dir = 'asc';
-  }
-  renderProductList();
-});
+    try {
+        if (type === 'matches') {
+            await deleteDoc(doc(db, 'matches', id));
+            allMatches = allMatches.filter(m => m.id !== id);
+            renderMatchList();
+            $('#kpi-matches').textContent = String(allMatches.length);
+        } else if (type === 'promoCards') {
+            await deleteDoc(doc(db, 'promoCards', id));
+            allPromoCards = allPromoCards.filter(c => c.id !== id);
+            renderPromoCardList();
+            $('#kpi-promocards').textContent = String(allPromoCards.length);
+        }
+        toast('Supprimé', '', 'success');
+    } catch (e) {
+        console.error(e);
+        toast('Erreur', 'Suppression impossible', 'error');
+    }
+}
+
 
 /* ============================ App Kickoff ============================ */
 if(!location.hash) location.hash = '#/products';
