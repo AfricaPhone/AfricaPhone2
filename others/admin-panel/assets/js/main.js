@@ -10,6 +10,8 @@ import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/fireba
 import { $, $$, fmtXOF, fmtDate, escapeHtml, escapeAttr, setButtonLoading, toast, openModal, setCrumb } from './ui.js';
 // Importe le module d'authentification
 import { initAuth } from './auth.js';
+// Importe le module de routage
+import { initRouter } from './router.js';
 
 
 /* ============================ State ============================ */
@@ -46,53 +48,15 @@ $$('#page-settings [data-theme-choice]').forEach(function(btn){
   btn.addEventListener('click', function(){ applyTheme(btn.dataset.themeChoice); });
 });
 
-/* ============================ Routing ============================ */
-const $navProducts = $('#nav-products'), $navMatches = $('#nav-matches'), $navSettings = $('#nav-settings'), $navPromoCards = $('#nav-promocards');
-const $toolbarProducts = $('#toolbar-products'), $toolbarMatches = $('#toolbar-matches'), $toolbarPromoCards = $('#toolbar-promocards');
-const $productsContent = $('#products-content'), $matchesContent = $('#matches-content'), $promoCardsContent = $('#promocards-content');
-
-window.addEventListener('hashchange', handleRoute);
-async function handleRoute(){
-  const parts = (location.hash || '#/products').split('/');
-  const route = parts[1] || 'products';
-  const id = parts[2];
-
-  // Nav active
-  $navProducts.classList.toggle('active', route.includes('product'));
-  $navMatches.classList.toggle('active', route.includes('match'));
-  $navPromoCards.classList.toggle('active', route.includes('promocard'));
-  $navSettings.classList.toggle('active', route === 'settings');
-
-  // Toolbars affichage
-  $toolbarProducts.classList.toggle('hide', !route.includes('product'));
-  $toolbarMatches.classList.toggle('hide', !route.includes('match'));
-  $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
-  
-  // Pages
-  $('#page-products').classList.toggle('hide', !route.includes('product'));
-  $('#page-matches').classList.toggle('hide', !route.includes('match'));
-  $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
-  $('#page-settings').classList.toggle('hide', route !== 'settings');
-
-  if(route==='products'){ setCrumb('Produits'); await ensureProductsLoaded(); renderProductList(); }
-  else if(route==='new-product'){ setCrumb('Nouveau produit'); renderProductFormPage(); }
-  else if(route==='edit-product' && id){ setCrumb('Éditer produit'); await renderProductFormPage(id); }
-  else if(route==='matches'){ setCrumb('Matchs'); await ensureMatchesLoaded(); renderMatchList(); }
-  else if(route==='new-match'){ setCrumb('Nouveau match'); renderMatchFormPage(); }
-  else if(route==='edit-match' && id){ setCrumb('Éditer match'); await renderMatchFormPage(id); }
-  else if(route==='promocards'){ setCrumb('Cartes Promo'); await ensurePromoCardsLoaded(); renderPromoCardList(); }
-  else if(route==='new-promocard'){ setCrumb('Nouvelle Carte Promo'); renderPromoCardFormPage(); }
-  else if(route==='edit-promocard' && id){ setCrumb('Éditer Carte Promo'); await renderPromoCardFormPage(id); }
-  else if(route==='settings'){ setCrumb('Param&egrave;tres'); }
-  else { location.hash = '#/products'; }
-}
-
+/* ============================ App Initialization ============================ */
 async function initAfterLogin(){
   lucide.createIcons();
+  
   // Raccourcis
   $('#quick-add-product').onclick = function(){ location.hash = '#/new-product'; };
   $('#quick-add-match').onclick = function(){ location.hash = '#/new-match'; };
   $('#quick-add-promocard').onclick = function(){ location.hash = '#/new-promocard'; };
+
   // Recherche globale
   const gSearch = $('#global-search');
   document.addEventListener('keydown', function(e){
@@ -102,10 +66,23 @@ async function initAfterLogin(){
       e.preventDefault(); gSearch.focus();
     }
   });
-  handleRoute();
+
+  // Initialise le routeur en lui passant les fonctions de rendu des pages
+  initRouter({
+    renderProductListPage: async () => { await ensureProductsLoaded(); renderProductList(); },
+    renderProductFormPage,
+    renderMatchListPage: async () => { await ensureMatchesLoaded(); renderMatchList(); },
+    renderMatchFormPage,
+    renderPromoCardListPage: async () => { await ensurePromoCardsLoaded(); renderPromoCardList(); },
+    renderPromoCardFormPage,
+  });
 }
 
 /* ============================ Data Fetch ============================ */
+const $productsContent = $('#products-content');
+const $matchesContent = $('#matches-content');
+const $promoCardsContent = $('#promocards-content');
+
 async function ensureProductsLoaded(){
   if(allProducts.length) return;
   $productsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
