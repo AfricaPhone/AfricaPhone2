@@ -92,10 +92,26 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="MatchList" component={MatchListScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="PredictionGame" component={PredictionGameScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Store" component={StoreScreen} options={{ headerShown: false }} />
-      <RootStack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false, presentation: 'modal' }} />
-      <RootStack.Screen name="AuthPrompt" component={AuthPromptScreen} options={{ headerShown: false, presentation: 'modal' }} />
-      <RootStack.Screen name="CreateProfile" component={CreateProfileScreen} options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }} />
-      <RootStack.Screen name="FilterScreenResults" component={FilterScreenResults} options={{ headerShown: false, presentation: 'modal' }} />
+      <RootStack.Screen
+        name="SignUp"
+        component={SignUpScreen}
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
+      <RootStack.Screen
+        name="AuthPrompt"
+        component={AuthPromptScreen}
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
+      <RootStack.Screen
+        name="CreateProfile"
+        component={CreateProfileScreen}
+        options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }}
+      />
+      <RootStack.Screen
+        name="FilterScreenResults"
+        component={FilterScreenResults}
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
     </RootStack.Navigator>
   );

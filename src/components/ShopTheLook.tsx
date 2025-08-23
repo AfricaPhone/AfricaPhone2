@@ -17,12 +17,10 @@ const ShopTheLook: React.FC<Props> = ({ item }) => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-        setLoading(true);
-        const productDetails = await Promise.all(
-            item.markers.map(marker => getProductById(marker.productId))
-        );
-        setProducts(productDetails.filter(Boolean) as Product[]);
-        setLoading(false);
+      setLoading(true);
+      const productDetails = await Promise.all(item.markers.map(marker => getProductById(marker.productId)));
+      setProducts(productDetails.filter(Boolean) as Product[]);
+      setLoading(false);
     };
     fetchProducts();
   }, [item.markers, getProductById]);
@@ -31,20 +29,22 @@ const ShopTheLook: React.FC<Props> = ({ item }) => {
     <View style={styles.container}>
       <Text style={styles.title}>Shoppez le Look</Text>
       <ImageBackground source={{ uri: item.imageUrl }} style={styles.image} imageStyle={{ borderRadius: 16 }}>
-        {loading ? <ActivityIndicator color="#fff" size="large" /> : (
-            item.markers.map((marker, index) => {
-                const product = products.find(p => p.id === marker.productId);
-                if (!product) return null;
-                return (
-                    <TouchableOpacity
-                    key={marker.productId}
-                    style={[styles.marker, { top: marker.top, left: marker.left }]}
-                    onPress={() => navigation.navigate('ProductDetail', { productId: marker.productId })}
-                    >
-                    <View style={styles.markerDot} />
-                    </TouchableOpacity>
-                );
-            })
+        {loading ? (
+          <ActivityIndicator color="#fff" size="large" />
+        ) : (
+          item.markers.map((marker, index) => {
+            const product = products.find(p => p.id === marker.productId);
+            if (!product) return null;
+            return (
+              <TouchableOpacity
+                key={marker.productId}
+                style={[styles.marker, { top: marker.top, left: marker.left }]}
+                onPress={() => navigation.navigate('ProductDetail', { productId: marker.productId })}
+              >
+                <View style={styles.markerDot} />
+              </TouchableOpacity>
+            );
+          })
         )}
       </ImageBackground>
     </View>
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 16,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   marker: {
     position: 'absolute',

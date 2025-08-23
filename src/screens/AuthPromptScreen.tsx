@@ -20,12 +20,9 @@ const AuthPromptScreen: React.FC = () => {
           source={{ uri: 'https://images.unsplash.com/photo-1593697821252-8c710070397a?q=80&w=1887' }}
           style={styles.backgroundImage}
         />
-        <LinearGradient
-          colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,1)']}
-          style={styles.gradient}
-        />
+        <LinearGradient colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,1)']} style={styles.gradient} />
         <View style={styles.iconContainer}>
-            <Ionicons name="person-circle-outline" size={80} color="#111" />
+          <Ionicons name="person-circle-outline" size={80} color="#111" />
         </View>
         <Text style={styles.title}>Accès Membre Requis</Text>
         <Text style={styles.subtitle}>

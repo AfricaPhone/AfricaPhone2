@@ -22,13 +22,10 @@ const ProfileScreen: React.FC = () => {
         Connectez-vous pour suivre vos commandes, gérer vos favoris et participer à nos jeux exclusifs.
       </Text>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={[styles.btn, styles.btnPrimary]} 
-          onPress={() => navigation.navigate('SignUp')}
-        >
+        <TouchableOpacity style={[styles.btn, styles.btnPrimary]} onPress={() => navigation.navigate('SignUp')}>
           <Text style={[styles.btnText, styles.btnTextPrimary]}>Créer un compte</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.btn, styles.btnSecondary]}
           onPress={() => Alert.alert('Connexion', 'Écran de connexion à créer.')}
         >
@@ -53,13 +50,25 @@ const ProfileScreen: React.FC = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Mes Commandes</Text>
         <ProfileListItem icon="cube-outline" label="Toutes les commandes" onPress={() => handleAction('Commandes')} />
-        <ProfileListItem icon="heart-outline" label="Articles consultés" onPress={() => handleAction('Articles consultés')} />
+        <ProfileListItem
+          icon="heart-outline"
+          label="Articles consultés"
+          onPress={() => handleAction('Articles consultés')}
+        />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Mon Compte</Text>
-        <ProfileListItem icon="person-outline" label="Informations personnelles" onPress={() => handleAction('Informations')} />
-        <ProfileListItem icon="location-outline" label="Adresses de livraison" onPress={() => handleAction('Adresses')} />
+        <ProfileListItem
+          icon="person-outline"
+          label="Informations personnelles"
+          onPress={() => handleAction('Informations')}
+        />
+        <ProfileListItem
+          icon="location-outline"
+          label="Adresses de livraison"
+          onPress={() => handleAction('Adresses')}
+        />
         <ProfileListItem icon="card-outline" label="Moyens de paiement" onPress={() => handleAction('Paiement')} />
       </View>
     </>
@@ -94,7 +103,11 @@ const ProfileScreen: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
           <ProfileListItem icon="help-circle-outline" label="Aide & FAQ" onPress={() => handleAction('Aide')} />
-          <ProfileListItem icon="chatbubble-ellipses-outline" label="Nous contacter" onPress={() => handleAction('Contact')} />
+          <ProfileListItem
+            icon="chatbubble-ellipses-outline"
+            label="Nous contacter"
+            onPress={() => handleAction('Contact')}
+          />
         </View>
 
         {user && (
@@ -111,7 +124,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: { paddingHorizontal: 16, paddingBottom: 12 },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#111' },
-  
+
   // Guest View
   guestCard: {
     marginHorizontal: 16,
@@ -123,9 +136,9 @@ const styles = StyleSheet.create({
   guestTitle: { fontSize: 18, fontWeight: 'bold', color: '#111', marginBottom: 8 },
   guestSubtitle: { fontSize: 14, color: '#555', textAlign: 'center', lineHeight: 20 },
   buttonContainer: { width: '100%', gap: 12, marginTop: 20 },
-  btn: { 
+  btn: {
     height: 50,
-    borderRadius: 12, 
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -155,7 +168,7 @@ const styles = StyleSheet.create({
   avatarText: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
   profileName: { fontSize: 20, fontWeight: 'bold', color: '#111' },
   profileEmail: { fontSize: 14, color: '#888', marginTop: 2 },
-  
+
   // Common sections
   section: {
     marginTop: 24,

@@ -34,7 +34,9 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
       </View>
 
       <View style={styles.infoContainer}>
-        <Text numberOfLines={2} style={styles.title}>{product.title}</Text>
+        <Text numberOfLines={2} style={styles.title}>
+          {product.title}
+        </Text>
 
         {hasSpecs && (
           <Text style={styles.specsText}>
@@ -90,8 +92,8 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     gap: 2, // Ajoute un petit espace entre les éléments
   },
-  title: { 
-    fontSize: 13, 
+  title: {
+    fontSize: 13,
     color: '#111',
     minHeight: 32, // Assure que le titre prend 2 lignes pour éviter les sauts de mise en page
   },

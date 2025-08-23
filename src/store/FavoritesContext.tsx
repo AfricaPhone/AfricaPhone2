@@ -67,7 +67,8 @@ const FavoritesContext = createContext<FavoritesContextType | null>(null);
 export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [favorites, dispatch] = useReducer(reducer, initialState);
 
-  const toggleFavorite = (productId: string, collectionId?: string) => dispatch({ type: 'TOGGLE_FAVORITE', productId, collectionId });
+  const toggleFavorite = (productId: string, collectionId?: string) =>
+    dispatch({ type: 'TOGGLE_FAVORITE', productId, collectionId });
   const createCollection = (name: string) => dispatch({ type: 'CREATE_COLLECTION', name });
 
   const derived = useMemo(() => {
@@ -76,7 +77,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       collection.productIds.forEach(id => allFavProductIds.add(id));
     });
     const isFav = (id: string) => allFavProductIds.has(id);
-    
+
     const collections = Object.values(favorites);
 
     return { isFav, collections };

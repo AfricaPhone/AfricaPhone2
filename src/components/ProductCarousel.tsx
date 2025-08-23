@@ -29,28 +29,28 @@ const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
     fetchProducts();
   }, [productIds, getProductById]);
 
-  const renderItem = useCallback(({ item }: { item: Product }) => {
-    const handlePress = () => {
-      navigation.navigate('ProductDetail', { productId: item.id });
-    };
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => {
+      const handlePress = () => {
+        navigation.navigate('ProductDetail', { productId: item.id });
+      };
 
+      return (
+        <View style={styles.cardWrapper}>
+          <ProductGridCard product={item} onPress={handlePress} />
+        </View>
+      );
+    },
+    [navigation]
+  );
+
+  if (loading) {
     return (
-      <View style={styles.cardWrapper}>
-        <ProductGridCard
-          product={item}
-          onPress={handlePress}
-        />
+      <View style={styles.container}>
+        <Text style={styles.title}>{title}</Text>
+        <ActivityIndicator color="#FF7A00" style={{ height: 180 }} />
       </View>
     );
-  }, [navigation]);
-  
-  if (loading) {
-      return (
-          <View style={styles.container}>
-              <Text style={styles.title}>{title}</Text>
-              <ActivityIndicator color="#FF7A00" style={{ height: 180 }} />
-          </View>
-      )
   }
 
   return (
@@ -58,7 +58,7 @@ const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
       <Text style={styles.title}>{title}</Text>
       <FlatList
         data={products}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={renderItem}

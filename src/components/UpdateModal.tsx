@@ -23,26 +23,25 @@ const UpdateModal: React.FC = () => {
         if (config) {
           const latestVersionCode = config.latest_version_code;
           const url = config.update_url;
-          
+
           // 2. Version de l'application "hardcodée"
           const currentVersionCode = 4;
-    
+
           console.log(`Version Firestore: ${latestVersionCode}, Version App (Hardcodée): ${currentVersionCode}`);
-    
+
           // 3. Comparer les versions
           if (latestVersionCode > currentVersionCode) {
             setUpdateUrl(url);
             setIsVisible(true);
           }
         } else {
-          console.log("Le document de configuration de mise à jour est vide.");
+          console.log('Le document de configuration de mise à jour est vide.');
         }
       } else {
         console.log("Le document de configuration de mise à jour n'existe pas.");
       }
-
     } catch (error) {
-      console.error("Erreur lors de la vérification de la mise à jour :", error);
+      console.error('Erreur lors de la vérification de la mise à jour :', error);
     }
   };
 
@@ -51,7 +50,7 @@ const UpdateModal: React.FC = () => {
     checkForUpdate();
 
     // Ajouter un écouteur pour vérifier à nouveau lorsque l'application revient au premier plan
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
         checkForUpdate();
       }
@@ -61,7 +60,6 @@ const UpdateModal: React.FC = () => {
       subscription.remove();
     };
   }, []);
-
 
   const handleUpdatePress = () => {
     if (updateUrl) {
@@ -81,7 +79,8 @@ const UpdateModal: React.FC = () => {
           <Ionicons name="cloud-download-outline" size={60} color="#111" style={{ marginBottom: 16 }} />
           <Text style={styles.title}>Mise à jour disponible</Text>
           <Text style={styles.subtitle}>
-            Une nouvelle version de l'application est disponible. Veuillez mettre à jour pour continuer à profiter de toutes les fonctionnalités.
+            Une nouvelle version de l'application est disponible. Veuillez mettre à jour pour continuer à profiter de
+            toutes les fonctionnalités.
           </Text>
           <TouchableOpacity style={styles.updateButton} onPress={handleUpdatePress}>
             <Text style={styles.updateButtonText}>Mettre à jour maintenant</Text>

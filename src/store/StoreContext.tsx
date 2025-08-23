@@ -72,7 +72,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             dispatch({ type: 'SET_USER', user: fallbackUser });
           }
         } catch (error) {
-          console.error("Erreur lors de la récupération du profil utilisateur:", error);
+          console.error('Erreur lors de la récupération du profil utilisateur:', error);
           dispatch({ type: 'SET_USER', user: null });
         }
       } else {
@@ -96,13 +96,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const token = await currentUser.getIdToken(true);
         return token;
       } catch (error) {
-        console.error("Erreur lors du rafraîchissement du jeton:", error);
+        console.error('Erreur lors du rafraîchissement du jeton:', error);
         return null;
       }
     }
     return null;
   };
-
 
   const value: StoreContextType = {
     user: state.user,

@@ -85,7 +85,7 @@ const HomeScreen: React.FC = () => {
         })) as PromoCard[];
         setPromoCards(fetchedCards);
       } catch (error) {
-        console.error("Erreur de chargement des cartes promo :", error);
+        console.error('Erreur de chargement des cartes promo :', error);
       } finally {
         setPromoCardsLoading(false);
       }
@@ -143,7 +143,7 @@ const HomeScreen: React.FC = () => {
           const querySnapshot = await getDocs(q);
           const newProducts = querySnapshot.docs.map(mapDocToProduct);
           const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-          setDataBySegment((prev) => ({
+          setDataBySegment(prev => ({
             ...prev,
             [segment]: { products: newProducts, lastDoc: lastVisible, hasMore: newProducts.length === PAGE_SIZE },
           }));
@@ -193,13 +193,13 @@ const HomeScreen: React.FC = () => {
       const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
 
       if (activeSegment === 'Populaires') {
-        setRegularProducts((prev) => ({
+        setRegularProducts(prev => ({
           products: [...prev.products, ...newProducts],
           lastDoc: lastVisible,
           hasMore: newProducts.length === PAGE_SIZE,
         }));
       } else {
-        setDataBySegment((prev) => ({
+        setDataBySegment(prev => ({
           ...prev,
           [activeSegment]: {
             products: [...(prev[activeSegment]?.products || []), ...newProducts],
@@ -219,7 +219,7 @@ const HomeScreen: React.FC = () => {
     activeSegment === 'Populaires'
       ? [...vedetteProducts, ...regularProducts.products]
       : dataBySegment[activeSegment]?.products || [];
-  
+
   // MODIFICATION: J'utilise le type importé pour garantir la compatibilité
   const handleApplyFilter = (minPrice: string, maxPrice: string, capacity?: Capacity) => {
     setIsFilterVisible(false);

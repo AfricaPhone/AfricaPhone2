@@ -31,13 +31,7 @@ const SkeletonPiece: React.FC<{ width: number | string; height: number; borderRa
 
   return (
     <View style={[styles.skeleton, { width, height, borderRadius }, style]}>
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.shimmer,
-          { transform: [{ translateX }] },
-        ]}
-      />
+      <Animated.View style={[StyleSheet.absoluteFill, styles.shimmer, { transform: [{ translateX }] }]} />
     </View>
   );
 };

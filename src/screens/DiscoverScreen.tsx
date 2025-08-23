@@ -121,7 +121,7 @@ const useShimmer = () => {
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const loop = Animated.loop(
-      Animated.timing(v, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      Animated.timing(v, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.quad), useNativeDriver: true })
     );
     loop.start();
     return () => loop.stop();
@@ -271,7 +271,7 @@ const CollectionPostCard = ({ post, onOpen }: { post: CollectionPost; onOpen: (p
     <PostHeader author={post.author} createdAt={post.createdAt} />
     <Text style={styles.collectionTitle}>{post.title}</Text>
     <View style={styles.collectionGrid}>
-      {post.products.slice(0, 4).map((p) => (
+      {post.products.slice(0, 4).map(p => (
         <RippleBtn key={p.id} onPress={() => onOpen(p)} style={styles.collectionItem}>
           <Image source={{ uri: p.image }} style={styles.collectionImg} />
         </RippleBtn>
@@ -324,7 +324,7 @@ const ShopLookPostCard = ({ post, onOpen }: { post: ShopLookPost; onOpen: (p: Pr
     <FlatList
       horizontal
       data={post.products}
-      keyExtractor={(x) => x.id}
+      keyExtractor={x => x.id}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ paddingHorizontal: 4, gap: 10 }}
       renderItem={({ item }) => (
@@ -349,7 +349,7 @@ const PollPostCard = ({ post }: { post: PollPost }) => {
       <PostHeader author={post.author} createdAt={post.createdAt} />
       <Text style={styles.articleTitle}>{post.question}</Text>
       <View style={{ marginTop: 10, gap: 10 }}>
-        {post.options.map((op) => (
+        {post.options.map(op => (
           <View key={op.id} style={styles.pollRow}>
             <View style={styles.pollBarBg}>
               <View style={[styles.pollBarFill, { width: `${ratio(op.votes)}%` }]} />
@@ -452,7 +452,12 @@ function makePage(page: number): Post[] {
         shares: i % 9,
         title: ['Indispensables Audio', 'Setup productif', 'Objets futés du quotidien'][i % 3],
         cover: rand(IMAGES),
-        products: [makeProduct(base + i), makeProduct(base + i + 1), makeProduct(base + i + 2), makeProduct(base + i + 3)],
+        products: [
+          makeProduct(base + i),
+          makeProduct(base + i + 1),
+          makeProduct(base + i + 2),
+          makeProduct(base + i + 3),
+        ],
       });
     } else if (mod === 3) {
       posts.push({
@@ -564,8 +569,8 @@ const DiscoverScreen: React.FC = () => {
     if (loadingMore || initialLoading) return;
     setLoadingMore(true);
     setTimeout(() => {
-      setPosts((p) => [...p, ...makePage(page)]);
-      setPage((pg) => pg + 1);
+      setPosts(p => [...p, ...makePage(page)]);
+      setPage(pg => pg + 1);
       setLoadingMore(false);
     }, 800);
   }, [loadingMore, initialLoading, page]);
@@ -575,14 +580,15 @@ const DiscoverScreen: React.FC = () => {
     const byChip =
       activeChip === 'Tous'
         ? posts
-        : posts.filter((it) => (it.type === 'product' ? (it as ProductPost).product.category === activeChip : true));
+        : posts.filter(it => (it.type === 'product' ? (it as ProductPost).product.category === activeChip : true));
     if (!query.trim()) return byChip;
     const q = query.trim().toLowerCase();
-    return byChip.filter((it) => {
+    return byChip.filter(it => {
       if (it.type === 'product') return it.product.title.toLowerCase().includes(q);
       if (it.type === 'article') return it.title.toLowerCase().includes(q) || it.excerpt.toLowerCase().includes(q);
       if (it.type === 'collection') return it.title.toLowerCase().includes(q);
-      if (it.type === 'hero') return it.title.toLowerCase().includes(q) || (it.subtitle ?? '').toLowerCase().includes(q);
+      if (it.type === 'hero')
+        return it.title.toLowerCase().includes(q) || (it.subtitle ?? '').toLowerCase().includes(q);
       if (it.type === 'tip') return it.title.toLowerCase().includes(q) || it.body.toLowerCase().includes(q);
       if (it.type === 'shoplook') return it.title.toLowerCase().includes(q);
       if (it.type === 'poll') return it.question.toLowerCase().includes(q);
@@ -608,10 +614,7 @@ const DiscoverScreen: React.FC = () => {
           return <ArticlePostCard post={item} />;
         case 'collection':
           return (
-            <CollectionPostCard
-              post={item}
-              onOpen={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
-            />
+            <CollectionPostCard post={item} onOpen={p => navigation.navigate('ProductDetail', { productId: p.id })} />
           );
         case 'hero':
           return <HeroPostCard post={item} />;
@@ -619,10 +622,7 @@ const DiscoverScreen: React.FC = () => {
           return <TipPostCard post={item} />;
         case 'shoplook':
           return (
-            <ShopLookPostCard
-              post={item}
-              onOpen={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
-            />
+            <ShopLookPostCard post={item} onOpen={p => navigation.navigate('ProductDetail', { productId: p.id })} />
           );
         case 'poll':
           return <PollPostCard post={item} />;
@@ -630,7 +630,7 @@ const DiscoverScreen: React.FC = () => {
           return null;
       }
     },
-    [navigation],
+    [navigation]
   );
 
   const keyExtractor = useCallback((p: Post) => p.id, []);
@@ -661,7 +661,7 @@ const DiscoverScreen: React.FC = () => {
         <FlatList
           horizontal
           data={chips}
-          keyExtractor={(c) => c}
+          keyExtractor={c => c}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: GUTTER - 4, gap: 8 }}
           style={{ marginTop: 8 }}
@@ -689,7 +689,7 @@ const DiscoverScreen: React.FC = () => {
         )}
       </>
     ),
-    [chips, activeChip, query],
+    [chips, activeChip, query]
   );
 
   const Footer = useMemo(
@@ -705,7 +705,7 @@ const DiscoverScreen: React.FC = () => {
         )}
       </View>
     ),
-    [loadingMore],
+    [loadingMore]
   );
 
   return (
@@ -715,7 +715,7 @@ const DiscoverScreen: React.FC = () => {
         <View style={{ paddingTop: 12 }}>
           <Skeleton height={24} style={{ marginHorizontal: GUTTER }} />
           <View style={{ height: 12 }} />
-          {[0, 1, 2].map((i) => (
+          {[0, 1, 2].map(i => (
             <View key={i} style={{ marginBottom: 16 }}>
               <Skeleton height={18} style={{ marginHorizontal: GUTTER, marginBottom: 10 }} />
               <Skeleton height={220} style={{ marginHorizontal: GUTTER }} />

@@ -56,9 +56,8 @@ const CreateProfileScreen: React.FC = () => {
 
       // Ferme la pile de modales d'authentification pour revenir à l'écran principal
       navigation.getParent()?.goBack();
-
     } catch (error) {
-      console.error("Error creating profile: ", error);
+      console.error('Error creating profile: ', error);
       Alert.alert('Erreur', 'Une erreur est survenue lors de la création de votre profil.');
     } finally {
       setIsSubmitting(false);
@@ -68,10 +67,7 @@ const CreateProfileScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <LoadingModal isVisible={isSubmitting} message={'Création du profil...'} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.formContainer}>
             <Text style={styles.title}>Finalisez votre profil</Text>

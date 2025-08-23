@@ -48,7 +48,6 @@ export type FavoriteCollection = {
 
 export type FavoritesState = Record<string, FavoriteCollection>;
 
-
 // --- Discover Feed Types ---
 
 export type HeroItem = {
@@ -62,7 +61,7 @@ export type HeroItem = {
 
 export type ProductGridItem = {
   type: 'product_grid';
-  id:string;
+  id: string;
   title: string;
   productIds: string[];
 };
@@ -95,7 +94,6 @@ export type ArticleItem = {
 
 export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | ShopTheLookItem | ArticleItem;
 
-
 // --- Navigation Types ---
 
 export type RootStackParamList = {
@@ -107,16 +105,16 @@ export type RootStackParamList = {
   Store: undefined;
   SignUp: undefined;
   AuthPrompt: undefined;
-  CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null; };
-  FilterScreenResults: { 
-    initialCategory?: string, 
-    initialSearchQuery?: string, 
-    minPrice?: string, 
-    maxPrice?: string,
+  CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null };
+  FilterScreenResults: {
+    initialCategory?: string;
+    initialSearchQuery?: string;
+    minPrice?: string;
+    maxPrice?: string;
     rom?: number;
     ram?: number;
   };
-  ProductList: { title: string, category?: string, brandId?: string, searchQuery?: string };
+  ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
 };
 
 // This is for the navigator that wraps the tabs
@@ -126,7 +124,7 @@ export type MainStackParamList = {
 
 export type TabParamList = {
   Home: undefined;
-  Catalog: { category?: Category, minPrice?: string, maxPrice?: string } | undefined;
+  Catalog: { category?: Category; minPrice?: string; maxPrice?: string } | undefined;
   Favorites: undefined;
   Profile: undefined;
 };

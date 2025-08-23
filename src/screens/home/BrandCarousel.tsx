@@ -19,7 +19,7 @@ const BrandCarousel: React.FC<Props> = ({ brands, isLoading }) => {
   return (
     <FlatList
       data={brands}
-      keyExtractor={(item) => item.id}
+      keyExtractor={item => item.id}
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.brandCarousel}
