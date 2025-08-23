@@ -1,90 +1,16 @@
 // others/admin-panel/assets/js/main.js
 // Importe la configuration et les services Firebase depuis le fichier dédié.
-import { auth, db, storage } from '../firebase-config.js';
+import { auth, db, storage } from '../../firebase-config.js';
 
-// Importe les fonctions spécifiques de Firebase Auth et Firestore.
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+// Importe les fonctions spécifiques de Firebase Firestore.
 import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
 
-/* ============================ Helpers ============================ */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => document.querySelectorAll(sel);
-const fmtXOF = new Intl.NumberFormat('fr-FR',{style:'currency', currency:'XOF'});
-const fmtDate = (d) => new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium', timeStyle:'short'}).format(d);
+// Importe les fonctions UI depuis le nouveau module
+import { $, $$, fmtXOF, fmtDate, escapeHtml, escapeAttr, setButtonLoading, toast, openModal, setCrumb } from './ui.js';
+// Importe le module d'authentification
+import { initAuth } from './auth.js';
 
-function escapeHtml(s=''){
-  return String(s).replace(/[&<>"']/g, function(m){
-    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
-  });
-}
-function escapeAttr(s=''){
-  return escapeHtml(s).replace(/`/g,'&#96;');
-}
-
-function setButtonLoading(button, isLoading) {
-    if (!button) return;
-    if (isLoading) {
-        button.disabled = true;
-        button.dataset.originalText = button.innerHTML;
-        button.innerHTML = '<span class="loader"></span>';
-    } else {
-        button.disabled = false;
-        if (button.dataset.originalText) {
-            button.innerHTML = button.dataset.originalText;
-        }
-    }
-}
-
-function toast(title, msg='', type='success', timeout=3500){
-  const host = $('#toasts');
-  const el = document.createElement('div');
-  const icons = { success: 'check-circle-2', error: 'alert-circle', info: 'info' };
-  el.className = 'toast ' + type;
-  el.innerHTML = `
-    <i data-lucide="${icons[type] || 'info'}" class="icon"></i>
-    <div class="grow">
-      <div class="title">${escapeHtml(title)}</div>
-      ${msg ? '<div class="msg">'+escapeHtml(msg)+'</div>' : ''}
-    </div>
-    <button class="btn btn-icon btn-small" aria-label="Fermer">
-      <i data-lucide="x" class="icon"></i>
-    </button>`;
-  host.appendChild(el);
-  lucide.createIcons();
-  const remove=()=>{ el.style.transform='translateX(8px)'; el.style.opacity='0'; setTimeout(()=>el.remove(),180); };
-  el.querySelector('button').addEventListener('click', remove);
-  if(timeout) setTimeout(remove, timeout);
-}
-
-function openModal(opts){
-  const {
-    title='Confirmation', body='', okText='Confirmer', cancelText='Annuler', danger=false
-  } = (opts || {});
-  return new Promise(function(resolve){
-    const modal = $('#modal');
-    const foot = $('#modal-foot');
-    const bodyEl = $('#modal-body');
-    $('#modal-title').textContent = title;
-    bodyEl.innerHTML = body;
-    foot.innerHTML = '';
-    const btnCancel = document.createElement('button'); btnCancel.className='btn'; btnCancel.textContent = cancelText;
-    const btnOk = document.createElement('button'); btnOk.className='btn '+(danger?'btn-danger':'btn-primary'); btnOk.textContent = okText;
-    foot.appendChild(btnCancel); foot.appendChild(btnOk);
-
-    const close = function(res){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; resolve(res); };
-    $('#modal-close').onclick = function(){ close(false); };
-    btnCancel.onclick = function(){ close(false); };
-    btnOk.onclick = function(){ close(true); };
-    modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
-    modal.addEventListener('click', function(e){ if(e.target===modal){ close(false); } }, {once:true});
-    setTimeout(function(){ btnOk.focus(); },0);
-    function esc(e){ if(e.key==='Escape'){ close(false); document.removeEventListener('keydown', esc);} }
-    document.addEventListener('keydown', esc);
-  });
-}
-
-function setCrumb(name){ $('#crumb-current').textContent = name; }
 
 /* ============================ State ============================ */
 let allProducts = [];
@@ -95,56 +21,6 @@ let productCategoryFilter = '';
 let viewMode = 'table'; // 'table' | 'cards'
 let sortBy = { key:'name', dir:'asc' };
 const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
-
-/* ============================ Auth ============================ */
-const $login = $('#login'), $loginForm = $('#login-form'), $loginError = $('#login-error');
-const $app = $('#app');
-
-$loginForm?.addEventListener('submit', async function(e){
-  e.preventDefault();
-  const submitBtn = $loginForm.querySelector('button[type="submit"]');
-  setButtonLoading(submitBtn, true);
-  const email = $('#email').value.trim();
-  const pass = $('#password').value.trim();
-  $('#email-err').classList.add('hide'); $('#password-err').classList.add('hide'); $loginError.classList.add('hide');
-  if(!email){ $('#email-err').textContent='Email requis.'; $('#email-err').classList.remove('hide'); setButtonLoading(submitBtn, false); return; }
-  if(!pass){ $('#password-err').textContent='Mot de passe requis.'; $('#password-err').classList.remove('hide'); setButtonLoading(submitBtn, false); return; }
-  try{
-    await signInWithEmailAndPassword(auth, email, pass);
-    toast('Bienvenue','Connexion r&eacute;ussie','success');
-  }catch(err){
-    console.error(err);
-    $loginError.textContent = 'Identifiants invalides.'; $loginError.classList.remove('hide');
-    toast('Erreur', 'Impossible de se connecter', 'error');
-  } finally {
-    setButtonLoading(submitBtn, false);
-  }
-});
-
-onAuthStateChanged(auth, function(user){
-  const logged = !!user;
-  $login.classList.toggle('hide', logged);
-  $app.classList.toggle('hide', !logged);
-  $app.setAttribute('aria-hidden', String(!logged));
-  if(logged){ initAfterLogin(); }
-});
-
-$('#logout').addEventListener('click', async function(){
-  await signOut(auth);
-  toast('D&eacute;connect&eacute;', '', 'success');
-  location.hash = '#/products';
-});
-
-// Drawer mobile
-const drawer = $('#drawer');
-$('#open-drawer').addEventListener('click', function(){ drawer.classList.add('open'); });
-$('[data-close-drawer]')?.addEventListener('click', function(){ drawer.classList.remove('open'); });
-$('#drawer-logout')?.addEventListener('click', async function(){ await signOut(auth); drawer.classList.remove('open'); });
-
-// Drawer links
-$$('#drawer .link-item').forEach(function(a){
-  a.addEventListener('click', function(){ location.hash = a.dataset.route; drawer.classList.remove('open'); });
-});
 
 /* ============================ Theme ============================ */
 const themePrefEl = $('#theme-pref');
@@ -990,6 +866,11 @@ document.addEventListener('click', function(e){
   renderProductList();
 });
 
-/* ============================ Kickoff ============================ */
+/* ============================ App Kickoff ============================ */
 if(!location.hash) location.hash = '#/products';
+
+// On initialise l'authentification en lui disant quoi faire
+// une fois que l'utilisateur est bien connecté.
+initAuth(initAfterLogin);
+
 setTimeout(function(){ const content = $('#content'); if(content){ content.setAttribute('tabindex','-1'); } }, 0);
