@@ -26,6 +26,8 @@ type RouteParams = {
   initialSearchQuery?: string;
   minPrice?: string;
   maxPrice?: string;
+  rom?: number;
+  ram?: number;
 };
 
 type SortKey = 'priceAsc' | 'priceDesc';
@@ -37,7 +39,7 @@ const FilterScreenResults: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
-  const { initialCategory, initialSearchQuery, minPrice: initialMinPrice, maxPrice: initialMaxPrice } = route.params as RouteParams || {};
+  const { initialCategory, initialSearchQuery, minPrice: initialMinPrice, maxPrice: initialMaxPrice, rom: initialRom, ram: initialRam } = route.params as RouteParams || {};
 
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [category, setCategory] = useState<Category | undefined>(initialCategory);
@@ -45,10 +47,12 @@ const FilterScreenResults: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [minPrice, setMinPrice] = useState(initialMinPrice || '');
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice || '');
+  const [rom, setRom] = useState(initialRom);
+  const [ram, setRam] = useState(initialRam);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const queryOptions = useMemo((): ProductQueryOptions => {
-    const options: ProductQueryOptions = { category, minPrice, maxPrice, searchQuery };
+    const options: ProductQueryOptions = { category, minPrice, maxPrice, searchQuery, rom, ram };
     switch (sort) {
       case 'priceAsc':
         options.sortBy = 'price';
@@ -60,7 +64,7 @@ const FilterScreenResults: React.FC = () => {
         break;
     }
     return options;
-  }, [category, searchQuery, sort, minPrice, maxPrice]);
+  }, [category, searchQuery, sort, minPrice, maxPrice, rom, ram]);
 
   const { products, loading, refresh } = useAllProducts(queryOptions);
 
@@ -68,6 +72,7 @@ const FilterScreenResults: React.FC = () => {
     refresh();
   }, [queryOptions, refresh]);
 
+  // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
       product: item,
@@ -90,6 +95,8 @@ const FilterScreenResults: React.FC = () => {
     setSort('priceAsc');
     setSearchQuery('');
     setCategory(undefined);
+    setRom(undefined);
+    setRam(undefined);
   };
 
   return (
@@ -125,6 +132,10 @@ const FilterScreenResults: React.FC = () => {
                     <View style={styles.emptyContainer}>
                         <Text style={styles.emptyText}>Aucun produit ne correspond à ces filtres.</Text>
                         <Text style={styles.emptySubText}>Essayez de modifier votre sélection.</Text>
+                        {/* MODIFICATION: Ajout du bouton pour rouvrir les filtres */}
+                        <TouchableOpacity style={styles.emptyButton} onPress={() => setFiltersOpen(true)}>
+                            <Text style={styles.emptyButtonText}>Essayer un autre filtre</Text>
+                        </TouchableOpacity>
                     </View>
                 }
             />
@@ -213,9 +224,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   gridContainer: { paddingHorizontal: 16, justifyContent: 'space-between' },
-  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100 },
+  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100, paddingHorizontal: 20 },
   emptyText: { fontSize: 18, fontWeight: '600', color: '#333', textAlign: 'center' },
   emptySubText: { fontSize: 14, color: '#888', marginTop: 8, textAlign: 'center' },
+  emptyButton: {
+    marginTop: 24,
+    backgroundColor: '#111',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+  },
+  emptyButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   
   // Filter Panel
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },

@@ -8,14 +8,15 @@ export type Product = {
   id: string;
   title: string;
   price: number;
-  image: string;
+  image: string; // Image principale pour les listes/grilles
+  imageUrls?: string[]; // Tableau pour la galerie d'images
   category: Category;
   description?: string;
   rom?: number;
   ram?: number;
   ram_base?: number;
   ram_extension?: number;
-  ordreVedette?: number; // Ligne ajoutée pour corriger l'erreur
+  ordreVedette?: number;
 };
 
 // --- Brand ---
@@ -107,7 +108,14 @@ export type RootStackParamList = {
   SignUp: undefined;
   AuthPrompt: undefined;
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null; };
-  FilterScreenResults: { initialCategory?: string, initialSearchQuery?: string, minPrice?: string, maxPrice?: string };
+  FilterScreenResults: { 
+    initialCategory?: string, 
+    initialSearchQuery?: string, 
+    minPrice?: string, 
+    maxPrice?: string,
+    rom?: number;
+    ram?: number;
+  };
   ProductList: { title: string, category?: string, brandId?: string, searchQuery?: string };
 };
 
@@ -164,4 +172,15 @@ export type BoutiqueInfo = {
   address?: string;
   openingHours?: string;
   category?: string;
+};
+
+// --- Carte Promotionnelle (HomeScreen) ---
+export type PromoCard = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  cta: string;
+  image: string;
+  screen?: keyof RootStackParamList;
+  sortOrder: number;
 };

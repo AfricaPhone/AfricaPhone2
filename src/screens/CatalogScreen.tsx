@@ -16,6 +16,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Product } from '../types';
+import { collection, query, where, orderBy, getDocs, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { db } from '../firebase/config';
+import ProductGridCard from '../components/ProductGridCard';
 
 import { searchClient as createSearchClient } from '@algolia/client-search';
 
@@ -95,6 +98,21 @@ const formatPrice = (value?: number) => {
   }
 };
 
+// CORRECTION: Ajout d'une fonction de mappage pour correspondre au type Product
+const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      title: data.name, // Mappe 'name' vers 'title'
+      price: data.price,
+      image: data.imageUrl, // Mappe 'imageUrl' vers 'image'
+      category: data.brand?.toLowerCase() || 'inconnu',
+      description: data.description,
+      rom: data.rom,
+      ram: data.ram,
+    };
+};
+
 type AlgoliaHit = {
   objectID: string;
   name?: string;
@@ -114,6 +132,33 @@ const CatalogScreen: React.FC = () => {
 
   const [results, setResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  // Nouveaux états pour les produits vedettes
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
+
+  // Effet pour charger les produits vedettes depuis Firestore
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        setFeaturedLoading(true);
+        const q = query(
+          collection(db, 'products'),
+          where('ordreVedette', '>=', 1),
+          orderBy('ordreVedette', 'asc')
+        );
+        const querySnapshot = await getDocs(q);
+        // CORRECTION: Utilisation de la fonction de mappage
+        const products = querySnapshot.docs.map(mapDocToProduct);
+        setFeaturedProducts(products);
+      } catch (error) {
+        console.error("Erreur de chargement des produits vedettes:", error);
+      } finally {
+        setFeaturedLoading(false);
+      }
+    };
+    fetchFeaturedProducts();
+  }, []);
 
   // 🔎 Recherche en temps réel via Algolia (v5 + @algolia/client-search)
   useEffect(() => {
@@ -153,12 +198,9 @@ const CatalogScreen: React.FC = () => {
           price: hit.price ?? 0,
           image: hit.imageUrl || '',
           category: (hit.brand || 'inconnu').toLowerCase(),
-          rating: undefined,
           description: hit.description,
           rom: hit.rom,
           ram: hit.ram,
-          ram_base: undefined,
-          ram_extension: undefined,
         }));
         setResults(mapped);
       } catch (err) {
@@ -196,6 +238,28 @@ const CatalogScreen: React.FC = () => {
           ))}
         </View>
       </Section>
+
+      {featuredLoading ? (
+        <ActivityIndicator size="large" color="#FF7A00" style={{ marginTop: 20 }} />
+      ) : (
+        <Section title="Produits en Vedette">
+          <FlatList
+            data={featuredProducts}
+            numColumns={2}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false} // Le ScrollView parent gère le défilement
+            columnWrapperStyle={styles.featuredGridContainer}
+            renderItem={({ item }) => (
+              <View style={styles.featuredGridItem}>
+                <ProductGridCard
+                  product={item}
+                  onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+                />
+              </View>
+            )}
+          />
+        </Section>
+      )}
     </ScrollView>
   );
 
@@ -341,6 +405,14 @@ const styles = StyleSheet.create({
   emptyResultsText: {
     fontSize: 16,
     color: '#666',
+  },
+  featuredGridContainer: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  featuredGridItem: {
+    width: '48%',
+    marginBottom: 16,
   },
 });
 

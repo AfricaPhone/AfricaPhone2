@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   Pressable,
   ScrollView,
-  LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Linking,
@@ -24,11 +23,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
-import { useBoutique } from '../store/BoutiqueContext'; // Importer useBoutique
+import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
 import { Product } from '../types';
 
-const { width } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
+
+// --- MODIFICATION: CONSTANTES POUR LE CARROUSEL PLEINE LARGEUR ---
+const ITEM_WIDTH = screenWidth; // L'image prend toute la largeur
+const SPACING = 0; // Plus d'espacement entre les images
+const SIDE_SPACING = 0; // Plus de marges latérales
 
 type RouteParams = { productId: string };
 
@@ -57,13 +61,10 @@ const ProductDetailScreen: React.FC = () => {
 
   const { toggleFavorite, isFav } = useFavorites();
   const { getProductById, getProductFromCache } = useProducts();
-  const { boutiqueInfo } = useBoutique(); // Utiliser le hook
+  const { boutiqueInfo } = useBoutique();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const [headerH, setHeaderH] = useState(56);
-  const onHeaderLayout = (e: LayoutChangeEvent) => setHeaderH(e.nativeEvent.layout.height);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -87,15 +88,21 @@ const ProductDetailScreen: React.FC = () => {
   }, [productId, getProductById, getProductFromCache]);
 
   const gallery = useMemo(() => {
-    if (!product) return [] as string[];
-    return [product.image, product.image + '&1', product.image + '&2'];
+    if (product?.imageUrls && product.imageUrls.length > 0) {
+      return product.imageUrls;
+    }
+    if (product?.image) {
+      return [product.image];
+    }
+    return [];
   }, [product]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<FlatList<string>>(null);
+
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / width);
+    const idx = Math.round(x / ITEM_WIDTH); // MODIFICATION: Le calcul de l'index est simplifié
     if (idx !== activeIndex) setActiveIndex(idx);
   };
   
@@ -137,30 +144,41 @@ const ProductDetailScreen: React.FC = () => {
   const oldPrice = product.price * 1.12;
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView edges={['top']} style={styles.safeHeader}>
-        <View style={styles.header} onLayout={onHeaderLayout}>
-          <TouchableOpacity onPress={() => nav.goBack()} style={styles.hIconBtn} accessibilityRole="button">
-            <Ionicons name="chevron-back" size={22} color="#111" />
-          </TouchableOpacity>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => nav.goBack()} style={styles.hIconBtn} accessibilityRole="button">
+          <Ionicons name="chevron-back" size={22} color="#111" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle} numberOfLines={1}>{product.title}</Text>
+        <View style={styles.headerActions}>
+            {/* MODIFICATION: Le bouton favori est retiré du header */}
+            <TouchableOpacity style={styles.hIconBtn}>
+                <Ionicons name="share-outline" size={22} color="#111" />
+            </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: headerH, paddingBottom: 112 }}
+        contentContainerStyle={{ paddingBottom: 112 }}
       >
-        <View>
+        <View style={styles.carouselContainer}>
           <FlatList
             ref={listRef}
             data={gallery}
             keyExtractor={(uri, i) => `${uri}-${i}`}
             horizontal
-            pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={onScroll}
             scrollEventThrottle={16}
-            renderItem={({ item }) => <Image source={{ uri: item }} style={styles.hero} />}
+            snapToInterval={ITEM_WIDTH} // MODIFICATION: snapToInterval ajusté
+            decelerationRate="fast"
+            contentContainerStyle={{ paddingHorizontal: SIDE_SPACING }}
+            renderItem={({ item }) => (
+              <View style={styles.imageCard}>
+                <Image source={{ uri: item }} style={styles.hero} />
+              </View>
+            )}
           />
           <View style={styles.galleryTopOver}>
             <View style={styles.discount}>
@@ -168,27 +186,21 @@ const ProductDetailScreen: React.FC = () => {
                 <Text style={styles.discountTxt}>-15%</Text>
               </LinearGradient>
             </View>
-          </View>
-          <View style={styles.dots}>
-            {gallery.map((_, i) => (
-              <View key={i} style={[styles.dot, activeIndex === i && styles.dotActive]} />
-            ))}
+             {/* MODIFICATION: Indicateur de page en texte */}
+            {gallery.length > 1 && (
+              <View style={styles.pageIndicator}>
+                <Text style={styles.pageIndicatorText}>
+                  {activeIndex + 1} / {gallery.length}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
-        <View style={styles.titleWrap}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title}>{product.title}</Text>
-            <View style={styles.titleActions}>
-              <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.hIconBtn}>
-                <Ionicons name={isFav(product.id) ? 'heart' : 'heart-outline'} size={22} color={isFav(product.id) ? '#e91e63' : '#111'} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.hIconBtn}>
-                <Ionicons name="share-outline" size={22} color="#111" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+        {/* MODIFICATION: Bouton favori déplacé ici */}
+        <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.favButton}>
+            <Ionicons name={isFav(product.id) ? 'heart' : 'heart-outline'} size={26} color={isFav(product.id) ? '#e91e63' : '#111'} />
+        </TouchableOpacity>
 
         <View style={styles.priceCard}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
@@ -238,27 +250,33 @@ const ProductDetailScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </View>
+    </SafeAreaView>
   );
 };
 
-// ... le reste des styles reste inchangé
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  safeHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-  },
   header: {
     height: 56,
     paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    backgroundColor: '#fff',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111',
+    marginHorizontal: 8,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
   },
   hIconBtn: {
     width: 40, height: 40, borderRadius: 20,
@@ -266,40 +284,71 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: '#e5e7eb',
   },
-  hero: { width, height: width, backgroundColor: '#f2f3f5' },
-  galleryTopOver: { position: 'absolute', left: 0, right: 0, top: 0, height: 0 },
-  discount: { position: 'absolute', left: 12, top: 12, borderRadius: 6, overflow: 'hidden' },
+  carouselContainer: {
+    height: screenWidth, // MODIFICATION: Hauteur ajustée
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageCard: {
+    width: ITEM_WIDTH,
+    height: ITEM_WIDTH,
+    backgroundColor: '#f2f3f5',
+    marginHorizontal: SPACING / 2,
+  },
+  hero: {
+    width: '100%',
+    height: '100%',
+  },
+  galleryTopOver: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 'auto', // Ajusté pour le positionnement relatif
+    flexDirection: 'row', // Permet d'aligner les enfants
+    justifyContent: 'space-between', // Pousse les éléments aux extrémités
+    padding: 12,
+  },
+  discount: {
+    borderRadius: 6,
+    overflow: 'hidden',
+    alignSelf: 'flex-start' // S'assure qu'il ne prend pas toute la hauteur
+  },
   discountGrad: { paddingHorizontal: 10, paddingVertical: 6 },
   discountTxt: { color: '#fff', fontWeight: '800', fontSize: 12 },
-  dots: {
-    position: 'absolute',
-    bottom: 10,
-    left: 0, right: 0,
-    flexDirection: 'row',
+  // MODIFICATION: Styles pour le nouvel indicateur de page
+  pageIndicator: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  pageIndicatorText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  // MODIFICATION: Styles pour le bouton favori déplacé
+  favButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#fff',
     justifyContent: 'center',
-    columnGap: 6,
-  },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(17,17,17,0.25)' },
-  dotActive: { backgroundColor: '#111' },
-  titleWrap: { paddingHorizontal: 16, paddingTop: 12, rowGap: 8 },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 16,
-  },
-  title: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#111',
-  },
-  titleActions: {
-    flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    marginRight: 24,
+    marginTop: -26, // La moitié de la hauteur pour le faire flotter
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   priceCard: {
-    marginTop: 10,
+    marginTop: 16, // Augmenté pour laisser de la place au bouton flottant
     marginHorizontal: 16,
     padding: 12,
     borderRadius: 14,
@@ -345,7 +394,13 @@ const styles = StyleSheet.create({
   },
   specKey: { color: '#6b7280' },
   specVal: { color: '#111', fontWeight: '600' },
-  actionsSafe: { backgroundColor: '#fff' },
+  actionsSafe: {
+    backgroundColor: '#fff',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
   actions: {
     paddingHorizontal: 16,
     paddingTop: 12,
@@ -355,7 +410,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   whatsappBtn: {
-    backgroundColor: '#111',
+    backgroundColor: '#25D366',
     height: 52,
     borderRadius: 16,
     flexDirection: 'row',

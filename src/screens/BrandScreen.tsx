@@ -44,6 +44,7 @@ const BrandScreen: React.FC = () => {
     }
   }, [refresh, brand]);
 
+  // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
       product: item,

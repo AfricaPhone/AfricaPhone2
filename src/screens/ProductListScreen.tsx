@@ -45,6 +45,7 @@ const ProductListScreen: React.FC = () => {
     refresh();
   }, [queryOptions, refresh]);
 
+  // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
   const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
       product: item,

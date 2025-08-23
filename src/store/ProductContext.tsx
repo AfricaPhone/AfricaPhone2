@@ -67,11 +67,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data) {
+            const imageUrls = data.imageUrls || [];
             const product: Product = {
                 id: docSnap.id,
                 title: data.name,
                 price: data.price,
-                image: data.imageUrl,
+                image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || '',
+                imageUrls: imageUrls,
                 category: data.brand?.toLowerCase() || 'inconnu',
                 description: data.description,
                 rom: data.rom,

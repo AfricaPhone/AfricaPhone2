@@ -77,7 +77,8 @@ const FavoritesScreen: React.FC = () => {
     );
   };
 
-  const renderItem = ({ item }: { item: Product }) => {
+  // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
+  const renderItem = useCallback(({ item }: { item: Product }) => {
     const props = {
       product: item,
       onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
@@ -86,7 +87,7 @@ const FavoritesScreen: React.FC = () => {
       return <View style={{ width: '48%' }}><ProductGridCard {...props} /></View>;
     }
     return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
-  };
+  }, [viewMode, navigation]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
