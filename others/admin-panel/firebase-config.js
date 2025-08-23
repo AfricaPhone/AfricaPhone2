@@ -1,5 +1,3 @@
-// ============================ Firebase Configuration ============================
-// Ce fichier centralise l'initialisation de Firebase pour toute l'application.
 
 // Importe les fonctions nécessaires du SDK Firebase.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
