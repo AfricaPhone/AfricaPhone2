@@ -1,0 +1,12 @@
+# Fichiers de configuration
+babel.config.js
+.prettierrc.js
+
+# Dossiers de sous-projets avec leur propre config
+functions/
+others/
+
+# Fichiers générés
+node_modules/
+dist/
+build/

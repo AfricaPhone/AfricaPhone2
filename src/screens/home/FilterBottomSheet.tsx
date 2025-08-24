@@ -11,7 +11,7 @@ const PRICE_RANGES = [
   { label: '100k - 200k', min: 100000, max: 199999 },
   { label: 'Plus de 200k', min: 200000, max: 9999999 },
 ];
-type PriceRange = typeof PRICE_RANGES[0] | null;
+type PriceRange = (typeof PRICE_RANGES)[0] | null;
 
 // Définition des capacités
 const CAPACITY_OPTIONS = [
@@ -22,7 +22,7 @@ const CAPACITY_OPTIONS = [
   { label: '256GB + 16GB', rom: 256, ram: 16 },
   { label: '512GB + 24GB', rom: 512, ram: 24 },
 ];
-export type Capacity = typeof CAPACITY_OPTIONS[0] | null;
+export type Capacity = (typeof CAPACITY_OPTIONS)[0] | null;
 
 interface Props {
   visible: boolean;
@@ -61,7 +61,7 @@ const FilterBottomSheet: React.FC<Props> = ({ visible, onClose, onApplyFilter })
           <View style={styles.filterSection}>
             <Text style={styles.filterSectionTitle}>Fourchette de prix (FCFA)</Text>
             <View style={styles.chipContainer}>
-              {PRICE_RANGES.map((range) => {
+              {PRICE_RANGES.map(range => {
                 const isActive = selectedRange?.label === range.label;
                 return (
                   <TouchableOpacity
@@ -69,9 +69,7 @@ const FilterBottomSheet: React.FC<Props> = ({ visible, onClose, onApplyFilter })
                     style={[styles.chip, isActive && styles.chipActive]}
                     onPress={() => setSelectedRange(range)}
                   >
-                    <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
-                      {range.label}
-                    </Text>
+                    <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{range.label}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -81,7 +79,7 @@ const FilterBottomSheet: React.FC<Props> = ({ visible, onClose, onApplyFilter })
           <View style={styles.filterSection}>
             <Text style={styles.filterSectionTitle}>Capacité (Stockage + RAM)</Text>
             <View style={styles.chipContainer}>
-              {CAPACITY_OPTIONS.map((capacity) => {
+              {CAPACITY_OPTIONS.map(capacity => {
                 const isActive = selectedCapacity?.label === capacity.label;
                 return (
                   <TouchableOpacity
@@ -89,9 +87,7 @@ const FilterBottomSheet: React.FC<Props> = ({ visible, onClose, onApplyFilter })
                     style={[styles.chip, isActive && styles.chipActive]}
                     onPress={() => setSelectedCapacity(capacity)}
                   >
-                    <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
-                      {capacity.label}
-                    </Text>
+                    <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{capacity.label}</Text>
                   </TouchableOpacity>
                 );
               })}

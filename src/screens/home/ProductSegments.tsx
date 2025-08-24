@@ -4,7 +4,7 @@ import { Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
-export type Segment = typeof SEGMENTS[number];
+export type Segment = (typeof SEGMENTS)[number];
 
 const SEGMENTS_DATA: Array<{
   key: Segment;
@@ -25,7 +25,7 @@ interface Props {
 const ProductSegments: React.FC<Props> = ({ activeSegment, onSegmentChange }) => {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
-      {SEGMENTS_DATA.map((s) => {
+      {SEGMENTS_DATA.map(s => {
         const active = s.key === activeSegment;
         const iconName = active ? (s.icon.replace('-outline', '') as keyof typeof Ionicons.glyphMap) : s.icon;
         return (

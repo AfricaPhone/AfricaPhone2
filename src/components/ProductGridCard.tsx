@@ -28,13 +28,16 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
             <Text style={styles.adTxt}>PUB</Text>
           </View>
         ) : null}
-        <TouchableOpacity style={styles.heartBtn} onPress={() => toggleFavorite(product.id)}>
+        {/* AJOUT DE testID ICI */}
+        <TouchableOpacity testID="heart-button" style={styles.heartBtn} onPress={() => toggleFavorite(product.id)}>
           <Ionicons name={fav ? 'heart' : 'heart-outline'} size={20} color={fav ? '#E91E63' : '#111'} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.infoContainer}>
-        <Text numberOfLines={2} style={styles.title}>{product.title}</Text>
+        <Text numberOfLines={2} style={styles.title}>
+          {product.title}
+        </Text>
 
         {hasSpecs && (
           <Text style={styles.specsText}>
@@ -90,8 +93,8 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     gap: 2, // Ajoute un petit espace entre les éléments
   },
-  title: { 
-    fontSize: 13, 
+  title: {
+    fontSize: 13,
     color: '#111',
     minHeight: 32, // Assure que le titre prend 2 lignes pour éviter les sauts de mise en page
   },

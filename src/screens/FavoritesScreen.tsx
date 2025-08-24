@@ -21,7 +21,7 @@ const FavoritesScreen: React.FC = () => {
   const [selectedCollectionId, setSelectedCollectionId] = useState(collections[0]?.id || null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [sort, setSort] = useState<SortKey>('date');
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -35,11 +35,9 @@ const FavoritesScreen: React.FC = () => {
       }
       setLoading(true);
       const productIds = Array.from(selectedCollection.productIds);
-      const fetchedProducts = await Promise.all(
-        productIds.map(id => getProductById(id))
-      );
-      
-      let productList = fetchedProducts.filter(Boolean) as Product[];
+      const fetchedProducts = await Promise.all(productIds.map(id => getProductById(id)));
+
+      const productList = fetchedProducts.filter(Boolean) as Product[];
 
       switch (sort) {
         case 'priceAsc':
@@ -59,7 +57,6 @@ const FavoritesScreen: React.FC = () => {
     fetchFavoriteProducts();
   }, [selectedCollection, sort, getProductById]);
 
-
   const handleCreateCollection = () => {
     Alert.prompt(
       'Nouvelle Collection',
@@ -68,7 +65,7 @@ const FavoritesScreen: React.FC = () => {
         { text: 'Annuler', style: 'cancel' },
         {
           text: 'Créer',
-          onPress: (name) => {
+          onPress: name => {
             if (name) createCollection(name);
           },
         },
@@ -78,16 +75,27 @@ const FavoritesScreen: React.FC = () => {
   };
 
   // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
-  const renderItem = useCallback(({ item }: { item: Product }) => {
-    const props = {
-      product: item,
-      onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
-    };
-    if (viewMode === 'grid') {
-      return <View style={{ width: '48%' }}><ProductGridCard {...props} /></View>;
-    }
-    return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
-  }, [viewMode, navigation]);
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => {
+      const props = {
+        product: item,
+        onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
+      };
+      if (viewMode === 'grid') {
+        return (
+          <View style={{ width: '48%' }}>
+            <ProductGridCard {...props} />
+          </View>
+        );
+      }
+      return (
+        <View style={{ paddingHorizontal: 16 }}>
+          <ProductListItem {...props} />
+        </View>
+      );
+    },
+    [viewMode, navigation]
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -129,23 +137,25 @@ const FavoritesScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {loading ? <ActivityIndicator size="large" color="#FF7A00" style={{ flex: 1}}/> : (
+      {loading ? (
+        <ActivityIndicator size="large" color="#FF7A00" style={{ flex: 1 }} />
+      ) : (
         <FlatList
-            data={products}
-            key={viewMode}
-            keyExtractor={(item) => item.id}
-            numColumns={viewMode === 'grid' ? 2 : 1}
-            columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-            ListEmptyComponent={
+          data={products}
+          key={viewMode}
+          keyExtractor={item => item.id}
+          numColumns={viewMode === 'grid' ? 2 : 1}
+          columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
             <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Aucun favori</Text>
-                <Text style={styles.emptySubText}>Appuyez sur l'icône ❤️ sur un produit pour l'ajouter.</Text>
+              <Text style={styles.emptyText}>Aucun favori</Text>
+              <Text style={styles.emptySubText}>Appuyez sur l'icône ❤️ sur un produit pour l'ajouter.</Text>
             </View>
-            }
+          }
         />
       )}
     </SafeAreaView>

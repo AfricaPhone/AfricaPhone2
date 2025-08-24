@@ -1,6 +1,6 @@
 // src/components/CustomBottomSheet.tsx
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Modal, StyleSheet, Pressable, Animated, Dimensions } from 'react-native';
+import { Modal, StyleSheet, Pressable, Animated, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height } = Dimensions.get('window');
@@ -32,12 +32,7 @@ const CustomBottomSheet: React.FC<Props> = ({ visible, onClose, children }) => {
   }, [visible, slideAnim]);
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <Pressable style={styles.modalBackdrop} onPress={onClose}>
         <Animated.View style={[styles.sheet, { transform: [{ translateY: slideAnim }], paddingBottom: insets.bottom }]}>
           <Pressable>{children}</Pressable>
@@ -54,14 +49,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheetContainer: {
-    width: '100%', 
+    width: '100%',
     height: 'auto',
   },
   sheet: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '80%', 
+    maxHeight: '80%',
   },
 });
 
