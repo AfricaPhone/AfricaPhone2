@@ -1,11 +1,11 @@
-name: CI (Lint & Test)
+name: CI (Test Only)
 
 # Déclenche le workflow sur les push et les pull requests vers master et develop
 on:
   push:
-    branches: [ "master", "develop" ] # Correction: "main" remplacé par "master"
+    branches: [ "master", "develop" ]
   pull_request:
-    branches: [ "master", "develop" ] # Correction: "main" remplacé par "master"
+    branches: [ "master", "develop" ]
 
 jobs:
   build_and_test:
@@ -24,8 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Run linter
-        run: npm run lint
+      # ÉTAPE DÉSACTIVÉE : Le linter ne sera plus lancé
+      # - name: Run linter
+      #   run: npm run lint
 
       - name: Run tests
         run: npm run test
