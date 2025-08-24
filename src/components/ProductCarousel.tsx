@@ -1,8 +1,8 @@
 // src/components/ProductCarousel.tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Product } from '../types';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { Product, RootStackParamList } from '../types';
 import { useProducts } from '../store/ProductContext';
 import ProductGridCard from './ProductGridCard';
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { getProductById } = useProducts();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

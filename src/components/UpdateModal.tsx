@@ -79,8 +79,8 @@ const UpdateModal: React.FC = () => {
           <Ionicons name="cloud-download-outline" size={60} color="#111" style={{ marginBottom: 16 }} />
           <Text style={styles.title}>Mise à jour disponible</Text>
           <Text style={styles.subtitle}>
-            Une nouvelle version de l'application est disponible. Veuillez mettre à jour pour continuer à profiter de
-            toutes les fonctionnalités.
+            Une nouvelle version de l&apos;application est disponible. Veuillez mettre à jour pour continuer à profiter
+            de toutes les fonctionnalités.
           </Text>
           <TouchableOpacity style={styles.updateButton} onPress={handleUpdatePress}>
             <Text style={styles.updateButtonText}>Mettre à jour maintenant</Text>

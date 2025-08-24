@@ -28,7 +28,8 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
             <Text style={styles.adTxt}>PUB</Text>
           </View>
         ) : null}
-        <TouchableOpacity style={styles.heartBtn} onPress={() => toggleFavorite(product.id)}>
+        {/* AJOUT DE testID ICI */}
+        <TouchableOpacity testID="heart-button" style={styles.heartBtn} onPress={() => toggleFavorite(product.id)}>
           <Ionicons name={fav ? 'heart' : 'heart-outline'} size={20} color={fav ? '#E91E63' : '#111'} />
         </TouchableOpacity>
       </View>

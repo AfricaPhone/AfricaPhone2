@@ -1,26 +1,24 @@
 // src/screens/BrandScreen.tsx
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { useProducts } from '../store/ProductContext';
-import { Product } from '../types';
+import { Product, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 import { GridSkeleton, ListSkeleton } from '../components/SkeletonLoader';
 import { useAllProducts } from '../hooks/usePaginatedProducts'; // MODIFICATION: Importer le bon hook
 
-type RouteParams = {
-  brandId: string;
-};
+type BrandScreenRouteProp = RouteProp<RootStackParamList, 'Brand'>;
 
 type ViewMode = 'grid' | 'list';
 
 const BrandScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
-  const { brandId } = route.params as RouteParams;
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<BrandScreenRouteProp>();
+  const { brandId } = route.params;
 
   const { brands } = useProducts();
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -116,7 +114,7 @@ const BrandScreen: React.FC = () => {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun produit trouvé</Text>
-              <Text style={styles.emptySubText}>Cette marque n'a pas encore de produits disponibles.</Text>
+              <Text style={styles.emptySubText}>Cette marque n&apos;a pas encore de produits disponibles.</Text>
             </View>
           }
         />

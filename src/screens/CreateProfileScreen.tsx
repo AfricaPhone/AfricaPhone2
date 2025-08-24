@@ -12,24 +12,20 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { db } from '../firebase/config';
 import { doc, setDoc, serverTimestamp } from '@react-native-firebase/firestore';
 import LoadingModal from '../components/LoadingModal';
+import { RootStackParamList } from '../types';
 
 // Définition des paramètres de la route attendus
-type RouteParams = {
-  userId: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-};
+type CreateProfileScreenRouteProp = RouteProp<RootStackParamList, 'CreateProfile'>;
 
 const CreateProfileScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<CreateProfileScreenRouteProp>();
   // Récupération des paramètres, y compris les infos de Google
-  const { userId, firstName: googleFirstName, lastName: googleLastName, email } = route.params as RouteParams;
+  const { userId, firstName: googleFirstName, lastName: googleLastName, email } = route.params;
 
   // Pré-remplissage des champs avec les données de Google
   const [firstName, setFirstName] = useState(googleFirstName || '');

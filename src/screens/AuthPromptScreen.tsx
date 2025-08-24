@@ -2,12 +2,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { RootStackParamList } from '../types';
 
 const AuthPromptScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -44,7 +45,7 @@ const AuthPromptScreen: React.FC = () => {
           style={[styles.btn, styles.btnSecondary]}
           onPress={() => Alert.alert('Connexion', 'Écran de connexion à créer.')}
         >
-          <Text style={[styles.btnText, styles.btnTextSecondary]}>J'ai déjà un compte</Text>
+          <Text style={[styles.btnText, styles.btnTextSecondary]}>J&apos;ai déjà un compte</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

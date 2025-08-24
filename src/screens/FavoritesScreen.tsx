@@ -37,7 +37,7 @@ const FavoritesScreen: React.FC = () => {
       const productIds = Array.from(selectedCollection.productIds);
       const fetchedProducts = await Promise.all(productIds.map(id => getProductById(id)));
 
-      let productList = fetchedProducts.filter(Boolean) as Product[];
+      const productList = fetchedProducts.filter(Boolean) as Product[];
 
       switch (sort) {
         case 'priceAsc':

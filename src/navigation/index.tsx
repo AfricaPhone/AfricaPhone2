@@ -1,9 +1,7 @@
 // src/navigation/index.tsx
 import React from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 // MODIFICATION: Mise à jour du chemin d'importation
 import HomeScreen from '../screens/home/HomeScreen';
@@ -116,28 +114,5 @@ const RootNavigator: React.FC = () => {
     </RootStack.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  cartButton: {
-    marginRight: 16,
-    padding: 4,
-  },
-  cartBadge: {
-    position: 'absolute',
-    right: -4,
-    top: -4,
-    backgroundColor: '#FF7A00',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cartBadgeText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-});
 
 export default RootNavigator;

@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { Product } from '../types';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { Product, RootStackParamList } from '../types';
 import { collection, query, where, orderBy, getDocs, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import ProductGridCard from '../components/ProductGridCard';
@@ -130,7 +130,7 @@ type AlgoliaHit = {
 };
 
 const CatalogScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedQuery = useDebounce(searchQuery, 300);
 
@@ -212,7 +212,7 @@ const CatalogScreen: React.FC = () => {
     if (!searchQuery.trim()) return;
     Keyboard.dismiss();
     navigation.navigate('ProductList', {
-      title: `Recherche: "${searchQuery}"`,
+      title: `Recherche: "${searchQuery.trim()}"`,
       searchQuery: searchQuery.trim(),
     });
   };
@@ -271,7 +271,7 @@ const CatalogScreen: React.FC = () => {
           )}
           ListEmptyComponent={
             <View style={styles.emptyResults}>
-              <Text style={styles.emptyResultsText}>Aucun résultat pour "{debouncedQuery}"</Text>
+              <Text style={styles.emptyResultsText}>Aucun résultat pour &quot;{debouncedQuery}&quot;</Text>
             </View>
           }
         />

@@ -1,8 +1,8 @@
 // src/components/ShopTheLook.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { ShopTheLookItem, Product } from '../types';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { ShopTheLookItem, Product, RootStackParamList } from '../types';
 import { useProducts } from '../store/ProductContext';
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 const ShopTheLook: React.FC<Props> = ({ item }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { getProductById } = useProducts();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +32,7 @@ const ShopTheLook: React.FC<Props> = ({ item }) => {
         {loading ? (
           <ActivityIndicator color="#fff" size="large" />
         ) : (
-          item.markers.map((marker, index) => {
+          item.markers.map(marker => {
             const product = products.find(p => p.id === marker.productId);
             if (!product) return null;
             return (

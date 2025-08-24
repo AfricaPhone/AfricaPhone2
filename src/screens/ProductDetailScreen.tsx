@@ -16,7 +16,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,7 +25,7 @@ import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
 import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
-import { Product } from '../types';
+import { Product, RootStackParamList } from '../types';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -34,7 +34,11 @@ const ITEM_WIDTH = screenWidth; // L'image prend toute la largeur
 const SPACING = 0; // Plus d'espacement entre les images
 const SIDE_SPACING = 0; // Plus de marges latérales
 
-type RouteParams = { productId: string };
+// On définit le type des paramètres de la route
+type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail'>;
+
+// On définit le type pour la navigation
+type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
 const Section: React.FC<{
   title: string;
@@ -54,11 +58,12 @@ const Section: React.FC<{
 };
 
 const ProductDetailScreen: React.FC = () => {
-  const nav = useNavigation<any>();
-  const insets = useSafeAreaInsets();
-  const route = useRoute<any>();
-  const { productId } = route.params as RouteParams;
+  // CORRECTION: On utilise les types pour supprimer les 'any'
+  const nav = useNavigation<ProductDetailScreenNavigationProp>();
+  const route = useRoute<ProductDetailScreenRouteProp>();
+  const { productId } = route.params;
 
+  const insets = useSafeAreaInsets();
   const { toggleFavorite, isFav } = useFavorites();
   const { getProductById, getProductFromCache } = useProducts();
   const { boutiqueInfo } = useBoutique();
@@ -80,12 +85,13 @@ const ProductDetailScreen: React.FC = () => {
       if (freshProduct) {
         setProduct(freshProduct);
       }
+      // CORRECTION: Ajout de la dépendance 'loading'
       if (loading) {
         setLoading(false);
       }
     };
     fetchProduct();
-  }, [productId, getProductById, getProductFromCache]);
+  }, [productId, getProductById, getProductFromCache, loading]);
 
   const gallery = useMemo(() => {
     if (product?.imageUrls && product.imageUrls.length > 0) {

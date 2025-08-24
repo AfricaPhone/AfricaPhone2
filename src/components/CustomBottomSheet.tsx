@@ -1,6 +1,6 @@
 // src/components/CustomBottomSheet.tsx
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Modal, StyleSheet, Pressable, Animated, Dimensions } from 'react-native';
+import { Modal, StyleSheet, Pressable, Animated, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height } = Dimensions.get('window');
