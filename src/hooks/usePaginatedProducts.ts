@@ -56,14 +56,14 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
     const minPriceNum = Number(options.minPrice);
     const maxPriceNum = Number(options.maxPrice);
-    const hasPriceFilter = !isNaN(minPriceNum) && minPriceNum > 0 || !isNaN(maxPriceNum) && maxPriceNum > 0;
+    const hasPriceFilter = (!isNaN(minPriceNum) && minPriceNum > 0) || (!isNaN(maxPriceNum) && maxPriceNum > 0);
     const hasSearchQuery = !!options.searchQuery;
 
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
-      q = query(q, where('category', '==', categoryCapitalized));
+      // MODIFICATION: Suppression de la capitalisation
+      q = query(q, where('category', '==', options.category));
     }
 
     if (!isNaN(minPriceNum) && minPriceNum > 0) {
@@ -72,7 +72,7 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     if (!isNaN(maxPriceNum) && maxPriceNum > 0) {
       q = query(q, where('price', '<=', maxPriceNum));
     }
-    
+
     if (options.rom) {
       q = query(q, where('rom', '==', options.rom));
     }
@@ -81,11 +81,7 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     }
 
     if (options.searchQuery) {
-      q = query(
-        q,
-        where('name', '>=', options.searchQuery),
-        where('name', '<=', options.searchQuery + '\uf8ff')
-      );
+      q = query(q, where('name', '>=', options.searchQuery), where('name', '<=', options.searchQuery + '\uf8ff'));
     }
 
     if (hasSearchQuery) {
@@ -98,7 +94,17 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
       q = query(q, orderBy('name', 'asc'));
     }
     return q;
-  }, [options.category, options.brandId, options.sortBy, options.sortDirection, options.searchQuery, options.minPrice, options.maxPrice, options.rom, options.ram]);
+  }, [
+    options.category,
+    options.brandId,
+    options.sortBy,
+    options.sortDirection,
+    options.searchQuery,
+    options.minPrice,
+    options.maxPrice,
+    options.rom,
+    options.ram,
+  ]);
 
   const fetchAllProducts = useCallback(async () => {
     setLoading(true);
@@ -125,7 +131,6 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
   return { products, loading, refresh };
 };
 
-
 // --- HOOK ORIGINAL POUR LA PAGINATION ---
 export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -140,14 +145,14 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
 
     const minPriceNum = Number(options.minPrice);
     const maxPriceNum = Number(options.maxPrice);
-    const hasPriceFilter = !isNaN(minPriceNum) && minPriceNum > 0 || !isNaN(maxPriceNum) && maxPriceNum > 0;
+    const hasPriceFilter = (!isNaN(minPriceNum) && minPriceNum > 0) || (!isNaN(maxPriceNum) && maxPriceNum > 0);
     const hasSearchQuery = !!options.searchQuery;
 
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
-      q = query(q, where('category', '==', categoryCapitalized));
+      // MODIFICATION: Suppression de la capitalisation
+      q = query(q, where('category', '==', options.category));
     }
 
     if (!isNaN(minPriceNum) && minPriceNum > 0) {
@@ -158,11 +163,7 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
     }
 
     if (options.searchQuery) {
-      q = query(
-        q,
-        where('name', '>=', options.searchQuery),
-        where('name', '<=', options.searchQuery + '\uf8ff')
-      );
+      q = query(q, where('name', '>=', options.searchQuery), where('name', '<=', options.searchQuery + '\uf8ff'));
     }
 
     if (hasSearchQuery) {

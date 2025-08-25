@@ -1,8 +1,8 @@
 // src/components/ProductCarousel.tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Product } from '../types';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { Product, RootStackParamList } from '../types';
 import { useProducts } from '../store/ProductContext';
 import ProductGridCard from './ProductGridCard';
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { getProductById } = useProducts();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,28 +29,28 @@ const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
     fetchProducts();
   }, [productIds, getProductById]);
 
-  const renderItem = useCallback(({ item }: { item: Product }) => {
-    const handlePress = () => {
-      navigation.navigate('ProductDetail', { productId: item.id });
-    };
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => {
+      const handlePress = () => {
+        navigation.navigate('ProductDetail', { productId: item.id });
+      };
 
+      return (
+        <View style={styles.cardWrapper}>
+          <ProductGridCard product={item} onPress={handlePress} />
+        </View>
+      );
+    },
+    [navigation]
+  );
+
+  if (loading) {
     return (
-      <View style={styles.cardWrapper}>
-        <ProductGridCard
-          product={item}
-          onPress={handlePress}
-        />
+      <View style={styles.container}>
+        <Text style={styles.title}>{title}</Text>
+        <ActivityIndicator color="#FF7A00" style={{ height: 180 }} />
       </View>
     );
-  }, [navigation]);
-  
-  if (loading) {
-      return (
-          <View style={styles.container}>
-              <Text style={styles.title}>{title}</Text>
-              <ActivityIndicator color="#FF7A00" style={{ height: 180 }} />
-          </View>
-      )
   }
 
   return (
@@ -58,7 +58,7 @@ const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
       <Text style={styles.title}>{title}</Text>
       <FlatList
         data={products}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={renderItem}

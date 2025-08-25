@@ -1,34 +1,24 @@
 // src/screens/BrandScreen.tsx
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { useProducts } from '../store/ProductContext';
-import { Product } from '../types';
+import { Product, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 import { GridSkeleton, ListSkeleton } from '../components/SkeletonLoader';
 import { useAllProducts } from '../hooks/usePaginatedProducts'; // MODIFICATION: Importer le bon hook
 
-type RouteParams = {
-  brandId: string;
-};
+type BrandScreenRouteProp = RouteProp<RootStackParamList, 'Brand'>;
 
 type ViewMode = 'grid' | 'list';
 
 const BrandScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
-  const { brandId } = route.params as RouteParams;
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<BrandScreenRouteProp>();
+  const { brandId } = route.params;
 
   const { brands } = useProducts();
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -39,22 +29,33 @@ const BrandScreen: React.FC = () => {
   const { products, loading, refresh } = useAllProducts({ brandId: brand?.name });
 
   useEffect(() => {
-    if (brand) { 
+    if (brand) {
       refresh();
     }
   }, [refresh, brand]);
 
   // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
-  const renderItem = useCallback(({ item }: { item: Product }) => {
-    const props = {
-      product: item,
-      onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
-    };
-    if (viewMode === 'grid') {
-      return <View style={{ width: '48%' }}><ProductGridCard {...props} /></View>;
-    }
-    return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
-  }, [viewMode, navigation]);
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => {
+      const props = {
+        product: item,
+        onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
+      };
+      if (viewMode === 'grid') {
+        return (
+          <View style={{ width: '48%' }}>
+            <ProductGridCard {...props} />
+          </View>
+        );
+      }
+      return (
+        <View style={{ paddingHorizontal: 16 }}>
+          <ProductListItem {...props} />
+        </View>
+      );
+    },
+    [viewMode, navigation]
+  );
 
   const Header = () => (
     <View>
@@ -89,7 +90,9 @@ const BrandScreen: React.FC = () => {
         <View style={{ flex: 1, paddingTop: 10 }}>
           {viewMode === 'grid' ? (
             <View style={styles.gridContainer}>
-              {Array.from({ length: 6 }).map((_, i) => <GridSkeleton key={i} />)}
+              {Array.from({ length: 6 }).map((_, i) => (
+                <GridSkeleton key={i} />
+              ))}
             </View>
           ) : (
             Array.from({ length: 4 }).map((_, i) => <ListSkeleton key={i} />)
@@ -100,7 +103,7 @@ const BrandScreen: React.FC = () => {
           style={{ flex: 1 }} // Assure que la liste prend tout l'espace
           data={products}
           key={viewMode}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
           columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
@@ -111,7 +114,7 @@ const BrandScreen: React.FC = () => {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun produit trouvé</Text>
-              <Text style={styles.emptySubText}>Cette marque n'a pas encore de produits disponibles.</Text>
+              <Text style={styles.emptySubText}>Cette marque n&apos;a pas encore de produits disponibles.</Text>
             </View>
           }
         />

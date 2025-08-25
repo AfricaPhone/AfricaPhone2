@@ -21,7 +21,7 @@ import { db } from '../../firebase/config';
 import HomeHeader from './HomeHeader';
 import HomeListHeader from './HomeListHeader';
 import ProductGrid from './ProductGrid';
-import FilterBottomSheet, { Capacity } from './FilterBottomSheet'; // MODIFICATION: J'importe le type Capacity
+import FilterBottomSheet, { Capacity } from './FilterBottomSheet';
 import { Segment } from './ProductSegments';
 
 // --- Constantes ---
@@ -85,7 +85,7 @@ const HomeScreen: React.FC = () => {
         })) as PromoCard[];
         setPromoCards(fetchedCards);
       } catch (error) {
-        console.error("Erreur de chargement des cartes promo :", error);
+        console.error('Erreur de chargement des cartes promo :', error);
       } finally {
         setPromoCardsLoading(false);
       }
@@ -132,18 +132,19 @@ const HomeScreen: React.FC = () => {
           });
         } else {
           let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
-          if (segment === 'Portables a Touches') {
-            q = query(q, where('ram', '==', null), orderBy('name', 'asc'));
+          // MODIFICATION: La condition spéciale pour "portable a touche" est simplifiée
+          if (segment === 'portable a touche') {
+            q = query(q, where('category', '==', 'portable a touche'), orderBy('name', 'asc'));
           } else {
-            const categoryCapitalized = segment.charAt(0).toUpperCase() + segment.slice(1);
-            q = query(q, where('category', '==', categoryCapitalized), orderBy('name', 'asc'));
+            // MODIFICATION: Suppression de la capitalisation, on utilise le segment tel quel
+            q = query(q, where('category', '==', segment), orderBy('name', 'asc'));
           }
           q = query(q, limit(PAGE_SIZE));
 
           const querySnapshot = await getDocs(q);
           const newProducts = querySnapshot.docs.map(mapDocToProduct);
           const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-          setDataBySegment((prev) => ({
+          setDataBySegment(prev => ({
             ...prev,
             [segment]: { products: newProducts, lastDoc: lastVisible, hasMore: newProducts.length === PAGE_SIZE },
           }));
@@ -180,11 +181,11 @@ const HomeScreen: React.FC = () => {
           orderBy('ordreVedette', 'asc'),
           orderBy('name', 'asc')
         );
-      } else if (activeSegment === 'Portables a Touches') {
-        q = query(q, where('ram', '==', null), orderBy('name', 'asc'));
+      } else if (activeSegment === 'portable a touche') {
+        q = query(q, where('category', '==', 'portable a touche'), orderBy('name', 'asc'));
       } else {
-        const categoryCapitalized = activeSegment.charAt(0).toUpperCase() + activeSegment.slice(1);
-        q = query(q, where('category', '==', categoryCapitalized), orderBy('name', 'asc'));
+        // MODIFICATION: Suppression de la capitalisation
+        q = query(q, where('category', '==', activeSegment), orderBy('name', 'asc'));
       }
 
       q = query(q, startAfter(segmentState.lastDoc), limit(PAGE_SIZE));
@@ -193,13 +194,13 @@ const HomeScreen: React.FC = () => {
       const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
 
       if (activeSegment === 'Populaires') {
-        setRegularProducts((prev) => ({
+        setRegularProducts(prev => ({
           products: [...prev.products, ...newProducts],
           lastDoc: lastVisible,
           hasMore: newProducts.length === PAGE_SIZE,
         }));
       } else {
-        setDataBySegment((prev) => ({
+        setDataBySegment(prev => ({
           ...prev,
           [activeSegment]: {
             products: [...(prev[activeSegment]?.products || []), ...newProducts],
@@ -219,8 +220,7 @@ const HomeScreen: React.FC = () => {
     activeSegment === 'Populaires'
       ? [...vedetteProducts, ...regularProducts.products]
       : dataBySegment[activeSegment]?.products || [];
-  
-  // MODIFICATION: J'utilise le type importé pour garantir la compatibilité
+
   const handleApplyFilter = (minPrice: string, maxPrice: string, capacity?: Capacity) => {
     setIsFilterVisible(false);
     navigation.navigate('FilterScreenResults', {

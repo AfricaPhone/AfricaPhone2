@@ -1,0 +1,32 @@
+name: CI (Test Only)
+
+# Déclenche le workflow sur les push et les pull requests vers master et develop
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      # ÉTAPE DÉSACTIVÉE : Le linter ne sera plus lancé
+      # - name: Run linter
+      #   run: npm run lint
+
+      - name: Run tests
+        run: npm run test

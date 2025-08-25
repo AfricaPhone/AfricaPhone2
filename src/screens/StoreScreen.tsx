@@ -57,39 +57,42 @@ const StoreScreen: React.FC = () => {
         if (supported) {
           Linking.openURL(url);
         } else {
-          Alert.alert("Erreur", `Impossible d'ouvrir cette URL: ${url}`);
+          Alert.alert('Erreur', `Impossible d'ouvrir cette URL: ${url}`);
         }
       })
       .catch(err => console.error('An error occurred', err));
   };
-  
+
   const handleCall = (number: string | undefined) => {
-    if(!number) return;
+    if (!number) return;
     handleOpenUrl(`tel:${number}`);
-  }
+  };
 
   if (loading) {
     return (
       <View style={styles.centerScreen}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={{marginTop: 10, color: COLORS.textSecondary}}>Chargement...</Text>
+        <Text style={{ marginTop: 10, color: COLORS.textSecondary }}>Chargement...</Text>
       </View>
     );
   }
 
   if (!info) {
     return (
-       <SafeAreaView style={styles.safeArea} edges={[]}>
-         <View style={styles.centerScreen}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backButton, { top: 60, backgroundColor: 'rgba(0,0,0,0.1)'}]}>
-                <Ionicons name="arrow-back" size={24} color="#000" />
-            </TouchableOpacity>
-            <Text>Informations non disponibles.</Text>
-         </View>
-       </SafeAreaView>
+      <SafeAreaView style={styles.safeArea} edges={[]}>
+        <View style={styles.centerScreen}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={[styles.backButton, { top: 60, backgroundColor: 'rgba(0,0,0,0.1)' }]}
+          >
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text>Informations non disponibles.</Text>
+        </View>
+      </SafeAreaView>
     );
   }
-  
+
   const phoneNumber = info.phoneNumber || info.whatsappNumber;
 
   return (
@@ -118,50 +121,47 @@ const StoreScreen: React.FC = () => {
           <Text style={styles.storeName}>{info.name || 'Nom de la boutique'}</Text>
           <Text style={styles.storeCategory}>{info.category || "Boutique d'électronique"}</Text>
         </View>
-        
+
         {/* Actions Rapides */}
         <View style={styles.quickActionsContainer}>
-            <TouchableOpacity style={styles.actionButton} onPress={() => handleCall(phoneNumber)}>
-                <Ionicons name="call" size={22} color={COLORS.textPrimary} />
-                <Text style={styles.actionButtonText}>Appeler</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenUrl(info.googleMapsUrl)}>
-                <Ionicons name="map" size={22} color={COLORS.textPrimary} />
-                <Text style={styles.actionButtonText}>Itinéraire</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenUrl(info.websiteUrl)}>
-                <Ionicons name="globe" size={22} color={COLORS.textPrimary} />
-                <Text style={styles.actionButtonText}>Site Web</Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleCall(phoneNumber)}>
+            <Ionicons name="call" size={22} color={COLORS.textPrimary} />
+            <Text style={styles.actionButtonText}>Appeler</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenUrl(info.googleMapsUrl)}>
+            <Ionicons name="map" size={22} color={COLORS.textPrimary} />
+            <Text style={styles.actionButtonText}>Itinéraire</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenUrl(info.websiteUrl)}>
+            <Ionicons name="globe" size={22} color={COLORS.textPrimary} />
+            <Text style={styles.actionButtonText}>Site Web</Text>
+          </TouchableOpacity>
         </View>
-
 
         {/* Main Info Section */}
         <View style={styles.section}>
           <InfoRow
             icon="map-marker-outline"
             label="Adresse"
-            value={info.address || "Adresse non disponible"}
+            value={info.address || 'Adresse non disponible'}
             onPress={() => handleOpenUrl(info.googleMapsUrl)}
             isLink={!!info.googleMapsUrl}
           />
           <View style={styles.divider} />
-          <InfoRow
-            icon="clock-outline"
-            label="Horaires"
-            value={info.openingHours || "Non spécifiés"}
-          />
+          <InfoRow icon="clock-outline" label="Horaires" value={info.openingHours || 'Non spécifiés'} />
         </View>
 
         <View style={styles.section}>
-          {phoneNumber && <InfoRow
-            icon="phone-outline"
-            label="Mobile"
-            value={phoneNumber}
-            onPress={() => handleCall(phoneNumber)}
-            isLink
-          />}
-           <View style={styles.divider} />
+          {phoneNumber && (
+            <InfoRow
+              icon="phone-outline"
+              label="Mobile"
+              value={phoneNumber}
+              onPress={() => handleCall(phoneNumber)}
+              isLink
+            />
+          )}
+          <View style={styles.divider} />
           <InfoRow
             icon="whatsapp"
             label="WhatsApp"
@@ -172,23 +172,27 @@ const StoreScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          {info.email && <>
-            <InfoRow
+          {info.email && (
+            <>
+              <InfoRow
                 icon="email-outline"
                 label="E-mail"
                 value={info.email}
                 onPress={() => handleOpenUrl(`mailto:${info.email}`)}
                 isLink
+              />
+              <View style={styles.divider} />
+            </>
+          )}
+          {info.websiteUrl && (
+            <InfoRow
+              icon="web"
+              label="Site web"
+              value={info.websiteUrl.replace('https://', '').replace('http://', '')}
+              onPress={() => handleOpenUrl(info.websiteUrl)}
+              isLink
             />
-            <View style={styles.divider} />
-          </>}
-          {info.websiteUrl && <InfoRow
-            icon="web"
-            label="Site web"
-            value={info.websiteUrl.replace('https://','').replace('http://','')}
-            onPress={() => handleOpenUrl(info.websiteUrl)}
-            isLink
-          />}
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

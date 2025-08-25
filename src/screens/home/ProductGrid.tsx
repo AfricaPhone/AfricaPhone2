@@ -58,10 +58,12 @@ const ProductGrid: React.FC<Props> = ({
     <FlatList
       data={products}
       renderItem={renderItem}
-      keyExtractor={(item) => `${activeSegment}-${item.id}`}
+      keyExtractor={item => `${activeSegment}-${item.id}`}
       numColumns={2}
       ListHeaderComponent={listHeaderComponent}
-      ListFooterComponent={loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" /> : null}
+      ListFooterComponent={
+        loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" /> : null
+      }
       onEndReached={onLoadMore}
       onEndReachedThreshold={0.5}
       columnWrapperStyle={styles.gridContainer}

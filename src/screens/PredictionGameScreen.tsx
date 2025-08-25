@@ -36,9 +36,9 @@ const PredictionGameScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [scoreA, setScoreA] = useState('');
   const [scoreB, setScoreB] = useState('');
-  
+
   const [match, setMatch] = useState<Match | null>(null);
-  const [predictions, setPredictions] = useState<Prediction[]>([]); 
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,20 +48,17 @@ const PredictionGameScreen: React.FC = () => {
     const cutOffTime = match.startTime.toDate().getTime() - GRACE_PERIOD_MS;
     return new Date().getTime() > cutOffTime;
   }, [match]);
-  
+
   const matchEnded = useMemo(() => {
-      if (!match) return false;
-      return typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number';
+    if (!match) return false;
+    return typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number';
   }, [match]);
 
-  const currentUserPrediction = useMemo(() => 
-    predictions.find(p => p.userId === user?.id),
-    [predictions, user]
-  );
+  const currentUserPrediction = useMemo(() => predictions.find(p => p.userId === user?.id), [predictions, user]);
 
   const communityTrends = useMemo(() => {
     if (!match || !match.trends || !match.predictionCount) return [];
-    
+
     const totalPredictions = match.predictionCount;
     if (totalPredictions === 0) return [];
 
@@ -79,35 +76,43 @@ const PredictionGameScreen: React.FC = () => {
     setLoading(true);
 
     const matchDocRef = doc(db, 'matches', matchId);
-    const unsubscribeMatch = onSnapshot(matchDocRef, (matchDoc) => {
-      if (matchDoc.exists()) {
-        setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
-      } else {
-        console.error("Match non trouvé !");
-        setMatch(null);
+    const unsubscribeMatch = onSnapshot(
+      matchDocRef,
+      matchDoc => {
+        if (matchDoc.exists()) {
+          setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
+        } else {
+          console.error('Match non trouvé !');
+          setMatch(null);
+        }
+        if (loading) setLoading(false);
+      },
+      error => {
+        console.error('Erreur de lecture du match: ', error);
+        if (loading) setLoading(false);
       }
-      if (loading) setLoading(false);
-    }, (error) => {
-      console.error("Erreur de lecture du match: ", error);
-      if (loading) setLoading(false);
-    });
+    );
 
     let unsubscribePredictions = () => {};
     if (user) {
-        const predictionsRef = collection(db, 'predictions');
-        const q = query(predictionsRef, where('matchId', '==', matchId), where('userId', '==', user.id));
+      const predictionsRef = collection(db, 'predictions');
+      const q = query(predictionsRef, where('matchId', '==', matchId), where('userId', '==', user.id));
 
-        unsubscribePredictions = onSnapshot(q, (querySnapshot) => {
-            const preds: Prediction[] = [];
-            querySnapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
-              preds.push({ id: doc.id, ...doc.data() } as Prediction);
-            });
-            setPredictions(preds);
-        }, (error) => {
-            console.error("Erreur de lecture du pronostic utilisateur: ", error);
-        });
+      unsubscribePredictions = onSnapshot(
+        q,
+        querySnapshot => {
+          const preds: Prediction[] = [];
+          querySnapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
+            preds.push({ id: doc.id, ...doc.data() } as Prediction);
+          });
+          setPredictions(preds);
+        },
+        error => {
+          console.error('Erreur de lecture du pronostic utilisateur: ', error);
+        }
+      );
     } else {
-        setPredictions([]);
+      setPredictions([]);
     }
 
     return () => {
@@ -149,16 +154,16 @@ const PredictionGameScreen: React.FC = () => {
     try {
       // MODIFICATION: Appeler la fonction Cloud au lieu d'écrire directement
       const submitPredictionFn = httpsCallable(functions, 'submitPrediction');
-      
+
       const payload = {
-          matchId: matchId,
-          scoreA: parseInt(scoreA, 10),
-          scoreB: parseInt(scoreB, 10),
-          predictionId: currentUserPrediction?.id, // Envoyer l'ID pour les mises à jour
+        matchId: matchId,
+        scoreA: parseInt(scoreA, 10),
+        scoreB: parseInt(scoreB, 10),
+        predictionId: currentUserPrediction?.id, // Envoyer l'ID pour les mises à jour
       };
-      
+
       const result = await submitPredictionFn(payload);
-      const data = result.data as { success: boolean, message: string };
+      const data = result.data as { success: boolean; message: string };
 
       Alert.alert(data.success ? 'Succès' : 'Erreur', data.message);
 
@@ -173,7 +178,7 @@ const PredictionGameScreen: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   const renderResultCard = () => {
     if (!matchEnded || !currentUserPrediction) return null;
 
@@ -190,15 +195,15 @@ const PredictionGameScreen: React.FC = () => {
     }
 
     return (
-        <View style={[styles.resultCard, styles.loserCard]}>
-          <Ionicons name="sad-outline" size={24} color="#4b5563" />
-          <View style={styles.resultTextContainer}>
-            <Text style={styles.resultTitle}>Dommage, ce n'est pas le bon score.</Text>
-            <Text style={styles.resultSubtitle}>
-              Votre pronostic : {currentUserPrediction.scoreA} - {currentUserPrediction.scoreB}
-            </Text>
-          </View>
+      <View style={[styles.resultCard, styles.loserCard]}>
+        <Ionicons name="sad-outline" size={24} color="#4b5563" />
+        <View style={styles.resultTextContainer}>
+          <Text style={styles.resultTitle}>Dommage, ce n'est pas le bon score.</Text>
+          <Text style={styles.resultSubtitle}>
+            Votre pronostic : {currentUserPrediction.scoreA} - {currentUserPrediction.scoreB}
+          </Text>
         </View>
+      </View>
     );
   };
 
@@ -230,34 +235,34 @@ const PredictionGameScreen: React.FC = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#111" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Jeu Pronostique</Text>
-            <View style={{ width: 40 }} />
-          </View>
-          <ActivityIndicator style={{ flex: 1 }} size="large" color="#FF7A00" />
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#111" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Jeu Pronostique</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <ActivityIndicator style={{ flex: 1 }} size="large" color="#FF7A00" />
       </SafeAreaView>
-    )
+    );
   }
 
   if (!match) {
     return (
-       <SafeAreaView style={styles.container} edges={['top']}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#111" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Erreur</Text>
-            <View style={{ width: 40 }} />
-          </View>
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Match non trouvé</Text>
-            <Text style={styles.emptySubText}>Ce match n'existe pas ou a été supprimé.</Text>
-          </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#111" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Erreur</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Match non trouvé</Text>
+          <Text style={styles.emptySubText}>Ce match n'existe pas ou a été supprimé.</Text>
+        </View>
       </SafeAreaView>
-    )
+    );
   }
 
   return (
@@ -277,14 +282,16 @@ const PredictionGameScreen: React.FC = () => {
             <MaterialCommunityIcons name="trophy-outline" size={20} color="#FF7A00" />
             <Text style={styles.competitionText}>{match.competition}</Text>
           </View>
-          <Text style={styles.dateText}>{`${match.startTime.toDate().toLocaleDateString('fr-FR')} - ${match.startTime.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}`}</Text>
+          <Text
+            style={styles.dateText}
+          >{`${match.startTime.toDate().toLocaleDateString('fr-FR')} - ${match.startTime.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}</Text>
           <View style={styles.matchContainer}>
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
                 {/* MODIFICATION: Utilisation du logo de l'équipe A depuis Firebase */}
-                <Image 
-                  source={{ uri: match.teamALogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }} 
-                  style={styles.flag} 
+                <Image
+                  source={{ uri: match.teamALogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }}
+                  style={styles.flag}
                 />
               </View>
               <Text style={styles.teamName}>{match.teamA}</Text>
@@ -297,23 +304,23 @@ const PredictionGameScreen: React.FC = () => {
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
                 {/* MODIFICATION: Utilisation du logo de l'équipe B depuis Firebase */}
-                <Image 
-                  source={{ uri: match.teamBLogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }} 
-                  style={styles.flag} 
+                <Image
+                  source={{ uri: match.teamBLogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }}
+                  style={styles.flag}
                 />
               </View>
               <Text style={styles.teamName}>{match.teamB}</Text>
             </View>
           </View>
         </View>
-        
+
         {renderResultCard()}
 
         {currentUserPrediction && !matchEnded && (
-            <View style={styles.votedCard}>
-                <Text style={styles.votedTitle}>Votre pronostic actuel</Text>
-                <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
-            </View>
+          <View style={styles.votedCard}>
+            <Text style={styles.votedTitle}>Votre pronostic actuel</Text>
+            <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
+          </View>
         )}
 
         {renderActionButton()}
@@ -333,9 +340,7 @@ const PredictionGameScreen: React.FC = () => {
                 <View style={styles.progressBarContainer}>
                   <View style={[styles.progressBar, { width: `${pred.percentage}%` }]} />
                 </View>
-                <Text style={styles.predictionPercentage}>
-                  {`${pred.percentage}% (${pred.count})`}
-                </Text>
+                <Text style={styles.predictionPercentage}>{`${pred.percentage}% (${pred.count})`}</Text>
               </View>
             ))
           ) : (
@@ -353,36 +358,48 @@ const PredictionGameScreen: React.FC = () => {
         <Pressable style={styles.modalBackdrop} onPress={() => setModalVisible(false)}>
           <Pressable style={styles.modalContent}>
             <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                <Ionicons name="close-circle" size={28} color="#9ca3af" />
+              <Ionicons name="close-circle" size={28} color="#9ca3af" />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>{currentUserPrediction ? 'Modifier' : 'Votre'} Pronostic</Text>
-            <Text style={styles.modalSubtitle}>{match.teamA} vs {match.teamB}</Text>
-            
+            <Text style={styles.modalSubtitle}>
+              {match.teamA} vs {match.teamB}
+            </Text>
+
             <View style={styles.modalScoreContainer}>
               <TextInput
-                  style={styles.scoreInputModal}
-                  keyboardType="number-pad"
-                  maxLength={2}
-                  value={scoreA}
-                  onChangeText={setScoreA}
-                  placeholder="0"
-                  placeholderTextColor="#9ca3af"
-                  autoFocus={true}
+                style={styles.scoreInputModal}
+                keyboardType="number-pad"
+                maxLength={2}
+                value={scoreA}
+                onChangeText={setScoreA}
+                placeholder="0"
+                placeholderTextColor="#9ca3af"
+                autoFocus={true}
               />
               <Text style={styles.modalSeparator}>-</Text>
               <TextInput
-                  style={styles.scoreInputModal}
-                  keyboardType="number-pad"
-                  maxLength={2}
-                  value={scoreB}
-                  onChangeText={setScoreB}
-                  placeholder="0"
-                  placeholderTextColor="#9ca3af"
+                style={styles.scoreInputModal}
+                keyboardType="number-pad"
+                maxLength={2}
+                value={scoreB}
+                onChangeText={setScoreB}
+                placeholder="0"
+                placeholderTextColor="#9ca3af"
               />
             </View>
 
-            <TouchableOpacity style={[styles.modalSubmitButton, isSubmitting && styles.buttonDisabled]} onPress={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalSubmitText}>{currentUserPrediction ? 'Valider la modification' : 'Valider le pronostic'}</Text>}
+            <TouchableOpacity
+              style={[styles.modalSubmitButton, isSubmitting && styles.buttonDisabled]}
+              onPress={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.modalSubmitText}>
+                  {currentUserPrediction ? 'Valider la modification' : 'Valider le pronostic'}
+                </Text>
+              )}
             </TouchableOpacity>
           </Pressable>
         </Pressable>
@@ -392,7 +409,7 @@ const PredictionGameScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
@@ -420,9 +437,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 16,
   },
-  cardHeader: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
     alignSelf: 'center',
   },
@@ -449,8 +466,8 @@ const styles = StyleSheet.create({
   flag: { width: 70, height: 70, borderRadius: 35 },
   teamName: { color: '#111', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   vsText: { color: '#9ca3af', fontSize: 14, fontWeight: '900', marginTop: 30 },
-  finalScoreText: { color: '#111', fontSize: 36, fontWeight: 'bold', marginTop: 20},
-  
+  finalScoreText: { color: '#111', fontSize: 36, fontWeight: 'bold', marginTop: 20 },
+
   communityHeader: {
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -523,7 +540,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  
+
   votedCard: {
     backgroundColor: '#e0f2fe',
     borderColor: '#7dd3fc',
@@ -560,9 +577,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   loserCard: {
-      backgroundColor: '#f3f4f6',
-      borderColor: '#e5e7eb',
-      borderWidth: 1,
+    backgroundColor: '#f3f4f6',
+    borderColor: '#e5e7eb',
+    borderWidth: 1,
   },
   resultTextContainer: {
     flex: 1,
@@ -577,7 +594,6 @@ const styles = StyleSheet.create({
     color: '#4b5563',
     marginTop: 2,
   },
-
 
   modalBackdrop: {
     flex: 1,

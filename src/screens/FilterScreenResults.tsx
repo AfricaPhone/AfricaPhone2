@@ -39,7 +39,14 @@ const FilterScreenResults: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
-  const { initialCategory, initialSearchQuery, minPrice: initialMinPrice, maxPrice: initialMaxPrice, rom: initialRom, ram: initialRam } = route.params as RouteParams || {};
+  const {
+    initialCategory,
+    initialSearchQuery,
+    minPrice: initialMinPrice,
+    maxPrice: initialMaxPrice,
+    rom: initialRom,
+    ram: initialRam,
+  } = (route.params as RouteParams) || {};
 
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [category, setCategory] = useState<Category | undefined>(initialCategory);
@@ -73,16 +80,27 @@ const FilterScreenResults: React.FC = () => {
   }, [queryOptions, refresh]);
 
   // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
-  const renderItem = useCallback(({ item }: { item: Product }) => {
-    const props = {
-      product: item,
-      onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
-    };
-    if (viewMode === 'grid') {
-      return <View style={{ width: '48%' }}><ProductGridCard {...props} /></View>;
-    }
-    return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
-  }, [viewMode, navigation]);
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => {
+      const props = {
+        product: item,
+        onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
+      };
+      if (viewMode === 'grid') {
+        return (
+          <View style={{ width: '48%' }}>
+            <ProductGridCard {...props} />
+          </View>
+        );
+      }
+      return (
+        <View style={{ paddingHorizontal: 16 }}>
+          <ProductListItem {...props} />
+        </View>
+      );
+    },
+    [viewMode, navigation]
+  );
 
   const handleApplyFilter = () => {
     setFiltersOpen(false);
@@ -101,45 +119,45 @@ const FilterScreenResults: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-        <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="#111" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Résultats ({products.length})</Text>
-            <TouchableOpacity onPress={() => setFiltersOpen(true)} style={styles.filterButton}>
-                <MaterialCommunityIcons name="filter-variant" size={20} color="#111" />
-            </TouchableOpacity>
-        </View>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#111" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Résultats ({products.length})</Text>
+        <TouchableOpacity onPress={() => setFiltersOpen(true)} style={styles.filterButton}>
+          <MaterialCommunityIcons name="filter-variant" size={20} color="#111" />
+        </TouchableOpacity>
+      </View>
 
-        {loading ? (
-            <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color="#FF7A00" />
+      {loading ? (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#FF7A00" />
+        </View>
+      ) : (
+        <FlatList
+          style={{ flex: 1 }}
+          data={products}
+          key={viewMode}
+          keyExtractor={item => item.id}
+          numColumns={viewMode === 'grid' ? 2 : 1}
+          columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          onScrollBeginDrag={() => Keyboard.dismiss()}
+          contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Aucun produit ne correspond à ces filtres.</Text>
+              <Text style={styles.emptySubText}>Essayez de modifier votre sélection.</Text>
+              {/* MODIFICATION: Ajout du bouton pour rouvrir les filtres */}
+              <TouchableOpacity style={styles.emptyButton} onPress={() => setFiltersOpen(true)}>
+                <Text style={styles.emptyButtonText}>Essayer un autre filtre</Text>
+              </TouchableOpacity>
             </View>
-        ) : (
-            <FlatList
-                style={{ flex: 1 }}
-                data={products}
-                key={viewMode}
-                keyExtractor={(item) => item.id}
-                numColumns={viewMode === 'grid' ? 2 : 1}
-                columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-                ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-                renderItem={renderItem}
-                showsVerticalScrollIndicator={false}
-                onScrollBeginDrag={() => Keyboard.dismiss()}
-                contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>Aucun produit ne correspond à ces filtres.</Text>
-                        <Text style={styles.emptySubText}>Essayez de modifier votre sélection.</Text>
-                        {/* MODIFICATION: Ajout du bouton pour rouvrir les filtres */}
-                        <TouchableOpacity style={styles.emptyButton} onPress={() => setFiltersOpen(true)}>
-                            <Text style={styles.emptyButtonText}>Essayer un autre filtre</Text>
-                        </TouchableOpacity>
-                    </View>
-                }
-            />
-        )}
+          }
+        />
+      )}
       <Modal visible={filtersOpen} transparent animationType="fade">
         <Pressable style={styles.modalBackdrop} onPress={() => setFiltersOpen(false)} />
         <View style={[styles.sheet, { paddingBottom: insets.bottom + 12 }]}>
@@ -180,7 +198,13 @@ const FilterScreenResults: React.FC = () => {
             <Text style={styles.filterSectionTitle}>Trier par</Text>
             <View style={styles.pillsRow}>
               {(['priceAsc', 'priceDesc'] as SortKey[]).map(s => (
-                <TouchableOpacity key={s} onPress={() => { setSort(s); }} style={[styles.pill, sort === s && styles.pillActive]}>
+                <TouchableOpacity
+                  key={s}
+                  onPress={() => {
+                    setSort(s);
+                  }}
+                  style={[styles.pill, sort === s && styles.pillActive]}
+                >
                   <Text style={[styles.pillTxt, sort === s && styles.pillTxtActive]}>
                     {s === 'priceAsc' ? 'Prix ↑' : 'Prix ↓'}
                   </Text>
@@ -239,7 +263,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  
+
   // Filter Panel
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
@@ -269,7 +293,7 @@ const styles = StyleSheet.create({
   pillActive: { backgroundColor: '#111' },
   pillTxt: { color: '#111', fontWeight: '600' },
   pillTxtActive: { color: '#fff' },
-  
+
   // Filter Panel (Prix)
   filterSectionTitle: {
     fontSize: 16,

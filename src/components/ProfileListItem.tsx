@@ -12,15 +12,7 @@ type Props = {
   onSwitchChange?: (value: boolean) => void;
 };
 
-const ProfileListItem: React.FC<Props> = ({
-  icon,
-  label,
-  detail,
-  onPress,
-  isSwitch,
-  switchValue,
-  onSwitchChange,
-}) => {
+const ProfileListItem: React.FC<Props> = ({ icon, label, detail, onPress, isSwitch, switchValue, onSwitchChange }) => {
   return (
     <TouchableOpacity style={styles.row} onPress={onPress} disabled={isSwitch}>
       <View style={styles.iconContainer}>

@@ -16,7 +16,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,7 +25,7 @@ import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
 import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
-import { Product } from '../types';
+import { Product, RootStackParamList } from '../types';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -34,7 +34,11 @@ const ITEM_WIDTH = screenWidth; // L'image prend toute la largeur
 const SPACING = 0; // Plus d'espacement entre les images
 const SIDE_SPACING = 0; // Plus de marges latérales
 
-type RouteParams = { productId: string };
+// On définit le type des paramètres de la route
+type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail'>;
+
+// On définit le type pour la navigation
+type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
 const Section: React.FC<{
   title: string;
@@ -54,15 +58,16 @@ const Section: React.FC<{
 };
 
 const ProductDetailScreen: React.FC = () => {
-  const nav = useNavigation<any>();
-  const insets = useSafeAreaInsets();
-  const route = useRoute<any>();
-  const { productId } = route.params as RouteParams;
+  // CORRECTION: On utilise les types pour supprimer les 'any'
+  const nav = useNavigation<ProductDetailScreenNavigationProp>();
+  const route = useRoute<ProductDetailScreenRouteProp>();
+  const { productId } = route.params;
 
+  const insets = useSafeAreaInsets();
   const { toggleFavorite, isFav } = useFavorites();
   const { getProductById, getProductFromCache } = useProducts();
   const { boutiqueInfo } = useBoutique();
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -80,12 +85,13 @@ const ProductDetailScreen: React.FC = () => {
       if (freshProduct) {
         setProduct(freshProduct);
       }
+      // CORRECTION: Ajout de la dépendance 'loading'
       if (loading) {
         setLoading(false);
       }
     };
     fetchProduct();
-  }, [productId, getProductById, getProductFromCache]);
+  }, [productId, getProductById, getProductFromCache, loading]);
 
   const gallery = useMemo(() => {
     if (product?.imageUrls && product.imageUrls.length > 0) {
@@ -105,28 +111,28 @@ const ProductDetailScreen: React.FC = () => {
     const idx = Math.round(x / ITEM_WIDTH); // MODIFICATION: Le calcul de l'index est simplifié
     if (idx !== activeIndex) setActiveIndex(idx);
   };
-  
+
   const handleWhatsAppPress = async () => {
     if (!product || !boutiqueInfo?.whatsappNumber) {
-      Alert.alert("Erreur", "Le numéro de contact n'est pas disponible pour le moment.");
+      Alert.alert('Erreur', "Le numéro de contact n'est pas disponible pour le moment.");
       return;
     }
     const phoneNumber = boutiqueInfo.whatsappNumber;
     const message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-    
+
     try {
       await Linking.openURL(url);
     } catch (error) {
-      Alert.alert("Erreur", "Impossible d'ouvrir WhatsApp. L'application est-elle bien installée sur votre appareil ?");
+      Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. L'application est-elle bien installée sur votre appareil ?");
     }
   };
 
   if (loading) {
     return (
-        <View style={styles.center}>
-            <ActivityIndicator size="large" color="#FF7A00" />
-        </View>
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#FF7A00" />
+      </View>
     );
   }
 
@@ -134,8 +140,8 @@ const ProductDetailScreen: React.FC = () => {
     return (
       <View style={[styles.center, { paddingTop: insets.top + 40 }]}>
         <Text>Produit non trouvé.</Text>
-        <TouchableOpacity onPress={() => nav.goBack()} style={{marginTop: 20}}>
-            <Text>Retour</Text>
+        <TouchableOpacity onPress={() => nav.goBack()} style={{ marginTop: 20 }}>
+          <Text>Retour</Text>
         </TouchableOpacity>
       </View>
     );
@@ -149,19 +155,18 @@ const ProductDetailScreen: React.FC = () => {
         <TouchableOpacity onPress={() => nav.goBack()} style={styles.hIconBtn} accessibilityRole="button">
           <Ionicons name="chevron-back" size={22} color="#111" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>{product.title}</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {product.title}
+        </Text>
         <View style={styles.headerActions}>
-            {/* MODIFICATION: Le bouton favori est retiré du header */}
-            <TouchableOpacity style={styles.hIconBtn}>
-                <Ionicons name="share-outline" size={22} color="#111" />
-            </TouchableOpacity>
+          {/* MODIFICATION: Le bouton favori est retiré du header */}
+          <TouchableOpacity style={styles.hIconBtn}>
+            <Ionicons name="share-outline" size={22} color="#111" />
+          </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 112 }}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
         <View style={styles.carouselContainer}>
           <FlatList
             ref={listRef}
@@ -182,11 +187,16 @@ const ProductDetailScreen: React.FC = () => {
           />
           <View style={styles.galleryTopOver}>
             <View style={styles.discount}>
-              <LinearGradient colors={['#ff6b6b', '#ff8e53']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.discountGrad}>
+              <LinearGradient
+                colors={['#ff6b6b', '#ff8e53']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.discountGrad}
+              >
                 <Text style={styles.discountTxt}>-15%</Text>
               </LinearGradient>
             </View>
-             {/* MODIFICATION: Indicateur de page en texte */}
+            {/* MODIFICATION: Indicateur de page en texte */}
             {gallery.length > 1 && (
               <View style={styles.pageIndicator}>
                 <Text style={styles.pageIndicatorText}>
@@ -199,7 +209,11 @@ const ProductDetailScreen: React.FC = () => {
 
         {/* MODIFICATION: Bouton favori déplacé ici */}
         <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.favButton}>
-            <Ionicons name={isFav(product.id) ? 'heart' : 'heart-outline'} size={26} color={isFav(product.id) ? '#e91e63' : '#111'} />
+          <Ionicons
+            name={isFav(product.id) ? 'heart' : 'heart-outline'}
+            size={26}
+            color={isFav(product.id) ? '#e91e63' : '#111'}
+          />
         </TouchableOpacity>
 
         <View style={styles.priceCard}>
@@ -233,13 +247,27 @@ const ProductDetailScreen: React.FC = () => {
         </Section>
 
         <Section title="Spécifications">
-          <View style={styles.specRow}><Text style={styles.specKey}>Écran</Text><Text style={styles.specVal}>6.1" OLED 120Hz</Text></View>
-          <View style={styles.specRow}><Text style={styles.specKey}>Puce</Text><Text style={styles.specVal}>A-Series / Tensor</Text></View>
-          <View style={styles.specRow}><Text style={styles.specKey}>Caméra</Text><Text style={styles.specVal}>Dual 12MP</Text></View>
-          <View style={styles.specRow}><Text style={styles.specKey}>Batterie</Text><Text style={styles.specVal}>~4500 mAh</Text></View>
-          <View style={styles.specRow}><Text style={styles.specKey}>Connectivité</Text><Text style={styles.specVal}>5G • Wi-Fi 6 • NFC</Text></View>
+          <View style={styles.specRow}>
+            <Text style={styles.specKey}>Écran</Text>
+            <Text style={styles.specVal}>6.1" OLED 120Hz</Text>
+          </View>
+          <View style={styles.specRow}>
+            <Text style={styles.specKey}>Puce</Text>
+            <Text style={styles.specVal}>A-Series / Tensor</Text>
+          </View>
+          <View style={styles.specRow}>
+            <Text style={styles.specKey}>Caméra</Text>
+            <Text style={styles.specVal}>Dual 12MP</Text>
+          </View>
+          <View style={styles.specRow}>
+            <Text style={styles.specKey}>Batterie</Text>
+            <Text style={styles.specVal}>~4500 mAh</Text>
+          </View>
+          <View style={styles.specRow}>
+            <Text style={styles.specKey}>Connectivité</Text>
+            <Text style={styles.specVal}>5G • Wi-Fi 6 • NFC</Text>
+          </View>
         </Section>
-
       </ScrollView>
 
       <SafeAreaView edges={['bottom']} style={styles.actionsSafe}>
@@ -279,10 +307,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   hIconBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#ffffff',
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: '#e5e7eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   carouselContainer: {
     height: screenWidth, // MODIFICATION: Hauteur ajustée
@@ -312,7 +344,7 @@ const styles = StyleSheet.create({
   discount: {
     borderRadius: 6,
     overflow: 'hidden',
-    alignSelf: 'flex-start' // S'assure qu'il ne prend pas toute la hauteur
+    alignSelf: 'flex-start', // S'assure qu'il ne prend pas toute la hauteur
   },
   discountGrad: { paddingHorizontal: 10, paddingVertical: 6 },
   discountTxt: { color: '#fff', fontWeight: '800', fontSize: 12 },
@@ -376,10 +408,20 @@ const styles = StyleSheet.create({
   },
   infoRow: { flexDirection: 'row', alignItems: 'center', columnGap: 10 },
   infoTxt: { color: '#111' },
-  section: { marginTop: 14, marginHorizontal: 16, borderRadius: 14, borderWidth: 1, borderColor: '#e5e7eb', backgroundColor: '#fff' },
+  section: {
+    marginTop: 14,
+    marginHorizontal: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
   sectionHeader: {
-    paddingHorizontal: 12, paddingVertical: 12,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   sectionTitle: { fontWeight: '800', color: '#111' },
   sectionBody: { paddingHorizontal: 12, paddingBottom: 12 },

@@ -1,13 +1,6 @@
 // src/screens/SignUpScreen.tsx
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   GoogleSignin,
   statusCodes,
-  isSuccessResponse,
+  // CORRECTION: isSuccessResponse est retiré car il n'existe plus
   isErrorWithCode,
 } from '@react-native-google-signin/google-signin';
 
@@ -32,8 +25,7 @@ const SignUpScreen: React.FC = () => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId:
-        '203471818329-mgplh0srpmm9cilo493js0qam6lbbvbd.apps.googleusercontent.com',
+      webClientId: '203471818329-mgplh0srpmm9cilo493js0qam6lbbvbd.apps.googleusercontent.com',
     });
   }, []);
 
@@ -42,14 +34,9 @@ const SignUpScreen: React.FC = () => {
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-      const signInResponse = await GoogleSignin.signIn();
+      // CORRECTION: La réponse de signIn() contient directement les infos utilisateur
+      const { idToken } = await GoogleSignin.signIn();
 
-      if (!isSuccessResponse(signInResponse)) {
-        setIsSubmitting(false);
-        return;
-      }
-
-      const idToken = signInResponse.data?.idToken;
       if (!idToken) {
         throw new Error('ID token manquant dans la réponse Google.');
       }
@@ -88,23 +75,14 @@ const SignUpScreen: React.FC = () => {
         } else if (error.code === statusCodes.IN_PROGRESS) {
           Alert.alert('Connexion en cours', 'Une opération de connexion est déjà en cours.');
         } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-          Alert.alert(
-            'Erreur',
-            'Les services Google Play ne sont pas disponibles ou sont obsolètes sur cet appareil.'
-          );
+          Alert.alert('Erreur', 'Les services Google Play ne sont pas disponibles ou sont obsolètes sur cet appareil.');
         } else {
           console.error('Erreur Google Sign-In: ', error);
-          Alert.alert(
-            'Erreur',
-            "Une erreur inattendue est survenue lors de la connexion avec Google."
-          );
+          Alert.alert('Erreur', 'Une erreur inattendue est survenue lors de la connexion avec Google.');
         }
       } else {
         console.error('Erreur de connexion Google: ', error);
-        Alert.alert(
-          'Erreur',
-          "Une erreur inattendue est survenue lors de la connexion avec Google."
-        );
+        Alert.alert('Erreur', 'Une erreur inattendue est survenue lors de la connexion avec Google.');
       }
     } finally {
       setIsSubmitting(false);
@@ -122,23 +100,13 @@ const SignUpScreen: React.FC = () => {
         </View>
 
         <View style={styles.formContainer}>
-          <Ionicons
-            name="key-outline"
-            size={60}
-            color="#111"
-            style={{ alignSelf: 'center', marginBottom: 20 }}
-          />
+          <Ionicons name="key-outline" size={60} color="#111" style={{ alignSelf: 'center', marginBottom: 20 }} />
           <Text style={styles.title}>Connectez-vous</Text>
           <Text style={styles.subtitle}>
-            Utilisez votre compte Google pour accéder à toutes les fonctionnalités de
-            l'application.
+            Utilisez votre compte Google pour accéder à toutes les fonctionnalités de l'application.
           </Text>
 
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={handleGoogleSignIn}
-            disabled={isSubmitting}
-          >
+          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn} disabled={isSubmitting}>
             <Ionicons name="logo-google" size={22} color="#fff" />
             <Text style={styles.googleButtonText}>Se connecter avec Google</Text>
           </TouchableOpacity>

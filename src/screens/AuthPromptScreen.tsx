@@ -2,12 +2,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { RootStackParamList } from '../types';
 
 const AuthPromptScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -20,12 +21,9 @@ const AuthPromptScreen: React.FC = () => {
           source={{ uri: 'https://images.unsplash.com/photo-1593697821252-8c710070397a?q=80&w=1887' }}
           style={styles.backgroundImage}
         />
-        <LinearGradient
-          colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,1)']}
-          style={styles.gradient}
-        />
+        <LinearGradient colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,1)']} style={styles.gradient} />
         <View style={styles.iconContainer}>
-            <Ionicons name="person-circle-outline" size={80} color="#111" />
+          <Ionicons name="person-circle-outline" size={80} color="#111" />
         </View>
         <Text style={styles.title}>Accès Membre Requis</Text>
         <Text style={styles.subtitle}>
@@ -47,7 +45,7 @@ const AuthPromptScreen: React.FC = () => {
           style={[styles.btn, styles.btnSecondary]}
           onPress={() => Alert.alert('Connexion', 'Écran de connexion à créer.')}
         >
-          <Text style={[styles.btnText, styles.btnTextSecondary]}>J'ai déjà un compte</Text>
+          <Text style={[styles.btnText, styles.btnTextSecondary]}>J&apos;ai déjà un compte</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
