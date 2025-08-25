@@ -91,10 +91,34 @@ button{font:inherit} input,select,textarea{font:inherit;color:inherit}
 .toggle{display:inline-flex;cursor:pointer;align-items:center;gap:8px;user-select:none}
 .toggle-switch{position:relative;display:inline-block;width:36px;height:20px}
 .toggle-switch input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;cursor:pointer;inset:0;background-color:#ccc;border-radius:34px;transition:.2s}
-.toggle-slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background-color:white;border-radius:50%;transition:.2s}
-input:checked + .toggle-slider{background-color:var(--accent)}
-input:checked + .toggle-slider:before{transform:translateX(16px)}
+.slider{position:absolute;cursor:pointer;inset:0;background-color:#ccc;border-radius:34px;transition:.2s}
+.slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background-color:white;border-radius:50%;transition:.2s}
+input:checked + .slider{background-color:var(--accent)}
+input:checked + .slider:before{transform:translateX(16px)}
+
+/* NOUVEAU: Styles pour les spécifications dynamiques */
+.specs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card-2);
+}
+.spec-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+.spec-row .input {
+    background: var(--card); /* Fond différent pour les inputs à l'intérieur */
+}
+[data-theme="dark"] .spec-row .input {
+    background: var(--bg);
+}
+
 
 /* Image Preview Grid */
 .image-preview-grid {

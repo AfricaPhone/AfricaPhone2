@@ -4,6 +4,12 @@ import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 export type Category = string;
 
+// NOUVEAU: Définition du type pour une ligne de spécification
+export type Specification = {
+  key: string;
+  value: string;
+};
+
 export type Product = {
   id: string;
   title: string;
@@ -17,6 +23,7 @@ export type Product = {
   ram_base?: number;
   ram_extension?: number;
   ordreVedette?: number;
+  specifications?: Specification[]; // NOUVEAU: Champ pour les spécifications
 };
 
 // --- Brand ---
