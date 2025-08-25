@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   GoogleSignin,
   statusCodes,
-  isSuccessResponse,
+  // CORRECTION: isSuccessResponse est retiré car il n'existe plus
   isErrorWithCode,
 } from '@react-native-google-signin/google-signin';
 
@@ -34,14 +34,9 @@ const SignUpScreen: React.FC = () => {
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-      const signInResponse = await GoogleSignin.signIn();
+      // CORRECTION: La réponse de signIn() contient directement les infos utilisateur
+      const { idToken } = await GoogleSignin.signIn();
 
-      if (!isSuccessResponse(signInResponse)) {
-        setIsSubmitting(false);
-        return;
-      }
-
-      const idToken = signInResponse.data?.idToken;
       if (!idToken) {
         throw new Error('ID token manquant dans la réponse Google.');
       }

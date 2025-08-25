@@ -14,7 +14,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { db } from '../firebase/config';
+
+// CORRECTION: On importe les fonctions modulaires depuis la bonne bibliothèque
 import { doc, setDoc, serverTimestamp } from '@react-native-firebase/firestore';
+
 import LoadingModal from '../components/LoadingModal';
 import { RootStackParamList } from '../types';
 
@@ -24,10 +27,8 @@ type CreateProfileScreenRouteProp = RouteProp<RootStackParamList, 'CreateProfile
 const CreateProfileScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<CreateProfileScreenRouteProp>();
-  // Récupération des paramètres, y compris les infos de Google
   const { userId, firstName: googleFirstName, lastName: googleLastName, email } = route.params;
 
-  // Pré-remplissage des champs avec les données de Google
   const [firstName, setFirstName] = useState(googleFirstName || '');
   const [lastName, setLastName] = useState(googleLastName || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,18 +41,18 @@ const CreateProfileScreen: React.FC = () => {
 
     setIsSubmitting(true);
     try {
+      // CORRECTION: On utilise la nouvelle syntaxe modulaire, ce qui supprime les avertissements
       const userDocRef = doc(db, 'users', userId);
-      // Sauvegarde du profil avec l'email et sans numéro de téléphone
       await setDoc(userDocRef, {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email,
-        phoneNumber: null, // Le numéro de téléphone n'est plus utilisé
+        phoneNumber: null,
         createdAt: serverTimestamp(),
       });
 
-      // Ferme la pile de modales d'authentification pour revenir à l'écran principal
-      navigation.getParent()?.goBack();
+      navigation.goBack();
+
     } catch (error) {
       console.error('Error creating profile: ', error);
       Alert.alert('Erreur', 'Une erreur est survenue lors de la création de votre profil.');

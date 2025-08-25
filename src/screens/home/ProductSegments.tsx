@@ -11,9 +11,10 @@ const SEGMENTS_DATA: Array<{
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
 }> = [
-  { key: 'Populaires', label: 'Populaires', icon: 'star-outline' },
+  { key: 'Populaires', label: 'Top et Populaires', icon: 'star-outline' },
   { key: 'Tablettes', label: 'Tablettes', icon: 'tablet-portrait-outline' },
-  { key: 'Acessoires', label: 'Accessoires', icon: 'headset-outline' },
+  // MODIFICATION: Le label est changé ici pour notre test
+  { key: 'Acessoires', label: 'Audio & Plus', icon: 'headset-outline' },
   { key: 'Portables a Touches', label: 'Classiques', icon: 'keypad-outline' },
 ];
 
