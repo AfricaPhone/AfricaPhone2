@@ -62,8 +62,8 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
-      q = query(q, where('category', '==', categoryCapitalized));
+      // MODIFICATION: Suppression de la capitalisation
+      q = query(q, where('category', '==', options.category));
     }
 
     if (!isNaN(minPriceNum) && minPriceNum > 0) {
@@ -151,8 +151,8 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
-      q = query(q, where('category', '==', categoryCapitalized));
+      // MODIFICATION: Suppression de la capitalisation
+      q = query(q, where('category', '==', options.category));
     }
 
     if (!isNaN(minPriceNum) && minPriceNum > 0) {

@@ -3,7 +3,8 @@ import React from 'react';
 import { Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
+// MODIFICATION: Ordre des clés mis à jour pour la cohérence
+const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'Acessoires'] as const;
 export type Segment = (typeof SEGMENTS)[number];
 
 const SEGMENTS_DATA: Array<{
@@ -12,10 +13,10 @@ const SEGMENTS_DATA: Array<{
   icon: keyof typeof Ionicons.glyphMap;
 }> = [
   { key: 'Populaires', label: 'Top et Populaires', icon: 'star-outline' },
-  { key: 'Tablettes', label: 'Tablettes', icon: 'tablet-portrait-outline' },
-  // MODIFICATION: Le label est changé ici pour notre test
+  { key: 'tablette', label: 'Tablettes', icon: 'tablet-portrait-outline' },
+  // MODIFICATION: "Portable a Touche" est maintenant avant "Audio & Plus"
+  { key: 'portable a touche', label: 'Portable a Touche', icon: 'keypad-outline' },
   { key: 'Acessoires', label: 'Audio & Plus', icon: 'headset-outline' },
-  { key: 'Portables a Touches', label: 'Classiques', icon: 'keypad-outline' },
 ];
 
 interface Props {
