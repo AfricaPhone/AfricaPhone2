@@ -5,7 +5,7 @@ import { Product } from '../types';
 
 export const fetchProductsFromDB = async (): Promise<Product[]> => {
   try {
-    console.log("Fetching products from Firestore...");
+    console.log('Fetching products from Firestore...');
     const productsCollection = collection(db, 'products'); // Utiliser db
     const querySnapshot = await getDocs(productsCollection);
 
@@ -25,10 +25,10 @@ export const fetchProductsFromDB = async (): Promise<Product[]> => {
       };
     });
 
-    console.log("Products fetched successfully:", products.length);
+    console.log('Products fetched successfully:', products.length);
     return products;
   } catch (error) {
-    console.error("Error fetching products: ", error);
+    console.error('Error fetching products: ', error);
     return []; // Retourne un tableau vide en cas d'erreur
   }
 };

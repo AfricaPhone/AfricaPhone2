@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { Product } from '../types';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { Product, RootStackParamList } from '../types';
 import { collection, query, where, orderBy, getDocs, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import ProductGridCard from '../components/ProductGridCard';
@@ -48,7 +48,11 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
   </View>
 );
 
-const SearchResultItem: React.FC<{ item: Product; query: string; onPress: () => void }> = ({ item, query, onPress }) => {
+const SearchResultItem: React.FC<{ item: Product; query: string; onPress: () => void }> = ({
+  item,
+  query,
+  onPress,
+}) => {
   const renderHighlightedText = () => {
     const title = item.title || '';
     if (!query) {
@@ -100,17 +104,17 @@ const formatPrice = (value?: number) => {
 
 // CORRECTION: Ajout d'une fonction de mappage pour correspondre au type Product
 const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      title: data.name, // Mappe 'name' vers 'title'
-      price: data.price,
-      image: data.imageUrl, // Mappe 'imageUrl' vers 'image'
-      category: data.brand?.toLowerCase() || 'inconnu',
-      description: data.description,
-      rom: data.rom,
-      ram: data.ram,
-    };
+  const data = doc.data();
+  return {
+    id: doc.id,
+    title: data.name, // Mappe 'name' vers 'title'
+    price: data.price,
+    image: data.imageUrl, // Mappe 'imageUrl' vers 'image'
+    category: data.brand?.toLowerCase() || 'inconnu',
+    description: data.description,
+    rom: data.rom,
+    ram: data.ram,
+  };
 };
 
 type AlgoliaHit = {
@@ -126,7 +130,7 @@ type AlgoliaHit = {
 };
 
 const CatalogScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedQuery = useDebounce(searchQuery, 300);
 
@@ -142,17 +146,13 @@ const CatalogScreen: React.FC = () => {
     const fetchFeaturedProducts = async () => {
       try {
         setFeaturedLoading(true);
-        const q = query(
-          collection(db, 'products'),
-          where('ordreVedette', '>=', 1),
-          orderBy('ordreVedette', 'asc')
-        );
+        const q = query(collection(db, 'products'), where('ordreVedette', '>=', 1), orderBy('ordreVedette', 'asc'));
         const querySnapshot = await getDocs(q);
         // CORRECTION: Utilisation de la fonction de mappage
         const products = querySnapshot.docs.map(mapDocToProduct);
         setFeaturedProducts(products);
       } catch (error) {
-        console.error("Erreur de chargement des produits vedettes:", error);
+        console.error('Erreur de chargement des produits vedettes:', error);
       } finally {
         setFeaturedLoading(false);
       }
@@ -177,16 +177,7 @@ const CatalogScreen: React.FC = () => {
           searchParams: {
             query: q,
             hitsPerPage: 20,
-            attributesToRetrieve: [
-              'name',
-              'brand',
-              'description',
-              'price',
-              'imageUrl',
-              'ordreVedette',
-              'rom',
-              'ram',
-            ],
+            attributesToRetrieve: ['name', 'brand', 'description', 'price', 'imageUrl', 'ordreVedette', 'rom', 'ram'],
           },
         });
 
@@ -221,7 +212,7 @@ const CatalogScreen: React.FC = () => {
     if (!searchQuery.trim()) return;
     Keyboard.dismiss();
     navigation.navigate('ProductList', {
-      title: `Recherche: "${searchQuery}"`,
+      title: `Recherche: "${searchQuery.trim()}"`,
       searchQuery: searchQuery.trim(),
     });
   };
@@ -230,7 +221,7 @@ const CatalogScreen: React.FC = () => {
     <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <Section title="Recherches Populaires">
         <View style={styles.chipContainer}>
-          {RECENT_SEARCHES.map((item) => (
+          {RECENT_SEARCHES.map(item => (
             <TouchableOpacity key={item} style={styles.chip} onPress={() => setSearchQuery(item)}>
               <Ionicons name="time-outline" size={16} color="#555" />
               <Text style={styles.chipText}>{item}</Text>
@@ -246,7 +237,7 @@ const CatalogScreen: React.FC = () => {
           <FlatList
             data={featuredProducts}
             numColumns={2}
-            keyExtractor={(item) => item.id}
+            keyExtractor={item => item.id}
             scrollEnabled={false} // Le ScrollView parent gère le défilement
             columnWrapperStyle={styles.featuredGridContainer}
             renderItem={({ item }) => (
@@ -270,7 +261,7 @@ const CatalogScreen: React.FC = () => {
       ) : (
         <FlatList
           data={results}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <SearchResultItem
               item={item}
@@ -280,7 +271,7 @@ const CatalogScreen: React.FC = () => {
           )}
           ListEmptyComponent={
             <View style={styles.emptyResults}>
-              <Text style={styles.emptyResultsText}>Aucun résultat pour "{debouncedQuery}"</Text>
+              <Text style={styles.emptyResultsText}>Aucun résultat pour &quot;{debouncedQuery}&quot;</Text>
             </View>
           }
         />

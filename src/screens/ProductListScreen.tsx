@@ -1,13 +1,6 @@
 // src/screens/ProductListScreen.tsx
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Product } from '../types';
@@ -16,7 +9,7 @@ import ProductListItem from '../components/ProductListItem';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { usePaginatedProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
 
-type RouteParams = { 
+type RouteParams = {
   title: string;
   category?: string;
   brandId?: string;
@@ -33,11 +26,14 @@ const ProductListScreen: React.FC = () => {
 
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
-  const queryOptions = useMemo((): ProductQueryOptions => ({
-    category,
-    brandId,
-    searchQuery,
-  }), [category, brandId, searchQuery]);
+  const queryOptions = useMemo(
+    (): ProductQueryOptions => ({
+      category,
+      brandId,
+      searchQuery,
+    }),
+    [category, brandId, searchQuery]
+  );
 
   const { products, loading, loadingMore, hasMore, loadMore, refresh } = usePaginatedProducts(queryOptions);
 
@@ -46,16 +42,27 @@ const ProductListScreen: React.FC = () => {
   }, [queryOptions, refresh]);
 
   // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
-  const renderItem = useCallback(({ item }: { item: Product }) => {
-    const props = {
-      product: item,
-      onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
-    };
-    if (viewMode === 'grid') {
-      return <View style={{ width: '48%' }}><ProductGridCard {...props} /></View>;
-    }
-    return <View style={{ paddingHorizontal: 16 }}><ProductListItem {...props} /></View>;
-  }, [viewMode, navigation]);
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => {
+      const props = {
+        product: item,
+        onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
+      };
+      if (viewMode === 'grid') {
+        return (
+          <View style={{ width: '48%' }}>
+            <ProductGridCard {...props} />
+          </View>
+        );
+      }
+      return (
+        <View style={{ paddingHorizontal: 16 }}>
+          <ProductListItem {...props} />
+        </View>
+      );
+    },
+    [viewMode, navigation]
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -87,7 +94,7 @@ const ProductListScreen: React.FC = () => {
           style={{ flex: 1 }}
           data={products}
           key={viewMode}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
           columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
@@ -96,7 +103,9 @@ const ProductListScreen: React.FC = () => {
           contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }}
           onEndReached={() => hasMore && !loadingMore && loadMore()}
           onEndReachedThreshold={0.5}
-          ListFooterComponent={loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }}/> : null}
+          ListFooterComponent={
+            loadingMore ? <ActivityIndicator size="large" color="#FF7A00" style={{ marginVertical: 20 }} /> : null
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun produit trouvé.</Text>

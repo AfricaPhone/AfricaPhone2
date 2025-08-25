@@ -1,15 +1,6 @@
 // src/screens/MatchListScreen.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
-  StatusBar,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -69,7 +60,6 @@ const MatchListItem: React.FC<{ item: Match }> = ({ item }) => {
   );
 };
 
-
 // Main screen component
 const MatchListScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -80,17 +70,21 @@ const MatchListScreen: React.FC = () => {
     const matchesRef = collection(db, 'matches');
     const q = query(matchesRef, orderBy('startTime', 'desc')); // Show most recent first
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const fetchedMatches: Match[] = [];
-      querySnapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
-        fetchedMatches.push({ id: doc.id, ...doc.data() } as Match);
-      });
-      setMatches(fetchedMatches);
-      setLoading(false);
-    }, (error) => {
-      console.error("Erreur de lecture des matchs: ", error);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      querySnapshot => {
+        const fetchedMatches: Match[] = [];
+        querySnapshot.forEach((doc: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
+          fetchedMatches.push({ id: doc.id, ...doc.data() } as Match);
+        });
+        setMatches(fetchedMatches);
+        setLoading(false);
+      },
+      error => {
+        console.error('Erreur de lecture des matchs: ', error);
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
@@ -111,13 +105,13 @@ const MatchListScreen: React.FC = () => {
       ) : (
         <FlatList
           data={matches}
-          keyExtractor={(item) => item.id!}
+          keyExtractor={item => item.id!}
           renderItem={({ item }) => <MatchListItem item={item} />}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Aucun match disponible</Text>
-                <Text style={styles.emptySubText}>Revenez plus tard pour de nouveaux pronostics.</Text>
+              <Text style={styles.emptyText}>Aucun match disponible</Text>
+              <Text style={styles.emptySubText}>Revenez plus tard pour de nouveaux pronostics.</Text>
             </View>
           }
         />

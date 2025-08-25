@@ -25,7 +25,8 @@ export const DISCOVER_FEED_DATA: DiscoverFeedItem[] = [
     type: 'article',
     id: 'art-1',
     title: '3 raisons de passer au sans-fil',
-    excerpt: 'Libérez-vous des câbles et découvrez une nouvelle façon de vivre la technologie. De vos écouteurs à votre chargeur...',
+    excerpt:
+      'Libérez-vous des câbles et découvrez une nouvelle façon de vivre la technologie. De vos écouteurs à votre chargeur...',
     imageUrl: 'https://images.unsplash.com/photo-1618384887924-3672943361a2?q=80&w=800',
   },
   {

@@ -26,10 +26,10 @@ export const BoutiqueProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (docSnap.exists()) {
           setBoutiqueInfo(docSnap.data() as BoutiqueInfo);
         } else {
-          console.warn("Document boutiqueInfo non trouvé dans Firestore !");
+          console.warn('Document boutiqueInfo non trouvé dans Firestore !');
         }
       } catch (error) {
-        console.error("Erreur lors de la récupération des infos de la boutique:", error);
+        console.error('Erreur lors de la récupération des infos de la boutique:', error);
       } finally {
         setLoading(false);
       }
@@ -38,16 +38,15 @@ export const BoutiqueProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     fetchBoutiqueInfo();
   }, []);
 
-  const value = useMemo(() => ({
-    boutiqueInfo,
-    loading,
-  }), [boutiqueInfo, loading]);
-
-  return (
-    <BoutiqueContext.Provider value={value}>
-      {children}
-    </BoutiqueContext.Provider>
+  const value = useMemo(
+    () => ({
+      boutiqueInfo,
+      loading,
+    }),
+    [boutiqueInfo, loading]
   );
+
+  return <BoutiqueContext.Provider value={value}>{children}</BoutiqueContext.Provider>;
 };
 
 // --- Hook personnalisé ---

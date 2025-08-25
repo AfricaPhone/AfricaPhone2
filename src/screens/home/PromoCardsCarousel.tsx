@@ -32,7 +32,7 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
     <FlatList
       horizontal
       data={promoCards}
-      keyExtractor={(item) => item.id}
+      keyExtractor={item => item.id}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.horizontalCardContainer}
       renderItem={({ item }) => (

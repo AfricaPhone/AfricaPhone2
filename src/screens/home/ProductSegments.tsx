@@ -3,18 +3,20 @@ import React from 'react';
 import { Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const SEGMENTS = ['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;
-export type Segment = typeof SEGMENTS[number];
+// MODIFICATION: Ordre des clés mis à jour pour la cohérence
+const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'Acessoires'] as const;
+export type Segment = (typeof SEGMENTS)[number];
 
 const SEGMENTS_DATA: Array<{
   key: Segment;
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
 }> = [
-  { key: 'Populaires', label: 'Populaires', icon: 'star-outline' },
-  { key: 'Tablettes', label: 'Tablettes', icon: 'tablet-portrait-outline' },
-  { key: 'Acessoires', label: 'Accessoires', icon: 'headset-outline' },
-  { key: 'Portables a Touches', label: 'Classiques', icon: 'keypad-outline' },
+  { key: 'Populaires', label: 'Top et Populaires', icon: 'star-outline' },
+  { key: 'tablette', label: 'Tablettes', icon: 'tablet-portrait-outline' },
+  // MODIFICATION: "Portable a Touche" est maintenant avant "Audio & Plus"
+  { key: 'portable a touche', label: 'Portable a Touche', icon: 'keypad-outline' },
+  { key: 'Acessoires', label: 'Audio & Plus', icon: 'headset-outline' },
 ];
 
 interface Props {
@@ -25,7 +27,7 @@ interface Props {
 const ProductSegments: React.FC<Props> = ({ activeSegment, onSegmentChange }) => {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollContainer}>
-      {SEGMENTS_DATA.map((s) => {
+      {SEGMENTS_DATA.map(s => {
         const active = s.key === activeSegment;
         const iconName = active ? (s.icon.replace('-outline', '') as keyof typeof Ionicons.glyphMap) : s.icon;
         return (
