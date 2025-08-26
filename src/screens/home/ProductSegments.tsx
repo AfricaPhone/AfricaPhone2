@@ -14,9 +14,8 @@ const SEGMENTS_DATA: Array<{
 }> = [
   { key: 'Populaires', label: 'Top et Populaires', icon: 'star-outline' },
   { key: 'tablette', label: 'Tablettes', icon: 'tablet-portrait-outline' },
-  // MODIFICATION: "Portable a Touche" est maintenant avant "Audio & Plus"
   { key: 'portable a touche', label: 'Portable a Touche', icon: 'keypad-outline' },
-  { key: 'Acessoires', label: 'Audio & Plus', icon: 'headset-outline' },
+  { key: 'Acessoires', label: 'Acessoires et Plus', icon: 'headset-outline' },
 ];
 
 interface Props {

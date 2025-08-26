@@ -237,16 +237,9 @@ const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        <Section title="Description" defaultOpen>
-          <Text style={styles.bodyTxt}>
-            {product.description ??
-              'Appareil haute performance avec une construction premium, une excellente autonomie et un écran brillant. Idéal pour la photographie, les jeux et un usage quotidien.'}
-          </Text>
-        </Section>
-        
-        {/* MODIFICATION: La section des spécifications est maintenant dynamique */}
+        {/* MODIFICATION: La section des spécifications est maintenant avant la description et ouverte par défaut */}
         {hasSpecifications && (
-          <Section title="Spécifications">
+          <Section title="Spécifications" defaultOpen>
             {product.specifications?.map((spec, index) => (
               <View key={index} style={styles.specRow}>
                 <Text style={styles.specKey}>{spec.key}</Text>
@@ -255,6 +248,13 @@ const ProductDetailScreen: React.FC = () => {
             ))}
           </Section>
         )}
+
+        <Section title="Description">
+          <Text style={styles.bodyTxt}>
+            {product.description ??
+              'Appareil haute performance avec une construction premium, une excellente autonomie et un écran brillant. Idéal pour la photographie, les jeux et un usage quotidien.'}
+          </Text>
+        </Section>
       </ScrollView>
 
       <SafeAreaView edges={['bottom']} style={styles.actionsSafe}>

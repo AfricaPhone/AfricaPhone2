@@ -61,6 +61,7 @@
       <nav class="nav">
         <div class="section">Navigation</div>
         <a data-route="#/products" class="link-item"><i data-lucide="package" class="icon"></i> Produits</a>
+        <a data-route="#/brands" class="link-item"><i data-lucide="tag" class="icon"></i> Marques</a>
         <a data-route="#/matches" class="link-item"><i data-lucide="swords" class="icon"></i> Matchs</a>
         <a data-route="#/promocards" class="link-item"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
         <div class="section">G&eacute;n&eacute;ral</div>
@@ -82,6 +83,7 @@
       <nav class="nav">
         <div class="section">Navigation</div>
         <a id="nav-products" href="#/products" class="active"><i data-lucide="package" class="icon"></i> Produits</a>
+        <a id="nav-brands" href="#/brands"><i data-lucide="tag" class="icon"></i> Marques</a>
         <a id="nav-matches" href="#/matches"><i data-lucide="swords" class="icon"></i> Matchs</a>
         <a id="nav-promocards" href="#/promocards"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
         <div class="section">G&eacute;n&eacute;ral</div>
@@ -104,9 +106,11 @@
       </div>
 
       <div class="top-actions">
+        <div class="kpi" title="Marques"><i data-lucide="tag" class="icon"></i><span id="kpi-brands">—</span></div>
         <div class="kpi" title="Cartes promo actives"><i data-lucide="layout-template" class="icon"></i><span id="kpi-promocards">—</span></div>
         <div class="kpi" title="Articles au catalogue"><i data-lucide="package" class="icon"></i><span id="kpi-products">—</span></div>
         <div class="kpi" title="Matchs planifi&eacute;s"><i data-lucide="swords" class="icon"></i><span id="kpi-matches">—</span></div>
+        <button id="quick-add-brand" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Marque</button>
         <button id="quick-add-promocard" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Carte</button>
         <button id="quick-add-product" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Produit</button>
         <button id="quick-add-match" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Match</button>
@@ -140,12 +144,21 @@
           <button id="add-product" class="btn btn-primary btn-small"><i data-lucide="plus" class="icon"></i> Nouveau produit</button>
         </div>
       </div>
+      
+      <div id="toolbar-brands" class="toolbar hide">
+        <div class="filters">
+          <input id="search-brands" class="input" type="search" placeholder="Rechercher une marque..." />
+        </div>
+        <div class="top-actions">
+          <button id="add-brand" class="btn btn-primary btn-small"><i data-lucide="plus" class="icon"></i> Nouvelle marque</button>
+        </div>
+      </div>
 
       <div id="toolbar-matches" class="toolbar hide">
         <div class="filters">
           <input id="search-matches" class="input" type="search" placeholder="Rechercher un match..." />
         </div>
-        <div class="view-toggle">
+        <div class="top-actions">
           <button id="add-match" class="btn btn-primary btn-small"><i data-lucide="plus" class="icon"></i> Nouveau match</button>
         </div>
       </div>
@@ -154,13 +167,17 @@
           <div class="filters">
               <input id="search-promocards" class="input" type="search" placeholder="Rechercher une carte promo..." />
           </div>
-          <div class="view-toggle">
+          <div class="top-actions">
               <button id="add-promocard" class="btn btn-primary btn-small"><i data-lucide="plus" class="icon"></i> Nouvelle carte</button>
           </div>
       </div>
 
       <section id="page-products" class="page hide" aria-labelledby="nav-products">
         <div id="products-content"></div>
+      </section>
+
+      <section id="page-brands" class="page hide" aria-labelledby="nav-brands">
+        <div id="brands-content"></div>
       </section>
 
       <section id="page-matches" class="page hide" aria-labelledby="nav-matches">

@@ -89,6 +89,8 @@ function setCrumb(name){ $('#crumb-current').textContent = name; }
 let allProducts = [];
 let allMatches = [];
 let allPromoCards = [];
+// MODIFICATION: Ajout de l'état pour les marques
+let allBrands = [];
 let productSearchTerm = '';
 let productCategoryFilter = '';
 let viewMode = 'table'; // 'table' | 'cards'
@@ -172,9 +174,10 @@ $$('#page-settings [data-theme-choice]').forEach(function(btn){
 });
 
 /* ============================ Routing ============================ */
-const $navProducts = $('#nav-products'), $navMatches = $('#nav-matches'), $navSettings = $('#nav-settings'), $navPromoCards = $('#nav-promocards');
-const $toolbarProducts = $('#toolbar-products'), $toolbarMatches = $('#toolbar-matches'), $toolbarPromoCards = $('#toolbar-promocards');
-const $productsContent = $('#products-content'), $matchesContent = $('#matches-content'), $promoCardsContent = $('#promocards-content');
+// MODIFICATION: Ajout des sélecteurs pour les marques
+const $navProducts = $('#nav-products'), $navBrands = $('#nav-brands'), $navMatches = $('#nav-matches'), $navSettings = $('#nav-settings'), $navPromoCards = $('#nav-promocards');
+const $toolbarProducts = $('#toolbar-products'), $toolbarBrands = $('#toolbar-brands'), $toolbarMatches = $('#toolbar-matches'), $toolbarPromoCards = $('#toolbar-promocards');
+const $productsContent = $('#products-content'), $brandsContent = $('#brands-content'), $matchesContent = $('#matches-content'), $promoCardsContent = $('#promocards-content');
 
 window.addEventListener('hashchange', handleRoute);
 async function handleRoute(){
@@ -184,17 +187,20 @@ async function handleRoute(){
 
   // Nav active
   $navProducts.classList.toggle('active', route.includes('product'));
+  $navBrands.classList.toggle('active', route.includes('brand'));
   $navMatches.classList.toggle('active', route.includes('match'));
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
   $navSettings.classList.toggle('active', route === 'settings');
 
   // Toolbars affichage
   $toolbarProducts.classList.toggle('hide', !route.includes('product'));
+  $toolbarBrands.classList.toggle('hide', !route.includes('brand'));
   $toolbarMatches.classList.toggle('hide', !route.includes('match'));
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
   
   // Pages
   $('#page-products').classList.toggle('hide', !route.includes('product'));
+  $('#page-brands').classList.toggle('hide', !route.includes('brand'));
   $('#page-matches').classList.toggle('hide', !route.includes('match'));
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
   $('#page-settings').classList.toggle('hide', route !== 'settings');
@@ -202,6 +208,9 @@ async function handleRoute(){
   if(route==='products'){ setCrumb('Produits'); await ensureProductsLoaded(); renderProductList(); }
   else if(route==='new-product'){ setCrumb('Nouveau produit'); renderProductFormPage(); }
   else if(route==='edit-product' && id){ setCrumb('Éditer produit'); await renderProductFormPage(id); }
+  else if(route==='brands'){ setCrumb('Marques'); await ensureBrandsLoaded(); renderBrandList(); }
+  else if(route==='new-brand'){ setCrumb('Nouvelle marque'); renderBrandFormPage(); }
+  else if(route==='edit-brand' && id){ setCrumb('Éditer marque'); await renderBrandFormPage(id); }
   else if(route==='matches'){ setCrumb('Matchs'); await ensureMatchesLoaded(); renderMatchList(); }
   else if(route==='new-match'){ setCrumb('Nouveau match'); renderMatchFormPage(); }
   else if(route==='edit-match' && id){ setCrumb('Éditer match'); await renderMatchFormPage(id); }
@@ -216,6 +225,7 @@ async function initAfterLogin(){
   lucide.createIcons();
   // Raccourcis
   $('#quick-add-product').onclick = function(){ location.hash = '#/new-product'; };
+  $('#quick-add-brand').onclick = function(){ location.hash = '#/new-brand'; };
   $('#quick-add-match').onclick = function(){ location.hash = '#/new-match'; };
   $('#quick-add-promocard').onclick = function(){ location.hash = '#/new-promocard'; };
   // Recherche globale
@@ -239,6 +249,17 @@ async function ensureProductsLoaded(){
   allProducts = snap.docs.map(function(d){ return {id:d.id, ...d.data()}; });
   $('#kpi-products').textContent = String(allProducts.length);
 }
+
+// MODIFICATION: Ajout de la fonction pour charger les marques
+async function ensureBrandsLoaded(){
+  if(allBrands.length) return;
+  $brandsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(4);
+  const q = query(collection(db,'brands'), orderBy('sortOrder','asc'));
+  const snap = await getDocs(q);
+  allBrands = snap.docs.map(function(d){ return {id:d.id, ...d.data()}; });
+  $('#kpi-brands').textContent = String(allBrands.length);
+}
+
 async function ensureMatchesLoaded(){
   if(allMatches.length) return;
   $matchesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
@@ -443,6 +464,10 @@ async function handleDelete(id, name, type) {
 			allProducts = allProducts.filter(p => p.id !== id);
 			renderProductList();
 			$('#kpi-products').textContent = String(allProducts.length);
+		} else if (type === 'brands') {
+			allBrands = allBrands.filter(b => b.id !== id);
+			renderBrandList();
+			$('#kpi-brands').textContent = String(allBrands.length);
 		} else if (type === 'matches') {
 			allMatches = allMatches.filter(m => m.id !== id);
 			renderMatchList();
@@ -682,6 +707,137 @@ async function handleProductFormSubmit(e, id) {
 	} finally {
 		setButtonLoading(submitBtn, false);
 	}
+}
+
+
+/* ============================ Brands UI ============================ */
+// MODIFICATION: Ajout de toute la section de gestion des marques
+
+$('#add-brand').addEventListener('click', () => location.hash = '#/new-brand');
+$('#search-brands').addEventListener('input', () => renderBrandList());
+
+function renderBrandList() {
+    const term = ($('#search-brands').value || '').toLowerCase();
+    const arr = term ? allBrands.filter(b => (b.name || '').toLowerCase().includes(term)) : allBrands;
+
+    if (!arr.length) {
+        $brandsContent.innerHTML = `<div class="center" style="padding:32px">Aucune marque.</div>`;
+        return;
+    }
+
+    const table = document.createElement('table');
+    table.className = 'table';
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th style="width:60px">Logo</th>
+                <th>Nom</th>
+                <th>Ordre</th>
+                <th style="width:180px;text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-brands"></tbody>
+    `;
+    const tb = table.querySelector('#tbody-brands');
+    arr.forEach(brand => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = brand.id;
+        tr.innerHTML = `
+            <td>${brand.logoUrl ? `<img class="img" src="${escapeAttr(brand.logoUrl)}" alt="Logo ${escapeAttr(brand.name)}"/>` : ''}</td>
+            <td style="font-weight:800">${escapeHtml(brand.name || 'Sans nom')}</td>
+            <td><span class="badge">${brand.sortOrder || 'N/A'}</span></td>
+            <td class="actions">
+                <button class="btn btn-small" data-edit>Éditer</button>
+                <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+            </td>
+        `;
+        tr.querySelector('[data-edit]').onclick = () => location.hash = `#/edit-brand/${brand.id}`;
+        tr.querySelector('[data-del]').onclick = () => handleDelete(brand.id, brand.name, 'brands');
+        tb.appendChild(tr);
+    });
+    $brandsContent.innerHTML = '';
+    $brandsContent.appendChild(table);
+    lucide.createIcons();
+}
+
+async function renderBrandFormPage(id) {
+    let brand = {};
+    if (id) {
+        brand = allBrands.find(b => b.id === id) || (await getDoc(doc(db, 'brands', id)).then(s => s.exists() ? { id: s.id, ...s.data() } : null));
+        if (!brand) {
+            $brandsContent.innerHTML = '<div class="center" style="padding:32px">Marque introuvable.</div>';
+            return;
+        }
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'form-wrap';
+    wrap.innerHTML = `
+        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouvelle'} marque</div></div>
+        <form class="form-main" novalidate>
+            <div class="twocol">
+                <div class="field">
+                    <label class="label" for="b-name">Nom de la marque</label>
+                    <input id="b-name" class="input" type="text" value="${escapeAttr(brand.name || '')}" required />
+                </div>
+                <div class="field">
+                    <label class="label" for="b-sortOrder">Ordre d'affichage</label>
+                    <input id="b-sortOrder" class="input" type="number" min="1" step="1" value="${brand.sortOrder || ''}" required />
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="b-logoUrl">URL du logo</label>
+                <input id="b-logoUrl" class="input" type="url" value="${escapeAttr(brand.logoUrl || '')}" />
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" data-cancel>Annuler</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer la marque'}</button>
+            </div>
+        </form>
+    `;
+    $brandsContent.innerHTML = '';
+    $brandsContent.appendChild(wrap);
+    wrap.querySelector('[data-cancel]').onclick = () => location.hash = '#/brands';
+    wrap.querySelector('form').onsubmit = e => handleBrandFormSubmit(e, id);
+}
+
+async function handleBrandFormSubmit(e, id) {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    setButtonLoading(submitBtn, true);
+
+    const name = $('#b-name').value.trim();
+    const sortOrder = parseInt($('#b-sortOrder').value, 10);
+    const logoUrl = $('#b-logoUrl').value.trim();
+
+    if (!name || isNaN(sortOrder)) {
+        toast('Erreur', 'Le nom et l\'ordre sont requis.', 'error');
+        setButtonLoading(submitBtn, false);
+        return;
+    }
+
+    const data = { name, sortOrder, logoUrl };
+
+    try {
+        if (id) {
+            await updateDoc(doc(db, 'brands', id), data);
+            const i = allBrands.findIndex(b => b.id === id);
+            if (i > -1) allBrands[i] = { id, ...data };
+            toast('Marque mise à jour', name, 'success');
+        } else {
+            const refDoc = await addDoc(collection(db, 'brands'), data);
+            allBrands.push({ id: refDoc.id, ...data });
+            $('#kpi-brands').textContent = String(allBrands.length);
+            toast('Marque créée', name, 'success');
+        }
+        allBrands.sort((a, b) => a.sortOrder - b.sortOrder);
+        location.hash = '#/brands';
+    } catch (err) {
+        console.error(err);
+        toast('Erreur', 'Enregistrement impossible', 'error');
+    } finally {
+        setButtonLoading(submitBtn, false);
+    }
 }
 
 
