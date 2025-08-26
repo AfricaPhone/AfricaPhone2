@@ -15,13 +15,17 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.africaphone.africaphone",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "package": "com.africaphone.africaphone",
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
-      "versionCode": 4
+      "versionCode": 4,
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,6 +39,9 @@
       "eas": {
         "projectId": "20967925-2684-44b1-84eb-7f99c4796364"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/20967925-2684-44b1-84eb-7f99c4796364"
     }
   }
 }

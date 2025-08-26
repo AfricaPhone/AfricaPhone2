@@ -58,7 +58,6 @@ const Section: React.FC<{
 };
 
 const ProductDetailScreen: React.FC = () => {
-  // CORRECTION: On utilise les types pour supprimer les 'any'
   const nav = useNavigation<ProductDetailScreenNavigationProp>();
   const route = useRoute<ProductDetailScreenRouteProp>();
   const { productId } = route.params;
@@ -85,7 +84,6 @@ const ProductDetailScreen: React.FC = () => {
       if (freshProduct) {
         setProduct(freshProduct);
       }
-      // CORRECTION: Ajout de la dépendance 'loading'
       if (loading) {
         setLoading(false);
       }
@@ -108,7 +106,7 @@ const ProductDetailScreen: React.FC = () => {
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / ITEM_WIDTH); // MODIFICATION: Le calcul de l'index est simplifié
+    const idx = Math.round(x / ITEM_WIDTH);
     if (idx !== activeIndex) setActiveIndex(idx);
   };
 
@@ -148,6 +146,9 @@ const ProductDetailScreen: React.FC = () => {
   }
 
   const oldPrice = product.price * 1.12;
+  
+  // MODIFICATION: Vérification si des spécifications existent
+  const hasSpecifications = product.specifications && product.specifications.length > 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -159,7 +160,6 @@ const ProductDetailScreen: React.FC = () => {
           {product.title}
         </Text>
         <View style={styles.headerActions}>
-          {/* MODIFICATION: Le bouton favori est retiré du header */}
           <TouchableOpacity style={styles.hIconBtn}>
             <Ionicons name="share-outline" size={22} color="#111" />
           </TouchableOpacity>
@@ -176,7 +176,7 @@ const ProductDetailScreen: React.FC = () => {
             showsHorizontalScrollIndicator={false}
             onScroll={onScroll}
             scrollEventThrottle={16}
-            snapToInterval={ITEM_WIDTH} // MODIFICATION: snapToInterval ajusté
+            snapToInterval={ITEM_WIDTH}
             decelerationRate="fast"
             contentContainerStyle={{ paddingHorizontal: SIDE_SPACING }}
             renderItem={({ item }) => (
@@ -196,7 +196,6 @@ const ProductDetailScreen: React.FC = () => {
                 <Text style={styles.discountTxt}>-15%</Text>
               </LinearGradient>
             </View>
-            {/* MODIFICATION: Indicateur de page en texte */}
             {gallery.length > 1 && (
               <View style={styles.pageIndicator}>
                 <Text style={styles.pageIndicatorText}>
@@ -207,7 +206,6 @@ const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* MODIFICATION: Bouton favori déplacé ici */}
         <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.favButton}>
           <Ionicons
             name={isFav(product.id) ? 'heart' : 'heart-outline'}
@@ -239,34 +237,23 @@ const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        <Section title="Description" defaultOpen>
+        {/* MODIFICATION: La section des spécifications est maintenant avant la description et ouverte par défaut */}
+        {hasSpecifications && (
+          <Section title="Spécifications" defaultOpen>
+            {product.specifications?.map((spec, index) => (
+              <View key={index} style={styles.specRow}>
+                <Text style={styles.specKey}>{spec.key}</Text>
+                <Text style={styles.specVal}>{spec.value}</Text>
+              </View>
+            ))}
+          </Section>
+        )}
+
+        <Section title="Description">
           <Text style={styles.bodyTxt}>
             {product.description ??
               'Appareil haute performance avec une construction premium, une excellente autonomie et un écran brillant. Idéal pour la photographie, les jeux et un usage quotidien.'}
           </Text>
-        </Section>
-
-        <Section title="Spécifications">
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Écran</Text>
-            <Text style={styles.specVal}>6.1" OLED 120Hz</Text>
-          </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Puce</Text>
-            <Text style={styles.specVal}>A-Series / Tensor</Text>
-          </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Caméra</Text>
-            <Text style={styles.specVal}>Dual 12MP</Text>
-          </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Batterie</Text>
-            <Text style={styles.specVal}>~4500 mAh</Text>
-          </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Connectivité</Text>
-            <Text style={styles.specVal}>5G • Wi-Fi 6 • NFC</Text>
-          </View>
         </Section>
       </ScrollView>
 
@@ -317,7 +304,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   carouselContainer: {
-    height: screenWidth, // MODIFICATION: Hauteur ajustée
+    height: screenWidth,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -336,19 +323,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    height: 'auto', // Ajusté pour le positionnement relatif
-    flexDirection: 'row', // Permet d'aligner les enfants
-    justifyContent: 'space-between', // Pousse les éléments aux extrémités
+    height: 'auto',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     padding: 12,
   },
   discount: {
     borderRadius: 6,
     overflow: 'hidden',
-    alignSelf: 'flex-start', // S'assure qu'il ne prend pas toute la hauteur
+    alignSelf: 'flex-start',
   },
   discountGrad: { paddingHorizontal: 10, paddingVertical: 6 },
   discountTxt: { color: '#fff', fontWeight: '800', fontSize: 12 },
-  // MODIFICATION: Styles pour le nouvel indicateur de page
   pageIndicator: {
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 12,
@@ -360,7 +346,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
   },
-  // MODIFICATION: Styles pour le bouton favori déplacé
   favButton: {
     width: 52,
     height: 52,
@@ -370,7 +355,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-end',
     marginRight: 24,
-    marginTop: -26, // La moitié de la hauteur pour le faire flotter
+    marginTop: -26,
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -380,7 +365,7 @@ const styles = StyleSheet.create({
     borderColor: '#f0f0f0',
   },
   priceCard: {
-    marginTop: 16, // Augmenté pour laisser de la place au bouton flottant
+    marginTop: 16,
     marginHorizontal: 16,
     padding: 12,
     borderRadius: 14,

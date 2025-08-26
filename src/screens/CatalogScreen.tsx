@@ -102,7 +102,6 @@ const formatPrice = (value?: number) => {
   }
 };
 
-// CORRECTION: Ajout d'une fonction de mappage pour correspondre au type Product
 const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
   const data = doc.data();
   return {
@@ -114,6 +113,7 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     description: data.description,
     rom: data.rom,
     ram: data.ram,
+    specifications: data.specifications || [], // MODIFICATION: Ajout des spécifications
   };
 };
 
@@ -127,6 +127,7 @@ type AlgoliaHit = {
   ordreVedette?: number;
   rom?: number;
   ram?: number;
+  specifications?: any[]; // MODIFICATION: Ajout des spécifications
 };
 
 const CatalogScreen: React.FC = () => {
@@ -148,7 +149,6 @@ const CatalogScreen: React.FC = () => {
         setFeaturedLoading(true);
         const q = query(collection(db, 'products'), where('ordreVedette', '>=', 1), orderBy('ordreVedette', 'asc'));
         const querySnapshot = await getDocs(q);
-        // CORRECTION: Utilisation de la fonction de mappage
         const products = querySnapshot.docs.map(mapDocToProduct);
         setFeaturedProducts(products);
       } catch (error) {
@@ -177,7 +177,7 @@ const CatalogScreen: React.FC = () => {
           searchParams: {
             query: q,
             hitsPerPage: 20,
-            attributesToRetrieve: ['name', 'brand', 'description', 'price', 'imageUrl', 'ordreVedette', 'rom', 'ram'],
+            attributesToRetrieve: ['name', 'brand', 'description', 'price', 'imageUrl', 'ordreVedette', 'rom', 'ram', 'specifications'], // MODIFICATION: Ajout des spécifications
           },
         });
 
@@ -192,6 +192,7 @@ const CatalogScreen: React.FC = () => {
           description: hit.description,
           rom: hit.rom,
           ram: hit.ram,
+          specifications: hit.specifications || [], // MODIFICATION: Ajout des spécifications
         }));
         setResults(mapped);
       } catch (err) {

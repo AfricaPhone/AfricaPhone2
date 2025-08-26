@@ -44,6 +44,7 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     ram: data.ram,
     ram_base: data.ram_base,
     ram_extension: data.ram_extension,
+    specifications: data.specifications || [], // MODIFICATION: Ajout des spécifications
   };
 };
 
@@ -62,8 +63,7 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
-      q = query(q, where('category', '==', categoryCapitalized));
+      q = query(q, where('category', '==', options.category));
     }
 
     if (!isNaN(minPriceNum) && minPriceNum > 0) {
@@ -151,8 +151,7 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      const categoryCapitalized = options.category.charAt(0).toUpperCase() + options.category.slice(1);
-      q = query(q, where('category', '==', categoryCapitalized));
+      q = query(q, where('category', '==', options.category));
     }
 
     if (!isNaN(minPriceNum) && minPriceNum > 0) {

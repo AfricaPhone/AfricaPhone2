@@ -22,6 +22,7 @@ export const fetchProductsFromDB = async (): Promise<Product[]> => {
         ram: data.ram,
         ram_base: data.ram_base,
         ram_extension: data.ram_extension,
+        specifications: data.specifications || [], // MODIFICATION: Ajout des spécifications
       };
     });
 
