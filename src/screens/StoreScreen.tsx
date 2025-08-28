@@ -8,9 +8,9 @@ import {
   ScrollView,
   Image,
   Linking,
-  Platform,
   ActivityIndicator,
   Alert,
+  Pressable, // Ajouté pour le composant Section
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -45,6 +45,24 @@ const InfoRow: React.FC<{
     </View>
   </TouchableOpacity>
 );
+
+// --- Nouveau composant Section pour la description et autres sections repliables ---
+const Section: React.FC<{
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}> = ({ title, children, defaultOpen }) => {
+  const [open, setOpen] = React.useState(!!defaultOpen);
+  return (
+    <View style={styles.section}>
+      <Pressable style={styles.sectionHeader} onPress={() => setOpen(v => !v)}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={20} color="#6b7280" />
+      </Pressable>
+      {open && <View style={styles.sectionBody}>{children}</View>}
+    </View>
+  );
+};
 
 const StoreScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -138,7 +156,14 @@ const StoreScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Main Info Section */}
+        {/* Section Description */}
+        {info.description && (
+          <Section title="À propos de nous" defaultOpen>
+            <Text style={styles.bodyTxt}>{info.description}</Text>
+          </Section>
+        )}
+
+        {/* Main Info Section (anciennement la seule section d'infos) */}
         <View style={styles.section}>
           <InfoRow
             icon="map-marker-outline"
@@ -153,22 +178,26 @@ const StoreScreen: React.FC = () => {
 
         <View style={styles.section}>
           {phoneNumber && (
+            <>
+              <InfoRow
+                icon="phone-outline"
+                label="Mobile"
+                value={phoneNumber}
+                onPress={() => handleCall(phoneNumber)}
+                isLink
+              />
+              <View style={styles.divider} />
+            </>
+          )}
+          {info.whatsappNumber && ( // S'assurer que WhatsApp est toujours affiché s'il existe
             <InfoRow
-              icon="phone-outline"
-              label="Mobile"
-              value={phoneNumber}
-              onPress={() => handleCall(phoneNumber)}
+              icon="whatsapp"
+              label="WhatsApp"
+              value={info.whatsappNumber}
+              onPress={() => handleOpenUrl(`https://wa.me/${info.whatsappNumber.replace('+', '')}`)}
               isLink
             />
           )}
-          <View style={styles.divider} />
-          <InfoRow
-            icon="whatsapp"
-            label="WhatsApp"
-            value={info.whatsappNumber}
-            onPress={() => handleOpenUrl(`https://wa.me/${info.whatsappNumber.replace('+', '')}`)}
-            isLink
-          />
         </View>
 
         <View style={styles.section}>
@@ -282,12 +311,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  // Styles pour les sections repliables
   section: {
     backgroundColor: COLORS.background,
     marginHorizontal: 16,
     borderRadius: 12,
     marginBottom: 16,
     overflow: 'hidden',
+    borderWidth: 1, // Ajout d'une bordure pour correspondre au style des autres sections
+    borderColor: COLORS.divider, // Couleur de la bordure
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.background, // Assure que l'en-tête a un fond blanc
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  sectionBody: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 8,
+    borderTopWidth: 1, // Séparateur pour le contenu
+    borderTopColor: COLORS.divider,
+  },
+  bodyTxt: { // Style pour le texte de la description
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    lineHeight: 22,
   },
   infoRow: {
     flexDirection: 'row',
