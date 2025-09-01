@@ -16,6 +16,7 @@ export type Product = {
   price: number;
   image: string; // Image principale pour les listes/grilles
   imageUrls?: string[]; // Tableau pour la galerie d'images
+  blurhash?: string; // AJOUT: Pour le placeholder de l'image
   category: Category;
   description?: string;
   rom?: number;

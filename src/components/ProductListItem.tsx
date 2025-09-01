@@ -1,10 +1,10 @@
 // src/components/ProductListItem.tsx
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image'; // MODIFICATION: Importation de expo-image
 import { Product } from '../types';
-import { useFavorites } from '../store/FavoritesContext'; // Importer useFavorites
+import { useFavorites } from '../store/FavoritesContext';
 import { Ionicons } from '@expo/vector-icons';
-
 import { formatPrice } from '../utils/formatPrice';
 
 type Props = {
@@ -13,12 +13,19 @@ type Props = {
 };
 
 const ProductListItem: React.FC<Props> = ({ product, onPress }) => {
-  const { toggleFavorite, isFav } = useFavorites(); // Utiliser useFavorites
+  const { toggleFavorite, isFav } = useFavorites();
   const fav = isFav(product.id);
 
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={onPress}>
-      <Image source={{ uri: product.image }} style={styles.image} />
+      {/* MODIFICATION: Le placeholder est maintenant une couleur unie */}
+      <Image
+        style={styles.image}
+        source={{ uri: product.image }}
+        placeholder={'#f2f3f5'}
+        contentFit="cover"
+        transition={300}
+      />
       <View style={styles.infoContainer}>
         <Text numberOfLines={2} style={styles.title}>
           {product.title}
@@ -88,5 +95,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// Enveloppe le composant avec React.memo pour éviter les re-rendus inutiles
 export default React.memo(ProductListItem);

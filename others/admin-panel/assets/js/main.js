@@ -89,7 +89,7 @@ function setCrumb(name){ $('#crumb-current').textContent = name; }
 let allProducts = [];
 let allMatches = [];
 let allPromoCards = [];
-// MODIFICATION: Ajout de l'état pour les marques
+let allPromoCodes = []; // AJOUT
 let allBrands = [];
 let productSearchTerm = '';
 let productCategoryFilter = '';
@@ -174,10 +174,9 @@ $$('#page-settings [data-theme-choice]').forEach(function(btn){
 });
 
 /* ============================ Routing ============================ */
-// MODIFICATION: Ajout des sélecteurs pour les marques
-const $navProducts = $('#nav-products'), $navBrands = $('#nav-brands'), $navMatches = $('#nav-matches'), $navSettings = $('#nav-settings'), $navPromoCards = $('#nav-promocards');
-const $toolbarProducts = $('#toolbar-products'), $toolbarBrands = $('#toolbar-brands'), $toolbarMatches = $('#toolbar-matches'), $toolbarPromoCards = $('#toolbar-promocards');
-const $productsContent = $('#products-content'), $brandsContent = $('#brands-content'), $matchesContent = $('#matches-content'), $promoCardsContent = $('#promocards-content');
+const $navProducts = $('#nav-products'), $navBrands = $('#nav-brands'), $navMatches = $('#nav-matches'), $navSettings = $('#nav-settings'), $navPromoCards = $('#nav-promocards'), $navPromoCodes = $('#nav-promocodes');
+const $toolbarProducts = $('#toolbar-products'), $toolbarBrands = $('#toolbar-brands'), $toolbarMatches = $('#toolbar-matches'), $toolbarPromoCards = $('#toolbar-promocards'), $toolbarPromoCodes = $('#toolbar-promocodes');
+const $productsContent = $('#products-content'), $brandsContent = $('#brands-content'), $matchesContent = $('#matches-content'), $promoCardsContent = $('#promocards-content'), $promoCodesContent = $('#promocodes-content');
 
 window.addEventListener('hashchange', handleRoute);
 async function handleRoute(){
@@ -190,6 +189,7 @@ async function handleRoute(){
   $navBrands.classList.toggle('active', route.includes('brand'));
   $navMatches.classList.toggle('active', route.includes('match'));
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
+  $navPromoCodes.classList.toggle('active', route.includes('promocode'));
   $navSettings.classList.toggle('active', route === 'settings');
 
   // Toolbars affichage
@@ -197,12 +197,14 @@ async function handleRoute(){
   $toolbarBrands.classList.toggle('hide', !route.includes('brand'));
   $toolbarMatches.classList.toggle('hide', !route.includes('match'));
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
+  $toolbarPromoCodes.classList.toggle('hide', !route.includes('promocode'));
   
   // Pages
   $('#page-products').classList.toggle('hide', !route.includes('product'));
   $('#page-brands').classList.toggle('hide', !route.includes('brand'));
   $('#page-matches').classList.toggle('hide', !route.includes('match'));
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
+  $('#page-promocodes').classList.toggle('hide', !route.includes('promocode'));
   $('#page-settings').classList.toggle('hide', route !== 'settings');
 
   if(route==='products'){ setCrumb('Produits'); await ensureProductsLoaded(); renderProductList(); }
@@ -217,6 +219,9 @@ async function handleRoute(){
   else if(route==='promocards'){ setCrumb('Cartes Promo'); await ensurePromoCardsLoaded(); renderPromoCardList(); }
   else if(route==='new-promocard'){ setCrumb('Nouvelle Carte Promo'); renderPromoCardFormPage(); }
   else if(route==='edit-promocard' && id){ setCrumb('Éditer Carte Promo'); await renderPromoCardFormPage(id); }
+  else if(route==='promocodes'){ setCrumb('Codes Promo'); await ensurePromoCodesLoaded(); renderPromoCodeList(); }
+  else if(route==='new-promocode'){ setCrumb('Nouveau Code Promo'); renderPromoCodeFormPage(); }
+  else if(route==='edit-promocode' && id){ setCrumb('Éditer Code Promo'); await renderPromoCodeFormPage(id); }
   else if(route==='settings'){ setCrumb('Param&egrave;tres'); }
   else { location.hash = '#/products'; }
 }
@@ -228,6 +233,7 @@ async function initAfterLogin(){
   $('#quick-add-brand').onclick = function(){ location.hash = '#/new-brand'; };
   $('#quick-add-match').onclick = function(){ location.hash = '#/new-match'; };
   $('#quick-add-promocard').onclick = function(){ location.hash = '#/new-promocard'; };
+  $('#quick-add-promocode').onclick = function(){ location.hash = '#/new-promocode'; };
   // Recherche globale
   const gSearch = $('#global-search');
   document.addEventListener('keydown', function(e){
@@ -250,7 +256,6 @@ async function ensureProductsLoaded(){
   $('#kpi-products').textContent = String(allProducts.length);
 }
 
-// MODIFICATION: Ajout de la fonction pour charger les marques
 async function ensureBrandsLoaded(){
   if(allBrands.length) return;
   $brandsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(4);
@@ -275,6 +280,15 @@ async function ensurePromoCardsLoaded() {
 	const snap = await getDocs(q);
 	allPromoCards = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 	$('#kpi-promocards').textContent = String(allPromoCards.length);
+}
+
+async function ensurePromoCodesLoaded() {
+	if(allPromoCodes.length > 0) return;
+	$promoCodesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+	const q = query(collection(db, 'promoCodes'), orderBy('createdAt', 'desc'));
+	const snap = await getDocs(q);
+	allPromoCodes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+	$('#kpi-promocodes').textContent = String(allPromoCodes.length);
 }
 
 
@@ -476,6 +490,10 @@ async function handleDelete(id, name, type) {
 			allPromoCards = allPromoCards.filter(c => c.id !== id);
 			renderPromoCardList();
 			$('#kpi-promocards').textContent = String(allPromoCards.length);
+		} else if (type === 'promoCodes') {
+			allPromoCodes = allPromoCodes.filter(c => c.id !== id);
+			renderPromoCodeList();
+			$('#kpi-promocodes').textContent = String(allPromoCodes.length);
 		}
 		toast('Supprimé', '', 'success');
 	} catch (e) {
@@ -711,8 +729,6 @@ async function handleProductFormSubmit(e, id) {
 
 
 /* ============================ Brands UI ============================ */
-// MODIFICATION: Ajout de toute la section de gestion des marques
-
 $('#add-brand').addEventListener('click', () => location.hash = '#/new-brand');
 $('#search-brands').addEventListener('input', () => renderBrandList());
 
@@ -1170,6 +1186,170 @@ async function handlePromoCardFormSubmit(e, id) {
 	} finally {
 		setButtonLoading(submitBtn, false);
 	}
+}
+
+/* ============================ Promo Codes UI (AJOUT) ============================ */
+$('#add-promocode').addEventListener('click', () => location.hash = '#/new-promocode');
+$('#search-promocodes').addEventListener('input', () => renderPromoCodeList());
+
+function renderPromoCodeList() {
+    const term = ($('#search-promocodes').value || '').toLowerCase();
+    const arr = term ? allPromoCodes.filter(c => (c.code || '').toLowerCase().includes(term)) : allPromoCodes;
+
+    if (!arr.length) {
+        $promoCodesContent.innerHTML = `<div class="center" style="padding:32px">Aucun code promo.</div>`;
+        return;
+    }
+    const table = document.createElement('table');
+    table.className = 'table';
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Type</th>
+                <th>Valeur</th>
+                <th>Statut</th>
+                <th style="width:180px;text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-promocodes"></tbody>`;
+    const tb = table.querySelector('#tbody-promocodes');
+    arr.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = c.id;
+        const valText = c.type === 'percentage' ? `${c.value}%` : fmtXOF.format(c.value);
+        tr.innerHTML = `
+            <td style="font-weight:800"><span class="chip">${escapeHtml(c.code || 'Sans code')}</span></td>
+            <td>${escapeHtml(c.type === 'percentage' ? 'Pourcentage' : 'Montant Fixe')}</td>
+            <td><span class="badge success">${valText}</span></td>
+            <td>
+                <label class="toggle">
+                    <span class="toggle-switch">
+                        <input type="checkbox" data-active-toggle ${c.isActive ? 'checked' : ''} />
+                        <span class="toggle-slider"></span>
+                    </span>
+                </label>
+            </td>
+            <td class="actions">
+                <button class="btn btn-small" data-edit>Éditer</button>
+                <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+            </td>`;
+        tr.querySelector('[data-edit]').onclick = () => location.hash = `#/edit-promocode/${c.id}`;
+        tr.querySelector('[data-del]').onclick = () => handleDelete(c.id, c.code, 'promoCodes');
+        tr.querySelector('[data-active-toggle]').onchange = (e) => handlePromoCodeStatusToggle(c.id, e.target.checked);
+        tb.appendChild(tr);
+    });
+    $promoCodesContent.innerHTML = '';
+    $promoCodesContent.appendChild(table);
+    lucide.createIcons();
+}
+
+async function handlePromoCodeStatusToggle(id, isActive) {
+    try {
+        await updateDoc(doc(db, 'promoCodes', id), { isActive: isActive });
+        const code = allPromoCodes.find(c => c.id === id);
+        if (code) code.isActive = isActive;
+        toast('Statut mis à jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
+    } catch (error) {
+        console.error("Erreur de mise à jour du statut:", error);
+        toast('Erreur', 'Impossible de changer le statut.', 'error');
+        renderPromoCodeList();
+    }
+}
+
+async function renderPromoCodeFormPage(id) {
+    let code = {};
+    if (id) {
+        code = allPromoCodes.find(c => c.id === id) || (await getDoc(doc(db, 'promoCodes', id)).then(s => s.exists() ? { id: s.id, ...s.data() } : null));
+        if (!code) {
+            $promoCodesContent.innerHTML = '<div class="center" style="padding:32px">Code introuvable.</div>';
+            return;
+        }
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'form-wrap';
+    wrap.innerHTML = `
+        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouveau'} Code Promo</div></div>
+        <form class="form-main" novalidate>
+            <div class="twocol">
+                <div class="field">
+                    <label class="label" for="pc-code">Le Code</label>
+                    <input id="pc-code" class="input" type="text" value="${escapeAttr(code.code || '')}" required placeholder="ex: BIENVENUE10" />
+                </div>
+                <div class="field">
+                    <label class="label" for="pc-type">Type de réduction</label>
+                    <select id="pc-type" class="select">
+                        <option value="percentage" ${code.type === 'percentage' ? 'selected' : ''}>Pourcentage (%)</option>
+                        <option value="fixed" ${code.type === 'fixed' ? 'selected' : ''}>Montant Fixe (FCFA)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="pc-value">Valeur de la réduction</label>
+                <input id="pc-value" class="input" type="number" min="0" step="1" value="${code.value || ''}" required />
+                <div class="hint">Ex: "10" pour 10% ou "5000" pour 5000 FCFA.</div>
+            </div>
+            <div class="field">
+                <label class="toggle">
+                    <span class="toggle-switch">
+                        <input id="pc-isActive" type="checkbox" ${code.isActive !== false ? 'checked' : ''}>
+                        <span class="toggle-slider"></span>
+                    </span>
+                    <span>Actif (utilisable dans l'application)</span>
+                </label>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" data-cancel>Annuler</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer le code'}</button>
+            </div>
+        </form>`;
+    $promoCodesContent.innerHTML = '';
+    $promoCodesContent.appendChild(wrap);
+    wrap.querySelector('[data-cancel]').onclick = () => location.hash = '#/promocodes';
+    wrap.querySelector('form').onsubmit = e => handlePromoCodeFormSubmit(e, id);
+}
+
+async function handlePromoCodeFormSubmit(e, id) {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    setButtonLoading(submitBtn, true);
+
+    const code = $('#pc-code').value.trim().toUpperCase();
+    const value = parseFloat($('#pc-value').value);
+
+    if (!code || isNaN(value)) {
+        toast('Erreur', 'Le code et la valeur sont requis.', 'error');
+        setButtonLoading(submitBtn, false);
+        return;
+    }
+
+    const data = {
+        code: code,
+        type: $('#pc-type').value,
+        value: value,
+        isActive: $('#pc-isActive').checked,
+    };
+
+    try {
+        if (id) {
+            await updateDoc(doc(db, 'promoCodes', id), data);
+            const i = allPromoCodes.findIndex(c => c.id === id);
+            if (i > -1) allPromoCodes[i] = { id, ...data };
+            toast('Code mis à jour', data.code, 'success');
+        } else {
+            const finalData = { ...data, createdAt: serverTimestamp() };
+            const refDoc = await addDoc(collection(db, 'promoCodes'), finalData);
+            allPromoCodes.unshift({ id: refDoc.id, ...finalData });
+            $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+            toast('Code créé', data.code, 'success');
+        }
+        location.hash = '#/promocodes';
+    } catch (err) {
+        console.error(err);
+        toast('Erreur', 'Enregistrement impossible', 'error');
+    } finally {
+        setButtonLoading(submitBtn, false);
+    }
 }
 
 

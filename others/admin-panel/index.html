@@ -64,6 +64,7 @@
         <a data-route="#/brands" class="link-item"><i data-lucide="tag" class="icon"></i> Marques</a>
         <a data-route="#/matches" class="link-item"><i data-lucide="swords" class="icon"></i> Matchs</a>
         <a data-route="#/promocards" class="link-item"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
+        <a data-route="#/promocodes" class="link-item"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
         <div class="section">G&eacute;n&eacute;ral</div>
         <a data-route="#/settings" class="link-item"><i data-lucide="settings" class="icon"></i> Param&egrave;tres</a>
       </nav>
@@ -86,6 +87,7 @@
         <a id="nav-brands" href="#/brands"><i data-lucide="tag" class="icon"></i> Marques</a>
         <a id="nav-matches" href="#/matches"><i data-lucide="swords" class="icon"></i> Matchs</a>
         <a id="nav-promocards" href="#/promocards"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
+        <a id="nav-promocodes" href="#/promocodes"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
         <div class="section">G&eacute;n&eacute;ral</div>
         <a id="nav-settings" href="#/settings"><i data-lucide="settings" class="icon"></i> Param&egrave;tres</a>
       </nav>
@@ -106,10 +108,12 @@
       </div>
 
       <div class="top-actions">
+        <div class="kpi" title="Codes promo actifs"><i data-lucide="ticket" class="icon"></i><span id="kpi-promocodes">—</span></div>
         <div class="kpi" title="Marques"><i data-lucide="tag" class="icon"></i><span id="kpi-brands">—</span></div>
         <div class="kpi" title="Cartes promo actives"><i data-lucide="layout-template" class="icon"></i><span id="kpi-promocards">—</span></div>
         <div class="kpi" title="Articles au catalogue"><i data-lucide="package" class="icon"></i><span id="kpi-products">—</span></div>
         <div class="kpi" title="Matchs planifi&eacute;s"><i data-lucide="swords" class="icon"></i><span id="kpi-matches">—</span></div>
+        <button id="quick-add-promocode" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Code</button>
         <button id="quick-add-brand" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Marque</button>
         <button id="quick-add-promocard" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Carte</button>
         <button id="quick-add-product" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Produit</button>
@@ -172,6 +176,15 @@
           </div>
       </div>
 
+      <div id="toolbar-promocodes" class="toolbar hide">
+        <div class="filters">
+            <input id="search-promocodes" class="input" type="search" placeholder="Rechercher un code promo..." />
+        </div>
+        <div class="top-actions">
+            <button id="add-promocode" class="btn btn-primary btn-small"><i data-lucide="plus" class="icon"></i> Nouveau code</button>
+        </div>
+      </div>
+
       <section id="page-products" class="page hide" aria-labelledby="nav-products">
         <div id="products-content"></div>
       </section>
@@ -186,6 +199,10 @@
 
       <section id="page-promocards" class="page hide" aria-labelledby="nav-promocards">
           <div id="promocards-content"></div>
+      </section>
+
+      <section id="page-promocodes" class="page hide" aria-labelledby="nav-promocodes">
+        <div id="promocodes-content"></div>
       </section>
 
       <section id="page-settings" class="page hide" aria-labelledby="nav-settings">

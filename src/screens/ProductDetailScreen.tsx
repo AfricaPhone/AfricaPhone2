@@ -5,7 +5,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Image,
   Dimensions,
   TouchableOpacity,
   Pressable,
@@ -16,12 +15,14 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+// AJOUT: Imports pour Firebase Functions
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
@@ -29,13 +30,23 @@ import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
 import { Product, RootStackParamList } from '../types';
 
-import PromoCodeModal from '../components/PromoCodeModal'; // AJOUTÉ : Importation du nouveau modal
+import PromoCodeModal from '../components/PromoCodeModal';
+
+// AJOUT: Initialisation de Firebase Functions
+const functions = getFunctions();
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const ITEM_WIDTH = screenWidth;
 const SPACING = 0;
 const SIDE_SPACING = 0;
+
+// AJOUT: Type pour stocker les détails du code promo validé
+type ValidatedPromo = {
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+};
 
 type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail'>;
 type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
@@ -69,29 +80,31 @@ const ProductDetailScreen: React.FC = () => {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isPromoModalVisible, setIsPromoModalVisible] = useState(false); // AJOUTÉ : État du modal promo
-  const [promoCode, setPromoCode] = useState<string | null>(null); // AJOUTÉ : État pour le code promo
+  const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
+  
+  // MODIFICATION: L'état stocke maintenant l'objet du code validé ou null
+  const [promoCode, setPromoCode] = useState<ValidatedPromo | null>(null);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+
+  const [isShareable, setIsShareable] = useState(false);
+  const shareableImageUri = useRef<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
       const cachedProduct = getProductFromCache(productId);
       if (cachedProduct) {
         setProduct(cachedProduct);
-        setLoading(false);
-      } else {
-        setLoading(true);
       }
 
       const freshProduct = await getProductById(productId);
       if (freshProduct) {
         setProduct(freshProduct);
       }
-      if (loading) {
-        setLoading(false);
-      }
+      setLoading(false);
     };
     fetchProduct();
-  }, [productId, getProductById, getProductFromCache, loading]);
+  }, [productId, getProductById, getProductFromCache]);
 
   const gallery = useMemo(() => {
     if (product?.imageUrls && product.imageUrls.length > 0) {
@@ -103,6 +116,32 @@ const ProductDetailScreen: React.FC = () => {
     return [];
   }, [product]);
 
+  useEffect(() => {
+    const cacheShareImage = async () => {
+      if (gallery.length > 0) {
+        const imageUrl = gallery[0];
+        const localUri = FileSystem.cacheDirectory + `${productId}-share-image.jpg`;
+        shareableImageUri.current = localUri;
+
+        try {
+          const fileInfo = await FileSystem.getInfoAsync(localUri);
+          if (!fileInfo.exists) {
+            await FileSystem.downloadAsync(imageUrl, localUri);
+          }
+          setIsShareable(true);
+        } catch (e) {
+          console.error("Erreur de pré-chargement de l'image:", e);
+          setIsShareable(false);
+        }
+      }
+    };
+
+    if (product) {
+      cacheShareImage();
+    }
+  }, [product, gallery, productId]);
+
+
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<FlatList<string>>(null);
 
@@ -112,7 +151,6 @@ const ProductDetailScreen: React.FC = () => {
     if (idx !== activeIndex) setActiveIndex(idx);
   };
 
-  // NOUVELLE FONCTION pour construire et envoyer le message WhatsApp
   const handleWhatsAppPress = async () => {
     if (!product || !boutiqueInfo?.whatsappNumber) {
       Alert.alert('Erreur', "Le numéro de contact n'est pas disponible pour le moment.");
@@ -121,8 +159,9 @@ const ProductDetailScreen: React.FC = () => {
     const phoneNumber = boutiqueInfo.whatsappNumber;
     let message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
 
+    // MODIFICATION: Le message inclut le code validé
     if (promoCode) {
-      message += `\nMon code promo est : ${promoCode.trim().toUpperCase()}`;
+      message += `\nMon code promo est : ${promoCode.code}`;
     }
 
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
@@ -135,38 +174,48 @@ const ProductDetailScreen: React.FC = () => {
   };
 
   const handleSharePress = async () => {
-    if (!product) {
-      Alert.alert('Erreur', 'Impossible de partager ce produit.');
+    if (!isShareable || !shareableImageUri.current) {
+      Alert.alert('Partage impossible', "L'image n'est pas encore prête, veuillez patienter un instant.");
       return;
     }
     try {
-      const imageUrl = gallery[0];
-      if (!imageUrl) {
-        Alert.alert('Erreur', 'Ce produit ne possède pas d\'image à partager.');
-        return;
-      }
-      
-      const localUri = FileSystem.cacheDirectory + `${productId}-share-image.jpg`;
-      
-      const fileInfo = await FileSystem.getInfoAsync(localUri);
-      
-      if (!fileInfo.exists) {
-        await FileSystem.downloadAsync(imageUrl, localUri);
-      }
-      
       if (!(await Sharing.isAvailableAsync())) {
         Alert.alert('Erreur', 'Le partage de fichiers n\'est pas disponible sur cet appareil.');
         return;
       }
 
-      await Sharing.shareAsync(localUri, {
-        dialogTitle: product.title,
+      await Sharing.shareAsync(shareableImageUri.current, {
+        dialogTitle: product?.title || 'Super produit !',
         mimeType: 'image/jpeg',
       });
 
     } catch (error: any) {
       console.error('Erreur de partage détaillée:', error);
       Alert.alert('Erreur', 'Impossible de partager le produit. Veuillez réessayer.');
+    }
+  };
+
+  // NOUVELLE FONCTION: Appelle la Cloud Function pour valider le code
+  const handleApplyPromoCode = async (code: string) => {
+    if (!code.trim()) {
+      Alert.alert('Erreur', 'Veuillez entrer un code promo.');
+      return;
+    }
+    setIsApplyingPromo(true);
+    try {
+      const validateFn = httpsCallable(functions, 'validatePromoCode');
+      const result = await validateFn({ code: code.trim() });
+      const data = result.data as ValidatedPromo;
+      
+      setPromoCode(data); // Stocke les détails du code validé
+      setIsPromoModalVisible(false);
+      Alert.alert('Succès', `Le code "${data.code}" a été appliqué !`);
+
+    } catch (error: any) {
+      console.error("Erreur de validation du code promo: ", error);
+      Alert.alert('Erreur', error.message || 'Une erreur est survenue.');
+    } finally {
+      setIsApplyingPromo(false);
     }
   };
 
@@ -203,6 +252,16 @@ const ProductDetailScreen: React.FC = () => {
           {product.title}
         </Text>
         <View style={styles.headerActions}>
+          <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.hIconBtn}>
+            <Ionicons
+              name={isFav(product.id) ? 'heart' : 'heart-outline'}
+              size={22}
+              color={isFav(product.id) ? '#e91e63' : '#111'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.hIconBtn} onPress={handleSharePress} disabled={!isShareable}>
+            <MaterialCommunityIcons name="share-variant" size={22} color={isShareable ? "#111" : "#cccccc"} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -221,21 +280,17 @@ const ProductDetailScreen: React.FC = () => {
             contentContainerStyle={{ paddingHorizontal: SIDE_SPACING }}
             renderItem={({ item }) => (
               <View style={styles.imageCard}>
-                <Image source={{ uri: item }} style={styles.hero} />
+                <Image
+                  source={{ uri: item }}
+                  style={styles.hero}
+                  placeholder={'#f2f3f5'}
+                  contentFit="contain"
+                  transition={500}
+                />
               </View>
             )}
           />
           <View style={styles.galleryTopOver}>
-            <View style={styles.discount}>
-              <LinearGradient
-                colors={['#ff6b6b', '#ff8e53']}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.discountGrad}
-              >
-                <Text style={styles.discountTxt}>-15%</Text>
-              </LinearGradient>
-            </View>
             {gallery.length > 1 && (
               <View style={styles.pageIndicator}>
                 <Text style={styles.pageIndicatorText}>
@@ -244,19 +299,6 @@ const ProductDetailScreen: React.FC = () => {
               </View>
             )}
           </View>
-        </View>
-
-        <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.actionButton}>
-            <Ionicons
-              name={isFav(product.id) ? 'heart' : 'heart-outline'}
-              size={26}
-              color={isFav(product.id) ? '#e91e63' : '#111'}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={handleSharePress}>
-            <MaterialCommunityIcons name="share-variant" size={26} color="#111" />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.priceCard}>
@@ -282,14 +324,13 @@ const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* AJOUTÉ : Le bouton pour ouvrir le modal de code promo */}
         <View style={styles.promoButtonContainer}>
           <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
             <Text style={styles.promoButtonText}>Utiliser un code promo</Text>
           </TouchableOpacity>
           {promoCode && (
             <View style={styles.promoChip}>
-              <Text style={styles.promoChipText}>Code appliqué: {promoCode}</Text>
+              <Text style={styles.promoChipText}>Code appliqué: {promoCode.code}</Text>
               <TouchableOpacity onPress={() => setPromoCode(null)}>
                 <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
               </TouchableOpacity>
@@ -328,10 +369,8 @@ const ProductDetailScreen: React.FC = () => {
       <PromoCodeModal
         visible={isPromoModalVisible}
         onClose={() => setIsPromoModalVisible(false)}
-        onApply={(code) => {
-          setPromoCode(code);
-          setIsPromoModalVisible(false);
-        }}
+        onApply={handleApplyPromoCode}
+        isLoading={isApplyingPromo}
       />
     </SafeAreaView>
   );
@@ -379,7 +418,7 @@ const styles = StyleSheet.create({
   imageCard: {
     width: ITEM_WIDTH,
     height: ITEM_WIDTH,
-    backgroundColor: '#f2f3f5',
+    backgroundColor: '#fff',
     marginHorizontal: SPACING / 2,
   },
   hero: {
@@ -393,16 +432,9 @@ const styles = StyleSheet.create({
     top: 0,
     height: 'auto',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     padding: 12,
   },
-  discount: {
-    borderRadius: 6,
-    overflow: 'hidden',
-    alignSelf: 'flex-start',
-  },
-  discountGrad: { paddingHorizontal: 10, paddingVertical: 6 },
-  discountTxt: { color: '#fff', fontWeight: '800', fontSize: 12 },
   pageIndicator: {
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 12,
@@ -414,30 +446,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
   },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    alignSelf: 'flex-end',
-    marginRight: 16,
-    marginTop: -26,
-    gap: 8,
-  },
-  actionButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
   priceCard: {
-    marginTop: 16,
+    marginTop: 24,
     marginHorizontal: 16,
     padding: 12,
     borderRadius: 14,
@@ -497,7 +507,6 @@ const styles = StyleSheet.create({
   },
   specKey: { color: '#6b7280' },
   specVal: { color: '#111', fontWeight: '600' },
-  // AJOUTÉ : Nouveaux styles pour le bouton de code promo
   promoButtonContainer: {
     marginHorizontal: 16,
     marginTop: 14,

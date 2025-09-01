@@ -1,6 +1,6 @@
 // src/components/PromoCodeModal.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'; // AJOUT: ActivityIndicator
 import CustomBottomSheet from './CustomBottomSheet';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -8,7 +8,7 @@ interface Props {
   visible: boolean;
   onClose: () => void;
   onApply: (promoCode: string) => void;
-  isLoading?: boolean;
+  isLoading?: boolean; // AJOUT: Prop pour l'état de chargement
 }
 
 const PromoCodeModal: React.FC<Props> = ({ visible, onClose, onApply, isLoading = false }) => {
@@ -41,10 +41,13 @@ const PromoCodeModal: React.FC<Props> = ({ visible, onClose, onApply, isLoading 
           autoCapitalize="characters"
         />
 
-        <TouchableOpacity style={styles.applyBtn} onPress={handleApplyPress} disabled={isLoading}>
-          <Text style={styles.applyBtnText}>
-            Appliquer
-          </Text>
+        {/* MODIFICATION: Le bouton gère maintenant l'état de chargement */}
+        <TouchableOpacity style={[styles.applyBtn, isLoading && styles.btnDisabled]} onPress={handleApplyPress} disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.applyBtnText}>Appliquer</Text>
+          )}
         </TouchableOpacity>
       </View>
     </CustomBottomSheet>
@@ -98,6 +101,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  // AJOUT: Style pour le bouton désactivé
+  btnDisabled: {
+    backgroundColor: '#9ca3af',
   },
   skipBtn: {
     alignItems: 'center',
