@@ -1,9 +1,10 @@
 // src/store/StoreContext.tsx
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { FirebaseAuthTypes, onAuthStateChanged, signOut } from '@react-native-firebase/auth';
-import { doc, getDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { FirebaseAuthTypes, onAuthStateChanged, signOut } from '@react-native-firebase/auth'; // CORRIGÉ
+import { doc, getDoc } from '@react-native-firebase/firestore';
 import { auth, db } from '../firebase/config';
 import { User } from '../types';
+import { registerForPushNotificationsAsync, saveTokenToFirestore } from '../services/notificationService';
 
 // --- Types & État Initial ---
 type State = {
@@ -41,6 +42,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    // CORRIGÉ : Syntaxe modulaire
     const subscriber = onAuthStateChanged(auth, async (firebaseUser: FirebaseAuthTypes.User | null) => {
       if (firebaseUser) {
         try {
@@ -82,14 +84,29 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return subscriber;
   }, []);
 
-  const logout = () => signOut(auth);
+  // AJOUTÉ : Nouvel effet pour gérer l'enregistrement des notifications
+  useEffect(() => {
+    const setupNotifications = async () => {
+      if (state.user) {
+        const token = await registerForPushNotificationsAsync();
+        if (token) {
+          await saveTokenToFirestore(state.user.id, token);
+        }
+      }
+    };
+
+    setupNotifications();
+  }, [state.user]);
+
+
+  const logout = () => signOut(auth); // CORRIGÉ
 
   /**
    * Force le rafraîchissement du jeton d'identification de l'utilisateur.
    * @returns Le nouveau jeton ou null si l'utilisateur n'est pas connecté.
    */
   const getFreshToken = async (): Promise<string | null> => {
-    const currentUser = auth.currentUser;
+    const currentUser = auth.currentUser; // CORRIGÉ
     if (currentUser) {
       try {
         // Le paramètre `true` force le rafraîchissement du jeton.

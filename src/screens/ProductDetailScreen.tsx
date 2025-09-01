@@ -16,6 +16,8 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -27,17 +29,15 @@ import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
 import { Product, RootStackParamList } from '../types';
 
+import PromoCodeModal from '../components/PromoCodeModal'; // AJOUTÉ : Importation du nouveau modal
+
 const { width: screenWidth } = Dimensions.get('window');
 
-// --- MODIFICATION: CONSTANTES POUR LE CARROUSEL PLEINE LARGEUR ---
-const ITEM_WIDTH = screenWidth; // L'image prend toute la largeur
-const SPACING = 0; // Plus d'espacement entre les images
-const SIDE_SPACING = 0; // Plus de marges latérales
+const ITEM_WIDTH = screenWidth;
+const SPACING = 0;
+const SIDE_SPACING = 0;
 
-// On définit le type des paramètres de la route
 type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail'>;
-
-// On définit le type pour la navigation
 type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
 const Section: React.FC<{
@@ -69,6 +69,8 @@ const ProductDetailScreen: React.FC = () => {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPromoModalVisible, setIsPromoModalVisible] = useState(false); // AJOUTÉ : État du modal promo
+  const [promoCode, setPromoCode] = useState<string | null>(null); // AJOUTÉ : État pour le code promo
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -110,19 +112,61 @@ const ProductDetailScreen: React.FC = () => {
     if (idx !== activeIndex) setActiveIndex(idx);
   };
 
+  // NOUVELLE FONCTION pour construire et envoyer le message WhatsApp
   const handleWhatsAppPress = async () => {
     if (!product || !boutiqueInfo?.whatsappNumber) {
       Alert.alert('Erreur', "Le numéro de contact n'est pas disponible pour le moment.");
       return;
     }
     const phoneNumber = boutiqueInfo.whatsappNumber;
-    const message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
+    let message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
+
+    if (promoCode) {
+      message += `\nMon code promo est : ${promoCode.trim().toUpperCase()}`;
+    }
+
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
 
     try {
       await Linking.openURL(url);
     } catch (error) {
       Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. L'application est-elle bien installée sur votre appareil ?");
+    }
+  };
+
+  const handleSharePress = async () => {
+    if (!product) {
+      Alert.alert('Erreur', 'Impossible de partager ce produit.');
+      return;
+    }
+    try {
+      const imageUrl = gallery[0];
+      if (!imageUrl) {
+        Alert.alert('Erreur', 'Ce produit ne possède pas d\'image à partager.');
+        return;
+      }
+      
+      const localUri = FileSystem.cacheDirectory + `${productId}-share-image.jpg`;
+      
+      const fileInfo = await FileSystem.getInfoAsync(localUri);
+      
+      if (!fileInfo.exists) {
+        await FileSystem.downloadAsync(imageUrl, localUri);
+      }
+      
+      if (!(await Sharing.isAvailableAsync())) {
+        Alert.alert('Erreur', 'Le partage de fichiers n\'est pas disponible sur cet appareil.');
+        return;
+      }
+
+      await Sharing.shareAsync(localUri, {
+        dialogTitle: product.title,
+        mimeType: 'image/jpeg',
+      });
+
+    } catch (error: any) {
+      console.error('Erreur de partage détaillée:', error);
+      Alert.alert('Erreur', 'Impossible de partager le produit. Veuillez réessayer.');
     }
   };
 
@@ -147,7 +191,6 @@ const ProductDetailScreen: React.FC = () => {
 
   const oldPrice = product.price * 1.12;
   
-  // MODIFICATION: Vérification si des spécifications existent
   const hasSpecifications = product.specifications && product.specifications.length > 0;
 
   return (
@@ -160,9 +203,6 @@ const ProductDetailScreen: React.FC = () => {
           {product.title}
         </Text>
         <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.hIconBtn}>
-            <Ionicons name="share-outline" size={22} color="#111" />
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -206,13 +246,18 @@ const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.favButton}>
-          <Ionicons
-            name={isFav(product.id) ? 'heart' : 'heart-outline'}
-            size={26}
-            color={isFav(product.id) ? '#e91e63' : '#111'}
-          />
-        </TouchableOpacity>
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.actionButton}>
+            <Ionicons
+              name={isFav(product.id) ? 'heart' : 'heart-outline'}
+              size={26}
+              color={isFav(product.id) ? '#e91e63' : '#111'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={handleSharePress}>
+            <MaterialCommunityIcons name="share-variant" size={26} color="#111" />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.priceCard}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
@@ -237,7 +282,21 @@ const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* MODIFICATION: La section des spécifications est maintenant avant la description et ouverte par défaut */}
+        {/* AJOUTÉ : Le bouton pour ouvrir le modal de code promo */}
+        <View style={styles.promoButtonContainer}>
+          <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
+            <Text style={styles.promoButtonText}>Utiliser un code promo</Text>
+          </TouchableOpacity>
+          {promoCode && (
+            <View style={styles.promoChip}>
+              <Text style={styles.promoChipText}>Code appliqué: {promoCode}</Text>
+              <TouchableOpacity onPress={() => setPromoCode(null)}>
+                <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
         {hasSpecifications && (
           <Section title="Spécifications" defaultOpen>
             {product.specifications?.map((spec, index) => (
@@ -265,6 +324,15 @@ const ProductDetailScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+
+      <PromoCodeModal
+        visible={isPromoModalVisible}
+        onClose={() => setIsPromoModalVisible(false)}
+        onApply={(code) => {
+          setPromoCode(code);
+          setIsPromoModalVisible(false);
+        }}
+      />
     </SafeAreaView>
   );
 };
@@ -346,16 +414,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
   },
-  favButton: {
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+    marginRight: 16,
+    marginTop: -26,
+    gap: 8,
+  },
+  actionButton: {
     width: 52,
     height: 52,
     borderRadius: 26,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'flex-end',
-    marginRight: 24,
-    marginTop: -26,
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -374,7 +446,11 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   price: { fontSize: 22, fontWeight: '900', color: '#111' },
-  oldPrice: { fontSize: 14, color: '#9ca3af', textDecorationLine: 'line-through' },
+  oldPrice: {
+    fontSize: 14,
+    color: '#9ca3af',
+    textDecorationLine: 'line-through',
+  },
   specsText: {
     marginTop: 8,
     fontSize: 14,
@@ -421,6 +497,40 @@ const styles = StyleSheet.create({
   },
   specKey: { color: '#6b7280' },
   specVal: { color: '#111', fontWeight: '600' },
+  // AJOUTÉ : Nouveaux styles pour le bouton de code promo
+  promoButtonContainer: {
+    marginHorizontal: 16,
+    marginTop: 14,
+    marginBottom: 8,
+  },
+  promoButton: {
+    backgroundColor: '#111',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  promoButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  promoChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#e0f2fe',
+    borderRadius: 12,
+    borderColor: '#007BFF',
+    borderWidth: 1,
+  },
+  promoChipText: {
+    color: '#007BFF',
+    fontWeight: '600',
+  },
   actionsSafe: {
     backgroundColor: '#fff',
     position: 'absolute',
@@ -452,5 +562,5 @@ const styles = StyleSheet.create({
   },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
-
+  
 export default ProductDetailScreen;

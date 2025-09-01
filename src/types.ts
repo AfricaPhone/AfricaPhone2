@@ -43,6 +43,7 @@ export type User = {
   email: string | null;
   phoneNumber?: string | null;
   initials: string;
+  pushTokens?: string[]; // AJOUTÉ
 };
 
 // --- Favorites / Collections ---
