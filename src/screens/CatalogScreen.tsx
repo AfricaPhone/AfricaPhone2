@@ -79,9 +79,10 @@ const SearchResultItem: React.FC<{ item: Product; query: string; onPress: () => 
       <Image source={{ uri: item.image }} style={styles.resultImage} />
       <View style={styles.resultInfo}>
         {renderHighlightedText()}
+        {/* MODIFICATION: Ajout de l'affichage des specs ROM et RAM */}
         {item.rom && item.ram && (
           <Text style={styles.resultSpecs}>
-            {item.rom}GB ROM / {item.ram}GB RAM
+            {item.rom} Go + {item.ram} Go
           </Text>
         )}
         <Text style={styles.resultPrice}>{formatPrice(item.price)}</Text>
@@ -113,7 +114,7 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     description: data.description,
     rom: data.rom,
     ram: data.ram,
-    specifications: data.specifications || [], // MODIFICATION: Ajout des spécifications
+    specifications: data.specifications || [],
   };
 };
 
@@ -127,7 +128,7 @@ type AlgoliaHit = {
   ordreVedette?: number;
   rom?: number;
   ram?: number;
-  specifications?: any[]; // MODIFICATION: Ajout des spécifications
+  specifications?: any[];
 };
 
 const CatalogScreen: React.FC = () => {
@@ -177,7 +178,8 @@ const CatalogScreen: React.FC = () => {
           searchParams: {
             query: q,
             hitsPerPage: 20,
-            attributesToRetrieve: ['name', 'brand', 'description', 'price', 'imageUrl', 'ordreVedette', 'rom', 'ram', 'specifications'], // MODIFICATION: Ajout des spécifications
+            // MODIFICATION: Ajout de 'rom' et 'ram' aux attributs à récupérer
+            attributesToRetrieve: ['name', 'brand', 'description', 'price', 'imageUrl', 'ordreVedette', 'rom', 'ram', 'specifications'],
           },
         });
 
@@ -192,7 +194,7 @@ const CatalogScreen: React.FC = () => {
           description: hit.description,
           rom: hit.rom,
           ram: hit.ram,
-          specifications: hit.specifications || [], // MODIFICATION: Ajout des spécifications
+          specifications: hit.specifications || [],
         }));
         setResults(mapped);
       } catch (err) {

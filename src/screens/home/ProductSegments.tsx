@@ -3,8 +3,8 @@ import React from 'react';
 import { Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-// MODIFICATION: Ordre des clés mis à jour pour la cohérence
-const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'Acessoires'] as const;
+// MODIFICATION: 'Acessoires' est remplacé par 'accessoire' pour la cohérence.
+const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;
 export type Segment = (typeof SEGMENTS)[number];
 
 const SEGMENTS_DATA: Array<{
@@ -12,10 +12,11 @@ const SEGMENTS_DATA: Array<{
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
 }> = [
-  { key: 'Populaires', label: 'Top et Populaires', icon: 'star-outline' },
+  { key: 'Populaires', label: 'Populaires', icon: 'star-outline' },
   { key: 'tablette', label: 'Tablettes', icon: 'tablet-portrait-outline' },
   { key: 'portable a touche', label: 'Portable a Touche', icon: 'keypad-outline' },
-  { key: 'Acessoires', label: 'Acessoires et Plus', icon: 'headset-outline' },
+  // MODIFICATION: La clé est maintenant 'accessoire' et le libellé est corrigé.
+  { key: 'accessoire', label: 'Accessoires et Plus', icon: 'headset-outline' },
 ];
 
 interface Props {
