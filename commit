@@ -1,0 +1,8 @@
+git add .
+git checkout master
+git pull origin master
+npm install
+npm start
+git checkout -b nom-de-ma-branche
+git add .
+git commit -m "Description de ma modification"
