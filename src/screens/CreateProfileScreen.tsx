@@ -31,11 +31,13 @@ const CreateProfileScreen: React.FC = () => {
 
   const [firstName, setFirstName] = useState(googleFirstName || '');
   const [lastName, setLastName] = useState(googleLastName || '');
+  const [phoneNumber, setPhoneNumber] = useState(''); // AJOUT: État pour le numéro de téléphone
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCreateProfile = async () => {
-    if (!firstName.trim() || !lastName.trim()) {
-      Alert.alert('Champs requis', 'Veuillez remplir votre prénom et votre nom.');
+    // MODIFICATION: Vérification ajoutée pour le numéro de téléphone
+    if (!firstName.trim() || !lastName.trim() || !phoneNumber.trim()) {
+      Alert.alert('Champs requis', 'Veuillez remplir votre prénom, votre nom et votre numéro de téléphone.');
       return;
     }
 
@@ -47,7 +49,7 @@ const CreateProfileScreen: React.FC = () => {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email,
-        phoneNumber: null,
+        phoneNumber: phoneNumber.trim(), // AJOUT: Enregistrement du numéro
         createdAt: serverTimestamp(),
       });
 
@@ -68,7 +70,7 @@ const CreateProfileScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.formContainer}>
             <Text style={styles.title}>Finalisez votre profil</Text>
-            <Text style={styles.subtitle}>Vérifiez votre nom et prénom, puis terminez votre inscription.</Text>
+            <Text style={styles.subtitle}>Vérifiez vos informations puis terminez votre inscription.</Text>
 
             <TextInput
               style={styles.input}
@@ -88,6 +90,16 @@ const CreateProfileScreen: React.FC = () => {
               onChangeText={setLastName}
               autoCapitalize="words"
               textContentType="familyName"
+            />
+            {/* AJOUT: Champ de saisie pour le numéro de téléphone */}
+            <TextInput
+              style={styles.input}
+              placeholder="Numéro de téléphone"
+              placeholderTextColor="#9ca3af"
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+              keyboardType="phone-pad"
+              textContentType="telephoneNumber"
             />
             <TouchableOpacity
               style={[styles.btn, styles.btnPrimary]}

@@ -1,5 +1,5 @@
 // src/screens/home/HomeScreen.tsx
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react'; // AJOUT: useMemo
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -132,11 +132,9 @@ const HomeScreen: React.FC = () => {
           });
         } else {
           let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
-          // MODIFICATION: La condition spéciale pour "portable a touche" est simplifiée
           if (segment === 'portable a touche') {
             q = query(q, where('category', '==', 'portable a touche'), orderBy('name', 'asc'));
           } else {
-            // MODIFICATION: Suppression de la capitalisation, on utilise le segment tel quel
             q = query(q, where('category', '==', segment), orderBy('name', 'asc'));
           }
           q = query(q, limit(PAGE_SIZE));
@@ -184,7 +182,6 @@ const HomeScreen: React.FC = () => {
       } else if (activeSegment === 'portable a touche') {
         q = query(q, where('category', '==', 'portable a touche'), orderBy('name', 'asc'));
       } else {
-        // MODIFICATION: Suppression de la capitalisation
         q = query(q, where('category', '==', activeSegment), orderBy('name', 'asc'));
       }
 
@@ -236,6 +233,20 @@ const HomeScreen: React.FC = () => {
     fetchProducts(activeSegment, true);
   }, [activeSegment, fetchProducts]);
 
+  // MODIFICATION: J'enveloppe le Header dans un useMemo pour le mémoriser.
+  const memoizedListHeader = useMemo(() => {
+    return (
+      <HomeListHeader
+        brands={brands}
+        brandsLoading={brandsLoading}
+        promoCards={promoCards}
+        promoCardsLoading={promoCardsLoading}
+        activeSegment={activeSegment}
+        onSegmentChange={setActiveSegment}
+      />
+    );
+  }, [brands, brandsLoading, promoCards, promoCardsLoading, activeSegment]);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <HomeHeader onFilterPress={() => setIsFilterVisible(true)} />
@@ -247,16 +258,8 @@ const HomeScreen: React.FC = () => {
         onRefresh={onRefresh}
         refreshing={refreshing}
         activeSegment={activeSegment}
-        listHeaderComponent={
-          <HomeListHeader
-            brands={brands}
-            brandsLoading={brandsLoading}
-            promoCards={promoCards}
-            promoCardsLoading={promoCardsLoading}
-            activeSegment={activeSegment}
-            onSegmentChange={setActiveSegment}
-          />
-        }
+        // MODIFICATION: J'utilise le header mémorisé.
+        listHeaderComponent={memoizedListHeader}
       />
       <FilterBottomSheet
         visible={isFilterVisible}

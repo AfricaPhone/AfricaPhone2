@@ -5,7 +5,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Image,
   Dimensions,
   TouchableOpacity,
   Pressable,
@@ -16,10 +15,14 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+// AJOUT: Imports pour Firebase Functions
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
@@ -27,17 +30,25 @@ import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
 import { Product, RootStackParamList } from '../types';
 
+import PromoCodeModal from '../components/PromoCodeModal';
+
+// AJOUT: Initialisation de Firebase Functions
+const functions = getFunctions();
+
 const { width: screenWidth } = Dimensions.get('window');
 
-// --- MODIFICATION: CONSTANTES POUR LE CARROUSEL PLEINE LARGEUR ---
-const ITEM_WIDTH = screenWidth; // L'image prend toute la largeur
-const SPACING = 0; // Plus d'espacement entre les images
-const SIDE_SPACING = 0; // Plus de marges latérales
+const ITEM_WIDTH = screenWidth;
+const SPACING = 0;
+const SIDE_SPACING = 0;
 
-// On définit le type des paramètres de la route
+// AJOUT: Type pour stocker les détails du code promo validé
+type ValidatedPromo = {
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+};
+
 type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail'>;
-
-// On définit le type pour la navigation
 type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
 const Section: React.FC<{
@@ -58,7 +69,6 @@ const Section: React.FC<{
 };
 
 const ProductDetailScreen: React.FC = () => {
-  // CORRECTION: On utilise les types pour supprimer les 'any'
   const nav = useNavigation<ProductDetailScreenNavigationProp>();
   const route = useRoute<ProductDetailScreenRouteProp>();
   const { productId } = route.params;
@@ -70,28 +80,31 @@ const ProductDetailScreen: React.FC = () => {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
+  
+  // MODIFICATION: L'état stocke maintenant l'objet du code validé ou null
+  const [promoCode, setPromoCode] = useState<ValidatedPromo | null>(null);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+
+  const [isShareable, setIsShareable] = useState(false);
+  const shareableImageUri = useRef<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
       const cachedProduct = getProductFromCache(productId);
       if (cachedProduct) {
         setProduct(cachedProduct);
-        setLoading(false);
-      } else {
-        setLoading(true);
       }
 
       const freshProduct = await getProductById(productId);
       if (freshProduct) {
         setProduct(freshProduct);
       }
-      // CORRECTION: Ajout de la dépendance 'loading'
-      if (loading) {
-        setLoading(false);
-      }
+      setLoading(false);
     };
     fetchProduct();
-  }, [productId, getProductById, getProductFromCache, loading]);
+  }, [productId, getProductById, getProductFromCache]);
 
   const gallery = useMemo(() => {
     if (product?.imageUrls && product.imageUrls.length > 0) {
@@ -103,12 +116,38 @@ const ProductDetailScreen: React.FC = () => {
     return [];
   }, [product]);
 
+  useEffect(() => {
+    const cacheShareImage = async () => {
+      if (gallery.length > 0) {
+        const imageUrl = gallery[0];
+        const localUri = FileSystem.cacheDirectory + `${productId}-share-image.jpg`;
+        shareableImageUri.current = localUri;
+
+        try {
+          const fileInfo = await FileSystem.getInfoAsync(localUri);
+          if (!fileInfo.exists) {
+            await FileSystem.downloadAsync(imageUrl, localUri);
+          }
+          setIsShareable(true);
+        } catch (e) {
+          console.error("Erreur de pré-chargement de l'image:", e);
+          setIsShareable(false);
+        }
+      }
+    };
+
+    if (product) {
+      cacheShareImage();
+    }
+  }, [product, gallery, productId]);
+
+
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<FlatList<string>>(null);
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / ITEM_WIDTH); // MODIFICATION: Le calcul de l'index est simplifié
+    const idx = Math.round(x / ITEM_WIDTH);
     if (idx !== activeIndex) setActiveIndex(idx);
   };
 
@@ -118,13 +157,65 @@ const ProductDetailScreen: React.FC = () => {
       return;
     }
     const phoneNumber = boutiqueInfo.whatsappNumber;
-    const message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
+    let message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
+
+    // MODIFICATION: Le message inclut le code validé
+    if (promoCode) {
+      message += `\nMon code promo est : ${promoCode.code}`;
+    }
+
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
 
     try {
       await Linking.openURL(url);
     } catch (error) {
       Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. L'application est-elle bien installée sur votre appareil ?");
+    }
+  };
+
+  const handleSharePress = async () => {
+    if (!isShareable || !shareableImageUri.current) {
+      Alert.alert('Partage impossible', "L'image n'est pas encore prête, veuillez patienter un instant.");
+      return;
+    }
+    try {
+      if (!(await Sharing.isAvailableAsync())) {
+        Alert.alert('Erreur', 'Le partage de fichiers n\'est pas disponible sur cet appareil.');
+        return;
+      }
+
+      await Sharing.shareAsync(shareableImageUri.current, {
+        dialogTitle: product?.title || 'Super produit !',
+        mimeType: 'image/jpeg',
+      });
+
+    } catch (error: any) {
+      console.error('Erreur de partage détaillée:', error);
+      Alert.alert('Erreur', 'Impossible de partager le produit. Veuillez réessayer.');
+    }
+  };
+
+  // NOUVELLE FONCTION: Appelle la Cloud Function pour valider le code
+  const handleApplyPromoCode = async (code: string) => {
+    if (!code.trim()) {
+      Alert.alert('Erreur', 'Veuillez entrer un code promo.');
+      return;
+    }
+    setIsApplyingPromo(true);
+    try {
+      const validateFn = httpsCallable(functions, 'validatePromoCode');
+      const result = await validateFn({ code: code.trim() });
+      const data = result.data as ValidatedPromo;
+      
+      setPromoCode(data); // Stocke les détails du code validé
+      setIsPromoModalVisible(false);
+      Alert.alert('Succès', `Le code "${data.code}" a été appliqué !`);
+
+    } catch (error: any) {
+      console.error("Erreur de validation du code promo: ", error);
+      Alert.alert('Erreur', error.message || 'Une erreur est survenue.');
+    } finally {
+      setIsApplyingPromo(false);
     }
   };
 
@@ -148,6 +239,8 @@ const ProductDetailScreen: React.FC = () => {
   }
 
   const oldPrice = product.price * 1.12;
+  
+  const hasSpecifications = product.specifications && product.specifications.length > 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -159,9 +252,15 @@ const ProductDetailScreen: React.FC = () => {
           {product.title}
         </Text>
         <View style={styles.headerActions}>
-          {/* MODIFICATION: Le bouton favori est retiré du header */}
-          <TouchableOpacity style={styles.hIconBtn}>
-            <Ionicons name="share-outline" size={22} color="#111" />
+          <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.hIconBtn}>
+            <Ionicons
+              name={isFav(product.id) ? 'heart' : 'heart-outline'}
+              size={22}
+              color={isFav(product.id) ? '#e91e63' : '#111'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.hIconBtn} onPress={handleSharePress} disabled={!isShareable}>
+            <MaterialCommunityIcons name="share-variant" size={22} color={isShareable ? "#111" : "#cccccc"} />
           </TouchableOpacity>
         </View>
       </View>
@@ -176,27 +275,22 @@ const ProductDetailScreen: React.FC = () => {
             showsHorizontalScrollIndicator={false}
             onScroll={onScroll}
             scrollEventThrottle={16}
-            snapToInterval={ITEM_WIDTH} // MODIFICATION: snapToInterval ajusté
+            snapToInterval={ITEM_WIDTH}
             decelerationRate="fast"
             contentContainerStyle={{ paddingHorizontal: SIDE_SPACING }}
             renderItem={({ item }) => (
               <View style={styles.imageCard}>
-                <Image source={{ uri: item }} style={styles.hero} />
+                <Image
+                  source={{ uri: item }}
+                  style={styles.hero}
+                  placeholder={'#f2f3f5'}
+                  contentFit="contain"
+                  transition={500}
+                />
               </View>
             )}
           />
           <View style={styles.galleryTopOver}>
-            <View style={styles.discount}>
-              <LinearGradient
-                colors={['#ff6b6b', '#ff8e53']}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.discountGrad}
-              >
-                <Text style={styles.discountTxt}>-15%</Text>
-              </LinearGradient>
-            </View>
-            {/* MODIFICATION: Indicateur de page en texte */}
             {gallery.length > 1 && (
               <View style={styles.pageIndicator}>
                 <Text style={styles.pageIndicatorText}>
@@ -206,15 +300,6 @@ const ProductDetailScreen: React.FC = () => {
             )}
           </View>
         </View>
-
-        {/* MODIFICATION: Bouton favori déplacé ici */}
-        <TouchableOpacity onPress={() => toggleFavorite(product.id)} style={styles.favButton}>
-          <Ionicons
-            name={isFav(product.id) ? 'heart' : 'heart-outline'}
-            size={26}
-            color={isFav(product.id) ? '#e91e63' : '#111'}
-          />
-        </TouchableOpacity>
 
         <View style={styles.priceCard}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
@@ -239,34 +324,36 @@ const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        <Section title="Description" defaultOpen>
+        <View style={styles.promoButtonContainer}>
+          <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
+            <Text style={styles.promoButtonText}>Utiliser un code promo</Text>
+          </TouchableOpacity>
+          {promoCode && (
+            <View style={styles.promoChip}>
+              <Text style={styles.promoChipText}>Code appliqué: {promoCode.code}</Text>
+              <TouchableOpacity onPress={() => setPromoCode(null)}>
+                <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {hasSpecifications && (
+          <Section title="Spécifications" defaultOpen>
+            {product.specifications?.map((spec, index) => (
+              <View key={index} style={styles.specRow}>
+                <Text style={styles.specKey}>{spec.key}</Text>
+                <Text style={styles.specVal}>{spec.value}</Text>
+              </View>
+            ))}
+          </Section>
+        )}
+
+        <Section title="Description">
           <Text style={styles.bodyTxt}>
             {product.description ??
               'Appareil haute performance avec une construction premium, une excellente autonomie et un écran brillant. Idéal pour la photographie, les jeux et un usage quotidien.'}
           </Text>
-        </Section>
-
-        <Section title="Spécifications">
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Écran</Text>
-            <Text style={styles.specVal}>6.1" OLED 120Hz</Text>
-          </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Puce</Text>
-            <Text style={styles.specVal}>A-Series / Tensor</Text>
-          </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Caméra</Text>
-            <Text style={styles.specVal}>Dual 12MP</Text>
-          </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Batterie</Text>
-            <Text style={styles.specVal}>~4500 mAh</Text>
-          </View>
-          <View style={styles.specRow}>
-            <Text style={styles.specKey}>Connectivité</Text>
-            <Text style={styles.specVal}>5G • Wi-Fi 6 • NFC</Text>
-          </View>
         </Section>
       </ScrollView>
 
@@ -278,6 +365,13 @@ const ProductDetailScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+
+      <PromoCodeModal
+        visible={isPromoModalVisible}
+        onClose={() => setIsPromoModalVisible(false)}
+        onApply={handleApplyPromoCode}
+        isLoading={isApplyingPromo}
+      />
     </SafeAreaView>
   );
 };
@@ -317,14 +411,14 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   carouselContainer: {
-    height: screenWidth, // MODIFICATION: Hauteur ajustée
+    height: screenWidth,
     justifyContent: 'center',
     alignItems: 'center',
   },
   imageCard: {
     width: ITEM_WIDTH,
     height: ITEM_WIDTH,
-    backgroundColor: '#f2f3f5',
+    backgroundColor: '#fff',
     marginHorizontal: SPACING / 2,
   },
   hero: {
@@ -336,19 +430,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    height: 'auto', // Ajusté pour le positionnement relatif
-    flexDirection: 'row', // Permet d'aligner les enfants
-    justifyContent: 'space-between', // Pousse les éléments aux extrémités
+    height: 'auto',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     padding: 12,
   },
-  discount: {
-    borderRadius: 6,
-    overflow: 'hidden',
-    alignSelf: 'flex-start', // S'assure qu'il ne prend pas toute la hauteur
-  },
-  discountGrad: { paddingHorizontal: 10, paddingVertical: 6 },
-  discountTxt: { color: '#fff', fontWeight: '800', fontSize: 12 },
-  // MODIFICATION: Styles pour le nouvel indicateur de page
   pageIndicator: {
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 12,
@@ -360,27 +446,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
   },
-  // MODIFICATION: Styles pour le bouton favori déplacé
-  favButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'flex-end',
-    marginRight: 24,
-    marginTop: -26, // La moitié de la hauteur pour le faire flotter
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
   priceCard: {
-    marginTop: 16, // Augmenté pour laisser de la place au bouton flottant
+    marginTop: 24,
     marginHorizontal: 16,
     padding: 12,
     borderRadius: 14,
@@ -389,7 +456,11 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   price: { fontSize: 22, fontWeight: '900', color: '#111' },
-  oldPrice: { fontSize: 14, color: '#9ca3af', textDecorationLine: 'line-through' },
+  oldPrice: {
+    fontSize: 14,
+    color: '#9ca3af',
+    textDecorationLine: 'line-through',
+  },
   specsText: {
     marginTop: 8,
     fontSize: 14,
@@ -436,6 +507,39 @@ const styles = StyleSheet.create({
   },
   specKey: { color: '#6b7280' },
   specVal: { color: '#111', fontWeight: '600' },
+  promoButtonContainer: {
+    marginHorizontal: 16,
+    marginTop: 14,
+    marginBottom: 8,
+  },
+  promoButton: {
+    backgroundColor: '#111',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  promoButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  promoChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#e0f2fe',
+    borderRadius: 12,
+    borderColor: '#007BFF',
+    borderWidth: 1,
+  },
+  promoChipText: {
+    color: '#007BFF',
+    fontWeight: '600',
+  },
   actionsSafe: {
     backgroundColor: '#fff',
     position: 'absolute',
@@ -467,5 +571,5 @@ const styles = StyleSheet.create({
   },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
-
+  
 export default ProductDetailScreen;

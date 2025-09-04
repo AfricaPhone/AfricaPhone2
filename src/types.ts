@@ -4,12 +4,19 @@ import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 export type Category = string;
 
+// NOUVEAU: Définition du type pour une ligne de spécification
+export type Specification = {
+  key: string;
+  value: string;
+};
+
 export type Product = {
   id: string;
   title: string;
   price: number;
   image: string; // Image principale pour les listes/grilles
   imageUrls?: string[]; // Tableau pour la galerie d'images
+  blurhash?: string; // AJOUT: Pour le placeholder de l'image
   category: Category;
   description?: string;
   rom?: number;
@@ -17,6 +24,7 @@ export type Product = {
   ram_base?: number;
   ram_extension?: number;
   ordreVedette?: number;
+  specifications?: Specification[]; // NOUVEAU: Champ pour les spécifications
 };
 
 // --- Brand ---
@@ -36,6 +44,7 @@ export type User = {
   email: string | null;
   phoneNumber?: string | null;
   initials: string;
+  pushTokens?: string[]; // AJOUTÉ
 };
 
 // --- Favorites / Collections ---

@@ -14,10 +14,10 @@ const firebaseConfig = {
   appId: '1:203471818329:web:c2c77d48098c1a6a596b48',
 };
 
-// Initialise l'application Firebase.
+
 const appFB = initializeApp(firebaseConfig);
 
-// Initialise les services Firebase et les exporte pour les utiliser dans d'autres parties de l'application.
+
 export const auth = getAuth(appFB);
 export const db = getFirestore(appFB);
 export const storage = getStorage(appFB);

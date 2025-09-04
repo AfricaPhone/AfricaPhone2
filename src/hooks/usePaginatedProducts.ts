@@ -44,6 +44,7 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     ram: data.ram,
     ram_base: data.ram_base,
     ram_extension: data.ram_extension,
+    specifications: data.specifications || [], // MODIFICATION: Ajout des spécifications
   };
 };
 
@@ -62,7 +63,6 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      // MODIFICATION: Suppression de la capitalisation
       q = query(q, where('category', '==', options.category));
     }
 
@@ -151,7 +151,6 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      // MODIFICATION: Suppression de la capitalisation
       q = query(q, where('category', '==', options.category));
     }
 

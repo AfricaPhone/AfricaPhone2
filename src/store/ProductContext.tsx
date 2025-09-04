@@ -89,6 +89,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
               ram: data.ram,
               ram_base: data.ram_base,
               ram_extension: data.ram_extension,
+              specifications: data.specifications || [], // MODIFICATION: Ajout des spécifications
             };
             // Mettre à jour le cache avec les données les plus récentes
             productCache.set(id, product);
