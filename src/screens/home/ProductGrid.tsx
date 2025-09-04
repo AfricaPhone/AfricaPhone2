@@ -1,11 +1,22 @@
 // src/screens/home/ProductGrid.tsx
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  Animated,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Product } from '../../types';
 import ProductGridCard from '../../components/ProductGridCard';
 import { GridSkeleton } from '../../components/SkeletonLoader';
-import HomeListHeader from './HomeListHeader'; // Nous allons créer ce fichier juste après
+
+// Création du composant animé à partir de FlatList
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 interface Props {
   products: Product[];
@@ -16,6 +27,8 @@ interface Props {
   refreshing: boolean;
   listHeaderComponent: React.ReactElement;
   activeSegment: string;
+  onScroll: (...args: any[]) => void;
+  scrollEventThrottle: number;
 }
 
 const ProductGrid: React.FC<Props> = ({
@@ -27,6 +40,8 @@ const ProductGrid: React.FC<Props> = ({
   refreshing,
   listHeaderComponent,
   activeSegment,
+  onScroll,
+  scrollEventThrottle,
 }) => {
   const navigation = useNavigation<any>();
 
@@ -55,7 +70,7 @@ const ProductGrid: React.FC<Props> = ({
   }
 
   return (
-    <FlatList
+    <AnimatedFlatList
       data={products}
       renderItem={renderItem}
       keyExtractor={item => `${activeSegment}-${item.id}`}
@@ -75,6 +90,8 @@ const ProductGrid: React.FC<Props> = ({
           {!loading && <Text style={styles.emptyText}>Aucun produit dans cette catégorie.</Text>}
         </View>
       }
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}
     />
   );
 };
