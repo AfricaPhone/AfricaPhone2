@@ -98,7 +98,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setupNotifications();
   }, [state.user]);
 
-
   const logout = () => signOut(auth); // CORRIGÉ
 
   /**

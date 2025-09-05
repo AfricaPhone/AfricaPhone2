@@ -5,30 +5,38 @@ import ProductGrid from './ProductGrid';
 import HomeListHeader from './HomeListHeader';
 import { useProducts } from '../../store/ProductContext';
 import { Product, PromoCard } from '../../types';
-import { collection, getDocs, query, where, orderBy, limit, startAfter, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
 import { db } from '../../firebase/config';
 
 const PAGE_SIZE = 10;
 
 const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
-    const data = doc.data();
-    const imageUrls = data.imageUrls || [];
-    return {
-        id: doc.id,
-        title: data.name,
-        price: data.price,
-        image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || '',
-        imageUrls: imageUrls,
-        category: data.brand?.toLowerCase() || 'inconnu',
-        description: data.description,
-        rom: data.rom,
-        ram: data.ram,
-        ram_base: data.ram_base,
-        ram_extension: data.ram_extension,
-        ordreVedette: data.ordreVedette,
-    };
+  const data = doc.data();
+  const imageUrls = data.imageUrls || [];
+  return {
+    id: doc.id,
+    title: data.name,
+    price: data.price,
+    image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || '',
+    imageUrls: imageUrls,
+    category: data.brand?.toLowerCase() || 'inconnu',
+    description: data.description,
+    rom: data.rom,
+    ram: data.ram,
+    ram_base: data.ram_base,
+    ram_extension: data.ram_extension,
+    ordreVedette: data.ordreVedette,
+  };
 };
-
 
 const CategoryScreen = ({ route }: any) => {
   const { category } = route.params;
@@ -40,7 +48,14 @@ const CategoryScreen = ({ route }: any) => {
   const [hasMoreRegular, setHasMoreRegular] = useState(true);
 
   // States for other tabs (using the hook)
-  const { products: categoryProducts, loading: categoryLoading, loadingMore: categoryLoadingMore, hasMore: hasMoreCategory, loadMore: loadMoreCategory, refresh: refreshCategory } = usePaginatedProducts({
+  const {
+    products: categoryProducts,
+    loading: categoryLoading,
+    loadingMore: categoryLoadingMore,
+    hasMore: hasMoreCategory,
+    loadMore: loadMoreCategory,
+    refresh: refreshCategory,
+  } = usePaginatedProducts({
     category: category !== 'Populaires' ? category : undefined,
   });
 
@@ -84,7 +99,6 @@ const CategoryScreen = ({ route }: any) => {
       setRegularProducts(fetchedRegular);
       setLastDoc(regularSnapshot.docs[regularSnapshot.docs.length - 1] || null);
       setHasMoreRegular(fetchedRegular.length === PAGE_SIZE);
-
     } catch (error) {
       console.error('Error fetching popular products:', error);
     } finally {
@@ -111,7 +125,6 @@ const CategoryScreen = ({ route }: any) => {
       setRegularProducts(prev => [...prev, ...newProducts]);
       setLastDoc(regularSnapshot.docs[regularSnapshot.docs.length - 1] || null);
       setHasMoreRegular(newProducts.length === PAGE_SIZE);
-
     } catch (error) {
       console.error('Error loading more popular products:', error);
     } finally {
@@ -145,7 +158,7 @@ const CategoryScreen = ({ route }: any) => {
       };
       fetchPromoCards();
     } else {
-        refreshCategory();
+      refreshCategory();
     }
   }, [category, fetchPopulars, refreshCategory]);
 
@@ -187,7 +200,7 @@ const CategoryScreen = ({ route }: any) => {
   }
 
   return (
-     <ProductGrid
+    <ProductGrid
       products={categoryProducts}
       loading={categoryLoading}
       loadingMore={categoryLoadingMore}

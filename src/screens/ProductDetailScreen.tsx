@@ -81,7 +81,7 @@ const ProductDetailScreen: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
-  
+
   // MODIFICATION: L'état stocke maintenant l'objet du code validé ou null
   const [promoCode, setPromoCode] = useState<ValidatedPromo | null>(null);
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
@@ -141,7 +141,6 @@ const ProductDetailScreen: React.FC = () => {
     }
   }, [product, gallery, productId]);
 
-
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<FlatList<string>>(null);
 
@@ -180,7 +179,7 @@ const ProductDetailScreen: React.FC = () => {
     }
     try {
       if (!(await Sharing.isAvailableAsync())) {
-        Alert.alert('Erreur', 'Le partage de fichiers n\'est pas disponible sur cet appareil.');
+        Alert.alert('Erreur', "Le partage de fichiers n'est pas disponible sur cet appareil.");
         return;
       }
 
@@ -188,7 +187,6 @@ const ProductDetailScreen: React.FC = () => {
         dialogTitle: product?.title || 'Super produit !',
         mimeType: 'image/jpeg',
       });
-
     } catch (error: any) {
       console.error('Erreur de partage détaillée:', error);
       Alert.alert('Erreur', 'Impossible de partager le produit. Veuillez réessayer.');
@@ -206,13 +204,12 @@ const ProductDetailScreen: React.FC = () => {
       const validateFn = httpsCallable(functions, 'validatePromoCode');
       const result = await validateFn({ code: code.trim() });
       const data = result.data as ValidatedPromo;
-      
+
       setPromoCode(data); // Stocke les détails du code validé
       setIsPromoModalVisible(false);
       Alert.alert('Succès', `Le code "${data.code}" a été appliqué !`);
-
     } catch (error: any) {
-      console.error("Erreur de validation du code promo: ", error);
+      console.error('Erreur de validation du code promo: ', error);
       Alert.alert('Erreur', error.message || 'Une erreur est survenue.');
     } finally {
       setIsApplyingPromo(false);
@@ -239,7 +236,7 @@ const ProductDetailScreen: React.FC = () => {
   }
 
   const oldPrice = product.price * 1.12;
-  
+
   const hasSpecifications = product.specifications && product.specifications.length > 0;
 
   return (
@@ -260,7 +257,7 @@ const ProductDetailScreen: React.FC = () => {
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.hIconBtn} onPress={handleSharePress} disabled={!isShareable}>
-            <MaterialCommunityIcons name="share-variant" size={22} color={isShareable ? "#111" : "#cccccc"} />
+            <MaterialCommunityIcons name="share-variant" size={22} color={isShareable ? '#111' : '#cccccc'} />
           </TouchableOpacity>
         </View>
       </View>
@@ -571,5 +568,5 @@ const styles = StyleSheet.create({
   },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
-  
+
 export default ProductDetailScreen;

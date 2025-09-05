@@ -1,468 +1,480 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Recherche Live IMEI - AFRICA PHONE</title>
-    
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
-    
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <style>
-        :root {
-            --background: #f4f5f7;
-            --surface: #ffffff;
-            --primary: #007BFF;
-            --primary-hover: #0056b3;
-            --text-primary: #171717;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --error: #ef4444;
-            --success: #22c55e;
-            --border-radius: 8px;
-        }
+      :root {
+        --background: #f4f5f7;
+        --surface: #ffffff;
+        --primary: #007bff;
+        --primary-hover: #0056b3;
+        --text-primary: #171717;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --error: #ef4444;
+        --success: #22c55e;
+        --border-radius: 8px;
+      }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background);
-            color: var(--text-primary);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--background);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            margin: 20px auto;
-            padding: 20px;
-        }
+      .container {
+        width: 100%;
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+      }
 
-        /* --- Card Styles --- */
-        .card {
-            background-color: var(--surface);
-            padding: 24px;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
+      /* --- Card Styles --- */
+      .card {
+        background-color: var(--surface);
+        padding: 24px;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
 
-        .card-title {
-            font-size: 22px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 24px;
-        }
+      .card-title {
+        font-size: 22px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 24px;
+      }
 
-        /* --- Form Elements --- */
-        .form-group {
-            margin-bottom: 20px;
-        }
+      /* --- Form Elements --- */
+      .form-group {
+        margin-bottom: 20px;
+      }
 
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
+      .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+      }
 
-        .input-field, .select-field {
-            width: 100%;
-            padding: 12px 16px;
-            background-color: #f9fafb;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            color: var(--text-primary);
-            font-size: 16px;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
+      .input-field,
+      .select-field {
+        width: 100%;
+        padding: 12px 16px;
+        background-color: #f9fafb;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        color: var(--text-primary);
+        font-size: 16px;
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+      }
 
-        .input-field:focus, .select-field:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
-        }
+      .input-field:focus,
+      .select-field:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+      }
 
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary);
-            border: none;
-            border-radius: var(--border-radius);
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+      .btn {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary);
+        border: none;
+        border-radius: var(--border-radius);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
 
-        .btn:hover {
-            background-color: var(--primary-hover);
-        }
-        
-        .btn-logout {
-            background-color: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-            margin-top: 16px;
-        }
+      .btn:hover {
+        background-color: var(--primary-hover);
+      }
 
-        .btn-logout:hover {
-            background-color: #f9fafb;
-            color: var(--text-primary);
-        }
+      .btn-logout {
+        background-color: transparent;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+        margin-top: 16px;
+      }
 
-        /* --- Messages & Results --- */
-        .error-message {
-            color: var(--error);
-            font-size: 14px;
-            text-align: center;
-            margin-top: 16px;
-            display: none;
-        }
+      .btn-logout:hover {
+        background-color: #f9fafb;
+        color: var(--text-primary);
+      }
 
-        #imei-list-container {
-            margin-top: 24px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-        }
+      /* --- Messages & Results --- */
+      .error-message {
+        color: var(--error);
+        font-size: 14px;
+        text-align: center;
+        margin-top: 16px;
+        display: none;
+      }
 
-        #imei-list-header {
-            padding: 12px 16px;
-            background-color: #f9fafb;
-            border-bottom: 1px solid var(--border-color);
-        }
+      #imei-list-container {
+        margin-top: 24px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+      }
 
-        #imei-list-header p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            text-align: center;
-        }
-        
-        #imei-list-header p span {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+      #imei-list-header {
+        padding: 12px 16px;
+        background-color: #f9fafb;
+        border-bottom: 1px solid var(--border-color);
+      }
 
-        #imei-list {
-            max-height: 300px;
-            overflow-y: auto;
-            background-color: var(--surface);
-        }
+      #imei-list-header p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        text-align: center;
+      }
 
-        .imei-item {
-            padding: 10px 16px;
-            font-size: 15px;
-            font-family: monospace;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .imei-item:last-child {
-            border-bottom: none;
-        }
+      #imei-list-header p span {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
 
-        .imei-item .status-disponible {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--success);
-            background-color: #f0fdf4;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-        
-        .imei-item .status-vendu {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--error);
-            background-color: #fef2f2;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
+      #imei-list {
+        max-height: 300px;
+        overflow-y: auto;
+        background-color: var(--surface);
+      }
 
-        /* --- Spinner --- */
-        .spinner-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .spinner {
-            border: 3px solid rgba(0, 0, 0, 0.1);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
+      .imei-item {
+        padding: 10px 16px;
+        font-size: 15px;
+        font-family: monospace;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+      .imei-item:last-child {
+        border-bottom: none;
+      }
+
+      .imei-item .status-disponible {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--success);
+        background-color: #f0fdf4;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .imei-item .status-vendu {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--error);
+        background-color: #fef2f2;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      /* --- Spinner --- */
+      .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .spinner {
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-top: 3px solid var(--primary);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="container">
-        <!-- Login Container -->
-        <div id="login-container">
-            <div class="card">
-                <h1 class="card-title">Recherche d'IMEI</h1>
-                <form id="login-form">
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" class="input-field" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Mot de passe</label>
-                        <input type="password" id="password" class="input-field" required>
-                    </div>
-                    <button type="submit" class="btn">
-                        <i data-lucide="log-in"></i>
-                        <span>Connexion</span>
-                    </button>
-                    <p id="login-error" class="error-message"></p>
-                </form>
+      <!-- Login Container -->
+      <div id="login-container">
+        <div class="card">
+          <h1 class="card-title">Recherche d'IMEI</h1>
+          <form id="login-form">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" class="input-field" required />
             </div>
-        </div>
-
-        <!-- Search Container (hidden by default) -->
-        <div id="search-container" style="display: none;">
-            <div class="card">
-                <h1 class="card-title">Recherche Live</h1>
-                
-                <div class="form-group">
-                    <label for="phone-model-select">1. Choisissez un modèle de téléphone</label>
-                    <select id="phone-model-select" class="select-field">
-                        <option value="">Chargement des modèles...</option>
-                    </select>
-                </div>
-
-                <div id="live-search-section" style="display: none;">
-                    <div class="form-group">
-                        <label for="imei-filter-input">2. Filtrez par IMEI</label>
-                        <input type="text" id="imei-filter-input" class="input-field" placeholder="Commencez à taper un IMEI...">
-                    </div>
-                </div>
-
-                <div id="imei-list-container" style="display: none;">
-                    <div id="imei-list-header">
-                        <p><span id="imei-count">0</span> sur <span id="imei-total">0</span> IMEI affichés</p>
-                    </div>
-                    <div id="imei-list">
-                        <!-- Les IMEI seront injectés ici -->
-                    </div>
-                </div>
-
-                <button id="logout-btn" class="btn btn-logout">
-                    <i data-lucide="log-out"></i>
-                    <span>Déconnexion</span>
-                </button>
+            <div class="form-group">
+              <label for="password">Mot de passe</label>
+              <input type="password" id="password" class="input-field" required />
             </div>
+            <button type="submit" class="btn">
+              <i data-lucide="log-in"></i>
+              <span>Connexion</span>
+            </button>
+            <p id="login-error" class="error-message"></p>
+          </form>
         </div>
+      </div>
+
+      <!-- Search Container (hidden by default) -->
+      <div id="search-container" style="display: none">
+        <div class="card">
+          <h1 class="card-title">Recherche Live</h1>
+
+          <div class="form-group">
+            <label for="phone-model-select">1. Choisissez un modèle de téléphone</label>
+            <select id="phone-model-select" class="select-field">
+              <option value="">Chargement des modèles...</option>
+            </select>
+          </div>
+
+          <div id="live-search-section" style="display: none">
+            <div class="form-group">
+              <label for="imei-filter-input">2. Filtrez par IMEI</label>
+              <input
+                type="text"
+                id="imei-filter-input"
+                class="input-field"
+                placeholder="Commencez à taper un IMEI..."
+              />
+            </div>
+          </div>
+
+          <div id="imei-list-container" style="display: none">
+            <div id="imei-list-header">
+              <p><span id="imei-count">0</span> sur <span id="imei-total">0</span> IMEI affichés</p>
+            </div>
+            <div id="imei-list">
+              <!-- Les IMEI seront injectés ici -->
+            </div>
+          </div>
+
+          <button id="logout-btn" class="btn btn-logout">
+            <i data-lucide="log-out"></i>
+            <span>Déconnexion</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <script>
-        // --- Configuration Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyB44wUN_WitWSIjoUKtWXI6z6SuQx41_fg",
-            authDomain: "africaphone1-accfb.firebaseapp.com",
-            projectId: "africaphone1-accfb",
-            storageBucket: "africaphone1-accfb.firebasestorage.app",
-            messagingSenderId: "747416222232",
-            appId: "1:747416222232:web:36cb8a93f3c8342ad3e16d"
-        };
+      // --- Configuration Firebase ---
+      const firebaseConfig = {
+        apiKey: 'AIzaSyB44wUN_WitWSIjoUKtWXI6z6SuQx41_fg',
+        authDomain: 'africaphone1-accfb.firebaseapp.com',
+        projectId: 'africaphone1-accfb',
+        storageBucket: 'africaphone1-accfb.firebasestorage.app',
+        messagingSenderId: '747416222232',
+        appId: '1:747416222232:web:36cb8a93f3c8342ad3e16d',
+      };
 
-        // --- Initialisation de Firebase ---
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+      // --- Initialisation de Firebase ---
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
 
-        // --- Références aux éléments du DOM ---
-        const loginContainer = document.getElementById('login-container');
-        const searchContainer = document.getElementById('search-container');
-        const loginForm = document.getElementById('login-form');
-        const logoutBtn = document.getElementById('logout-btn');
-        const loginError = document.getElementById('login-error');
-        const phoneModelSelect = document.getElementById('phone-model-select');
-        const liveSearchSection = document.getElementById('live-search-section');
-        const imeiFilterInput = document.getElementById('imei-filter-input');
-        const imeiListContainer = document.getElementById('imei-list-container');
-        const imeiList = document.getElementById('imei-list');
-        const imeiCountSpan = document.getElementById('imei-count');
-        const imeiTotalSpan = document.getElementById('imei-total');
+      // --- Références aux éléments du DOM ---
+      const loginContainer = document.getElementById('login-container');
+      const searchContainer = document.getElementById('search-container');
+      const loginForm = document.getElementById('login-form');
+      const logoutBtn = document.getElementById('logout-btn');
+      const loginError = document.getElementById('login-error');
+      const phoneModelSelect = document.getElementById('phone-model-select');
+      const liveSearchSection = document.getElementById('live-search-section');
+      const imeiFilterInput = document.getElementById('imei-filter-input');
+      const imeiListContainer = document.getElementById('imei-list-container');
+      const imeiList = document.getElementById('imei-list');
+      const imeiCountSpan = document.getElementById('imei-count');
+      const imeiTotalSpan = document.getElementById('imei-total');
 
-        // --- Cache local pour les IMEI ---
-        let cachedImeis = [];
+      // --- Cache local pour les IMEI ---
+      let cachedImeis = [];
 
-        // --- Gestion de l'authentification ---
-        
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                loginContainer.style.display = 'none';
-                searchContainer.style.display = 'block';
-                loadPhoneModels();
-            } else {
-                loginContainer.style.display = 'block';
-                searchContainer.style.display = 'none';
-            }
-            lucide.createIcons();
+      // --- Gestion de l'authentification ---
+
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          loginContainer.style.display = 'none';
+          searchContainer.style.display = 'block';
+          loadPhoneModels();
+        } else {
+          loginContainer.style.display = 'block';
+          searchContainer.style.display = 'none';
+        }
+        lucide.createIcons();
+      });
+
+      loginForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const email = loginForm.email.value;
+        const password = loginForm.password.value;
+        auth.signInWithEmailAndPassword(email, password).catch(error => {
+          console.error('Erreur de connexion:', error);
+          loginError.textContent = 'Email ou mot de passe incorrect.';
+          loginError.style.display = 'block';
         });
+      });
 
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
-            auth.signInWithEmailAndPassword(email, password)
-                .catch(error => {
-                    console.error("Erreur de connexion:", error);
-                    loginError.textContent = "Email ou mot de passe incorrect.";
-                    loginError.style.display = 'block';
-                });
-        });
+      logoutBtn.addEventListener('click', () => {
+        auth.signOut();
+      });
 
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut();
-        });
+      // --- Logique de recherche live ---
 
-        // --- Logique de recherche live ---
+      /**
+       * Charge tous les modèles de téléphone de la collection 'stock' dans le select.
+       */
+      async function loadPhoneModels() {
+        try {
+          const stockSnapshot = await db
+            .collection('stock')
+            .where('category', '==', 'telephones')
+            .orderBy('name')
+            .get();
+          phoneModelSelect.innerHTML = '<option value="">-- Sélectionnez un modèle --</option>';
 
-        /**
-         * Charge tous les modèles de téléphone de la collection 'stock' dans le select.
-         */
-        async function loadPhoneModels() {
-            try {
-                const stockSnapshot = await db.collection('stock').where('category', '==', 'telephones').orderBy('name').get();
-                phoneModelSelect.innerHTML = '<option value="">-- Sélectionnez un modèle --</option>';
-                
-                if (stockSnapshot.empty) {
-                    phoneModelSelect.innerHTML = '<option value="">Aucun téléphone en stock</option>';
-                    return;
-                }
+          if (stockSnapshot.empty) {
+            phoneModelSelect.innerHTML = '<option value="">Aucun téléphone en stock</option>';
+            return;
+          }
 
-                stockSnapshot.forEach(doc => {
-                    const phone = doc.data();
-                    const option = document.createElement('option');
-                    option.value = doc.id;
-                    option.textContent = `${phone.name} (${phone.stock} en stock)`;
-                    phoneModelSelect.appendChild(option);
-                });
+          stockSnapshot.forEach(doc => {
+            const phone = doc.data();
+            const option = document.createElement('option');
+            option.value = doc.id;
+            option.textContent = `${phone.name} (${phone.stock} en stock)`;
+            phoneModelSelect.appendChild(option);
+          });
+        } catch (error) {
+          console.error('Erreur lors du chargement des modèles:', error);
+          phoneModelSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+        }
+      }
 
-            } catch (error) {
-                console.error("Erreur lors du chargement des modèles:", error);
-                phoneModelSelect.innerHTML = '<option value="">Erreur de chargement</option>';
-            }
+      /**
+       * Gère le changement de modèle de téléphone sélectionné.
+       */
+      phoneModelSelect.addEventListener('change', async e => {
+        const phoneId = e.target.value;
+
+        // Réinitialiser l'interface
+        liveSearchSection.style.display = 'none';
+        imeiListContainer.style.display = 'none';
+        imeiFilterInput.value = '';
+        cachedImeis = [];
+
+        if (!phoneId) {
+          return;
         }
 
-        /**
-         * Gère le changement de modèle de téléphone sélectionné.
-         */
-        phoneModelSelect.addEventListener('change', async (e) => {
-            const phoneId = e.target.value;
-            
-            // Réinitialiser l'interface
-            liveSearchSection.style.display = 'none';
-            imeiListContainer.style.display = 'none';
-            imeiFilterInput.value = '';
-            cachedImeis = [];
+        // Afficher un loader
+        imeiListContainer.style.display = 'block';
+        imeiList.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
+        imeiListHeader.style.display = 'none';
 
-            if (!phoneId) {
-                return;
-            }
+        try {
+          const imeiSnapshot = await db.collection('stock').doc(phoneId).collection('imeis').get();
 
-            // Afficher un loader
-            imeiListContainer.style.display = 'block';
-            imeiList.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
-            imeiListHeader.style.display = 'none';
+          cachedImeis = [];
+          if (!imeiSnapshot.empty) {
+            imeiSnapshot.forEach(doc => {
+              cachedImeis.push({
+                id: doc.id,
+                status: doc.data().status || 'inconnu',
+              });
+            });
+          }
 
-            try {
-                const imeiSnapshot = await db.collection('stock').doc(phoneId).collection('imeis').get();
-                
-                cachedImeis = [];
-                if (!imeiSnapshot.empty) {
-                    imeiSnapshot.forEach(doc => {
-                        cachedImeis.push({
-                            id: doc.id,
-                            status: doc.data().status || 'inconnu'
-                        });
-                    });
-                }
-                
-                // Afficher les sections de recherche et la liste
-                liveSearchSection.style.display = 'block';
-                imeiListHeader.style.display = 'block';
-                renderImeiList(cachedImeis);
+          // Afficher les sections de recherche et la liste
+          liveSearchSection.style.display = 'block';
+          imeiListHeader.style.display = 'block';
+          renderImeiList(cachedImeis);
+        } catch (error) {
+          console.error('Erreur lors du chargement des IMEI:', error);
+          imeiList.innerHTML = `<div class="imei-item" style="color: var(--error);">Erreur de chargement des IMEI.</div>`;
+        }
+      });
 
-            } catch (error) {
-                console.error("Erreur lors du chargement des IMEI:", error);
-                imeiList.innerHTML = `<div class="imei-item" style="color: var(--error);">Erreur de chargement des IMEI.</div>`;
-            }
-        });
-        
-        /**
-         * Filtre la liste des IMEI en fonction de la saisie de l'utilisateur.
-         */
-        imeiFilterInput.addEventListener('input', (e) => {
-            const filterValue = e.target.value.toLowerCase();
-            const filteredImeis = cachedImeis.filter(imei => imei.id.toLowerCase().includes(filterValue));
-            renderImeiList(filteredImeis);
-        });
+      /**
+       * Filtre la liste des IMEI en fonction de la saisie de l'utilisateur.
+       */
+      imeiFilterInput.addEventListener('input', e => {
+        const filterValue = e.target.value.toLowerCase();
+        const filteredImeis = cachedImeis.filter(imei => imei.id.toLowerCase().includes(filterValue));
+        renderImeiList(filteredImeis);
+      });
 
-        /**
-         * Affiche la liste des IMEI dans le DOM.
-         * @param {Array} imeis - Le tableau d'objets IMEI à afficher.
-         */
-        function renderImeiList(imeis) {
-            imeiList.innerHTML = '';
-            
-            imeiTotalSpan.textContent = cachedImeis.length;
-            imeiCountSpan.textContent = imeis.length;
+      /**
+       * Affiche la liste des IMEI dans le DOM.
+       * @param {Array} imeis - Le tableau d'objets IMEI à afficher.
+       */
+      function renderImeiList(imeis) {
+        imeiList.innerHTML = '';
 
-            if (imeis.length === 0) {
-                imeiList.innerHTML = `<div class="imei-item">Aucun IMEI ne correspond à votre recherche.</div>`;
-                return;
-            }
+        imeiTotalSpan.textContent = cachedImeis.length;
+        imeiCountSpan.textContent = imeis.length;
 
-            imeis.forEach(imei => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'imei-item';
-                
-                const statusClass = imei.status === 'disponible' ? 'status-disponible' : 'status-vendu';
-                const statusText = imei.status === 'disponible' ? 'Disponible' : 'Vendu';
+        if (imeis.length === 0) {
+          imeiList.innerHTML = `<div class="imei-item">Aucun IMEI ne correspond à votre recherche.</div>`;
+          return;
+        }
 
-                itemDiv.innerHTML = `
+        imeis.forEach(imei => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'imei-item';
+
+          const statusClass = imei.status === 'disponible' ? 'status-disponible' : 'status-vendu';
+          const statusText = imei.status === 'disponible' ? 'Disponible' : 'Vendu';
+
+          itemDiv.innerHTML = `
                     <span>${imei.id}</span>
                     <span class="${statusClass}">${statusText}</span>
                 `;
-                imeiList.appendChild(itemDiv);
-            });
-        }
-        
-        // Initialiser les icônes au chargement
-        lucide.createIcons();
+          imeiList.appendChild(itemDiv);
+        });
+      }
 
+      // Initialiser les icônes au chargement
+      lucide.createIcons();
     </script>
-</body>
+  </body>
 </html>

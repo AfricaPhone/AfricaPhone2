@@ -341,7 +341,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, // Séparateur pour le contenu
     borderTopColor: COLORS.divider,
   },
-  bodyTxt: { // Style pour le texte de la description
+  bodyTxt: {
+    // Style pour le texte de la description
     fontSize: 15,
     color: COLORS.textSecondary,
     lineHeight: 22,

@@ -39,12 +39,7 @@ const HomeTabNavigator = () => {
       }}
     >
       {SEGMENTS_DATA.map(({ key, label }) => (
-        <Tab.Screen
-          key={key}
-          name={label}
-          component={CategoryScreen}
-          initialParams={{ category: key }}
-        />
+        <Tab.Screen key={key} name={label} component={CategoryScreen} initialParams={{ category: key }} />
       ))}
     </Tab.Navigator>
   );

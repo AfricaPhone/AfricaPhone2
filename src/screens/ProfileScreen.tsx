@@ -73,7 +73,7 @@ const ProfileScreen: React.FC = () => {
           <ProfileListItem
             icon="help-circle-outline"
             label="Aide & FAQ"
-            onPress={() => Alert.alert('Aide', 'Écran d\'aide à créer.')}
+            onPress={() => Alert.alert('Aide', "Écran d'aide à créer.")}
           />
         </View>
 
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginTop: 32,
-    marginBottom: 24, 
+    marginBottom: 24,
     marginHorizontal: 16,
     backgroundColor: '#fce8e6',
     borderRadius: 12,

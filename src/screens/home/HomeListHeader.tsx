@@ -11,12 +11,7 @@ interface Props {
   promoCardsLoading: boolean;
 }
 
-const HomeListHeader: React.FC<Props> = ({
-  brands,
-  brandsLoading,
-  promoCards,
-  promoCardsLoading,
-}) => {
+const HomeListHeader: React.FC<Props> = ({ brands, brandsLoading, promoCards, promoCardsLoading }) => {
   return (
     <>
       <BrandCarousel brands={brands} isLoading={brandsLoading} />

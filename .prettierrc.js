@@ -1,3 +1,5 @@
+// AfricaPhone2/AfricaPhone2/.prettierrc.js
+
 module.exports = {
   arrowParens: 'avoid',
   bracketSpacing: true,
@@ -8,4 +10,5 @@ module.exports = {
   tabWidth: 2,
   trailingComma: 'es5',
   useTabs: false,
+  endOfLine: 'lf', // <-- LA LIGNE CLÉ À AJOUTER
 };
