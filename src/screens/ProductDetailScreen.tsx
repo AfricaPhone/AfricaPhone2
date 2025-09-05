@@ -1,5 +1,5 @@
 // src/screens/ProductDetailScreen.tsx
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   FlatList,
   Dimensions,
   TouchableOpacity,
-  Pressable,
   ScrollView,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -21,18 +20,17 @@ import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-// AJOUT: Imports pour Firebase Functions
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
 import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
-import { Product, RootStackParamList } from '../types';
+import { Product, RootStackParamList, Specification } from '../types';
 
 import PromoCodeModal from '../components/PromoCodeModal';
 
-// AJOUT: Initialisation de Firebase Functions
 const functions = getFunctions();
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -41,7 +39,6 @@ const ITEM_WIDTH = screenWidth;
 const SPACING = 0;
 const SIDE_SPACING = 0;
 
-// AJOUT: Type pour stocker les détails du code promo validé
 type ValidatedPromo = {
   code: string;
   type: 'percentage' | 'fixed';
@@ -51,22 +48,38 @@ type ValidatedPromo = {
 type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail'>;
 type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
-const Section: React.FC<{
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}> = ({ title, children, defaultOpen }) => {
-  const [open, setOpen] = useState(!!defaultOpen);
+// --- Composants pour les onglets ---
+const SpecificationsTab: React.FC<{ specifications: Specification[] }> = ({ specifications }) => {
+  if (!specifications || specifications.length === 0) {
+    return (
+      <View style={[styles.tabContentContainer, styles.emptyTabContainer]}>
+        <Text style={styles.emptyTabText}>Aucune spécification disponible pour ce produit.</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.section}>
-      <Pressable style={styles.sectionHeader} onPress={() => setOpen(v => !v)}>
-        <Text style={styles.sectionTitle}>{title}</Text>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={20} color="#6b7280" />
-      </Pressable>
-      {open && <View style={styles.sectionBody}>{children}</View>}
-    </View>
+    <ScrollView style={styles.tabContentContainer}>
+      {specifications.map((spec, index) => (
+        <View key={index} style={styles.specRow}>
+          <Text style={styles.specKey}>{spec.key}</Text>
+          <Text style={styles.specVal}>{spec.value}</Text>
+        </View>
+      ))}
+    </ScrollView>
   );
 };
+
+const DescriptionTab: React.FC<{ description?: string }> = ({ description }) => (
+  <ScrollView style={styles.tabContentContainer}>
+    <Text style={styles.bodyTxt}>
+      {description ||
+        'Appareil haute performance avec une construction premium, une excellente autonomie et un écran brillant. Idéal pour la photographie, les jeux et un usage quotidien.'}
+    </Text>
+  </ScrollView>
+);
+
+const Tab = createMaterialTopTabNavigator();
 
 const ProductDetailScreen: React.FC = () => {
   const nav = useNavigation<ProductDetailScreenNavigationProp>();
@@ -81,11 +94,8 @@ const ProductDetailScreen: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
-
-  // MODIFICATION: L'état stocke maintenant l'objet du code validé ou null
   const [promoCode, setPromoCode] = useState<ValidatedPromo | null>(null);
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
-
   const [isShareable, setIsShareable] = useState(false);
   const shareableImageUri = useRef<string | null>(null);
 
@@ -158,7 +168,6 @@ const ProductDetailScreen: React.FC = () => {
     const phoneNumber = boutiqueInfo.whatsappNumber;
     let message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
 
-    // MODIFICATION: Le message inclut le code validé
     if (promoCode) {
       message += `\nMon code promo est : ${promoCode.code}`;
     }
@@ -193,7 +202,6 @@ const ProductDetailScreen: React.FC = () => {
     }
   };
 
-  // NOUVELLE FONCTION: Appelle la Cloud Function pour valider le code
   const handleApplyPromoCode = async (code: string) => {
     if (!code.trim()) {
       Alert.alert('Erreur', 'Veuillez entrer un code promo.');
@@ -205,7 +213,7 @@ const ProductDetailScreen: React.FC = () => {
       const result = await validateFn({ code: code.trim() });
       const data = result.data as ValidatedPromo;
 
-      setPromoCode(data); // Stocke les détails du code validé
+      setPromoCode(data);
       setIsPromoModalVisible(false);
       Alert.alert('Succès', `Le code "${data.code}" a été appliqué !`);
     } catch (error: any) {
@@ -236,8 +244,6 @@ const ProductDetailScreen: React.FC = () => {
   }
 
   const oldPrice = product.price * 1.12;
-
-  const hasSpecifications = product.specifications && product.specifications.length > 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -335,23 +341,32 @@ const ProductDetailScreen: React.FC = () => {
           )}
         </View>
 
-        {hasSpecifications && (
-          <Section title="Spécifications" defaultOpen>
-            {product.specifications?.map((spec, index) => (
-              <View key={index} style={styles.specRow}>
-                <Text style={styles.specKey}>{spec.key}</Text>
-                <Text style={styles.specVal}>{spec.value}</Text>
-              </View>
-            ))}
-          </Section>
-        )}
-
-        <Section title="Description">
-          <Text style={styles.bodyTxt}>
-            {product.description ??
-              'Appareil haute performance avec une construction premium, une excellente autonomie et un écran brillant. Idéal pour la photographie, les jeux et un usage quotidien.'}
-          </Text>
-        </Section>
+        {/* --- DÉBUT DE LA MODIFICATION: INTÉGRATION DES ONGLETS --- */}
+        <View style={styles.tabContainer}>
+          <Tab.Navigator
+            screenOptions={{
+              tabBarActiveTintColor: '#111',
+              tabBarInactiveTintColor: '#6b7280',
+              tabBarLabelStyle: { fontWeight: 'bold', textTransform: 'none' },
+              tabBarIndicatorStyle: { backgroundColor: '#111', height: 2 },
+              tabBarStyle: {
+                backgroundColor: '#fff',
+                elevation: 0, // Enlève l'ombre sur Android
+                shadowOpacity: 0, // Enlève l'ombre sur iOS
+                borderBottomWidth: 1,
+                borderBottomColor: '#f0f0f0',
+              },
+            }}
+          >
+            <Tab.Screen name="Spécifications">
+              {() => <SpecificationsTab specifications={product.specifications || []} />}
+            </Tab.Screen>
+            <Tab.Screen name="Description">
+              {() => <DescriptionTab description={product.description} />}
+            </Tab.Screen>
+          </Tab.Navigator>
+        </View>
+        {/* --- FIN DE LA MODIFICATION --- */}
       </ScrollView>
 
       <SafeAreaView edges={['bottom']} style={styles.actionsSafe}>
@@ -476,34 +491,34 @@ const styles = StyleSheet.create({
   },
   infoRow: { flexDirection: 'row', alignItems: 'center', columnGap: 10 },
   infoTxt: { color: '#111' },
-  section: {
-    marginTop: 14,
-    marginHorizontal: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+  tabContainer: {
+    marginTop: 20,
+    minHeight: 300, // Hauteur minimale pour que le contenu soit visible
+  },
+  tabContentContainer: {
+    padding: 16,
     backgroundColor: '#fff',
+    flex: 1, // Permet au ScrollView de fonctionner
   },
-  sectionHeader: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    flexDirection: 'row',
+  emptyTabContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
-  sectionTitle: { fontWeight: '800', color: '#111' },
-  sectionBody: { paddingHorizontal: 12, paddingBottom: 12 },
-  bodyTxt: { color: '#374151', lineHeight: 20 },
+  emptyTabText: {
+    color: '#6b7280',
+    fontStyle: 'italic',
+  },
+  bodyTxt: { color: '#374151', lineHeight: 22, fontSize: 15 },
   specRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
   },
-  specKey: { color: '#6b7280' },
-  specVal: { color: '#111', fontWeight: '600' },
+  specKey: { color: '#6b7280', fontSize: 14 },
+  specVal: { color: '#111', fontWeight: '600', fontSize: 14, maxWidth: '60%', textAlign: 'right' },
   promoButtonContainer: {
     marginHorizontal: 16,
     marginTop: 14,
