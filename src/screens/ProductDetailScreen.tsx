@@ -1,5 +1,5 @@
 // src/screens/ProductDetailScreen.tsx
-import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -49,11 +49,8 @@ type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail
 type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
 // --- Composants pour les onglets ---
-
-// MODIFICATION: Ce composant reçoit maintenant plus d'informations
 const SpecificationsTab: React.FC<{ product: Product; boutiqueInfo: BoutiqueInfo | null }> = ({
   product,
-  boutiqueInfo,
 }) => {
   const hasSpecifications = product.specifications && product.specifications.length > 0;
   return (
@@ -223,7 +220,7 @@ const ProductDetailScreen: React.FC = () => {
         dialogTitle: product?.title || 'Super produit !',
         mimeType: 'image/jpeg',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur de partage détaillée:', error);
       Alert.alert('Erreur', 'Impossible de partager le produit. Veuillez réessayer.');
     }
@@ -243,9 +240,10 @@ const ProductDetailScreen: React.FC = () => {
       setPromoCode(data);
       setIsPromoModalVisible(false);
       Alert.alert('Succès', `Le code "${data.code}" a été appliqué !`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur de validation du code promo: ', error);
-      Alert.alert('Erreur', error.message || 'Une erreur est survenue.');
+      const message = error instanceof Error ? error.message : 'Une erreur est survenue.';
+      Alert.alert('Erreur', message);
     } finally {
       setIsApplyingPromo(false);
     }
@@ -338,7 +336,6 @@ const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* --- MODIFICATION: Les onglets sont maintenant ici --- */}
         <View style={styles.tabContainer}>
           <Tab.Navigator
             screenOptions={{
@@ -358,13 +355,10 @@ const ProductDetailScreen: React.FC = () => {
             <Tab.Screen name="Spécifications">
               {() => <SpecificationsTab product={product} boutiqueInfo={boutiqueInfo} />}
             </Tab.Screen>
-            <Tab.Screen name="Description">
-              {() => <DescriptionTab description={product.description} />}
-            </Tab.Screen>
+            <Tab.Screen name="Description">{() => <DescriptionTab description={product.description} />}</Tab.Screen>
           </Tab.Navigator>
         </View>
 
-        {/* Le bloc de code promo est maintenant après les onglets */}
         <View style={styles.promoButtonContainer}>
           <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
             <Text style={styles.promoButtonText}>Utiliser un code promo</Text>
@@ -480,7 +474,6 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     textDecorationLine: 'line-through',
   },
-  // Ce style n'est plus utilisé ici mais gardé pour d'autres composants potentiels
   specsText: {
     marginTop: 8,
     fontSize: 14,
@@ -529,7 +522,7 @@ const styles = StyleSheet.create({
   specVal: { color: '#111', fontWeight: '600', fontSize: 14, maxWidth: '60%', textAlign: 'right' },
   promoButtonContainer: {
     marginHorizontal: 16,
-    marginTop: 24, // Augmenté pour l'espace après les onglets
+    marginTop: 24,
     marginBottom: 8,
   },
   promoButton: {
