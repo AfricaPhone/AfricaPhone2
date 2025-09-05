@@ -329,9 +329,15 @@ const ProductDetailScreen: React.FC = () => {
 
         <View style={styles.priceCard}>
           <View style={styles.priceSection}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-              <Text style={styles.price}>{formatPrice(product.price)}</Text>
-              <Text style={styles.oldPrice}>{formatPrice(oldPrice)}</Text>
+            <View style={styles.priceRow}>
+              <View>
+                <Text style={styles.price}>{formatPrice(product.price)}</Text>
+                <Text style={styles.oldPrice}>{formatPrice(oldPrice)}</Text>
+              </View>
+              <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
+                <MaterialCommunityIcons name="gift-outline" size={16} color="#fff" />
+                <Text style={styles.promoButtonText}>Code Promo</Text>
+              </TouchableOpacity>
             </View>
             {promoCode && (
               <View style={styles.promoChip}>
@@ -342,9 +348,6 @@ const ProductDetailScreen: React.FC = () => {
               </View>
             )}
           </View>
-          <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
-            <Text style={styles.promoButtonText}>Code Promo</Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.tabContainer}>
@@ -462,20 +465,23 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginHorizontal: 16,
     paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
   priceSection: {
     flex: 1,
   },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   price: { fontSize: 22, fontWeight: '900', color: '#111' },
   oldPrice: {
     fontSize: 14,
     color: '#9ca3af',
     textDecorationLine: 'line-through',
+    marginTop: 2,
   },
   infoCard: {
     marginTop: 14,
@@ -518,15 +524,17 @@ const styles = StyleSheet.create({
   specKey: { color: '#6b7280', fontSize: 14 },
   specVal: { color: '#111', fontWeight: '600', fontSize: 14, maxWidth: '60%', textAlign: 'right' },
   promoButton: {
-    backgroundColor: '#111', // Fond noir
+    backgroundColor: '#111',
     borderRadius: 8,
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
   },
   promoButtonText: {
-    color: '#fff', // Texte blanc
+    color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -534,7 +542,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 8,
+    marginTop: 12,
     paddingHorizontal: 10,
     paddingVertical: 6,
     backgroundColor: '#e0f2fe',
