@@ -49,9 +49,7 @@ type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail
 type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
 // --- Composants pour les onglets ---
-const SpecificationsTab: React.FC<{ product: Product; boutiqueInfo: BoutiqueInfo | null }> = ({
-  product,
-}) => {
+const SpecificationsTab: React.FC<{ product: Product }> = ({ product }) => {
   const hasSpecifications = product.specifications && product.specifications.length > 0;
   return (
     <ScrollView style={styles.tabContentContainer}>
@@ -330,10 +328,23 @@ const ProductDetailScreen: React.FC = () => {
         </View>
 
         <View style={styles.priceCard}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-            <Text style={styles.price}>{formatPrice(product.price)}</Text>
-            <Text style={styles.oldPrice}>{formatPrice(oldPrice)}</Text>
+          <View style={styles.priceSection}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+              <Text style={styles.price}>{formatPrice(product.price)}</Text>
+              <Text style={styles.oldPrice}>{formatPrice(oldPrice)}</Text>
+            </View>
+            {promoCode && (
+              <View style={styles.promoChip}>
+                <Text style={styles.promoChipText}>Code: {promoCode.code}</Text>
+                <TouchableOpacity onPress={() => setPromoCode(null)}>
+                  <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
+          <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
+            <Text style={styles.promoButtonText}>Code Promo</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.tabContainer}>
@@ -352,25 +363,9 @@ const ProductDetailScreen: React.FC = () => {
               },
             }}
           >
-            <Tab.Screen name="Spécifications">
-              {() => <SpecificationsTab product={product} boutiqueInfo={boutiqueInfo} />}
-            </Tab.Screen>
+            <Tab.Screen name="Spécifications">{() => <SpecificationsTab product={product} />}</Tab.Screen>
             <Tab.Screen name="Description">{() => <DescriptionTab description={product.description} />}</Tab.Screen>
           </Tab.Navigator>
-        </View>
-
-        <View style={styles.promoButtonContainer}>
-          <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
-            <Text style={styles.promoButtonText}>Utiliser un code promo</Text>
-          </TouchableOpacity>
-          {promoCode && (
-            <View style={styles.promoChip}>
-              <Text style={styles.promoChipText}>Code appliqué: {promoCode.code}</Text>
-              <TouchableOpacity onPress={() => setPromoCode(null)}>
-                <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
-              </TouchableOpacity>
-            </View>
-          )}
         </View>
       </ScrollView>
 
@@ -467,18 +462,20 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginHorizontal: 16,
     paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  priceSection: {
+    flex: 1,
   },
   price: { fontSize: 22, fontWeight: '900', color: '#111' },
   oldPrice: {
     fontSize: 14,
     color: '#9ca3af',
     textDecorationLine: 'line-through',
-  },
-  specsText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '600',
   },
   infoCard: {
     marginTop: 14,
@@ -520,38 +517,36 @@ const styles = StyleSheet.create({
   },
   specKey: { color: '#6b7280', fontSize: 14 },
   specVal: { color: '#111', fontWeight: '600', fontSize: 14, maxWidth: '60%', textAlign: 'right' },
-  promoButtonContainer: {
-    marginHorizontal: 16,
-    marginTop: 24,
-    marginBottom: 8,
-  },
   promoButton: {
-    backgroundColor: '#111',
-    borderRadius: 12,
-    paddingVertical: 12,
+    backgroundColor: '#111', // Fond noir
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   promoButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#fff', // Texte blanc
+    fontSize: 14,
     fontWeight: 'bold',
   },
   promoChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 8,
     marginTop: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     backgroundColor: '#e0f2fe',
-    borderRadius: 12,
+    borderRadius: 8,
     borderColor: '#007BFF',
     borderWidth: 1,
+    alignSelf: 'flex-start',
   },
   promoChipText: {
     color: '#007BFF',
     fontWeight: '600',
+    fontSize: 12,
   },
   actionsSafe: {
     backgroundColor: '#fff',
