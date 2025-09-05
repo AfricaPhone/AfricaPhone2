@@ -27,7 +27,7 @@ import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
 import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
-import { Product, RootStackParamList, Specification } from '../types';
+import { Product, RootStackParamList, Specification, BoutiqueInfo } from '../types';
 
 import PromoCodeModal from '../components/PromoCodeModal';
 
@@ -49,23 +49,50 @@ type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail
 type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
 // --- Composants pour les onglets ---
-const SpecificationsTab: React.FC<{ specifications: Specification[] }> = ({ specifications }) => {
-  if (!specifications || specifications.length === 0) {
-    return (
-      <View style={[styles.tabContentContainer, styles.emptyTabContainer]}>
-        <Text style={styles.emptyTabText}>Aucune spécification disponible pour ce produit.</Text>
-      </View>
-    );
-  }
 
+// MODIFICATION: Ce composant reçoit maintenant plus d'informations
+const SpecificationsTab: React.FC<{ product: Product; boutiqueInfo: BoutiqueInfo | null }> = ({
+  product,
+  boutiqueInfo,
+}) => {
+  const hasSpecifications = product.specifications && product.specifications.length > 0;
   return (
     <ScrollView style={styles.tabContentContainer}>
-      {specifications.map((spec, index) => (
-        <View key={index} style={styles.specRow}>
-          <Text style={styles.specKey}>{spec.key}</Text>
-          <Text style={styles.specVal}>{spec.value}</Text>
+      {/* Spécifications principales (ROM/RAM) */}
+      {product.ram && product.rom && (
+        <View style={styles.specRow}>
+          <Text style={styles.specKey}>Capacité</Text>
+          <Text style={styles.specVal}>
+            {product.rom}GB ROM / {product.ram}GB RAM
+          </Text>
         </View>
-      ))}
+      )}
+
+      {/* Bloc d'informations pratiques */}
+      <View style={styles.infoCard}>
+        <View style={styles.infoRow}>
+          <MaterialCommunityIcons name="truck-delivery-outline" size={20} color="#111" />
+          <Text style={styles.infoTxt}>Nous livrons partout au Bénin !</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <MaterialCommunityIcons name="shield-check-outline" size={20} color="#111" />
+          <Text style={styles.infoTxt}>Retours sous 30 jours • Garantie 1 an</Text>
+        </View>
+      </View>
+
+      {/* Liste des spécifications détaillées */}
+      {hasSpecifications ? (
+        product.specifications?.map((spec, index) => (
+          <View key={index} style={styles.specRow}>
+            <Text style={styles.specKey}>{spec.key}</Text>
+            <Text style={styles.specVal}>{spec.value}</Text>
+          </View>
+        ))
+      ) : (
+        <View style={styles.emptyTabContainer}>
+          <Text style={styles.emptyTabText}>Aucune spécification détaillée disponible.</Text>
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -309,24 +336,35 @@ const ProductDetailScreen: React.FC = () => {
             <Text style={styles.price}>{formatPrice(product.price)}</Text>
             <Text style={styles.oldPrice}>{formatPrice(oldPrice)}</Text>
           </View>
-          {product.ram && product.rom && (
-            <Text style={styles.specsText}>
-              {product.rom}GB ROM / {product.ram}GB RAM
-            </Text>
-          )}
         </View>
 
-        <View style={styles.infoCard}>
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="truck-delivery-outline" size={20} color="#111" />
-            <Text style={styles.infoTxt}>Nous livrons partout au Bénin !</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="shield-check-outline" size={20} color="#111" />
-            <Text style={styles.infoTxt}>Retours sous 30 jours • Garantie 1 an</Text>
-          </View>
+        {/* --- MODIFICATION: Les onglets sont maintenant ici --- */}
+        <View style={styles.tabContainer}>
+          <Tab.Navigator
+            screenOptions={{
+              tabBarActiveTintColor: '#111',
+              tabBarInactiveTintColor: '#6b7280',
+              tabBarLabelStyle: { fontWeight: 'bold', textTransform: 'none' },
+              tabBarIndicatorStyle: { backgroundColor: '#111', height: 2 },
+              tabBarStyle: {
+                backgroundColor: '#fff',
+                elevation: 0,
+                shadowOpacity: 0,
+                borderBottomWidth: 1,
+                borderBottomColor: '#f0f0f0',
+              },
+            }}
+          >
+            <Tab.Screen name="Spécifications">
+              {() => <SpecificationsTab product={product} boutiqueInfo={boutiqueInfo} />}
+            </Tab.Screen>
+            <Tab.Screen name="Description">
+              {() => <DescriptionTab description={product.description} />}
+            </Tab.Screen>
+          </Tab.Navigator>
         </View>
 
+        {/* Le bloc de code promo est maintenant après les onglets */}
         <View style={styles.promoButtonContainer}>
           <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
             <Text style={styles.promoButtonText}>Utiliser un code promo</Text>
@@ -340,33 +378,6 @@ const ProductDetailScreen: React.FC = () => {
             </View>
           )}
         </View>
-
-        {/* --- DÉBUT DE LA MODIFICATION: INTÉGRATION DES ONGLETS --- */}
-        <View style={styles.tabContainer}>
-          <Tab.Navigator
-            screenOptions={{
-              tabBarActiveTintColor: '#111',
-              tabBarInactiveTintColor: '#6b7280',
-              tabBarLabelStyle: { fontWeight: 'bold', textTransform: 'none' },
-              tabBarIndicatorStyle: { backgroundColor: '#111', height: 2 },
-              tabBarStyle: {
-                backgroundColor: '#fff',
-                elevation: 0, // Enlève l'ombre sur Android
-                shadowOpacity: 0, // Enlève l'ombre sur iOS
-                borderBottomWidth: 1,
-                borderBottomColor: '#f0f0f0',
-              },
-            }}
-          >
-            <Tab.Screen name="Spécifications">
-              {() => <SpecificationsTab specifications={product.specifications || []} />}
-            </Tab.Screen>
-            <Tab.Screen name="Description">
-              {() => <DescriptionTab description={product.description} />}
-            </Tab.Screen>
-          </Tab.Navigator>
-        </View>
-        {/* --- FIN DE LA MODIFICATION --- */}
       </ScrollView>
 
       <SafeAreaView edges={['bottom']} style={styles.actionsSafe}>
@@ -461,11 +472,7 @@ const styles = StyleSheet.create({
   priceCard: {
     marginTop: 24,
     marginHorizontal: 16,
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+    paddingVertical: 12,
   },
   price: { fontSize: 22, fontWeight: '900', color: '#111' },
   oldPrice: {
@@ -473,6 +480,7 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     textDecorationLine: 'line-through',
   },
+  // Ce style n'est plus utilisé ici mais gardé pour d'autres composants potentiels
   specsText: {
     marginTop: 8,
     fontSize: 14,
@@ -481,7 +489,6 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     marginTop: 14,
-    marginHorizontal: 16,
     padding: 12,
     borderRadius: 14,
     backgroundColor: '#fafafa',
@@ -492,17 +499,18 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: 'row', alignItems: 'center', columnGap: 10 },
   infoTxt: { color: '#111' },
   tabContainer: {
-    marginTop: 20,
-    minHeight: 300, // Hauteur minimale pour que le contenu soit visible
+    marginTop: 16,
+    minHeight: 350,
   },
   tabContentContainer: {
     padding: 16,
     backgroundColor: '#fff',
-    flex: 1, // Permet au ScrollView de fonctionner
+    flex: 1,
   },
   emptyTabContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 40,
   },
   emptyTabText: {
     color: '#6b7280',
@@ -521,7 +529,7 @@ const styles = StyleSheet.create({
   specVal: { color: '#111', fontWeight: '600', fontSize: 14, maxWidth: '60%', textAlign: 'right' },
   promoButtonContainer: {
     marginHorizontal: 16,
-    marginTop: 14,
+    marginTop: 24, // Augmenté pour l'espace après les onglets
     marginBottom: 8,
   },
   promoButton: {
