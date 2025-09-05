@@ -184,10 +184,16 @@ const CategoryScreen = ({ route }: any) => {
     );
   }, [brands, brandsLoading, promoCards, promoCardsLoading, category]);
 
+  // CORRECTION: On s'assure que la liste de produits est unique pour éviter les erreurs de clé.
+  const uniquePopularProducts = useMemo(() => {
+    const combined = [...vedetteProducts, ...regularProducts];
+    return Array.from(new Map(combined.map(p => [p.id, p])).values());
+  }, [vedetteProducts, regularProducts]);
+
   if (category === 'Populaires') {
     return (
       <ProductGrid
-        products={[...vedetteProducts, ...regularProducts]}
+        products={uniquePopularProducts}
         loading={loading}
         loadingMore={loadingMore}
         onLoadMore={loadMorePopulars}
