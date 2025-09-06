@@ -6,5 +6,5 @@ npm start
 git checkout -b nom-de-ma-branche
 git add .
 git commit -m "Description de ma modification"
-
 npx prettier --write .(pour regler les erreurs prettier)
+git push origin -u Georgesmodif6 (pour une branche qui existait déjà)
