@@ -1,6 +1,7 @@
 // src/types.ts
 import { DimensionValue } from 'react-native';
 import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { Segment } from './screens/home/ProductSegments';
 
 export type Category = string;
 
@@ -24,7 +25,6 @@ export type Product = {
   ram_extension?: number;
   ordreVedette?: number;
   specifications?: Specification[];
-  // --- AJOUTS POUR LES FILTRES ---
   enPromotion?: boolean;
   isVedette?: boolean;
 };
@@ -104,16 +104,16 @@ export type ArticleItem = {
 export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | ShopTheLookItem | ArticleItem;
 
 // --- Navigation Types ---
-// MODIFICATION: Mise à jour des paramètres pour inclure tous les filtres
 export type FilterOptions = {
   searchQuery?: string;
-  category?: string;
+  category?: Category;
   brands?: Brand[];
   minPrice?: string;
   maxPrice?: string;
   enPromotion?: boolean;
   isVedette?: boolean;
-  // ... autres filtres techniques à venir
+  rom?: number;
+  ram?: number;
 };
 
 export type RootStackParamList = {
@@ -128,6 +128,8 @@ export type RootStackParamList = {
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null };
   FilterScreenResults: FilterOptions & { initialSearchQuery?: string };
   ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
+  // --- AJOUT ---
+  CategorySelection: { onSelectCategory: (category: Segment | undefined) => void };
 };
 
 export type MainStackParamList = {

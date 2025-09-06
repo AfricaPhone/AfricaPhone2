@@ -17,6 +17,8 @@ import CreateProfileScreen from '../screens/CreateProfileScreen';
 import StoreScreen from '../screens/StoreScreen';
 import FilterScreenResults from '../screens/FilterScreenResults';
 import ProductListScreen from '../screens/ProductListScreen';
+// --- AJOUT ---
+import CategorySelectionScreen from '../screens/CategorySelectionScreen';
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -83,33 +85,32 @@ const MainStack = () => (
 const RootNavigator: React.FC = () => {
   return (
     <RootStack.Navigator>
+      {/* Screens principaux */}
       <RootStack.Screen name="Main" component={MainStack} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Brand" component={BrandScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="MatchList" component={MatchListScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="PredictionGame" component={PredictionGameScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Store" component={StoreScreen} options={{ headerShown: false }} />
-      <RootStack.Screen
-        name="SignUp"
-        component={SignUpScreen}
-        options={{ headerShown: false, presentation: 'modal' }}
-      />
-      <RootStack.Screen
-        name="AuthPrompt"
-        component={AuthPromptScreen}
-        options={{ headerShown: false, presentation: 'modal' }}
-      />
-      <RootStack.Screen
-        name="CreateProfile"
-        component={CreateProfileScreen}
-        options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }}
-      />
-      <RootStack.Screen
-        name="FilterScreenResults"
-        component={FilterScreenResults}
-        options={{ headerShown: false }} // La présentation modale n'est plus nécessaire ici
-      />
+      <RootStack.Screen name="FilterScreenResults" component={FilterScreenResults} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
+
+      {/* Screens modaux */}
+      <RootStack.Group screenOptions={{ presentation: 'modal' }}>
+        <RootStack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+        <RootStack.Screen name="AuthPrompt" component={AuthPromptScreen} options={{ headerShown: false }} />
+        <RootStack.Screen
+          name="CreateProfile"
+          component={CreateProfileScreen}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+        {/* --- AJOUT de l'écran de sélection de catégorie --- */}
+        <RootStack.Screen
+          name="CategorySelection"
+          component={CategorySelectionScreen}
+          options={{ headerShown: false }}
+        />
+      </RootStack.Group>
     </RootStack.Navigator>
   );
 };

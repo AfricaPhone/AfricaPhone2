@@ -1,5 +1,5 @@
 // src/screens/home/FilterBottomSheet.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -13,9 +13,19 @@ import {
   Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Brand, FilterOptions } from '../../types';
+import { Brand, FilterOptions, Segment } from '../../types';
 import { useProducts } from '../../store/ProductContext';
 import { useNavigation } from '@react-navigation/native';
+
+// Définition des capacités
+const CAPACITY_OPTIONS = [
+  { label: '64GB + 4GB', rom: 64, ram: 4 },
+  { label: '128GB + 8GB', rom: 128, ram: 8 },
+  { label: '256GB + 12GB', rom: 256, ram: 12 },
+  { label: '512GB + 16GB', rom: 512, ram: 16 },
+];
+export type Capacity = (typeof CAPACITY_OPTIONS)[0] | null;
+
 
 interface Props {
   visible: boolean;
@@ -23,7 +33,6 @@ interface Props {
   onApply: (filters: FilterOptions) => void;
 }
 
-// Composant réutilisable pour une ligne de filtre
 const FilterRow: React.FC<{ label: string; children: React.ReactNode; onPress?: () => void }> = ({
   label,
   children,
@@ -35,7 +44,6 @@ const FilterRow: React.FC<{ label: string; children: React.ReactNode; onPress?: 
   </Pressable>
 );
 
-// Composant pour une "pilule" cliquable
 const Chip: React.FC<{ label: string; isSelected: boolean; onPress: () => void }> = ({
   label,
   isSelected,
@@ -50,13 +58,14 @@ const Chip: React.FC<{ label: string; isSelected: boolean; onPress: () => void }
 );
 
 const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
-  const { brands, brandsLoading } = useProducts();
+  const { brands } = useProducts();
   const navigation = useNavigation<any>();
 
-  // États pour les filtres
+  const [selectedCategory, setSelectedCategory] = useState<Segment | undefined>();
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedBrands, setSelectedBrands] = useState<Brand[]>([]);
+  const [selectedCapacity, setSelectedCapacity] = useState<Capacity>(null);
   const [isPromotion, setIsPromotion] = useState(false);
   const [isVedette, setIsVedette] = useState(false);
 
@@ -68,9 +77,12 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
 
   const handleApply = () => {
     const filters: FilterOptions = {
+      category: selectedCategory,
       minPrice: minPrice || undefined,
       maxPrice: maxPrice || undefined,
       brands: selectedBrands.length > 0 ? selectedBrands : undefined,
+      rom: selectedCapacity?.rom,
+      ram: selectedCapacity?.ram,
       enPromotion: isPromotion || undefined,
       isVedette: isVedette || undefined,
     };
@@ -78,19 +90,23 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
   };
 
   const handleReset = () => {
+    setSelectedCategory(undefined);
     setMinPrice('');
     setMaxPrice('');
     setSelectedBrands([]);
+    setSelectedCapacity(null);
     setIsPromotion(false);
     setIsVedette(false);
     onApply({});
   };
 
   const navigateToCategories = () => {
-      onClose(); // Ferme la modale de filtre
-      // Navigue vers l'écran de catalogue, qui contient les catégories
-      navigation.navigate('Catalog');
-  }
+    navigation.navigate('CategorySelection', {
+      onSelectCategory: (category: Segment | undefined) => {
+        setSelectedCategory(category);
+      },
+    });
+  };
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -107,7 +123,7 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
           {/* Section Catégorie */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Catégorie</Text>
-            <FilterRow label="Toutes les catégories" onPress={navigateToCategories}>
+            <FilterRow label={selectedCategory || "Toutes les catégories"} onPress={navigateToCategories}>
               <Ionicons name="chevron-forward" size={22} color="#9ca3af" />
             </FilterRow>
           </View>
@@ -147,6 +163,21 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
                 value={maxPrice}
                 onChangeText={setMaxPrice}
               />
+            </View>
+          </View>
+          
+          {/* Section Capacité */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Capacité (Stockage + RAM)</Text>
+            <View style={styles.chipContainer}>
+                {CAPACITY_OPTIONS.map(cap => (
+                    <Chip 
+                        key={cap.label}
+                        label={cap.label}
+                        isSelected={selectedCapacity?.label === cap.label}
+                        onPress={() => setSelectedCapacity(cap)}
+                    />
+                ))}
             </View>
           </View>
 
