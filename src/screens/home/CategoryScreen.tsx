@@ -38,16 +38,20 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
   };
 };
 
+// Fonction utilitaire pour dédupliquer la liste de produits
+const getUniqueProducts = (products: Product[]): Product[] => {
+  return Array.from(new Map(products.map(p => [p.id, p])).values());
+};
+
 const CategoryScreen = ({ route }: any) => {
   const { category } = route.params;
 
-  // States for 'Populaires' tab
-  const [vedetteProducts, setVedetteProducts] = useState<Product[]>([]);
-  const [regularProducts, setRegularProducts] = useState<Product[]>([]);
+  // --- MODIFICATION: Logique simplifiée pour l'onglet "Populaires" ---
+  const [popularProducts, setPopularProducts] = useState<Product[]>([]);
   const [lastDoc, setLastDoc] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
-  const [hasMoreRegular, setHasMoreRegular] = useState(true);
+  const [hasMorePopulars, setHasMorePopulars] = useState(true);
 
-  // States for other tabs (using the hook)
+  // États pour les autres onglets (inchangés)
   const {
     products: categoryProducts,
     loading: categoryLoading,
@@ -63,7 +67,7 @@ const CategoryScreen = ({ route }: any) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  // States for header
+  // États pour l'en-tête (inchangés)
   const { brands, brandsLoading } = useProducts();
   const [promoCards, setPromoCards] = useState<PromoCard[]>([]);
   const [promoCardsLoading, setPromoCardsLoading] = useState(true);
@@ -75,7 +79,7 @@ const CategoryScreen = ({ route }: any) => {
       setLoading(true);
     }
     try {
-      // Fetch vedette products (non-paginated)
+      // Fetch vedette products
       const vedetteQuery = query(
         collection(db, 'products'),
         where('ordreVedette', '>=', 1),
@@ -84,7 +88,6 @@ const CategoryScreen = ({ route }: any) => {
       );
       const vedetteSnapshot = await getDocs(vedetteQuery);
       const fetchedVedette = vedetteSnapshot.docs.map(mapDocToProduct);
-      setVedetteProducts(fetchedVedette);
 
       // Fetch first page of regular products
       const regularQuery = query(
@@ -96,9 +99,11 @@ const CategoryScreen = ({ route }: any) => {
       );
       const regularSnapshot = await getDocs(regularQuery);
       const fetchedRegular = regularSnapshot.docs.map(mapDocToProduct);
-      setRegularProducts(fetchedRegular);
+
+      // --- MODIFICATION: Fusionner, dédupliquer et mettre à jour l'état une seule fois ---
+      setPopularProducts(getUniqueProducts([...fetchedVedette, ...fetchedRegular]));
       setLastDoc(regularSnapshot.docs[regularSnapshot.docs.length - 1] || null);
-      setHasMoreRegular(fetchedRegular.length === PAGE_SIZE);
+      setHasMorePopulars(fetchedRegular.length === PAGE_SIZE);
     } catch (error) {
       console.error('Error fetching popular products:', error);
     } finally {
@@ -108,7 +113,7 @@ const CategoryScreen = ({ route }: any) => {
   }, []);
 
   const loadMorePopulars = useCallback(async () => {
-    if (loadingMore || !hasMoreRegular || !lastDoc) return;
+    if (loadingMore || !hasMorePopulars || !lastDoc) return;
     setLoadingMore(true);
 
     try {
@@ -122,15 +127,20 @@ const CategoryScreen = ({ route }: any) => {
       );
       const regularSnapshot = await getDocs(regularQuery);
       const newProducts = regularSnapshot.docs.map(mapDocToProduct);
-      setRegularProducts(prev => [...prev, ...newProducts]);
+
+      // --- MODIFICATION: Ajouter les nouveaux produits et dédupliquer à nouveau ---
+      if (newProducts.length > 0) {
+        setPopularProducts(prevProducts => getUniqueProducts([...prevProducts, ...newProducts]));
+      }
+
       setLastDoc(regularSnapshot.docs[regularSnapshot.docs.length - 1] || null);
-      setHasMoreRegular(newProducts.length === PAGE_SIZE);
+      setHasMorePopulars(newProducts.length === PAGE_SIZE);
     } catch (error) {
       console.error('Error loading more popular products:', error);
     } finally {
       setLoadingMore(false);
     }
-  }, [lastDoc, loadingMore, hasMoreRegular]);
+  }, [lastDoc, loadingMore, hasMorePopulars]);
 
   useEffect(() => {
     if (category === 'Populaires') {
@@ -184,23 +194,17 @@ const CategoryScreen = ({ route }: any) => {
     );
   }, [brands, brandsLoading, promoCards, promoCardsLoading, category]);
 
-  // CORRECTION: On s'assure que la liste de produits est unique pour éviter les erreurs de clé.
-  const uniquePopularProducts = useMemo(() => {
-    const combined = [...vedetteProducts, ...regularProducts];
-    return Array.from(new Map(combined.map(p => [p.id, p])).values());
-  }, [vedetteProducts, regularProducts]);
-
   if (category === 'Populaires') {
     return (
       <ProductGrid
-        products={uniquePopularProducts}
+        products={popularProducts}
         loading={loading}
         loadingMore={loadingMore}
         onLoadMore={loadMorePopulars}
         onRefresh={onRefresh}
         refreshing={refreshing}
         listHeaderComponent={memoizedListHeader}
-        hasMore={hasMoreRegular}
+        hasMore={hasMorePopulars}
       />
     );
   }

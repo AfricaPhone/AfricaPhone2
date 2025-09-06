@@ -13,7 +13,7 @@ const SEGMENTS_DATA: Array<{
 }> = [
   { key: 'Populaires', label: 'Populaires', icon: 'star-outline' },
   { key: 'tablette', label: 'Tablettes', icon: 'tablet-portrait-outline' },
-  { key: 'portable a touche', label: 'Portable a Touche', icon: 'keypad-outline' },
+  { key: 'portable a touche', label: 'A touches', icon: 'keypad-outline' }, // MODIFICATION: "Portable a Touche" remplacé par "A touches"
   { key: 'accessoire', label: 'Accessoires et Plus', icon: 'headset-outline' },
 ];
 

@@ -14,7 +14,7 @@ const SEGMENTS_DATA: Array<{
 }> = [
   { key: 'Populaires', label: 'Populaires' },
   { key: 'tablette', label: 'Tablettes' },
-  { key: 'portable a touche', label: 'Portables' },
+  { key: 'portable a touche', label: 'A touches' }, // MODIFICATION: "Portables" remplacé par "A touches"
   { key: 'accessoire', label: 'Accessoires' },
 ];
 
