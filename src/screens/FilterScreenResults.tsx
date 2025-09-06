@@ -3,15 +3,14 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
-  TextInput,
   FlatList,
   StyleSheet,
   Pressable,
   TouchableOpacity,
   Keyboard,
-  Dimensions,
   ActivityIndicator,
   Modal,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -20,6 +19,26 @@ import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAllProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
+
+// --- Définitions copiées depuis FilterBottomSheet.tsx ---
+const PRICE_RANGES = [
+  { label: 'Moins de 50k', min: 0, max: 49999 },
+  { label: '50k - 100k', min: 50000, max: 99999 },
+  { label: '100k - 200k', min: 100000, max: 199999 },
+  { label: 'Plus de 200k', min: 200000, max: 9999999 },
+];
+type PriceRange = (typeof PRICE_RANGES)[0] | null;
+
+const CAPACITY_OPTIONS = [
+  { label: '32GB + 4GB', rom: 32, ram: 4 },
+  { label: '64GB + 4GB', rom: 64, ram: 4 },
+  { label: '64GB + 3GB', rom: 64, ram: 3 },
+  { label: '128GB + 8GB', rom: 128, ram: 8 },
+  { label: '256GB + 16GB', rom: 256, ram: 16 },
+  { label: '512GB + 24GB', rom: 512, ram: 24 },
+];
+export type Capacity = (typeof CAPACITY_OPTIONS)[0] | null;
+// --- Fin des définitions copiées ---
 
 type RouteParams = {
   initialCategory?: Category;
@@ -30,10 +49,7 @@ type RouteParams = {
   ram?: number;
 };
 
-type SortKey = 'priceAsc' | 'priceDesc';
 type ViewMode = 'grid' | 'list';
-
-const { width } = Dimensions.get('window');
 
 const FilterScreenResults: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -48,30 +64,44 @@ const FilterScreenResults: React.FC = () => {
     ram: initialRam,
   } = (route.params as RouteParams) || {};
 
+  // États pour les filtres actuellement appliqués
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [category, setCategory] = useState<Category | undefined>(initialCategory);
-  const [sort, setSort] = useState<SortKey>('priceAsc');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [minPrice, setMinPrice] = useState(initialMinPrice || '');
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice || '');
   const [rom, setRom] = useState(initialRom);
   const [ram, setRam] = useState(initialRam);
+
+  // États temporaires pour la modale
+  const [tempSelectedPriceRange, setTempSelectedPriceRange] = useState<PriceRange>(() => {
+    if (initialMinPrice && initialMaxPrice) {
+      return PRICE_RANGES.find(r => r.min === Number(initialMinPrice) && r.max === Number(initialMaxPrice)) || null;
+    }
+    return null;
+  });
+
+  const [tempSelectedCapacity, setTempSelectedCapacity] = useState<Capacity>(() => {
+    if (initialRom && initialRam) {
+      return CAPACITY_OPTIONS.find(c => c.rom === initialRom && c.ram === initialRam) || null;
+    }
+    return null;
+  });
+
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const queryOptions = useMemo((): ProductQueryOptions => {
-    const options: ProductQueryOptions = { category, minPrice, maxPrice, searchQuery, rom, ram };
-    switch (sort) {
-      case 'priceAsc':
-        options.sortBy = 'price';
-        options.sortDirection = 'asc';
-        break;
-      case 'priceDesc':
-        options.sortBy = 'price';
-        options.sortDirection = 'desc';
-        break;
-    }
-    return options;
-  }, [category, searchQuery, sort, minPrice, maxPrice, rom, ram]);
+    return {
+      category,
+      minPrice,
+      maxPrice,
+      searchQuery,
+      rom,
+      ram,
+      sortBy: 'price',
+      sortDirection: 'asc',
+    };
+  }, [category, searchQuery, minPrice, maxPrice, rom, ram]);
 
   const { products, loading, refresh } = useAllProducts(queryOptions);
 
@@ -79,7 +109,6 @@ const FilterScreenResults: React.FC = () => {
     refresh();
   }, [queryOptions, refresh]);
 
-  // OPTIMISATION: Utilisation de useCallback pour stabiliser la fonction renderItem.
   const renderItem = useCallback(
     ({ item }: { item: Product }) => {
       const props = {
@@ -103,18 +132,34 @@ const FilterScreenResults: React.FC = () => {
   );
 
   const handleApplyFilter = () => {
+    setMinPrice(tempSelectedPriceRange ? String(tempSelectedPriceRange.min) : '');
+    setMaxPrice(tempSelectedPriceRange ? String(tempSelectedPriceRange.max) : '');
+    setRom(tempSelectedCapacity?.rom);
+    setRam(tempSelectedCapacity?.ram);
     setFiltersOpen(false);
-    refresh();
   };
 
   const resetFilters = () => {
+    // Réinitialise les états temporaires
+    setTempSelectedPriceRange(null);
+    setTempSelectedCapacity(null);
+    // Applique immédiatement la réinitialisation
     setMinPrice('');
     setMaxPrice('');
-    setSort('priceAsc');
-    setSearchQuery('');
-    setCategory(undefined);
     setRom(undefined);
     setRam(undefined);
+    setFiltersOpen(false);
+  };
+
+  const openFilterModal = () => {
+    // Synchronise les filtres temporaires avec les filtres actuels
+    setTempSelectedPriceRange(
+      minPrice && maxPrice ? PRICE_RANGES.find(r => r.min === Number(minPrice) && r.max === Number(maxPrice)) || null : null
+    );
+    setTempSelectedCapacity(
+      rom && ram ? CAPACITY_OPTIONS.find(c => c.rom === rom && c.ram === ram) || null : null
+    );
+    setFiltersOpen(true);
   };
 
   return (
@@ -124,7 +169,7 @@ const FilterScreenResults: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Résultats ({products.length})</Text>
-        <TouchableOpacity onPress={() => setFiltersOpen(true)} style={styles.filterButton}>
+        <TouchableOpacity onPress={openFilterModal} style={styles.filterButton}>
           <MaterialCommunityIcons name="filter-variant" size={20} color="#111" />
         </TouchableOpacity>
       </View>
@@ -150,8 +195,7 @@ const FilterScreenResults: React.FC = () => {
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun produit ne correspond à ces filtres.</Text>
               <Text style={styles.emptySubText}>Essayez de modifier votre sélection.</Text>
-              {/* MODIFICATION: Ajout du bouton pour rouvrir les filtres */}
-              <TouchableOpacity style={styles.emptyButton} onPress={() => setFiltersOpen(true)}>
+              <TouchableOpacity style={styles.emptyButton} onPress={openFilterModal}>
                 <Text style={styles.emptyButtonText}>Essayer un autre filtre</Text>
               </TouchableOpacity>
             </View>
@@ -161,63 +205,59 @@ const FilterScreenResults: React.FC = () => {
       <Modal visible={filtersOpen} transparent animationType="fade">
         <Pressable style={styles.modalBackdrop} onPress={() => setFiltersOpen(false)} />
         <View style={[styles.sheet, { paddingBottom: insets.bottom + 12 }]}>
-          <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>Filtres</Text>
-            <TouchableOpacity onPress={() => setFiltersOpen(false)}>
-              <Ionicons name="close-circle" size={26} color="#ccc" />
+          <ScrollView>
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>Filtres</Text>
+              <TouchableOpacity onPress={() => setFiltersOpen(false)}>
+                <Ionicons name="close-circle" size={26} color="#ccc" />
+              </TouchableOpacity>
+            </View>
+
+            {/* --- SECTION FOURCHETTE DE PRIX --- */}
+            <View style={styles.sheetSection}>
+              <Text style={styles.filterSectionTitle}>Fourchette de prix (FCFA)</Text>
+              <View style={styles.pillsRow}>
+                {PRICE_RANGES.map(range => {
+                  const isActive = tempSelectedPriceRange?.label === range.label;
+                  return (
+                    <TouchableOpacity
+                      key={range.label}
+                      style={[styles.pill, isActive && styles.pillActive]}
+                      onPress={() => setTempSelectedPriceRange(range)}
+                    >
+                      <Text style={[styles.pillTxt, isActive && styles.pillTxtActive]}>{range.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* --- SECTION CAPACITÉ --- */}
+            <View style={styles.sheetSection}>
+              <Text style={styles.filterSectionTitle}>Capacité (Stockage + RAM)</Text>
+              <View style={styles.pillsRow}>
+                {CAPACITY_OPTIONS.map(capacity => {
+                  const isActive = tempSelectedCapacity?.label === capacity.label;
+                  return (
+                    <TouchableOpacity
+                      key={capacity.label}
+                      style={[styles.pill, isActive && styles.pillActive]}
+                      onPress={() => setTempSelectedCapacity(capacity)}
+                    >
+                      <Text style={[styles.pillTxt, isActive && styles.pillTxtActive]}>{capacity.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            <TouchableOpacity onPress={handleApplyFilter} style={styles.showButton}>
+              <Text style={styles.showButtonText}>Voir les résultats</Text>
             </TouchableOpacity>
-          </View>
-
-          <View style={styles.sheetSection}>
-            <Text style={styles.filterSectionTitle}>Prix</Text>
-            <View style={styles.priceInputsRow}>
-              <View style={styles.priceInputWrap}>
-                <TextInput
-                  style={styles.priceInput}
-                  keyboardType="numeric"
-                  placeholder="Min"
-                  value={minPrice}
-                  onChangeText={setMinPrice}
-                />
-                <Text style={styles.priceUnit}>FCFA</Text>
-              </View>
-              <View style={styles.priceInputWrap}>
-                <TextInput
-                  style={styles.priceInput}
-                  keyboardType="numeric"
-                  placeholder="Max"
-                  value={maxPrice}
-                  onChangeText={setMaxPrice}
-                />
-                <Text style={styles.priceUnit}>FCFA</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.sheetSection}>
-            <Text style={styles.filterSectionTitle}>Trier par</Text>
-            <View style={styles.pillsRow}>
-              {(['priceAsc', 'priceDesc'] as SortKey[]).map(s => (
-                <TouchableOpacity
-                  key={s}
-                  onPress={() => {
-                    setSort(s);
-                  }}
-                  style={[styles.pill, sort === s && styles.pillActive]}
-                >
-                  <Text style={[styles.pillTxt, sort === s && styles.pillTxtActive]}>
-                    {s === 'priceAsc' ? 'Prix ↑' : 'Prix ↓'}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-          <TouchableOpacity onPress={handleApplyFilter} style={styles.showButton}>
-            <Text style={styles.showButtonText}>Voir les résultats</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={resetFilters} style={styles.resetButton}>
-            <Text style={styles.resetButtonText}>Réinitialiser les filtres</Text>
-          </TouchableOpacity>
+            <TouchableOpacity onPress={resetFilters} style={styles.resetButton}>
+              <Text style={styles.resetButtonText}>Réinitialiser les filtres</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       </Modal>
     </SafeAreaView>
@@ -271,59 +311,35 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    maxHeight: '80%', // Limite la hauteur
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 24,
   },
-  sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
   sheetTitle: { fontSize: 20, fontWeight: '800', color: '#111' },
   sheetSection: { marginBottom: 24 },
-  pillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  pillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center' },
   pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 99,
     backgroundColor: '#f2f3f5',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
-  pillActive: { backgroundColor: '#111' },
-  pillTxt: { color: '#111', fontWeight: '600' },
+  pillActive: { backgroundColor: '#111', borderColor: '#111' },
+  pillTxt: { color: '#111', fontWeight: '600', fontSize: 14 },
   pillTxtActive: { color: '#fff' },
 
-  // Filter Panel (Prix)
   filterSectionTitle: {
     fontSize: 16,
     fontWeight: '700',
     color: '#111',
-    marginBottom: 12,
-  },
-  priceInputsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  priceInputWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f2f3f5',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 48,
-  },
-  priceInput: {
-    flex: 1,
-    color: '#111',
-    fontSize: 16,
-  },
-  priceUnit: {
-    color: '#6b7280',
-    marginLeft: 4,
-    fontWeight: '600',
+    marginBottom: 16,
+    textAlign: 'center',
   },
   showButton: {
     backgroundColor: '#111',
