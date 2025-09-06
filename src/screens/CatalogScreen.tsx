@@ -179,7 +179,17 @@ const CatalogScreen: React.FC = () => {
             query: q,
             hitsPerPage: 20,
             // MODIFICATION: Ajout de 'rom' et 'ram' aux attributs à récupérer
-            attributesToRetrieve: ['name', 'brand', 'description', 'price', 'imageUrl', 'ordreVedette', 'rom', 'ram', 'specifications'],
+            attributesToRetrieve: [
+              'name',
+              'brand',
+              'description',
+              'price',
+              'imageUrl',
+              'ordreVedette',
+              'rom',
+              'ram',
+              'specifications',
+            ],
           },
         });
 

@@ -3,7 +3,6 @@ import React from 'react';
 import { Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-// MODIFICATION: 'Acessoires' est remplacé par 'accessoire' pour la cohérence.
 const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;
 export type Segment = (typeof SEGMENTS)[number];
 
@@ -14,8 +13,7 @@ const SEGMENTS_DATA: Array<{
 }> = [
   { key: 'Populaires', label: 'Populaires', icon: 'star-outline' },
   { key: 'tablette', label: 'Tablettes', icon: 'tablet-portrait-outline' },
-  { key: 'portable a touche', label: 'Portable a Touche', icon: 'keypad-outline' },
-  // MODIFICATION: La clé est maintenant 'accessoire' et le libellé est corrigé.
+  { key: 'portable a touche', label: 'A touches', icon: 'keypad-outline' }, // MODIFICATION: "Portable a Touche" remplacé par "A touches"
   { key: 'accessoire', label: 'Accessoires et Plus', icon: 'headset-outline' },
 ];
 

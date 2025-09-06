@@ -7,7 +7,6 @@ import {
   FlatList,
   Dimensions,
   TouchableOpacity,
-  Pressable,
   ScrollView,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -21,18 +20,17 @@ import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-// AJOUT: Imports pour Firebase Functions
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
 import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
-import { Product, RootStackParamList } from '../types';
+import { Product, RootStackParamList, Specification, BoutiqueInfo } from '../types';
 
 import PromoCodeModal from '../components/PromoCodeModal';
 
-// AJOUT: Initialisation de Firebase Functions
 const functions = getFunctions();
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -41,7 +39,6 @@ const ITEM_WIDTH = screenWidth;
 const SPACING = 0;
 const SIDE_SPACING = 0;
 
-// AJOUT: Type pour stocker les détails du code promo validé
 type ValidatedPromo = {
   code: string;
   type: 'percentage' | 'fixed';
@@ -51,22 +48,60 @@ type ValidatedPromo = {
 type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail'>;
 type ProductDetailScreenNavigationProp = NavigationProp<RootStackParamList>;
 
-const Section: React.FC<{
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}> = ({ title, children, defaultOpen }) => {
-  const [open, setOpen] = useState(!!defaultOpen);
+// --- Composants pour les onglets ---
+const SpecificationsTab: React.FC<{ product: Product }> = ({ product }) => {
+  const hasSpecifications = product.specifications && product.specifications.length > 0;
   return (
-    <View style={styles.section}>
-      <Pressable style={styles.sectionHeader} onPress={() => setOpen(v => !v)}>
-        <Text style={styles.sectionTitle}>{title}</Text>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={20} color="#6b7280" />
-      </Pressable>
-      {open && <View style={styles.sectionBody}>{children}</View>}
-    </View>
+    <ScrollView style={styles.tabContentContainer}>
+      {/* Spécifications principales (ROM/RAM) */}
+      {product.ram && product.rom && (
+        <View style={styles.specRow}>
+          <Text style={styles.specKey}>Capacité</Text>
+          <Text style={styles.specVal}>
+            {product.rom}GB ROM / {product.ram}GB RAM
+          </Text>
+        </View>
+      )}
+
+      {/* Bloc d'informations pratiques */}
+      <View style={styles.infoCard}>
+        <View style={styles.infoRow}>
+          <MaterialCommunityIcons name="truck-delivery-outline" size={20} color="#111" />
+          <Text style={styles.infoTxt}>Nous livrons partout au Bénin !</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <MaterialCommunityIcons name="shield-check-outline" size={20} color="#111" />
+          <Text style={styles.infoTxt}>Retours sous 30 jours • Garantie 1 an</Text>
+        </View>
+      </View>
+
+      {/* Liste des spécifications détaillées */}
+      {hasSpecifications ? (
+        product.specifications?.map((spec, index) => (
+          <View key={index} style={styles.specRow}>
+            <Text style={styles.specKey}>{spec.key}</Text>
+            <Text style={styles.specVal}>{spec.value}</Text>
+          </View>
+        ))
+      ) : (
+        <View style={styles.emptyTabContainer}>
+          <Text style={styles.emptyTabText}>Aucune spécification détaillée disponible.</Text>
+        </View>
+      )}
+    </ScrollView>
   );
 };
+
+const DescriptionTab: React.FC<{ description?: string }> = ({ description }) => (
+  <ScrollView style={styles.tabContentContainer}>
+    <Text style={styles.bodyTxt}>
+      {description ||
+        'Appareil haute performance avec une construction premium, une excellente autonomie et un écran brillant. Idéal pour la photographie, les jeux et un usage quotidien.'}
+    </Text>
+  </ScrollView>
+);
+
+const Tab = createMaterialTopTabNavigator();
 
 const ProductDetailScreen: React.FC = () => {
   const nav = useNavigation<ProductDetailScreenNavigationProp>();
@@ -81,11 +116,8 @@ const ProductDetailScreen: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
-  
-  // MODIFICATION: L'état stocke maintenant l'objet du code validé ou null
   const [promoCode, setPromoCode] = useState<ValidatedPromo | null>(null);
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
-
   const [isShareable, setIsShareable] = useState(false);
   const shareableImageUri = useRef<string | null>(null);
 
@@ -141,7 +173,6 @@ const ProductDetailScreen: React.FC = () => {
     }
   }, [product, gallery, productId]);
 
-
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<FlatList<string>>(null);
 
@@ -159,7 +190,6 @@ const ProductDetailScreen: React.FC = () => {
     const phoneNumber = boutiqueInfo.whatsappNumber;
     let message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
 
-    // MODIFICATION: Le message inclut le code validé
     if (promoCode) {
       message += `\nMon code promo est : ${promoCode.code}`;
     }
@@ -180,7 +210,7 @@ const ProductDetailScreen: React.FC = () => {
     }
     try {
       if (!(await Sharing.isAvailableAsync())) {
-        Alert.alert('Erreur', 'Le partage de fichiers n\'est pas disponible sur cet appareil.');
+        Alert.alert('Erreur', "Le partage de fichiers n'est pas disponible sur cet appareil.");
         return;
       }
 
@@ -188,14 +218,12 @@ const ProductDetailScreen: React.FC = () => {
         dialogTitle: product?.title || 'Super produit !',
         mimeType: 'image/jpeg',
       });
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur de partage détaillée:', error);
       Alert.alert('Erreur', 'Impossible de partager le produit. Veuillez réessayer.');
     }
   };
 
-  // NOUVELLE FONCTION: Appelle la Cloud Function pour valider le code
   const handleApplyPromoCode = async (code: string) => {
     if (!code.trim()) {
       Alert.alert('Erreur', 'Veuillez entrer un code promo.');
@@ -206,14 +234,14 @@ const ProductDetailScreen: React.FC = () => {
       const validateFn = httpsCallable(functions, 'validatePromoCode');
       const result = await validateFn({ code: code.trim() });
       const data = result.data as ValidatedPromo;
-      
-      setPromoCode(data); // Stocke les détails du code validé
+
+      setPromoCode(data);
       setIsPromoModalVisible(false);
       Alert.alert('Succès', `Le code "${data.code}" a été appliqué !`);
-
-    } catch (error: any) {
-      console.error("Erreur de validation du code promo: ", error);
-      Alert.alert('Erreur', error.message || 'Une erreur est survenue.');
+    } catch (error: unknown) {
+      console.error('Erreur de validation du code promo: ', error);
+      const message = error instanceof Error ? error.message : 'Une erreur est survenue.';
+      Alert.alert('Erreur', message);
     } finally {
       setIsApplyingPromo(false);
     }
@@ -239,8 +267,6 @@ const ProductDetailScreen: React.FC = () => {
   }
 
   const oldPrice = product.price * 1.12;
-  
-  const hasSpecifications = product.specifications && product.specifications.length > 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -260,7 +286,7 @@ const ProductDetailScreen: React.FC = () => {
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.hIconBtn} onPress={handleSharePress} disabled={!isShareable}>
-            <MaterialCommunityIcons name="share-variant" size={22} color={isShareable ? "#111" : "#cccccc"} />
+            <MaterialCommunityIcons name="share-variant" size={22} color={isShareable ? '#111' : '#cccccc'} />
           </TouchableOpacity>
         </View>
       </View>
@@ -302,59 +328,48 @@ const ProductDetailScreen: React.FC = () => {
         </View>
 
         <View style={styles.priceCard}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-            <Text style={styles.price}>{formatPrice(product.price)}</Text>
-            <Text style={styles.oldPrice}>{formatPrice(oldPrice)}</Text>
-          </View>
-          {product.ram && product.rom && (
-            <Text style={styles.specsText}>
-              {product.rom}GB ROM / {product.ram}GB RAM
-            </Text>
-          )}
-        </View>
-
-        <View style={styles.infoCard}>
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="truck-delivery-outline" size={20} color="#111" />
-            <Text style={styles.infoTxt}>Nous livrons partout au Bénin !</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="shield-check-outline" size={20} color="#111" />
-            <Text style={styles.infoTxt}>Retours sous 30 jours • Garantie 1 an</Text>
-          </View>
-        </View>
-
-        <View style={styles.promoButtonContainer}>
-          <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
-            <Text style={styles.promoButtonText}>Utiliser un code promo</Text>
-          </TouchableOpacity>
-          {promoCode && (
-            <View style={styles.promoChip}>
-              <Text style={styles.promoChipText}>Code appliqué: {promoCode.code}</Text>
-              <TouchableOpacity onPress={() => setPromoCode(null)}>
-                <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
+          <View style={styles.priceSection}>
+            <View style={styles.priceRow}>
+              <View>
+                <Text style={styles.price}>{formatPrice(product.price)}</Text>
+                <Text style={styles.oldPrice}>{formatPrice(oldPrice)}</Text>
+              </View>
+              <TouchableOpacity style={styles.promoButton} onPress={() => setIsPromoModalVisible(true)}>
+                <MaterialCommunityIcons name="gift-outline" size={16} color="#fff" />
+                <Text style={styles.promoButtonText}>Code Promo</Text>
               </TouchableOpacity>
             </View>
-          )}
+            {promoCode && (
+              <View style={styles.promoChip}>
+                <Text style={styles.promoChipText}>Code: {promoCode.code}</Text>
+                <TouchableOpacity onPress={() => setPromoCode(null)}>
+                  <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
 
-        {hasSpecifications && (
-          <Section title="Spécifications" defaultOpen>
-            {product.specifications?.map((spec, index) => (
-              <View key={index} style={styles.specRow}>
-                <Text style={styles.specKey}>{spec.key}</Text>
-                <Text style={styles.specVal}>{spec.value}</Text>
-              </View>
-            ))}
-          </Section>
-        )}
-
-        <Section title="Description">
-          <Text style={styles.bodyTxt}>
-            {product.description ??
-              'Appareil haute performance avec une construction premium, une excellente autonomie et un écran brillant. Idéal pour la photographie, les jeux et un usage quotidien.'}
-          </Text>
-        </Section>
+        <View style={styles.tabContainer}>
+          <Tab.Navigator
+            screenOptions={{
+              tabBarActiveTintColor: '#111',
+              tabBarInactiveTintColor: '#6b7280',
+              tabBarLabelStyle: { fontWeight: 'bold', textTransform: 'none' },
+              tabBarIndicatorStyle: { backgroundColor: '#111', height: 2 },
+              tabBarStyle: {
+                backgroundColor: '#fff',
+                elevation: 0,
+                shadowOpacity: 0,
+                borderBottomWidth: 1,
+                borderBottomColor: '#f0f0f0',
+              },
+            }}
+          >
+            <Tab.Screen name="Spécifications">{() => <SpecificationsTab product={product} />}</Tab.Screen>
+            <Tab.Screen name="Description">{() => <DescriptionTab description={product.description} />}</Tab.Screen>
+          </Tab.Navigator>
+        </View>
       </ScrollView>
 
       <SafeAreaView edges={['bottom']} style={styles.actionsSafe}>
@@ -449,27 +464,27 @@ const styles = StyleSheet.create({
   priceCard: {
     marginTop: 24,
     marginHorizontal: 16,
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  priceSection: {
+    flex: 1,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   price: { fontSize: 22, fontWeight: '900', color: '#111' },
   oldPrice: {
     fontSize: 14,
     color: '#9ca3af',
     textDecorationLine: 'line-through',
-  },
-  specsText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '600',
+    marginTop: 2,
   },
   infoCard: {
     marginTop: 14,
-    marginHorizontal: 16,
     padding: 12,
     borderRadius: 14,
     backgroundColor: '#fafafa',
@@ -479,66 +494,67 @@ const styles = StyleSheet.create({
   },
   infoRow: { flexDirection: 'row', alignItems: 'center', columnGap: 10 },
   infoTxt: { color: '#111' },
-  section: {
-    marginTop: 14,
-    marginHorizontal: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+  tabContainer: {
+    marginTop: 16,
+    minHeight: 350,
+  },
+  tabContentContainer: {
+    padding: 16,
     backgroundColor: '#fff',
+    flex: 1,
   },
-  sectionHeader: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    flexDirection: 'row',
+  emptyTabContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingVertical: 40,
   },
-  sectionTitle: { fontWeight: '800', color: '#111' },
-  sectionBody: { paddingHorizontal: 12, paddingBottom: 12 },
-  bodyTxt: { color: '#374151', lineHeight: 20 },
+  emptyTabText: {
+    color: '#6b7280',
+    fontStyle: 'italic',
+  },
+  bodyTxt: { color: '#374151', lineHeight: 22, fontSize: 15 },
   specRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
   },
-  specKey: { color: '#6b7280' },
-  specVal: { color: '#111', fontWeight: '600' },
-  promoButtonContainer: {
-    marginHorizontal: 16,
-    marginTop: 14,
-    marginBottom: 8,
-  },
+  specKey: { color: '#6b7280', fontSize: 14 },
+  specVal: { color: '#111', fontWeight: '600', fontSize: 14, maxWidth: '60%', textAlign: 'right' },
   promoButton: {
     backgroundColor: '#111',
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
   },
   promoButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   promoChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    gap: 8,
+    marginTop: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     backgroundColor: '#e0f2fe',
-    borderRadius: 12,
+    borderRadius: 8,
     borderColor: '#007BFF',
     borderWidth: 1,
+    alignSelf: 'flex-start',
   },
   promoChipText: {
     color: '#007BFF',
     fontWeight: '600',
+    fontSize: 12,
   },
   actionsSafe: {
     backgroundColor: '#fff',
@@ -571,5 +587,5 @@ const styles = StyleSheet.create({
   },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
-  
+
 export default ProductDetailScreen;

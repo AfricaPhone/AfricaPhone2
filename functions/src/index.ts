@@ -49,7 +49,7 @@ export const validatePromoCode = onCall(async request => {
   // 4. Vérifier si le code est actif
   if (!promoData.isActive) {
     logger.warn(`Tentative d'utilisation d'un code inactif: ${codeToCheck}`);
-    throw new HttpsError('failed-precondition', 'Ce code promo n\'est plus actif.');
+    throw new HttpsError('failed-precondition', "Ce code promo n'est plus actif.");
   }
 
   // 5. (Optionnel) Vérifier une date d'expiration si elle existait
@@ -66,7 +66,6 @@ export const validatePromoCode = onCall(async request => {
     value: promoData.value,
   };
 });
-
 
 /**
  * Gère la soumission (création/mise à jour) d'un pronostic.
@@ -230,8 +229,8 @@ export const processMatchResults = onDocumentUpdated('matches/{matchId}', async 
     logger.warn(`[Match ${matchId}] Données before/after absentes.`);
     return;
   }
-  const beforeData = beforeSnap.data() as { finalScoreA?: number; finalScoreB?: number; };
-  const afterData = afterSnap.data() as { finalScoreA?: number; finalScoreB?: number; };
+  const beforeData = beforeSnap.data() as { finalScoreA?: number; finalScoreB?: number };
+  const afterData = afterSnap.data() as { finalScoreA?: number; finalScoreB?: number };
   const aChanged = beforeData.finalScoreA !== afterData.finalScoreA;
   const bChanged = beforeData.finalScoreB !== afterData.finalScoreB;
   const aIsNum = typeof afterData.finalScoreA === 'number';
@@ -249,8 +248,12 @@ export const processMatchResults = onDocumentUpdated('matches/{matchId}', async 
     }
     const batch = db.batch();
     snap.forEach(doc => {
-      const p = doc.data() as { userId?: string; scoreA?: number; scoreB?: number; isWinner?: boolean; };
-      const ok = typeof p.scoreA === 'number' && typeof p.scoreB === 'number' && p.scoreA === afterData.finalScoreA && p.scoreB === afterData.finalScoreB;
+      const p = doc.data() as { userId?: string; scoreA?: number; scoreB?: number; isWinner?: boolean };
+      const ok =
+        typeof p.scoreA === 'number' &&
+        typeof p.scoreB === 'number' &&
+        p.scoreA === afterData.finalScoreA &&
+        p.scoreB === afterData.finalScoreB;
       if (ok) {
         logger.info(`[Match ${matchId}] Gagnant: ${p.userId ?? '?'} (${doc.id}).`);
         batch.update(doc.ref, { isWinner: true });
@@ -280,7 +283,11 @@ export const processProductImage = onObjectFinalized(
     const filePath = object.name || '';
     const contentType = object.contentType || '';
     const bucket = getStorage().bucket(bucketName);
-    if (!filePath.startsWith('product-images/') || !contentType.startsWith('image/') || filePath.includes('_processed')) {
+    if (
+      !filePath.startsWith('product-images/') ||
+      !contentType.startsWith('image/') ||
+      filePath.includes('_processed')
+    ) {
       return logger.log('Fichier ignoré :', filePath);
     }
     const pathParts = filePath.split('/');

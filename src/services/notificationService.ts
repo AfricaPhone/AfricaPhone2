@@ -45,7 +45,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
       console.log('Permission de notification refusée.');
       return null;
     }
-    
+
     // Récupère le projectId depuis la configuration d'Expo
     const projectId = Constants.expoConfig?.extra?.eas?.projectId;
     if (!projectId) {
@@ -78,6 +78,6 @@ export async function saveTokenToFirestore(userId: string, token: string): Promi
     });
     console.log(`Token sauvegardé pour l'utilisateur ${userId}`);
   } catch (error) {
-    console.error("Erreur lors de la sauvegarde du token :", error);
+    console.error('Erreur lors de la sauvegarde du token :', error);
   }
 }

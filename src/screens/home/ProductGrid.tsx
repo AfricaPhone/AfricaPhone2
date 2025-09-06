@@ -5,17 +5,16 @@ import { useNavigation } from '@react-navigation/native';
 import { Product } from '../../types';
 import ProductGridCard from '../../components/ProductGridCard';
 import { GridSkeleton } from '../../components/SkeletonLoader';
-import HomeListHeader from './HomeListHeader'; // Nous allons créer ce fichier juste après
 
 interface Props {
   products: Product[];
   loading: boolean;
   loadingMore: boolean;
+  hasMore: boolean;
   onLoadMore: () => void;
   onRefresh: () => void;
   refreshing: boolean;
-  listHeaderComponent: React.ReactElement;
-  activeSegment: string;
+  listHeaderComponent: React.ReactElement | null;
 }
 
 const ProductGrid: React.FC<Props> = ({
@@ -26,7 +25,7 @@ const ProductGrid: React.FC<Props> = ({
   onRefresh,
   refreshing,
   listHeaderComponent,
-  activeSegment,
+  hasMore,
 }) => {
   const navigation = useNavigation<any>();
 
@@ -39,9 +38,12 @@ const ProductGrid: React.FC<Props> = ({
     [navigation]
   );
 
-  if (loading && !refreshing) {
+  if (loading && products.length === 0) {
     return (
-      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF7A00" />}>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: 10 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF7A00" />}
+      >
         {listHeaderComponent}
         <View style={styles.gridContainer}>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -54,17 +56,20 @@ const ProductGrid: React.FC<Props> = ({
     );
   }
 
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" />;
+  };
+
   return (
     <FlatList
       data={products}
       renderItem={renderItem}
-      keyExtractor={item => `${activeSegment}-${item.id}`}
+      keyExtractor={item => item.id}
       numColumns={2}
       ListHeaderComponent={listHeaderComponent}
-      ListFooterComponent={
-        loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#FF7A00" /> : null
-      }
-      onEndReached={onLoadMore}
+      ListFooterComponent={renderFooter}
+      onEndReached={hasMore ? onLoadMore : undefined}
       onEndReachedThreshold={0.5}
       columnWrapperStyle={styles.gridContainer}
       showsVerticalScrollIndicator={false}

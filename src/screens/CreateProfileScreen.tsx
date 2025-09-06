@@ -54,7 +54,6 @@ const CreateProfileScreen: React.FC = () => {
       });
 
       navigation.goBack();
-
     } catch (error) {
       console.error('Error creating profile: ', error);
       Alert.alert('Erreur', 'Une erreur est survenue lors de la création de votre profil.');

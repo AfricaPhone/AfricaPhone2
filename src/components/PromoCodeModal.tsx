@@ -28,9 +28,7 @@ const PromoCodeModal: React.FC<Props> = ({ visible, onClose, onApply, isLoading 
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.subtitle}>
-          Si vous avez un code de réduction, entrez-le ci-dessous.
-        </Text>
+        <Text style={styles.subtitle}>Si vous avez un code de réduction, entrez-le ci-dessous.</Text>
 
         <TextInput
           style={styles.input}
@@ -42,12 +40,12 @@ const PromoCodeModal: React.FC<Props> = ({ visible, onClose, onApply, isLoading 
         />
 
         {/* MODIFICATION: Le bouton gère maintenant l'état de chargement */}
-        <TouchableOpacity style={[styles.applyBtn, isLoading && styles.btnDisabled]} onPress={handleApplyPress} disabled={isLoading}>
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.applyBtnText}>Appliquer</Text>
-          )}
+        <TouchableOpacity
+          style={[styles.applyBtn, isLoading && styles.btnDisabled]}
+          onPress={handleApplyPress}
+          disabled={isLoading}
+        >
+          {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.applyBtnText}>Appliquer</Text>}
         </TouchableOpacity>
       </View>
     </CustomBottomSheet>
