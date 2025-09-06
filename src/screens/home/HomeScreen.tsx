@@ -3,10 +3,8 @@ import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-// Import des composants
 import HomeHeader from './HomeHeader';
-import FilterModal from './FilterBottomSheet'; // Le fichier a été réécrit, mais le nom est conservé pour l'instant
+import FilterModal from './FilterBottomSheet';
 import HomeTabNavigator from '../../navigation/HomeTabNavigator';
 import { RootStackParamList, FilterOptions } from '../../types';
 
@@ -16,7 +14,7 @@ const HomeScreen: React.FC = () => {
 
   const handleApplyFilter = (filters: FilterOptions) => {
     setIsFilterVisible(false);
-    // Naviguer vers l'écran de résultats avec tous les filtres
+    // Navigue vers l'écran de résultats avec les filtres initiaux
     navigation.navigate('FilterScreenResults', filters);
   };
 

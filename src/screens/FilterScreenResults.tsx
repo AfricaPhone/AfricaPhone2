@@ -11,13 +11,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Product } from '../types';
-// CORRECTION: Chemin d'importation mis à jour
+import { Product, FilterOptions as FilterOptionsType } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useAllProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
 import { RootStackParamList } from '../types';
+import FilterModal from './home/FilterBottomSheet';
 
 type FilterScreenRouteProp = RouteProp<RootStackParamList, 'FilterScreenResults'>;
 type ViewMode = 'grid' | 'list';
@@ -30,28 +30,34 @@ const SORT_OPTIONS: { key: SortOption; label: string }[] = [
 ];
 
 const FilterScreenResults: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<FilterScreenRouteProp>();
-  const initialFilters = route.params || {};
 
+  const [filters, setFilters] = useState<FilterOptionsType>(route.params || {});
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [sortBy, setSortBy] = useState<SortOption>('nameAsc');
+  const [isFilterModalVisible, setFilterModalVisible] = useState(false);
 
   const queryOptions = useMemo((): ProductQueryOptions => {
     const [sortField, sortDirection] = sortBy.split(/(?=[A-Z])/);
-    
+
     return {
-      ...initialFilters,
+      ...filters,
       sortBy: sortField.toLowerCase() as 'name' | 'price',
       sortDirection: (sortDirection || 'asc').toLowerCase() as 'asc' | 'desc',
     };
-  }, [initialFilters, sortBy]);
-  
+  }, [filters, sortBy]);
+
   const { products, loading, refresh } = useAllProducts(queryOptions);
 
   useEffect(() => {
     refresh();
   }, [queryOptions, refresh]);
+
+  const handleApplyFilters = (newFilters: FilterOptionsType) => {
+    setFilters(newFilters);
+    setFilterModalVisible(false);
+  };
 
   const renderItem = useCallback(
     ({ item }: { item: Product }) => {
@@ -61,52 +67,57 @@ const FilterScreenResults: React.FC = () => {
       };
       if (viewMode === 'grid') {
         return (
-          <View style={{ width: '48%' }}>
+          <View style={styles.gridItem}>
             <ProductGridCard {...props} />
           </View>
         );
       }
       return (
-        <View style={{ paddingHorizontal: 16 }}>
+        <View style={styles.listItem}>
           <ProductListItem {...props} />
         </View>
       );
     },
     [viewMode, navigation]
   );
-  
-  const renderActiveFilters = () => {
-      const filters = Object.entries(initialFilters).filter(([key]) => key !== 'initialSearchQuery' && initialFilters[key as keyof typeof initialFilters]);
-      if (filters.length === 0) return null;
 
-      return (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillsContainer}>
-              {initialFilters.minPrice && <Text style={styles.pill}>{`Min: ${initialFilters.minPrice} FCFA`}</Text>}
-              {initialFilters.maxPrice && <Text style={styles.pill}>{`Max: ${initialFilters.maxPrice} FCFA`}</Text>}
-              {initialFilters.enPromotion && <Text style={styles.pill}>En Promotion</Text>}
-              {initialFilters.isVedette && <Text style={styles.pill}>Produits Vedettes</Text>}
-          </ScrollView>
-      )
-  }
+  const renderActiveFilters = () => {
+    const activeFilters = Object.entries(filters).filter(([key, value]) => !!value && key !== 'initialSearchQuery');
+    if (activeFilters.length === 0) return null;
+
+    return (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillsContainer}>
+        {filters.minPrice && <Text style={styles.pill}>{`Min: ${filters.minPrice} FCFA`}</Text>}
+        {filters.maxPrice && <Text style={styles.pill}>{`Max: ${filters.maxPrice} FCFA`}</Text>}
+        {filters.enPromotion && <Text style={styles.pill}>En Promotion</Text>}
+        {filters.isVedette && <Text style={styles.pill}>Produits Vedettes</Text>}
+        {filters.brands?.map(brand => (
+          <Text key={brand.id} style={styles.pill}>
+            {brand.name}
+          </Text>
+        ))}
+      </ScrollView>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
           <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Résultats ({products.length})</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.filterButton}>
+        <TouchableOpacity onPress={() => setFilterModalVisible(true)} style={styles.filterButton}>
           <Ionicons name="filter" size={20} color="#111" />
         </TouchableOpacity>
       </View>
-      
+
       {renderActiveFilters()}
 
-      <View style={styles.controlsHeader}>
+      <View style={styles.sortBar}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortContainer}>
           {SORT_OPTIONS.map(opt => (
-            <TouchableOpacity 
+            <TouchableOpacity
               key={opt.key}
               style={[styles.sortButton, sortBy === opt.key && styles.sortButtonActive]}
               onPress={() => setSortBy(opt.key)}
@@ -115,16 +126,11 @@ const FilterScreenResults: React.FC = () => {
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <View style={styles.viewModeContainer}>
-            <TouchableOpacity onPress={() => setViewMode('grid')}>
-                <Ionicons name={viewMode === 'grid' ? 'grid' : 'grid-outline'} size={22} color="#111" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setViewMode('list')}>
-                <Ionicons name={viewMode === 'list' ? 'list' : 'list-outline'} size={26} color="#111" />
-            </TouchableOpacity>
-        </View>
+        {/* MODIFICATION: Un seul bouton pour basculer la vue */}
+        <TouchableOpacity style={styles.viewModeButton} onPress={() => setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'))}>
+          <Ionicons name={viewMode === 'grid' ? 'list' : 'grid'} size={24} color="#4b5563" />
+        </TouchableOpacity>
       </View>
-
 
       {loading ? (
         <View style={styles.centerContainer}>
@@ -132,13 +138,13 @@ const FilterScreenResults: React.FC = () => {
         </View>
       ) : (
         <FlatList
-          style={{ flex: 1 }}
+          style={styles.list}
           data={products}
           key={viewMode}
           keyExtractor={item => item.id}
           numColumns={viewMode === 'grid' ? 2 : 1}
           columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
@@ -149,12 +155,19 @@ const FilterScreenResults: React.FC = () => {
           }
         />
       )}
+
+      <FilterModal
+        visible={isFilterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        onApply={handleApplyFilters}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#fff' },
+    list: { flex: 1 },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -164,10 +177,10 @@ const styles = StyleSheet.create({
       borderBottomWidth: 1,
       borderBottomColor: '#f0f0f0',
     },
-    backButton: { padding: 4 },
+    headerButton: { padding: 4 },
     headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#111' },
-    filterButton: { padding: 6, borderRadius: 12, backgroundColor: '#f2f3f5' },
-    pillsContainer: { paddingHorizontal: 16, paddingVertical: 8, gap: 8 },
+    filterButton: { padding: 8, borderRadius: 12, backgroundColor: '#f2f3f5' },
+    pillsContainer: { paddingHorizontal: 16, paddingVertical: 10, gap: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0'},
     pill: {
         backgroundColor: '#e5e7eb',
         color: '#374151',
@@ -178,24 +191,27 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         overflow: 'hidden',
     },
-    controlsHeader: {
+    sortBar: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingLeft: 16,
-        paddingRight: 8,
-        paddingVertical: 4,
+        paddingRight: 16, // ajustement
+        paddingVertical: 8,
         borderBottomWidth: 1,
         borderBottomColor: '#f0f0f0',
+        backgroundColor: '#f8f9fa'
     },
     sortContainer: { gap: 8, alignItems: 'center' },
-    sortButton: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
-    sortButtonActive: { backgroundColor: '#feeedd'},
-    sortText: { color: '#4b5563', fontWeight: '600' },
-    sortTextActive: { color: '#FF7A00' },
-    viewModeContainer: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8 },
+    sortButton: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: '#e5e7eb' },
+    sortButtonActive: { backgroundColor: '#FF7A00'},
+    sortText: { color: '#374151', fontWeight: '600' },
+    sortTextActive: { color: '#fff' },
+    viewModeButton: { padding: 6 }, // Changement ici
     centerContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     gridContainer: { paddingHorizontal: 16, justifyContent: 'space-between' },
+    gridItem: { width: '48%' },
+    listItem: { paddingHorizontal: 16 },
     emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100, paddingHorizontal: 20 },
     emptyText: { fontSize: 18, fontWeight: '600', color: '#333', textAlign: 'center' },
 });
