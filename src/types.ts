@@ -4,7 +4,6 @@ import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 export type Category = string;
 
-// NOUVEAU: Définition du type pour une ligne de spécification
 export type Specification = {
   key: string;
   value: string;
@@ -14,9 +13,9 @@ export type Product = {
   id: string;
   title: string;
   price: number;
-  image: string; // Image principale pour les listes/grilles
-  imageUrls?: string[]; // Tableau pour la galerie d'images
-  blurhash?: string; // AJOUT: Pour le placeholder de l'image
+  image: string;
+  imageUrls?: string[];
+  blurhash?: string;
   category: Category;
   description?: string;
   rom?: number;
@@ -24,7 +23,10 @@ export type Product = {
   ram_base?: number;
   ram_extension?: number;
   ordreVedette?: number;
-  specifications?: Specification[]; // NOUVEAU: Champ pour les spécifications
+  specifications?: Specification[];
+  // --- AJOUTS POUR LES FILTRES ---
+  enPromotion?: boolean;
+  isVedette?: boolean;
 };
 
 // --- Brand ---
@@ -38,34 +40,32 @@ export type Brand = {
 // --- User ---
 export type User = {
   id: string;
-  name: string; // Full name: "John Doe"
+  name: string;
   firstName?: string;
   lastName?: string;
   email: string | null;
   phoneNumber?: string | null;
   initials: string;
-  pushTokens?: string[]; // AJOUTÉ
+  pushTokens?: string[];
 };
 
 // --- Favorites / Collections ---
-
 export type FavoriteCollection = {
   id: string;
   name: string;
-  productIds: Set<string>; // Using a Set for efficient add/delete
+  productIds: Set<string>;
 };
 
 export type FavoritesState = Record<string, FavoriteCollection>;
 
 // --- Discover Feed Types ---
-
 export type HeroItem = {
   type: 'hero';
   id: string;
   title: string;
   subtitle: string;
   imageUrl: string;
-  cta: string; // Call to action text
+  cta: string;
 };
 
 export type ProductGridItem = {
@@ -88,8 +88,8 @@ export type ShopTheLookItem = {
   imageUrl: string;
   markers: Array<{
     productId: string;
-    top: DimensionValue; // e.g., '30%'
-    left: DimensionValue; // e.g., '50%'
+    top: DimensionValue;
+    left: DimensionValue;
   }>;
 };
 
@@ -104,6 +104,17 @@ export type ArticleItem = {
 export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | ShopTheLookItem | ArticleItem;
 
 // --- Navigation Types ---
+// MODIFICATION: Mise à jour des paramètres pour inclure tous les filtres
+export type FilterOptions = {
+  searchQuery?: string;
+  category?: string;
+  brands?: Brand[];
+  minPrice?: string;
+  maxPrice?: string;
+  enPromotion?: boolean;
+  isVedette?: boolean;
+  // ... autres filtres techniques à venir
+};
 
 export type RootStackParamList = {
   Main: undefined;
@@ -115,25 +126,17 @@ export type RootStackParamList = {
   SignUp: undefined;
   AuthPrompt: undefined;
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null };
-  FilterScreenResults: {
-    initialCategory?: string;
-    initialSearchQuery?: string;
-    minPrice?: string;
-    maxPrice?: string;
-    rom?: number;
-    ram?: number;
-  };
+  FilterScreenResults: FilterOptions & { initialSearchQuery?: string };
   ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
 };
 
-// This is for the navigator that wraps the tabs
 export type MainStackParamList = {
   Tabs: undefined;
 };
 
 export type TabParamList = {
   Home: undefined;
-  Catalog: { category?: Category; minPrice?: string; maxPrice?: string } | undefined;
+  Catalog: undefined;
   Favorites: undefined;
   Profile: undefined;
 };
@@ -146,8 +149,8 @@ export type Prediction = {
   matchId: string;
   scoreA: number;
   scoreB: number;
-  createdAt: any; // Firestore ServerTimestamp
-  isWinner?: boolean; // Indique si le pronostic est gagnant
+  createdAt: any;
+  isWinner?: boolean;
 };
 
 export type Match = {
@@ -157,12 +160,11 @@ export type Match = {
   finalScoreB?: number | null;
   teamA: string;
   teamB: string;
-  teamALogo?: string; // MODIFICATION: Ajout du logo de l'équipe A
-  teamBLogo?: string; // MODIFICATION: Ajout du logo de l'équipe B
+  teamALogo?: string;
+  teamBLogo?: string;
   competition: string;
-  // --- NOUVEAUX CHAMPS POUR L'AGRÉGATION ---
   predictionCount?: number;
-  trends?: { [score: string]: number }; // Ex: { "1-0": 50, "2-1": 120 }
+  trends?: { [score: string]: number };
 };
 
 // --- Boutique Info ---

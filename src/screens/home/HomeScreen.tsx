@@ -6,32 +6,28 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Import des composants
 import HomeHeader from './HomeHeader';
-import FilterBottomSheet, { Capacity } from './FilterBottomSheet';
+import FilterModal from './FilterBottomSheet'; // Le fichier a été réécrit, mais le nom est conservé pour l'instant
 import HomeTabNavigator from '../../navigation/HomeTabNavigator';
-import { RootStackParamList } from '../../types';
+import { RootStackParamList, FilterOptions } from '../../types';
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
-  const handleApplyFilter = (minPrice: string, maxPrice: string, capacity?: Capacity) => {
+  const handleApplyFilter = (filters: FilterOptions) => {
     setIsFilterVisible(false);
-    navigation.navigate('FilterScreenResults', {
-      minPrice,
-      maxPrice,
-      rom: capacity?.rom,
-      ram: capacity?.ram,
-    });
+    // Naviguer vers l'écran de résultats avec tous les filtres
+    navigation.navigate('FilterScreenResults', filters);
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <HomeHeader onFilterPress={() => setIsFilterVisible(true)} />
       <HomeTabNavigator />
-      <FilterBottomSheet
+      <FilterModal
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}
-        onApplyFilter={handleApplyFilter}
+        onApply={handleApplyFilter}
       />
     </SafeAreaView>
   );

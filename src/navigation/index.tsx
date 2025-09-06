@@ -3,7 +3,6 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-// MODIFICATION: Mise à jour du chemin d'importation
 import HomeScreen from '../screens/home/HomeScreen';
 import CatalogScreen from '../screens/CatalogScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
@@ -108,7 +107,7 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen
         name="FilterScreenResults"
         component={FilterScreenResults}
-        options={{ headerShown: false, presentation: 'modal' }}
+        options={{ headerShown: false }} // La présentation modale n'est plus nécessaire ici
       />
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
     </RootStack.Navigator>
