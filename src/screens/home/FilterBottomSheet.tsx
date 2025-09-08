@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Brand, FilterOptions, Segment } from '../../types';
 import { useProducts } from '../../store/ProductContext';
 import { useNavigation } from '@react-navigation/native';
+import { useFilters } from '../../store/FilterContext'; // Importez le hook du contexte
 
 // Définition des capacités
 const CAPACITY_OPTIONS = [
@@ -56,52 +57,43 @@ const Chip: React.FC<{ label: string; isSelected: boolean; onPress: () => void }
 const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
   const { brands } = useProducts();
   const navigation = useNavigation<any>();
-
-  const [selectedCategory, setSelectedCategory] = useState<Segment | undefined>();
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [selectedBrands, setSelectedBrands] = useState<Brand[]>([]);
-  const [selectedCapacity, setSelectedCapacity] = useState<Capacity>(null);
-  const [isPromotion, setIsPromotion] = useState(false);
-  const [isVedette, setIsVedette] = useState(false);
-
-  const toggleBrand = (brand: Brand) => {
-    setSelectedBrands(prev =>
-      prev.find(b => b.id === brand.id) ? prev.filter(b => b.id !== brand.id) : [...prev, brand]
-    );
-  };
+  
+  // Utilise le contexte au lieu de l'état local
+  const {
+    filters,
+    setPriceRange,
+    toggleBrand,
+    setCapacity,
+    setPromotion,
+    setVedette,
+    resetFilters,
+  } = useFilters();
+  
+  // L'état local est conservé uniquement pour les champs de texte
+  const [minPrice, setMinPrice] = useState(filters.minPrice || '');
+  const [maxPrice, setMaxPrice] = useState(filters.maxPrice || '');
 
   const handleApply = () => {
-    const filters: FilterOptions = {
-      category: selectedCategory,
+    // Met à jour la fourchette de prix dans le contexte avant d'appliquer
+    setPriceRange(minPrice, maxPrice);
+    // On passe les filtres à jour depuis le contexte
+    onApply({
+      ...filters,
       minPrice: minPrice || undefined,
       maxPrice: maxPrice || undefined,
-      brands: selectedBrands.length > 0 ? selectedBrands : undefined,
-      rom: selectedCapacity?.rom,
-      ram: selectedCapacity?.ram,
-      enPromotion: isPromotion || undefined,
-      isVedette: isVedette || undefined,
-    };
-    onApply(filters);
+    });
   };
 
   const handleReset = () => {
-    setSelectedCategory(undefined);
+    resetFilters();
     setMinPrice('');
     setMaxPrice('');
-    setSelectedBrands([]);
-    setSelectedCapacity(null);
-    setIsPromotion(false);
-    setIsVedette(false);
     onApply({});
   };
 
   const navigateToCategories = () => {
-    navigation.navigate('CategorySelection', {
-      onSelectCategory: (category: Segment | undefined) => {
-        setSelectedCategory(category);
-      },
-    });
+    // La navigation est maintenant simple, sans passer de fonction
+    navigation.navigate('CategorySelection');
   };
 
   return (
@@ -119,7 +111,7 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
           {/* Section Catégorie */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Catégorie</Text>
-            <FilterRow label={selectedCategory || 'Toutes les catégories'} onPress={navigateToCategories}>
+            <FilterRow label={filters.category || 'Toutes les catégories'} onPress={navigateToCategories}>
               <Ionicons name="chevron-forward" size={22} color="#9ca3af" />
             </FilterRow>
           </View>
@@ -132,7 +124,7 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
                 <Chip
                   key={brand.id}
                   label={brand.name}
-                  isSelected={!!selectedBrands.find(b => b.id === brand.id)}
+                  isSelected={!!filters.brands?.find(b => b.id === brand.id)}
                   onPress={() => toggleBrand(brand)}
                 />
               ))}
@@ -170,8 +162,8 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
                 <Chip
                   key={cap.label}
                   label={cap.label}
-                  isSelected={selectedCapacity?.label === cap.label}
-                  onPress={() => setSelectedCapacity(cap)}
+                  isSelected={filters.ram === cap.ram && filters.rom === cap.rom}
+                  onPress={() => setCapacity(cap)}
                 />
               ))}
             </View>
@@ -183,15 +175,15 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
             <View style={styles.switchRows}>
               <FilterRow label="En Promotion">
                 <Switch
-                  value={isPromotion}
-                  onValueChange={setIsPromotion}
+                  value={filters.enPromotion}
+                  onValueChange={setPromotion}
                   trackColor={{ false: '#e5e7eb', true: '#FF7A00' }}
                 />
               </FilterRow>
               <FilterRow label="Produit Vedette">
                 <Switch
-                  value={isVedette}
-                  onValueChange={setIsVedette}
+                  value={filters.isVedette}
+                  onValueChange={setVedette}
                   trackColor={{ false: '#e5e7eb', true: '#FF7A00' }}
                 />
               </FilterRow>

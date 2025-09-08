@@ -4,9 +4,9 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Segment } from '../screens/home/ProductSegments'; // Import the type
+import { Segment } from '../screens/home/ProductSegments';
+import { useFilters } from '../store/FilterContext'; // Importez le hook
 
-// On réutilise les données déjà définies pour les onglets de l'accueil
 const CATEGORIES_DATA: Array<{
   key: Segment | 'Toutes';
   label: string;
@@ -19,12 +19,12 @@ const CATEGORIES_DATA: Array<{
   { key: 'accessoire', label: 'Accessoires', icon: 'headset-outline' },
 ];
 
-const CategorySelectionScreen = ({ route }: any) => {
+const CategorySelectionScreen = () => {
   const navigation = useNavigation();
-  const { onSelectCategory } = route.params;
+  const { setCategory } = useFilters(); // Utilisez le contexte pour modifier l'état
 
   const handleSelect = (category: Segment | 'Toutes') => {
-    onSelectCategory(category === 'Toutes' ? undefined : category);
+    setCategory(category === 'Toutes' ? undefined : category);
     navigation.goBack();
   };
 
