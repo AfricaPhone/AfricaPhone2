@@ -1,14 +1,6 @@
 // src/screens/FilterScreenResults.tsx
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-} from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Product, FilterOptions as FilterOptionsType } from '../types';
@@ -118,20 +110,23 @@ const FilterScreenResults: React.FC = () => {
       <View style={styles.controlsContainer}>
         {renderActiveFilters()}
         <View style={styles.sortBar}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortContainer}>
-                {SORT_OPTIONS.map(opt => (
-                    <TouchableOpacity
-                    key={opt.key}
-                    style={[styles.sortButton, sortBy === opt.key && styles.sortButtonActive]}
-                    onPress={() => setSortBy(opt.key)}
-                    >
-                    <Text style={[styles.sortText, sortBy === opt.key && styles.sortTextActive]}>{opt.label}</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-            <TouchableOpacity style={styles.viewModeButton} onPress={() => setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'))}>
-                <Ionicons name={viewMode === 'grid' ? 'list-outline' : 'grid-outline'} size={24} color="#4b5563" />
-            </TouchableOpacity>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortContainer}>
+            {SORT_OPTIONS.map(opt => (
+              <TouchableOpacity
+                key={opt.key}
+                style={[styles.sortButton, sortBy === opt.key && styles.sortButtonActive]}
+                onPress={() => setSortBy(opt.key)}
+              >
+                <Text style={[styles.sortText, sortBy === opt.key && styles.sortTextActive]}>{opt.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.viewModeButton}
+            onPress={() => setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'))}
+          >
+            <Ionicons name={viewMode === 'grid' ? 'list-outline' : 'grid-outline'} size={24} color="#4b5563" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -183,20 +178,20 @@ const styles = StyleSheet.create({
   headerButton: { padding: 4 },
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#111' },
   filterButton: { padding: 8, borderRadius: 12 },
-  
+
   // NOUVELLE SECTION POUR LES CONTRÔLES
   controlsContainer: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#f0f0f0',
-      backgroundColor: '#f8f9fa',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    backgroundColor: '#f8f9fa',
   },
   pillsContainer: {
-      paddingHorizontal: 16,
-      paddingTop: 10,
+    paddingHorizontal: 16,
+    paddingTop: 10,
   },
   pillsScroll: {
-      paddingBottom: 10,
-      gap: 8,
+    paddingBottom: 10,
+    gap: 8,
   },
   pill: {
     backgroundColor: '#e5e7eb',

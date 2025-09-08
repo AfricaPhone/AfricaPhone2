@@ -26,7 +26,6 @@ const CAPACITY_OPTIONS = [
 ];
 export type Capacity = (typeof CAPACITY_OPTIONS)[0] | null;
 
-
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -49,10 +48,7 @@ const Chip: React.FC<{ label: string; isSelected: boolean; onPress: () => void }
   isSelected,
   onPress,
 }) => (
-  <TouchableOpacity
-    style={[styles.chip, isSelected && styles.chipActive]}
-    onPress={onPress}
-  >
+  <TouchableOpacity style={[styles.chip, isSelected && styles.chipActive]} onPress={onPress}>
     <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>{label}</Text>
   </TouchableOpacity>
 );
@@ -123,7 +119,7 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
           {/* Section Catégorie */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Catégorie</Text>
-            <FilterRow label={selectedCategory || "Toutes les catégories"} onPress={navigateToCategories}>
+            <FilterRow label={selectedCategory || 'Toutes les catégories'} onPress={navigateToCategories}>
               <Ionicons name="chevron-forward" size={22} color="#9ca3af" />
             </FilterRow>
           </View>
@@ -142,7 +138,7 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
               ))}
             </View>
           </View>
-          
+
           {/* Section Prix */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Prix</Text>
@@ -165,19 +161,19 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
               />
             </View>
           </View>
-          
+
           {/* Section Capacité */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Capacité (Stockage + RAM)</Text>
             <View style={styles.chipContainer}>
-                {CAPACITY_OPTIONS.map(cap => (
-                    <Chip 
-                        key={cap.label}
-                        label={cap.label}
-                        isSelected={selectedCapacity?.label === cap.label}
-                        onPress={() => setSelectedCapacity(cap)}
-                    />
-                ))}
+              {CAPACITY_OPTIONS.map(cap => (
+                <Chip
+                  key={cap.label}
+                  label={cap.label}
+                  isSelected={selectedCapacity?.label === cap.label}
+                  onPress={() => setSelectedCapacity(cap)}
+                />
+              ))}
             </View>
           </View>
 
@@ -186,10 +182,18 @@ const FilterModal: React.FC<Props> = ({ visible, onClose, onApply }) => {
             <Text style={styles.sectionTitle}>Avantages & Services</Text>
             <View style={styles.switchRows}>
               <FilterRow label="En Promotion">
-                <Switch value={isPromotion} onValueChange={setIsPromotion} trackColor={{ false: '#e5e7eb', true: '#FF7A00' }}/>
+                <Switch
+                  value={isPromotion}
+                  onValueChange={setIsPromotion}
+                  trackColor={{ false: '#e5e7eb', true: '#FF7A00' }}
+                />
               </FilterRow>
               <FilterRow label="Produit Vedette">
-                <Switch value={isVedette} onValueChange={setIsVedette} trackColor={{ false: '#e5e7eb', true: '#FF7A00' }}/>
+                <Switch
+                  value={isVedette}
+                  onValueChange={setIsVedette}
+                  trackColor={{ false: '#e5e7eb', true: '#FF7A00' }}
+                />
               </FilterRow>
             </View>
           </View>
@@ -224,8 +228,8 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: 'bold' },
   scrollContent: { paddingBottom: 24 },
   section: {
-      marginTop: 20,
-      paddingHorizontal: 16,
+    marginTop: 20,
+    paddingHorizontal: 16,
   },
   sectionTitle: { fontSize: 18, fontWeight: '700', color: '#111', marginBottom: 12 },
   priceInputs: { flexDirection: 'row', gap: 12 },

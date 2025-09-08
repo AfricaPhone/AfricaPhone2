@@ -22,11 +22,7 @@ const HomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top']}>
       <HomeHeader onFilterPress={() => setIsFilterVisible(true)} />
       <HomeTabNavigator />
-      <FilterModal
-        visible={isFilterVisible}
-        onClose={() => setIsFilterVisible(false)}
-        onApply={handleApplyFilter}
-      />
+      <FilterModal visible={isFilterVisible} onClose={() => setIsFilterVisible(false)} onApply={handleApplyFilter} />
     </SafeAreaView>
   );
 };

@@ -62,7 +62,7 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     let q: Query<DocumentData> = collection(db, 'products');
     const minPriceNum = Number(options.minPrice);
     const maxPriceNum = Number(options.maxPrice);
-    const hasPriceFilter = !isNaN(minPriceNum) && minPriceNum > 0 || !isNaN(maxPriceNum) && maxPriceNum > 0;
+    const hasPriceFilter = (!isNaN(minPriceNum) && minPriceNum > 0) || (!isNaN(maxPriceNum) && maxPriceNum > 0);
 
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
@@ -90,15 +90,17 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
 
     // CORRECTION: Logique de tri ajustée pour Firestore
     if (options.searchQuery) {
-        const searchQueryEnd = options.searchQuery.slice(0, -1) + String.fromCharCode(options.searchQuery.charCodeAt(options.searchQuery.length - 1) + 1);
-        q = query(q, orderBy('name'), startAt(options.searchQuery), endAt(searchQueryEnd));
+      const searchQueryEnd =
+        options.searchQuery.slice(0, -1) +
+        String.fromCharCode(options.searchQuery.charCodeAt(options.searchQuery.length - 1) + 1);
+      q = query(q, orderBy('name'), startAt(options.searchQuery), endAt(searchQueryEnd));
     } else if (hasPriceFilter) {
-        // Si on filtre par prix, on doit d'abord trier par prix
-        q = query(q, orderBy('price', options.sortDirection || 'asc'));
+      // Si on filtre par prix, on doit d'abord trier par prix
+      q = query(q, orderBy('price', options.sortDirection || 'asc'));
     } else {
-        const sortByField = options.sortBy || 'name';
-        const sortDirection = options.sortDirection || 'asc';
-        q = query(q, orderBy(sortByField, sortDirection));
+      const sortByField = options.sortBy || 'name';
+      const sortDirection = options.sortDirection || 'asc';
+      q = query(q, orderBy(sortByField, sortDirection));
     }
 
     return q;
@@ -157,16 +159,11 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
     } else if (options.category && options.category !== 'Populaires') {
       q = query(q, where('category', '==', options.category));
     }
-    
+
     q = query(q, orderBy(options.sortBy || 'name', options.sortDirection || 'asc'));
 
     return q;
-  }, [
-    options.category,
-    options.brandId,
-    options.sortBy,
-    options.sortDirection,
-  ]);
+  }, [options.category, options.brandId, options.sortBy, options.sortDirection]);
 
   const fetchProducts = useCallback(
     async (isInitial = false) => {
