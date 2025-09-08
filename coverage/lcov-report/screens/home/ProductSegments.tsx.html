@@ -1,61 +1,68 @@
+
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <title>Code coverage report for screens/home/ProductSegments.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
     <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">
-      .coverage-summary .sorter {
-        background-image: url(../../sort-arrow-sprite.png);
-      }
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
     </style>
-  </head>
+</head>
 
-  <body>
-    <div class="wrapper">
-      <div class="pad1">
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
         <h1><a href="../../index.html">All files</a> / <a href="index.html">screens/home</a> ProductSegments.tsx</h1>
-        <div class="clearfix">
-          <div class="fl pad1y space-right2">
-            <span class="strong">0% </span>
-            <span class="quiet">Statements</span>
-            <span class="fraction">0/9</span>
-          </div>
+        <div class='clearfix'>
 
-          <div class="fl pad1y space-right2">
-            <span class="strong">0% </span>
-            <span class="quiet">Branches</span>
-            <span class="fraction">0/8</span>
-          </div>
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/9</span>
+            </div>
 
-          <div class="fl pad1y space-right2">
-            <span class="strong">0% </span>
-            <span class="quiet">Functions</span>
-            <span class="fraction">0/3</span>
-          </div>
 
-          <div class="fl pad1y space-right2">
-            <span class="strong">0% </span>
-            <span class="quiet">Lines</span>
-            <span class="fraction">0/9</span>
-          </div>
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/8</span>
+            </div>
+
+
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/3</span>
+            </div>
+
+
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/9</span>
+            </div>
+
+
         </div>
         <p class="quiet">
-          Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the
-          previous block.
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
         <template id="filterTemplate">
-          <div class="quiet">
-            Filter:
-            <input type="search" id="fileSearch" />
-          </div>
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
         </template>
-      </div>
-      <div class="status-line low"></div>
-      <pre><table class="coverage">
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
 <a name='L3'></a><a href='#L3'>3</a>
@@ -213,7 +220,7 @@ import React from 'react';
 import { Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 &nbsp;
-const SEGMENTS = <span class="cstat-no" title="statement not covered" >['Populaires', 'Tablettes', 'Acessoires', 'Portables a Touches'] as const;</span>
+const SEGMENTS = <span class="cstat-no" title="statement not covered" >['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;</span>
 export type Segment = (typeof SEGMENTS)[number];
 &nbsp;
 const SEGMENTS_DATA: Array&lt;{
@@ -222,9 +229,9 @@ const SEGMENTS_DATA: Array&lt;{
   icon: keyof typeof Ionicons.glyphMap;
 }&gt; = <span class="cstat-no" title="statement not covered" >[</span>
   { key: 'Populaires', label: 'Populaires', icon: 'star-outline' },
-  { key: 'Tablettes', label: 'Tablettes', icon: 'tablet-portrait-outline' },
-  { key: 'Acessoires', label: 'Accessoires', icon: 'headset-outline' },
-  { key: 'Portables a Touches', label: 'Classiques', icon: 'keypad-outline' },
+  { key: 'tablette', label: 'Tablettes', icon: 'tablet-portrait-outline' },
+  { key: 'portable a touche', label: 'A touches', icon: 'keypad-outline' }, // MODIFICATION: "Portable a Touche" remplacé par "A touches"
+  { key: 'accessoire', label: 'Accessoires et Plus', icon: 'headset-outline' },
 ];
 &nbsp;
 interface Props {
@@ -286,22 +293,20 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
 export default ProductSegments;
 &nbsp;</pre></td></tr></table></pre>
 
-      <div class="push"></div>
-      <!-- for sticky footer -->
-    </div>
-    <!-- /wrapper -->
-    <div class="footer quiet pad2 space-top1 center small">
-      Code coverage generated by
-      <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-      at 2025-08-24T10:59:33.627Z
-    </div>
-    <script src="../../prettify.js"></script>
-    <script>
-      window.onload = function () {
-        prettyPrint();
-      };
-    </script>
-    <script src="../../sorter.js"></script>
-    <script src="../../block-navigation.js"></script>
-  </body>
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-09-08T12:15:37.386Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
 </html>

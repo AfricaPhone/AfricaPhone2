@@ -9,7 +9,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ProductProvider } from './src/store/ProductContext';
 import { FavoritesProvider } from './src/store/FavoritesContext';
 import { BoutiqueProvider } from './src/store/BoutiqueContext';
-import UpdateModal from './src/components/UpdateModal'; // Importer le nouveau composant
+import { FilterProvider } from './src/store/FilterContext'; // Importez le nouveau provider
+import UpdateModal from './src/components/UpdateModal';
 
 export default function App() {
   const theme: Theme = {
@@ -22,13 +23,16 @@ export default function App() {
       <SafeAreaProvider>
         <BoutiqueProvider>
           <ProductProvider>
-            <FavoritesProvider>
-              <StoreProvider>
-                <NavigationContainer theme={theme}>
-                  <RootNavigator />
-                </NavigationContainer>
-              </StoreProvider>
-            </FavoritesProvider>
+            {/* Le FilterProvider vient ici, après ProductProvider */}
+            <FilterProvider>
+              <FavoritesProvider>
+                <StoreProvider>
+                  <NavigationContainer theme={theme}>
+                    <RootNavigator />
+                  </NavigationContainer>
+                </StoreProvider>
+              </FavoritesProvider>
+            </FilterProvider>
           </ProductProvider>
         </BoutiqueProvider>
       </SafeAreaProvider>

@@ -106,7 +106,7 @@ export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | Sho
 // --- Navigation Types ---
 export type FilterOptions = {
   searchQuery?: string;
-  category?: Category;
+  category?: Segment; // Changé en Segment
   brands?: Brand[];
   minPrice?: string;
   maxPrice?: string;
@@ -128,8 +128,8 @@ export type RootStackParamList = {
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null };
   FilterScreenResults: FilterOptions & { initialSearchQuery?: string };
   ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
-  // --- AJOUT ---
-  CategorySelection: { onSelectCategory: (category: Segment | undefined) => void };
+  // --- MODIFICATION: plus de paramètre de fonction ici ---
+  CategorySelection: undefined;
 };
 
 export type MainStackParamList = {
