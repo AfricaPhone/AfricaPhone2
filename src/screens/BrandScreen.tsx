@@ -25,8 +25,12 @@ const BrandScreen: React.FC = () => {
 
   const brand = useMemo(() => brands.find(b => b.id === brandId), [brands, brandId]);
 
-  // MODIFICATION: Utiliser useAllProducts au lieu de usePaginatedProducts
-  const { products, loading, refresh } = useAllProducts({ brandId: brand?.name });
+  // MODIFICATION: Utiliser useAllProducts et ajouter le tri par prix croissant
+  const { products, loading, refresh } = useAllProducts({
+    brandId: brand?.name,
+    sortBy: 'price',
+    sortDirection: 'asc',
+  });
 
   useEffect(() => {
     if (brand) {
