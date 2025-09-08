@@ -154,11 +154,11 @@ const FilterScreenResults: React.FC = () => {
   const openFilterModal = () => {
     // Synchronise les filtres temporaires avec les filtres actuels
     setTempSelectedPriceRange(
-      minPrice && maxPrice ? PRICE_RANGES.find(r => r.min === Number(minPrice) && r.max === Number(maxPrice)) || null : null
+      minPrice && maxPrice
+        ? PRICE_RANGES.find(r => r.min === Number(minPrice) && r.max === Number(maxPrice)) || null
+        : null
     );
-    setTempSelectedCapacity(
-      rom && ram ? CAPACITY_OPTIONS.find(c => c.rom === rom && c.ram === ram) || null : null
-    );
+    setTempSelectedCapacity(rom && ram ? CAPACITY_OPTIONS.find(c => c.rom === rom && c.ram === ram) || null : null);
     setFiltersOpen(true);
   };
 

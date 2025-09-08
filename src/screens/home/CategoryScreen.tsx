@@ -13,13 +13,17 @@ import {
   orderBy,
   limit,
   startAfter,
-  FirebaseFirestoreTypes,
+  Query,
+  DocumentData,
+  QueryDocumentSnapshot,
 } from '@react-native-firebase/firestore';
 import { db } from '../../firebase/config';
 
 const PAGE_SIZE = 10;
 
-const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
+// --- Fonctions Utilitaires ---
+
+const mapDocToProduct = (doc: QueryDocumentSnapshot): Product => {
   const data = doc.data();
   const imageUrls = data.imageUrls || [];
   return {
@@ -35,117 +39,112 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     ram_base: data.ram_base,
     ram_extension: data.ram_extension,
     ordreVedette: data.ordreVedette,
+    isVedette: data.ordreVedette > 0,
+    enPromotion: data.enPromotion,
   };
 };
 
-// Fonction utilitaire pour dédupliquer la liste de produits
 const getUniqueProducts = (products: Product[]): Product[] => {
   return Array.from(new Map(products.map(p => [p.id, p])).values());
 };
 
+// --- Composant Principal ---
+
 const CategoryScreen = ({ route }: any) => {
   const { category } = route.params;
 
-  // --- MODIFICATION: Logique simplifiée pour l'onglet "Populaires" ---
-  const [popularProducts, setPopularProducts] = useState<Product[]>([]);
-  const [lastDoc, setLastDoc] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
-  const [hasMorePopulars, setHasMorePopulars] = useState(true);
-
-  // États pour les autres onglets (inchangés)
-  const {
-    products: categoryProducts,
-    loading: categoryLoading,
-    loadingMore: categoryLoadingMore,
-    hasMore: hasMoreCategory,
-    loadMore: loadMoreCategory,
-    refresh: refreshCategory,
-  } = usePaginatedProducts({
-    category: category !== 'Populaires' ? category : undefined,
-  });
-
+  // --- États unifiés pour tous les cas ---
+  const [products, setProducts] = useState<Product[]>([]);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null);
+  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  // États pour l'en-tête (inchangés)
+  // --- États pour l'en-tête (uniquement pour "Populaires") ---
   const { brands, brandsLoading } = useProducts();
   const [promoCards, setPromoCards] = useState<PromoCard[]>([]);
   const [promoCardsLoading, setPromoCardsLoading] = useState(true);
 
-  const fetchPopulars = useCallback(async (isRefresh = false) => {
-    if (isRefresh) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-    try {
-      // Fetch vedette products
-      const vedetteQuery = query(
-        collection(db, 'products'),
-        where('ordreVedette', '>=', 1),
-        where('ordreVedette', '<=', 6),
-        orderBy('ordreVedette', 'asc')
-      );
-      const vedetteSnapshot = await getDocs(vedetteQuery);
-      const fetchedVedette = vedetteSnapshot.docs.map(mapDocToProduct);
+  // --- Logique de construction de la requête Firestore ---
+  const buildQuery = useCallback(
+    (startAfterDoc: QueryDocumentSnapshot | null = null): Query<DocumentData> => {
+      let q: Query<DocumentData> = collection(db, 'products');
 
-      // Fetch first page of regular products
-      const regularQuery = query(
-        collection(db, 'products'),
-        where('ordreVedette', 'not-in', [1, 2, 3, 4, 5, 6]),
-        orderBy('ordreVedette', 'asc'),
-        orderBy('name', 'asc'),
-        limit(PAGE_SIZE)
-      );
-      const regularSnapshot = await getDocs(regularQuery);
-      const fetchedRegular = regularSnapshot.docs.map(mapDocToProduct);
+      if (category === 'Populaires') {
+        // Pour "Populaires", on trie par ordreVedette d'abord, puis par nom
+        q = query(q, orderBy('ordreVedette', 'desc'), orderBy('name', 'asc'));
+      } else {
+        // Pour les autres catégories, on filtre et on trie par nom
+        q = query(q, where('category', '==', category), orderBy('name', 'asc'));
+      }
 
-      // --- MODIFICATION: Fusionner, dédupliquer et mettre à jour l'état une seule fois ---
-      setPopularProducts(getUniqueProducts([...fetchedVedette, ...fetchedRegular]));
-      setLastDoc(regularSnapshot.docs[regularSnapshot.docs.length - 1] || null);
-      setHasMorePopulars(fetchedRegular.length === PAGE_SIZE);
-    } catch (error) {
-      console.error('Error fetching popular products:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+      q = query(q, limit(PAGE_SIZE));
 
-  const loadMorePopulars = useCallback(async () => {
-    if (loadingMore || !hasMorePopulars || !lastDoc) return;
+      if (startAfterDoc) {
+        q = query(q, startAfter(startAfterDoc));
+      }
+
+      return q;
+    },
+    [category]
+  );
+
+  // --- Logique de récupération des données ---
+  const fetchData = useCallback(
+    async (isRefresh: boolean = false) => {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      try {
+        const q = buildQuery();
+        const querySnapshot = await getDocs(q);
+        const fetchedProducts = querySnapshot.docs.map(mapDocToProduct);
+
+        setProducts(getUniqueProducts(fetchedProducts));
+        setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1] || null);
+        setHasMore(fetchedProducts.length === PAGE_SIZE);
+      } catch (error) {
+        console.error(`Erreur de chargement pour la catégorie "${category}":`, error);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [buildQuery, category]
+  );
+
+  const loadMoreData = useCallback(async () => {
+    if (loadingMore || !hasMore || !lastDoc) return;
     setLoadingMore(true);
 
     try {
-      const regularQuery = query(
-        collection(db, 'products'),
-        where('ordreVedette', 'not-in', [1, 2, 3, 4, 5, 6]),
-        orderBy('ordreVedette', 'asc'),
-        orderBy('name', 'asc'),
-        startAfter(lastDoc),
-        limit(PAGE_SIZE)
-      );
-      const regularSnapshot = await getDocs(regularQuery);
-      const newProducts = regularSnapshot.docs.map(mapDocToProduct);
+      const q = buildQuery(lastDoc);
+      const querySnapshot = await getDocs(q);
+      const newProducts = querySnapshot.docs.map(mapDocToProduct);
 
-      // --- MODIFICATION: Ajouter les nouveaux produits et dédupliquer à nouveau ---
       if (newProducts.length > 0) {
-        setPopularProducts(prevProducts => getUniqueProducts([...prevProducts, ...newProducts]));
+        setProducts(prevProducts => getUniqueProducts([...prevProducts, ...newProducts]));
       }
 
-      setLastDoc(regularSnapshot.docs[regularSnapshot.docs.length - 1] || null);
-      setHasMorePopulars(newProducts.length === PAGE_SIZE);
+      setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1] || null);
+      setHasMore(newProducts.length === PAGE_SIZE);
     } catch (error) {
-      console.error('Error loading more popular products:', error);
+      console.error(`Erreur de chargement de plus de produits pour "${category}":`, error);
     } finally {
       setLoadingMore(false);
     }
-  }, [lastDoc, loadingMore, hasMorePopulars]);
+  }, [lastDoc, loadingMore, hasMore, buildQuery, category]);
 
+  // --- Effet pour charger les données au changement de catégorie ou au montage ---
   useEffect(() => {
+    fetchData();
+
+    // Charger les cartes promo uniquement pour l'onglet "Populaires"
     if (category === 'Populaires') {
-      fetchPopulars();
-      // Also fetch promo cards for the header
       const fetchPromoCards = async () => {
         try {
           setPromoCardsLoading(true);
@@ -167,20 +166,12 @@ const CategoryScreen = ({ route }: any) => {
         }
       };
       fetchPromoCards();
-    } else {
-      refreshCategory();
     }
-  }, [category, fetchPopulars, refreshCategory]);
+  }, [category]); // fetchData est stable grâce à useCallback
 
-  const onRefresh = useCallback(() => {
-    if (category === 'Populaires') {
-      fetchPopulars(true);
-    } else {
-      refreshCategory();
-    }
-  }, [category, fetchPopulars, refreshCategory]);
-
+  // --- En-tête de la liste (mémoïsé) ---
   const memoizedListHeader = useMemo(() => {
+    // N'afficher l'en-tête que pour l'onglet "Populaires"
     if (category !== 'Populaires') {
       return null;
     }
@@ -194,31 +185,16 @@ const CategoryScreen = ({ route }: any) => {
     );
   }, [brands, brandsLoading, promoCards, promoCardsLoading, category]);
 
-  if (category === 'Populaires') {
-    return (
-      <ProductGrid
-        products={popularProducts}
-        loading={loading}
-        loadingMore={loadingMore}
-        onLoadMore={loadMorePopulars}
-        onRefresh={onRefresh}
-        refreshing={refreshing}
-        listHeaderComponent={memoizedListHeader}
-        hasMore={hasMorePopulars}
-      />
-    );
-  }
-
   return (
     <ProductGrid
-      products={categoryProducts}
-      loading={categoryLoading}
-      loadingMore={categoryLoadingMore}
-      onLoadMore={loadMoreCategory}
-      onRefresh={onRefresh}
-      refreshing={categoryLoading}
-      listHeaderComponent={null}
-      hasMore={hasMoreCategory}
+      products={products}
+      loading={loading}
+      loadingMore={loadingMore}
+      onLoadMore={loadMoreData}
+      onRefresh={() => fetchData(true)}
+      refreshing={refreshing}
+      listHeaderComponent={memoizedListHeader}
+      hasMore={hasMore}
     />
   );
 };
