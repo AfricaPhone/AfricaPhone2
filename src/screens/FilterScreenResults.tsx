@@ -9,7 +9,8 @@ import ProductListItem from '../components/ProductListItem';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useAllProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
 import { RootStackParamList } from '../types';
-import FilterModal from './home/FilterBottomSheet';
+// MODIFICATION: Import du contenu des filtres qui a été renommé
+import FilterPanel from './home/FilterPanel';
 
 type FilterScreenRouteProp = RouteProp<RootStackParamList, 'FilterScreenResults'>;
 type ViewMode = 'grid' | 'list';
@@ -28,7 +29,9 @@ const FilterScreenResults: React.FC = () => {
   const [filters, setFilters] = useState<FilterOptionsType>(route.params || {});
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [sortBy, setSortBy] = useState<SortOption>('nameAsc');
-  const [isFilterModalVisible, setFilterModalVisible] = useState(false);
+
+  // NOUVEAU: État pour gérer la visibilité du panneau de filtres
+  const [isFilterPanelVisible, setFilterPanelVisible] = useState(route.params?.openFilters || false);
 
   const queryOptions = useMemo((): ProductQueryOptions => {
     const [sortField, sortDirection] = sortBy.split(/(?=[A-Z])/);
@@ -46,9 +49,10 @@ const FilterScreenResults: React.FC = () => {
     refresh();
   }, [queryOptions, refresh]);
 
+  // MODIFICATION: onApply met à jour les filtres mais ne ferme plus le panneau
   const handleApplyFilters = (newFilters: FilterOptionsType) => {
     setFilters(newFilters);
-    setFilterModalVisible(false);
+    // On ne ferme plus le panneau ici pour permettre des ajustements
   };
 
   const renderItem = useCallback(
@@ -74,7 +78,9 @@ const FilterScreenResults: React.FC = () => {
   );
 
   const renderActiveFilters = () => {
-    const activeFilters = Object.entries(filters).filter(([key, value]) => !!value && key !== 'initialSearchQuery');
+    const activeFilters = Object.entries(filters).filter(
+      ([key, value]) => !!value && !['initialSearchQuery', 'openFilters'].includes(key)
+    );
     if (activeFilters.length === 0) return null;
 
     return (
@@ -101,64 +107,67 @@ const FilterScreenResults: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Résultats ({products.length})</Text>
-        <TouchableOpacity onPress={() => setFilterModalVisible(true)} style={styles.filterButton}>
+        {/* MODIFICATION: Le bouton bascule la visibilité du panneau */}
+        <TouchableOpacity onPress={() => setFilterPanelVisible(prev => !prev)} style={styles.filterButton}>
           <Ionicons name="filter-outline" size={22} color="#111" />
         </TouchableOpacity>
       </View>
 
-      {/* PANNEAU DE CONTRÔLE UNIFIÉ */}
-      <View style={styles.controlsContainer}>
-        {renderActiveFilters()}
-        <View style={styles.sortBar}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortContainer}>
-            {SORT_OPTIONS.map(opt => (
-              <TouchableOpacity
-                key={opt.key}
-                style={[styles.sortButton, sortBy === opt.key && styles.sortButtonActive]}
-                onPress={() => setSortBy(opt.key)}
-              >
-                <Text style={[styles.sortText, sortBy === opt.key && styles.sortTextActive]}>{opt.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <TouchableOpacity
-            style={styles.viewModeButton}
-            onPress={() => setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'))}
-          >
-            <Ionicons name={viewMode === 'grid' ? 'list-outline' : 'grid-outline'} size={24} color="#4b5563" />
-          </TouchableOpacity>
+      <View style={{ flex: 1 }}>
+        <View style={styles.controlsContainer}>
+          {renderActiveFilters()}
+          <View style={styles.sortBar}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortContainer}>
+              {SORT_OPTIONS.map(opt => (
+                <TouchableOpacity
+                  key={opt.key}
+                  style={[styles.sortButton, sortBy === opt.key && styles.sortButtonActive]}
+                  onPress={() => setSortBy(opt.key)}
+                >
+                  <Text style={[styles.sortText, sortBy === opt.key && styles.sortTextActive]}>{opt.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.viewModeButton}
+              onPress={() => setViewMode(prev => (prev === 'grid' ? 'list' : 'grid'))}
+            >
+              <Ionicons name={viewMode === 'grid' ? 'list-outline' : 'grid-outline'} size={24} color="#4b5563" />
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {loading ? (
+          <View style={styles.centerContainer}>
+            <ActivityIndicator size="large" color="#FF7A00" />
+          </View>
+        ) : (
+          <FlatList
+            style={styles.list}
+            data={products}
+            key={viewMode}
+            keyExtractor={item => item.id}
+            numColumns={viewMode === 'grid' ? 2 : 1}
+            columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
+            ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Aucun produit ne correspond à ces filtres.</Text>
+              </View>
+            }
+          />
+        )}
+
+        {/* NOUVEAU: Panneau de filtres intégré */}
+        {isFilterPanelVisible && (
+          <View style={styles.filterPanelContainer}>
+            <FilterPanel onClose={() => setFilterPanelVisible(false)} onApply={handleApplyFilters} />
+          </View>
+        )}
       </View>
-
-      {loading ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#FF7A00" />
-        </View>
-      ) : (
-        <FlatList
-          style={styles.list}
-          data={products}
-          key={viewMode}
-          keyExtractor={item => item.id}
-          numColumns={viewMode === 'grid' ? 2 : 1}
-          columnWrapperStyle={viewMode === 'grid' ? styles.gridContainer : undefined}
-          ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Aucun produit ne correspond à ces filtres.</Text>
-            </View>
-          }
-        />
-      )}
-
-      <FilterModal
-        visible={isFilterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
-        onApply={handleApplyFilters}
-      />
     </SafeAreaView>
   );
 };
@@ -228,6 +237,26 @@ const styles = StyleSheet.create({
   listItem: { paddingHorizontal: 16 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100, paddingHorizontal: 20 },
   emptyText: { fontSize: 18, fontWeight: '600', color: '#333', textAlign: 'center' },
+
+  // NOUVEAU: Styles pour le panneau de filtres persistant
+  filterPanelContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '65%', // Occupe 65% de la hauteur de son parent
+    backgroundColor: '#f8f9fa',
+    borderTopWidth: 1,
+    borderTopColor: '#d1d5db',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -5,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 10,
+  },
 });
 
 export default FilterScreenResults;

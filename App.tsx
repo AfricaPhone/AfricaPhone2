@@ -9,8 +9,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ProductProvider } from './src/store/ProductContext';
 import { FavoritesProvider } from './src/store/FavoritesContext';
 import { BoutiqueProvider } from './src/store/BoutiqueContext';
-import { FilterProvider } from './src/store/FilterContext'; // Importez le nouveau provider
-import UpdateModal from './src/components/UpdateModal';
+import UpdateModal from './src/components/UpdateModal'; // Importer le nouveau composant
+import { GestureHandlerRootView } from 'react-native-gesture-handler'; // MODIFICATION: Importez ceci
+import { FilterProvider } from './src/store/FilterContext';
 
 export default function App() {
   const theme: Theme = {
@@ -19,11 +20,11 @@ export default function App() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    // MODIFICATION: Enveloppez tout dans GestureHandlerRootView
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <BoutiqueProvider>
           <ProductProvider>
-            {/* Le FilterProvider vient ici, après ProductProvider */}
             <FilterProvider>
               <FavoritesProvider>
                 <StoreProvider>
@@ -37,6 +38,6 @@ export default function App() {
         </BoutiqueProvider>
       </SafeAreaProvider>
       <UpdateModal />
-    </View>
+    </GestureHandlerRootView>
   );
 }
