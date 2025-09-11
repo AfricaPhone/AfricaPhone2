@@ -12,6 +12,7 @@ import { BoutiqueProvider } from './src/store/BoutiqueContext';
 import UpdateModal from './src/components/UpdateModal'; // Importer le nouveau composant
 import { GestureHandlerRootView } from 'react-native-gesture-handler'; // MODIFICATION: Importez ceci
 import { FilterProvider } from './src/store/FilterContext';
+import { KkiapayProvider } from '@kkiapay-org/react-native-sdk';
 
 export default function App() {
   const theme: Theme = {
@@ -23,19 +24,21 @@ export default function App() {
     // MODIFICATION: Enveloppez tout dans GestureHandlerRootView
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <BoutiqueProvider>
-          <ProductProvider>
-            <FilterProvider>
-              <FavoritesProvider>
-                <StoreProvider>
-                  <NavigationContainer theme={theme}>
-                    <RootNavigator />
-                  </NavigationContainer>
-                </StoreProvider>
-              </FavoritesProvider>
-            </FilterProvider>
-          </ProductProvider>
-        </BoutiqueProvider>
+        <KkiapayProvider>
+          <BoutiqueProvider>
+            <ProductProvider>
+              <FilterProvider>
+                <FavoritesProvider>
+                  <StoreProvider>
+                    <NavigationContainer theme={theme}>
+                      <RootNavigator />
+                    </NavigationContainer>
+                  </StoreProvider>
+                </FavoritesProvider>
+              </FilterProvider>
+            </ProductProvider>
+          </BoutiqueProvider>
+        </KkiapayProvider>
       </SafeAreaProvider>
       <UpdateModal />
     </GestureHandlerRootView>

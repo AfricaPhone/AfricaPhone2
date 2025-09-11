@@ -19,6 +19,7 @@ import FilterScreenResults from '../screens/FilterScreenResults';
 import ProductListScreen from '../screens/ProductListScreen';
 // --- AJOUT ---
 import CategorySelectionScreen from '../screens/CategorySelectionScreen';
+import KkiapayTestScreen from '../screens/KkiapayTestScreen';
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -95,11 +96,8 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="FilterScreenResults" component={FilterScreenResults} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
       {/* MODIFICATION: L'écran de sélection de catégorie est maintenant un écran standard */}
-      <RootStack.Screen
-        name="CategorySelection"
-        component={CategorySelectionScreen}
-        options={{ headerShown: false }}
-      />
+      <RootStack.Screen name="CategorySelection" component={CategorySelectionScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="KkiapayTest" component={KkiapayTestScreen} options={{ headerShown: false }} />
 
       {/* Screens modaux */}
       <RootStack.Group screenOptions={{ presentation: 'modal' }}>
