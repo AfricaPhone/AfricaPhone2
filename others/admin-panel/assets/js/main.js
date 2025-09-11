@@ -18,8 +18,9 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  arrayRemove,
 } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
-import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
 
 /* ============================ Helpers ============================ */
 const $ = sel => document.querySelector(sel);
@@ -797,7 +798,7 @@ async function renderProductFormPage(id) {
   const categoryOptions = PREDEFINED_CATEGORIES.map(
     cat => `<option value="${escapeAttr(cat)}">${escapeHtml(cat.charAt(0).toUpperCase() + cat.slice(1))}</option>`
   ).join('');
-  const existingImagesHtml = (p.imageUrls || [])
+  let existingImagesHtml = (p.imageUrls || [])
     .map(
       (url, index) => `
 	<div class="image-preview-item" data-url="${escapeAttr(url)}">
@@ -900,6 +901,54 @@ async function renderProductFormPage(id) {
 
   const fileInput = $('#p-images-file');
   const previewContainer = $('#p-images-preview');
+
+  previewContainer.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-remove-image-url]');
+    if (!btn || !id) return;
+    e.preventDefault();
+    const url = btn.dataset.removeImageUrl;
+    const confirm = await openModal({
+      title: 'Supprimer cette image ?',
+      okText: 'Supprimer',
+      cancelText: 'Annuler',
+      danger: true,
+    });
+    if (!confirm) return;
+    try {
+      const urlObj = new URL(url);
+      const segments = urlObj.pathname.split('/');
+      segments.shift();
+      segments.shift();
+      const filePath = segments.join('/');
+      await deleteObject(ref(storage, filePath));
+      const updatePayload = { imageUrls: arrayRemove(url) };
+      if (p.imageUrl === url) {
+        const newMain = (p.imageUrls || []).find(u => u !== url) || '';
+        updatePayload.imageUrl = newMain;
+        p.imageUrl = newMain;
+      }
+      await updateDoc(doc(db, 'products', id), updatePayload);
+      p.imageUrls = (p.imageUrls || []).filter(u => u !== url);
+      existingImagesHtml = p.imageUrls
+        .map(
+          (url, index) => `
+        <div class="image-preview-item" data-url="${escapeAttr(url)}">
+                <img src="${escapeAttr(url)}" alt="Aperçu ${index + 1}">
+                <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
+                        <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
+                </button>
+        </div>
+  `
+        )
+        .join('');
+      btn.closest('.image-preview-item').remove();
+      toast('Image supprimée');
+    } catch (err) {
+      console.error(err);
+      toast('Erreur', "Impossible de supprimer l'image", 'error');
+    }
+    lucide.createIcons();
+  });
 
   fileInput.addEventListener('change', () => {
     previewContainer.innerHTML = existingImagesHtml;
