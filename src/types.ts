@@ -126,10 +126,11 @@ export type RootStackParamList = {
   SignUp: undefined;
   AuthPrompt: undefined;
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null };
-  // MODIFICATION: Ajout du paramètre optionnel openFilters
-  FilterScreenResults: FilterOptions & { initialSearchQuery?: string; openFilters?: boolean };
+  // MODIFICATION: Changement du paramètre optionnel
+  FilterScreenResults: FilterOptions;
+  // AJOUT: Nouvel écran de filtres
+  FilterScreen: undefined;
   ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
-  // --- MODIFICATION: plus de paramètre de fonction ici ---
   CategorySelection: undefined;
 };
 

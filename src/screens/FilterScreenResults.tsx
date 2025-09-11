@@ -3,16 +3,14 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Product, FilterOptions as FilterOptionsType } from '../types';
+import { Product } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
-import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAllProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
 import { RootStackParamList } from '../types';
-// MODIFICATION: Import du contenu des filtres qui a été renommé
-import FilterPanel from './home/FilterPanel';
+import { useFilters } from '../store/FilterContext';
 
-type FilterScreenRouteProp = RouteProp<RootStackParamList, 'FilterScreenResults'>;
 type ViewMode = 'grid' | 'list';
 type SortOption = 'nameAsc' | 'priceAsc' | 'priceDesc';
 
@@ -24,22 +22,19 @@ const SORT_OPTIONS: { key: SortOption; label: string }[] = [
 
 const FilterScreenResults: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const route = useRoute<FilterScreenRouteProp>();
+  const { filters } = useFilters();
 
-  const [filters, setFilters] = useState<FilterOptionsType>(route.params || {});
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [sortBy, setSortBy] = useState<SortOption>('nameAsc');
 
-  // NOUVEAU: État pour gérer la visibilité du panneau de filtres
-  const [isFilterPanelVisible, setFilterPanelVisible] = useState(route.params?.openFilters || false);
-
   const queryOptions = useMemo((): ProductQueryOptions => {
-    const [sortField, sortDirection] = sortBy.split(/(?=[A-Z])/);
+    const sortField = sortBy === 'nameAsc' ? 'name' : 'price';
+    const sortDirection = sortBy === 'priceDesc' ? 'desc' : 'asc';
 
     return {
       ...filters,
-      sortBy: sortField.toLowerCase() as 'name' | 'price',
-      sortDirection: (sortDirection || 'asc').toLowerCase() as 'asc' | 'desc',
+      sortBy: sortField as 'name' | 'price',
+      sortDirection: sortDirection as 'asc' | 'desc',
     };
   }, [filters, sortBy]);
 
@@ -48,12 +43,6 @@ const FilterScreenResults: React.FC = () => {
   useEffect(() => {
     refresh();
   }, [queryOptions, refresh]);
-
-  // MODIFICATION: onApply met à jour les filtres mais ne ferme plus le panneau
-  const handleApplyFilters = (newFilters: FilterOptionsType) => {
-    setFilters(newFilters);
-    // On ne ferme plus le panneau ici pour permettre des ajustements
-  };
 
   const renderItem = useCallback(
     ({ item }: { item: Product }) => {
@@ -79,7 +68,8 @@ const FilterScreenResults: React.FC = () => {
 
   const renderActiveFilters = () => {
     const activeFilters = Object.entries(filters).filter(
-      ([key, value]) => !!value && !['initialSearchQuery', 'openFilters'].includes(key)
+      ([key, value]) =>
+        (Array.isArray(value) ? value.length > 0 : !!value) && !['initialSearchQuery', 'openFilters'].includes(key)
     );
     if (activeFilters.length === 0) return null;
 
@@ -107,9 +97,10 @@ const FilterScreenResults: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Résultats ({products.length})</Text>
-        {/* MODIFICATION: Le bouton bascule la visibilité du panneau */}
-        <TouchableOpacity onPress={() => setFilterPanelVisible(prev => !prev)} style={styles.filterButton}>
-          <Ionicons name="filter-outline" size={22} color="#111" />
+        {/* MODIFICATION: L'icône et le texte sont plus clairs */}
+        <TouchableOpacity onPress={() => navigation.navigate('FilterScreen')} style={styles.filterButton}>
+          <Ionicons name="options-outline" size={20} color="#111" />
+          <Text style={styles.filterButtonText}>Filtres</Text>
         </TouchableOpacity>
       </View>
 
@@ -160,13 +151,6 @@ const FilterScreenResults: React.FC = () => {
             }
           />
         )}
-
-        {/* NOUVEAU: Panneau de filtres intégré */}
-        {isFilterPanelVisible && (
-          <View style={styles.filterPanelContainer}>
-            <FilterPanel onClose={() => setFilterPanelVisible(false)} onApply={handleApplyFilters} />
-          </View>
-        )}
       </View>
     </SafeAreaView>
   );
@@ -186,9 +170,20 @@ const styles = StyleSheet.create({
   },
   headerButton: { padding: 4 },
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#111' },
-  filterButton: { padding: 8, borderRadius: 12 },
-
-  // NOUVELLE SECTION POUR LES CONTRÔLES
+  // MODIFICATION: Styles pour le nouveau bouton de filtre
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#f2f3f5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 99,
+  },
+  filterButtonText: {
+    fontWeight: '600',
+    color: '#111',
+  },
   controlsContainer: {
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
@@ -237,26 +232,6 @@ const styles = StyleSheet.create({
   listItem: { paddingHorizontal: 16 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100, paddingHorizontal: 20 },
   emptyText: { fontSize: 18, fontWeight: '600', color: '#333', textAlign: 'center' },
-
-  // NOUVEAU: Styles pour le panneau de filtres persistant
-  filterPanelContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '65%', // Occupe 65% de la hauteur de son parent
-    backgroundColor: '#f8f9fa',
-    borderTopWidth: 1,
-    borderTopColor: '#d1d5db',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -5,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 10,
-  },
 });
 
 export default FilterScreenResults;

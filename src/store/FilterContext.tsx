@@ -2,7 +2,16 @@
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { Brand, FilterOptions, Segment } from '../types';
 
+// AJOUT: Définition du type pour une fourchette de prix
+export type PriceRange = {
+  key: string;
+  label: string;
+  min?: number;
+  max?: number;
+};
+
 // --- Types & État Initial ---
+// AJOUT: Ajout de 'selectedPriceRangeKey' à l'état initial
 const initialState: FilterOptions = {
   category: undefined,
   minPrice: '',
@@ -12,6 +21,7 @@ const initialState: FilterOptions = {
   ram: undefined,
   enPromotion: false,
   isVedette: false,
+  selectedPriceRangeKey: undefined,
 };
 
 // --- Type du Contexte ---
@@ -19,6 +29,8 @@ type FilterContextType = {
   filters: FilterOptions;
   setCategory: (category: Segment | undefined) => void;
   setPriceRange: (min: string, max: string) => void;
+  // AJOUT: Nouvelle fonction pour gérer la sélection d'une fourchette
+  setPriceRangeByKey: (range: PriceRange | null) => void;
   toggleBrand: (brand: Brand) => void;
   setCapacity: (capacity: { rom?: number; ram?: number } | null) => void;
   setPromotion: (value: boolean) => void;
@@ -38,7 +50,23 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   const setPriceRange = useCallback((min: string, max: string) => {
-    setFilters(prev => ({ ...prev, minPrice: min, maxPrice: max }));
+    // Si on tape manuellement, on désélectionne la fourchette
+    setFilters(prev => ({ ...prev, minPrice: min, maxPrice: max, selectedPriceRangeKey: undefined }));
+  }, []);
+
+  // AJOUT: Nouvelle logique pour gérer les fourchettes de prix
+  const setPriceRangeByKey = useCallback((range: PriceRange | null) => {
+    if (range) {
+      setFilters(prev => ({
+        ...prev,
+        minPrice: range.min?.toString() || '',
+        maxPrice: range.max?.toString() || '',
+        selectedPriceRangeKey: range.key,
+      }));
+    } else {
+      // Permet de désélectionner une fourchette
+      setFilters(prev => ({ ...prev, minPrice: '', maxPrice: '', selectedPriceRangeKey: undefined }));
+    }
   }, []);
 
   const toggleBrand = useCallback((brand: Brand) => {
@@ -71,7 +99,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const activeFilterCount = useMemo(() => {
         let count = 0;
         if (filters.category) count++;
-        if (filters.minPrice || filters.maxPrice) count++;
+        if (filters.minPrice || filters.maxPrice || filters.selectedPriceRangeKey) count++; // AJOUT: On compte la fourchette comme un filtre de prix
         if (filters.brands && filters.brands.length > 0) count += filters.brands.length;
         if (filters.rom || filters.ram) count++;
         if (filters.enPromotion) count++;
@@ -85,6 +113,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       filters,
       setCategory,
       setPriceRange,
+      setPriceRangeByKey, // AJOUT
       toggleBrand,
       setCapacity,
       setPromotion,
@@ -92,7 +121,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       resetFilters,
       activeFilterCount
     }),
-    [filters, setCategory, setPriceRange, toggleBrand, setCapacity, setPromotion, setVedette, resetFilters, activeFilterCount]
+    [filters, setCategory, setPriceRange, toggleBrand, setCapacity, setPromotion, setVedette, resetFilters, activeFilterCount, setPriceRangeByKey]
   );
 
   return <FilterContext.Provider value={value}>{children}</FilterContext.Provider>;
