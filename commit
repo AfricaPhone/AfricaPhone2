@@ -8,3 +8,78 @@ git add .
 git commit -m "Description de ma modification"
 npx prettier --write .(pour regler les erreurs prettier)
 git push origin -u Georgesmodif6 (pour une branche qui vient d'être crééer) si Non git push
+
+# 1. Renommer la branche en local
+git branch -m feature-a-renommer feature-renommee
+
+# 2. Supprimer l'ancienne branche sur le serveur distant
+git push origin --delete feature-a-renommer
+
+# 3. Pousser la nouvelle branche et lier les deux
+git push origin -u feature-renommee
+
+# ===================================================
+# ||   AIDE-MÉMOIRE DES COMMANDES GIT BRANCHES     ||
+# ===================================================
+
+
+# === CRÉER & LISTER ===
+
+# Lister toutes les branches locales. L'étoile (*) indique la branche actuelle.
+git branch
+
+# Lister toutes les branches, y compris celles du dépôt distant (remote).
+git branch -a
+
+# Créer une nouvelle branche à partir du commit actuel.
+git branch <nom-de-la-branche>
+
+# Créer une nouvelle branche ET basculer dessus en une seule commande.
+git switch -c <nom-de-la-branche>
+
+
+# === NAVIGUER ===
+
+# Basculer sur une branche existante pour commencer à y travailler.
+git switch <nom-de-la-branche>
+
+# Revenir rapidement à la dernière branche consultée.
+git switch -
+
+
+# === RENOMMER & SUPPRIMER ===
+
+# Renommer la branche sur laquelle vous vous trouvez actuellement.
+git branch -m <nouveau-nom-de-branche>
+
+# Supprimer une branche locale (ne fonctionne que si la branche a été fusionnée).
+git branch -d <nom-de-la-branche>
+
+# FORCER la suppression d'une branche locale (utile si elle n'a pas été fusionnée).
+git branch -D <nom-de-la-branche>
+
+
+# === FUSIONNER & COMPARER ===
+
+# Fusionner les modifications de <branche-a-fusionner> dans la branche actuelle.
+git merge <branche-a-fusionner>
+
+# Afficher les différences de contenu entre les derniers commits de deux branches.
+git diff <branche-1>..<branche-2>
+
+# Afficher la liste des commits qu'une branche a en plus d'une autre.
+# (Exemple : ce qui est dans 'feature' mais pas encore dans 'main').
+git log main..feature
+
+
+# === GESTION DES BRANCHES DISTANTES (REMOTE) ===
+
+# Envoyer une branche locale vers le dépôt distant pour la première fois.
+# L'option '-u' lie la branche locale à la branche distante.
+git push -u origin <nom-de-la-branche>
+
+# Mettre à jour la branche locale actuelle avec les dernières modifications du distant.
+git pull
+
+# Supprimer une branche sur le dépôt distant (ex: GitHub, GitLab).
+git push origin --delete <nom-de-la-branche>
