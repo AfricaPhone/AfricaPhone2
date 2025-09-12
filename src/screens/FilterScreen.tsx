@@ -29,12 +29,12 @@ export type Capacity = (typeof CAPACITY_OPTIONS)[0] | null;
 
 // MODIFICATION: Fourchettes de prix étendues
 const PRICE_RANGE_OPTIONS: PriceRange[] = [
-    { key: 'under_50k', label: '- 50 000', max: 50000 },
-    { key: '50k_100k', label: '50k - 100k', min: 50000, max: 100000 },
-    { key: '100k_150k', label: '100k - 150k', min: 100000, max: 150000 },
-    { key: '150k_250k', label: '150k - 250k', min: 150000, max: 250000 },
-    { key: '250k_500k', label: '250k - 500k', min: 250000, max: 500000 },
-    { key: 'over_500k', label: '+ 500 000', min: 500000 },
+  { key: 'under_50k', label: '- 50 000', max: 50000 },
+  { key: '50k_100k', label: '50k - 100k', min: 50000, max: 100000 },
+  { key: '100k_150k', label: '100k - 150k', min: 100000, max: 150000 },
+  { key: '150k_250k', label: '150k - 250k', min: 150000, max: 250000 },
+  { key: '250k_500k', label: '250k - 500k', min: 250000, max: 500000 },
+  { key: 'over_500k', label: '+ 500 000', min: 500000 },
 ];
 
 const FilterRow: React.FC<{ label: string; children: React.ReactNode; onPress?: () => void }> = ({
@@ -62,7 +62,17 @@ const FilterScreen: React.FC = () => {
   const { brands } = useProducts();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { filters, setPriceRange, setPriceRangeByKey, toggleBrand, setCapacity, setPromotion, setVedette, resetFilters, activeFilterCount } = useFilters();
+  const {
+    filters,
+    setPriceRange,
+    setPriceRangeByKey,
+    toggleBrand,
+    setCapacity,
+    setPromotion,
+    setVedette,
+    resetFilters,
+    activeFilterCount,
+  } = useFilters();
 
   const [minPrice, setMinPrice] = useState(filters.minPrice || '');
   const [maxPrice, setMaxPrice] = useState(filters.maxPrice || '');
@@ -71,7 +81,6 @@ const FilterScreen: React.FC = () => {
     setMinPrice(filters.minPrice || '');
     setMaxPrice(filters.maxPrice || '');
   }, [filters.minPrice, filters.maxPrice]);
-
 
   const handleApply = () => {
     setPriceRange(minPrice, maxPrice);
@@ -88,9 +97,9 @@ const FilterScreen: React.FC = () => {
 
   const handlePriceRangeSelect = (range: PriceRange) => {
     if (filters.selectedPriceRangeKey === range.key) {
-        setPriceRangeByKey(null);
+      setPriceRangeByKey(null);
     } else {
-        setPriceRangeByKey(range);
+      setPriceRangeByKey(range);
     }
   };
 
@@ -135,12 +144,12 @@ const FilterScreen: React.FC = () => {
           <Text style={styles.sectionTitle}>Prix</Text>
           <View style={styles.chipContainer}>
             {PRICE_RANGE_OPTIONS.map(range => (
-                <Chip
-                    key={range.key}
-                    label={range.label}
-                    isSelected={filters.selectedPriceRangeKey === range.key}
-                    onPress={() => handlePriceRangeSelect(range)}
-                />
+              <Chip
+                key={range.key}
+                label={range.label}
+                isSelected={filters.selectedPriceRangeKey === range.key}
+                onPress={() => handlePriceRangeSelect(range)}
+              />
             ))}
           </View>
           <View style={styles.priceInputs}>

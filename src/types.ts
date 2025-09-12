@@ -126,12 +126,13 @@ export type RootStackParamList = {
   SignUp: undefined;
   AuthPrompt: undefined;
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null };
-  // MODIFICATION: Changement du paramètre optionnel
   FilterScreenResults: FilterOptions;
-  // AJOUT: Nouvel écran de filtres
   FilterScreen: undefined;
   ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
   CategorySelection: undefined;
+  // AJOUT: Nouveaux écrans pour le concours
+  Contest: { contestId: string };
+  CandidateProfile: { candidate: Candidate };
 };
 
 export type MainStackParamList = {
@@ -195,5 +196,27 @@ export type PromoCard = {
   cta: string;
   image: string;
   screen?: keyof RootStackParamList;
+  // AJOUT: Paramètres optionnels pour la navigation
+  screenParams?: object;
   sortOrder: number;
+};
+
+// --- Concours de Vote ---
+export type Contest = {
+  id: string;
+  title: string;
+  description: string;
+  endDate: Date;
+  status: 'active' | 'ended';
+  totalParticipants: number;
+  totalVotes: number;
+};
+
+export type Candidate = {
+  id: string;
+  contestId: string;
+  name: string;
+  media: string;
+  photoUrl: string;
+  voteCount: number;
 };

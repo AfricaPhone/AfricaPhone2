@@ -1,6 +1,5 @@
 // src/screens/home/CategoryScreen.tsx
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import { usePaginatedProducts } from '../../hooks/usePaginatedProducts';
 import ProductGrid from './ProductGrid';
 import HomeListHeader from './HomeListHeader';
 import { useProducts } from '../../store/ProductContext';
@@ -18,6 +17,7 @@ import {
   QueryDocumentSnapshot,
 } from '@react-native-firebase/firestore';
 import { db } from '../../firebase/config';
+import { MOCK_CONTEST } from '../../data/mockContestData';
 
 const PAGE_SIZE = 10;
 
@@ -148,6 +148,19 @@ const CategoryScreen = ({ route }: any) => {
       const fetchPromoCards = async () => {
         try {
           setPromoCardsLoading(true);
+
+          // MODIFICATION: Création de la carte simulée pour le concours
+          const contestCard: PromoCard = {
+            id: 'promo-contest-01',
+            title: 'Concours de Vote',
+            subtitle: "Élisez le journaliste tech de l'année !",
+            cta: 'Participer',
+            image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400',
+            screen: 'Contest',
+            screenParams: { contestId: MOCK_CONTEST.id },
+            sortOrder: 0, // Pour la mettre en premier
+          };
+
           const promoCardsQuery = query(
             collection(db, 'promoCards'),
             where('isActive', '==', true),
@@ -158,7 +171,9 @@ const CategoryScreen = ({ route }: any) => {
             id: doc.id,
             ...doc.data(),
           })) as PromoCard[];
-          setPromoCards(fetchedCards);
+
+          // MODIFICATION: Injection de la carte simulée au début de la liste
+          setPromoCards([contestCard, ...fetchedCards]);
         } catch (error) {
           console.error('Erreur de chargement des cartes promo :', error);
         } finally {

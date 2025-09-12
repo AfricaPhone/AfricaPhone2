@@ -72,9 +72,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const toggleBrand = useCallback((brand: Brand) => {
     setFilters(prev => {
       const existing = prev.brands?.find(b => b.id === brand.id);
-      const newBrands = existing
-        ? prev.brands?.filter(b => b.id !== brand.id)
-        : [...(prev.brands || []), brand];
+      const newBrands = existing ? prev.brands?.filter(b => b.id !== brand.id) : [...(prev.brands || []), brand];
       return { ...prev, brands: newBrands };
     });
   }, []);
@@ -95,18 +93,17 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setFilters(initialState);
   }, []);
 
-    // Calcule le nombre de filtres actifs
-    const activeFilterCount = useMemo(() => {
-        let count = 0;
-        if (filters.category) count++;
-        if (filters.minPrice || filters.maxPrice || filters.selectedPriceRangeKey) count++; // AJOUT: On compte la fourchette comme un filtre de prix
-        if (filters.brands && filters.brands.length > 0) count += filters.brands.length;
-        if (filters.rom || filters.ram) count++;
-        if (filters.enPromotion) count++;
-        if (filters.isVedette) count++;
-        return count;
-    }, [filters]);
-
+  // Calcule le nombre de filtres actifs
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.category) count++;
+    if (filters.minPrice || filters.maxPrice || filters.selectedPriceRangeKey) count++; // AJOUT: On compte la fourchette comme un filtre de prix
+    if (filters.brands && filters.brands.length > 0) count += filters.brands.length;
+    if (filters.rom || filters.ram) count++;
+    if (filters.enPromotion) count++;
+    if (filters.isVedette) count++;
+    return count;
+  }, [filters]);
 
   const value = useMemo(
     () => ({
@@ -119,9 +116,20 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setPromotion,
       setVedette,
       resetFilters,
-      activeFilterCount
+      activeFilterCount,
     }),
-    [filters, setCategory, setPriceRange, toggleBrand, setCapacity, setPromotion, setVedette, resetFilters, activeFilterCount, setPriceRangeByKey]
+    [
+      filters,
+      setCategory,
+      setPriceRange,
+      toggleBrand,
+      setCapacity,
+      setPromotion,
+      setVedette,
+      resetFilters,
+      activeFilterCount,
+      setPriceRangeByKey,
+    ]
   );
 
   return <FilterContext.Provider value={value}>{children}</FilterContext.Provider>;
