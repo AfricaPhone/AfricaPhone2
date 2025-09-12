@@ -206,7 +206,11 @@ const ContestScreen: React.FC = () => {
         keyboardShouldPersistTaps="handled"
       />
 
-      <VoteConfirmationModal visible={modalVisible} onClose={() => setModalVisible(false)} candidate={selectedCandidate} />
+      <VoteConfirmationModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        candidate={selectedCandidate}
+      />
     </SafeAreaView>
   );
 };

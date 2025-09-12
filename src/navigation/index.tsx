@@ -111,11 +111,7 @@ const RootNavigator: React.FC = () => {
           component={CreateProfileScreen}
           options={{ headerShown: false, gestureEnabled: false }}
         />
-        <RootStack.Screen
-          name="CandidateProfile"
-          component={CandidateProfileScreen}
-          options={{ headerShown: false }}
-        />
+        <RootStack.Screen name="CandidateProfile" component={CandidateProfileScreen} options={{ headerShown: false }} />
       </RootStack.Group>
     </RootStack.Navigator>
   );
