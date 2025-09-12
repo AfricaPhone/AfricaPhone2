@@ -18,8 +18,9 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  arrayRemove,
 } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
-import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
 
 /* ============================ Helpers ============================ */
 const $ = sel => document.querySelector(sel);
@@ -205,13 +206,37 @@ $loginForm?.addEventListener('submit', async function (e) {
   }
 });
 
-onAuthStateChanged(auth, function (user) {
+onAuthStateChanged(auth, async function (user) {
   const logged = !!user;
-  $login.classList.toggle('hide', logged);
-  $app.classList.toggle('hide', !logged);
-  $app.setAttribute('aria-hidden', String(!logged));
+
   if (logged) {
-    initAfterLogin();
+    // Vérifie si l'utilisateur est un administrateur
+    try {
+      const tokenResult = await user.getIdTokenResult(true); // Force la mise à jour du jeton
+      if (tokenResult.claims.admin) {
+        // L'utilisateur est un administrateur
+        console.log(`[Admin Panel] Connexion d'un admin réussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
+        $login.classList.add('hide');
+        $app.classList.remove('hide');
+        $app.setAttribute('aria-hidden', 'false');
+        initAfterLogin();
+      } else {
+        // L'utilisateur n'est pas un administrateur, le déconnecte
+        await signOut(auth);
+        toast('Accès refusé', 'Vos identifiants ne sont pas ceux d\'un administrateur.', 'error');
+        // Redirige pour nettoyer l'interface
+        location.reload();
+      }
+    } catch (err) {
+      console.error('Erreur lors de la vérification des revendications:', err);
+      await signOut(auth);
+      location.reload();
+    }
+  } else {
+    // L'utilisateur n'est pas connecté
+    $login.classList.remove('hide');
+    $app.classList.add('hide');
+    $app.setAttribute('aria-hidden', 'true');
   }
 });
 
@@ -730,6 +755,11 @@ async function handleDelete(id, name, type) {
   });
   if (!ok) return;
   try {
+    // --- DÉBUT DU PATCH : Rafraîchir le jeton avant l'action privilégiée ---
+    if (auth.currentUser) {
+      await auth.currentUser.getIdToken(true);
+    }
+    // --- FIN DU PATCH ---
     await deleteDoc(doc(db, type, id));
     if (type === 'products') {
       allProducts = allProducts.filter(p => p.id !== id);
@@ -797,7 +827,7 @@ async function renderProductFormPage(id) {
   const categoryOptions = PREDEFINED_CATEGORIES.map(
     cat => `<option value="${escapeAttr(cat)}">${escapeHtml(cat.charAt(0).toUpperCase() + cat.slice(1))}</option>`
   ).join('');
-  const existingImagesHtml = (p.imageUrls || [])
+  let existingImagesHtml = (p.imageUrls || [])
     .map(
       (url, index) => `
 	<div class="image-preview-item" data-url="${escapeAttr(url)}">
@@ -900,6 +930,49 @@ async function renderProductFormPage(id) {
 
   const fileInput = $('#p-images-file');
   const previewContainer = $('#p-images-preview');
+
+  previewContainer.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-remove-image-url]');
+    if (!btn || !id) return;
+    e.preventDefault();
+    const url = btn.dataset.removeImageUrl;
+    const confirm = await openModal({
+      title: 'Supprimer cette image ?',
+      body: "Cette action va retirer l'image du produit, mais le fichier restera sur le serveur.",
+      okText: 'Supprimer',
+      cancelText: 'Annuler',
+      danger: true,
+    });
+    if (!confirm) return;
+    try {
+      const updatePayload = { imageUrls: arrayRemove(url) };
+      if (p.imageUrl === url) {
+        const newMain = (p.imageUrls || []).find(u => u !== url) || '';
+        updatePayload.imageUrl = newMain;
+        p.imageUrl = newMain;
+      }
+      await updateDoc(doc(db, 'products', id), updatePayload);
+      p.imageUrls = (p.imageUrls || []).filter(u => u !== url);
+      existingImagesHtml = p.imageUrls
+        .map(
+          (url, index) => `
+        <div class="image-preview-item" data-url="${escapeAttr(url)}">
+                <img src="${escapeAttr(url)}" alt="Aperçu ${index + 1}">
+                <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
+                        <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
+                </button>
+        </div>
+  `
+        )
+        .join('');
+      btn.closest('.image-preview-item').remove();
+      toast('Image supprimée du produit', 'Le fichier reste sur le serveur.', 'success');
+    } catch (err) {
+      console.error(err);
+      toast('Erreur', "Impossible de supprimer l'image du produit", 'error');
+    }
+    lucide.createIcons();
+  });
 
   fileInput.addEventListener('change', () => {
     previewContainer.innerHTML = existingImagesHtml;
@@ -1408,7 +1481,7 @@ async function handlePromoCardStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoCards', id), { isActive: isActive });
     const card = allPromoCards.find(c => c.id === id);
     if (card) card.isActive = isActive;
-    toast('Statut mis à jour', `La carte est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
+    toast('Statut mis à jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
   } catch (error) {
     console.error('Erreur de mise à jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
