@@ -73,6 +73,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setFilters(prev => {
       const existing = prev.brands?.find(b => b.id === brand.id);
       const newBrands = existing ? prev.brands?.filter(b => b.id !== brand.id) : [...(prev.brands || []), brand];
+      const newBrands = existing ? prev.brands?.filter(b => b.id !== brand.id) : [...(prev.brands || []), brand];
       return { ...prev, brands: newBrands };
     });
   }, []);
@@ -116,6 +117,7 @@ export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setPromotion,
       setVedette,
       resetFilters,
+      activeFilterCount,
       activeFilterCount,
     }),
     [

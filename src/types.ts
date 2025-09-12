@@ -134,7 +134,6 @@ export type RootStackParamList = {
   CategorySelection: undefined;
   Contest: { contestId: string };
   CandidateProfile: { candidate: Candidate };
-  // SUPPRESSION: L'écran de statistiques n'est plus nécessaire
 };
 
 export type MainStackParamList = {
@@ -156,7 +155,8 @@ export type Prediction = {
   matchId: string;
   scoreA: number;
   scoreB: number;
-  createdAt: any;
+  // CORRECTION: Remplacement de 'any' par le type Timestamp de Firestore
+  createdAt: FirebaseFirestoreTypes.Timestamp;
   isWinner?: boolean;
 };
 
@@ -227,5 +227,3 @@ export type UserContest = {
   contestName: string;
   badgeIcon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
-
-// SUPPRESSION: Le type pour les statistiques n'est plus nécessaire

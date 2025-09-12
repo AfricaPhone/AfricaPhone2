@@ -88,6 +88,11 @@ const ProfileScreen: React.FC = () => {
             switchValue={notifications}
             onSwitchChange={setNotifications}
           />
+          <ProfileListItem
+            icon="card-outline"
+            label="Test Paiement Kkiapay"
+            onPress={() => navigation.navigate('KkiapayTest')}
+          />
         </View>
 
         <View style={styles.section}>
