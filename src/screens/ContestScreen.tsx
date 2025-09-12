@@ -1,5 +1,5 @@
 // src/screens/ContestScreen.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,10 @@ import {
   FlatList,
   Image,
   Alert,
-  ScrollView,
+  TextInput,
   StatusBar,
   Animated,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -29,7 +30,7 @@ const CandidateCard: React.FC<{ item: Candidate; totalVotes: number; onVote: (c:
 }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const percentage = totalVotes > 0 ? (item.voteCount / totalVotes) * 100 : 0;
-  const animatedWidth = new Animated.Value(0);
+  const animatedWidth = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
     Animated.timing(animatedWidth, {
@@ -71,14 +72,25 @@ const CandidateCard: React.FC<{ item: Candidate; totalVotes: number; onVote: (c:
 };
 
 const ContestScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  
+  // MODIFICATION: Gestion de l'état de recherche
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<TextInput>(null);
 
   const contest = MOCK_CONTEST;
-  const candidates = MOCK_CANDIDATES;
+  const candidates = useMemo(() => {
+    if (!searchQuery) {
+      return MOCK_CANDIDATES;
+    }
+    return MOCK_CANDIDATES.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [searchQuery]);
 
   const handleVotePress = (candidate: Candidate) => {
+    Keyboard.dismiss();
     Alert.alert(
       `Voter pour ${candidate.name}`,
       'Chaque vote coûte 100 FCFA. Le système de paiement sera intégré prochainement.',
@@ -94,9 +106,21 @@ const ContestScreen: React.FC = () => {
       ]
     );
   };
+  
+  // MODIFICATION: Fonctions pour gérer le mode recherche
+  const handleActivateSearch = () => {
+    setIsSearchActive(true);
+    setTimeout(() => searchInputRef.current?.focus(), 100);
+  };
 
-  const memoizedHeader = useMemo(
-    () => (
+  const handleDeactivateSearch = () => {
+    setIsSearchActive(false);
+    setSearchQuery('');
+    Keyboard.dismiss();
+  };
+
+  const ListHeader = useCallback(() => (
+    <View>
       <View style={styles.contestHeader}>
         <MaterialCommunityIcons name="trophy-award" size={48} color="#f59e0b" />
         <Text style={styles.contestTitle}>{contest.title}</Text>
@@ -111,22 +135,58 @@ const ContestScreen: React.FC = () => {
             <Text style={styles.statValue}>{contest.totalParticipants}</Text>
             <Text style={styles.statLabel}>Participants</Text>
           </View>
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => navigation.navigate('ContestStats', { contestId: contest.id })}
+          >
+            <Text style={[styles.statValue, { color: '#007bff' }]}>
+              <Ionicons name="stats-chart" size={18} color="#007bff" />
+            </Text>
+            <Text style={[styles.statLabel, { color: '#007bff' }]}>Statistiques</Text>
+          </TouchableOpacity>
         </View>
       </View>
-    ),
-    [contest]
-  );
+      {/* "Fausse" barre de recherche qui active le mode recherche */}
+      <TouchableOpacity style={styles.searchBarContainer} onPress={handleActivateSearch}>
+        <Ionicons name="search-outline" size={20} color="#8A8A8E" style={styles.searchIcon} />
+        <Text style={styles.searchPlaceholder}>Rechercher un candidat...</Text>
+      </TouchableOpacity>
+    </View>
+  ), [contest, navigation]);
+
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="dark-content" />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#111" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Concours de Vote</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      
+      {/* MODIFICATION: Deux en-têtes qui s'affichent conditionnellement */}
+      {!isSearchActive ? (
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#111" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Concours de Vote</Text>
+          <View style={{ width: 40 }} />
+        </View>
+      ) : (
+        <View style={styles.searchHeader}>
+          <View style={styles.searchBarContainerActive}>
+            <Ionicons name="search-outline" size={20} color="#8A8A8E" style={styles.searchIcon} />
+            <TextInput
+              ref={searchInputRef}
+              style={styles.searchInput}
+              placeholder="Rechercher un candidat..."
+              placeholderTextColor="#8A8A8E"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoFocus
+            />
+          </View>
+          <TouchableOpacity onPress={handleDeactivateSearch}>
+            <Text style={styles.cancelButtonText}>Annuler</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <FlatList
         data={candidates}
@@ -134,15 +194,14 @@ const ContestScreen: React.FC = () => {
         renderItem={({ item }) => (
           <CandidateCard item={item} totalVotes={contest.totalVotes} onVote={handleVotePress} />
         )}
-        ListHeaderComponent={memoizedHeader}
+        // MODIFICATION: L'en-tête ne s'affiche qu'en mode normal
+        ListHeaderComponent={!isSearchActive ? ListHeader : null}
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        keyboardShouldPersistTaps="handled"
       />
-      <VoteConfirmationModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        candidate={selectedCandidate}
-      />
+
+      <VoteConfirmationModal visible={modalVisible} onClose={() => setModalVisible(false)} candidate={selectedCandidate} />
     </SafeAreaView>
   );
 };
@@ -159,15 +218,24 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e7eb',
     backgroundColor: '#fff',
   },
+  searchHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
   backButton: { padding: 8, marginLeft: -8 },
   headerTitle: { color: '#111', fontSize: 20, fontWeight: 'bold' },
-  listContent: { padding: 16 },
+  cancelButtonText: { color: '#007bff', fontSize: 16, marginLeft: 12 },
+  listContent: { paddingHorizontal: 16, paddingBottom: 16 },
   contestHeader: {
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
-    marginBottom: 20,
     borderColor: '#e5e7eb',
     borderWidth: 1,
   },
@@ -191,6 +259,38 @@ const styles = StyleSheet.create({
   statItem: { alignItems: 'center', flex: 1 },
   statValue: { fontSize: 18, fontWeight: 'bold', color: '#111' },
   statLabel: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderColor: '#e5e7eb',
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    marginTop: 20,
+    marginBottom: 10,
+    height: 48,
+  },
+  searchBarContainerActive: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    height: 44,
+    fontSize: 15,
+  },
+  searchPlaceholder: {
+    color: '#8A8A8E',
+    fontSize: 15,
+  },
   candidateCard: {
     backgroundColor: '#fff',
     borderRadius: 16,

@@ -21,6 +21,8 @@ import CategorySelectionScreen from '../screens/CategorySelectionScreen';
 import FilterScreen from '../screens/FilterScreen';
 import ContestScreen from '../screens/ContestScreen';
 import CandidateProfileScreen from '../screens/CandidateProfileScreen';
+// --- AJOUT ---
+import ContestStatsScreen from '../screens/ContestStatsScreen';
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -99,6 +101,8 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="CategorySelection" component={CategorySelectionScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="FilterScreen" component={FilterScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Contest" component={ContestScreen} options={{ headerShown: false }} />
+      {/* AJOUT: Déclaration de l'écran de statistiques */}
+      <RootStack.Screen name="ContestStats" component={ContestStatsScreen} options={{ headerShown: false }} />
 
       {/* Screens modaux */}
       <RootStack.Group screenOptions={{ presentation: 'modal' }}>
@@ -109,8 +113,11 @@ const RootNavigator: React.FC = () => {
           component={CreateProfileScreen}
           options={{ headerShown: false, gestureEnabled: false }}
         />
-        {/* AJOUT: Le profil d'un candidat s'ouvre aussi en modale */}
-        <RootStack.Screen name="CandidateProfile" component={CandidateProfileScreen} options={{ headerShown: false }} />
+        <RootStack.Screen
+          name="CandidateProfile"
+          component={CandidateProfileScreen}
+          options={{ headerShown: false }}
+        />
       </RootStack.Group>
     </RootStack.Navigator>
   );

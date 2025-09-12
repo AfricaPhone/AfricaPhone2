@@ -1,14 +1,14 @@
 // src/data/mockContestData.ts
-import { Contest, Candidate } from '../types';
+import { Contest, Candidate, CandidateStats } from '../types';
 
 export const MOCK_CONTEST: Contest = {
   id: 'journalistes-tech-2025',
   title: 'Trophée du Journaliste Tech 2025',
   description:
     "Votez pour le journaliste qui a le mieux couvert l'actualité technologique au Bénin cette année. Chaque vote compte pour soutenir le journalisme de qualité !",
-  endDate: new Date('2025-10-31T23:59:59'),
+  endDate: new Date(new Date().getTime() + 10 * 24 * 60 * 60 * 1000), // Fin dans 10 jours
   totalParticipants: 5,
-  totalVotes: 8750, // Total simulé pour calculer les pourcentages
+  totalVotes: 8750,
   status: 'active',
 };
 
@@ -53,4 +53,11 @@ export const MOCK_CANDIDATES: Candidate[] = [
     photoUrl: 'https://images.unsplash.com/photo-1488426862026-39b533079b33?q=80&w=256',
     voteCount: 860,
   },
+];
+
+// AJOUT: Données simulées pour les statistiques
+export const MOCK_STATS: CandidateStats[] = [
+  { id: 'cand-01', name: 'Elise Adjovi', voteHistory: [2000, 2150, 2300, 2450, 2540] },
+  { id: 'cand-02', name: 'Jean-Luc Bocco', voteHistory: [1500, 1600, 1750, 1850, 1980] },
+  { id: 'cand-03', name: 'Amina Diallo', voteHistory: [1600, 1650, 1700, 1800, 1850] },
 ];

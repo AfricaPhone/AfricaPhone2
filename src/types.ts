@@ -47,6 +47,8 @@ export type User = {
   phoneNumber?: string | null;
   initials: string;
   pushTokens?: string[];
+  // AJOUT: Pour les badges de concours
+  participatedContests?: UserContest[];
 };
 
 // --- Favorites / Collections ---
@@ -130,9 +132,10 @@ export type RootStackParamList = {
   FilterScreen: undefined;
   ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
   CategorySelection: undefined;
-  // AJOUT: Nouveaux écrans pour le concours
   Contest: { contestId: string };
   CandidateProfile: { candidate: Candidate };
+  // AJOUT: Nouvel écran de statistiques
+  ContestStats: { contestId: string };
 };
 
 export type MainStackParamList = {
@@ -196,7 +199,6 @@ export type PromoCard = {
   cta: string;
   image: string;
   screen?: keyof RootStackParamList;
-  // AJOUT: Paramètres optionnels pour la navigation
   screenParams?: object;
   sortOrder: number;
 };
@@ -219,4 +221,17 @@ export type Candidate = {
   media: string;
   photoUrl: string;
   voteCount: number;
+};
+
+export type UserContest = {
+  contestId: string;
+  contestName: string;
+  badgeIcon: keyof typeof MaterialCommunityIcons.glyphMap;
+};
+
+export type CandidateStats = {
+  id: string;
+  name: string;
+  // Tableau de l'historique des votes, ex: [100, 120, 150...]
+  voteHistory: number[];
 };
