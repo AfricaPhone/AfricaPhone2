@@ -2,6 +2,7 @@
 import { DimensionValue } from 'react-native';
 import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { Segment } from './screens/home/ProductSegments';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export type Category = string;
 
@@ -47,7 +48,6 @@ export type User = {
   phoneNumber?: string | null;
   initials: string;
   pushTokens?: string[];
-  // AJOUT: Pour les badges de concours
   participatedContests?: UserContest[];
 };
 
@@ -134,8 +134,7 @@ export type RootStackParamList = {
   CategorySelection: undefined;
   Contest: { contestId: string };
   CandidateProfile: { candidate: Candidate };
-  // AJOUT: Nouvel écran de statistiques
-  ContestStats: { contestId: string };
+  // SUPPRESSION: L'écran de statistiques n'est plus nécessaire
 };
 
 export type MainStackParamList = {
@@ -229,9 +228,4 @@ export type UserContest = {
   badgeIcon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
 
-export type CandidateStats = {
-  id: string;
-  name: string;
-  // Tableau de l'historique des votes, ex: [100, 120, 150...]
-  voteHistory: number[];
-};
+// SUPPRESSION: Le type pour les statistiques n'est plus nécessaire

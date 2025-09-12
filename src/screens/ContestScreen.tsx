@@ -12,9 +12,10 @@ import {
   StatusBar,
   Animated,
   Keyboard,
+  BackHandler, // AJOUT
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native'; // AJOUT
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { MOCK_CONTEST, MOCK_CANDIDATES } from '../data/mockContestData';
 import { Candidate, RootStackParamList } from '../types';
@@ -75,8 +76,7 @@ const ContestScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
-  
-  // MODIFICATION: Gestion de l'état de recherche
+
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<TextInput>(null);
@@ -88,6 +88,28 @@ const ContestScreen: React.FC = () => {
     }
     return MOCK_CANDIDATES.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [searchQuery]);
+
+  const handleDeactivateSearch = useCallback(() => {
+    setIsSearchActive(false);
+    setSearchQuery('');
+    Keyboard.dismiss();
+  }, []);
+
+  // AJOUT: Gestion du bouton retour physique/geste
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (isSearchActive) {
+          handleDeactivateSearch();
+          return true; // Empêche le retour en arrière par défaut
+        }
+        return false; // Autorise le retour en arrière par défaut
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => subscription.remove();
+    }, [isSearchActive, handleDeactivateSearch])
+  );
 
   const handleVotePress = (candidate: Candidate) => {
     Keyboard.dismiss();
@@ -106,60 +128,44 @@ const ContestScreen: React.FC = () => {
       ]
     );
   };
-  
-  // MODIFICATION: Fonctions pour gérer le mode recherche
+
   const handleActivateSearch = () => {
     setIsSearchActive(true);
     setTimeout(() => searchInputRef.current?.focus(), 100);
   };
 
-  const handleDeactivateSearch = () => {
-    setIsSearchActive(false);
-    setSearchQuery('');
-    Keyboard.dismiss();
-  };
-
-  const ListHeader = useCallback(() => (
-    <View>
-      <View style={styles.contestHeader}>
-        <MaterialCommunityIcons name="trophy-award" size={48} color="#f59e0b" />
-        <Text style={styles.contestTitle}>{contest.title}</Text>
-        <Text style={styles.contestDescription}>{contest.description}</Text>
-        <ContestCountdown endDate={contest.endDate} />
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{formatNumber(contest.totalVotes)}</Text>
-            <Text style={styles.statLabel}>Votes</Text>
+  const ListHeader = useCallback(
+    () => (
+      <View>
+        <View style={styles.contestHeader}>
+          <MaterialCommunityIcons name="trophy-award" size={48} color="#f59e0b" />
+          <Text style={styles.contestTitle}>{contest.title}</Text>
+          <Text style={styles.contestDescription}>{contest.description}</Text>
+          <ContestCountdown endDate={contest.endDate} />
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{formatNumber(contest.totalVotes)}</Text>
+              <Text style={styles.statLabel}>Votes</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{contest.totalParticipants}</Text>
+              <Text style={styles.statLabel}>Participants</Text>
+            </View>
           </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{contest.totalParticipants}</Text>
-            <Text style={styles.statLabel}>Participants</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.statItem}
-            onPress={() => navigation.navigate('ContestStats', { contestId: contest.id })}
-          >
-            <Text style={[styles.statValue, { color: '#007bff' }]}>
-              <Ionicons name="stats-chart" size={18} color="#007bff" />
-            </Text>
-            <Text style={[styles.statLabel, { color: '#007bff' }]}>Statistiques</Text>
-          </TouchableOpacity>
         </View>
+        <TouchableOpacity style={styles.searchBarContainer} onPress={handleActivateSearch}>
+          <Ionicons name="search-outline" size={20} color="#8A8A8E" style={styles.searchIcon} />
+          <Text style={styles.searchPlaceholder}>Rechercher un candidat...</Text>
+        </TouchableOpacity>
       </View>
-      {/* "Fausse" barre de recherche qui active le mode recherche */}
-      <TouchableOpacity style={styles.searchBarContainer} onPress={handleActivateSearch}>
-        <Ionicons name="search-outline" size={20} color="#8A8A8E" style={styles.searchIcon} />
-        <Text style={styles.searchPlaceholder}>Rechercher un candidat...</Text>
-      </TouchableOpacity>
-    </View>
-  ), [contest, navigation]);
-
+    ),
+    [contest]
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="dark-content" />
-      
-      {/* MODIFICATION: Deux en-têtes qui s'affichent conditionnellement */}
+
       {!isSearchActive ? (
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -194,7 +200,6 @@ const ContestScreen: React.FC = () => {
         renderItem={({ item }) => (
           <CandidateCard item={item} totalVotes={contest.totalVotes} onVote={handleVotePress} />
         )}
-        // MODIFICATION: L'en-tête ne s'affiche qu'en mode normal
         ListHeaderComponent={!isSearchActive ? ListHeader : null}
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

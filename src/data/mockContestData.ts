@@ -1,5 +1,5 @@
 // src/data/mockContestData.ts
-import { Contest, Candidate, CandidateStats } from '../types';
+import { Contest, Candidate } from '../types';
 
 export const MOCK_CONTEST: Contest = {
   id: 'journalistes-tech-2025',
@@ -55,9 +55,4 @@ export const MOCK_CANDIDATES: Candidate[] = [
   },
 ];
 
-// AJOUT: Données simulées pour les statistiques
-export const MOCK_STATS: CandidateStats[] = [
-  { id: 'cand-01', name: 'Elise Adjovi', voteHistory: [2000, 2150, 2300, 2450, 2540] },
-  { id: 'cand-02', name: 'Jean-Luc Bocco', voteHistory: [1500, 1600, 1750, 1850, 1980] },
-  { id: 'cand-03', name: 'Amina Diallo', voteHistory: [1600, 1650, 1700, 1800, 1850] },
-];
+// SUPPRESSION: Les données MOCK_STATS ne sont plus nécessaires

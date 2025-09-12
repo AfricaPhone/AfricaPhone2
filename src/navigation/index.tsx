@@ -21,8 +21,7 @@ import CategorySelectionScreen from '../screens/CategorySelectionScreen';
 import FilterScreen from '../screens/FilterScreen';
 import ContestScreen from '../screens/ContestScreen';
 import CandidateProfileScreen from '../screens/CandidateProfileScreen';
-// --- AJOUT ---
-import ContestStatsScreen from '../screens/ContestStatsScreen';
+// SUPPRESSION: L'import de ContestStatsScreen n'est plus nécessaire
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -101,8 +100,7 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="CategorySelection" component={CategorySelectionScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="FilterScreen" component={FilterScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Contest" component={ContestScreen} options={{ headerShown: false }} />
-      {/* AJOUT: Déclaration de l'écran de statistiques */}
-      <RootStack.Screen name="ContestStats" component={ContestStatsScreen} options={{ headerShown: false }} />
+      {/* SUPPRESSION: La déclaration de l'écran de statistiques n'est plus nécessaire */}
 
       {/* Screens modaux */}
       <RootStack.Group screenOptions={{ presentation: 'modal' }}>
