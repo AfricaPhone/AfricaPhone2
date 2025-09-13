@@ -1,8 +1,11 @@
 // src/types.ts
 import { DimensionValue } from 'react-native';
 import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-import { Segment } from './screens/home/ProductSegments';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+// AJOUT: La définition de Segment est maintenant ici et est exportée
+export const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;
+export type Segment = (typeof SEGMENTS)[number];
 
 export type Category = string;
 
@@ -108,7 +111,7 @@ export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | Sho
 // --- Navigation Types ---
 export type FilterOptions = {
   searchQuery?: string;
-  category?: Segment; // Changé en Segment
+  category?: Segment;
   brands?: Brand[];
   minPrice?: string;
   maxPrice?: string;
@@ -116,6 +119,7 @@ export type FilterOptions = {
   isVedette?: boolean;
   rom?: number;
   ram?: number;
+  selectedPriceRangeKey?: string;
 };
 
 export type RootStackParamList = {
@@ -134,6 +138,7 @@ export type RootStackParamList = {
   CategorySelection: undefined;
   Contest: { contestId: string };
   CandidateProfile: { candidate: Candidate };
+  KkiapayTest: undefined;
 };
 
 export type MainStackParamList = {
@@ -155,7 +160,6 @@ export type Prediction = {
   matchId: string;
   scoreA: number;
   scoreB: number;
-  // CORRECTION: Remplacement de 'any' par le type Timestamp de Firestore
   createdAt: FirebaseFirestoreTypes.Timestamp;
   isWinner?: boolean;
 };

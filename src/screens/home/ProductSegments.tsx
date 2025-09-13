@@ -2,9 +2,7 @@
 import React from 'react';
 import { Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;
-export type Segment = (typeof SEGMENTS)[number];
+import { Segment } from '../../types'; // CORRECTION: On importe Segment depuis le fichier central types.ts
 
 const SEGMENTS_DATA: Array<{
   key: Segment;
@@ -13,7 +11,7 @@ const SEGMENTS_DATA: Array<{
 }> = [
   { key: 'Populaires', label: 'Populaires', icon: 'star-outline' },
   { key: 'tablette', label: 'Tablettes', icon: 'tablet-portrait-outline' },
-  { key: 'portable a touche', label: 'A touches', icon: 'keypad-outline' }, // MODIFICATION: "Portable a Touche" remplacé par "A touches"
+  { key: 'portable a touche', label: 'A touches', icon: 'keypad-outline' },
   { key: 'accessoire', label: 'Accessoires et Plus', icon: 'headset-outline' },
 ];
 
