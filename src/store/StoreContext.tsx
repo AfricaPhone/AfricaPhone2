@@ -1,136 +1,127 @@
-// src/store/StoreContext.tsx
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { FirebaseAuthTypes, onAuthStateChanged, signOut } from '@react-native-firebase/auth'; // CORRIGÉ
-import { doc, getDoc } from '@react-native-firebase/firestore';
-import { auth, db } from '../firebase/config';
-import { User } from '../types';
-import { registerForPushNotificationsAsync, saveTokenToFirestore } from '../services/notificationService';
+import React, { createContext, useState, useEffect, ReactNode } from "react";
+import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import firestore from "@react-native-firebase/firestore";
+import { User } from "../types";
 
-// --- Types & État Initial ---
-type State = {
+interface StoreContextProps {
   user: User | null;
-};
-
-type Action = { type: 'SET_USER'; user: User | null };
-
-const initialState: State = {
-  user: null,
-};
-
-// --- Reducer ---
-function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case 'SET_USER':
-      return { ...state, user: action.user };
-    default:
-      return state;
-  }
+  isAuthenticated: boolean;
+  isStoreLoading: boolean;
+  signInWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+  updateUserProfile: (profileData: Partial<User>) => Promise<void>;
 }
 
-// --- Type du Contexte ---
-type StoreContextType = {
-  user: User | null;
-  logout: () => void;
-  // NOUVELLE FONCTION POUR RAFRAÎCHIR LE JETON
-  getFreshToken: () => Promise<string | null>;
-};
+export const StoreContext = createContext<StoreContextProps>({
+  user: null,
+  isAuthenticated: false,
+  isStoreLoading: true,
+  signInWithGoogle: async () => {},
+  logout: async () => {},
+  updateUserProfile: async () => {},
+});
 
-const StoreContext = createContext<StoreContextType | null>(null);
+interface StoreProviderProps {
+  children: ReactNode;
+}
 
-// --- Provider ---
-export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isStoreLoading, setStoreLoading] = useState(true);
 
   useEffect(() => {
-    // CORRIGÉ : Syntaxe modulaire
-    const subscriber = onAuthStateChanged(auth, async (firebaseUser: FirebaseAuthTypes.User | null) => {
-      if (firebaseUser) {
-        try {
-          const userDocRef = doc(db, 'users', firebaseUser.uid);
-          const userDoc = await getDoc(userDocRef);
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data() as { firstName: string; lastName: string };
-            const fullName = `${userData.firstName} ${userData.lastName}`;
-            const formattedUser: User = {
-              id: firebaseUser.uid,
-              name: fullName,
-              firstName: userData.firstName,
-              lastName: userData.lastName,
-              email: firebaseUser.email,
-              phoneNumber: firebaseUser.phoneNumber,
-              initials: userData.firstName ? userData.firstName.charAt(0).toUpperCase() : 'U',
-            };
-            dispatch({ type: 'SET_USER', user: formattedUser });
-          } else {
-            // Fallback for users that might exist in Auth but not in Firestore
-            const fallbackUser: User = {
-              id: firebaseUser.uid,
-              name: firebaseUser.displayName || firebaseUser.phoneNumber || 'Utilisateur',
-              email: firebaseUser.email,
-              phoneNumber: firebaseUser.phoneNumber,
-              initials: firebaseUser.displayName ? firebaseUser.displayName.charAt(0) : 'U',
-            };
-            dispatch({ type: 'SET_USER', user: fallbackUser });
-          }
-        } catch (error) {
-          console.error('Erreur lors de la récupération du profil utilisateur:', error);
-          dispatch({ type: 'SET_USER', user: null });
-        }
-      } else {
-        dispatch({ type: 'SET_USER', user: null });
-      }
-    });
-    return subscriber;
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
   }, []);
 
-  // AJOUTÉ : Nouvel effet pour gérer l'enregistrement des notifications
-  useEffect(() => {
-    const setupNotifications = async () => {
-      if (state.user) {
-        const token = await registerForPushNotificationsAsync();
-        if (token) {
-          await saveTokenToFirestore(state.user.id, token);
-        }
+  const onAuthStateChanged = async (
+    firebaseUser: FirebaseAuthTypes.User | null
+  ) => {
+    if (firebaseUser) {
+      const userDoc = await firestore()
+        .collection("users")
+        .doc(firebaseUser.uid)
+        .get();
+
+      if (userDoc.exists) {
+        setUser(userDoc.data() as User);
+      } else {
+        // If user document doesn't exist, create a basic one
+        const newUser: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || "",
+          displayName: firebaseUser.displayName || "",
+          photoURL: firebaseUser.photoURL || "",
+          createdAt: new Date(),
+          isProfileCompleted: false,
+        };
+        await firestore()
+          .collection("users")
+          .doc(firebaseUser.uid)
+          .set(newUser);
+        setUser(newUser);
       }
-    };
+    } else {
+      setUser(null);
+    }
+    setStoreLoading(false);
+  };
 
-    setupNotifications();
-  }, [state.user]);
+  const signInWithGoogle = async () => {
+    try {
+      setStoreLoading(true);
+      await GoogleSignin.hasPlayServices();
+      const { idToken } = await GoogleSignin.signIn();
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      await auth().signInWithCredential(googleCredential);
+    } catch (error) {
+      console.error(error);
+      setStoreLoading(false);
+    }
+  };
 
-  const logout = () => signOut(auth); // CORRIGÉ
+  const logout = async () => {
+    try {
+      setStoreLoading(true);
+      await auth().signOut();
+      await GoogleSignin.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setStoreLoading(false);
+    }
+  };
 
-  /**
-   * Force le rafraîchissement du jeton d'identification de l'utilisateur.
-   * @returns Le nouveau jeton ou null si l'utilisateur n'est pas connecté.
-   */
-  const getFreshToken = async (): Promise<string | null> => {
-    const currentUser = auth.currentUser; // CORRIGÉ
-    if (currentUser) {
+  const updateUserProfile = async (profileData: Partial<User>) => {
+    if (user) {
       try {
-        // Le paramètre `true` force le rafraîchissement du jeton.
-        const token = await currentUser.getIdToken(true);
-        return token;
+        setStoreLoading(true);
+        const userRef = firestore().collection("users").doc(user.uid);
+        await userRef.update(profileData);
+        const updatedUserDoc = await userRef.get();
+        setUser(updatedUserDoc.data() as User);
       } catch (error) {
-        console.error('Erreur lors du rafraîchissement du jeton:', error);
-        return null;
+        console.error("Error updating user profile:", error);
+      } finally {
+        setStoreLoading(false);
       }
     }
-    return null;
   };
 
-  const value: StoreContextType = {
-    user: state.user,
-    logout,
-    getFreshToken, // Exposer la nouvelle fonction
-  };
-
-  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
-};
-
-// --- Hook ---
-export const useStore = () => {
-  const ctx = useContext(StoreContext);
-  if (!ctx) throw new Error('useStore must be used within StoreProvider');
-  return ctx;
+  return (
+    <StoreContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isStoreLoading,
+        signInWithGoogle,
+        logout,
+        updateUserProfile,
+      }}
+    >
+      {children}
+    </StoreContext.Provider>
+  );
 };

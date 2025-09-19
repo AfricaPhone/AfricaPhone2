@@ -1,164 +1,135 @@
-// src/screens/SignUpScreen.tsx
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-
 import {
-  GoogleSignin,
-  statusCodes,
-  // CORRECTION: isSuccessResponse est retiré car il n'existe plus
-  isErrorWithCode,
-} from '@react-native-google-signin/google-signin';
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  Alert,
+} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation";
+import { StoreContext } from "../store/StoreContext";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
-// MODIFICATION: Importations modulaires de Firebase
-import { GoogleAuthProvider, signInWithCredential } from '@react-native-firebase/auth';
-import { doc, getDoc } from '@react-native-firebase/firestore';
-import { auth, db } from '../firebase/config';
+type SignUpScreenProps = StackNavigationProp<RootStackParamList, "SignUp">;
 
-import LoadingModal from '../components/LoadingModal';
-
-const SignUpScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const SignUpScreen = () => {
+  const navigation = useNavigation<SignUpScreenProps>();
+  const { signInWithGoogle } = useContext(StoreContext);
+  const [error, setError] = useState<any>();
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: '203471818329-mgplh0srpmm9cilo493js0qam6lbbvbd.apps.googleusercontent.com',
+      webClientId:
+        "5752767997971470489-e8802952kpah6cl2q511f4f6pft2rk3i.apps.googleusercontent.com",
     });
   }, []);
 
   const handleGoogleSignIn = async () => {
-    setIsSubmitting(true);
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-
-      // CORRECTION: La réponse de signIn() contient directement les infos utilisateur
-      const { idToken } = await GoogleSignin.signIn();
-
-      if (!idToken) {
-        throw new Error('ID token manquant dans la réponse Google.');
-      }
-
-      // MODIFICATION: Utilisation de l'API modulaire pour l'authentification
-      const googleCredential = GoogleAuthProvider.credential(idToken);
-      const userCredential = await signInWithCredential(auth, googleCredential);
-      const user = userCredential.user;
-
-      if (user) {
-        // MODIFICATION: Utilisation de l'API modulaire pour Firestore
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-          Alert.alert('Bienvenue à nouveau !', 'Heureux de vous revoir.', [
-            { text: 'OK', onPress: () => navigation.goBack() },
-          ]);
-        } else {
-          const displayName = user.displayName ?? '';
-          const [firstName, ...rest] = displayName.split(' ').filter(Boolean);
-          const lastName = rest.join(' ');
-
-          navigation.replace('CreateProfile', {
-            userId: user.uid,
-            firstName: firstName || '',
-            lastName: lastName || '',
-            email: user.email,
-          });
-        }
-      }
-    } catch (error: unknown) {
-      if (isErrorWithCode(error)) {
-        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-          // User cancelled: no alert necessary
-        } else if (error.code === statusCodes.IN_PROGRESS) {
-          Alert.alert('Connexion en cours', 'Une opération de connexion est déjà en cours.');
-        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-          Alert.alert('Erreur', 'Les services Google Play ne sont pas disponibles ou sont obsolètes sur cet appareil.');
-        } else {
-          console.error('Erreur Google Sign-In: ', error);
-          Alert.alert('Erreur', 'Une erreur inattendue est survenue lors de la connexion avec Google.');
-        }
-      } else {
-        console.error('Erreur de connexion Google: ', error);
-        Alert.alert('Erreur', 'Une erreur inattendue est survenue lors de la connexion avec Google.');
-      }
-    } finally {
-      setIsSubmitting(false);
+      await signInWithGoogle();
+    } catch (error) {
+      setError(error);
+      Alert.alert("Erreur", "Une erreur est survenue lors de la connexion.");
     }
   };
 
+  if (error) {
+    Alert.alert("Erreur", "Une erreur est survenue lors de la connexion.");
+  }
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <LoadingModal isVisible={isSubmitting} message={'Connexion en cours...'} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#111" />
-          </TouchableOpacity>
-        </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Rejoignez-nous</Text>
+        <Text style={styles.subtitle}>
+          Connectez-vous pour commencer votre shopping.
+        </Text>
 
-        <View style={styles.formContainer}>
-          <Ionicons name="key-outline" size={60} color="#111" style={{ alignSelf: 'center', marginBottom: 20 }} />
-          <Text style={styles.title}>Connectez-vous</Text>
-          <Text style={styles.subtitle}>
-            Utilisez votre compte Google pour accéder à toutes les fonctionnalités de l'application.
-          </Text>
-
-          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn} disabled={isSubmitting}>
-            <Ionicons name="logo-google" size={22} color="#fff" />
-            <Text style={styles.googleButtonText}>Se connecter avec Google</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        <TouchableOpacity
+          style={[styles.button, styles.googleButton]}
+          onPress={handleGoogleSignIn}
+        >
+          <FontAwesome
+            name="google"
+            size={20}
+            color="white"
+            style={styles.icon}
+          />
+          <Text style={styles.buttonText}>Continuer avec Google</Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity
+        style={styles.laterButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.laterButtonText}>Plus tard</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  scrollContent: { flexGrow: 1, justifyContent: 'center' },
-  header: {
-    position: 'absolute',
-    top: 10,
-    left: 16,
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    justifyContent: "space-between",
   },
-  backButton: {
-    padding: 8,
-  },
-  formContainer: {
-    paddingHorizontal: 24,
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#111',
-    marginBottom: 8,
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#555',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 22,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 40,
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 50,
+    width: "100%",
+    justifyContent: "center",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    height: 52,
-    borderRadius: 12,
-    backgroundColor: '#4285F4',
-    width: '100%',
-    marginTop: 8,
+    backgroundColor: "#4285F4",
   },
-  googleButtonText: {
-    fontWeight: 'bold',
+  buttonText: {
+    color: "#fff",
     fontSize: 16,
-    color: '#fff',
+    fontWeight: "600",
+    marginLeft: 10,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  laterButton: {
+    alignSelf: "center",
+    marginBottom: 40,
+  },
+  laterButtonText: {
+    fontSize: 16,
+    color: "#888",
+    fontWeight: "500",
   },
 });
 
