@@ -65,8 +65,10 @@ const FavoritesScreen: React.FC = () => {
         { text: 'Annuler', style: 'cancel' },
         {
           text: 'Créer',
-          onPress: name => {
-            if (name) createCollection(name);
+          onPress: (name?: string) => {
+            if (typeof name === 'string' && name.trim().length > 0) {
+            createCollection(name.trim());
+          }
           },
         },
       ],

@@ -56,3 +56,14 @@ export const MOCK_CANDIDATES: Candidate[] = [
 ];
 
 // SUPPRESSION: Les données MOCK_STATS ne sont plus nécessaires
+export const MOCK_STATS = MOCK_CANDIDATES.slice(0, 3).map((candidate, index) => ({
+  id: candidate.id,
+  name: candidate.name,
+  voteHistory: [
+    1200 + index * 150,
+    1350 + index * 160,
+    1480 + index * 170,
+    1600 + index * 180,
+    1780 + index * 190,
+  ],
+}));

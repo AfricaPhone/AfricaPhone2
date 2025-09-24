@@ -1,103 +1,132 @@
-jest.mock("@react-navigation/material-top-tabs", () => {
-  const React = require("react");
+jest.mock('@react-navigation/material-top-tabs', () => {
+  const React = require('react');
   const capturedProps = { current: null } as { current: any };
-  const MockMaterialTopTabBar = (props: any) => {
-    capturedProps.current = props;
+  const MaterialTopTabBar = jest.fn(({ renderTabBarItem, ...rest }: any) => {
+    capturedProps.current = { ...rest, renderTabBarItem };
     return null;
-  };
+  });
 
   return {
     __esModule: true,
-    MaterialTopTabBar: MockMaterialTopTabBar,
+    MaterialTopTabBar,
     __mock: { capturedProps },
   };
 });
 
-import React from "react";
-import { render } from "@testing-library/react-native";
-import { Animated } from "react-native";
-import PatchedMaterialTopTabBar from "../PatchedMaterialTopTabBar";
+jest.mock('react-native-tab-view', () => {
+  const React = require('react');
+  const TabBarItem = jest.fn((props: any) => React.createElement('TabBarItem', props));
+  return {
+    __esModule: true,
+    TabBarItem,
+  };
+});
+
+import React from 'react';
+import { Animated } from 'react-native';
+import { render } from '@testing-library/react-native';
+import PatchedMaterialTopTabBar from '../PatchedMaterialTopTabBar';
+import type { MaterialTopTabBarProps } from '@react-navigation/material-top-tabs';
+
+const {
+  __mock: { capturedProps },
+  MaterialTopTabBar,
+} = jest.requireMock('@react-navigation/material-top-tabs') as {
+  MaterialTopTabBar: jest.Mock;
+  __mock: { capturedProps: { current: any } };
+};
+
+const { TabBarItem } = jest.requireMock('react-native-tab-view') as { TabBarItem: jest.Mock };
 
 type TabRoute = { key: string; name: string };
 
-const capturedModule = jest.requireMock("@react-navigation/material-top-tabs") as {
-  __mock: { capturedProps: { current: any } };
+type RenderItemArgs = Parameters<NonNullable<MaterialTopTabBarProps['renderTabBarItem']>>[0] & {
+  key?: string;
 };
-const {
-  __mock: { capturedProps },
-} = capturedModule;
 
-const createBaseProps = () => ({
+const createBaseProps = (): Partial<MaterialTopTabBarProps> => ({
   layout: { width: 320, height: 64 },
   position: new Animated.Value(0) as unknown,
   jumpTo: jest.fn(),
   state: { index: 0, routes: [] },
-  navigation: { emit: jest.fn() },
+  navigation: { emit: jest.fn() } as any,
   descriptors: {},
 });
 
-const createItemProps = (route: TabRoute) => ({
-  key: "initial-key",
+const createRenderItemArgs = (route: TabRoute, overrides: Partial<RenderItemArgs> = {}): RenderItemArgs => ({
+  key: '0',
   route,
-  position: new Animated.Value(0) as unknown,
+  focused: false,
+  color: '#000',
   navigationState: { index: 0, routes: [route] },
-  getAccessibilityLabel: jest.fn(),
-  getAccessible: jest.fn(),
+  position: new Animated.Value(0),
+  layout: { width: 320, height: 64 },
+  jumpTo: jest.fn(),
   getLabelText: jest.fn(),
+  getAccessible: jest.fn(),
+  getAccessibilityLabel: jest.fn(),
   getTestID: jest.fn(),
-  renderBadge: jest.fn(),
   renderIcon: jest.fn(),
   renderLabel: jest.fn(),
-  activeColor: "#000",
-  inactiveColor: "#999",
-  pressColor: "#eee",
-  pressOpacity: 0.5,
-  onPress: jest.fn(),
-  onLongPress: jest.fn(),
-  labelStyle: {},
-  style: {},
+  renderBadge: jest.fn(),
+  getBadge: jest.fn(),
+  onTabPress: jest.fn(),
+  onTabLongPress: jest.fn(),
+  pressColor: 'rgba(0,0,0,0.1)',
+  getTabPressColor: jest.fn(),
+  ...overrides,
 });
 
-describe("PatchedMaterialTopTabBar", () => {
+describe('PatchedMaterialTopTabBar', () => {
   beforeEach(() => {
     capturedProps.current = null;
+    MaterialTopTabBar.mockClear();
+    TabBarItem.mockClear();
   });
 
-  it("passe la clé de route au renderer personnalisé", () => {
-    const baseProps = createBaseProps();
-    const customRender = jest.fn().mockReturnValue(<></>);
-
-    render(
-      <PatchedMaterialTopTabBar
-        {...(baseProps as any)}
-        renderTabBarItem={customRender}
-      />
-    );
-
-    const { renderTabBarItem } = capturedProps.current;
-    const route = { key: "tablette", name: "Tablettes" };
-
-    renderTabBarItem(createItemProps(route));
-
-    expect(customRender).toHaveBeenCalledWith(
-      expect.objectContaining({
-        key: "tablette",
-        route,
-      })
-    );
-  });
-
-  it("utilise la clé de route lors du fallback vers TabBarItem", () => {
+  it('transmet toutes les props vers MaterialTopTabBar', () => {
     const baseProps = createBaseProps();
 
     render(<PatchedMaterialTopTabBar {...(baseProps as any)} />);
 
-    const { renderTabBarItem } = capturedProps.current;
-    const route = { key: "accessoire", name: "Accessoires" };
+    expect(capturedProps.current).toMatchObject(baseProps);
+    expect(typeof capturedProps.current.renderTabBarItem).toBe('function');
+  });
 
-    const element = renderTabBarItem(createItemProps(route));
+  it('utilise la key de la route pour les items', () => {
+    const baseProps = createBaseProps();
+    const route = { key: 'tablette', name: 'tablette' };
 
-    expect(element.key).toBe("accessoire");
-    expect(element.props.route).toBe(route);
+    render(<PatchedMaterialTopTabBar {...(baseProps as any)} />);
+
+    const element = capturedProps.current.renderTabBarItem(
+      createRenderItemArgs(route)
+    ) as React.ReactElement;
+
+    expect(React.isValidElement(element)).toBe(true);
+    expect(element.key).toBe(route.key);
+  });
+
+  it('clone la sortie custom en forcant la key de la route', () => {
+    const route = { key: 'accessoire', name: 'accessoire' };
+    const customElement = <React.Fragment />;
+    const renderTabBarItem: NonNullable<MaterialTopTabBarProps['renderTabBarItem']> = jest
+      .fn()
+      .mockReturnValue(customElement);
+
+    const baseProps = {
+      ...createBaseProps(),
+      renderTabBarItem,
+    } as MaterialTopTabBarProps;
+
+    render(<PatchedMaterialTopTabBar {...baseProps} />);
+
+    const element = capturedProps.current.renderTabBarItem(
+      createRenderItemArgs(route)
+    ) as React.ReactElement;
+
+    expect(renderTabBarItem).toHaveBeenCalled();
+    expect(React.isValidElement(element)).toBe(true);
+    expect(element.key).toBe(route.key);
   });
 });

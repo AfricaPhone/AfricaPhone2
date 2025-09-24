@@ -8,9 +8,9 @@ import {
   ScrollView,
   TextInput,
   Switch,
-  SafeAreaView,
   Pressable,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Brand, FilterOptions } from '../types';
 import { useProducts } from '../store/ProductContext';

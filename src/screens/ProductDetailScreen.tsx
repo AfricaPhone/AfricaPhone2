@@ -153,9 +153,13 @@ const ProductDetailScreen: React.FC = () => {
     const cacheShareImage = async () => {
       if (gallery.length > 0) {
         const imageUrl = gallery[0];
-        const localUri = FileSystem.cacheDirectory + `${productId}-share-image.jpg`;
-        shareableImageUri.current = localUri;
-
+        const baseDirectory = FileSystem.Paths.cache ?? FileSystem.Paths.document;
+        if (!baseDirectory) {
+          setIsShareable(false);
+          return;
+        }
+        const destinationFile = new FileSystem.File(baseDirectory, `${productId}-share-image.jpg`);
+        const localUri = destinationFile.uri;
         try {
           const fileInfo = await FileSystem.getInfoAsync(localUri);
           if (!fileInfo.exists) {

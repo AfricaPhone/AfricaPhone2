@@ -79,7 +79,7 @@ const PredictionGameScreen: React.FC = () => {
     const unsubscribeMatch = onSnapshot(
       matchDocRef,
       matchDoc => {
-        if (matchDoc.exists) {
+        if (matchDoc.exists()) {
           setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
         } else {
           console.error('Match non trouvé !');

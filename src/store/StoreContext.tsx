@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext, useCallback } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
 import firestore from '@react-native-firebase/firestore';
 import { User } from '../types';
 
@@ -139,7 +139,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
         const userDocRef = firestore().collection('users').doc(firebaseUser.uid);
         const snapshot = await userDocRef.get();
 
-        if (snapshot.exists) {
+        if (snapshot.exists()) {
           const data = snapshot.data() as FirestoreUser;
           setUser(normalizeUser(data, { authUser: firebaseUser }));
         } else {
@@ -171,9 +171,6 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     try {
       setStoreLoading(true);
       await GoogleSignin.hasPlayServices();
-      const { idToken } = await GoogleSignin.signIn();
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(googleCredential);
     } catch (error) {
       console.error('Error signing in with Google:', error);
       setStoreLoading(false);
