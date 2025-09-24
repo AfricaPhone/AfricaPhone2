@@ -15,7 +15,7 @@ const SEGMENTS_DATA: Array<{
 }> = [
   { key: 'Populaires', label: 'Populaires' },
   { key: 'tablette', label: 'Tablettes' },
-  { key: 'portable a touche', label: 'A touches' }, // MODIFICATION: "Portables" remplacé par "A touches"
+  { key: 'portable a touche', label: 'A touches' }, // MODIFICATION: "Portables" remplace par "A touches"
   { key: 'accessoire', label: 'Accessoires' },
 ];
 
@@ -41,7 +41,13 @@ const HomeTabNavigator = () => {
       }}
     >
       {SEGMENTS_DATA.map(({ key, label }) => (
-        <Tab.Screen key={key} name={label} component={CategoryScreen} initialParams={{ category: key }} />
+        <Tab.Screen
+          key={key}
+          name={key}
+          component={CategoryScreen}
+          options={{ tabBarLabel: label }}
+          initialParams={{ category: key }}
+        />
       ))}
     </Tab.Navigator>
   );
