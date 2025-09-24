@@ -155,19 +155,22 @@ const ProductDetailScreen: React.FC = () => {
         const imageUrl = gallery[0];
         const baseDirectory = FileSystem.Paths.cache ?? FileSystem.Paths.document;
         if (!baseDirectory) {
+          shareableImageUri.current = null;
           setIsShareable(false);
           return;
         }
         const destinationFile = new FileSystem.File(baseDirectory, `${productId}-share-image.jpg`);
         const localUri = destinationFile.uri;
         try {
-          const fileInfo = await FileSystem.getInfoAsync(localUri);
+          const fileInfo = destinationFile.info();
           if (!fileInfo.exists) {
             await FileSystem.downloadAsync(imageUrl, localUri);
           }
+          shareableImageUri.current = localUri;
           setIsShareable(true);
         } catch (e) {
           console.error("Erreur de pré-chargement de l'image:", e);
+          shareableImageUri.current = null;
           setIsShareable(false);
         }
       }

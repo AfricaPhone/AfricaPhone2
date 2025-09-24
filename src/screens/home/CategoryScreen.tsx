@@ -1,16 +1,27 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import ProductGrid from './ProductGrid';
 import HomeListHeader from './HomeListHeader';
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  where,
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
 import { useProducts } from '../../store/ProductContext';
 import { Product, PromoCard } from '../../types';
-import type { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../../firebase/config';
 import { MOCK_CONTEST } from '../../data/mockContestData';
 
 const PAGE_SIZE = 10;
 
-type Query = FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData>;
 type Snapshot = FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>;
+
+const productsCollection = collection(db, 'products');
+const promoCardsCollection = collection(db, 'promoCards');
 
 const mapDocToProduct = (doc: Snapshot): Product => {
   const data = doc.data();
@@ -33,7 +44,8 @@ const mapDocToProduct = (doc: Snapshot): Product => {
   };
 };
 
-const getUniqueProducts = (products: Product[]): Product[] => Array.from(new Map(products.map(p => [p.id, p])).values());
+const getUniqueProducts = (products: Product[]): Product[] =>
+  Array.from(new Map(products.map(p => [p.id, p])).values());
 
 const CategoryScreen = ({ route }: { route: { params: { category: string } } }) => {
   const { category } = route.params;
@@ -50,22 +62,24 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
   const [promoCardsLoading, setPromoCardsLoading] = useState(true);
 
   const buildQuery = useCallback(
-    (startAfterDoc: Snapshot | null = null): Query => {
-      let q: Query = db.collection('products');
+    (startAfterDoc: Snapshot | null = null): FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> => {
+      let queryRef: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> = productsCollection;
 
       if (category === 'Populaires') {
-        q = q.orderBy('ordreVedette', 'desc').orderBy('name', 'asc');
+        queryRef = query(queryRef, orderBy('ordreVedette', 'desc'));
+        queryRef = query(queryRef, orderBy('name', 'asc'));
       } else {
-        q = q.where('category', '==', category).orderBy('name', 'asc');
+        queryRef = query(queryRef, where('category', '==', category));
+        queryRef = query(queryRef, orderBy('name', 'asc'));
       }
 
-      q = q.limit(PAGE_SIZE);
+      queryRef = query(queryRef, limit(PAGE_SIZE));
 
       if (startAfterDoc) {
-        q = q.startAfter(startAfterDoc);
+        queryRef = query(queryRef, startAfter(startAfterDoc));
       }
 
-      return q;
+      return queryRef;
     },
     [category]
   );
@@ -79,14 +93,14 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
       }
 
       try {
-        const querySnapshot = await buildQuery().get();
+        const querySnapshot = await getDocs(buildQuery());
         const fetchedProducts = querySnapshot.docs.map(mapDocToProduct);
 
         setProducts(getUniqueProducts(fetchedProducts));
         setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1] ?? null);
         setHasMore(fetchedProducts.length === PAGE_SIZE);
       } catch (error) {
-        console.error(`Erreur de chargement pour la catégorie "${category}":`, error);
+        console.error(`Erreur de chargement pour la categorie "${category}":`, error);
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -102,7 +116,7 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
     setLoadingMore(true);
 
     try {
-      const querySnapshot = await buildQuery(lastDoc).get();
+      const querySnapshot = await getDocs(buildQuery(lastDoc));
       const newProducts = querySnapshot.docs.map(mapDocToProduct);
 
       if (newProducts.length > 0) {
@@ -129,7 +143,7 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
           const contestCard: PromoCard = {
             id: 'promo-contest-01',
             title: 'Concours de Vote',
-            subtitle: "Élisez le journaliste tech de l'année !",
+            subtitle: "Elisez le journaliste tech de l'annee !",
             cta: 'Participer',
             image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400',
             screen: 'Contest',
@@ -137,14 +151,14 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
             sortOrder: 0,
           };
 
-          let promoQuery: Query = db.collection('promoCards')
-            .where('isActive', '==', true)
-            .orderBy('sortOrder', 'asc');
+          let promoQueryRef: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> = promoCardsCollection;
+          promoQueryRef = query(promoQueryRef, where('isActive', '==', true));
+          promoQueryRef = query(promoQueryRef, orderBy('sortOrder', 'asc'));
 
-          const querySnapshot = await promoQuery.get();
-          const fetchedCards = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
+          const querySnapshot = await getDocs(promoQueryRef);
+          const fetchedCards = querySnapshot.docs.map((docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
           })) as PromoCard[];
 
           setPromoCards([contestCard, ...fetchedCards]);

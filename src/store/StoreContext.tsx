@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext, useCallback } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
-import firestore from '@react-native-firebase/firestore';
+import { collection, doc, getDoc, setDoc } from '@react-native-firebase/firestore';
+import { db } from '../firebase/config';
 import { User } from '../types';
 
 interface StoreContextProps {
@@ -136,15 +137,15 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     setStoreLoading(true);
     try {
       if (firebaseUser) {
-        const userDocRef = firestore().collection('users').doc(firebaseUser.uid);
-        const snapshot = await userDocRef.get();
+        const userDocRef = doc(db, 'users', firebaseUser.uid);
+        const snapshot = await getDoc(userDocRef);
 
         if (snapshot.exists()) {
           const data = snapshot.data() as FirestoreUser;
           setUser(normalizeUser(data, { authUser: firebaseUser }));
         } else {
           const newUser = createUserFromAuthUser(firebaseUser);
-          await userDocRef.set(newUser);
+          await setDoc(userDocRef, newUser);
           setUser(newUser);
         }
       } else {
@@ -209,8 +210,8 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
           Object.entries(profileData).filter(([, value]) => value !== undefined)
         ) as Partial<User>;
 
-        const userRef = firestore().collection('users').doc(userId);
-        await userRef.set(sanitizedProfileData, { merge: true });
+        const userRef = doc(db, 'users', userId);
+        await setDoc(userRef, sanitizedProfileData, { merge: true });
 
         setUser(prev => {
           if (!prev) {

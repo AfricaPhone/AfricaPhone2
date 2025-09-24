@@ -27,6 +27,7 @@ import { Animated } from 'react-native';
 import { render } from '@testing-library/react-native';
 import PatchedMaterialTopTabBar from '../PatchedMaterialTopTabBar';
 import type { MaterialTopTabBarProps } from '@react-navigation/material-top-tabs';
+import type { TabBarItemProps } from 'react-native-tab-view';
 
 const {
   __mock: { capturedProps },
@@ -40,17 +41,24 @@ const { TabBarItem } = jest.requireMock('react-native-tab-view') as { TabBarItem
 
 type TabRoute = { key: string; name: string };
 
-type RenderItemArgs = Parameters<NonNullable<MaterialTopTabBarProps['renderTabBarItem']>>[0] & {
-  key?: string;
-};
+type RenderItemArgs = any;
 
-const createBaseProps = (): Partial<MaterialTopTabBarProps> => ({
+const createState = () => ({
+  index: 0,
+  key: 'top-tabs',
+  routeNames: [] as string[],
+  routes: [] as TabRoute[],
+  type: 'material-top-tab',
+  stale: false,
+});
+
+const createBaseProps = (): MaterialTopTabBarProps => ({
   layout: { width: 320, height: 64 },
-  position: new Animated.Value(0) as unknown,
+  position: new Animated.Value(0) as unknown as Animated.AnimatedInterpolation<number>,
   jumpTo: jest.fn(),
-  state: { index: 0, routes: [] },
-  navigation: { emit: jest.fn() } as any,
+  navigation: { emit: jest.fn(), dispatch: jest.fn() } as any,
   descriptors: {},
+  state: createState() as any,
 });
 
 const createRenderItemArgs = (route: TabRoute, overrides: Partial<RenderItemArgs> = {}): RenderItemArgs => ({
@@ -58,8 +66,8 @@ const createRenderItemArgs = (route: TabRoute, overrides: Partial<RenderItemArgs
   route,
   focused: false,
   color: '#000',
-  navigationState: { index: 0, routes: [route] },
-  position: new Animated.Value(0),
+  navigationState: { index: 0, routes: [route] } as any,
+  position: new Animated.Value(0) as any,
   layout: { width: 320, height: 64 },
   jumpTo: jest.fn(),
   getLabelText: jest.fn(),
@@ -87,21 +95,21 @@ describe('PatchedMaterialTopTabBar', () => {
   it('transmet toutes les props vers MaterialTopTabBar', () => {
     const baseProps = createBaseProps();
 
-    render(<PatchedMaterialTopTabBar {...(baseProps as any)} />);
+    render(<PatchedMaterialTopTabBar {...baseProps} />);
 
-    expect(capturedProps.current).toMatchObject(baseProps);
-    expect(typeof capturedProps.current.renderTabBarItem).toBe('function');
+    const captured = capturedProps.current as any;
+    expect(captured).toMatchObject({ ...baseProps });
+    expect(typeof captured.renderTabBarItem).toBe('function');
   });
 
   it('utilise la key de la route pour les items', () => {
     const baseProps = createBaseProps();
     const route = { key: 'tablette', name: 'tablette' };
 
-    render(<PatchedMaterialTopTabBar {...(baseProps as any)} />);
+    render(<PatchedMaterialTopTabBar {...baseProps} />);
 
-    const element = capturedProps.current.renderTabBarItem(
-      createRenderItemArgs(route)
-    ) as React.ReactElement;
+    const captured = capturedProps.current as any;
+    const element = captured.renderTabBarItem(createRenderItemArgs(route)) as React.ReactElement;
 
     expect(React.isValidElement(element)).toBe(true);
     expect(element.key).toBe(route.key);
@@ -110,20 +118,17 @@ describe('PatchedMaterialTopTabBar', () => {
   it('clone la sortie custom en forcant la key de la route', () => {
     const route = { key: 'accessoire', name: 'accessoire' };
     const customElement = <React.Fragment />;
-    const renderTabBarItem: NonNullable<MaterialTopTabBarProps['renderTabBarItem']> = jest
-      .fn()
-      .mockReturnValue(customElement);
+    const renderTabBarItem = jest.fn<React.ReactElement | null, [RenderItemArgs]>(() => customElement);
 
     const baseProps = {
       ...createBaseProps(),
       renderTabBarItem,
-    } as MaterialTopTabBarProps;
+    } as MaterialTopTabBarProps & { renderTabBarItem: typeof renderTabBarItem };
 
     render(<PatchedMaterialTopTabBar {...baseProps} />);
 
-    const element = capturedProps.current.renderTabBarItem(
-      createRenderItemArgs(route)
-    ) as React.ReactElement;
+    const captured = capturedProps.current as any;
+    const element = captured.renderTabBarItem(createRenderItemArgs(route)) as React.ReactElement;
 
     expect(renderTabBarItem).toHaveBeenCalled();
     expect(React.isValidElement(element)).toBe(true);

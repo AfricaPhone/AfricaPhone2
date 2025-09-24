@@ -1,5 +1,16 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import {
+  collection,
+  endAt,
+  FirebaseFirestoreTypes,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  startAt,
+  where,
+} from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { Product } from '../types';
 
@@ -22,6 +33,8 @@ export interface ProductQueryOptions {
 type Query = FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData>;
 type QuerySnapshot = FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>;
 
+const productsCollection = collection(db, 'products');
+
 const mapDocToProduct = (doc: QuerySnapshot): Product => {
   const data = doc.data();
   const imageUrls = data.imageUrls || [];
@@ -43,14 +56,12 @@ const mapDocToProduct = (doc: QuerySnapshot): Product => {
   };
 };
 
-const buildBaseQuery = (): Query => db.collection('products');
-
 export const useAllProducts = (options: ProductQueryOptions = {}) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const buildQuery = useCallback((): Query => {
-    let q: Query = buildBaseQuery();
+    let queryRef: Query = productsCollection;
     const minPriceNum = Number(options.minPrice);
     const maxPriceNum = Number(options.maxPrice);
     const hasMinPrice = !Number.isNaN(minPriceNum) && minPriceNum > 0;
@@ -58,50 +69,53 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     const hasPriceFilter = hasMinPrice || hasMaxPrice;
 
     if (options.brandId) {
-      q = q.where('brand', '==', options.brandId);
+      queryRef = query(queryRef, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      q = q.where('category', '==', options.category);
+      queryRef = query(queryRef, where('category', '==', options.category));
     }
 
     if (options.enPromotion) {
-      q = q.where('enPromotion', '==', true);
+      queryRef = query(queryRef, where('enPromotion', '==', true));
     }
 
     if (options.isVedette) {
-      q = q.where('ordreVedette', '>', 0);
+      queryRef = query(queryRef, where('ordreVedette', '>', 0));
     }
 
     if (hasMinPrice) {
-      q = q.where('price', '>=', minPriceNum);
+      queryRef = query(queryRef, where('price', '>=', minPriceNum));
     }
 
     if (hasMaxPrice) {
-      q = q.where('price', '<=', maxPriceNum);
+      queryRef = query(queryRef, where('price', '<=', maxPriceNum));
     }
 
     if (options.rom) {
-      q = q.where('rom', '==', options.rom);
+      queryRef = query(queryRef, where('rom', '==', options.rom));
     }
 
     if (options.ram) {
-      q = q.where('ram', '==', options.ram);
+      queryRef = query(queryRef, where('ram', '==', options.ram));
     }
 
     if (options.searchQuery) {
       const start = options.searchQuery;
-      const end =
-        start.slice(0, -1) + String.fromCharCode(start.charCodeAt(start.length - 1) + 1);
-
-      q = q.orderBy('name').startAt(start).endAt(end);
+      if (start.length > 0) {
+        const end =
+          start.slice(0, -1) + String.fromCharCode(start.charCodeAt(start.length - 1) + 1);
+        queryRef = query(queryRef, orderBy('name'));
+        queryRef = query(queryRef, startAt(start));
+        queryRef = query(queryRef, endAt(end));
+      }
     } else if (hasPriceFilter) {
-      q = q.orderBy('price', options.sortDirection || 'asc');
+      queryRef = query(queryRef, orderBy('price', options.sortDirection || 'asc'));
     } else {
       const sortByField = options.sortBy || 'name';
       const sortDirection = options.sortDirection || 'asc';
-      q = q.orderBy(sortByField, sortDirection);
+      queryRef = query(queryRef, orderBy(sortByField, sortDirection));
     }
 
-    return q;
+    return queryRef;
   }, [
     options.brandId,
     options.category,
@@ -119,8 +133,7 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
   const fetchAllProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const q = buildQuery();
-      const querySnapshot = await q.get();
+      const querySnapshot = await getDocs(buildQuery());
       const allProducts = querySnapshot.docs.map(mapDocToProduct);
       setProducts(allProducts);
     } catch (error) {
@@ -150,19 +163,19 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
   const lastDocRef = useRef<QuerySnapshot | null>(null);
 
   const buildQuery = useCallback((): Query => {
-    let q: Query = buildBaseQuery();
+    let queryRef: Query = productsCollection;
 
     if (options.brandId) {
-      q = q.where('brand', '==', options.brandId);
+      queryRef = query(queryRef, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
-      q = q.where('category', '==', options.category);
+      queryRef = query(queryRef, where('category', '==', options.category));
     }
 
     const sortByField = options.sortBy || 'name';
     const sortDirection = options.sortDirection || 'asc';
-    q = q.orderBy(sortByField, sortDirection);
+    queryRef = query(queryRef, orderBy(sortByField, sortDirection));
 
-    return q;
+    return queryRef;
   }, [options.brandId, options.category, options.sortBy, options.sortDirection]);
 
   const fetchProducts = useCallback(
@@ -178,13 +191,13 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
       }
 
       try {
-        let q = buildQuery().limit(PAGE_SIZE);
+        let currentQuery = query(buildQuery(), limit(PAGE_SIZE));
 
         if (!isInitial && lastDocRef.current) {
-          q = q.startAfter(lastDocRef.current);
+          currentQuery = query(currentQuery, startAfter(lastDocRef.current));
         }
 
-        const querySnapshot = await q.get();
+        const querySnapshot = await getDocs(currentQuery);
         const newProducts = querySnapshot.docs.map(mapDocToProduct);
 
         lastDocRef.current = querySnapshot.docs[querySnapshot.docs.length - 1] ?? null;
