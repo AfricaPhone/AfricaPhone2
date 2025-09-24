@@ -3,11 +3,11 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import PatchedMaterialTopTabBar from './PatchedMaterialTopTabBar';
 import CategoryScreen from '../screens/home/CategoryScreen';
+import type { Segment } from '../types';
+
+export type { Segment } from '../types';
 
 const Tab = createMaterialTopTabNavigator();
-
-const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;
-export type Segment = (typeof SEGMENTS)[number];
 
 const SEGMENTS_DATA: Array<{
   key: Segment;

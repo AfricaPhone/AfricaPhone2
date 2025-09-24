@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Segment } from '../screens/home/ProductSegments';
+import type { Segment } from '../types';
 import { useFilters } from '../store/FilterContext'; // Importez le hook
 
 const CATEGORIES_DATA: Array<{
