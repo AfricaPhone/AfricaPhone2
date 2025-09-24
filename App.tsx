@@ -1,7 +1,7 @@
 // App.tsx
 import 'react-native-gesture-handler';
 import React from 'react';
-import { View } from 'react-native'; // Importer View
+// import { View } from 'react-native'; // CORRECTION: Import de View retiré car non utilisé
 import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
 import RootNavigator from './src/navigation';
 import { StoreProvider } from './src/store/StoreContext';
@@ -9,7 +9,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ProductProvider } from './src/store/ProductContext';
 import { FavoritesProvider } from './src/store/FavoritesContext';
 import { BoutiqueProvider } from './src/store/BoutiqueContext';
-import UpdateModal from './src/components/UpdateModal'; // Importer le nouveau composant
+import UpdateModal from './src/components/UpdateModal';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { FilterProvider } from './src/store/FilterContext';
+import { KkiapayProvider } from '@kkiapay-org/react-native-sdk';
 
 export default function App() {
   const theme: Theme = {
@@ -18,21 +21,25 @@ export default function App() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <BoutiqueProvider>
-          <ProductProvider>
-            <FavoritesProvider>
-              <StoreProvider>
-                <NavigationContainer theme={theme}>
-                  <RootNavigator />
-                </NavigationContainer>
-              </StoreProvider>
-            </FavoritesProvider>
-          </ProductProvider>
-        </BoutiqueProvider>
+        <KkiapayProvider>
+          <BoutiqueProvider>
+            <ProductProvider>
+              <FilterProvider>
+                <FavoritesProvider>
+                  <StoreProvider>
+                    <NavigationContainer theme={theme}>
+                      <RootNavigator />
+                    </NavigationContainer>
+                  </StoreProvider>
+                </FavoritesProvider>
+              </FilterProvider>
+            </ProductProvider>
+          </BoutiqueProvider>
+        </KkiapayProvider>
       </SafeAreaProvider>
       <UpdateModal />
-    </View>
+    </GestureHandlerRootView>
   );
 }

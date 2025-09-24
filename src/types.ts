@@ -1,10 +1,14 @@
 // src/types.ts
 import { DimensionValue } from 'react-native';
 import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+// AJOUT: La définition de Segment est maintenant ici et est exportée
+export const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;
+export type Segment = (typeof SEGMENTS)[number];
 
 export type Category = string;
 
-// NOUVEAU: Définition du type pour une ligne de spécification
 export type Specification = {
   key: string;
   value: string;
@@ -14,9 +18,9 @@ export type Product = {
   id: string;
   title: string;
   price: number;
-  image: string; // Image principale pour les listes/grilles
-  imageUrls?: string[]; // Tableau pour la galerie d'images
-  blurhash?: string; // AJOUT: Pour le placeholder de l'image
+  image: string;
+  imageUrls?: string[];
+  blurhash?: string;
   category: Category;
   description?: string;
   rom?: number;
@@ -24,7 +28,9 @@ export type Product = {
   ram_base?: number;
   ram_extension?: number;
   ordreVedette?: number;
-  specifications?: Specification[]; // NOUVEAU: Champ pour les spécifications
+  specifications?: Specification[];
+  enPromotion?: boolean;
+  isVedette?: boolean;
 };
 
 // --- Brand ---
@@ -38,34 +44,33 @@ export type Brand = {
 // --- User ---
 export type User = {
   id: string;
-  name: string; // Full name: "John Doe"
+  name: string;
   firstName?: string;
   lastName?: string;
   email: string | null;
   phoneNumber?: string | null;
   initials: string;
-  pushTokens?: string[]; // AJOUTÉ
+  pushTokens?: string[];
+  participatedContests?: UserContest[];
 };
 
 // --- Favorites / Collections ---
-
 export type FavoriteCollection = {
   id: string;
   name: string;
-  productIds: Set<string>; // Using a Set for efficient add/delete
+  productIds: Set<string>;
 };
 
 export type FavoritesState = Record<string, FavoriteCollection>;
 
 // --- Discover Feed Types ---
-
 export type HeroItem = {
   type: 'hero';
   id: string;
   title: string;
   subtitle: string;
   imageUrl: string;
-  cta: string; // Call to action text
+  cta: string;
 };
 
 export type ProductGridItem = {
@@ -88,8 +93,8 @@ export type ShopTheLookItem = {
   imageUrl: string;
   markers: Array<{
     productId: string;
-    top: DimensionValue; // e.g., '30%'
-    left: DimensionValue; // e.g., '50%'
+    top: DimensionValue;
+    left: DimensionValue;
   }>;
 };
 
@@ -104,6 +109,18 @@ export type ArticleItem = {
 export type DiscoverFeedItem = HeroItem | ProductGridItem | CollectionItem | ShopTheLookItem | ArticleItem;
 
 // --- Navigation Types ---
+export type FilterOptions = {
+  searchQuery?: string;
+  category?: Segment;
+  brands?: Brand[];
+  minPrice?: string;
+  maxPrice?: string;
+  enPromotion?: boolean;
+  isVedette?: boolean;
+  rom?: number;
+  ram?: number;
+  selectedPriceRangeKey?: string;
+};
 
 export type RootStackParamList = {
   Main: undefined;
@@ -115,25 +132,22 @@ export type RootStackParamList = {
   SignUp: undefined;
   AuthPrompt: undefined;
   CreateProfile: { userId: string; firstName: string; lastName: string; email: string | null };
-  FilterScreenResults: {
-    initialCategory?: string;
-    initialSearchQuery?: string;
-    minPrice?: string;
-    maxPrice?: string;
-    rom?: number;
-    ram?: number;
-  };
+  FilterScreenResults: FilterOptions;
+  FilterScreen: undefined;
   ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
+  CategorySelection: undefined;
+  Contest: { contestId: string };
+  CandidateProfile: { candidate: Candidate };
+  KkiapayTest: undefined;
 };
 
-// This is for the navigator that wraps the tabs
 export type MainStackParamList = {
   Tabs: undefined;
 };
 
 export type TabParamList = {
   Home: undefined;
-  Catalog: { category?: Category; minPrice?: string; maxPrice?: string } | undefined;
+  Catalog: undefined;
   Favorites: undefined;
   Profile: undefined;
 };
@@ -146,8 +160,8 @@ export type Prediction = {
   matchId: string;
   scoreA: number;
   scoreB: number;
-  createdAt: any; // Firestore ServerTimestamp
-  isWinner?: boolean; // Indique si le pronostic est gagnant
+  createdAt: FirebaseFirestoreTypes.Timestamp;
+  isWinner?: boolean;
 };
 
 export type Match = {
@@ -157,12 +171,11 @@ export type Match = {
   finalScoreB?: number | null;
   teamA: string;
   teamB: string;
-  teamALogo?: string; // MODIFICATION: Ajout du logo de l'équipe A
-  teamBLogo?: string; // MODIFICATION: Ajout du logo de l'équipe B
+  teamALogo?: string;
+  teamBLogo?: string;
   competition: string;
-  // --- NOUVEAUX CHAMPS POUR L'AGRÉGATION ---
   predictionCount?: number;
-  trends?: { [score: string]: number }; // Ex: { "1-0": 50, "2-1": 120 }
+  trends?: { [score: string]: number };
 };
 
 // --- Boutique Info ---
@@ -189,5 +202,32 @@ export type PromoCard = {
   cta: string;
   image: string;
   screen?: keyof RootStackParamList;
+  screenParams?: object;
   sortOrder: number;
+};
+
+// --- Concours de Vote ---
+export type Contest = {
+  id: string;
+  title: string;
+  description: string;
+  endDate: Date;
+  status: 'active' | 'ended';
+  totalParticipants: number;
+  totalVotes: number;
+};
+
+export type Candidate = {
+  id: string;
+  contestId: string;
+  name: string;
+  media: string;
+  photoUrl: string;
+  voteCount: number;
+};
+
+export type UserContest = {
+  contestId: string;
+  contestName: string;
+  badgeIcon: keyof typeof MaterialCommunityIcons.glyphMap;
 };

@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { PromoCard } from '../../types';
+import { PromoCard, RootStackParamList } from '../../types';
+import { NavigationProp } from '@react-navigation/native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -22,7 +23,7 @@ interface Props {
 }
 
 const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   if (isLoading) {
     return <ActivityIndicator style={{ marginVertical: 20, height: 140 }} />;
@@ -38,7 +39,8 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
       renderItem={({ item }) => (
         <TouchableOpacity
           style={styles.promoCardWrapper}
-          onPress={() => item.screen && navigation.navigate(item.screen as never)}
+          // MODIFICATION: Logique de navigation plus flexible
+          onPress={() => item.screen && navigation.navigate(item.screen, item.screenParams as any)}
           activeOpacity={0.9}
         >
           <ImageBackground source={{ uri: item.image }} style={styles.promoCardLarge} imageStyle={{ borderRadius: 20 }}>

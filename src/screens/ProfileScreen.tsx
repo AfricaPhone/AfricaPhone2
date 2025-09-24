@@ -5,6 +5,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useStore } from '../store/StoreContext';
 import ProfileListItem from '../components/ProfileListItem';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { UserContest } from '../types';
+
+// Données simulées pour les badges
+const mockParticipatedContests: UserContest[] = [
+  {
+    contestId: 'journalistes-tech-2025',
+    contestName: 'Trophée du Journaliste Tech 2025',
+    badgeIcon: 'seal',
+  },
+];
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useStore();
@@ -32,15 +43,31 @@ const ProfileScreen: React.FC = () => {
   );
 
   const LoggedInView = () => (
-    <View style={styles.profileHeader}>
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{user?.initials}</Text>
+    <>
+      <View style={styles.profileHeader}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{user?.initials}</Text>
+        </View>
+        <View>
+          <Text style={styles.profileName}>{user?.name}</Text>
+          <Text style={styles.profileEmail}>{user?.email || user?.phoneNumber}</Text>
+        </View>
       </View>
-      <View>
-        <Text style={styles.profileName}>{user?.name}</Text>
-        <Text style={styles.profileEmail}>{user?.email || user?.phoneNumber}</Text>
+      {/* AJOUT: Section des badges */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Mes Badges de Supporter</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeContainer}>
+          {mockParticipatedContests.map(contest => (
+            <View key={contest.contestId} style={styles.badge}>
+              <MaterialCommunityIcons name={contest.badgeIcon} size={32} color="#f59e0b" />
+              <Text style={styles.badgeText} numberOfLines={2}>
+                {contest.contestName}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
       </View>
-    </View>
+    </>
   );
 
   return (
@@ -60,6 +87,11 @@ const ProfileScreen: React.FC = () => {
             isSwitch
             switchValue={notifications}
             onSwitchChange={setNotifications}
+          />
+          <ProfileListItem
+            icon="card-outline"
+            label="Test Paiement Kkiapay"
+            onPress={() => navigation.navigate('KkiapayTest')}
           />
         </View>
 
@@ -91,8 +123,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: { paddingHorizontal: 16, paddingBottom: 12 },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#111' },
-
-  // Guest View
   guestCard: {
     marginHorizontal: 16,
     padding: 20,
@@ -115,8 +145,6 @@ const styles = StyleSheet.create({
   btnTextPrimary: { color: '#fff' },
   btnSecondary: { backgroundColor: '#e5e7eb' },
   btnTextSecondary: { color: '#111' },
-
-  // Logged-in View
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -135,8 +163,6 @@ const styles = StyleSheet.create({
   avatarText: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
   profileName: { fontSize: 20, fontWeight: 'bold', color: '#111' },
   profileEmail: { fontSize: 14, color: '#888', marginTop: 2 },
-
-  // Common sections
   section: {
     marginTop: 24,
     marginHorizontal: 16,
@@ -147,6 +173,28 @@ const styles = StyleSheet.create({
     color: '#888',
     textTransform: 'uppercase',
     marginBottom: 8,
+  },
+  badgeContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  badge: {
+    backgroundColor: '#fffbeb',
+    borderColor: '#fef3c7',
+    borderWidth: 1,
+    borderRadius: 12,
+    width: 100,
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 8,
+  },
+  badgeText: {
+    textAlign: 'center',
+    fontSize: 11,
+    color: '#713f12',
+    fontWeight: '600',
+    marginTop: 6,
   },
   logoutButton: {
     marginTop: 32,
