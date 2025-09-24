@@ -73,7 +73,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const docRef = doc(db, 'products', id);
         const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
           const data = docSnap.data();
           if (data) {
             const imageUrls = data.imageUrls || [];

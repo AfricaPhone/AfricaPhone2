@@ -125,3 +125,5 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     </StoreContext.Provider>
   );
 };
+
+export const useStore = () => React.useContext(StoreContext);
