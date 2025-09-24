@@ -22,6 +22,7 @@ import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import PatchedMaterialTopTabBar from '../navigation/PatchedMaterialTopTabBar';
 
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
@@ -352,6 +353,7 @@ const ProductDetailScreen: React.FC = () => {
 
         <View style={styles.tabContainer}>
           <Tab.Navigator
+            tabBar={props => <PatchedMaterialTopTabBar {...props} />}
             screenOptions={{
               tabBarActiveTintColor: '#111',
               tabBarInactiveTintColor: '#6b7280',

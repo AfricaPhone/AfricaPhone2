@@ -16,7 +16,7 @@ const UpdateModal: React.FC = () => {
       const docSnap = await getDoc(updateDocRef);
 
       // CORRECTION: On récupère les données d'abord, PUIS on les vérifie.
-      if (docSnap.exists()) {
+      if (docSnap.exists) {
         const config = docSnap.data();
 
         // Cette vérification garantit à TypeScript que 'config' n'est pas undefined.

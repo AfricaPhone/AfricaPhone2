@@ -8,28 +8,32 @@ import {
   limit,
   startAfter,
   getDocs,
-  FirebaseFirestoreTypes, // Importation principale des types
+  Query,
+  DocumentData,
+  QueryDocumentSnapshot,
+  startAt,
+  endAt,
 } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { Product } from '../types';
 
 const PAGE_SIZE = 10;
 
-// Options pour la requête
 export interface ProductQueryOptions {
   category?: string;
   brandId?: string;
-  sortBy?: 'price' | 'name';
+  sortBy?: 'price' | 'name' | 'createdAt';
   sortDirection?: 'asc' | 'desc';
   searchQuery?: string;
   minPrice?: string;
   maxPrice?: string;
   rom?: number;
   ram?: number;
+  enPromotion?: boolean;
+  isVedette?: boolean;
 }
 
-// Convertit un document Firestore en type Product
-const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
+const mapDocToProduct = (doc: QueryDocumentSnapshot): Product => {
   const data = doc.data();
   const imageUrls = data.imageUrls || [];
   return {
@@ -38,41 +42,45 @@ const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Pro
     price: data.price,
     image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || '',
     imageUrls: imageUrls,
-    category: data.brand?.toLowerCase() || 'inconnu',
+    category: (data.brand || 'inconnu').toLowerCase(),
     description: data.description,
     rom: data.rom,
     ram: data.ram,
     ram_base: data.ram_base,
     ram_extension: data.ram_extension,
-    specifications: data.specifications || [], // MODIFICATION: Ajout des spécifications
+    specifications: data.specifications || [],
+    enPromotion: data.enPromotion,
+    isVedette: data.ordreVedette > 0,
   };
 };
 
-// --- NOUVEAU HOOK POUR CHARGER TOUS LES PRODUITS SANS PAGINATION ---
 export const useAllProducts = (options: ProductQueryOptions = {}) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const buildQuery = useCallback((): FirebaseFirestoreTypes.Query => {
-    let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
+  const buildQuery = useCallback((): Query<DocumentData> => {
+    let q: Query<DocumentData> = collection(db, 'products');
     const minPriceNum = Number(options.minPrice);
     const maxPriceNum = Number(options.maxPrice);
     const hasPriceFilter = (!isNaN(minPriceNum) && minPriceNum > 0) || (!isNaN(maxPriceNum) && maxPriceNum > 0);
-    const hasSearchQuery = !!options.searchQuery;
 
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
     } else if (options.category && options.category !== 'Populaires') {
       q = query(q, where('category', '==', options.category));
     }
-
+    if (options.enPromotion) {
+      q = query(q, where('enPromotion', '==', true));
+    }
+    if (options.isVedette) {
+      q = query(q, where('ordreVedette', '>', 0));
+    }
     if (!isNaN(minPriceNum) && minPriceNum > 0) {
       q = query(q, where('price', '>=', minPriceNum));
     }
     if (!isNaN(maxPriceNum) && maxPriceNum > 0) {
       q = query(q, where('price', '<=', maxPriceNum));
     }
-
     if (options.rom) {
       q = query(q, where('rom', '==', options.rom));
     }
@@ -80,19 +88,21 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
       q = query(q, where('ram', '==', options.ram));
     }
 
+    // CORRECTION: Logique de tri ajustée pour Firestore
     if (options.searchQuery) {
-      q = query(q, where('name', '>=', options.searchQuery), where('name', '<=', options.searchQuery + '\uf8ff'));
+      const searchQueryEnd =
+        options.searchQuery.slice(0, -1) +
+        String.fromCharCode(options.searchQuery.charCodeAt(options.searchQuery.length - 1) + 1);
+      q = query(q, orderBy('name'), startAt(options.searchQuery), endAt(searchQueryEnd));
+    } else if (hasPriceFilter) {
+      // Si on filtre par prix, on doit d'abord trier par prix
+      q = query(q, orderBy('price', options.sortDirection || 'asc'));
+    } else {
+      const sortByField = options.sortBy || 'name';
+      const sortDirection = options.sortDirection || 'asc';
+      q = query(q, orderBy(sortByField, sortDirection));
     }
 
-    if (hasSearchQuery) {
-      q = query(q, orderBy('name', 'asc'));
-    } else if (hasPriceFilter) {
-      q = query(q, orderBy('price', options.sortDirection || 'asc'));
-    } else if (options.sortBy) {
-      q = query(q, orderBy(options.sortBy, options.sortDirection || 'asc'));
-    } else {
-      q = query(q, orderBy('name', 'asc'));
-    }
     return q;
   }, [
     options.category,
@@ -104,6 +114,8 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     options.maxPrice,
     options.rom,
     options.ram,
+    options.enPromotion,
+    options.isVedette,
   ]);
 
   const fetchAllProducts = useCallback(async () => {
@@ -131,22 +143,16 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
   return { products, loading, refresh };
 };
 
-// --- HOOK ORIGINAL POUR LA PAGINATION ---
 export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const lastDocRef = useRef<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
+  const lastDocRef = useRef<QueryDocumentSnapshot | null>(null);
 
-  const buildQuery = useCallback((): FirebaseFirestoreTypes.Query => {
-    let q: FirebaseFirestoreTypes.Query = collection(db, 'products');
-
-    const minPriceNum = Number(options.minPrice);
-    const maxPriceNum = Number(options.maxPrice);
-    const hasPriceFilter = (!isNaN(minPriceNum) && minPriceNum > 0) || (!isNaN(maxPriceNum) && maxPriceNum > 0);
-    const hasSearchQuery = !!options.searchQuery;
+  const buildQuery = useCallback((): Query<DocumentData> => {
+    let q: Query<DocumentData> = collection(db, 'products');
 
     if (options.brandId) {
       q = query(q, where('brand', '==', options.brandId));
@@ -154,37 +160,10 @@ export const usePaginatedProducts = (options: ProductQueryOptions = {}) => {
       q = query(q, where('category', '==', options.category));
     }
 
-    if (!isNaN(minPriceNum) && minPriceNum > 0) {
-      q = query(q, where('price', '>=', minPriceNum));
-    }
-    if (!isNaN(maxPriceNum) && maxPriceNum > 0) {
-      q = query(q, where('price', '<=', maxPriceNum));
-    }
-
-    if (options.searchQuery) {
-      q = query(q, where('name', '>=', options.searchQuery), where('name', '<=', options.searchQuery + '\uf8ff'));
-    }
-
-    if (hasSearchQuery) {
-      q = query(q, orderBy('name', 'asc'));
-    } else if (hasPriceFilter) {
-      q = query(q, orderBy('price', options.sortDirection || 'asc'));
-    } else if (options.sortBy) {
-      q = query(q, orderBy(options.sortBy, options.sortDirection || 'asc'));
-    } else {
-      q = query(q, orderBy('name', 'asc'));
-    }
+    q = query(q, orderBy(options.sortBy || 'name', options.sortDirection || 'asc'));
 
     return q;
-  }, [
-    options.category,
-    options.brandId,
-    options.sortBy,
-    options.sortDirection,
-    options.searchQuery,
-    options.minPrice,
-    options.maxPrice,
-  ]);
+  }, [options.category, options.brandId, options.sortBy, options.sortDirection]);
 
   const fetchProducts = useCallback(
     async (isInitial = false) => {

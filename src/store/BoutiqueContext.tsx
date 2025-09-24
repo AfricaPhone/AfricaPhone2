@@ -23,7 +23,7 @@ export const BoutiqueProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const docRef = doc(db, 'config', 'boutiqueInfo');
         const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
           setBoutiqueInfo(docSnap.data() as BoutiqueInfo);
         } else {
           console.warn('Document boutiqueInfo non trouvé dans Firestore !');

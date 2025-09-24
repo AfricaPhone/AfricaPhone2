@@ -1,6 +1,7 @@
 // src/navigation/HomeTabNavigator.tsx
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import PatchedMaterialTopTabBar from './PatchedMaterialTopTabBar';
 import CategoryScreen from '../screens/home/CategoryScreen';
 
 const Tab = createMaterialTopTabNavigator();
@@ -21,6 +22,7 @@ const SEGMENTS_DATA: Array<{
 const HomeTabNavigator = () => {
   return (
     <Tab.Navigator
+      tabBar={props => <PatchedMaterialTopTabBar {...props} />}
       screenOptions={{
         tabBarScrollEnabled: true,
         tabBarItemStyle: { width: 'auto', paddingHorizontal: 12 },
