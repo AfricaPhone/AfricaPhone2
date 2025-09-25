@@ -60,6 +60,8 @@ const createUserFromAuthUser = (firebaseUser: FirebaseAuthTypes.User): User => {
     email,
     phoneNumber: firebaseUser.phoneNumber ?? null,
     initials: computeInitials(fallbackName),
+    hasSharedApp: false,
+    lastAppShareAt: undefined,
   };
 };
 
@@ -120,6 +122,8 @@ const normalizeUser = (
     lastName: rest.lastName ?? currentUser?.lastName,
     pushTokens: rest.pushTokens ?? currentUser?.pushTokens,
     participatedContests: rest.participatedContests ?? currentUser?.participatedContests,
+    hasSharedApp: rest.hasSharedApp ?? currentUser?.hasSharedApp ?? false,
+    lastAppShareAt: rest.lastAppShareAt ?? currentUser?.lastAppShareAt,
   };
 };
 

@@ -52,6 +52,8 @@ export type User = {
   initials: string;
   pushTokens?: string[];
   participatedContests?: UserContest[];
+  hasSharedApp?: boolean;
+  lastAppShareAt?: string;
 };
 
 // --- Favorites / Collections ---
