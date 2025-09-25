@@ -375,16 +375,10 @@ const ProductDetailScreen: React.FC = () => {
               },
             }}
           >
-            <Tab.Screen
-              name="specifications"
-              options={{ tabBarLabel: "Specifications" }}
-            >
+            <Tab.Screen name="specifications" options={{ tabBarLabel: 'Specifications' }}>
               {() => <SpecificationsTab product={product} />}
             </Tab.Screen>
-            <Tab.Screen
-              name="description"
-              options={{ tabBarLabel: "Description" }}
-            >
+            <Tab.Screen name="description" options={{ tabBarLabel: 'Description' }}>
               {() => <DescriptionTab description={product.description} />}
             </Tab.Screen>
           </Tab.Navigator>

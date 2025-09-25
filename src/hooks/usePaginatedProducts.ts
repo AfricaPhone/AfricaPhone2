@@ -101,8 +101,7 @@ export const useAllProducts = (options: ProductQueryOptions = {}) => {
     if (options.searchQuery) {
       const start = options.searchQuery;
       if (start.length > 0) {
-        const end =
-          start.slice(0, -1) + String.fromCharCode(start.charCodeAt(start.length - 1) + 1);
+        const end = start.slice(0, -1) + String.fromCharCode(start.charCodeAt(start.length - 1) + 1);
         queryRef = query(queryRef, orderBy('name'));
         queryRef = query(queryRef, startAt(start));
         queryRef = query(queryRef, endAt(end));

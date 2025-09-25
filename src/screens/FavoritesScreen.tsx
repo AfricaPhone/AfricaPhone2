@@ -67,8 +67,8 @@ const FavoritesScreen: React.FC = () => {
           text: 'Créer',
           onPress: (name?: string) => {
             if (typeof name === 'string' && name.trim().length > 0) {
-            createCollection(name.trim());
-          }
+              createCollection(name.trim());
+            }
           },
         },
       ],

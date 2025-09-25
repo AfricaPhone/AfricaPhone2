@@ -4,9 +4,7 @@ import { TabBarItem, TabBarItemProps } from 'react-native-tab-view';
 
 type Route = TabBarItemProps<any>['route'];
 
-type RenderTabBarItem = (
-  props: (TabBarItemProps<Route> & { key: string })
-) => React.ReactElement | null;
+type RenderTabBarItem = (props: TabBarItemProps<Route> & { key: string }) => React.ReactElement | null;
 
 type ExtendedMaterialTopTabBarProps = MaterialTopTabBarProps & {
   renderTabBarItem?: RenderTabBarItem;

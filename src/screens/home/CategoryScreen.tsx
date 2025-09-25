@@ -156,10 +156,12 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
           promoQueryRef = query(promoQueryRef, orderBy('sortOrder', 'asc'));
 
           const querySnapshot = await getDocs(promoQueryRef);
-          const fetchedCards = querySnapshot.docs.map((docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>) => ({
-            id: docSnap.id,
-            ...docSnap.data(),
-          })) as PromoCard[];
+          const fetchedCards = querySnapshot.docs.map(
+            (docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>) => ({
+              id: docSnap.id,
+              ...docSnap.data(),
+            })
+          ) as PromoCard[];
 
           setPromoCards([contestCard, ...fetchedCards]);
         } catch (error) {

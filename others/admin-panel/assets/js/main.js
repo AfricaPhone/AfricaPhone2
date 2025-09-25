@@ -20,7 +20,12 @@ import {
   serverTimestamp,
   arrayRemove,
 } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
 
 /* ============================ Helpers ============================ */
 const $ = sel => document.querySelector(sel);
@@ -223,7 +228,7 @@ onAuthStateChanged(auth, async function (user) {
       } else {
         // L'utilisateur n'est pas un administrateur, le déconnecte
         await signOut(auth);
-        toast('Accès refusé', 'Vos identifiants ne sont pas ceux d\'un administrateur.', 'error');
+        toast('Accès refusé', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
         // Redirige pour nettoyer l'interface
         location.reload();
       }
