@@ -1,6 +1,5 @@
-﻿// src/screens/home/ProductGrid.tsx
+// src/screens/home/ProductGrid.tsx
 import React, { useCallback } from 'react';
-import { ScrollCoordinatorProvider, useScrollCoordinator } from '../../contexts/ScrollCoordinator';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Product } from '../../types';
@@ -18,7 +17,7 @@ interface Props {
   listHeaderComponent: React.ReactElement | null;
 }
 
-const ProductGridInner: React.FC<Props> = ({
+const ProductGrid: React.FC<Props> = ({
   products,
   loading,
   loadingMore,
@@ -28,7 +27,6 @@ const ProductGridInner: React.FC<Props> = ({
   listHeaderComponent,
   hasMore,
 }) => {
-  const { parentScrollEnabled } = useScrollCoordinator();
   const navigation = useNavigation<any>();
 
   const renderItem = useCallback(
@@ -42,7 +40,10 @@ const ProductGridInner: React.FC<Props> = ({
 
   if (loading && products.length === 0) {
     return (
-      <ScrollView scrollEnabled={parentScrollEnabled} directionalLockEnabled nestedScrollEnabled>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: 10 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF7A00" />}
+      >
         {listHeaderComponent}
         <View style={styles.gridContainer}>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -61,7 +62,8 @@ const ProductGridInner: React.FC<Props> = ({
   };
 
   return (
-    <FlatList scrollEnabled={parentScrollEnabled} directionalLockEnabled nestedScrollEnabled data={products}
+    <FlatList
+      data={products}
       renderItem={renderItem}
       keyExtractor={item => item.id}
       numColumns={2}
@@ -75,7 +77,7 @@ const ProductGridInner: React.FC<Props> = ({
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF7A00" />}
       ListEmptyComponent={
         <View style={styles.emptyContainer}>
-          {!loading && <Text style={styles.emptyText}>Aucun produit dans cette catÃ©gorie.</Text>}
+          {!loading && <Text style={styles.emptyText}>Aucun produit dans cette catégorie.</Text>}
         </View>
       }
     />
@@ -103,17 +105,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
-
-const ProductGrid: React.FC<Props> = (props) => {
-  return (
-    <ScrollCoordinatorProvider>
-      <ProductGridInner {...props} />
-    </ScrollCoordinatorProvider>
-  );
-};
-
 export default ProductGrid;
-
-
-

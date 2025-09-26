@@ -53,6 +53,7 @@ export type User = {
   pushTokens?: string[];
   participatedContests?: UserContest[];
   hasSharedApp?: boolean;
+  appShareCount?: number;
   lastAppShareAt?: string;
 };
 

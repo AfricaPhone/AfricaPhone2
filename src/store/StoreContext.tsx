@@ -19,6 +19,8 @@ type FirestoreUser = Partial<User> & {
   displayName?: string | null;
 };
 
+const REQUIRED_APP_SHARES = 2;
+
 const getNameFromEmail = (email?: string | null) => {
   if (!email) {
     return undefined;
@@ -61,6 +63,7 @@ const createUserFromAuthUser = (firebaseUser: FirebaseAuthTypes.User): User => {
     phoneNumber: firebaseUser.phoneNumber ?? null,
     initials: computeInitials(fallbackName),
     hasSharedApp: false,
+    appShareCount: 0,
     lastAppShareAt: undefined,
   };
 };
@@ -112,6 +115,12 @@ const normalizeUser = (
     console.warn('StoreContext: unable to determine user identifier.');
   }
 
+  const shareCountSource = rest.appShareCount ?? currentUser?.appShareCount;
+  const legacyShareFlag = rest.hasSharedApp ?? currentUser?.hasSharedApp ?? false;
+  const resolvedAppShareCount =
+    shareCountSource ?? (legacyShareFlag ? REQUIRED_APP_SHARES : 0);
+  const resolvedHasSharedApp = legacyShareFlag || resolvedAppShareCount >= REQUIRED_APP_SHARES;
+
   return {
     id: resolvedId || '',
     name: resolvedName,
@@ -122,7 +131,8 @@ const normalizeUser = (
     lastName: rest.lastName ?? currentUser?.lastName,
     pushTokens: rest.pushTokens ?? currentUser?.pushTokens,
     participatedContests: rest.participatedContests ?? currentUser?.participatedContests,
-    hasSharedApp: rest.hasSharedApp ?? currentUser?.hasSharedApp ?? false,
+    hasSharedApp: resolvedHasSharedApp,
+    appShareCount: resolvedAppShareCount,
     lastAppShareAt: rest.lastAppShareAt ?? currentUser?.lastAppShareAt,
   };
 };

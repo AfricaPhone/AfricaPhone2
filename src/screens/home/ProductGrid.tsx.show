@@ -1,4 +1,4 @@
-﻿// src/screens/home/ProductGrid.tsx
+// src/screens/home/ProductGrid.tsx
 import React, { useCallback } from 'react';
 import { ScrollCoordinatorProvider, useScrollCoordinator } from '../../contexts/ScrollCoordinator';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
@@ -42,8 +42,7 @@ const ProductGridInner: React.FC<Props> = ({
 
   if (loading && products.length === 0) {
     return (
-      <ScrollView scrollEnabled={parentScrollEnabled} directionalLockEnabled nestedScrollEnabled>
-        {listHeaderComponent}
+      <ScrollView scrollEnabled={parentScrollEnabled} directionalLockEnabled nestedScrollEnabled>\r\n        {listHeaderComponent}
         <View style={styles.gridContainer}>
           {Array.from({ length: 6 }).map((_, i) => (
             <View key={i} style={styles.gridItem}>
@@ -61,7 +60,7 @@ const ProductGridInner: React.FC<Props> = ({
   };
 
   return (
-    <FlatList scrollEnabled={parentScrollEnabled} directionalLockEnabled nestedScrollEnabled data={products}
+    <FlatList={parentScrollEnabled} directionalLockEnabled nestedScrollEnabled data={products}
       renderItem={renderItem}
       keyExtractor={item => item.id}
       numColumns={2}
@@ -75,7 +74,7 @@ const ProductGridInner: React.FC<Props> = ({
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF7A00" />}
       ListEmptyComponent={
         <View style={styles.emptyContainer}>
-          {!loading && <Text style={styles.emptyText}>Aucun produit dans cette catÃ©gorie.</Text>}
+          {!loading && <Text style={styles.emptyText}>Aucun produit dans cette catégorie.</Text>}
         </View>
       }
     />
@@ -114,6 +113,4 @@ const ProductGrid: React.FC<Props> = (props) => {
 };
 
 export default ProductGrid;
-
-
 

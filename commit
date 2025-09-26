@@ -15,6 +15,10 @@ git branch -m feature-a-renommer feature-renommee
 # 2. Supprimer l'ancienne branche sur le serveur distant
 git push origin --delete feature-a-renommer
 
+//Création d'une nouvelle version de l'app
+npx --yes eas-cli@latest build -p android --profile production
+npx eas build -p android --profile production
+
 # 3. Pousser la nouvelle branche et lier les deux
 git push origin -u feature-renommee
 
@@ -83,3 +87,4 @@ git pull
 
 # Supprimer une branche sur le dépôt distant (ex: GitHub, GitLab).
 git push origin --delete <nom-de-la-branche>
+

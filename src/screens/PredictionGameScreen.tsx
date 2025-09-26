@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   Linking,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -30,6 +31,8 @@ const functions = getFunctions();
 
 const APP_SHARE_URL = 'https://africaphone.app';
 const WHATSAPP_SHARE_MESSAGE = `Rejoins-moi sur AfricaPhone pour pronostiquer et tenter ta chance ! Telecharge l'application ici : ${APP_SHARE_URL}`;
+const REQUIRED_APP_SHARES = 2;
+const LOCAL_SHARE_COUNT_KEY = 'local_app_share_count_v1';
 
 const PredictionGameScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -47,13 +50,62 @@ const PredictionGameScreen: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sharePromptVisible, setSharePromptVisible] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [localShareCount, setLocalShareCount] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(LOCAL_SHARE_COUNT_KEY);
+        const parsed = raw ? parseInt(raw, 10) : 0;
+        setLocalShareCount(Number.isFinite(parsed) ? parsed : 0);
+      } catch (e) {
+        setLocalShareCount(0);
+      }
+    })();
+  }, []);
+
+  const userShareCount = user?.appShareCount ?? (user?.hasSharedApp ? REQUIRED_APP_SHARES : 0);
+  const effectiveShareCount = Math.max(userShareCount || 0, localShareCount || 0);
+  const shareProgressRatio = Math.min(effectiveShareCount / REQUIRED_APP_SHARES, 1);
+  const shareProgressPercent = Math.round(shareProgressRatio * 100);
+  const remainingShares = Math.max(REQUIRED_APP_SHARES - effectiveShareCount, 0);
+  const hasCompletedShareRequirement = shareProgressRatio >= 1;
 
   const ensureUserHasShared = () => {
-    if (!user?.hasSharedApp) {
+    if (!hasCompletedShareRequirement) {
       setSharePromptVisible(true);
       return false;
     }
     return true;
+  };
+
+  const openSharePromptAndIncrement = async () => {
+    if (!user) {
+      const newLocal = Math.min((localShareCount ?? 0) + 1, REQUIRED_APP_SHARES);
+      try {
+        await AsyncStorage.setItem(LOCAL_SHARE_COUNT_KEY, String(newLocal));
+        setLocalShareCount(newLocal);
+      } catch (_) {
+        setLocalShareCount(newLocal);
+      } finally {
+        setSharePromptVisible(true);
+      }
+      navigation.navigate('AuthPrompt');
+      return;
+    }
+    // Incrément optimiste dès le clic sur "Partager" (50% si 2 partages requis)
+    const updatedShareCount = Math.min((userShareCount ?? 0) + 1, REQUIRED_APP_SHARES);
+    try {
+      await updateUserProfile({
+        appShareCount: updatedShareCount,
+        hasSharedApp: updatedShareCount >= REQUIRED_APP_SHARES,
+        lastAppShareAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'incrément du partage:", error);
+    } finally {
+      setSharePromptVisible(true);
+    }
   };
 
   const handleShareToWhatsApp = async () => {
@@ -61,20 +113,20 @@ const PredictionGameScreen: React.FC = () => {
     setIsSharing(true);
     try {
       const canOpen = await Linking.canOpenURL(whatsappUrl);
-      if (!canOpen) {
-        Alert.alert('WhatsApp indisponible', 'Nous ne parvenons pas a ouvrir WhatsApp sur cet appareil.');
-        return;
+      if (canOpen) {
+        await Linking.openURL(whatsappUrl);
       }
-      await Linking.openURL(whatsappUrl);
-      await updateUserProfile({
-        hasSharedApp: true,
-        lastAppShareAt: new Date().toISOString(),
-      });
+
       setSharePromptVisible(false);
-      Alert.alert('Merci !', "Merci d'avoir partage l'application. Vous pouvez maintenant pronostiquer.");
+      const remainingAfterShare = Math.max(REQUIRED_APP_SHARES - (userShareCount ?? 0), 0);
+      const successMessage =
+        remainingAfterShare > 0
+          ? `Merci d'avoir partage l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour debloquer les pronostics.`
+          : `Merci d'avoir partage l'application. Vous pouvez maintenant pronostiquer.`;
+      Alert.alert('Merci !', successMessage);
     } catch (error) {
       console.error('Erreur de partage WhatsApp: ', error);
-      Alert.alert('Erreur', 'Le partage WhatsApp a echoue. Veuillez reessayer.');
+      Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Reessayez.");
     } finally {
       setIsSharing(false);
     }
@@ -190,7 +242,7 @@ const PredictionGameScreen: React.FC = () => {
       Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
       return;
     }
-    if (!user?.hasSharedApp) {
+    if (!hasCompletedShareRequirement) {
       Alert.alert('Partage requis', "Partagez d'abord l'application sur WhatsApp pour pronostiquer.");
       return;
     }
@@ -261,9 +313,9 @@ const PredictionGameScreen: React.FC = () => {
         </View>
       );
     }
-    if (!user?.hasSharedApp) {
+    if (!hasCompletedShareRequirement) {
       return (
-        <TouchableOpacity style={[styles.submitButton, styles.shareButton]} onPress={() => setSharePromptVisible(true)}>
+        <TouchableOpacity style={[styles.submitButton, styles.shareButton]} onPress={openSharePromptAndIncrement}>
           <MaterialCommunityIcons name="share-outline" size={20} color="#fff" />
           <Text style={styles.submitButtonText}>Partager sur WhatsApp</Text>
         </TouchableOpacity>
@@ -370,15 +422,28 @@ const PredictionGameScreen: React.FC = () => {
 
         {renderResultCard()}
 
-        {!user?.hasSharedApp && (
+        {!hasCompletedShareRequirement && (
           <View style={styles.shareRequirementCard}>
             <View style={styles.shareRequirementTextContainer}>
               <Text style={styles.shareRequirementTitle}>Partage requis</Text>
               <Text style={styles.shareRequirementSubtitle}>
-                Partagez l'application via WhatsApp pour debloquer les pronostics.
+                Partagez l'application via WhatsApp (2 partages necessaires) pour debloquer les pronostics.
               </Text>
+              <View style={styles.shareProgressWrapper}>
+                <View style={styles.shareProgressTrack}>
+                  <View style={[styles.shareProgressFill, { width: `${shareProgressPercent}%` }]} />
+                </View>
+                <View style={styles.shareProgressMeta}>
+                  <Text style={styles.shareProgressLabel}>{shareProgressPercent}% complet</Text>
+                  <Text style={styles.shareProgressRemaining}>
+                    {remainingShares > 0
+                      ? `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''}`
+                      : 'Objectif atteint !'}
+                  </Text>
+                </View>
+              </View>
             </View>
-            <TouchableOpacity style={styles.shareRequirementCta} onPress={() => setSharePromptVisible(true)}>
+            <TouchableOpacity style={styles.shareRequirementCta} onPress={openSharePromptAndIncrement}>
               <Ionicons name="logo-whatsapp" size={18} color="#fff" />
               <Text style={styles.shareRequirementCtaText}>Partager</Text>
             </TouchableOpacity>
@@ -432,10 +497,20 @@ const PredictionGameScreen: React.FC = () => {
             <Ionicons name="logo-whatsapp" size={48} color="#25D366" style={styles.shareModalIcon} />
             <Text style={styles.shareModalTitle}>Partage WhatsApp obligatoire</Text>
             <Text style={styles.shareModalSubtitle}>
-              Partagez le lien de l'application a vos contacts pour acceder aux pronostics.
+              Partagez le lien de l'application a vos contacts (2 partages necessaires) pour acceder aux pronostics.
             </Text>
             <View style={styles.shareModalLinkContainer}>
               <Text style={styles.shareModalLink}>{APP_SHARE_URL}</Text>
+            </View>
+            <View style={styles.shareModalProgress}>
+              <View style={styles.shareProgressTrack}>
+                <View style={[styles.shareProgressFill, { width: `${shareProgressPercent}%` }]} />
+              </View>
+              <Text style={styles.shareModalProgressLabel}>
+                {hasCompletedShareRequirement
+                  ? 'Objectif atteint !'
+                  : `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''} pour debloquer.`}
+              </Text>
             </View>
             <TouchableOpacity
               style={[styles.shareModalButton, isSharing && styles.buttonDisabled]}
@@ -798,6 +873,35 @@ const styles = StyleSheet.create({
     color: '#047857',
     marginTop: 4,
   },
+  shareProgressWrapper: {
+    marginTop: 12,
+    width: '100%',
+  },
+  shareProgressTrack: {
+    height: 8,
+    backgroundColor: '#d1fae5',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  shareProgressFill: {
+    height: '100%',
+    backgroundColor: '#047857',
+    borderRadius: 999,
+  },
+  shareProgressMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  shareProgressLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#047857',
+  },
+  shareProgressRemaining: {
+    fontSize: 12,
+    color: '#047857',
+  },
   shareRequirementCta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -841,6 +945,16 @@ const styles = StyleSheet.create({
     color: '#111',
     fontWeight: '600',
     fontSize: 14,
+    textAlign: 'center',
+  },
+  shareModalProgress: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  shareModalProgressLabel: {
+    marginTop: 8,
+    fontSize: 13,
+    color: '#047857',
     textAlign: 'center',
   },
   shareModalButton: {
