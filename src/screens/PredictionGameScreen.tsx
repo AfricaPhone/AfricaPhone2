@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-// MODIFICATION: Importez les dÃ©pendances pour les fonctions Firebase
+// MODIFICATION: Importez les dépendances pour les fonctions Firebase
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { collection, onSnapshot, query, where, doc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
@@ -38,7 +38,7 @@ const openWhatsApp = async () => {
       Alert.alert("WhatsApp non disponible", "Impossible d'ouvrir WhatsApp sur cet appareil.");
     }
   } catch (err) {
-    Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Reessayez.");
+    Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Réessayez.");
   }
 };
 
@@ -93,6 +93,13 @@ const PredictionGameScreen: React.FC = () => {
     return true;
   };
 
+  // Fermer automatiquement la modale de partage dès que l'objectif est atteint
+  useEffect(() => {
+    if (hasCompletedShareRequirement && sharePromptVisible) {
+      setSharePromptVisible(false);
+    }
+  }, [hasCompletedShareRequirement, sharePromptVisible]);
+
   const openSharePromptAndIncrement = async () => {
   // Au clic: incrémente (local ou profil), marque un feedback en attente, puis ouvre WhatsApp directement
   if (!user) {
@@ -125,21 +132,47 @@ const PredictionGameScreen: React.FC = () => {
     const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(WHATSAPP_SHARE_MESSAGE)}`;
     setIsSharing(true);
     try {
+      // Incrémenter immédiatement le compteur pour un rendu 100% réactif
+      const before = Math.min(Math.max(userShareCount || 0, localShareCount || 0), REQUIRED_APP_SHARES);
+      const after = Math.min(before + 1, REQUIRED_APP_SHARES);
+      if (!user) {
+        const newLocal = after;
+        try {
+          await AsyncStorage.setItem(LOCAL_SHARE_COUNT_KEY, String(newLocal));
+        } catch (_) {
+          // ignore storage error
+        }
+        // Répercuter localement pour l'affichage
+        setLocalShareCount(newLocal);
+      } else {
+        try {
+          await updateUserProfile({
+            appShareCount: after,
+            hasSharedApp: after >= REQUIRED_APP_SHARES,
+            lastAppShareAt: new Date().toISOString(),
+          });
+        } catch (e) {
+          console.error("Erreur lors de l'incrément du partage:", e);
+        }
+        // Optimistic UI: refléter tout de suite côté local
+        setLocalShareCount(prev => Math.max(prev, after));
+      }
+
       const canOpen = await Linking.canOpenURL(whatsappUrl);
       if (canOpen) {
         await Linking.openURL(whatsappUrl);
       }
 
       setSharePromptVisible(false);
-      const remainingAfterShare = Math.max(REQUIRED_APP_SHARES - (userShareCount ?? 0), 0);
+      const remainingAfterShare = Math.max(REQUIRED_APP_SHARES - after, 0);
       const successMessage =
         remainingAfterShare > 0
-          ? `Merci d'avoir partage l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour debloquer les pronostics.`
-          : `Merci d'avoir partage l'application. Vous pouvez maintenant pronostiquer.`;
+          ? `Merci d'avoir partagé l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour débloquer les pronostics.`
+          : `Merci d'avoir partagé l'application. Vous pouvez maintenant pronostiquer.`;
       Alert.alert('Merci !', successMessage);
     } catch (error) {
       console.error('Erreur de partage WhatsApp: ', error);
-      Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Reessayez.");
+      Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Réessayez.");
     } finally {
       setIsSharing(false);
     }
@@ -150,28 +183,28 @@ const PredictionGameScreen: React.FC = () => {
       return;
     }
     Alert.alert(
-      'RÃ©initialiser',
-      'Remettre la progression de partage Ã  0 ?',
+      'Réinitialiser',
+      'Remettre la progression de partage à 0 ?',
       [
         { text: 'Annuler', style: 'cancel' },
         {
-          text: 'RÃ©initialiser',
+          text: 'Réinitialiser',
           style: 'destructive',
           onPress: async () => {
             try {
               await AsyncStorage.removeItem(LOCAL_SHARE_COUNT_KEY);
-              // Remet l'Ã©tat local Ã  0
-              // (l'Ã©cran recalculera automatiquement le pourcentage)
+              // Remet l'état local à 0
+              // (l'écran recalculera automatiquement le pourcentage)
               if (typeof setLocalShareCount === 'function') {
                 setLocalShareCount(0);
               }
               if (user) {
                 await updateUserProfile({ appShareCount: 0, hasSharedApp: false });
               }
-              Alert.alert('OK', 'Progression rÃ©initialisÃ©e.');
+              Alert.alert('OK', 'Progression réinitialisée.');
             } catch (e) {
               console.error('Erreur reset progression:', e);
-              Alert.alert('Erreur', 'Impossible de rÃ©initialiser.');
+              Alert.alert('Erreur', 'Impossible de réinitialiser.');
             }
           },
         },
@@ -228,7 +261,7 @@ const PredictionGameScreen: React.FC = () => {
         if (matchDoc.exists()) {
           setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
         } else {
-          console.error('Match non trouvÃ© !');
+          console.error('Match non trouvé !');
           setMatch(null);
         }
         if (loading) setLoading(false);
@@ -287,15 +320,15 @@ const PredictionGameScreen: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!user) {
-      Alert.alert('Erreur', 'Vous devez Ãªtre connectÃ© pour effectuer cette action.');
+      Alert.alert('Erreur', 'Vous devez être connecté pour effectuer cette action.');
       return;
     }
     if (matchStarted) {
-      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminÃ©s.');
+      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminés.');
       return;
     }
     if (!scoreA.trim() || !scoreB.trim()) {
-      Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux Ã©quipes.');
+      Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
       return;
     }
     if (!hasCompletedShareRequirement) {
@@ -305,20 +338,20 @@ const PredictionGameScreen: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // MODIFICATION: Appeler la fonction Cloud au lieu d'Ã©crire directement
+      // MODIFICATION: Appeler la fonction Cloud au lieu d'écrire directement
       const submitPredictionFn = httpsCallable(functions, 'submitPrediction');
 
       const payload = {
         matchId: matchId,
         scoreA: parseInt(scoreA, 10),
         scoreB: parseInt(scoreB, 10),
-        predictionId: currentUserPrediction?.id, // Envoyer l'ID pour les mises Ã  jour
+        predictionId: currentUserPrediction?.id, // Envoyer l'ID pour les mises à jour
       };
 
       const result = await submitPredictionFn(payload);
       const data = result.data as { success: boolean; message: string };
 
-      Alert.alert(data.success ? 'SuccÃ¨s' : 'Erreur', data.message);
+      Alert.alert(data.success ? 'Succès' : 'Erreur', data.message);
 
       if (data.success) {
         setModalVisible(false);
@@ -326,7 +359,7 @@ const PredictionGameScreen: React.FC = () => {
     } catch (error: any) {
       console.error("Erreur d'enregistrement du pronostic: ", error);
       // Les erreurs HttpsError ont un message lisible par l'utilisateur
-      Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez rÃ©essayer.');
+      Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setIsSubmitting(false);
     }
@@ -341,7 +374,7 @@ const PredictionGameScreen: React.FC = () => {
           <Ionicons name="trophy" size={24} color="#f59e0b" />
           <View style={styles.resultTextContainer}>
             <Text style={styles.resultTitle}>Score Exact !</Text>
-            <Text style={styles.resultSubtitle}>Bravo, vous Ãªtes Ã©ligible pour l'Ã©tape suivante !</Text>
+            <Text style={styles.resultSubtitle}>Bravo, vous êtes éligible pour l'étape suivante !</Text>
           </View>
         </View>
       );
@@ -365,7 +398,7 @@ const PredictionGameScreen: React.FC = () => {
       return (
         <View style={[styles.submitButton, styles.buttonDisabled]}>
           <MaterialCommunityIcons name="lock-outline" size={20} color="#fff" />
-          <Text style={styles.submitButtonText}>Pronostics terminÃ©s</Text>
+          <Text style={styles.submitButtonText}>Pronostics terminés</Text>
         </View>
       );
     }
@@ -420,8 +453,8 @@ const PredictionGameScreen: React.FC = () => {
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Match non trouvÃ©</Text>
-          <Text style={styles.emptySubText}>Ce match n'existe pas ou a Ã©tÃ© supprimÃ©.</Text>
+          <Text style={styles.emptyText}>Match non trouvé</Text>
+          <Text style={styles.emptySubText}>Ce match n'existe pas ou a été supprimé.</Text>
         </View>
       </SafeAreaView>
     );
@@ -450,7 +483,7 @@ const PredictionGameScreen: React.FC = () => {
           <View style={styles.matchContainer}>
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
-                {/* MODIFICATION: Utilisation du logo de l'Ã©quipe A depuis Firebase */}
+                {/* MODIFICATION: Utilisation du logo de l'équipe A depuis Firebase */}
                 <Image
                   source={{ uri: match.teamALogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }}
                   style={styles.flag}
@@ -465,7 +498,7 @@ const PredictionGameScreen: React.FC = () => {
             )}
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
-                {/* MODIFICATION: Utilisation du logo de l'Ã©quipe B depuis Firebase */}
+                {/* MODIFICATION: Utilisation du logo de l'équipe B depuis Firebase */}
                 <Image
                   source={{ uri: match.teamBLogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }}
                   style={styles.flag}
@@ -483,7 +516,7 @@ const PredictionGameScreen: React.FC = () => {
             <View style={styles.shareRequirementTextContainer}>
               <Text style={styles.shareRequirementTitle}>Partage requis</Text>
               <Text style={styles.shareRequirementSubtitle}>
-                Partagez l'application via WhatsApp (2 partages necessaires) pour debloquer les pronostics.
+                Partagez l'application via WhatsApp (2 partages nécessaires) pour débloquer les pronostics.
               </Text>
             </View>
             <TouchableOpacity
@@ -526,7 +559,7 @@ const PredictionGameScreen: React.FC = () => {
               </View>
             ))
           ) : (
-            <Text style={styles.noPredictionsText}>Soyez le premier Ã  faire un pronostic !</Text>
+            <Text style={styles.noPredictionsText}>Soyez le premier à faire un pronostic !</Text>
           )}
         </View>
       </ScrollView>
@@ -545,7 +578,7 @@ const PredictionGameScreen: React.FC = () => {
             <Ionicons name="logo-whatsapp" size={48} color="#25D366" style={styles.shareModalIcon} />
             <Text style={styles.shareModalTitle}>Partage WhatsApp obligatoire</Text>
             <Text style={styles.shareModalSubtitle}>
-              Partagez le lien de l'application a vos contacts (2 partages necessaires) pour acceder aux pronostics.
+              Partagez le lien de l'application à vos contacts (2 partages nécessaires) pour accéder aux pronostics.
             </Text>
             <View style={styles.shareModalLinkContainer}>
               <Text style={styles.shareModalLink}>{APP_SHARE_URL}</Text>
@@ -560,20 +593,22 @@ const PredictionGameScreen: React.FC = () => {
                   : `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''} pour debloquer.`}
               </Text>
             </View>
-            <TouchableOpacity
-              style={[styles.shareModalButton, isSharing && styles.buttonDisabled]}
-              onPress={handleShareToWhatsApp}
-              disabled={isSharing}
-            >
-              {isSharing ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <View style={styles.shareModalButtonContent}>
-                  <Ionicons name="logo-whatsapp" size={22} color="#fff" />
-                  <Text style={styles.shareModalButtonText}>Partager sur WhatsApp</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+            {!hasCompletedShareRequirement && (
+              <TouchableOpacity
+                style={[styles.shareModalButton, isSharing && styles.buttonDisabled]}
+                onPress={handleShareToWhatsApp}
+                disabled={isSharing}
+              >
+                {isSharing ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <View style={styles.shareModalButtonContent}>
+                    <Ionicons name="logo-whatsapp" size={22} color="#fff" />
+                    <Text style={styles.shareModalButtonText}>Partager sur WhatsApp</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            )}
             <TouchableOpacity onPress={() => setSharePromptVisible(false)}>
               <Text style={styles.shareModalSecondary}>Je partagerai plus tard</Text>
             </TouchableOpacity>
@@ -752,7 +787,7 @@ const styles = StyleSheet.create({
   predictionPercentage: {
     color: '#6b7280',
     fontSize: 14,
-    width: 80, // AugmentÃ© pour faire de la place
+    width: 80, // Augmenté pour faire de la place
     textAlign: 'right',
   },
   noPredictionsText: {
