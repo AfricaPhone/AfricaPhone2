@@ -1,5 +1,5 @@
-// src/screens/ContestScreen.tsx
-import React, { useMemo, useState, useRef, useCallback } from 'react';
+﻿// src/screens/ContestScreen.tsx
+import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,11 @@ import { MOCK_CONTEST, MOCK_CANDIDATES } from '../data/mockContestData';
 import { Candidate, RootStackParamList } from '../types';
 import ContestCountdown from '../components/ContestCountdown';
 import VoteConfirmationModal from '../components/VoteConfirmationModal';
+import { useKkiapay } from '@kkiapay-org/react-native-sdk';
+import { PAYMENT_CONFIG } from '../config/payment';
+import functions from '@react-native-firebase/functions';
+import { useStore } from '../store/StoreContext';
+// Plus de persistance locale ici; le serveur compte les votes
 
 const formatNumber = (num: number) => new Intl.NumberFormat('fr-FR').format(num);
 
@@ -76,6 +81,9 @@ const ContestScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [pendingCandidate, setPendingCandidate] = useState<Candidate | null>(null);
+  const { user, isAuthenticated } = useStore();
+  const { openKkiapayWidget, addSuccessListener, addFailedListener, addPendingListener } = useKkiapay();
 
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -101,9 +109,9 @@ const ContestScreen: React.FC = () => {
       const onBackPress = () => {
         if (isSearchActive) {
           handleDeactivateSearch();
-          return true; // Empêche le retour en arrière par défaut
+          return true; // EmpÃªche le retour en arriÃ¨re par dÃ©faut
         }
-        return false; // Autorise le retour en arrière par défaut
+        return false; // Autorise le retour en arriÃ¨re par dÃ©faut
       };
 
       const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -111,23 +119,84 @@ const ContestScreen: React.FC = () => {
     }, [isSearchActive, handleDeactivateSearch])
   );
 
-  const handleVotePress = (candidate: Candidate) => {
+  // --- Paiement & Persistance du vote ---
+
+  const handleVotePressPay = async (candidate: Candidate) => {
     Keyboard.dismiss();
-    Alert.alert(
-      `Voter pour ${candidate.name}`,
-      'Chaque vote coûte 100 FCFA. Le système de paiement sera intégré prochainement.',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Confirmer mon vote',
-          onPress: () => {
-            setSelectedCandidate(candidate);
-            setModalVisible(true);
-          },
-        },
-      ]
-    );
+    setPendingCandidate(candidate);
+
+    try {
+      const createIntent = functions(PAYMENT_CONFIG.FUNCTIONS_REGION).httpsCallable('createVoteIntent');
+      const res: any = await createIntent({
+        contestId: contest.id,
+        candidateId: candidate.id,
+        amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
+      });
+      const intentId: string = res?.data?.intentId;
+      if (!intentId) {
+        throw new Error('IntentId manquant');
+      }
+
+      openKkiapayWidget({
+        amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
+        api_key: PAYMENT_CONFIG.KKIAPAY_PUBLIC_KEY,
+        sandbox: PAYMENT_CONFIG.SANDBOX,
+        partnerId: intentId,
+        countries: [...PAYMENT_CONFIG.COUNTRIES],
+        paymentMethods: [...PAYMENT_CONFIG.PAYMENT_METHODS],
+        phone: user?.phoneNumber || undefined,
+        email: user?.email || undefined,
+        name: user?.name || undefined,
+        reason: `Vote ${contest.id} -> ${candidate.id}`,
+        data: intentId,
+      });
+    } catch (e) {
+      Alert.alert('Erreur', "Impossible d'initialiser le paiement.");
+      setPendingCandidate(null);
+    }
   };
+
+  useEffect(() => {
+    const successSub = addSuccessListener(async (data?: any) => {
+      try {
+        const txId: string = String(data?.transactionId || data?.transaction_id || data?.transactionID || '');
+        if (!txId) {
+          Alert.alert('Paiement', 'Transaction sans identifiant.');
+          return;
+        }
+
+        // VÃ©rification cÃ´tÃ© serveur (best effort)
+        try {
+          await functions(PAYMENT_CONFIG.FUNCTIONS_REGION)
+            .httpsCallable('verifyKkiapay')({ transactionId: txId });
+        } catch (e) {
+          // Le webhook complÃ©tera la mise Ã  jour cÃ´tÃ© serveur si nÃ©cessaire
+        }
+
+        if (pendingCandidate) {
+          setSelectedCandidate(pendingCandidate);
+          setModalVisible(true);
+          setPendingCandidate(null);
+        }
+      } catch (err) {
+        Alert.alert('Erreur', 'Impossible de finaliser le vote.');
+      }
+    });
+
+    addFailedListener(() => {
+      Alert.alert('Paiement Ã©chouÃ©', 'Votre paiement nâ€™a pas abouti.');
+    });
+
+    addPendingListener(() => {
+      // Optionnel: afficher un Ã©tat "paiement en cours"
+    });
+
+    return () => {
+      void successSub;
+    };
+  }, [addSuccessListener, addFailedListener, addPendingListener, pendingCandidate, contest?.id]);
+
+// handleVotePress placeholder removed
 
   const handleActivateSearch = () => {
     setIsSearchActive(true);
@@ -198,7 +267,7 @@ const ContestScreen: React.FC = () => {
         data={candidates}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <CandidateCard item={item} totalVotes={contest.totalVotes} onVote={handleVotePress} />
+          <CandidateCard item={item} totalVotes={contest.totalVotes} onVote={handleVotePressPay} />
         )}
         ListHeaderComponent={!isSearchActive ? ListHeader : null}
         contentContainerStyle={styles.listContent}

@@ -141,7 +141,6 @@ export type RootStackParamList = {
   CategorySelection: undefined;
   Contest: { contestId: string };
   CandidateProfile: { candidate: Candidate };
-  KkiapayTest: undefined;
 };
 
 export type MainStackParamList = {
