@@ -9,6 +9,8 @@ import {
   ImageBackground,
   Dimensions,
   ActivityIndicator,
+  Pressable,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -28,7 +30,7 @@ interface Props {
 const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
   const { lockParentScroll, unlockParentScroll } = useScrollCoordinator();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { user } = useStore();
+  const { user, updateUserProfile } = useStore();
 
   const REQUIRED_APP_SHARES = 2;
   const [localShareCount, setLocalShareCount] = useState(0);
@@ -50,6 +52,33 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
     () => Math.min(Math.round((Math.min(effectiveShareCount, REQUIRED_APP_SHARES) / REQUIRED_APP_SHARES) * 100), 100),
     [effectiveShareCount]
   );
+
+  const resetShareProgressDev = () => {
+    if (!__DEV__) return;
+    Alert.alert(
+      'Réinitialiser',
+      'Remettre la progression de partage à 0 ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Réinitialiser',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('local_app_share_count_v1');
+              setLocalShareCount(0);
+              if (user) {
+                await updateUserProfile({ appShareCount: 0, hasSharedApp: false });
+              }
+              Alert.alert('OK', 'Progression réinitialisée.');
+            } catch (e) {
+              Alert.alert('Erreur', 'Impossible de réinitialiser.');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   if (isLoading) {
     return <ActivityIndicator style={{ marginVertical: 20, height: 140 }} />;
@@ -77,7 +106,8 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
                 </View>
                 <View>
                   {isPredictionCard && (
-                    <View style={styles.shareProgressWrapper}>
+                    <Pressable onLongPress={resetShareProgressDev} delayLongPress={800}>
+                      <View style={styles.shareProgressWrapper}>
                       <View style={styles.shareProgressTrack}>
                         <View style={[styles.shareProgressFill, { width: `${shareProgressPercent}%` }]} />
                       </View>
@@ -87,7 +117,8 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
                           {shareProgressPercent < 100 ? 'Partage requis' : 'PrÃªt !'}
                         </Text>
                       </View>
-                    </View>
+                      </View>
+                    </Pressable>
                   )}
                   <View style={styles.promoCta}>
                     <Text style={styles.promoCtaText}>{item.cta}</Text>

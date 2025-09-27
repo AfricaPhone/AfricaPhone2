@@ -1,5 +1,5 @@
-// src/screens/PredictionGameScreen.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+﻿// src/screens/PredictionGameScreen.tsx
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -17,9 +17,9 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-// MODIFICATION: Importez les dépendances pour les fonctions Firebase
+// MODIFICATION: Importez les dÃ©pendances pour les fonctions Firebase
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { collection, onSnapshot, query, where, doc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
@@ -28,6 +28,19 @@ import { Prediction, Match } from '../types';
 
 // MODIFICATION: Initialisez l'instance des Fonctions
 const functions = getFunctions();
+const openWhatsApp = async () => {
+  const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(WHATSAPP_SHARE_MESSAGE)}`;
+  try {
+    const canOpen = await Linking.canOpenURL(whatsappUrl);
+    if (canOpen) {
+      await Linking.openURL(whatsappUrl);
+    } else {
+      Alert.alert("WhatsApp non disponible", "Impossible d'ouvrir WhatsApp sur cet appareil.");
+    }
+  } catch (err) {
+    Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Reessayez.");
+  }
+};
 
 const APP_SHARE_URL = 'https://africaphone.app';
 const WHATSAPP_SHARE_MESSAGE = `Rejoins-moi sur AfricaPhone pour pronostiquer et tenter ta chance ! Telecharge l'application ici : ${APP_SHARE_URL}`;
@@ -51,6 +64,7 @@ const PredictionGameScreen: React.FC = () => {
   const [sharePromptVisible, setSharePromptVisible] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [localShareCount, setLocalShareCount] = useState(0);
+  const [pendingShareFeedback, setPendingShareFeedback] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -80,33 +94,32 @@ const PredictionGameScreen: React.FC = () => {
   };
 
   const openSharePromptAndIncrement = async () => {
-    if (!user) {
-      const newLocal = Math.min((localShareCount ?? 0) + 1, REQUIRED_APP_SHARES);
-      try {
-        await AsyncStorage.setItem(LOCAL_SHARE_COUNT_KEY, String(newLocal));
-        setLocalShareCount(newLocal);
-      } catch (_) {
-        setLocalShareCount(newLocal);
-      } finally {
-        setSharePromptVisible(true);
-      }
-      navigation.navigate('AuthPrompt');
-      return;
-    }
-    // Incrément optimiste dès le clic sur "Partager" (50% si 2 partages requis)
-    const updatedShareCount = Math.min((userShareCount ?? 0) + 1, REQUIRED_APP_SHARES);
+  // Au clic: incrémente (local ou profil), marque un feedback en attente, puis ouvre WhatsApp directement
+  if (!user) {
+    const newLocal = Math.min((localShareCount ?? 0) + 1, REQUIRED_APP_SHARES);
     try {
-      await updateUserProfile({
-        appShareCount: updatedShareCount,
-        hasSharedApp: updatedShareCount >= REQUIRED_APP_SHARES,
-        lastAppShareAt: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'incrément du partage:", error);
-    } finally {
-      setSharePromptVisible(true);
+      await AsyncStorage.setItem(LOCAL_SHARE_COUNT_KEY, String(newLocal));
+      setLocalShareCount(newLocal);
+    } catch (_) {
+      setLocalShareCount(newLocal);
     }
-  };
+    setPendingShareFeedback(true);
+    await openWhatsApp();
+    return;
+  }
+  const updatedShareCount = Math.min((userShareCount ?? 0) + 1, REQUIRED_APP_SHARES);
+  try {
+    await updateUserProfile({
+      appShareCount: updatedShareCount,
+      hasSharedApp: updatedShareCount >= REQUIRED_APP_SHARES,
+      lastAppShareAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Erreur lors de l'incrément du partage:", error);
+  }
+  setPendingShareFeedback(true);
+  await openWhatsApp();
+};
 
   const handleShareToWhatsApp = async () => {
     const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(WHATSAPP_SHARE_MESSAGE)}`;
@@ -132,6 +145,40 @@ const PredictionGameScreen: React.FC = () => {
     }
   };
 
+  const resetShareProgressDev = () => {
+    if (!__DEV__) {
+      return;
+    }
+    Alert.alert(
+      'RÃ©initialiser',
+      'Remettre la progression de partage Ã  0 ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'RÃ©initialiser',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem(LOCAL_SHARE_COUNT_KEY);
+              // Remet l'Ã©tat local Ã  0
+              // (l'Ã©cran recalculera automatiquement le pourcentage)
+              if (typeof setLocalShareCount === 'function') {
+                setLocalShareCount(0);
+              }
+              if (user) {
+                await updateUserProfile({ appShareCount: 0, hasSharedApp: false });
+              }
+              Alert.alert('OK', 'Progression rÃ©initialisÃ©e.');
+            } catch (e) {
+              console.error('Erreur reset progression:', e);
+              Alert.alert('Erreur', 'Impossible de rÃ©initialiser.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const matchStarted = useMemo(() => {
     if (!match) return true;
     const GRACE_PERIOD_MS = 60 * 1000;
@@ -139,7 +186,16 @@ const PredictionGameScreen: React.FC = () => {
     return new Date().getTime() > cutOffTime;
   }, [match]);
 
-  const matchEnded = useMemo(() => {
+  
+  // Au retour sur cet écran après ouverture de WhatsApp, afficher le feedback (modal avec progression)
+  useFocusEffect(
+    useCallback(() => {
+      if (pendingShareFeedback) {
+        setSharePromptVisible(true);
+        setPendingShareFeedback(false);
+      }
+    }, [pendingShareFeedback])
+  );const matchEnded = useMemo(() => {
     if (!match) return false;
     return typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number';
   }, [match]);
@@ -172,7 +228,7 @@ const PredictionGameScreen: React.FC = () => {
         if (matchDoc.exists()) {
           setMatch({ id: matchDoc.id, ...matchDoc.data() } as Match);
         } else {
-          console.error('Match non trouvé !');
+          console.error('Match non trouvÃ© !');
           setMatch(null);
         }
         if (loading) setLoading(false);
@@ -231,15 +287,15 @@ const PredictionGameScreen: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!user) {
-      Alert.alert('Erreur', 'Vous devez être connecté pour effectuer cette action.');
+      Alert.alert('Erreur', 'Vous devez Ãªtre connectÃ© pour effectuer cette action.');
       return;
     }
     if (matchStarted) {
-      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminés.');
+      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminÃ©s.');
       return;
     }
     if (!scoreA.trim() || !scoreB.trim()) {
-      Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
+      Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux Ã©quipes.');
       return;
     }
     if (!hasCompletedShareRequirement) {
@@ -249,20 +305,20 @@ const PredictionGameScreen: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // MODIFICATION: Appeler la fonction Cloud au lieu d'écrire directement
+      // MODIFICATION: Appeler la fonction Cloud au lieu d'Ã©crire directement
       const submitPredictionFn = httpsCallable(functions, 'submitPrediction');
 
       const payload = {
         matchId: matchId,
         scoreA: parseInt(scoreA, 10),
         scoreB: parseInt(scoreB, 10),
-        predictionId: currentUserPrediction?.id, // Envoyer l'ID pour les mises à jour
+        predictionId: currentUserPrediction?.id, // Envoyer l'ID pour les mises Ã  jour
       };
 
       const result = await submitPredictionFn(payload);
       const data = result.data as { success: boolean; message: string };
 
-      Alert.alert(data.success ? 'Succès' : 'Erreur', data.message);
+      Alert.alert(data.success ? 'SuccÃ¨s' : 'Erreur', data.message);
 
       if (data.success) {
         setModalVisible(false);
@@ -270,7 +326,7 @@ const PredictionGameScreen: React.FC = () => {
     } catch (error: any) {
       console.error("Erreur d'enregistrement du pronostic: ", error);
       // Les erreurs HttpsError ont un message lisible par l'utilisateur
-      Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez réessayer.');
+      Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez rÃ©essayer.');
     } finally {
       setIsSubmitting(false);
     }
@@ -285,7 +341,7 @@ const PredictionGameScreen: React.FC = () => {
           <Ionicons name="trophy" size={24} color="#f59e0b" />
           <View style={styles.resultTextContainer}>
             <Text style={styles.resultTitle}>Score Exact !</Text>
-            <Text style={styles.resultSubtitle}>Bravo, vous êtes éligible pour l'étape suivante !</Text>
+            <Text style={styles.resultSubtitle}>Bravo, vous Ãªtes Ã©ligible pour l'Ã©tape suivante !</Text>
           </View>
         </View>
       );
@@ -309,7 +365,7 @@ const PredictionGameScreen: React.FC = () => {
       return (
         <View style={[styles.submitButton, styles.buttonDisabled]}>
           <MaterialCommunityIcons name="lock-outline" size={20} color="#fff" />
-          <Text style={styles.submitButtonText}>Pronostics terminés</Text>
+          <Text style={styles.submitButtonText}>Pronostics terminÃ©s</Text>
         </View>
       );
     }
@@ -364,8 +420,8 @@ const PredictionGameScreen: React.FC = () => {
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Match non trouvé</Text>
-          <Text style={styles.emptySubText}>Ce match n'existe pas ou a été supprimé.</Text>
+          <Text style={styles.emptyText}>Match non trouvÃ©</Text>
+          <Text style={styles.emptySubText}>Ce match n'existe pas ou a Ã©tÃ© supprimÃ©.</Text>
         </View>
       </SafeAreaView>
     );
@@ -394,7 +450,7 @@ const PredictionGameScreen: React.FC = () => {
           <View style={styles.matchContainer}>
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
-                {/* MODIFICATION: Utilisation du logo de l'équipe A depuis Firebase */}
+                {/* MODIFICATION: Utilisation du logo de l'Ã©quipe A depuis Firebase */}
                 <Image
                   source={{ uri: match.teamALogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }}
                   style={styles.flag}
@@ -409,7 +465,7 @@ const PredictionGameScreen: React.FC = () => {
             )}
             <View style={styles.teamContainer}>
               <View style={styles.flagContainer}>
-                {/* MODIFICATION: Utilisation du logo de l'équipe B depuis Firebase */}
+                {/* MODIFICATION: Utilisation du logo de l'Ã©quipe B depuis Firebase */}
                 <Image
                   source={{ uri: match.teamBLogo || 'https://placehold.co/100x100/EFEFEF/333333?text=?' }}
                   style={styles.flag}
@@ -429,21 +485,13 @@ const PredictionGameScreen: React.FC = () => {
               <Text style={styles.shareRequirementSubtitle}>
                 Partagez l'application via WhatsApp (2 partages necessaires) pour debloquer les pronostics.
               </Text>
-              <View style={styles.shareProgressWrapper}>
-                <View style={styles.shareProgressTrack}>
-                  <View style={[styles.shareProgressFill, { width: `${shareProgressPercent}%` }]} />
-                </View>
-                <View style={styles.shareProgressMeta}>
-                  <Text style={styles.shareProgressLabel}>{shareProgressPercent}% complet</Text>
-                  <Text style={styles.shareProgressRemaining}>
-                    {remainingShares > 0
-                      ? `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''}`
-                      : 'Objectif atteint !'}
-                  </Text>
-                </View>
-              </View>
             </View>
-            <TouchableOpacity style={styles.shareRequirementCta} onPress={openSharePromptAndIncrement}>
+            <TouchableOpacity
+              style={styles.shareRequirementCta}
+              onPress={openSharePromptAndIncrement}
+              onLongPress={resetShareProgressDev}
+              delayLongPress={800}
+            >
               <Ionicons name="logo-whatsapp" size={18} color="#fff" />
               <Text style={styles.shareRequirementCtaText}>Partager</Text>
             </TouchableOpacity>
@@ -478,7 +526,7 @@ const PredictionGameScreen: React.FC = () => {
               </View>
             ))
           ) : (
-            <Text style={styles.noPredictionsText}>Soyez le premier à faire un pronostic !</Text>
+            <Text style={styles.noPredictionsText}>Soyez le premier Ã  faire un pronostic !</Text>
           )}
         </View>
       </ScrollView>
@@ -704,7 +752,7 @@ const styles = StyleSheet.create({
   predictionPercentage: {
     color: '#6b7280',
     fontSize: 14,
-    width: 80, // Augmenté pour faire de la place
+    width: 80, // AugmentÃ© pour faire de la place
     textAlign: 'right',
   },
   noPredictionsText: {
@@ -1004,3 +1052,6 @@ const styles = StyleSheet.create({
 });
 
 export default PredictionGameScreen;
+
+
+

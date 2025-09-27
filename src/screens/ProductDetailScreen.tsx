@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as FileSystem from 'expo-file-system';
+import * as LegacyFileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
@@ -164,7 +165,8 @@ const ProductDetailScreen: React.FC = () => {
         try {
           const fileInfo = destinationFile.info();
           if (!fileInfo.exists) {
-            await FileSystem.downloadAsync(imageUrl, localUri);
+            // Utilise l'API legacy pour le téléchargement (la nouvelle API déconseille downloadAsync)
+            await LegacyFileSystem.downloadAsync(imageUrl, localUri);
           }
           shareableImageUri.current = localUri;
           setIsShareable(true);
