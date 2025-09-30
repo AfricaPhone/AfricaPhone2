@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext, useCallback } from 'react';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { FirebaseAuthTypes, getAuth, onAuthStateChanged, signOut } from '@react-native-firebase/auth';
 import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
 import { collection, doc, getDoc, setDoc } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
@@ -178,8 +178,9 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(handleAuthStateChange);
-    return subscriber;
+    const instance = getAuth();
+    const unsubscribe = onAuthStateChanged(instance, handleAuthStateChange);
+    return unsubscribe;
   }, [handleAuthStateChange]);
 
   const signInWithGoogle = useCallback(async () => {
@@ -195,7 +196,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       setStoreLoading(true);
-      await auth().signOut();
+      await signOut(getAuth());
       await GoogleSignin.signOut();
       setUser(null);
     } catch (error) {
@@ -213,7 +214,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
 
       setStoreLoading(true);
       try {
-        const authUser = auth().currentUser;
+        const authUser = getAuth().currentUser;
         const userId = user.id || authUser?.uid;
         if (!userId) {
           console.warn('StoreContext: Unable to determine user document id during profile update.');

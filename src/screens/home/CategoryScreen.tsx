@@ -14,7 +14,7 @@ import {
 import { useProducts } from '../../store/ProductContext';
 import { Product, PromoCard } from '../../types';
 import { db } from '../../firebase/config';
-import { MOCK_CONTEST } from '../../data/mockContestData';
+import { fetchActiveContestId, getContestById } from '../../services/contestService';
 
 const PAGE_SIZE = 10;
 
@@ -140,30 +140,53 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
         try {
           setPromoCardsLoading(true);
 
-          const contestCard: PromoCard = {
-            id: 'promo-contest-01',
-            title: 'Concours de Vote',
-            subtitle: "Elisez le journaliste tech de l'annee !",
-            cta: 'Participer',
-            image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400',
-            screen: 'Contest',
-            screenParams: { contestId: MOCK_CONTEST.id },
-            sortOrder: 0,
-          };
+          const defaultContestImage = 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400';
+
+          let contestCard: PromoCard | null = null;
+          try {
+            const activeContestId = await fetchActiveContestId();
+            if (activeContestId) {
+              const contestData = await getContestById(activeContestId);
+              if (contestData) {
+                const contestImage =
+                  (contestData as any).heroImage ||
+                  (contestData as any).bannerImage ||
+                  (contestData as any).image ||
+                  defaultContestImage;
+
+                contestCard = {
+                  id: `promo-contest-${activeContestId}`,
+                  title: contestData.title,
+                  subtitle:
+                    contestData.description || 'Elisez votre candidat favori.',
+                  cta: contestData.status === 'ended' ? 'Voir les resultats' : 'Participer',
+                  image: contestImage,
+                  screen: 'Contest',
+                  screenParams: { contestId: activeContestId },
+                  sortOrder: -1,
+                };
+              }
+            }
+          } catch (contestError) {
+            console.error('CategoryScreen: active contest fetch failed', contestError);
+          }
 
           let promoQueryRef: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> = promoCardsCollection;
           promoQueryRef = query(promoQueryRef, where('isActive', '==', true));
-          promoQueryRef = query(promoQueryRef, orderBy('sortOrder', 'asc'));
 
           const querySnapshot = await getDocs(promoQueryRef);
-          const fetchedCards = querySnapshot.docs.map(
+          const fetchedCards = (querySnapshot.docs.map(
             (docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>) => ({
               id: docSnap.id,
               ...docSnap.data(),
             })
-          ) as PromoCard[];
+          ) as PromoCard[]).sort((a, b) => {
+            const orderA = typeof a.sortOrder === 'number' ? a.sortOrder : Number.MAX_SAFE_INTEGER;
+            const orderB = typeof b.sortOrder === 'number' ? b.sortOrder : Number.MAX_SAFE_INTEGER;
+            return orderA - orderB;
+          });
 
-          setPromoCards([contestCard, ...fetchedCards]);
+          setPromoCards(contestCard ? [contestCard, ...fetchedCards] : fetchedCards);
         } catch (error) {
           console.error('Erreur de chargement des cartes promo :', error);
         } finally {

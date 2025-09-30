@@ -15,6 +15,7 @@ import sharp = require('sharp');
 // Initialise l'app Firebase Admin pour interagir avec Firestore.
 admin.initializeApp();
 const db = admin.firestore();
+const STORAGE_BUCKET = process.env.PRODUCT_IMAGES_BUCKET || 'africaphone-vente.firebasestorage.app';
 
 /**
  * NOUVELLE FONCTION "CALLABLE"
@@ -278,10 +279,11 @@ export const processProductImage = onObjectFinalized(
     region: 'africa-south1',
     memory: '1GiB',
     timeoutSeconds: 120,
+    bucket: STORAGE_BUCKET,
   },
   async event => {
     const object = event.data;
-    const bucketName = object.bucket || '';
+    const bucketName = object.bucket || STORAGE_BUCKET;
     const filePath = object.name || '';
     const contentType = object.contentType || '';
     const bucket = getStorage().bucket(bucketName);

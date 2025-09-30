@@ -10,7 +10,7 @@ export const PAYMENT_CONFIG = {
   KKIAPAY_PUBLIC_KEY: 'c2811a3222019d25a6ec80e33c147ae761093089',
 
   // True en environnement de test, False en production
-  SANDBOX: false,
+  SANDBOX: true,
 
   // Région de déploiement des Cloud Functions
   FUNCTIONS_REGION: 'europe-west1',

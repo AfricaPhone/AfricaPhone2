@@ -1,4 +1,4 @@
-﻿// src/screens/ContestScreen.tsx
+// src/screens/ContestScreen.tsx
 import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
@@ -13,18 +13,20 @@ import {
   Animated,
   Keyboard,
   BackHandler, // AJOUT
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native'; // AJOUT
+import { useNavigation, NavigationProp, useFocusEffect, useRoute, RouteProp } from '@react-navigation/native'; // AJOUT
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { MOCK_CONTEST, MOCK_CANDIDATES } from '../data/mockContestData';
 import { Candidate, RootStackParamList } from '../types';
 import ContestCountdown from '../components/ContestCountdown';
 import VoteConfirmationModal from '../components/VoteConfirmationModal';
 import { useKkiapay } from '@kkiapay-org/react-native-sdk';
 import { PAYMENT_CONFIG } from '../config/payment';
-import functions from '@react-native-firebase/functions';
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { useStore } from '../store/StoreContext';
+import { useContestData } from '../hooks/useContestData';
+import { fetchActiveContestId } from '../services/contestService';
 // Plus de persistance locale ici; le serveur compte les votes
 
 const formatNumber = (num: number) => new Intl.NumberFormat('fr-FR').format(num);
@@ -84,80 +86,55 @@ const ContestScreen: React.FC = () => {
   const [pendingCandidate, setPendingCandidate] = useState<Candidate | null>(null);
   const { user, isAuthenticated } = useStore();
   const { openKkiapayWidget, addSuccessListener, addFailedListener, addPendingListener } = useKkiapay();
+  const functionsInstance = useMemo(() => getFunctions(undefined, PAYMENT_CONFIG.FUNCTIONS_REGION), []);
 
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<TextInput>(null);
 
-  const contest = MOCK_CONTEST;
-  const candidates = useMemo(() => {
-    if (!searchQuery) {
-      return MOCK_CANDIDATES;
+  const route = useRoute<RouteProp<RootStackParamList, 'Contest'>>();
+  const initialContestId = route.params?.contestId ?? null;
+  const [contestId, setContestId] = useState<string | null>(initialContestId);
+  const [isResolvingContestId, setIsResolvingContestId] = useState(!initialContestId);
+  const [contestIdError, setContestIdError] = useState<string | null>(null);
+
+  const { contest, candidates, isLoading, error } = useContestData(contestId);
+
+  const filteredCandidates = useMemo(() => {
+    const src = Array.isArray(candidates) ? candidates : [];
+    const term = (searchQuery || '').trim().toLowerCase();
+    const filtered = term
+      ? src.filter(
+          c =>
+            (c.name || '').toLowerCase().includes(term) ||
+            (c.media || '').toLowerCase().includes(term)
+        )
+      : src;
+    // Always show by voteCount desc
+    return [...filtered].sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
+  }, [candidates, searchQuery]);
+
+  const totalVotes = useMemo(() => {
+    if (contest && typeof contest.totalVotes === 'number') {
+      return contest.totalVotes;
     }
-    return MOCK_CANDIDATES.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [searchQuery]);
+    return (Array.isArray(candidates) ? candidates : []).reduce(
+      (sum, c) => sum + (typeof c.voteCount === 'number' ? c.voteCount : 0),
+      0
+    );
+  }, [contest, candidates]);
 
-  const handleDeactivateSearch = useCallback(() => {
-    setIsSearchActive(false);
-    setSearchQuery('');
-    Keyboard.dismiss();
-  }, []);
+  const errorMessage = useMemo(() => contestIdError || error || null, [contestIdError, error]);
 
-  // AJOUT: Gestion du bouton retour physique/geste
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        if (isSearchActive) {
-          handleDeactivateSearch();
-          return true; // EmpÃªche le retour en arriÃ¨re par dÃ©faut
-        }
-        return false; // Autorise le retour en arriÃ¨re par dÃ©faut
-      };
-
-      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => subscription.remove();
-    }, [isSearchActive, handleDeactivateSearch])
-  );
-
-  // --- Paiement & Persistance du vote ---
-
-  const handleVotePressPay = async (candidate: Candidate) => {
-    Keyboard.dismiss();
-    setPendingCandidate(candidate);
-
-    try {
-      const createIntent = functions(PAYMENT_CONFIG.FUNCTIONS_REGION).httpsCallable('createVoteIntent');
-      const res: any = await createIntent({
-        contestId: contest.id,
-        candidateId: candidate.id,
-        amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
-      });
-      const intentId: string = res?.data?.intentId;
-      if (!intentId) {
-        throw new Error('IntentId manquant');
-      }
-
-      openKkiapayWidget({
-        amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
-        api_key: PAYMENT_CONFIG.KKIAPAY_PUBLIC_KEY,
-        sandbox: PAYMENT_CONFIG.SANDBOX,
-        partnerId: intentId,
-        countries: [...PAYMENT_CONFIG.COUNTRIES],
-        paymentMethods: [...PAYMENT_CONFIG.PAYMENT_METHODS],
-        phone: user?.phoneNumber || undefined,
-        email: user?.email || undefined,
-        name: user?.name || undefined,
-        reason: `Vote ${contest.id} -> ${candidate.id}`,
-        data: intentId,
-      });
-    } catch (e) {
-      Alert.alert('Erreur', "Impossible d'initialiser le paiement.");
-      setPendingCandidate(null);
+  const totalParticipants = useMemo(() => {
+    if (contest && typeof contest.totalParticipants === 'number' && contest.totalParticipants > 0) {
+      return contest.totalParticipants;
     }
-  };
+    return Array.isArray(candidates) ? candidates.length : 0;
+  }, [contest, candidates]);
 
   useEffect(() => {
-    const successSub = addSuccessListener(async (data?: any) => {
+    const successUnsubscribe = addSuccessListener(async (data?: any) => {
       try {
         const txId: string = String(data?.transactionId || data?.transaction_id || data?.transactionID || '');
         if (!txId) {
@@ -165,12 +142,11 @@ const ContestScreen: React.FC = () => {
           return;
         }
 
-        // VÃ©rification cÃ´tÃ© serveur (best effort)
         try {
-          await functions(PAYMENT_CONFIG.FUNCTIONS_REGION)
-            .httpsCallable('verifyKkiapay')({ transactionId: txId });
+          const fn = httpsCallable(functionsInstance, 'verifyKkiapay');
+          await fn({ transactionId: txId });
         } catch (e) {
-          // Le webhook complÃ©tera la mise Ã  jour cÃ´tÃ© serveur si nÃ©cessaire
+          // Le webhook effectue la mise a jour definitive
         }
 
         if (pendingCandidate) {
@@ -183,18 +159,26 @@ const ContestScreen: React.FC = () => {
       }
     });
 
-    addFailedListener(() => {
-      Alert.alert('Paiement Ã©chouÃ©', 'Votre paiement nâ€™a pas abouti.');
+    const failedUnsubscribe = addFailedListener(() => {
+      Alert.alert('Paiement echoue', 'Votre paiement na pas abouti.');
     });
 
-    addPendingListener(() => {
-      // Optionnel: afficher un Ã©tat "paiement en cours"
+    const pendingUnsubscribe = addPendingListener(() => {
+      // Optionnel: afficher un etat "paiement en cours"
     });
 
     return () => {
-      void successSub;
+      if (typeof successUnsubscribe === 'function') {
+        successUnsubscribe();
+      }
+      if (typeof failedUnsubscribe === 'function') {
+        failedUnsubscribe();
+      }
+      if (typeof pendingUnsubscribe === 'function') {
+        pendingUnsubscribe();
+      }
     };
-  }, [addSuccessListener, addFailedListener, addPendingListener, pendingCandidate, contest?.id]);
+  }, [addSuccessListener, addFailedListener, addPendingListener, pendingCandidate]);
 
 // handleVotePress placeholder removed
 
@@ -203,32 +187,46 @@ const ContestScreen: React.FC = () => {
     setTimeout(() => searchInputRef.current?.focus(), 100);
   };
 
-  const ListHeader = useCallback(
-    () => (
-      <View>
-        <View style={styles.contestHeader}>
-          <MaterialCommunityIcons name="trophy-award" size={48} color="#f59e0b" />
-          <Text style={styles.contestTitle}>{contest.title}</Text>
-          <Text style={styles.contestDescription}>{contest.description}</Text>
-          <ContestCountdown endDate={contest.endDate} />
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{formatNumber(contest.totalVotes)}</Text>
-              <Text style={styles.statLabel}>Votes</Text>
+  const renderListHeader = () => (
+    <View>
+      <View style={styles.contestHeader}>
+        <MaterialCommunityIcons name="trophy-award" size={48} color="#f59e0b" />
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#111" style={styles.headerLoader} />
+        ) : contest ? (
+          <>
+            <Text style={styles.contestTitle}>{contest.title}</Text>
+            {contest.description ? <Text style={styles.contestDescription}>{contest.description}</Text> : null}
+            <ContestCountdown endDate={contest.endDate} />
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{formatNumber(totalVotes)}</Text>
+                <Text style={styles.statLabel}>Votes</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{totalParticipants}</Text>
+                <Text style={styles.statLabel}>Participants</Text>
+              </View>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{contest.totalParticipants}</Text>
-              <Text style={styles.statLabel}>Participants</Text>
-            </View>
-          </View>
-        </View>
-        <TouchableOpacity style={styles.searchBarContainer} onPress={handleActivateSearch}>
-          <Ionicons name="search-outline" size={20} color="#8A8A8E" style={styles.searchIcon} />
-          <Text style={styles.searchPlaceholder}>Rechercher un candidat...</Text>
-        </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={styles.contestTitle}>Concours indisponible</Text>
+            <Text style={styles.contestDescription}>{errorMessage ?? 'Revenez plus tard pour voter.'}</Text>
+          </>
+        )}
       </View>
-    ),
-    [contest]
+      <TouchableOpacity
+        style={styles.searchBarContainer}
+        onPress={handleActivateSearch}
+        disabled={!contest || isLoading}
+      >
+        <Ionicons name="search-outline" size={20} color="#8A8A8E" style={styles.searchIcon} />
+        <Text style={styles.searchPlaceholder}>
+          {contest ? 'Rechercher un candidat...' : isLoading ? 'Chargement...' : 'Aucun candidat disponible'}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -264,15 +262,24 @@ const ContestScreen: React.FC = () => {
       )}
 
       <FlatList
-        data={candidates}
+        data={filteredCandidates}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <CandidateCard item={item} totalVotes={contest.totalVotes} onVote={handleVotePressPay} />
+          <CandidateCard item={item} totalVotes={totalVotes} onVote={handleVotePressPay} />
         )}
-        ListHeaderComponent={!isSearchActive ? ListHeader : null}
+        ListHeaderComponent={!isSearchActive ? renderListHeader : null}
+        ListEmptyComponent={
+          !isLoading && contest ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateTitle}>Aucun candidat pour le moment</Text>
+              <Text style={styles.emptyStateSubtitle}>Revenez plus tard pour decouvrir les participants.</Text>
+            </View>
+          ) : null
+        }
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       />
 
       <VoteConfirmationModal
@@ -398,6 +405,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   voteButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  headerLoader: { marginTop: 16 },
+  emptyState: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 16 },
+  emptyStateTitle: { fontSize: 16, fontWeight: '600', color: '#111' },
+  emptyStateSubtitle: { fontSize: 13, color: '#6b7280', marginTop: 6, textAlign: 'center' },
 });
 
 export default ContestScreen;

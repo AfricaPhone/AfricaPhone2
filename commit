@@ -90,3 +90,19 @@ git pull
 # Supprimer une branche sur le dépôt distant (ex: GitHub, GitLab).
 git push origin --delete <nom-de-la-branche>
 
+
+git remote add origin.........
+git push -u origin main
+
+Cas d’un dépôt GitHub EXISTANT
+
+Si le dépôt n’est pas vide:
+Récupère d’abord: git fetch origin
+Compare: git log --oneline --graph --decorate --all
+Si mêmes racines: git pull --rebase origin main, résous conflits s’il y en a, puis git push -u origin main.
+Si historiques sans lien: git pull --rebase --allow-unrelated-histories origin main puis résous conflits, commit, et git push.
+Option CLI GitHub (facultatif)
+
+Installer: winget install --id GitHub.cli -e
+Login: gh auth login
+Créer et pousser d’un coup: gh repo create <toi>/<repo> --private --source . --remote origin --push
