@@ -1,7 +1,7 @@
-// Importe la configuration et les services Firebase depuis le fichier dédié.
+﻿// Importe la configuration et les services Firebase depuis le fichier d�di�.
 import { auth, db, storage } from './firebase-config.js';
 
-// Importe les fonctions spécifiques de Firebase Auth et Firestore.
+// Importe les fonctions sp�cifiques de Firebase Auth et Firestore.
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -17,16 +17,33 @@ import {
   addDoc,
   orderBy,
   query,
+  where,
+  limit,
   serverTimestamp,
   arrayRemove,
 } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
 
 /* ============================ Helpers ============================ */
 const $ = sel => document.querySelector(sel);
 const $$ = sel => document.querySelectorAll(sel);
 const fmtXOF = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF' });
 const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
+window.addEventListener('unhandledrejection', event => {
+  const error = event && event.reason;
+  const message = typeof (error?.message) === 'string' ? error.message : '';
+  const code = typeof (error?.code) === 'string' ? error.code : '';
+  if (code === 'permission-denied' || /permission/i.test(message)) {
+    event.preventDefault();
+    console.error('[Admin Panel] Operation blocked by Firestore security rules.', error);
+    toast('Permissions insuffisantes', "Votre compte n'a pas acc�s � cette ressource.", 'error');
+  }
+});
 
 function escapeHtml(s = '') {
   return String(s).replace(/[&<>"']/g, function (m) {
@@ -148,22 +165,28 @@ function setCrumb(name) {
 let allProducts = [];
 let allMatches = [];
 let allPromoCards = [];
+let contestPromoCard = null;
 let allPromoCodes = []; // AJOUT
 let allBrands = [];
+let allContests = [];
+const contestCandidates = new Map();
+const CONTEST_SELECTION_STORAGE_KEY = 'admin-selected-contest';
+let selectedContestId = localStorage.getItem(CONTEST_SELECTION_STORAGE_KEY) || '';
+let candidateSearchTerm = '';
 let productSearchTerm = '';
 let productCategoryFilter = '';
 let viewMode = 'table'; // 'table' | 'cards'
 let sortBy = { key: 'name', dir: 'asc' };
 const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
 let PREDEFINED_SPECS = [
-  'Écran',
+  '�cran',
   'Processeur',
   'Appareil Photo',
   'Batterie',
-  'Connectivité',
+  'Connectivit�',
   'Dimensions',
   'Poids',
-  'Système',
+  'Syst�me',
 ];
 
 /* ============================ Auth ============================ */
@@ -210,30 +233,30 @@ onAuthStateChanged(auth, async function (user) {
   const logged = !!user;
 
   if (logged) {
-    // Vérifie si l'utilisateur est un administrateur
+    // V�rifie si l'utilisateur est un administrateur
     try {
-      const tokenResult = await user.getIdTokenResult(true); // Force la mise à jour du jeton
+      const tokenResult = await user.getIdTokenResult(true); // Force la mise � jour du jeton
       if (tokenResult.claims.admin) {
         // L'utilisateur est un administrateur
-        console.log(`[Admin Panel] Connexion d'un admin réussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
+        console.log(`[Admin Panel] Connexion d'un admin r�ussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
         $login.classList.add('hide');
         $app.classList.remove('hide');
         $app.setAttribute('aria-hidden', 'false');
         initAfterLogin();
       } else {
-        // L'utilisateur n'est pas un administrateur, le déconnecte
+        // L'utilisateur n'est pas un administrateur, le d�connecte
         await signOut(auth);
-        toast('Accès refusé', 'Vos identifiants ne sont pas ceux d\'un administrateur.', 'error');
+        toast('Acc�s refus�', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
         // Redirige pour nettoyer l'interface
         location.reload();
       }
     } catch (err) {
-      console.error('Erreur lors de la vérification des revendications:', err);
+      console.error('Erreur lors de la v�rification des revendications:', err);
       await signOut(auth);
       location.reload();
     }
   } else {
-    // L'utilisateur n'est pas connecté
+    // L'utilisateur n'est pas connect�
     $login.classList.remove('hide');
     $app.classList.add('hide');
     $app.setAttribute('aria-hidden', 'true');
@@ -314,17 +337,20 @@ $$('#page-settings [data-theme-choice]').forEach(function (btn) {
 const $navProducts = $('#nav-products'),
   $navBrands = $('#nav-brands'),
   $navMatches = $('#nav-matches'),
+  $navContests = $('#nav-contests'),
   $navSettings = $('#nav-settings'),
   $navPromoCards = $('#nav-promocards'),
   $navPromoCodes = $('#nav-promocodes');
 const $toolbarProducts = $('#toolbar-products'),
   $toolbarBrands = $('#toolbar-brands'),
   $toolbarMatches = $('#toolbar-matches'),
+  $toolbarContests = $('#toolbar-contests'),
   $toolbarPromoCards = $('#toolbar-promocards'),
   $toolbarPromoCodes = $('#toolbar-promocodes');
 const $productsContent = $('#products-content'),
   $brandsContent = $('#brands-content'),
   $matchesContent = $('#matches-content'),
+  $contestsContent = $('#contests-content'),
   $promoCardsContent = $('#promocards-content'),
   $promoCodesContent = $('#promocodes-content');
 
@@ -333,11 +359,15 @@ async function handleRoute() {
   const parts = (location.hash || '#/products').split('/');
   const route = parts[1] || 'products';
   const id = parts[2];
+  const childId = parts[3];
+
+  const isContestRoute = route.includes('contest') || route.includes('candidate');
 
   // Nav active
   $navProducts.classList.toggle('active', route.includes('product'));
   $navBrands.classList.toggle('active', route.includes('brand'));
   $navMatches.classList.toggle('active', route.includes('match'));
+  $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
   $navPromoCodes.classList.toggle('active', route.includes('promocode'));
   $navSettings.classList.toggle('active', route === 'settings');
@@ -346,6 +376,7 @@ async function handleRoute() {
   $toolbarProducts.classList.toggle('hide', !route.includes('product'));
   $toolbarBrands.classList.toggle('hide', !route.includes('brand'));
   $toolbarMatches.classList.toggle('hide', !route.includes('match'));
+  $toolbarContests.classList.toggle('hide', !isContestRoute);
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
   $toolbarPromoCodes.classList.toggle('hide', !route.includes('promocode'));
 
@@ -353,6 +384,7 @@ async function handleRoute() {
   $('#page-products').classList.toggle('hide', !route.includes('product'));
   $('#page-brands').classList.toggle('hide', !route.includes('brand'));
   $('#page-matches').classList.toggle('hide', !route.includes('match'));
+  $('#page-contests').classList.toggle('hide', !isContestRoute);
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
   $('#page-promocodes').classList.toggle('hide', !route.includes('promocode'));
   $('#page-settings').classList.toggle('hide', route !== 'settings');
@@ -365,7 +397,7 @@ async function handleRoute() {
     setCrumb('Nouveau produit');
     renderProductFormPage();
   } else if (route === 'edit-product' && id) {
-    setCrumb('Éditer produit');
+    setCrumb('�diter produit');
     await renderProductFormPage(id);
   } else if (route === 'brands') {
     setCrumb('Marques');
@@ -375,7 +407,7 @@ async function handleRoute() {
     setCrumb('Nouvelle marque');
     renderBrandFormPage();
   } else if (route === 'edit-brand' && id) {
-    setCrumb('Éditer marque');
+    setCrumb('�diter marque');
     await renderBrandFormPage(id);
   } else if (route === 'matches') {
     setCrumb('Matchs');
@@ -385,8 +417,36 @@ async function handleRoute() {
     setCrumb('Nouveau match');
     renderMatchFormPage();
   } else if (route === 'edit-match' && id) {
-    setCrumb('Éditer match');
+    setCrumb('�diter match');
     await renderMatchFormPage(id);
+  } else if (route === 'contests') {
+    setCrumb('Concours');
+    await ensureContestsLoaded();
+    await setSelectedContest(selectedContestId || (allContests[0]?.id || ''), { force: true });
+  } else if (route === 'new-contest') {
+    setCrumb('Nouveau concours');
+    await ensureContestsLoaded();
+    renderContestFormPage();
+  } else if (route === 'edit-contest' && id) {
+    setCrumb('�diter concours');
+    await ensureContestsLoaded();
+    await renderContestFormPage(id);
+  } else if (route === 'new-candidate') {
+    await ensureContestsLoaded();
+    const contestId = id || selectedContestId || (allContests[0]?.id || '');
+    if (!contestId) {
+      toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
+      location.hash = '#/new-contest';
+      return;
+    }
+    await setSelectedContest(contestId, { force: true, skipRender: true });
+    setCrumb('Nouveau candidat');
+    await renderCandidateFormPage(contestId);
+  } else if (route === 'edit-candidate' && id && childId) {
+    await ensureContestsLoaded();
+    await setSelectedContest(id, { force: true, skipRender: true });
+    setCrumb('�diter candidat');
+    await renderCandidateFormPage(id, childId);
   } else if (route === 'promocards') {
     setCrumb('Cartes Promo');
     await ensurePromoCardsLoaded();
@@ -395,7 +455,7 @@ async function handleRoute() {
     setCrumb('Nouvelle Carte Promo');
     renderPromoCardFormPage();
   } else if (route === 'edit-promocard' && id) {
-    setCrumb('Éditer Carte Promo');
+    setCrumb('�diter Carte Promo');
     await renderPromoCardFormPage(id);
   } else if (route === 'promocodes') {
     setCrumb('Codes Promo');
@@ -405,10 +465,10 @@ async function handleRoute() {
     setCrumb('Nouveau Code Promo');
     renderPromoCodeFormPage();
   } else if (route === 'edit-promocode' && id) {
-    setCrumb('Éditer Code Promo');
+    setCrumb('�diter Code Promo');
     await renderPromoCodeFormPage(id);
   } else if (route === 'settings') {
-    setCrumb('Param&egrave;tres');
+    setCrumb('Param�tres');
   } else {
     location.hash = '#/products';
   }
@@ -426,12 +486,59 @@ async function initAfterLogin() {
   $('#quick-add-match').onclick = function () {
     location.hash = '#/new-match';
   };
+  $('#quick-add-contest').onclick = function () {
+    location.hash = '#/new-contest';
+  };
+  $('#quick-add-candidate').onclick = function () {
+    if (!allContests.length) {
+      toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
+      location.hash = '#/new-contest';
+      return;
+    }
+    const targetId = selectedContestId || allContests[0].id;
+    location.hash = `#/new-candidate/${targetId}`;
+  };
   $('#quick-add-promocard').onclick = function () {
     location.hash = '#/new-promocard';
   };
   $('#quick-add-promocode').onclick = function () {
     location.hash = '#/new-promocode';
   };
+  const contestFilter = $('#contest-filter');
+  if (contestFilter) {
+    contestFilter.addEventListener('change', async event => {
+      const value = event.target.value;
+      if (value) {
+        await setSelectedContest(value, { force: true });
+      } else {
+        await setSelectedContest(allContests[0]?.id || '', { force: true });
+      }
+    });
+  }
+
+  const candidateSearchInput = $('#search-candidates');
+  if (candidateSearchInput) {
+    candidateSearchInput.addEventListener('input', event => {
+      candidateSearchTerm = event.target.value || '';
+      if (location.hash.includes('contest') || location.hash.includes('candidate')) {
+        renderContestsOverview();
+      }
+    });
+  }
+
+  $('#add-contest')?.addEventListener('click', () => {
+    location.hash = '#/new-contest';
+  });
+  $('#add-candidate')?.addEventListener('click', () => {
+    const targetId = selectedContestId || (allContests[0]?.id || '');
+    if (!targetId) {
+      toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
+      location.hash = '#/new-contest';
+      return;
+    }
+    location.hash = `#/new-candidate/${targetId}`;
+  });
+
   // Recherche globale
   const gSearch = $('#global-search');
   document.addEventListener('keydown', function (e) {
@@ -478,15 +585,76 @@ async function ensureMatchesLoaded() {
   });
   $('#kpi-matches').textContent = String(allMatches.length);
 }
-async function ensurePromoCardsLoaded() {
-  if (allPromoCards.length > 0) return;
-  $promoCardsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+function getPromoSortOrder(card) {
+  if (typeof card?.sortOrder === 'number') {
+    return card.sortOrder;
+  }
+  const parsed = parseInt(card?.sortOrder, 10);
+  return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
+}
+function getPromoCardsForDisplay() {
+  const list = contestPromoCard ? [...allPromoCards, contestPromoCard] : [...allPromoCards];
+  return list.sort((a, b) => getPromoSortOrder(a) - getPromoSortOrder(b));
+}
+function updatePromoCardsKpi() {
+  const total = allPromoCards.length + (contestPromoCard ? 1 : 0);
+  $('#kpi-promocards').textContent = String(total);
+}
+async function refreshContestPromoCard() {
+  try {
+    const contestsRef = collection(db, 'contests');
+    const contestQuery = query(
+      contestsRef,
+      where('status', '==', 'active'),
+      orderBy('endDate', 'asc'),
+      limit(1)
+    );
+    const snap = await getDocs(contestQuery);
+    if (snap.empty) {
+      contestPromoCard = null;
+      return;
+    }
+    const docSnap = snap.docs[0];
+    const data = docSnap.data() || {};
+    const fallbackImage = 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400&auto=format&fit=crop';
+    const image =
+      (typeof data.heroImage === 'string' && data.heroImage) ||
+      (typeof data.bannerImage === 'string' && data.bannerImage) ||
+      (typeof data.image === 'string' && data.image) ||
+      fallbackImage;
+    const status = typeof data.status === 'string' ? data.status : 'draft';
+    contestPromoCard = {
+      id: `contest-${docSnap.id}`,
+      title: typeof data.title === 'string' ? data.title : 'Concours',
+      subtitle:
+        typeof data.description === 'string' && data.description
+          ? data.description
+          : 'Elisez votre candidat favori.',
+      cta: status === 'ended' ? 'Voir les resultats' : 'Participer',
+      screen: 'Contest',
+      image,
+      sortOrder: -1,
+      isActive: status === 'active',
+      isContestCard: true,
+    };
+  } catch (error) {
+    console.error('PromoCards: unable to load contest card', error);
+    contestPromoCard = null;
+  }
+}
+async function ensurePromoCardsLoaded(force = false) {
+  if (!force && allPromoCards.length > 0) {
+    await refreshContestPromoCard();
+    updatePromoCardsKpi();
+    return;
+  }
+  $promoCardsContent.innerHTML = '<div class "skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
   const q = query(collection(db, 'promoCards'), orderBy('sortOrder', 'asc'));
   const snap = await getDocs(q);
   allPromoCards = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  $('#kpi-promocards').textContent = String(allPromoCards.length);
+  await refreshContestPromoCard();
+  updatePromoCardsKpi();
 }
-
 async function ensurePromoCodesLoaded() {
   if (allPromoCodes.length > 0) return;
   $promoCodesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
@@ -584,14 +752,14 @@ function renderProductList() {
 			<div style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</div>
 			<label class="chip" style="user-select:none">
 			  <input type="checkbox" data-select id="sel-${p.id}" />
-			  Sélection
+			  S�lection
 			</label>
 		  </div>
-		  <div class="muted">${escapeHtml(p.brand || '—')} • ${escapeHtml(p.category || '—')}</div>
+		  <div class="muted">${escapeHtml(p.brand || '�')} � ${escapeHtml(p.category || '�')}</div>
 		  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : '—'}</div>
+			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : '�'}</div>
 			<div class="actions">
-			  <button class="btn btn-small" data-edit>Éditer</button>
+			  <button class="btn btn-small" data-edit>�diter</button>
 			  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 			</div>
 		  </div>
@@ -622,7 +790,7 @@ function renderProductList() {
 		  <th style="width:60px">Image</th>
 		  <th class="sortable ${sortBy.key === 'name' ? 'sorted' : ''}" data-sort="name">Nom ${sortIcon('name')}</th>
 		  <th class="sortable ${sortBy.key === 'brand' ? 'sorted' : ''}" data-sort="brand">Marque ${sortIcon('brand')}</th>
-		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Catégorie ${sortIcon('category')}</th>
+		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Cat�gorie ${sortIcon('category')}</th>
 		  <th style="width:140px">Prix</th>
 		  <th style="width:90px">Stock</th>
 		  <th style="width:180px;text-align:right">Actions</th>
@@ -638,14 +806,14 @@ function renderProductList() {
 		<td><input type="checkbox" data-select /></td>
 		<td>${mainImage ? '<img class="img" src="' + escapeAttr(mainImage) + '" alt="' + escapeAttr(p.name || 'Image produit') + '" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
 		<td style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</td>
-		<td>${escapeHtml(p.brand || '—')}</td>
-		<td><span class="chip">${escapeHtml(p.category || '—')}</span></td>
+		<td>${escapeHtml(p.brand || '�')}</td>
+		<td><span class="chip">${escapeHtml(p.category || '�')}</span></td>
 		<td>
 		  <input type="number" step="1" min="0" class="input" style="max-width:120px" value="${typeof p.price === 'number' ? p.price : ''}" placeholder="0" data-price-update />
 		</td>
-		<td>${typeof p.stock === 'number' ? p.stock : '—'}</td>
+		<td>${typeof p.stock === 'number' ? p.stock : '�'}</td>
 		<td class="actions">
-		  <button class="btn btn-small" data-edit>Éditer</button>
+		  <button class="btn btn-small" data-edit>�diter</button>
 		  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 		</td>`;
       const sel = tr.querySelector('[data-select]');
@@ -693,11 +861,11 @@ $('#bulk-delete').addEventListener('click', async function () {
     });
   if (!ids.length) return;
   const ok = await openModal({
-    title: 'Supprimer la sélection',
+    title: 'Supprimer la s�lection',
     body:
-      'Êtes-vous sûr de vouloir supprimer <strong>' +
+      '�tes-vous s�r de vouloir supprimer <strong>' +
       ids.length +
-      '</strong> élément(s) ? Cette action est irréversible.',
+      '</strong> �l�ment(s) ? Cette action est irr�versible.',
     okText: 'Supprimer',
     cancelText: 'Annuler',
     danger: true,
@@ -717,7 +885,7 @@ $('#bulk-delete').addEventListener('click', async function () {
       fail++;
     }
   }
-  toast('Suppression terminée', done + ' succès, ' + fail + ' échec(s)', fail ? 'error' : 'success');
+  toast('Suppression termin�e', done + ' succ�s, ' + fail + ' �chec(s)', fail ? 'error' : 'success');
   renderProductList();
   $('#kpi-products').textContent = String(allProducts.length);
 });
@@ -736,10 +904,10 @@ async function handlePriceUpdate(id, inputEl) {
       return x.id === id;
     });
     if (p) p.price = val;
-    toast('Prix mis à jour', fmtXOF.format(val), 'success');
+    toast('Prix mis � jour', fmtXOF.format(val), 'success');
   } catch (e) {
     console.error(e);
-    toast('Erreur', 'Impossible de mettre à jour le prix', 'error');
+    toast('Erreur', 'Impossible de mettre � jour le prix', 'error');
   } finally {
     inputEl.disabled = false;
   }
@@ -755,7 +923,7 @@ async function handleDelete(id, name, type) {
   });
   if (!ok) return;
   try {
-    // --- DÉBUT DU PATCH : Rafraîchir le jeton avant l'action privilégiée ---
+    // --- D�BUT DU PATCH : Rafra�chir le jeton avant l'action privil�gi�e ---
     if (auth.currentUser) {
       await auth.currentUser.getIdToken(true);
     }
@@ -776,13 +944,13 @@ async function handleDelete(id, name, type) {
     } else if (type === 'promoCards') {
       allPromoCards = allPromoCards.filter(c => c.id !== id);
       renderPromoCardList();
-      $('#kpi-promocards').textContent = String(allPromoCards.length);
+      updatePromoCardsKpi();
     } else if (type === 'promoCodes') {
       allPromoCodes = allPromoCodes.filter(c => c.id !== id);
       renderPromoCodeList();
       $('#kpi-promocodes').textContent = String(allPromoCodes.length);
     }
-    toast('Supprimé', '', 'success');
+    toast('Supprim�', '', 'success');
   } catch (e) {
     console.error(e);
     toast('Erreur', 'Suppression impossible', 'error');
@@ -794,7 +962,7 @@ function addSpecRow(container, spec = { key: '', value: '' }) {
   const row = document.createElement('div');
   row.className = 'spec-row';
   row.innerHTML = `
-		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caractéristique (ex: Écran)" value="${escapeAttr(spec.key)}">
+		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caract�ristique (ex: �cran)" value="${escapeAttr(spec.key)}">
 		<input type="text" class="input spec-value" placeholder="Valeur (ex: 6.1 Pouces OLED)" value="${escapeAttr(spec.value)}">
 		<button type="button" class="btn btn-icon btn-danger" data-remove-spec><i data-lucide="trash-2" class="icon"></i></button>
 	`;
@@ -831,7 +999,7 @@ async function renderProductFormPage(id) {
     .map(
       (url, index) => `
 	<div class="image-preview-item" data-url="${escapeAttr(url)}">
-		<img src="${escapeAttr(url)}" alt="Aperçu ${index + 1}">
+		<img src="${escapeAttr(url)}" alt="Aper�u ${index + 1}">
 		<button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
 			<i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
 		</button>
@@ -844,8 +1012,8 @@ async function renderProductFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
 	<div class="form-head">
-	  <div class="form-title">${id ? 'Éditer' : 'Nouveau'} produit</div>
-	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Création'}</div>
+	  <div class="form-title">${id ? '�diter' : 'Nouveau'} produit</div>
+	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Cr�ation'}</div>
 	</div>
 	<form class="form-main" novalidate>
 	  <div class="twocol">
@@ -862,9 +1030,9 @@ async function renderProductFormPage(id) {
 	  </div>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="p-category">Catégorie</label>
+		  <label class="label" for="p-category">Cat�gorie</label>
 		  <select id="p-category" class="select">
-			<option value="">— Sélectionner —</option>
+			<option value="">� S�lectionner �</option>
 			${categoryOptions}
 		  </select>
 		</div>
@@ -890,10 +1058,10 @@ async function renderProductFormPage(id) {
 	  </div>
 
 	  <div class="field">
-		<label class="label">Spécifications techniques</label>
+		<label class="label">Sp�cifications techniques</label>
 		<div id="p-specs-container" class="specs-container">
 		</div>
-		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une spécification</button>
+		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une sp�cification</button>
 	  </div>
 	  
 	  <div class="twocol">
@@ -904,7 +1072,7 @@ async function renderProductFormPage(id) {
 		<div class="field">
 		  <label class="label" for="p-images">Images</label>
 		  <input id="p-images-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" multiple />
-		  <div class="hint">Sélectionnez une ou plusieurs images. La première sera l'image principale.</div>
+		  <div class="hint">S�lectionnez une ou plusieurs images. La premi�re sera l'image principale.</div>
 		  <div id="p-images-preview" class="image-preview-grid">
 			${existingImagesHtml}
 		  </div>
@@ -913,7 +1081,7 @@ async function renderProductFormPage(id) {
 	  
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
-		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer le produit'}</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er le produit'}</button>
 	  </div>
 	</form>`;
   $productsContent.innerHTML = '';
@@ -957,7 +1125,7 @@ async function renderProductFormPage(id) {
         .map(
           (url, index) => `
         <div class="image-preview-item" data-url="${escapeAttr(url)}">
-                <img src="${escapeAttr(url)}" alt="Aperçu ${index + 1}">
+                <img src="${escapeAttr(url)}" alt="Aper�u ${index + 1}">
                 <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
                         <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
                 </button>
@@ -966,7 +1134,7 @@ async function renderProductFormPage(id) {
         )
         .join('');
       btn.closest('.image-preview-item').remove();
-      toast('Image supprimée du produit', 'Le fichier reste sur le serveur.', 'success');
+      toast('Image supprim�e du produit', 'Le fichier reste sur le serveur.', 'success');
     } catch (err) {
       console.error(err);
       toast('Erreur', "Impossible de supprimer l'image du produit", 'error');
@@ -1068,7 +1236,7 @@ async function handleProductFormSubmit(e, id) {
       }
     }
 
-    toast('Succès', `Produit ${id ? 'mis à jour' : 'créé'} avec succès.`, 'success');
+    toast('Succ�s', `Produit ${id ? 'mis � jour' : 'cr��'} avec succ�s.`, 'success');
     allProducts = [];
     await ensureProductsLoaded();
     location.hash = '#/products';
@@ -1079,6 +1247,648 @@ async function handleProductFormSubmit(e, id) {
     setButtonLoading(submitBtn, false);
   }
 }
+
+
+/* ============================ Contests UI ============================ */
+const getSelectedContest = () => allContests.find(contest => contest.id === selectedContestId) || null;
+
+const CONTEST_STATUS_LABELS = {
+  draft: 'Brouillon',
+  active: 'Actif',
+  ended: 'Termin�',
+};
+
+const formatContestStatus = status => CONTEST_STATUS_LABELS[status] || (status ? status.charAt(0).toUpperCase() + status.slice(1) : '');
+
+const toInputDateValue = value => {
+  if (!value) {
+    return '';
+  }
+  const dt = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+  if (Number.isNaN(dt.getTime())) {
+    return '';
+  }
+  dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+  return dt.toISOString().slice(0, 16);
+};
+
+const toDisplayDate = value => {
+  if (!value) {
+    return '�';
+  }
+  const dt = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(dt.getTime())) {
+    return '�';
+  }
+  return fmtDate(dt);
+};
+
+const updateContestFilterOptions = () => {
+  const select = $('#contest-filter');
+  if (!select) {
+    return;
+  }
+  const currentValue = selectedContestId;
+  const options = allContests
+    .map(contest => `<option value="${escapeAttr(contest.id)}"${contest.id === currentValue ? ' selected' : ''}>${escapeHtml(contest.title || contest.id)}</option>`)
+    .join('');
+  select.innerHTML = `<option value="">S�lectionner un concours</option>${options}`;
+  if (currentValue && select.value !== currentValue) {
+    select.value = currentValue;
+  }
+};
+
+const updateKpiContests = () => {
+  const el = $('#kpi-contests');
+  if (el) {
+    el.textContent = allContests.length ? String(allContests.length) : '�';
+  }
+};
+
+const updateKpiCandidates = count => {
+  const el = $('#kpi-candidates');
+  if (el) {
+    el.textContent = typeof count === 'number' && count >= 0 ? String(count) : '�';
+  }
+};
+
+const normalizeSearch = value => value ? value.trim().toLowerCase() : '';
+
+async function ensureContestsLoaded(force = false) {
+  if (!force && allContests.length) {
+    updateContestFilterOptions();
+    updateKpiContests();
+    return;
+  }
+  if (!$contestsContent.classList.contains('hide')) {
+    $contestsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
+  }
+  const contestsQuery = query(collection(db, 'contests'), orderBy('endDate', 'asc'));
+  const snapshot = await getDocs(contestsQuery);
+  allContests = snapshot.docs.map(docSnap => {
+    const data = docSnap.data() || {};
+    const rawEndDate = data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function' ? data.endDate.toDate() : data.endDate ? new Date(data.endDate) : null;
+    return {
+      id: docSnap.id,
+      title: typeof data.title === 'string' ? data.title : 'Concours',
+      description: typeof data.description === 'string' ? data.description : '',
+      status: typeof data.status === 'string' ? data.status : 'draft',
+      endDate: rawEndDate,
+      totalParticipants: Number.isFinite(data.totalParticipants) ? data.totalParticipants : Number.isFinite(data.totalCandidates) ? data.totalCandidates : 0,
+      totalVotes: Number.isFinite(data.totalVotes) ? data.totalVotes : Number.isFinite(data.voteCount) ? data.voteCount : 0,
+    };
+  });
+  updateContestFilterOptions();
+  updateKpiContests();
+  if (selectedContestId && !allContests.some(contest => contest.id === selectedContestId)) {
+    selectedContestId = '';
+    localStorage.removeItem(CONTEST_SELECTION_STORAGE_KEY);
+  }
+  if (!selectedContestId && allContests.length) {
+    selectedContestId = allContests[0].id;
+    localStorage.setItem(CONTEST_SELECTION_STORAGE_KEY, selectedContestId);
+  }
+}
+
+async function ensureContestCandidatesLoaded(contestId, force = false) {
+  if (!contestId) {
+    updateKpiCandidates(0);
+    return [];
+  }
+  if (!force && contestCandidates.has(contestId)) {
+    if (contestId === selectedContestId) {
+      updateKpiCandidates(contestCandidates.get(contestId).length);
+    }
+    return contestCandidates.get(contestId);
+  }
+  const candidatesCollection = collection(db, 'contests', contestId, 'candidates');
+  const candidatesQuery = query(candidatesCollection, orderBy('voteCount', 'desc'));
+  const snapshot = await getDocs(candidatesQuery);
+  const candidates = snapshot.docs.map(docSnap => {
+    const data = docSnap.data() || {};
+    return {
+      id: docSnap.id,
+      contestId,
+      name: typeof data.name === 'string' ? data.name : 'Candidat',
+      media: typeof data.media === 'string' ? data.media : '',
+      photoUrl: typeof data.photoUrl === 'string' ? data.photoUrl : '',
+      voteCount: Number.isFinite(data.voteCount) ? data.voteCount : Number.isFinite(data.votes) ? data.votes : 0,
+    };
+  });
+  contestCandidates.set(contestId, candidates);
+  if (contestId === selectedContestId) {
+    updateKpiCandidates(candidates.length);
+  }
+  return candidates;
+}
+
+async function setSelectedContest(contestId, options = {}) {
+  const { force = false, skipRender = false } = options;
+  const normalizedId = contestId || '';
+  const changed = normalizedId !== selectedContestId;
+  selectedContestId = normalizedId;
+  if (selectedContestId) {
+    localStorage.setItem(CONTEST_SELECTION_STORAGE_KEY, selectedContestId);
+  } else {
+    localStorage.removeItem(CONTEST_SELECTION_STORAGE_KEY);
+  }
+  if (changed) {
+    candidateSearchTerm = '';
+    const searchInput = $('#search-candidates');
+    if (searchInput) {
+      searchInput.value = '';
+    }
+  }
+  updateContestFilterOptions();
+  if (selectedContestId) {
+    await ensureContestCandidatesLoaded(selectedContestId, force || changed);
+  } else {
+    updateKpiCandidates(0);
+  }
+  if (!skipRender) {
+    renderContestsOverview();
+  }
+}
+
+function renderContestsOverview() {
+  if (!$contestsContent) {
+    return;
+  }
+  if (!allContests.length) {
+    updateKpiCandidates(0);
+    $contestsContent.innerHTML = `
+      <div class="empty-state">
+        <p>Aucun concours enregistr� pour le moment.</p>
+        <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Cr�er un concours</button>
+      </div>`;
+    $contestsContent.querySelector('[data-create-first-contest]')?.addEventListener('click', () => {
+      location.hash = '#/new-contest';
+    });
+    lucide.createIcons();
+    return;
+  }
+
+  const select = $('#contest-filter');
+  if (select && select.value !== (selectedContestId || '')) {
+    select.value = selectedContestId || '';
+  }
+  const searchInput = $('#search-candidates');
+  if (searchInput && searchInput.value !== candidateSearchTerm) {
+    searchInput.value = candidateSearchTerm;
+  }
+
+  const contest = getSelectedContest();
+  if (!contest) {
+    updateKpiCandidates(0);
+    $contestsContent.innerHTML = `<div class="empty-state"><p>S�lectionnez un concours pour voir ses candidats.</p></div>`;
+    lucide.createIcons();
+    return;
+  }
+
+  const candidates = contestCandidates.get(contest.id) || [];
+  const searchTerm = normalizeSearch(candidateSearchTerm);
+  const visibleCandidates = searchTerm
+    ? candidates.filter(candidate => `${candidate.name} ${candidate.media}`.toLowerCase().includes(searchTerm))
+    : candidates;
+  updateKpiCandidates(candidates.length);
+
+  const rows = visibleCandidates
+    .map((candidate, index) => `
+        <tr>
+          <td class="muted">${index + 1}</td>
+          <td>
+            <div class="candidate-cell" style="display:flex;align-items:center;gap:12px;">
+              ${candidate.photoUrl ? `<img src="${escapeAttr(candidate.photoUrl)}" alt="${escapeAttr(candidate.name)}" style="width:40px;height:40px;border-radius:20px;object-fit:cover;" />` : ''}
+              <div>
+                <div class="candidate-name">${escapeHtml(candidate.name)}</div>
+                ${candidate.media ? `<div class="muted">${escapeHtml(candidate.media)}</div>` : ''}
+              </div>
+            </div>
+          </td>
+          <td class="muted">${escapeHtml(candidate.id)}</td>
+          <td class="strong">${Number(candidate.voteCount || 0).toLocaleString('fr-FR')}</td>
+          <td class="actions">
+            <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> �diter</button>
+            <button class="btn btn-danger btn-small" type="button" data-delete-candidate="${escapeAttr(candidate.id)}"><i data-lucide="trash-2" class="icon"></i></button>
+          </td>
+        </tr>`)
+    .join('');
+
+  const tableHtml = visibleCandidates.length
+    ? `
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Candidat</th>
+                <th>ID</th>
+                <th>Votes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        </div>`
+    : `<div class="empty-state"><p>${searchTerm ? 'Aucun candidat ne correspond � cette recherche.' : 'Aucun candidat n�est encore enregistr� pour ce concours.'}</p></div>`;
+
+  $contestsContent.innerHTML = `
+    <div class="contest-layout">
+      <div class="card contest-summary">
+        <div class="card-head">
+          <div>
+            <h2>${escapeHtml(contest.title || 'Concours')}</h2>
+            <div class="muted">Identifiant : ${escapeHtml(contest.id)}</div>
+          </div>
+          <div class="actions">
+            <span class="badge status-${escapeAttr(contest.status)}">${formatContestStatus(contest.status)}</span>
+            <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> �diter</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <dl class="meta-grid">
+            <div>
+              <dt>Date de fin</dt>
+              <dd>${toDisplayDate(contest.endDate)}</dd>
+            </div>
+            <div>
+              <dt>Total votes</dt>
+              <dd>${Number(contest.totalVotes || 0).toLocaleString('fr-FR')}</dd>
+            </div>
+            <div>
+              <dt>Participants</dt>
+              <dd>${Number(contest.totalParticipants || candidates.length).toLocaleString('fr-FR')}</dd>
+            </div>
+          </dl>
+          <p class="muted">${contest.description ? escapeHtml(contest.description) : 'Aucune description fournie.'}</p>
+        </div>
+      </div>
+      <div class="card candidate-list">
+        <div class="card-head">
+          <div>
+            <h3>Candidats</h3>
+            <div class="muted">${visibleCandidates.length} sur ${candidates.length} candidat(s)</div>
+          </div>
+          <button class="btn btn-primary btn-small" type="button" data-add-candidate><i data-lucide="plus" class="icon"></i> Ajouter</button>
+        </div>
+        <div class="card-body">
+          ${tableHtml}
+        </div>
+      </div>
+    </div>`;
+
+  const editButton = $contestsContent.querySelector('[data-edit-current-contest]');
+  editButton?.addEventListener('click', () => {
+    location.hash = `#/edit-contest/${contest.id}`;
+  });
+
+  const addCandidateButton = $contestsContent.querySelector('[data-add-candidate]');
+  addCandidateButton?.addEventListener('click', () => {
+    location.hash = `#/new-candidate/${contest.id}`;
+  });
+
+  $contestsContent.querySelectorAll('[data-edit-candidate]').forEach(button => {
+    button.addEventListener('click', () => {
+      const candidateId = button.getAttribute('data-edit-candidate');
+      if (candidateId) {
+        location.hash = `#/edit-candidate/${contest.id}/${candidateId}`;
+      }
+    });
+  });
+
+  $contestsContent.querySelectorAll('[data-delete-candidate]').forEach(button => {
+    button.addEventListener('click', () => {
+      const candidateId = button.getAttribute('data-delete-candidate');
+      const candidate = candidates.find(item => item.id === candidateId);
+      if (candidateId) {
+        handleCandidateDeletion(contest.id, candidateId, candidate?.name || 'ce candidat');
+      }
+    });
+  });
+
+  lucide.createIcons();
+}
+
+async function handleCandidateDeletion(contestId, candidateId, label) {
+  const confirmed = await openModal({
+    title: 'Supprimer',
+    body: `Confirmer la suppression de <strong>${escapeHtml(label)}</strong> ?`,
+    okText: 'Supprimer',
+    danger: true,
+  });
+  if (!confirmed) {
+    return;
+  }
+  try {
+    await deleteDoc(doc(db, 'contests', contestId, 'candidates', candidateId));
+    const list = contestCandidates.get(contestId) || [];
+    contestCandidates.set(contestId, list.filter(candidate => candidate.id !== candidateId));
+    toast('Candidat supprim�', label, 'success');
+    if (contestId === selectedContestId) {
+      updateKpiCandidates((contestCandidates.get(contestId) || []).length);
+      renderContestsOverview();
+    }
+  } catch (error) {
+    console.error(error);
+    toast('Erreur', 'Suppression impossible pour le moment.', 'error');
+  }
+}
+
+async function renderContestFormPage(id) {
+  const isEdition = Boolean(id);
+  let contest = null;
+  if (isEdition) {
+    contest = getSelectedContest() || allContests.find(item => item.id === id) || null;
+    if (!contest) {
+      const snap = await getDoc(doc(db, 'contests', id));
+      if (snap.exists()) {
+        const data = snap.data() || {};
+        contest = {
+          id: snap.id,
+          title: typeof data.title === 'string' ? data.title : 'Concours',
+          description: typeof data.description === 'string' ? data.description : '',
+          status: typeof data.status === 'string' ? data.status : 'draft',
+          endDate:
+            data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function'
+              ? data.endDate.toDate()
+              : data.endDate
+              ? new Date(data.endDate)
+              : null,
+          totalParticipants: Number.isFinite(data.totalParticipants) ? data.totalParticipants : 0,
+          totalVotes: Number.isFinite(data.totalVotes) ? data.totalVotes : 0,
+        };
+      }
+    }
+    if (!contest) {
+      $contestsContent.innerHTML = '<div class="empty-state"><p>Concours introuvable.</p></div>';
+      return;
+    }
+  }
+
+  const defaults = contest || {
+    title: '',
+    description: '',
+    status: 'draft',
+    endDate: null,
+    totalParticipants: 0,
+    totalVotes: 0,
+  };
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+    <div class="form-head">
+      <div class="form-title">${isEdition ? '�diter' : 'Nouveau'} concours</div>
+      ${isEdition ? `<div class="kpi">ID : ${escapeHtml(contest.id)}</div>` : ''}
+    </div>
+    <form class="form-main" novalidate>
+      <div class="field">
+        <label class="label" for="contest-title">Titre du concours</label>
+        <input id="contest-title" class="input" type="text" value="${escapeAttr(defaults.title)}" required />
+      </div>
+      <div class="field">
+        <label class="label" for="contest-description">Description</label>
+        <textarea id="contest-description" class="textarea" rows="4" placeholder="D�tails du concours">${escapeHtml(defaults.description)}</textarea>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="contest-status">Statut</label>
+          <select id="contest-status" class="select">
+            <option value="draft" ${defaults.status === 'draft' ? 'selected' : ''}>Brouillon</option>
+            <option value="active" ${defaults.status === 'active' ? 'selected' : ''}>Actif</option>
+            <option value="ended" ${defaults.status === 'ended' ? 'selected' : ''}>Termin�</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label" for="contest-end">Date de fin</label>
+          <input id="contest-end" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(defaults.endDate))}" />
+        </div>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="contest-participants">Participants (optionnel)</label>
+          <input id="contest-participants" class="input" type="number" min="0" step="1" value="${defaults.totalParticipants || ''}" />
+        </div>
+        <div class="field">
+          <label class="label" for="contest-votes">Votes (optionnel)</label>
+          <input id="contest-votes" class="input" type="number" min="0" step="1" value="${defaults.totalVotes || ''}" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" data-cancel>Annuler</button>
+        <button type="submit" class="btn btn-primary">${isEdition ? 'Enregistrer' : 'Cr�er le concours'}</button>
+      </div>
+    </form>`;
+
+  $contestsContent.innerHTML = '';
+  $contestsContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]')?.addEventListener('click', () => {
+    location.hash = '#/contests';
+  });
+  wrap.querySelector('form').onsubmit = e => handleContestFormSubmit(e, isEdition ? contest.id : null);
+  lucide.createIcons();
+}
+
+async function handleContestFormSubmit(e, contestId) {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+  try {
+    const title = form.querySelector('#contest-title').value.trim();
+    if (!title) {
+      toast('Erreur', 'Le titre est requis.', 'error');
+      setButtonLoading(submitBtn, false);
+      return;
+    }
+    const description = form.querySelector('#contest-description').value.trim();
+    const status = form.querySelector('#contest-status').value || 'draft';
+    const endValue = form.querySelector('#contest-end').value;
+    const participants = Number(form.querySelector('#contest-participants').value);
+    const votes = Number(form.querySelector('#contest-votes').value);
+
+    const payload = {
+      title,
+      description,
+      status,
+      updatedAt: serverTimestamp(),
+    };
+    if (endValue) {
+      const endDate = new Date(endValue);
+      if (!Number.isNaN(endDate.getTime())) {
+        payload.endDate = endDate;
+      }
+    } else {
+      payload.endDate = null;
+    }
+    if (Number.isFinite(participants) && participants >= 0) {
+      payload.totalParticipants = participants;
+    }
+    if (Number.isFinite(votes) && votes >= 0) {
+      payload.totalVotes = votes;
+    }
+
+    if (contestId) {
+      await updateDoc(doc(db, 'contests', contestId), payload);
+      const index = allContests.findIndex(contest => contest.id === contestId);
+      if (index > -1) {
+        const merged = { ...allContests[index], ...payload };
+        if (payload.endDate instanceof Date) {
+          merged.endDate = payload.endDate;
+        } else if (payload.endDate === null) {
+          merged.endDate = null;
+        }
+        allContests[index] = merged;
+      }
+      toast('Concours mis � jour', title, 'success');
+      await ensureContestsLoaded(true);
+      await setSelectedContest(contestId, { force: true });
+    } else {
+      const createdPayload = { ...payload, createdAt: serverTimestamp(), totalVotes: payload.totalVotes || 0, totalParticipants: payload.totalParticipants || 0 };
+      const ref = await addDoc(collection(db, 'contests'), createdPayload);
+      await updateDoc(ref, { id: ref.id });
+      toast('Concours cr��', title, 'success');
+      await ensureContestsLoaded(true);
+      await setSelectedContest(ref.id, { force: true });
+    }
+    location.hash = '#/contests';
+  } catch (error) {
+    console.error(error);
+    toast('Erreur', 'Enregistrement impossible pour le moment.', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+async function renderCandidateFormPage(contestId, candidateId) {
+  if (!contestId) {
+    $contestsContent.innerHTML = '<div class="empty-state"><p>S�lectionnez un concours avant d�ajouter un candidat.</p></div>';
+    return;
+  }
+  const contest = allContests.find(item => item.id === contestId) || null;
+  if (!contest) {
+    await ensureContestsLoaded(true);
+  }
+  const candidates = contestCandidates.get(contestId) || [];
+  let candidate = null;
+  if (candidateId) {
+    candidate = candidates.find(item => item.id === candidateId) || null;
+    if (!candidate) {
+      const snap = await getDoc(doc(db, 'contests', contestId, 'candidates', candidateId));
+      if (snap.exists()) {
+        const data = snap.data() || {};
+        candidate = {
+          id: snap.id,
+          name: data.name || 'Candidat',
+          media: data.media || '',
+          photoUrl: data.photoUrl || '',
+          voteCount: Number.isFinite(data.voteCount) ? data.voteCount : 0,
+        };
+      }
+    }
+    if (!candidate) {
+      $contestsContent.innerHTML = '<div class="empty-state"><p>Candidat introuvable.</p></div>';
+      return;
+    }
+  }
+
+  const defaults = candidate || { name: '', media: '', photoUrl: '', voteCount: 0 };
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+    <div class="form-head">
+      <div class="form-title">${candidateId ? '�diter' : 'Nouveau'} candidat</div>
+      <div class="muted">Concours : ${escapeHtml((getSelectedContest() || {}).title || contestId)}</div>
+    </div>
+    <form class="form-main" novalidate>
+      <div class="field">
+        <label class="label" for="candidate-name">Nom</label>
+        <input id="candidate-name" class="input" type="text" value="${escapeAttr(defaults.name)}" required />
+      </div>
+      <div class="field">
+        <label class="label" for="candidate-media">M�dia / Organisation</label>
+        <input id="candidate-media" class="input" type="text" value="${escapeAttr(defaults.media)}" placeholder="Cha�ne, journal..." />
+      </div>
+      <div class="field">
+        <label class="label" for="candidate-photo">Photo (URL)</label>
+        <input id="candidate-photo" class="input" type="url" value="${escapeAttr(defaults.photoUrl)}" placeholder="https://" />
+        <div class="hint">Utilisez une URL publique ou importez l'image depuis un stockage d�j� autoris�.</div>
+      </div>
+      <div class="field">
+        <label class="label" for="candidate-votes">Votes initiaux</label>
+        <input id="candidate-votes" class="input" type="number" min="0" step="1" value="${Number(defaults.voteCount || 0)}" />
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" data-cancel>Annuler</button>
+        <button type="submit" class="btn btn-primary">${candidateId ? 'Enregistrer' : 'Ajouter le candidat'}</button>
+      </div>
+    </form>`;
+
+  $contestsContent.innerHTML = '';
+  $contestsContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]')?.addEventListener('click', () => {
+    location.hash = '#/contests';
+  });
+  wrap.querySelector('form').onsubmit = e => handleCandidateFormSubmit(e, contestId, candidateId || null);
+  lucide.createIcons();
+}
+
+async function handleCandidateFormSubmit(e, contestId, candidateId) {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+  try {
+    const name = form.querySelector('#candidate-name').value.trim();
+    if (!name) {
+      toast('Erreur', 'Le nom du candidat est requis.', 'error');
+      setButtonLoading(submitBtn, false);
+      return;
+    }
+    const media = form.querySelector('#candidate-media').value.trim();
+    const photoUrl = form.querySelector('#candidate-photo').value.trim();
+    const votes = Number(form.querySelector('#candidate-votes').value);
+    const base = {
+      name,
+      media,
+      photoUrl,
+      voteCount: Number.isFinite(votes) && votes >= 0 ? votes : 0,
+      updatedAt: serverTimestamp(),
+    };
+
+    if (candidateId) {
+      await updateDoc(doc(db, 'contests', contestId, 'candidates', candidateId), base);
+      const list = contestCandidates.get(contestId) || [];
+      const index = list.findIndex(candidate => candidate.id === candidateId);
+      if (index > -1) {
+        list[index] = { ...list[index], ...base };
+      }
+      contestCandidates.set(contestId, list);
+      toast('Candidat mis � jour', name, 'success');
+    } else {
+      const ref = await addDoc(collection(db, 'contests', contestId, 'candidates'), {
+        ...base,
+        contestId,
+        createdAt: serverTimestamp(),
+      });
+      await updateDoc(ref, { id: ref.id });
+      const list = contestCandidates.get(contestId) || [];
+      contestCandidates.set(contestId, [{ id: ref.id, contestId, ...base }, ...list]);
+      toast('Candidat ajout�', name, 'success');
+    }
+
+    await setSelectedContest(contestId, { force: true });
+    location.hash = '#/contests';
+  } catch (error) {
+    console.error(error);
+    toast('Erreur', 'Impossible d�enregistrer le candidat.', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
 
 /* ============================ Brands UI ============================ */
 $('#add-brand').addEventListener('click', () => (location.hash = '#/new-brand'));
@@ -1115,7 +1925,7 @@ function renderBrandList() {
             <td style="font-weight:800">${escapeHtml(brand.name || 'Sans nom')}</td>
             <td><span class="badge">${brand.sortOrder || 'N/A'}</span></td>
             <td class="actions">
-                <button class="btn btn-small" data-edit>Éditer</button>
+                <button class="btn btn-small" data-edit>�diter</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>
         `;
@@ -1143,7 +1953,7 @@ async function renderBrandFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouvelle'} marque</div></div>
+        <div class="form-head"><div class="form-title">${id ? '�diter' : 'Nouvelle'} marque</div></div>
         <form class="form-main" novalidate>
             <div class="twocol">
                 <div class="field">
@@ -1161,7 +1971,7 @@ async function renderBrandFormPage(id) {
             </div>
             <div class="form-actions">
                 <button type="button" class="btn" data-cancel>Annuler</button>
-                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer la marque'}</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er la marque'}</button>
             </div>
         </form>
     `;
@@ -1193,12 +2003,12 @@ async function handleBrandFormSubmit(e, id) {
       await updateDoc(doc(db, 'brands', id), data);
       const i = allBrands.findIndex(b => b.id === id);
       if (i > -1) allBrands[i] = { id, ...data };
-      toast('Marque mise à jour', name, 'success');
+      toast('Marque mise � jour', name, 'success');
     } else {
       const refDoc = await addDoc(collection(db, 'brands'), data);
       allBrands.push({ id: refDoc.id, ...data });
       $('#kpi-brands').textContent = String(allBrands.length);
-      toast('Marque créée', name, 'success');
+      toast('Marque cr��e', name, 'success');
     }
     allBrands.sort((a, b) => a.sortOrder - b.sortOrder);
     location.hash = '#/brands';
@@ -1240,7 +2050,7 @@ function renderMatchList() {
 	<thead>
 	  <tr>
 		<th>Affiche</th>
-		<th>Compétition</th>
+		<th>Comp�tition</th>
 		<th>Date</th>
 		<th style="width:180px;text-align:right">Actions</th>
 	  </tr>
@@ -1257,12 +2067,12 @@ function renderMatchList() {
     const tr = document.createElement('tr');
     tr.dataset.id = m.id;
     tr.innerHTML = `
-	  <td style="font-weight:800">${escapeHtml(m.teamA || 'Équipe A')} vs ${escapeHtml(m.teamB || 'Équipe B')}</td>
-	  <td>${escapeHtml(m.competition || '—')}</td>
-	  <td>${date ? fmtDate(date) : '—'}</td>
+	  <td style="font-weight:800">${escapeHtml(m.teamA || '�quipe A')} vs ${escapeHtml(m.teamB || '�quipe B')}</td>
+	  <td>${escapeHtml(m.competition || '�')}</td>
+	  <td>${date ? fmtDate(date) : '�'}</td>
 	  <td class="actions">
-		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || 'À jouer'}</span>
-		<button class="btn btn-small" data-edit>Éditer</button>
+		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || '� jouer'}</span>
+		<button class="btn btn-small" data-edit>�diter</button>
 		<button class="btn btn-danger btn-small" data-del>Supprimer</button>
 	  </td>`;
     tr.querySelector('[data-edit]').addEventListener('click', function () {
@@ -1301,12 +2111,12 @@ async function renderMatchFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
 	<div class="form-head">
-	  <div class="form-title">${id ? 'Éditer' : 'Nouveau'} match</div>
+	  <div class="form-title">${id ? '�diter' : 'Nouveau'} match</div>
 	</div>
 	<form class="form-main" novalidate>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="m-competition">Compétition</label>
+		  <label class="label" for="m-competition">Comp�tition</label>
 		  <input id="m-competition" class="input" type="text" value="${escapeAttr(m.competition || '')}" />
 		</div>
 		<div class="field">
@@ -1317,11 +2127,11 @@ async function renderMatchFormPage(id) {
 	  </div>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="m-teamA">Équipe A</label>
+		  <label class="label" for="m-teamA">�quipe A</label>
 		  <input id="m-teamA" class="input" type="text" value="${escapeAttr(m.teamA || '')}" required />
 		</div>
 		<div class="field">
-		  <label class="label" for="m-teamB">Équipe B</label>
+		  <label class="label" for="m-teamB">�quipe B</label>
 		  <input id="m-teamB" class="input" type="text" value="${escapeAttr(m.teamB || '')}" required />
 		</div>
 	  </div>
@@ -1347,7 +2157,7 @@ async function renderMatchFormPage(id) {
 	  </div>
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
-		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer le match'}</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er le match'}</button>
 	  </div>
 	</form>`;
   $matchesContent.innerHTML = '';
@@ -1402,12 +2212,12 @@ async function handleMatchFormSubmit(e, id) {
         return x.id === id;
       });
       if (m) Object.assign(m, data);
-      toast('Match mis à jour', teamA + ' vs ' + teamB, 'success');
+      toast('Match mis � jour', teamA + ' vs ' + teamB, 'success');
       location.hash = '#/matches';
     } else {
       const refDoc = await addDoc(collection(db, 'matches'), data);
       allMatches.unshift({ id: refDoc.id, ...data });
-      toast('Match créé', teamA + ' vs ' + teamB, 'success');
+      toast('Match cr��', teamA + ' vs ' + teamB, 'success');
       location.hash = '#/matches';
       $('#kpi-matches').textContent = String(allMatches.length);
     }
@@ -1424,66 +2234,155 @@ $('#add-promocard').addEventListener('click', () => (location.hash = '#/new-prom
 $('#search-promocards').addEventListener('input', () => renderPromoCardList());
 
 function renderPromoCardList() {
-  const term = ($('#search-promocards').value || '').toLowerCase();
-  const arr = term ? allPromoCards.filter(c => (c.title || '').toLowerCase().includes(term)) : allPromoCards;
+
+  const term = normalizeSearch($('#search-promocards').value || '');
+
+  const cards = getPromoCardsForDisplay();
+
+  const arr = term
+
+    ? cards.filter(card => (`${card.title || ''} ${card.subtitle || ''}`).toLowerCase().includes(term))
+
+    : cards;
+
+
 
   if (!arr.length) {
+
     $promoCardsContent.innerHTML = '<div class="center" style="padding:32px">Aucune carte promo.</div>';
+
     return;
+
   }
+
+
+
   const table = document.createElement('table');
+
   table.className = 'table';
+
   table.innerHTML = `
-		<thead>
-			<tr>
-				<th style="width:60px">Image</th>
-				<th>Titre</th>
-				<th>Destination</th>
-				<th>Ordre</th>
-				<th>Statut</th>
-				<th style="width:180px;text-align:right">Actions</th>
-			</tr>
-		</thead>
-		<tbody id="tbody-promocards"></tbody>`;
+
+        <thead>
+
+            <tr>
+
+                <th style="width:60px">Image</th>
+
+                <th>Titre</th>
+
+                <th>Destination</th>
+
+                <th>Ordre</th>
+
+                <th>Statut</th>
+
+                <th style="width:180px;text-align:right">Actions</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="tbody-promocards"></tbody>`;
+
   const tb = table.querySelector('#tbody-promocards');
-  arr.forEach(c => {
+
+
+
+  arr.forEach(card => {
+
+    const isContestCard = card.isContestCard === true;
+
     const tr = document.createElement('tr');
-    tr.dataset.id = c.id;
+
+    tr.dataset.id = card.id;
+
+    const sortLabel = isContestCard ? 'Auto' : card.sortOrder ?? 'N/A';
+
+    const destination = card.screen || (isContestCard ? 'Contest' : 'Aucune');
+
+
+
+    const statusCell = isContestCard
+
+      ? `<span class="chip">${card.isActive ? 'Active (auto)' : 'Inactif'}</span>`
+
+      : `<label class="toggle">
+
+          <span class="toggle-switch">
+
+            <input type="checkbox" data-active-toggle ${card.isActive ? 'checked' : ''} />
+
+            <span class="toggle-slider"></span>
+
+          </span>
+
+        </label>`;
+
+
+
+    const actionsCell = isContestCard
+
+      ? '<span class="hint">Gere depuis la section Concours</span>'
+
+      : '<button class="btn btn-small" data-edit>Editer</button>' +
+
+        '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
+
+
+
     tr.innerHTML = `
-			<td>${c.image ? `<img class="img" src="${escapeAttr(c.image)}" />` : ''}</td>
-			<td style="font-weight:800">${escapeHtml(c.title || 'Sans titre')}</td>
-			<td><span class="chip">${escapeHtml(c.screen || 'Aucune')}</span></td>
-			<td><span class="badge">${c.sortOrder || 'N/A'}</span></td>
-			<td>
-				<label class="toggle">
-					<span class="toggle-switch">
-						<input type="checkbox" data-active-toggle ${c.isActive ? 'checked' : ''} />
-						<span class="toggle-slider"></span>
-					</span>
-				</label>
-			</td>
-			<td class="actions">
-				<button class="btn btn-small" data-edit>Éditer</button>
-				<button class="btn btn-danger btn-small" data-del>Supprimer</button>
-			</td>`;
-    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocard/${c.id}`);
-    tr.querySelector('[data-del]').onclick = () => handleDelete(c.id, c.title, 'promoCards');
-    tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCardStatusToggle(c.id, e.target.checked);
+
+        <td>${card.image ? `<img class="img" src="${escapeAttr(card.image)}" />` : ''}</td>
+
+        <td style="font-weight:800">${escapeHtml(card.title || 'Sans titre')}</td>
+
+        <td><span class="chip">${escapeHtml(destination)}</span></td>
+
+        <td><span class="badge">${escapeHtml(String(sortLabel))}</span></td>
+
+        <td>${statusCell}</td>
+
+        <td class="actions">${actionsCell}</td>`;
+
+
+
+    if (!isContestCard) {
+
+      tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocard/${card.id}`);
+
+      tr.querySelector('[data-del]').onclick = () => handleDelete(card.id, card.title, 'promoCards');
+
+      tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCardStatusToggle(card.id, e.target.checked);
+
+    }
+
+
+
     tb.appendChild(tr);
+
   });
+
+
+
   $promoCardsContent.innerHTML = '';
+
   $promoCardsContent.appendChild(table);
+
   lucide.createIcons();
+
 }
+
+
 
 async function handlePromoCardStatusToggle(id, isActive) {
   try {
     await updateDoc(doc(db, 'promoCards', id), { isActive: isActive });
     const card = allPromoCards.find(c => c.id === id);
     if (card) card.isActive = isActive;
-    toast('Statut mis à jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
+    toast('Statut mis � jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
   } catch (error) {
-    console.error('Erreur de mise à jour du statut:', error);
+    console.error('Erreur de mise � jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
     renderPromoCardList();
   }
@@ -1503,7 +2402,7 @@ async function renderPromoCardFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-		<div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouvelle'} Carte Promo</div></div>
+		<div class="form-head"><div class="form-title">${id ? '�diter' : 'Nouvelle'} Carte Promo</div></div>
 		<form class="form-main" novalidate>
 			<div class="twocol">
 				<div class="field">
@@ -1521,7 +2420,7 @@ async function renderPromoCardFormPage(id) {
 					<input id="pc-cta" class="input" type="text" value="${escapeAttr(card.cta || '')}" />
 				</div>
 				<div class="field">
-					<label class="label" for="pc-screen">Écran de destination</label>
+					<label class="label" for="pc-screen">�cran de destination</label>
 					<input id="pc-screen" class="input" type="text" value="${escapeAttr(card.screen || '')}" placeholder="Ex: MatchList, Store..." />
 				</div>
 			</div>
@@ -1546,7 +2445,7 @@ async function renderPromoCardFormPage(id) {
 			</div>
 			<div class="form-actions">
 				<button type="button" class="btn" data-cancel>Annuler</button>
-				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer la carte'}</button>
+				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er la carte'}</button>
 			</div>
 		</form>`;
   $promoCardsContent.innerHTML = '';
@@ -1580,12 +2479,12 @@ async function handlePromoCardFormSubmit(e, id) {
       await updateDoc(doc(db, 'promoCards', id), data);
       const i = allPromoCards.findIndex(c => c.id === id);
       if (i > -1) allPromoCards[i] = { id, ...data };
-      toast('Carte mise à jour', data.title, 'success');
+      toast('Carte mise � jour', data.title, 'success');
     } else {
       const refDoc = await addDoc(collection(db, 'promoCards'), data);
       allPromoCards.push({ id: refDoc.id, ...data });
-      $('#kpi-promocards').textContent = String(allPromoCards.length);
-      toast('Carte créée', data.title, 'success');
+      updatePromoCardsKpi();
+      toast('Carte cr��e', data.title, 'success');
     }
     allPromoCards.sort((a, b) => a.sortOrder - b.sortOrder);
     location.hash = '#/promocards';
@@ -1640,7 +2539,7 @@ function renderPromoCodeList() {
                 </label>
             </td>
             <td class="actions">
-                <button class="btn btn-small" data-edit>Éditer</button>
+                <button class="btn btn-small" data-edit>�diter</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>`;
     tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocode/${c.id}`);
@@ -1658,9 +2557,9 @@ async function handlePromoCodeStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoCodes', id), { isActive: isActive });
     const code = allPromoCodes.find(c => c.id === id);
     if (code) code.isActive = isActive;
-    toast('Statut mis à jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
+    toast('Statut mis � jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
   } catch (error) {
-    console.error('Erreur de mise à jour du statut:', error);
+    console.error('Erreur de mise � jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
     renderPromoCodeList();
   }
@@ -1680,7 +2579,7 @@ async function renderPromoCodeFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouveau'} Code Promo</div></div>
+        <div class="form-head"><div class="form-title">${id ? '�diter' : 'Nouveau'} Code Promo</div></div>
         <form class="form-main" novalidate>
             <div class="twocol">
                 <div class="field">
@@ -1688,7 +2587,7 @@ async function renderPromoCodeFormPage(id) {
                     <input id="pc-code" class="input" type="text" value="${escapeAttr(code.code || '')}" required placeholder="ex: BIENVENUE10" />
                 </div>
                 <div class="field">
-                    <label class="label" for="pc-type">Type de réduction</label>
+                    <label class="label" for="pc-type">Type de r�duction</label>
                     <select id="pc-type" class="select">
                         <option value="percentage" ${code.type === 'percentage' ? 'selected' : ''}>Pourcentage (%)</option>
                         <option value="fixed" ${code.type === 'fixed' ? 'selected' : ''}>Montant Fixe (FCFA)</option>
@@ -1696,7 +2595,7 @@ async function renderPromoCodeFormPage(id) {
                 </div>
             </div>
             <div class="field">
-                <label class="label" for="pc-value">Valeur de la réduction</label>
+                <label class="label" for="pc-value">Valeur de la r�duction</label>
                 <input id="pc-value" class="input" type="number" min="0" step="1" value="${code.value || ''}" required />
                 <div class="hint">Ex: "10" pour 10% ou "5000" pour 5000 FCFA.</div>
             </div>
@@ -1711,7 +2610,7 @@ async function renderPromoCodeFormPage(id) {
             </div>
             <div class="form-actions">
                 <button type="button" class="btn" data-cancel>Annuler</button>
-                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer le code'}</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er le code'}</button>
             </div>
         </form>`;
   $promoCodesContent.innerHTML = '';
@@ -1746,13 +2645,13 @@ async function handlePromoCodeFormSubmit(e, id) {
       await updateDoc(doc(db, 'promoCodes', id), data);
       const i = allPromoCodes.findIndex(c => c.id === id);
       if (i > -1) allPromoCodes[i] = { id, ...data };
-      toast('Code mis à jour', data.code, 'success');
+      toast('Code mis � jour', data.code, 'success');
     } else {
       const finalData = { ...data, createdAt: serverTimestamp() };
       const refDoc = await addDoc(collection(db, 'promoCodes'), finalData);
       allPromoCodes.unshift({ id: refDoc.id, ...finalData });
       $('#kpi-promocodes').textContent = String(allPromoCodes.length);
-      toast('Code créé', data.code, 'success');
+      toast('Code cr��', data.code, 'success');
     }
     location.hash = '#/promocodes';
   } catch (err) {
@@ -1786,3 +2685,24 @@ setTimeout(function () {
     content.setAttribute('tabindex', '-1');
   }
 }, 0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

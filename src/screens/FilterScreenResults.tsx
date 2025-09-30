@@ -17,7 +17,7 @@ type SortOption = 'nameAsc' | 'priceAsc' | 'priceDesc';
 const SORT_OPTIONS: { key: SortOption; label: string }[] = [
   { key: 'nameAsc', label: 'Pertinence' },
   { key: 'priceAsc', label: 'Prix croissant' },
-  { key: 'priceDesc', label: 'Prix décroissant' },
+  { key: 'priceDesc', label: 'Prix dï¿½croissant' },
 ];
 
 const FilterScreenResults: React.FC = () => {
@@ -96,7 +96,7 @@ const FilterScreenResults: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
           <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Résultats ({products.length})</Text>
+        <Text style={styles.headerTitle}>Rï¿½sultats ({products.length})</Text>
         <TouchableOpacity onPress={() => navigation.navigate('FilterScreen')} style={styles.filterButton}>
           <Ionicons name="options-outline" size={20} color="#111" />
           <Text style={styles.filterButtonText}>Filtres</Text>
@@ -145,7 +145,7 @@ const FilterScreenResults: React.FC = () => {
             contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Aucun produit ne correspond à ces filtres.</Text>
+                <Text style={styles.emptyText}>Aucun produit ne correspond ï¿½ ces filtres.</Text>
               </View>
             }
           />

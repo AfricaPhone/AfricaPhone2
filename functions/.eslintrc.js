@@ -14,6 +14,9 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
+    // Resolve project paths relative to this config file directory,
+    // so VS Code ESLint doesn't look for a root-level tsconfig.json
+    tsconfigRootDir: __dirname,
     project: ['tsconfig.json', 'tsconfig.dev.json'],
     sourceType: 'module',
   },

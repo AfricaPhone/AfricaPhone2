@@ -1,13 +1,15 @@
 // src/navigation/HomeTabNavigator.tsx
 import React from 'react';
+import type { ComponentType } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import PatchedMaterialTopTabBar from './PatchedMaterialTopTabBar';
 import CategoryScreen from '../screens/home/CategoryScreen';
+import type { Segment } from '../types';
+
+export type { Segment } from '../types';
 
 const Tab = createMaterialTopTabNavigator();
-
-const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;
-export type Segment = (typeof SEGMENTS)[number];
+const CategoryScreenComponent = CategoryScreen as ComponentType<any>;
 
 const SEGMENTS_DATA: Array<{
   key: Segment;
@@ -15,7 +17,7 @@ const SEGMENTS_DATA: Array<{
 }> = [
   { key: 'Populaires', label: 'Populaires' },
   { key: 'tablette', label: 'Tablettes' },
-  { key: 'portable a touche', label: 'A touches' }, // MODIFICATION: "Portables" remplacé par "A touches"
+  { key: 'portable a touche', label: 'A touches' }, // MODIFICATION: "Portables" remplace par "A touches"
   { key: 'accessoire', label: 'Accessoires' },
 ];
 
@@ -41,7 +43,13 @@ const HomeTabNavigator = () => {
       }}
     >
       {SEGMENTS_DATA.map(({ key, label }) => (
-        <Tab.Screen key={key} name={label} component={CategoryScreen} initialParams={{ category: key }} />
+        <Tab.Screen
+          key={key}
+          name={key}
+          component={CategoryScreenComponent}
+          options={{ tabBarLabel: label }}
+          initialParams={{ category: key }}
+        />
       ))}
     </Tab.Navigator>
   );

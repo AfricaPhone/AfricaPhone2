@@ -41,3 +41,9 @@ yarn-error.*
 prompt_work
 pronostic_logique
 firebase_rules
+# Generated reports
+coverage/
+
+# Expo prebuild outputs
+android/
+ios/

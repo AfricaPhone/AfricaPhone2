@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as FileSystem from 'expo-file-system';
+import * as LegacyFileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
@@ -153,17 +154,25 @@ const ProductDetailScreen: React.FC = () => {
     const cacheShareImage = async () => {
       if (gallery.length > 0) {
         const imageUrl = gallery[0];
-        const localUri = FileSystem.cacheDirectory + `${productId}-share-image.jpg`;
-        shareableImageUri.current = localUri;
-
+        const baseDirectory = FileSystem.Paths.cache ?? FileSystem.Paths.document;
+        if (!baseDirectory) {
+          shareableImageUri.current = null;
+          setIsShareable(false);
+          return;
+        }
+        const destinationFile = new FileSystem.File(baseDirectory, `${productId}-share-image.jpg`);
+        const localUri = destinationFile.uri;
         try {
-          const fileInfo = await FileSystem.getInfoAsync(localUri);
+          const fileInfo = destinationFile.info();
           if (!fileInfo.exists) {
-            await FileSystem.downloadAsync(imageUrl, localUri);
+            // Utilise l'API legacy pour le téléchargement (la nouvelle API déconseille downloadAsync)
+            await LegacyFileSystem.downloadAsync(imageUrl, localUri);
           }
+          shareableImageUri.current = localUri;
           setIsShareable(true);
         } catch (e) {
           console.error("Erreur de pré-chargement de l'image:", e);
+          shareableImageUri.current = null;
           setIsShareable(false);
         }
       }
@@ -368,8 +377,12 @@ const ProductDetailScreen: React.FC = () => {
               },
             }}
           >
-            <Tab.Screen name="Spécifications">{() => <SpecificationsTab product={product} />}</Tab.Screen>
-            <Tab.Screen name="Description">{() => <DescriptionTab description={product.description} />}</Tab.Screen>
+            <Tab.Screen name="specifications" options={{ tabBarLabel: 'Specifications' }}>
+              {() => <SpecificationsTab product={product} />}
+            </Tab.Screen>
+            <Tab.Screen name="description" options={{ tabBarLabel: 'Description' }}>
+              {() => <DescriptionTab description={product.description} />}
+            </Tab.Screen>
           </Tab.Navigator>
         </View>
       </ScrollView>

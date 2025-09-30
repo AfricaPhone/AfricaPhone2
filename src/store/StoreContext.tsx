@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext, useCallback } from 'react';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import firestore from '@react-native-firebase/firestore';
+import { FirebaseAuthTypes, getAuth, onAuthStateChanged, signOut } from '@react-native-firebase/auth';
+import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
+import { collection, doc, getDoc, setDoc } from '@react-native-firebase/firestore';
+import { db } from '../firebase/config';
 import { User } from '../types';
 
 interface StoreContextProps {
@@ -17,6 +18,8 @@ type FirestoreUser = Partial<User> & {
   uid?: string;
   displayName?: string | null;
 };
+
+const REQUIRED_APP_SHARES = 2;
 
 const getNameFromEmail = (email?: string | null) => {
   if (!email) {
@@ -59,6 +62,9 @@ const createUserFromAuthUser = (firebaseUser: FirebaseAuthTypes.User): User => {
     email,
     phoneNumber: firebaseUser.phoneNumber ?? null,
     initials: computeInitials(fallbackName),
+    hasSharedApp: false,
+    appShareCount: 0,
+    lastAppShareAt: undefined,
   };
 };
 
@@ -109,6 +115,12 @@ const normalizeUser = (
     console.warn('StoreContext: unable to determine user identifier.');
   }
 
+  const shareCountSource = rest.appShareCount ?? currentUser?.appShareCount;
+  const legacyShareFlag = rest.hasSharedApp ?? currentUser?.hasSharedApp ?? false;
+  const resolvedAppShareCount =
+    shareCountSource ?? (legacyShareFlag ? REQUIRED_APP_SHARES : 0);
+  const resolvedHasSharedApp = legacyShareFlag || resolvedAppShareCount >= REQUIRED_APP_SHARES;
+
   return {
     id: resolvedId || '',
     name: resolvedName,
@@ -119,6 +131,9 @@ const normalizeUser = (
     lastName: rest.lastName ?? currentUser?.lastName,
     pushTokens: rest.pushTokens ?? currentUser?.pushTokens,
     participatedContests: rest.participatedContests ?? currentUser?.participatedContests,
+    hasSharedApp: resolvedHasSharedApp,
+    appShareCount: resolvedAppShareCount,
+    lastAppShareAt: rest.lastAppShareAt ?? currentUser?.lastAppShareAt,
   };
 };
 
@@ -136,15 +151,15 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     setStoreLoading(true);
     try {
       if (firebaseUser) {
-        const userDocRef = firestore().collection('users').doc(firebaseUser.uid);
-        const snapshot = await userDocRef.get();
+        const userDocRef = doc(db, 'users', firebaseUser.uid);
+        const snapshot = await getDoc(userDocRef);
 
-        if (snapshot.exists) {
+        if (snapshot.exists()) {
           const data = snapshot.data() as FirestoreUser;
           setUser(normalizeUser(data, { authUser: firebaseUser }));
         } else {
           const newUser = createUserFromAuthUser(firebaseUser);
-          await userDocRef.set(newUser);
+          await setDoc(userDocRef, newUser);
           setUser(newUser);
         }
       } else {
@@ -163,17 +178,15 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(handleAuthStateChange);
-    return subscriber;
+    const instance = getAuth();
+    const unsubscribe = onAuthStateChanged(instance, handleAuthStateChange);
+    return unsubscribe;
   }, [handleAuthStateChange]);
 
   const signInWithGoogle = useCallback(async () => {
     try {
       setStoreLoading(true);
       await GoogleSignin.hasPlayServices();
-      const { idToken } = await GoogleSignin.signIn();
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(googleCredential);
     } catch (error) {
       console.error('Error signing in with Google:', error);
       setStoreLoading(false);
@@ -183,7 +196,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       setStoreLoading(true);
-      await auth().signOut();
+      await signOut(getAuth());
       await GoogleSignin.signOut();
       setUser(null);
     } catch (error) {
@@ -201,7 +214,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
 
       setStoreLoading(true);
       try {
-        const authUser = auth().currentUser;
+        const authUser = getAuth().currentUser;
         const userId = user.id || authUser?.uid;
         if (!userId) {
           console.warn('StoreContext: Unable to determine user document id during profile update.');
@@ -212,8 +225,8 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
           Object.entries(profileData).filter(([, value]) => value !== undefined)
         ) as Partial<User>;
 
-        const userRef = firestore().collection('users').doc(userId);
-        await userRef.set(sanitizedProfileData, { merge: true });
+        const userRef = doc(db, 'users', userId);
+        await setDoc(userRef, sanitizedProfileData, { merge: true });
 
         setUser(prev => {
           if (!prev) {

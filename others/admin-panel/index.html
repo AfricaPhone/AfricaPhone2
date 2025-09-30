@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="fr" data-theme="auto">
   <head>
     <meta charset="UTF-8" />
@@ -68,6 +68,7 @@
           <a data-route="#/products" class="link-item"><i data-lucide="package" class="icon"></i> Produits</a>
           <a data-route="#/brands" class="link-item"><i data-lucide="tag" class="icon"></i> Marques</a>
           <a data-route="#/matches" class="link-item"><i data-lucide="swords" class="icon"></i> Matchs</a>
+          <a data-route="#/contests" class="link-item"><i data-lucide="trophy" class="icon"></i> Concours</a>
           <a data-route="#/promocards" class="link-item"
             ><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a
           >
@@ -97,6 +98,7 @@
           <a id="nav-products" href="#/products" class="active"><i data-lucide="package" class="icon"></i> Produits</a>
           <a id="nav-brands" href="#/brands"><i data-lucide="tag" class="icon"></i> Marques</a>
           <a id="nav-matches" href="#/matches"><i data-lucide="swords" class="icon"></i> Matchs</a>
+          <a id="nav-contests" href="#/contests"><i data-lucide="trophy" class="icon"></i> Concours</a>
           <a id="nav-promocards" href="#/promocards"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
           <a id="nav-promocodes" href="#/promocodes"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
           <div class="section">G&eacute;n&eacute;ral</div>
@@ -136,6 +138,18 @@
           <div class="kpi" title="Matchs planifi&eacute;s">
             <i data-lucide="swords" class="icon"></i><span id="kpi-matches">—</span>
           </div>
+          <div class="kpi" title="Concours actifs">
+            <i data-lucide="trophy" class="icon"></i><span id="kpi-contests">-</span>
+          </div>
+          <div class="kpi" title="Candidats publi&eacute;s">
+            <i data-lucide="users" class="icon"></i><span id="kpi-candidates">-</span>
+          </div>
+          <button id="quick-add-contest" class="btn btn-outline btn-small">
+            <i data-lucide="plus" class="icon"></i> Concours
+          </button>
+          <button id="quick-add-candidate" class="btn btn-outline btn-small">
+            <i data-lucide="plus" class="icon"></i> Candidat
+          </button>
           <button id="quick-add-promocode" class="btn btn-outline btn-small">
             <i data-lucide="plus" class="icon"></i> Code
           </button>
@@ -210,6 +224,23 @@
           </div>
         </div>
 
+        <div id="toolbar-contests" class="toolbar hide">
+          <div class="filters">
+            <select id="contest-filter" class="select">
+              <option value="">S&eacute;lectionner un concours</option>
+            </select>
+            <input id="search-candidates" class="input" type="search" placeholder="Rechercher un candidat..." />
+          </div>
+          <div class="top-actions">
+            <button id="add-contest" class="btn btn-outline btn-small">
+              <i data-lucide="trophy" class="icon"></i> Nouveau concours
+            </button>
+            <button id="add-candidate" class="btn btn-primary btn-small">
+              <i data-lucide="plus" class="icon"></i> Nouveau candidat
+            </button>
+          </div>
+        </div>
+
         <div id="toolbar-promocards" class="toolbar hide">
           <div class="filters">
             <input id="search-promocards" class="input" type="search" placeholder="Rechercher une carte promo..." />
@@ -242,6 +273,10 @@
 
         <section id="page-matches" class="page hide" aria-labelledby="nav-matches">
           <div id="matches-content"></div>
+        </section>
+
+        <section id="page-contests" class="page hide" aria-labelledby="nav-contests">
+          <div id="contests-content"></div>
         </section>
 
         <section id="page-promocards" class="page hide" aria-labelledby="nav-promocards">
@@ -299,3 +334,5 @@
     <script type="module" src="assets/js/main.js"></script>
   </body>
 </html>
+
+

@@ -118,3 +118,4 @@ const RootNavigator: React.FC = () => {
 };
 
 export default RootNavigator;
+export type { RootStackParamList, TabParamList, MainStackParamList } from '../types';

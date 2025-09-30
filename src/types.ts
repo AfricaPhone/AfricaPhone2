@@ -52,6 +52,9 @@ export type User = {
   initials: string;
   pushTokens?: string[];
   participatedContests?: UserContest[];
+  hasSharedApp?: boolean;
+  appShareCount?: number;
+  lastAppShareAt?: string;
 };
 
 // --- Favorites / Collections ---
@@ -138,7 +141,6 @@ export type RootStackParamList = {
   CategorySelection: undefined;
   Contest: { contestId: string };
   CandidateProfile: { candidate: Candidate };
-  KkiapayTest: undefined;
 };
 
 export type MainStackParamList = {

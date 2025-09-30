@@ -1,7 +1,9 @@
 // cloud_function/index.ts
 import { logger } from 'firebase-functions';
 import { onDocumentCreated, onDocumentUpdated } from 'firebase-functions/v2/firestore';
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onCall, HttpsError, onRequest } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
+import { kkiapay as kkiapayServer } from '@kkiapay-org/nodejs-sdk';
 import { onObjectFinalized } from 'firebase-functions/v2/storage';
 import * as admin from 'firebase-admin';
 import { getStorage } from 'firebase-admin/storage';
@@ -13,6 +15,7 @@ import sharp = require('sharp');
 // Initialise l'app Firebase Admin pour interagir avec Firestore.
 admin.initializeApp();
 const db = admin.firestore();
+const STORAGE_BUCKET = process.env.PRODUCT_IMAGES_BUCKET || 'africaphone-vente.firebasestorage.app';
 
 /**
  * NOUVELLE FONCTION "CALLABLE"
@@ -276,10 +279,11 @@ export const processProductImage = onObjectFinalized(
     region: 'africa-south1',
     memory: '1GiB',
     timeoutSeconds: 120,
+    bucket: STORAGE_BUCKET,
   },
   async event => {
     const object = event.data;
-    const bucketName = object.bucket || '';
+    const bucketName = object.bucket || STORAGE_BUCKET;
     const filePath = object.name || '';
     const contentType = object.contentType || '';
     const bucket = getStorage().bucket(bucketName);
@@ -341,3 +345,167 @@ export const processProductImage = onObjectFinalized(
     }
   }
 );
+
+// ========================
+// KKiaPay Vote Integration
+// ========================
+
+const KKIA_PUBLIC = defineSecret('KKIA_PUBLIC_KEY');
+const KKIA_PRIVATE = defineSecret('KKIA_PRIVATE_KEY');
+const KKIA_SECRET = defineSecret('KKIA_SECRET_KEY');
+const KKIA_WEBHOOK_SECRET = defineSecret('KKIA_WEBHOOK_SECRET');
+const KKIA_SANDBOX = defineSecret('KKIA_SANDBOX');
+
+const REGION = 'europe-west1';
+const VOTE_UNIT_XOF = 100;
+
+function makeKkiapay() {
+  const sandboxRaw = KKIA_SANDBOX.value();
+  const sandbox = typeof sandboxRaw === 'string' && sandboxRaw.trim().toLowerCase() === 'true';
+  return kkiapayServer({
+    privatekey: KKIA_PRIVATE.value(),
+    publickey: KKIA_PUBLIC.value(),
+    secretkey: KKIA_SECRET.value(),
+    sandbox,
+  });
+}
+
+export const createVoteIntent = onCall({ region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET] }, async request => {
+  const uid = request.auth?.uid ?? 'guest';
+  const contestId = String((request.data as any)?.contestId || '');
+  const candidateId = String((request.data as any)?.candidateId || '');
+  const amount = Number((request.data as any)?.amount || VOTE_UNIT_XOF);
+
+  if (!contestId || !candidateId || !Number.isFinite(amount) || amount <= 0) {
+    throw new HttpsError('invalid-argument', 'Invalid payload');
+  }
+
+  const intentRef = db.collection('voteIntents').doc();
+  await intentRef.set({
+    intentId: intentRef.id,
+    userId: uid,
+    contestId,
+    candidateId,
+    amount,
+    status: 'pending',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { intentId: intentRef.id };
+});
+
+export const kkiapayWebhook = onRequest({
+  region: REGION,
+  secrets: [KKIA_WEBHOOK_SECRET, KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX],
+}, async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).send('Method Not Allowed');
+    return;
+  }
+
+  const headerSecret = req.header('x-kkiapay-secret');
+  if (!headerSecret || headerSecret !== KKIA_WEBHOOK_SECRET.value()) {
+    logger.warn('Invalid webhook signature');
+    res.status(401).send('Invalid signature');
+    return;
+  }
+
+  const body: any = req.body || {};
+  const transactionId = String(body?.transactionId || '');
+  const partnerId = String(body?.partnerId || body?.partner_id || '');
+  const amount = Number(body?.amount || 0);
+  const event = String(body?.event || '');
+  const isPaymentSucces = body?.isPaymentSucces === true;
+
+  let verifiedSuccess = false;
+  try {
+    if (transactionId) {
+      const k = makeKkiapay();
+      const verif: any = await k.verify(transactionId).catch(() => null);
+      verifiedSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
+    }
+  } catch (e) {
+    logger.error('verify() error', e as any);
+  }
+
+  const finalSuccess = isPaymentSucces || verifiedSuccess || event === 'transaction.success';
+
+  if (transactionId) {
+    await db.collection('payments').doc(transactionId).set({
+      transactionId,
+      partnerId: partnerId || null,
+      amount,
+      event,
+      status: finalSuccess ? 'success' : event === 'transaction.failed' ? 'failed' : 'pending',
+      source: 'webhook',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+  }
+
+  if (finalSuccess && partnerId) {
+    const intentRef = db.collection('voteIntents').doc(partnerId);
+    await db.runTransaction(async tx => {
+      const intentSnap = await tx.get(intentRef);
+      if (!intentSnap.exists) {
+        logger.warn('Intent not found', { partnerId });
+        return;
+      }
+      const intent = intentSnap.data() as any;
+      if (intent?.status === 'counted') {
+        return;
+      }
+
+      const contestId: string = intent.contestId;
+      const candidateId: string = intent.candidateId;
+      const effAmount = Number(intent.amount || amount || VOTE_UNIT_XOF);
+      const votesToAdd = Math.max(1, Math.floor(effAmount / VOTE_UNIT_XOF));
+
+      const contestRef = db.collection('contests').doc(contestId);
+      const candidateRef = contestRef.collection('candidates').doc(candidateId);
+      const voteRef = contestRef.collection('votes').doc(transactionId || `evt_${Date.now()}`);
+
+      tx.set(voteRef, {
+        transactionId: transactionId || null,
+        userId: intent.userId || 'guest',
+        candidateId,
+        contestId,
+        amount: effAmount,
+        counted: true,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+
+      tx.set(candidateRef, { id: candidateId, contestId }, { merge: true });
+      tx.set(contestRef, { id: contestId }, { merge: true });
+      tx.update(candidateRef, { voteCount: admin.firestore.FieldValue.increment(votesToAdd) });
+      tx.update(contestRef, { totalVotes: admin.firestore.FieldValue.increment(votesToAdd) });
+
+      tx.set(intentRef, {
+        status: 'counted',
+        transactionId: transactionId || null,
+        countedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+    });
+  }
+
+  res.status(204).send();
+});
+
+export const verifyKkiapay = onCall({ region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX] }, async request => {
+  const txId = String((request.data as any)?.transactionId || '');
+  if (!txId) {
+    throw new HttpsError('invalid-argument', 'transactionId is required');
+  }
+  const k = makeKkiapay();
+  const verif: any = await k.verify(txId);
+  const isSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
+
+  await db.collection('payments').doc(txId).set({
+    transactionId: txId,
+    status: isSuccess ? 'success' : 'pending',
+    verification: verif || null,
+    source: 'callable',
+    verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+
+  return { ok: true, status: isSuccess ? 'success' : 'pending' };
+});
