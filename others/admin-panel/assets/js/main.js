@@ -12,6 +12,7 @@ import {
   getDocs,
   doc,
   getDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   addDoc,
@@ -189,6 +190,32 @@ let PREDEFINED_SPECS = [
   'Syst�me',
 ];
 
+// --- Features / Flags ---
+let featuresConfig = { promoCardsEnabled: true };
+
+async function ensureFeaturesLoaded() {
+  try {
+    const ref = doc(db, 'config', 'features');
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      featuresConfig.promoCardsEnabled = data.promoCardsEnabled !== false;
+    } else {
+      featuresConfig.promoCardsEnabled = true;
+    }
+  } catch (err) {
+    console.error('Settings: unable to load features config', err);
+    featuresConfig.promoCardsEnabled = true;
+  }
+}
+
+function applyFeaturesToSettingsUI() {
+  const el = document.getElementById('toggle-promocards');
+  if (el) {
+    el.checked = !!featuresConfig.promoCardsEnabled;
+  }
+}
+
 /* ============================ Auth ============================ */
 const $login = $('#login'),
   $loginForm = $('#login-form'),
@@ -355,6 +382,18 @@ const $productsContent = $('#products-content'),
   $promoCodesContent = $('#promocodes-content');
 
 window.addEventListener('hashchange', handleRoute);
+window.addEventListener('hashchange', async function () {
+  try {
+    const parts = (location.hash || '#/products').split('/');
+    const route = parts[1] || 'products';
+    if (route === 'settings') {
+      await ensureFeaturesLoaded();
+      applyFeaturesToSettingsUI();
+    }
+  } catch (e) {
+    console.warn('Settings sync skipped', e);
+  }
+});
 async function handleRoute() {
   const parts = (location.hash || '#/products').split('/');
   const route = parts[1] || 'products';
@@ -476,6 +515,27 @@ async function handleRoute() {
 
 async function initAfterLogin() {
   lucide.createIcons();
+  // Settings: bind promo cards toggle if present
+  const promoToggle = document.getElementById('toggle-promocards');
+  if (promoToggle) {
+    promoToggle.onchange = async e => {
+      const input = e.target;
+      const next = !!input.checked;
+      input.disabled = true;
+      try {
+        const ref = doc(db, 'config', 'features');
+        await setDoc(ref, { promoCardsEnabled: next }, { merge: true });
+        featuresConfig.promoCardsEnabled = next;
+        toast('Paramètre enregistré', next ? 'Cartes promo activées' : 'Cartes promo désactivées', 'success');
+      } catch (err) {
+        console.error('Settings: unable to update promo cards flag', err);
+        input.checked = !next;
+        toast('Erreur', "Impossible de mettre à jour le paramètre", 'error');
+      } finally {
+        input.disabled = false;
+      }
+    };
+  }
   // Raccourcis
   $('#quick-add-product').onclick = function () {
     location.hash = '#/new-product';
@@ -550,6 +610,17 @@ async function initAfterLogin() {
     }
   });
   handleRoute();
+  // If already on settings, sync feature toggles
+  try {
+    const parts = (location.hash || '#/products').split('/');
+    const route = parts[1] || 'products';
+    if (route === 'settings') {
+      await ensureFeaturesLoaded();
+      applyFeaturesToSettingsUI();
+    }
+  } catch (e) {
+    console.warn('Settings sync skipped', e);
+  }
 }
 
 /* ============================ Data Fetch ============================ */

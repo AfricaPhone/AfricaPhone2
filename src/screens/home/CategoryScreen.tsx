@@ -16,6 +16,7 @@ import {
 import { Product } from '../../types';
 import { db } from '../../firebase/config';
 import { usePromoCards } from '../../hooks/usePromoCards';
+import { useFeatureFlags } from '../../hooks/useFeatureFlags';
 import { useProducts } from '../../store/ProductContext';
 
 const PAGE_SIZE = 10;
@@ -50,7 +51,8 @@ const getUniqueProducts = (products: Product[]): Product[] =>
 
 const CategoryScreen = ({ route }: { route: { params: { category: string } } }) => {
   const { category } = route.params;
-  const { promoCards, loading: promoCardsLoading } = usePromoCards(category === 'Populaires');
+  const { promoCardsEnabled } = useFeatureFlags();
+  const { promoCards, loading: promoCardsLoading } = usePromoCards(category === 'Populaires' && promoCardsEnabled);
   const { brands, brandsLoading } = useProducts();
   const shouldShowBrands = brandsLoading || brands.length > 0;
   const shouldShowPromos = promoCardsLoading || promoCards.length > 0;
