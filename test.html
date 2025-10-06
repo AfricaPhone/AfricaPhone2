@@ -281,7 +281,7 @@
 
           <div id="imei-list-container" style="display: none">
             <div id="imei-list-header">
-              <p><span id="imei-count">0</span> sur <span id="imei-total">0</span> IMEI affichés</p>
+              <p><span id="imei-count">0</span> IMEI affichés</p>
             </div>
             <div id="imei-list">
               <!-- Les IMEI seront injectés ici -->
@@ -324,7 +324,6 @@
       const imeiListContainer = document.getElementById('imei-list-container');
       const imeiList = document.getElementById('imei-list');
       const imeiCountSpan = document.getElementById('imei-count');
-      const imeiTotalSpan = document.getElementById('imei-total');
 
       // --- Cache local pour les IMEI ---
       let cachedImeis = [];
@@ -450,7 +449,6 @@
       function renderImeiList(imeis) {
         imeiList.innerHTML = '';
 
-        imeiTotalSpan.textContent = cachedImeis.length;
         imeiCountSpan.textContent = imeis.length;
 
         if (imeis.length === 0) {

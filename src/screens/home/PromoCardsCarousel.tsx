@@ -1,209 +1,144 @@
 ﻿// src/screens/home/PromoCardsCarousel.tsx
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  ImageBackground,
-  Dimensions,
-  ActivityIndicator,
-  Pressable,
-  Alert,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { PromoCard, RootStackParamList } from '../../types';
 import { useScrollCoordinator } from '../../contexts/ScrollCoordinator';
-import { NavigationProp } from '@react-navigation/native';
-import { useStore } from '../../store/StoreContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const { width: screenWidth } = Dimensions.get('window');
 
 interface Props {
   promoCards: PromoCard[];
   isLoading: boolean;
 }
 
+const CARD_WIDTH = 240;
+
 const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
   const { lockParentScroll, unlockParentScroll } = useScrollCoordinator();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { user, updateUserProfile } = useStore();
 
-  const REQUIRED_APP_SHARES = 2;
-  const [localShareCount, setLocalShareCount] = useState(0);
-  useEffect(() => {
-    (async () => {
-      try {
-        const raw = await AsyncStorage.getItem('local_app_share_count_v1');
-        const parsed = raw ? parseInt(raw, 10) : 0;
-        setLocalShareCount(Number.isFinite(parsed) ? parsed : 0);
-      } catch (e) {
-        setLocalShareCount(0);
+  const handleCardPress = useCallback(
+    (card: PromoCard) => {
+      if (card.screen) {
+        navigation.navigate(card.screen, card.screenParams as any);
       }
-    })();
-  }, []);
-
-  const userShareCount = user?.appShareCount ?? (user?.hasSharedApp ? REQUIRED_APP_SHARES : 0);
-  const effectiveShareCount = Math.max(userShareCount || 0, localShareCount || 0);
-  const shareProgressPercent = useMemo(
-    () => Math.min(Math.round((Math.min(effectiveShareCount, REQUIRED_APP_SHARES) / REQUIRED_APP_SHARES) * 100), 100),
-    [effectiveShareCount]
+    },
+    [navigation]
   );
 
-  const resetShareProgressDev = () => {
-    if (!__DEV__) return;
-    Alert.alert(
-      'Réinitialiser',
-      'Remettre la progression de partage à 0 ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Réinitialiser',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await AsyncStorage.removeItem('local_app_share_count_v1');
-              setLocalShareCount(0);
-              if (user) {
-                await updateUserProfile({ appShareCount: 0, hasSharedApp: false });
-              }
-              Alert.alert('OK', 'Progression réinitialisée.');
-            } catch (e) {
-              Alert.alert('Erreur', 'Impossible de réinitialiser.');
-            }
-          },
-        },
-      ]
-    );
-  };
+  const renderPromoCard = useCallback(
+    ({ item, index }: { item: PromoCard; index: number }) => {
+      const cardStyle = [styles.cardWrapper, index === promoCards.length - 1 && styles.cardWrapperLast];
+
+      return (
+        <TouchableOpacity style={cardStyle} onPress={() => handleCardPress(item)} activeOpacity={0.9}>
+          <ImageBackground source={{ uri: item.image }} style={styles.cardImage} imageStyle={{ borderRadius: 20 }}>
+            <LinearGradient colors={['rgba(0,0,0,0.65)', 'rgba(0,0,0,0.25)']} style={styles.promoOverlay}>
+              <View>
+                <Text style={styles.promoTitleLarge} numberOfLines={2}>
+                  {item.title}
+                </Text>
+                {item.subtitle && (
+                  <Text style={styles.promoSubLarge} numberOfLines={2}>
+                    {item.subtitle}
+                  </Text>
+                )}
+              </View>
+              <View style={styles.ctaWrapper}>
+                <View style={styles.promoCta}>
+                  <Text style={styles.promoCtaText}>{item.cta}</Text>
+                </View>
+              </View>
+            </LinearGradient>
+          </ImageBackground>
+        </TouchableOpacity>
+      );
+    },
+    [handleCardPress, promoCards.length]
+  );
 
   if (isLoading) {
-    return <ActivityIndicator style={{ marginVertical: 20, height: 140 }} />;
+    return <ActivityIndicator style={{ marginVertical: 12, height: 120 }} />;
+  }
+
+  if (!promoCards.length) {
+    return null;
   }
 
   return (
-    <FlatList horizontal nestedScrollEnabled onScrollBeginDrag={lockParentScroll} onScrollEndDrag={unlockParentScroll} onMomentumScrollEnd={unlockParentScroll}
-      data={promoCards}
-      keyExtractor={item => item.id}
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.horizontalCardContainer}
-      renderItem={({ item }) => {
-        const isPredictionCard = item.screen === 'MatchList' || item.screen === 'PredictionGame';
-        return (
-          <TouchableOpacity
-            style={styles.promoCardWrapper}
-            onPress={() => item.screen && navigation.navigate(item.screen, item.screenParams as any)}
-            activeOpacity={0.9}
-          >
-            <ImageBackground source={{ uri: item.image }} style={styles.promoCardLarge} imageStyle={{ borderRadius: 20 }}>
-              <LinearGradient colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.2)']} style={styles.promoOverlay}>
-                <View>
-                  <Text style={styles.promoTitleLarge}>{item.title}</Text>
-                  {item.subtitle && <Text style={styles.promoSubLarge}>{item.subtitle}</Text>}
-                </View>
-                <View>
-                  {isPredictionCard && (
-                    <Pressable onLongPress={resetShareProgressDev} delayLongPress={800}>
-                      <View style={styles.shareProgressWrapper}>
-                      <View style={styles.shareProgressTrack}>
-                        <View style={[styles.shareProgressFill, { width: `${shareProgressPercent}%` }]} />
-                      </View>
-                      <View style={styles.shareProgressMeta}>
-                        <Text style={styles.shareProgressLabel}>{shareProgressPercent}%</Text>
-                        <Text style={styles.shareProgressRemaining}>
-                          {shareProgressPercent < 100 ? 'Partage requis' : 'PrÃªt !'}
-                        </Text>
-                      </View>
-                      </View>
-                    </Pressable>
-                  )}
-                  <View style={styles.promoCta}>
-                    <Text style={styles.promoCtaText}>{item.cta}</Text>
-                  </View>
-                </View>
-              </LinearGradient>
-            </ImageBackground>
-          </TouchableOpacity>
-        );
-      }}
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={promoCards}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={item => item.id}
+        renderItem={renderPromoCard}
+        contentContainerStyle={styles.listContent}
+        onScrollBeginDrag={lockParentScroll}
+        onScrollEndDrag={unlockParentScroll}
+        onMomentumScrollEnd={unlockParentScroll}
+        nestedScrollEnabled
+        directionalLockEnabled
+        decelerationRate="fast"
+        snapToAlignment="start"
+        snapToInterval={CARD_WIDTH + 16}
+        bounces={false}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  horizontalCardContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 12,
+  container: {
+    paddingVertical: 4,
   },
-  promoCardWrapper: {
-    width: screenWidth * 0.8,
+  listContent: {
+    paddingHorizontal: 12,
   },
-  promoCardLarge: {
-    height: 140,
+  cardWrapper: {
+    width: CARD_WIDTH,
+    marginRight: 16,
     borderRadius: 20,
     overflow: 'hidden',
   },
+  cardWrapperLast: {
+    marginRight: 0,
+  },
+  cardImage: {
+    width: '100%',
+    height: 110,
+  },
   promoOverlay: {
     flex: 1,
-    padding: 16,
+    padding: 8,
     justifyContent: 'space-between',
-  },
-  shareProgressWrapper: {
-    marginBottom: 8,
-  },
-  shareProgressTrack: {
-    height: 6,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  shareProgressFill: {
-    height: '100%',
-    backgroundColor: '#10b981',
-    borderRadius: 999,
-  },
-  shareProgressMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 4,
-  },
-  shareProgressLabel: {
-    color: '#e5e7eb',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  shareProgressRemaining: {
-    color: '#e5e7eb',
-    fontSize: 11,
   },
   promoTitleLarge: {
-    fontSize: 22,
+    fontSize: 14,
     fontWeight: '800',
     color: '#fff',
     maxWidth: '90%',
   },
   promoSubLarge: {
-    fontSize: 14,
+    fontSize: 11,
     color: '#f1f5f9',
-    maxWidth: '80%',
+    maxWidth: '90%',
+    marginTop: 2,
+  },
+  ctaWrapper: {
+    alignItems: 'flex-start',
   },
   promoCta: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 99,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
   },
   promoCtaText: {
     color: '#1e293b',
     fontWeight: '700',
-    fontSize: 13,
+    fontSize: 11,
   },
 });
 
 export default PromoCardsCarousel;
-

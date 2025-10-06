@@ -47,3 +47,5 @@ coverage/
 # Expo prebuild outputs
 android/
 ios/
+# Secrets
+africaphone-vente-firebase-adminsdk-fbsvc-1fcd2f6858.json

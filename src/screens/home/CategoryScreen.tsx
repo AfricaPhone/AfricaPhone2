@@ -1,6 +1,5 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import ProductGrid from './ProductGrid';
-import HomeListHeader from './HomeListHeader';
 import {
   collection,
   getDocs,
@@ -11,17 +10,14 @@ import {
   where,
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
-import { useProducts } from '../../store/ProductContext';
-import { Product, PromoCard } from '../../types';
+import { Product } from '../../types';
 import { db } from '../../firebase/config';
-import { fetchActiveContestId, getContestById } from '../../services/contestService';
 
 const PAGE_SIZE = 10;
 
 type Snapshot = FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>;
 
 const productsCollection = collection(db, 'products');
-const promoCardsCollection = collection(db, 'promoCards');
 
 const mapDocToProduct = (doc: Snapshot): Product => {
   const data = doc.data();
@@ -57,9 +53,6 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { brands, brandsLoading } = useProducts();
-  const [promoCards, setPromoCards] = useState<PromoCard[]>([]);
-  const [promoCardsLoading, setPromoCardsLoading] = useState(true);
 
   const buildQuery = useCallback(
     (startAfterDoc: Snapshot | null = null): FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> => {
@@ -134,82 +127,7 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
 
   useEffect(() => {
     fetchData();
-
-    if (category === 'Populaires') {
-      const fetchPromoCards = async () => {
-        try {
-          setPromoCardsLoading(true);
-
-          const defaultContestImage = 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400';
-
-          let contestCard: PromoCard | null = null;
-          try {
-            const activeContestId = await fetchActiveContestId();
-            if (activeContestId) {
-              const contestData = await getContestById(activeContestId);
-              if (contestData) {
-                const contestImage =
-                  (contestData as any).heroImage ||
-                  (contestData as any).bannerImage ||
-                  (contestData as any).image ||
-                  defaultContestImage;
-
-                contestCard = {
-                  id: `promo-contest-${activeContestId}`,
-                  title: contestData.title,
-                  subtitle:
-                    contestData.description || 'Elisez votre candidat favori.',
-                  cta: contestData.status === 'ended' ? 'Voir les resultats' : 'Participer',
-                  image: contestImage,
-                  screen: 'Contest',
-                  screenParams: { contestId: activeContestId },
-                  sortOrder: -1,
-                };
-              }
-            }
-          } catch (contestError) {
-            console.error('CategoryScreen: active contest fetch failed', contestError);
-          }
-
-          let promoQueryRef: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> = promoCardsCollection;
-          promoQueryRef = query(promoQueryRef, where('isActive', '==', true));
-
-          const querySnapshot = await getDocs(promoQueryRef);
-          const fetchedCards = (querySnapshot.docs.map(
-            (docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>) => ({
-              id: docSnap.id,
-              ...docSnap.data(),
-            })
-          ) as PromoCard[]).sort((a, b) => {
-            const orderA = typeof a.sortOrder === 'number' ? a.sortOrder : Number.MAX_SAFE_INTEGER;
-            const orderB = typeof b.sortOrder === 'number' ? b.sortOrder : Number.MAX_SAFE_INTEGER;
-            return orderA - orderB;
-          });
-
-          setPromoCards(contestCard ? [contestCard, ...fetchedCards] : fetchedCards);
-        } catch (error) {
-          console.error('Erreur de chargement des cartes promo :', error);
-        } finally {
-          setPromoCardsLoading(false);
-        }
-      };
-      fetchPromoCards();
-    }
-  }, [category, fetchData]);
-
-  const memoizedListHeader = useMemo(() => {
-    if (category !== 'Populaires') {
-      return null;
-    }
-    return (
-      <HomeListHeader
-        brands={brands}
-        brandsLoading={brandsLoading}
-        promoCards={promoCards}
-        promoCardsLoading={promoCardsLoading}
-      />
-    );
-  }, [brands, brandsLoading, promoCards, promoCardsLoading, category]);
+  }, [fetchData, category]);
 
   return (
     <ProductGrid
@@ -219,7 +137,7 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
       onLoadMore={loadMoreData}
       onRefresh={() => fetchData(true)}
       refreshing={refreshing}
-      listHeaderComponent={memoizedListHeader}
+      listHeaderComponent={null}
       hasMore={hasMore}
     />
   );

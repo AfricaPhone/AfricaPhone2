@@ -1,0 +1,16 @@
+[debug] [2025-10-03T14:27:39.188Z] ----------------------------------------------------------------------
+[debug] [2025-10-03T14:27:39.190Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\HP\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2025-10-03T14:27:39.190Z] CLI Version:   14.16.0
+[debug] [2025-10-03T14:27:39.190Z] Platform:      win32
+[debug] [2025-10-03T14:27:39.190Z] Node Version:  v22.15.0
+[debug] [2025-10-03T14:27:39.190Z] Time:          Fri Oct 03 2025 15:27:39 GMT+0100 (heure normale d’Afrique de l’Ouest)
+[debug] [2025-10-03T14:27:39.190Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-03T14:27:39.329Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-03T14:27:39.329Z] > authorizing via signed-in user (mayoai556@gmail.com)
+[debug] [2025-10-03T14:27:39.329Z] [iam] checking project africaphone-vente for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2025-10-03T14:27:39.330Z] Checked if tokens are valid: true, expires at: 1759504626055
+[debug] [2025-10-03T14:27:39.330Z] Checked if tokens are valid: true, expires at: 1759504626055
+[debug] [2025-10-03T14:27:39.331Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/africaphone-vente:testIamPermissions [none]
+[debug] [2025-10-03T14:27:39.331Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/africaphone-vente:testIamPermissions x-goog-quota-user=projects/africaphone-vente
+[debug] [2025-10-03T14:27:39.331Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/africaphone-vente:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}

@@ -74,21 +74,35 @@ export const validatePromoCode = onCall(async request => {
  * Gère la soumission (création/mise à jour) d'un pronostic.
  */
 export const submitPrediction = onCall(async request => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Vous devez être connecté.');
-  }
-
-  const { uid } = request.auth;
-  const { matchId, scoreA, scoreB, predictionId } = request.data as {
+  const { matchId, scoreA, scoreB, predictionId, contactFirstName, contactLastName, contactPhone } = request.data as {
     matchId: string;
     scoreA: number;
     scoreB: number;
     predictionId?: string;
+    contactFirstName?: string;
+    contactLastName?: string;
+    contactPhone?: string;
   };
 
   if (!matchId || typeof scoreA !== 'number' || typeof scoreB !== 'number') {
-    throw new HttpsError('invalid-argument', 'Les données fournies sont invalides.');
+    throw new HttpsError('invalid-argument', 'Les donn�es fournies sont invalides.');
   }
+
+  const normalizePhone = (value: string) => value.replace(/\D+/g, '');
+  const firstName = typeof contactFirstName === 'string' ? contactFirstName.trim() : '';
+  const lastName = typeof contactLastName === 'string' ? contactLastName.trim() : '';
+  const rawPhone = typeof contactPhone === 'string' ? contactPhone.trim() : '';
+  const normalizedPhone = normalizePhone(rawPhone);
+
+  if (!firstName || !lastName || !normalizedPhone) {
+    throw new HttpsError('invalid-argument', 'Pr�nom, nom et num�ro WhatsApp sont obligatoires.');
+  }
+  if (normalizedPhone.length < 6) {
+    throw new HttpsError('invalid-argument', 'Le num�ro WhatsApp fourni est invalide.');
+  }
+
+  const uid = request.auth?.uid ?? null;
+  const userName = `${firstName} ${lastName}`.replace(/\s+/g, ' ').trim();
 
   const matchRef = db.collection('matches').doc(matchId);
   const matchDoc = await matchRef.get();
@@ -97,41 +111,93 @@ export const submitPrediction = onCall(async request => {
     throw new HttpsError('not-found', `Le match ${matchId} n'existe pas.`);
   }
 
-  const matchStartTime = matchDoc.data()?.startTime.toDate();
-  if (new Date() >= matchStartTime) {
-    throw new HttpsError('failed-precondition', 'Les pronostics pour ce match sont terminés.');
+  const matchStartTime = matchDoc.data()?.startTime?.toDate?.();
+  if (matchStartTime && new Date() >= matchStartTime) {
+    throw new HttpsError('failed-precondition', 'Les pronostics pour ce match sont termin�s.');
   }
+
+  const predictionsRef = db.collection('predictions');
+  let targetPredictionRef: FirebaseFirestore.DocumentReference | null = null;
+  let existingPredictionSnap: FirebaseFirestore.DocumentSnapshot | null = null;
 
   try {
     if (predictionId) {
-      logger.info(`Mise à jour du pronostic ${predictionId} pour l'utilisateur ${uid}.`);
-      const predictionRef = db.collection('predictions').doc(predictionId);
-      const existingPrediction = await predictionRef.get();
-      if (!existingPrediction.exists || existingPrediction.data()?.userId !== uid) {
+      targetPredictionRef = predictionsRef.doc(predictionId);
+      existingPredictionSnap = await targetPredictionRef.get();
+      if (!existingPredictionSnap.exists) {
+        throw new HttpsError('not-found', "Ce pronostic n'existe pas.");
+      }
+      const existingData = existingPredictionSnap.data() as any;
+      const ownedByUid = !!uid && existingData?.userId === uid;
+      const ownedByPhone = existingData?.contactPhoneNormalized && existingData.contactPhoneNormalized === normalizedPhone;
+      if (!ownedByUid && !ownedByPhone) {
         throw new HttpsError('permission-denied', 'Vous ne pouvez pas modifier ce pronostic.');
       }
-      await predictionRef.update({ scoreA, scoreB });
-      return { success: true, message: 'Pronostic mis à jour !' };
     } else {
-      logger.info(`Création d'un pronostic pour l'utilisateur ${uid} sur le match ${matchId}.`);
-      const userDoc = await db.collection('users').doc(uid).get();
-      const userName = userDoc.exists
-        ? `${userDoc.data()?.firstName} ${userDoc.data()?.lastName}`
-        : 'Utilisateur Anonyme';
+      if (!existingPredictionSnap && uid) {
+        const existingByUser = await predictionsRef
+          .where('matchId', '==', matchId)
+          .where('userId', '==', uid)
+          .limit(1)
+          .get();
+        if (!existingByUser.empty) {
+          existingPredictionSnap = existingByUser.docs[0];
+          targetPredictionRef = predictionsRef.doc(existingPredictionSnap.id);
+        }
+      }
 
-      const newPrediction = {
-        userId: uid,
-        userName: userName,
-        matchId: matchId,
-        scoreA: scoreA,
-        scoreB: scoreB,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      };
-      await db.collection('predictions').add(newPrediction);
-      return { success: true, message: 'Pronostic enregistré. Bonne chance !' };
+      if (!existingPredictionSnap) {
+        const existingByPhone = await predictionsRef
+          .where('matchId', '==', matchId)
+          .where('contactPhoneNormalized', '==', normalizedPhone)
+          .limit(1)
+          .get();
+        if (!existingByPhone.empty) {
+          existingPredictionSnap = existingByPhone.docs[0];
+          targetPredictionRef = predictionsRef.doc(existingByPhone.docs[0].id);
+        }
+      }
     }
+
+    if (existingPredictionSnap && targetPredictionRef) {
+      logger.info('Mise � jour du pronostic', { predictionId: targetPredictionRef.id, matchId, source: 'submitPrediction' });
+      await targetPredictionRef.update({
+        scoreA,
+        scoreB,
+        userId: uid ?? (existingPredictionSnap.data()?.userId ?? `guest_${normalizedPhone}`),
+        userName,
+        contactFirstName: firstName,
+        contactLastName: lastName,
+        contactPhone: rawPhone,
+        contactPhoneNormalized: normalizedPhone,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return { success: true, message: 'Pronostic mis � jour !', predictionId: targetPredictionRef.id, updated: true };
+    }
+
+    const newPredictionRef = predictionsRef.doc();
+    const fallbackUserId = uid ?? `guest_${normalizedPhone || newPredictionRef.id}`;
+    logger.info('Cr�ation d\'un pronostic', { matchId, fallbackUserId });
+    await newPredictionRef.set({
+      userId: fallbackUserId,
+      userName,
+      matchId,
+      scoreA,
+      scoreB,
+      contactFirstName: firstName,
+      contactLastName: lastName,
+      contactPhone: rawPhone,
+      contactPhoneNormalized: normalizedPhone,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true, message: 'Pronostic enregistr�. Bonne chance !', predictionId: newPredictionRef.id, created: true };
   } catch (error) {
-    logger.error("Erreur lors de l'écriture du pronostic:", error);
+    logger.error("Erreur lors de l'�criture du pronostic:", error);
+    if (error instanceof HttpsError) {
+      throw error;
+    }
     throw new HttpsError('internal', 'Une erreur interne est survenue.');
   }
 });
@@ -370,6 +436,86 @@ function makeKkiapay() {
   });
 }
 
+interface VoteSuccessOptions {
+  transactionId: string;
+  partnerId: string;
+  amount?: number;
+  source: 'webhook' | 'callable';
+}
+
+async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> {
+  const { transactionId, partnerId, amount, source } = options;
+  if (!partnerId) {
+    logger.warn('handleSuccessfulVote called without partnerId', { transactionId, source });
+    return;
+  }
+
+  const intentRef = db.collection('voteIntents').doc(partnerId);
+  let counted = false;
+
+  await db.runTransaction(async tx => {
+    const intentSnap = await tx.get(intentRef);
+    if (!intentSnap.exists) {
+      logger.warn('Intent not found', { partnerId, transactionId, source });
+      return;
+    }
+
+    const intent = intentSnap.data() as any;
+    const contestId: string = intent.contestId;
+    const candidateId: string = intent.candidateId;
+
+    if (transactionId) {
+      const paymentRef = db.collection('payments').doc(transactionId);
+      tx.set(paymentRef, {
+        candidateId: candidateId || null,
+        contestId: contestId || null,
+      }, { merge: true });
+    }
+
+    if (!contestId || !candidateId) {
+      logger.error('Intent missing contest or candidate', { partnerId, transactionId, source });
+      return;
+    }
+
+    if (intent?.status === 'counted') {
+      return;
+    }
+
+    const effectiveAmount = Number(intent.amount || amount || VOTE_UNIT_XOF);
+    const votesToAdd = Math.max(1, Math.floor(effectiveAmount / VOTE_UNIT_XOF));
+
+    const contestRef = db.collection('contests').doc(contestId);
+    const candidateRef = contestRef.collection('candidates').doc(candidateId);
+    const voteRef = contestRef.collection('votes').doc(transactionId || `evt_${Date.now()}`);
+
+    tx.set(voteRef, {
+      transactionId: transactionId || null,
+      userId: intent.userId || 'guest',
+      candidateId,
+      contestId,
+      amount: effectiveAmount,
+      counted: true,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    tx.set(candidateRef, { id: candidateId, contestId }, { merge: true });
+    tx.set(contestRef, { id: contestId }, { merge: true });
+    tx.update(candidateRef, { voteCount: admin.firestore.FieldValue.increment(votesToAdd) });
+    tx.update(contestRef, { totalVotes: admin.firestore.FieldValue.increment(votesToAdd) });
+
+    tx.set(intentRef, {
+      status: 'counted',
+      transactionId: transactionId || null,
+      countedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    counted = true;
+  });
+
+  if (counted) {
+    logger.info('Vote counted from payment', { partnerId, transactionId, source });
+  }
+}
 export const createVoteIntent = onCall({ region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET] }, async request => {
   const uid = request.auth?.uid ?? 'guest';
   const contestId = String((request.data as any)?.contestId || '');
@@ -442,48 +588,12 @@ export const kkiapayWebhook = onRequest({
     }, { merge: true });
   }
 
-  if (finalSuccess && partnerId) {
-    const intentRef = db.collection('voteIntents').doc(partnerId);
-    await db.runTransaction(async tx => {
-      const intentSnap = await tx.get(intentRef);
-      if (!intentSnap.exists) {
-        logger.warn('Intent not found', { partnerId });
-        return;
-      }
-      const intent = intentSnap.data() as any;
-      if (intent?.status === 'counted') {
-        return;
-      }
-
-      const contestId: string = intent.contestId;
-      const candidateId: string = intent.candidateId;
-      const effAmount = Number(intent.amount || amount || VOTE_UNIT_XOF);
-      const votesToAdd = Math.max(1, Math.floor(effAmount / VOTE_UNIT_XOF));
-
-      const contestRef = db.collection('contests').doc(contestId);
-      const candidateRef = contestRef.collection('candidates').doc(candidateId);
-      const voteRef = contestRef.collection('votes').doc(transactionId || `evt_${Date.now()}`);
-
-      tx.set(voteRef, {
-        transactionId: transactionId || null,
-        userId: intent.userId || 'guest',
-        candidateId,
-        contestId,
-        amount: effAmount,
-        counted: true,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
-
-      tx.set(candidateRef, { id: candidateId, contestId }, { merge: true });
-      tx.set(contestRef, { id: contestId }, { merge: true });
-      tx.update(candidateRef, { voteCount: admin.firestore.FieldValue.increment(votesToAdd) });
-      tx.update(contestRef, { totalVotes: admin.firestore.FieldValue.increment(votesToAdd) });
-
-      tx.set(intentRef, {
-        status: 'counted',
-        transactionId: transactionId || null,
-        countedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+  if (finalSuccess) {
+    await handleSuccessfulVote({
+      transactionId,
+      partnerId,
+      amount: Number.isFinite(amount) ? amount : undefined,
+      source: 'webhook',
     });
   }
 
@@ -495,17 +605,57 @@ export const verifyKkiapay = onCall({ region: REGION, secrets: [KKIA_PUBLIC, KKI
   if (!txId) {
     throw new HttpsError('invalid-argument', 'transactionId is required');
   }
+
   const k = makeKkiapay();
   const verif: any = await k.verify(txId);
   const isSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
 
-  await db.collection('payments').doc(txId).set({
+  const partnerId = String(verif?.partnerId || verif?.partner_id || (request.data as any)?.partnerId || '');
+  const amountFromVerification = Number(verif?.amount);
+  const amountFromRequest = Number((request.data as any)?.amount);
+  const amount = Number.isFinite(amountFromVerification)
+    ? amountFromVerification
+    : Number.isFinite(amountFromRequest)
+      ? amountFromRequest
+      : undefined;
+
+  const updateData: Record<string, unknown> = {
     transactionId: txId,
     status: isSuccess ? 'success' : 'pending',
     verification: verif || null,
     source: 'callable',
     verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-  }, { merge: true });
+  };
+
+  if (partnerId) {
+    updateData.partnerId = partnerId;
+  }
+  if (typeof amount === 'number' && Number.isFinite(amount)) {
+    updateData.amount = amount;
+  }
+
+  await db.collection('payments').doc(txId).set(updateData, { merge: true });
+
+  if (isSuccess) {
+    await handleSuccessfulVote({
+      transactionId: txId,
+      partnerId,
+      amount,
+      source: 'callable',
+    });
+  }
 
   return { ok: true, status: isSuccess ? 'success' : 'pending' };
 });
+
+
+
+
+
+
+
+
+
+
+
+

@@ -23,6 +23,7 @@
       "package": "com.africaphone.africaphone",
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "resize",
       "versionCode": 7,
       "runtimeVersion": "1.0.1"
     },

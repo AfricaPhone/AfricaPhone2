@@ -1,4 +1,4 @@
-// src/screens/ContestScreen.tsx
+﻿// src/screens/ContestScreen.tsx
 import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
@@ -31,10 +31,11 @@ import { fetchActiveContestId } from '../services/contestService';
 
 const formatNumber = (num: number) => new Intl.NumberFormat('fr-FR').format(num);
 
-const CandidateCard: React.FC<{ item: Candidate; totalVotes: number; onVote: (c: Candidate) => void }> = ({
+const CandidateCard: React.FC<{ item: Candidate; totalVotes: number; onVote: (c: Candidate) => void; disabled?: boolean }> = ({
   item,
   totalVotes,
   onVote,
+  disabled = false,
 }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const percentage = totalVotes > 0 ? (item.voteCount / totalVotes) * 100 : 0;
@@ -72,7 +73,11 @@ const CandidateCard: React.FC<{ item: Candidate; totalVotes: number; onVote: (c:
         </View>
         <Text style={styles.candidateVotes}>{formatNumber(item.voteCount)} votes</Text>
       </View>
-      <TouchableOpacity style={styles.voteButton} onPress={() => onVote(item)}>
+      <TouchableOpacity
+        style={[styles.voteButton, disabled ? styles.voteButtonDisabled : null]}
+        onPress={() => onVote(item)}
+        disabled={disabled}
+      >
         <Text style={styles.voteButtonText}>Voter</Text>
       </TouchableOpacity>
     </TouchableOpacity>
@@ -84,21 +89,71 @@ const ContestScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [pendingCandidate, setPendingCandidate] = useState<Candidate | null>(null);
-  const { user, isAuthenticated } = useStore();
+  const { user } = useStore();
   const { openKkiapayWidget, addSuccessListener, addFailedListener, addPendingListener } = useKkiapay();
   const functionsInstance = useMemo(() => getFunctions(undefined, PAYMENT_CONFIG.FUNCTIONS_REGION), []);
 
+  const [isPreparingPayment, setIsPreparingPayment] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<'success' | 'failed' | null>(null);
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
+  const [lastTransactionId, setLastTransactionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<TextInput>(null);
 
   const route = useRoute<RouteProp<RootStackParamList, 'Contest'>>();
-  const initialContestId = route.params?.contestId ?? null;
-  const [contestId, setContestId] = useState<string | null>(initialContestId);
-  const [isResolvingContestId, setIsResolvingContestId] = useState(!initialContestId);
+  const routeContestId = route.params?.contestId ?? null;
+  const [contestId, setContestId] = useState<string | null>(routeContestId);
+  const [isResolvingContestId, setIsResolvingContestId] = useState(!routeContestId);
   const [contestIdError, setContestIdError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (routeContestId) {
+      setContestId(routeContestId);
+      setContestIdError(null);
+      setIsResolvingContestId(false);
+      return;
+    }
+
+    let isMounted = true;
+    const resolveActiveContest = async () => {
+      setIsResolvingContestId(true);
+      setContestId(null);
+      setContestIdError(null);
+      try {
+        const activeContestId = await fetchActiveContestId();
+        if (!isMounted) {
+          return;
+        }
+        if (activeContestId) {
+          setContestId(activeContestId);
+        } else {
+          setContestIdError('Aucun concours actif pour le moment.');
+        }
+      } catch (err) {
+        if (!isMounted) {
+          return;
+        }
+        const message = err instanceof Error ? err.message : 'Impossible de charger le concours.';
+        setContestIdError(message);
+      } finally {
+        if (isMounted) {
+          setIsResolvingContestId(false);
+        }
+      }
+    };
+
+    resolveActiveContest();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [routeContestId]);
+
   const { contest, candidates, isLoading, error } = useContestData(contestId);
+
+  const isBusy = isLoading || isResolvingContestId || isPreparingPayment;
 
   const filteredCandidates = useMemo(() => {
     const src = Array.isArray(candidates) ? candidates : [];
@@ -138,9 +193,18 @@ const ContestScreen: React.FC = () => {
       try {
         const txId: string = String(data?.transactionId || data?.transaction_id || data?.transactionID || '');
         if (!txId) {
-          Alert.alert('Paiement', 'Transaction sans identifiant.');
+          setPaymentStatus('failed');
+          setPaymentMessage('Transaction sans identifiant.');
+          setSelectedCandidate(pendingCandidate ?? null);
+          setModalVisible(true);
+          setPendingCandidate(null);
+          setHasVoted(false);
           return;
         }
+
+        setLastTransactionId(txId);
+        setPaymentStatus('success');
+        setPaymentMessage('Votre vote a ete pris en compte.');
 
         try {
           const fn = httpsCallable(functionsInstance, 'verifyKkiapay');
@@ -149,18 +213,31 @@ const ContestScreen: React.FC = () => {
           // Le webhook effectue la mise a jour definitive
         }
 
-        if (pendingCandidate) {
-          setSelectedCandidate(pendingCandidate);
-          setModalVisible(true);
-          setPendingCandidate(null);
-        }
+        setSelectedCandidate(pendingCandidate ?? null);
+        setModalVisible(true);
+        setPendingCandidate(null);
+        setHasVoted(true);
       } catch (err) {
-        Alert.alert('Erreur', 'Impossible de finaliser le vote.');
+        setPaymentStatus('failed');
+        setPaymentMessage('Impossible de finaliser le vote.');
+        setSelectedCandidate(pendingCandidate ?? null);
+        setModalVisible(true);
+        setPendingCandidate(null);
+        setHasVoted(false);
       }
     });
 
-    const failedUnsubscribe = addFailedListener(() => {
-      Alert.alert('Paiement echoue', 'Votre paiement na pas abouti.');
+    const failedUnsubscribe = addFailedListener((data?: any) => {
+      const txId = data?.transactionId ? String(data.transactionId) : null;
+      if (txId) {
+        setLastTransactionId(txId);
+      }
+      setPaymentStatus('failed');
+      setPaymentMessage("Votre paiement n'a pas abouti.");
+      setSelectedCandidate(pendingCandidate ?? null);
+      setModalVisible(true);
+      setPendingCandidate(null);
+      setHasVoted(false);
     });
 
     const pendingUnsubscribe = addPendingListener(() => {
@@ -180,24 +257,129 @@ const ContestScreen: React.FC = () => {
     };
   }, [addSuccessListener, addFailedListener, addPendingListener, pendingCandidate]);
 
-// handleVotePress placeholder removed
+  const handleDeactivateSearch = useCallback(() => {
+    setIsSearchActive(false);
+    setSearchQuery('');
+    searchInputRef.current?.blur();
+    Keyboard.dismiss();
+  }, []);
 
-  const handleActivateSearch = () => {
+  const handleActivateSearch = useCallback(() => {
     setIsSearchActive(true);
     setTimeout(() => searchInputRef.current?.focus(), 100);
-  };
+  }, []);
+
+  const handleVotePressPay = useCallback(
+    async (candidate: Candidate) => {
+      if (isBusy) {
+        Alert.alert('Chargement en cours', 'Veuillez patienter pendant la mise a jour du concours.');
+        return;
+      }
+      if (hasVoted) {
+        Alert.alert('Vote deja enregistre', 'Merci, votre vote est deja pris en compte.');
+        return;
+      }
+
+      const activeContestId = contest?.id || contestId;
+      if (!activeContestId || !contest || contest.status !== 'active') {
+        Alert.alert('Concours indisponible', 'Les votes ne sont pas ouverts pour le moment.');
+        return;
+      }
+
+      const rawPhone = typeof user?.phoneNumber === 'string' ? user.phoneNumber : undefined;
+      const phone = rawPhone && rawPhone.trim().length > 0 ? rawPhone : undefined;
+
+      setPaymentStatus(null);
+      setPaymentMessage(null);
+      setLastTransactionId(null);
+      setSelectedCandidate(null);
+      setModalVisible(false);
+
+      setIsPreparingPayment(true);
+      setPendingCandidate(candidate);
+
+      try {
+        const createIntent = httpsCallable(functionsInstance, 'createVoteIntent');
+        const response = await createIntent({
+          contestId: activeContestId,
+          candidateId: candidate.id,
+          amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
+        });
+
+        const payload = (response as { data?: unknown })?.data ?? null;
+        let intentIdCandidate: string | null = null;
+        if (payload && typeof payload === 'object') {
+          const recordPayload = payload as Record<string, unknown>;
+          const rawIntentId = (recordPayload['intentId'] ?? recordPayload['intent_id']) ?? null;
+          if (typeof rawIntentId === 'string') {
+            const trimmed = rawIntentId.trim();
+            if (trimmed.length > 0) {
+              intentIdCandidate = trimmed;
+            }
+          } else if (typeof rawIntentId === 'number' && Number.isFinite(rawIntentId)) {
+            intentIdCandidate = String(rawIntentId);
+          }
+        }
+
+        if (!intentIdCandidate) {
+          throw new Error('Intent de vote introuvable.');
+        }
+
+        openKkiapayWidget({
+          amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
+          reason: `Vote pour ${candidate.name}`,
+          publicAPIKey: PAYMENT_CONFIG.KKIAPAY_PUBLIC_KEY,
+          sandbox: PAYMENT_CONFIG.SANDBOX,
+          theme: '#FF7A00',
+          name: user?.name || undefined,
+          fullname: user?.name || undefined,
+          email: user?.email || undefined,
+          phone,
+          partnerId: intentIdCandidate,
+          countries: PAYMENT_CONFIG.COUNTRIES ? [...PAYMENT_CONFIG.COUNTRIES] : undefined,
+          paymentMethods: PAYMENT_CONFIG.PAYMENT_METHODS ? [...PAYMENT_CONFIG.PAYMENT_METHODS] : undefined,
+        });
+      } catch (error) {
+        setPendingCandidate(null);
+        const message = error instanceof Error ? error.message : 'Impossible de lancer le module de paiement.';
+        Alert.alert('Paiement indisponible', message);
+      } finally {
+        setIsPreparingPayment(false);
+      }
+    },
+    [contest, contestId, functionsInstance, hasVoted, isBusy, openKkiapayWidget, user]
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (isSearchActive) {
+          handleDeactivateSearch();
+          return true;
+        }
+        return false;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => {
+        subscription.remove();
+      };
+    }, [handleDeactivateSearch, isSearchActive])
+  );
 
   const renderListHeader = () => (
     <View>
       <View style={styles.contestHeader}>
         <MaterialCommunityIcons name="trophy-award" size={48} color="#f59e0b" />
-        {isLoading ? (
+        {isBusy ? (
           <ActivityIndicator size="small" color="#111" style={styles.headerLoader} />
         ) : contest ? (
           <>
             <Text style={styles.contestTitle}>{contest.title}</Text>
             {contest.description ? <Text style={styles.contestDescription}>{contest.description}</Text> : null}
             <ContestCountdown endDate={contest.endDate} />
+            {hasVoted ? <Text style={styles.voteThanks}>Merci pour votre vote !</Text> : null}
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{formatNumber(totalVotes)}</Text>
@@ -219,7 +401,7 @@ const ContestScreen: React.FC = () => {
       <TouchableOpacity
         style={styles.searchBarContainer}
         onPress={handleActivateSearch}
-        disabled={!contest || isLoading}
+        disabled={!contest || isBusy}
       >
         <Ionicons name="search-outline" size={20} color="#8A8A8E" style={styles.searchIcon} />
         <Text style={styles.searchPlaceholder}>
@@ -265,11 +447,11 @@ const ContestScreen: React.FC = () => {
         data={filteredCandidates}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <CandidateCard item={item} totalVotes={totalVotes} onVote={handleVotePressPay} />
+          <CandidateCard item={item} totalVotes={totalVotes} onVote={handleVotePressPay} disabled={hasVoted} />
         )}
         ListHeaderComponent={!isSearchActive ? renderListHeader : null}
         ListEmptyComponent={
-          !isLoading && contest ? (
+          !isBusy && contest ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyStateTitle}>Aucun candidat pour le moment</Text>
               <Text style={styles.emptyStateSubtitle}>Revenez plus tard pour decouvrir les participants.</Text>
@@ -284,8 +466,16 @@ const ContestScreen: React.FC = () => {
 
       <VoteConfirmationModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={() => {
+          setModalVisible(false);
+          setPaymentStatus(null);
+          setPaymentMessage(null);
+          setLastTransactionId(null);
+        }}
         candidate={selectedCandidate}
+        status={paymentStatus ?? 'success'}
+        transactionId={lastTransactionId}
+        message={paymentMessage ?? undefined}
       />
     </SafeAreaView>
   );
@@ -331,6 +521,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     lineHeight: 20,
+  },
+  voteThanks: {
+    marginTop: 12,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#16a34a',
+    textAlign: 'center',
   },
   statsRow: {
     flexDirection: 'row',
@@ -404,6 +601,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
+  voteButtonDisabled: { opacity: 0.5 },
   voteButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
   headerLoader: { marginTop: 16 },
   emptyState: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 16 },

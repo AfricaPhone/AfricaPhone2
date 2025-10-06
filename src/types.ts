@@ -162,7 +162,12 @@ export type Prediction = {
   matchId: string;
   scoreA: number;
   scoreB: number;
+  contactFirstName?: string;
+  contactLastName?: string;
+  contactPhone?: string;
+  contactPhoneNormalized?: string;
   createdAt: FirebaseFirestoreTypes.Timestamp;
+  updatedAt?: FirebaseFirestoreTypes.Timestamp;
   isWinner?: boolean;
 };
 
@@ -233,3 +238,4 @@ export type UserContest = {
   contestName: string;
   badgeIcon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
+

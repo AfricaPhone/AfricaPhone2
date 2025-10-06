@@ -14,12 +14,15 @@ import {
   TextInput,
   ActivityIndicator,
   Linking,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-// MODIFICATION: Importez les dépendances pour les fonctions Firebase
+// MODIFICATION: Importez les dependances pour les fonctions Firebase
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { collection, onSnapshot, query, where, doc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
@@ -38,7 +41,7 @@ const openWhatsApp = async () => {
       Alert.alert("WhatsApp non disponible", "Impossible d'ouvrir WhatsApp sur cet appareil.");
     }
   } catch (err) {
-    Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Réessayez.");
+    Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Reessayez.");
   }
 };
 
@@ -46,16 +49,48 @@ const APP_SHARE_URL = 'https://africaphone.app';
 const WHATSAPP_SHARE_MESSAGE = `Rejoins-moi sur AfricaPhone pour pronostiquer et tenter ta chance ! Telecharge l'application ici : ${APP_SHARE_URL}`;
 const REQUIRED_APP_SHARES = 2;
 const LOCAL_SHARE_COUNT_KEY = 'local_app_share_count_v1';
+const GUEST_PREDICTION_STORAGE_PREFIX = 'guest_prediction_v1';
+
+type CurrentPredictionSummary = {
+  id?: string;
+  scoreA: number;
+  scoreB: number;
+  isWinner?: boolean;
+  contactFirstName?: string;
+  contactLastName?: string;
+  contactPhone?: string;
+  source: 'user' | 'guest';
+};
+
+const formatFullName = (first?: string | null, last?: string | null) => {
+  const parts: string[] = [];
+  if (first && first.trim().length > 0) {
+    parts.push(first.trim());
+  }
+  if (last && last.trim().length > 0) {
+    parts.push(last.trim());
+  }
+  return parts.join(' ').trim();
+};
 
 const PredictionGameScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { matchId } = route.params as { matchId: string };
   const { user, updateUserProfile } = useStore();
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [predictionStep, setPredictionStep] = useState<'contact' | 'score'>('contact');
   const [scoreA, setScoreA] = useState('');
   const [scoreB, setScoreB] = useState('');
+  const [contactFirstName, setContactFirstName] = useState('');
+  const [contactLastName, setContactLastName] = useState('');
+  const [contactNameInput, setContactNameInput] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [guestPrediction, setGuestPrediction] = useState<CurrentPredictionSummary | null>(null);
+
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const [match, setMatch] = useState<Match | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
@@ -65,6 +100,16 @@ const PredictionGameScreen: React.FC = () => {
   const [isSharing, setIsSharing] = useState(false);
   const [localShareCount, setLocalShareCount] = useState(0);
   const [pendingShareFeedback, setPendingShareFeedback] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -78,12 +123,128 @@ const PredictionGameScreen: React.FC = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadContactInformation = async () => {
+      if (user) {
+        const fullName = user.name?.trim() ?? '';
+        const nameParts = fullName.length > 0 ? fullName.split(/\s+/) : [];
+        const fallbackFirst = nameParts[0] ?? '';
+        const fallbackLast = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+        const computedFirst = user.firstName ?? fallbackFirst;
+        const computedLast = user.lastName ?? fallbackLast;
+
+        if (isMounted) {
+          setGuestPrediction(null);
+          setContactFirstName(computedFirst);
+          setContactLastName(computedLast);
+          setContactNameInput(formatFullName(computedFirst, computedLast));
+          setContactPhone(user.phoneNumber ?? '');
+        }
+
+        try {
+          await AsyncStorage.removeItem(`${GUEST_PREDICTION_STORAGE_PREFIX}_${matchId}`);
+        } catch (error) {
+          console.warn('Impossible de supprimer le pronostic invite stocke', error);
+        }
+        return;
+      }
+
+      try {
+        const key = `${GUEST_PREDICTION_STORAGE_PREFIX}_${matchId}`;
+        const raw = await AsyncStorage.getItem(key);
+        if (!isMounted) {
+          return;
+        }
+
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          setGuestPrediction({
+            id: parsed.id,
+            scoreA: parsed.scoreA,
+            scoreB: parsed.scoreB,
+            contactFirstName: parsed.contactFirstName,
+            contactLastName: parsed.contactLastName,
+            contactPhone: parsed.contactPhone,
+            source: 'guest',
+          });
+          setContactFirstName(parsed.contactFirstName ?? '');
+          setContactLastName(parsed.contactLastName ?? '');
+          setContactNameInput(formatFullName(parsed.contactFirstName, parsed.contactLastName));
+          setContactPhone(parsed.contactPhone ?? '');
+        } else {
+          setGuestPrediction(null);
+          setContactFirstName('');
+          setContactLastName('');
+          setContactNameInput('');
+          setContactPhone('');
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du pronostic invite:', error);
+        if (isMounted) {
+          setGuestPrediction(null);
+        }
+      }
+    };
+
+    loadContactInformation();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, matchId]);
+
+  const currentPrediction = useMemo<CurrentPredictionSummary | null>(() => {
+    if (user) {
+      const authPrediction = predictions.find(p => p.userId === user.id);
+      if (authPrediction) {
+        return {
+          id: authPrediction.id,
+          scoreA: authPrediction.scoreA,
+          scoreB: authPrediction.scoreB,
+          isWinner: authPrediction.isWinner,
+          contactFirstName: authPrediction.contactFirstName,
+          contactLastName: authPrediction.contactLastName,
+          contactPhone: authPrediction.contactPhone,
+          source: 'user',
+        };
+      }
+      return null;
+    }
+    return guestPrediction;
+  }, [user, predictions, guestPrediction]);
+
+  useEffect(() => {
+    if (!currentPrediction) {
+      return;
+    }
+    const first = currentPrediction.contactFirstName ?? '';
+    const last = currentPrediction.contactLastName ?? '';
+    setContactFirstName(first);
+    setContactLastName(last);
+    setContactNameInput(formatFullName(first, last));
+    if (currentPrediction.contactPhone) {
+      setContactPhone(currentPrediction.contactPhone);
+    }
+  }, [currentPrediction?.id]);
+
   const userShareCount = user?.appShareCount ?? (user?.hasSharedApp ? REQUIRED_APP_SHARES : 0);
   const effectiveShareCount = Math.max(userShareCount || 0, localShareCount || 0);
   const shareProgressRatio = Math.min(effectiveShareCount / REQUIRED_APP_SHARES, 1);
   const shareProgressPercent = Math.round(shareProgressRatio * 100);
   const remainingShares = Math.max(REQUIRED_APP_SHARES - effectiveShareCount, 0);
   const hasCompletedShareRequirement = shareProgressRatio >= 1;
+
+  const modalContainerStyle = useMemo(
+    () => [
+      styles.modalBackdrop,
+      { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 16 },
+      keyboardVisible && styles.modalBackdropShift,
+    ],
+    [insets.bottom, insets.top, keyboardVisible]
+  );
 
   const ensureUserHasShared = () => {
     if (!hasCompletedShareRequirement) {
@@ -167,12 +328,12 @@ const PredictionGameScreen: React.FC = () => {
       const remainingAfterShare = Math.max(REQUIRED_APP_SHARES - after, 0);
       const successMessage =
         remainingAfterShare > 0
-          ? `Merci d'avoir partagé l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour débloquer les pronostics.`
+          ? `Merci d'avoir partagé l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour debloquer les Pronostics.`
           : `Merci d'avoir partagé l'application. Vous pouvez maintenant pronostiquer.`;
       Alert.alert('Merci !', successMessage);
     } catch (error) {
       console.error('Erreur de partage WhatsApp: ', error);
-      Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Réessayez.");
+      Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Reessayez.");
     } finally {
       setIsSharing(false);
     }
@@ -233,8 +394,6 @@ const PredictionGameScreen: React.FC = () => {
     return typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number';
   }, [match]);
 
-  const currentUserPrediction = useMemo(() => predictions.find(p => p.userId === user?.id), [predictions, user]);
-
   const communityTrends = useMemo(() => {
     if (!match || !match.trends || !match.predictionCount) return [];
 
@@ -287,7 +446,7 @@ const PredictionGameScreen: React.FC = () => {
           setPredictions(preds);
         },
         error => {
-          console.error('Erreur de lecture du pronostic utilisateur: ', error);
+          console.error('Erreur de lecture du Pronostic utilisateur: ', error);
         }
       );
     } else {
@@ -301,36 +460,82 @@ const PredictionGameScreen: React.FC = () => {
   }, [matchId, user]);
 
   const handleOpenModal = () => {
-    if (!user) {
-      navigation.navigate('AuthPrompt');
+    if (currentPrediction) {
+      Alert.alert('Pronostic deja enregistre', 'Il ne peut plus etre modifie.');
       return;
     }
+
     if (!ensureUserHasShared()) {
       return;
     }
-    if (currentUserPrediction) {
-      setScoreA(String(currentUserPrediction.scoreA));
-      setScoreB(String(currentUserPrediction.scoreB));
-    } else {
-      setScoreA('');
-      setScoreB('');
+
+    setScoreA('');
+    setScoreB('');
+
+    let updatedFirst = contactFirstName;
+    let updatedLast = contactLastName;
+
+    if (user) {
+      const fullName = user.name?.trim() ?? '';
+      const nameParts = fullName.length > 0 ? fullName.split(/\s+/) : [];
+      const fallbackFirst = nameParts[0] ?? '';
+      const fallbackLast = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+      if (!contactFirstName) {
+        updatedFirst = user.firstName ?? fallbackFirst;
+        setContactFirstName(updatedFirst);
+      }
+      if (!contactLastName) {
+        updatedLast = user.lastName ?? fallbackLast;
+        setContactLastName(updatedLast);
+      }
+      if (!contactPhone) {
+        setContactPhone(user.phoneNumber ?? '');
+      }
     }
+
+    setContactNameInput(formatFullName(updatedFirst, updatedLast));
+
+    // Toujours afficher d'abord l'étape d'informations de contact
+    setPredictionStep('contact');
     setModalVisible(true);
   };
 
   const handleSubmit = async () => {
-    if (!user) {
-      Alert.alert('Erreur', 'Vous devez être connecté pour effectuer cette action.');
+    if (currentPrediction) {
+      Alert.alert('Pronostic deja enregistre', 'Il ne peut plus etre modifie.');
       return;
     }
     if (matchStarted) {
-      Alert.alert('Trop tard !', 'Les pronostics pour ce match sont terminés.');
+      Alert.alert('Trop tard !', 'Les Pronostics pour ce match sont terminés.');
       return;
     }
     if (!scoreA.trim() || !scoreB.trim()) {
       Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
       return;
     }
+
+    const trimmedFirst = contactFirstName.trim();
+    const trimmedLast = contactLastName.trim();
+    const trimmedPhone = contactPhone.trim();
+    const normalizedPhone = trimmedPhone.replace(/\D+/g, '');
+
+    if (!trimmedFirst || !trimmedLast || !trimmedPhone) {
+      Alert.alert('Informations requises', 'Merci de renseigner votre Nom et Prénom ainsi que votre Numéro WhatsApp.');
+      return;
+    }
+    if (normalizedPhone.length < 6) {
+      Alert.alert('Numéro invalide', 'Le Numéro WhatsApp fourni est invalide.');
+      return;
+    }
+
+    const parsedScoreA = parseInt(scoreA, 10);
+    const parsedScoreB = parseInt(scoreB, 10);
+    if (Number.isNaN(parsedScoreA) || Number.isNaN(parsedScoreB)) {
+      Alert.alert('Score invalide', 'Veuillez saisir des scores valides.');
+      return;
+    }
+
     if (!hasCompletedShareRequirement) {
       Alert.alert('Partage requis', "Partagez d'abord l'application sur WhatsApp pour pronostiquer.");
       return;
@@ -338,37 +543,68 @@ const PredictionGameScreen: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // MODIFICATION: Appeler la fonction Cloud au lieu d'écrire directement
       const submitPredictionFn = httpsCallable(functions, 'submitPrediction');
 
       const payload = {
-        matchId: matchId,
-        scoreA: parseInt(scoreA, 10),
-        scoreB: parseInt(scoreB, 10),
-        predictionId: currentUserPrediction?.id, // Envoyer l'ID pour les mises à jour
+        matchId,
+        scoreA: parsedScoreA,
+        scoreB: parsedScoreB,
+        predictionId: currentPrediction?.id,
+        contactFirstName: trimmedFirst,
+        contactLastName: trimmedLast,
+        contactPhone: trimmedPhone,
       };
 
       const result = await submitPredictionFn(payload);
-      const data = result.data as { success: boolean; message: string };
+      const data = result.data as { success: boolean; message: string; predictionId?: string };
 
-      Alert.alert(data.success ? 'Succès' : 'Erreur', data.message);
+      Alert.alert(data.success ? 'Succes' : 'Erreur', data.message);
 
       if (data.success) {
+        if (!user) {
+          const newGuestPrediction: CurrentPredictionSummary = {
+            id: data.predictionId ?? currentPrediction?.id,
+            scoreA: parsedScoreA,
+            scoreB: parsedScoreB,
+            contactFirstName: trimmedFirst,
+            contactLastName: trimmedLast,
+            contactPhone: trimmedPhone,
+            source: 'guest',
+          };
+          setGuestPrediction(newGuestPrediction);
+          try {
+            await AsyncStorage.setItem(
+              `${GUEST_PREDICTION_STORAGE_PREFIX}_${matchId}`,
+              JSON.stringify({
+                id: newGuestPrediction.id,
+                scoreA: parsedScoreA,
+                scoreB: parsedScoreB,
+                contactFirstName: trimmedFirst,
+                contactLastName: trimmedLast,
+                contactPhone: trimmedPhone,
+              })
+            );
+          } catch (storageError) {
+            console.warn("Impossible d'enregistrer le pronostic invite localement", storageError);
+          }
+        }
+
+        setContactFirstName(trimmedFirst);
+        setContactLastName(trimmedLast);
+        setContactNameInput(formatFullName(trimmedFirst, trimmedLast));
+        setContactPhone(trimmedPhone);
         setModalVisible(false);
       }
     } catch (error: any) {
-      console.error("Erreur d'enregistrement du pronostic: ", error);
-      // Les erreurs HttpsError ont un message lisible par l'utilisateur
+      console.error("Erreur d'enregistrement du Pronostic: ", error);
       Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setIsSubmitting(false);
     }
-  };
+  };  const renderResultCard = () => {
+    if (!matchEnded || !currentPrediction) return null;
 
-  const renderResultCard = () => {
-    if (!matchEnded || !currentUserPrediction) return null;
-
-    if (currentUserPrediction.isWinner) {
+    if (currentPrediction.isWinner) {
       return (
         <View style={[styles.resultCard, styles.winnerCard]}>
           <Ionicons name="trophy" size={24} color="#f59e0b" />
@@ -386,11 +622,43 @@ const PredictionGameScreen: React.FC = () => {
         <View style={styles.resultTextContainer}>
           <Text style={styles.resultTitle}>Dommage, ce n'est pas le bon score.</Text>
           <Text style={styles.resultSubtitle}>
-            Votre pronostic : {currentUserPrediction.scoreA} - {currentUserPrediction.scoreB}
+            Votre Pronostic : {currentPrediction.scoreA} - {currentPrediction.scoreB}
           </Text>
         </View>
       </View>
     );
+  };
+
+  const handleContactNameChange = (text: string) => {
+    setContactNameInput(text);
+    const normalized = text.trim();
+    if (!normalized) {
+      setContactFirstName('');
+      setContactLastName('');
+      return;
+    }
+
+    const [first, ...rest] = normalized.split(/\s+/);
+    setContactFirstName(first ?? '');
+    setContactLastName(rest.join(' '));
+  };
+
+  const handleContactNext = () => {
+    const trimmedFirst = contactFirstName.trim();
+    const trimmedLast = contactLastName.trim();
+    const trimmedPhone = contactPhone.trim();
+    const normalizedPhone = trimmedPhone.replace(/\D+/g, '');
+
+    if (!trimmedFirst || !trimmedLast || !trimmedPhone) {
+      Alert.alert('Informations requises', 'Merci de renseigner votre Nom et Prénom ainsi que votre Numéro WhatsApp.');
+      return;
+    }
+    if (normalizedPhone.length < 6) {
+      Alert.alert('Numéro invalide', 'Le Numéro WhatsApp fourni est invalide.');
+      return;
+    }
+    // Passe à l'étape de saisie du score
+    setPredictionStep('score');
   };
 
   const renderActionButton = () => {
@@ -411,18 +679,18 @@ const PredictionGameScreen: React.FC = () => {
       );
     }
 
-    if (currentUserPrediction) {
+    if (currentPrediction) {
       return (
-        <TouchableOpacity style={styles.submitButton} onPress={handleOpenModal}>
-          <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
-          <Text style={styles.submitButtonText}>Modifier mon pronostic</Text>
-        </TouchableOpacity>
+        <View style={[styles.submitButton, styles.buttonDisabled]}>
+          <MaterialCommunityIcons name="check-circle-outline" size={20} color="#fff" />
+          <Text style={styles.submitButtonText}>Pronostic enregistre</Text>
+        </View>
       );
     }
     return (
       <TouchableOpacity style={styles.submitButton} onPress={handleOpenModal}>
         <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
-        <Text style={styles.submitButtonText}>Placer mon pronostic</Text>
+        <Text style={styles.submitButtonText}>Placer mon Pronostic</Text>
       </TouchableOpacity>
     );
   };
@@ -516,7 +784,7 @@ const PredictionGameScreen: React.FC = () => {
             <View style={styles.shareRequirementTextContainer}>
               <Text style={styles.shareRequirementTitle}>Partage requis</Text>
               <Text style={styles.shareRequirementSubtitle}>
-                Partagez l'application via WhatsApp (2 partages nécessaires) pour débloquer les pronostics.
+                Partagez l'application via WhatsApp (2 partages necessaires) pour debloquer les pronostics.
               </Text>
             </View>
             <TouchableOpacity
@@ -531,10 +799,10 @@ const PredictionGameScreen: React.FC = () => {
           </View>
         )}
 
-        {currentUserPrediction && !matchEnded && (
+        {currentPrediction && !matchEnded && (
           <View style={styles.votedCard}>
             <Text style={styles.votedTitle}>Votre pronostic actuel</Text>
-            <Text style={styles.votedScore}>{`${currentUserPrediction.scoreA} - ${currentUserPrediction.scoreB}`}</Text>
+            <Text style={styles.votedScore}>{`${currentPrediction.scoreA} - ${currentPrediction.scoreB}`}</Text>
           </View>
         )}
 
@@ -559,7 +827,7 @@ const PredictionGameScreen: React.FC = () => {
               </View>
             ))
           ) : (
-            <Text style={styles.noPredictionsText}>Soyez le premier à faire un pronostic !</Text>
+            <Text style={styles.noPredictionsText}>Soyez le premier a faire un pronostic !</Text>
           )}
         </View>
       </ScrollView>
@@ -570,7 +838,10 @@ const PredictionGameScreen: React.FC = () => {
         visible={sharePromptVisible}
         onRequestClose={() => setSharePromptVisible(false)}
       >
-        <Pressable style={styles.modalBackdrop} onPress={() => setSharePromptVisible(false)}>
+        <Pressable
+          style={[styles.modalBackdrop, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 16 }]}
+          onPress={() => setSharePromptVisible(false)}
+        >
           <Pressable style={[styles.modalContent, styles.shareModalContent]}>
             <TouchableOpacity style={styles.closeButton} onPress={() => setSharePromptVisible(false)}>
               <Ionicons name="close-circle" size={28} color="#9ca3af" />
@@ -578,7 +849,7 @@ const PredictionGameScreen: React.FC = () => {
             <Ionicons name="logo-whatsapp" size={48} color="#25D366" style={styles.shareModalIcon} />
             <Text style={styles.shareModalTitle}>Partage WhatsApp obligatoire</Text>
             <Text style={styles.shareModalSubtitle}>
-              Partagez le lien de l'application à vos contacts (2 partages nécessaires) pour accéder aux pronostics.
+              Partagez le lien de l'application à vos contacts (2 partages necessaires) pour accéder aux Pronostics.
             </Text>
             <View style={styles.shareModalLinkContainer}>
               <Text style={styles.shareModalLink}>{APP_SHARE_URL}</Text>
@@ -622,52 +893,105 @@ const PredictionGameScreen: React.FC = () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <Pressable style={styles.modalBackdrop} onPress={() => setModalVisible(false)}>
+        <Pressable
+          style={modalContainerStyle}
+          onPress={() => {
+            Keyboard.dismiss();
+            setModalVisible(false);
+          }}
+        >
           <Pressable style={styles.modalContent}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                Keyboard.dismiss();
+                setModalVisible(false);
+              }}
+            >
               <Ionicons name="close-circle" size={28} color="#9ca3af" />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>{currentUserPrediction ? 'Modifier' : 'Votre'} Pronostic</Text>
-            <Text style={styles.modalSubtitle}>
-              {match.teamA} vs {match.teamB}
-            </Text>
-
-            <View style={styles.modalScoreContainer}>
-              <TextInput
-                style={styles.scoreInputModal}
-                keyboardType="number-pad"
-                maxLength={2}
-                value={scoreA}
-                onChangeText={setScoreA}
-                placeholder="0"
-                placeholderTextColor="#9ca3af"
-                autoFocus={true}
-              />
-              <Text style={styles.modalSeparator}>-</Text>
-              <TextInput
-                style={styles.scoreInputModal}
-                keyboardType="number-pad"
-                maxLength={2}
-                value={scoreB}
-                onChangeText={setScoreB}
-                placeholder="0"
-                placeholderTextColor="#9ca3af"
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[styles.modalSubmitButton, isSubmitting && styles.buttonDisabled]}
-              onPress={handleSubmit}
-              disabled={isSubmitting}
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={insets.top + 24}
+              style={{ width: '100%' }}
             >
-              {isSubmitting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.modalSubmitText}>
-                  {currentUserPrediction ? 'Valider la modification' : 'Valider le pronostic'}
-                </Text>
-              )}
-            </TouchableOpacity>
+              <ScrollView
+                contentContainerStyle={styles.modalInner}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+              >
+                {predictionStep === 'contact' ? (
+                  <>
+                    <Text style={styles.modalTitle}>Vos informations</Text>
+                    <Text style={styles.modalSubtitle}>Renseignez vos informations de contact</Text>
+                    <View style={styles.contactFieldsContainer}>
+                      <TextInput
+                        style={styles.contactInput}
+                        autoCapitalize='words'
+                        value={contactNameInput}
+                        onChangeText={handleContactNameChange}
+                        placeholder='Nom & Prénom'
+                        placeholderTextColor='#9ca3af'
+                        textContentType='name'
+                        returnKeyType='next'
+                      />
+                      <TextInput
+                        style={[styles.contactInput, styles.contactInputLast]}
+                        keyboardType='phone-pad'
+                        value={contactPhone}
+                        onChangeText={setContactPhone}
+                        placeholder='Numéro WhatsApp'
+                        placeholderTextColor='#9ca3af'
+                        textContentType='telephoneNumber'
+                      />
+                    </View>
+                    <TouchableOpacity style={styles.modalSubmitButton} onPress={handleContactNext}>
+                      <Text style={styles.modalSubmitText}>Continuer</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.modalTitle}>Votre Pronostic</Text>
+                    <Text style={styles.modalSubtitle}>
+                      {match.teamA} vs {match.teamB}
+                    </Text>
+                    <View style={styles.modalScoreContainer}>
+                      <TextInput
+                        style={styles.scoreInputModal}
+                        keyboardType="number-pad"
+                        maxLength={2}
+                        value={scoreA}
+                        onChangeText={setScoreA}
+                        placeholder="0"
+                        placeholderTextColor="#9ca3af"
+                        autoFocus={true}
+                      />
+                      <Text style={styles.modalSeparator}>-</Text>
+                      <TextInput
+                        style={styles.scoreInputModal}
+                        keyboardType="number-pad"
+                        maxLength={2}
+                        value={scoreB}
+                        onChangeText={setScoreB}
+                        placeholder="0"
+                        placeholderTextColor="#9ca3af"
+                      />
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.modalSubmitButton, isSubmitting && styles.buttonDisabled]}
+                      onPress={handleSubmit}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <ActivityIndicator color="#fff" />
+                      ) : (
+                        <Text style={styles.modalSubmitText}>Valider le pronostic</Text>
+                      )}
+                    </TouchableOpacity>
+                  </>
+                )}
+              </ScrollView>
+            </KeyboardAvoidingView>
           </Pressable>
         </Pressable>
       </Modal>
@@ -867,13 +1191,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  modalBackdropShift: {
+    justifyContent: 'flex-start',
   },
   modalContent: {
     width: '90%',
+    maxHeight: '85%',
     backgroundColor: '#fff',
     borderRadius: 24,
     padding: 24,
     alignItems: 'center',
+  },
+  modalInner: {
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 24,
   },
   closeButton: {
     position: 'absolute',
@@ -891,6 +1225,22 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 24,
   },
+  contactFieldsContainer: {
+    width: '100%',
+    marginBottom: 24,
+  },
+  contactInput: {
+    backgroundColor: '#f2f3f5',
+    borderRadius: 12,
+    borderColor: '#e5e7eb',
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#111',
+    marginBottom: 12,
+  },
+  contactInputLast: { marginBottom: 0 },
   modalScoreContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1087,6 +1437,4 @@ const styles = StyleSheet.create({
 });
 
 export default PredictionGameScreen;
-
-
 
