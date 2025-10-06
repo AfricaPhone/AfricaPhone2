@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import ProductGrid from './ProductGrid';
+import PromoCardsCarousel from './PromoCardsCarousel';
 import {
   collection,
   getDocs,
@@ -12,6 +13,7 @@ import {
 } from '@react-native-firebase/firestore';
 import { Product } from '../../types';
 import { db } from '../../firebase/config';
+import { usePromoCards } from '../../hooks/usePromoCards';
 
 const PAGE_SIZE = 10;
 
@@ -45,6 +47,11 @@ const getUniqueProducts = (products: Product[]): Product[] =>
 
 const CategoryScreen = ({ route }: { route: { params: { category: string } } }) => {
   const { category } = route.params;
+  const { promoCards, loading: promoCardsLoading } = usePromoCards(category === 'Populaires');
+  const listHeaderComponent =
+    category === 'Populaires'
+      ? <PromoCardsCarousel promoCards={promoCards} isLoading={promoCardsLoading} />
+      : null;
 
   const [products, setProducts] = useState<Product[]>([]);
   const [lastDoc, setLastDoc] = useState<Snapshot | null>(null);
@@ -137,7 +144,7 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
       onLoadMore={loadMoreData}
       onRefresh={() => fetchData(true)}
       refreshing={refreshing}
-      listHeaderComponent={null}
+      listHeaderComponent={listHeaderComponent}
       hasMore={hasMore}
     />
   );

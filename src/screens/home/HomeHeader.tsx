@@ -2,14 +2,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList, TabParamList } from '../../types';
 
 interface Props {
   onFilterPress: () => void;
 }
 
+type HomeHeaderNavigation = CompositeNavigationProp<
+  BottomTabNavigationProp<TabParamList, 'Home'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
+
 const HomeHeader: React.FC<Props> = ({ onFilterPress }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<HomeHeaderNavigation>();
 
   return (
     <View style={styles.fixedHeader}>

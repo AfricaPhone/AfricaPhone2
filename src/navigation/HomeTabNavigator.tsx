@@ -26,6 +26,7 @@ const HomeTabNavigator = () => {
     <Tab.Navigator
       tabBar={props => <PatchedMaterialTopTabBar {...props} />}
       screenOptions={{
+        swipeEnabled: false,
         tabBarScrollEnabled: true,
         tabBarItemStyle: { width: 'auto', paddingHorizontal: 12 },
         tabBarIndicatorStyle: {
