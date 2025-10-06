@@ -1,6 +1,8 @@
 import React, { useCallback, useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import ProductGrid from './ProductGrid';
 import PromoCardsCarousel from './PromoCardsCarousel';
+import BrandCarousel from './BrandCarousel';
 import {
   collection,
   getDocs,
@@ -14,6 +16,7 @@ import {
 import { Product } from '../../types';
 import { db } from '../../firebase/config';
 import { usePromoCards } from '../../hooks/usePromoCards';
+import { useProducts } from '../../store/ProductContext';
 
 const PAGE_SIZE = 10;
 
@@ -48,9 +51,17 @@ const getUniqueProducts = (products: Product[]): Product[] =>
 const CategoryScreen = ({ route }: { route: { params: { category: string } } }) => {
   const { category } = route.params;
   const { promoCards, loading: promoCardsLoading } = usePromoCards(category === 'Populaires');
+  const { brands, brandsLoading } = useProducts();
+  const shouldShowBrands = brandsLoading || brands.length > 0;
+  const shouldShowPromos = promoCardsLoading || promoCards.length > 0;
   const listHeaderComponent =
-    category === 'Populaires'
-      ? <PromoCardsCarousel promoCards={promoCards} isLoading={promoCardsLoading} />
+    category === 'Populaires' && (shouldShowBrands || shouldShowPromos)
+      ? (
+          <View style={styles.populairesHeader}>
+            {shouldShowBrands && <BrandCarousel brands={brands} isLoading={brandsLoading} />}
+            {shouldShowPromos && <PromoCardsCarousel promoCards={promoCards} isLoading={promoCardsLoading} />}
+          </View>
+        )
       : null;
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -149,5 +160,13 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
     />
   );
 };
+
+const styles = StyleSheet.create({
+  populairesHeader: {
+    backgroundColor: '#fff',
+    paddingVertical: 6,
+    gap: 6,
+  },
+});
 
 export default CategoryScreen;

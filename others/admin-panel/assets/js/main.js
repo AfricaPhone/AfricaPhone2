@@ -623,8 +623,13 @@ async function refreshContestPromoCard() {
       (typeof data.image === 'string' && data.image) ||
       fallbackImage;
     const status = typeof data.status === 'string' ? data.status : 'draft';
+    const explicitOrder =
+      typeof data.promoCardSortOrder === 'number' && Number.isFinite(data.promoCardSortOrder)
+        ? data.promoCardSortOrder
+        : -1;
     contestPromoCard = {
       id: `contest-${docSnap.id}`,
+      contestId: docSnap.id,
       title: typeof data.title === 'string' ? data.title : 'Concours',
       subtitle:
         typeof data.description === 'string' && data.description
@@ -633,7 +638,7 @@ async function refreshContestPromoCard() {
       cta: status === 'ended' ? 'Voir les resultats' : 'Participer',
       screen: 'Contest',
       image,
-      sortOrder: -1,
+      sortOrder: explicitOrder,
       isActive: status === 'active',
       isContestCard: true,
     };
@@ -1292,7 +1297,9 @@ const updateContestFilterOptions = () => {
   const options = allContests
     .map(contest => `<option value="${escapeAttr(contest.id)}"${contest.id === currentValue ? ' selected' : ''}>${escapeHtml(contest.title || contest.id)}</option>`)
     .join('');
-  select.innerHTML = `<option value="">S�lectionner un concours</option>${options}`;
+  select.innerHTML = allContests.length
+    ? `<option value="">S�lectionner un concours</option>${options}`
+    : '<option value="">Aucun concours disponible</option>';
   if (currentValue && select.value !== currentValue) {
     select.value = currentValue;
   }
@@ -1418,7 +1425,7 @@ function renderContestsOverview() {
     updateKpiCandidates(0);
     $contestsContent.innerHTML = `
       <div class="empty-state">
-        <p>Aucun concours enregistr� pour le moment.</p>
+        <p>Aucun concours disponible.</p>
         <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Cr�er un concours</button>
       </div>`;
     $contestsContent.querySelector('[data-create-first-contest]')?.addEventListener('click', () => {
@@ -1504,6 +1511,7 @@ function renderContestsOverview() {
           </div>
           <div class="actions">
             <span class="badge status-${escapeAttr(contest.status)}">${formatContestStatus(contest.status)}</span>
+            <button class="btn btn-icon btn-small" type="button" data-delete-current-contest title="Supprimer"><i data-lucide="trash-2" class="icon"></i></button>
             <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> �diter</button>
           </div>
         </div>
@@ -1542,6 +1550,11 @@ function renderContestsOverview() {
   const editButton = $contestsContent.querySelector('[data-edit-current-contest]');
   editButton?.addEventListener('click', () => {
     location.hash = `#/edit-contest/${contest.id}`;
+  });
+
+  const deleteButton = $contestsContent.querySelector('[data-delete-current-contest]');
+  deleteButton?.addEventListener('click', () => {
+    handleContestDeletion(contest.id, contest.title || 'ce concours');
   });
 
   const addCandidateButton = $contestsContent.querySelector('[data-add-candidate]');
@@ -1592,6 +1605,46 @@ async function handleCandidateDeletion(contestId, candidateId, label) {
     }
   } catch (error) {
     console.error(error);
+    toast('Erreur', 'Suppression impossible pour le moment.', 'error');
+  }
+}
+
+
+async function handleContestDeletion(contestId, label) {
+  const confirmed = await openModal({
+    title: 'Supprimer',
+    body: `Confirmer la suppression du concours <strong>${escapeHtml(label || 'ce concours')}</strong> ?`,
+    okText: 'Supprimer',
+    cancelText: 'Annuler',
+    danger: true,
+  });
+  if (!confirmed) {
+    return;
+  }
+  try {
+    await ensureContestCandidatesLoaded(contestId, true);
+    const candidates = [...(contestCandidates.get(contestId) || [])];
+    for (const candidate of candidates) {
+      await deleteDoc(doc(db, 'contests', contestId, 'candidates', candidate.id));
+    }
+    await deleteDoc(doc(db, 'contests', contestId));
+    contestCandidates.delete(contestId);
+    allContests = allContests.filter(item => item.id !== contestId);
+    updateContestFilterOptions();
+    updateKpiContests();
+    const wasSelected = selectedContestId === contestId;
+    if (wasSelected) {
+      const nextId = allContests[0]?.id || '';
+      await setSelectedContest(nextId, { force: true });
+    } else {
+      renderContestsOverview();
+    }
+    await refreshContestPromoCard();
+    renderPromoCardList();
+    updatePromoCardsKpi();
+    toast('Concours supprime', label || 'ce concours', 'success');
+  } catch (error) {
+    console.error('Contest deletion failed', error);
     toast('Erreur', 'Suppression impossible pour le moment.', 'error');
   }
 }
@@ -2289,7 +2342,7 @@ function renderPromoCardList() {
 
 
 
-  arr.forEach(card => {
+  arr.forEach((card, index) => {
 
     const isContestCard = card.isContestCard === true;
 
@@ -2297,7 +2350,9 @@ function renderPromoCardList() {
 
     tr.dataset.id = card.id;
 
-    const sortLabel = isContestCard ? 'Auto' : card.sortOrder ?? 'N/A';
+    const sortLabel = isContestCard
+      ? (card.sortOrder < 0 ? 'Auto' : card.sortOrder ?? 'N/A')
+      : card.sortOrder ?? 'N/A';
 
     const destination = card.screen || (isContestCard ? 'Contest' : 'Aucune');
 
@@ -2323,9 +2378,19 @@ function renderPromoCardList() {
 
     const actionsCell = isContestCard
 
-      ? '<span class="hint">Gere depuis la section Concours</span>'
+      ? '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
 
-      : '<button class="btn btn-small" data-edit>Editer</button>' +
+        '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+
+        '<button class="btn btn-small" data-edit>Editer</button>' +
+
+        '<button class="btn btn-danger btn-small" data-del>Supprimer</button>'
+
+      : '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
+
+        '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+
+        '<button class="btn btn-small" data-edit>Editer</button>' +
 
         '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
 
@@ -2347,14 +2412,33 @@ function renderPromoCardList() {
 
 
 
-    if (!isContestCard) {
+    const moveUpBtn = tr.querySelector('[data-move-up]');
 
+    const moveDownBtn = tr.querySelector('[data-move-down]');
+
+    if (moveUpBtn) {
+
+      moveUpBtn.disabled = index === 0;
+
+      moveUpBtn.onclick = () => handlePromoCardMove(card.id, 'up');
+
+    }
+
+    if (moveDownBtn) {
+
+      moveDownBtn.disabled = index === arr.length - 1;
+
+      moveDownBtn.onclick = () => handlePromoCardMove(card.id, 'down');
+
+    }
+
+    if (isContestCard) {
+      tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-contest/${card.contestId}`);
+      tr.querySelector('[data-del]').onclick = () => handleContestDeletion(card.contestId, card.title);
+    } else {
       tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocard/${card.id}`);
-
       tr.querySelector('[data-del]').onclick = () => handleDelete(card.id, card.title, 'promoCards');
-
       tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCardStatusToggle(card.id, e.target.checked);
-
     }
 
 
@@ -2384,6 +2468,55 @@ async function handlePromoCardStatusToggle(id, isActive) {
   } catch (error) {
     console.error('Erreur de mise � jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
+    renderPromoCardList();
+  }
+}
+
+async function handlePromoCardMove(id, direction) {
+  const list = getPromoCardsForDisplay();
+  const currentIndex = list.findIndex(card => card.id === id);
+  if (currentIndex === -1) {
+    return;
+  }
+  const offset = direction === 'up' ? -1 : 1;
+  const targetIndex = currentIndex + offset;
+  if (targetIndex < 0 || targetIndex >= list.length) {
+    return;
+  }
+  const [movedCard] = list.splice(currentIndex, 1);
+  list.splice(targetIndex, 0, movedCard);
+  try {
+    const updates = [];
+    const rebuilt = [];
+    list.forEach((card, idx) => {
+      const newOrder = (idx + 1) * 10;
+      if (card.isContestCard) {
+        if (card.sortOrder !== newOrder) {
+          card.sortOrder = newOrder;
+          updates.push(updateDoc(doc(db, 'contests', card.contestId), { promoCardSortOrder: newOrder }));
+        }
+        if (contestPromoCard && contestPromoCard.id === card.id) {
+          contestPromoCard.sortOrder = newOrder;
+        }
+      } else {
+        if (card.sortOrder !== newOrder) {
+          card.sortOrder = newOrder;
+          updates.push(updateDoc(doc(db, 'promoCards', card.id), { sortOrder: newOrder }));
+        }
+        const { isContestCard, contestId, ...rest } = card;
+        rebuilt.push(rest);
+      }
+    });
+    if (updates.length) {
+      await Promise.all(updates);
+    }
+    allPromoCards = rebuilt.sort((a, b) => getPromoSortOrder(a) - getPromoSortOrder(b));
+    renderPromoCardList();
+    toast('Ordre mis a jour', movedCard.title || 'Carte promo', 'success');
+  } catch (error) {
+    console.error('Promo card reorder failed', error);
+    toast('Erreur', 'Impossible de reordonner la carte.', 'error');
+    await ensurePromoCardsLoaded(true);
     renderPromoCardList();
   }
 }
