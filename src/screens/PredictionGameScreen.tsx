@@ -92,7 +92,6 @@ const PredictionGameScreen: React.FC = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sharePromptVisible, setSharePromptVisible] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [localShareCount, setLocalShareCount] = useState(0);
   const [pendingShareFeedback, setPendingShareFeedback] = useState(false);
@@ -302,13 +301,6 @@ const PredictionGameScreen: React.FC = () => {
     [insets.bottom, insets.top, keyboardVisible]
   );
 
-  // Fermer automatiquement la modale de partage dès que l'objectif est atteint
-  useEffect(() => {
-    if (hasCompletedShareRequirement && sharePromptVisible) {
-      setSharePromptVisible(false);
-    }
-  }, [hasCompletedShareRequirement, sharePromptVisible]);
-
   const handleShareToWhatsApp = async () => {
     const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(WHATSAPP_SHARE_MESSAGE)}`;
     setIsSharing(true);
@@ -358,14 +350,20 @@ const PredictionGameScreen: React.FC = () => {
     }
 
     const remainingAfterShare = Math.max(REQUIRED_APP_SHARES - after, 0);
-    const successMessage =
-      remainingAfterShare > 0
-        ? `Merci d'avoir partage l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour valider (objectif 10 personnes).`
-        : "Merci d'avoir partage l'application. Vous pouvez maintenant pronostiquer.";
-    Alert.alert('Merci !', successMessage);
+
+    if (remainingAfterShare > 0) {
+      Alert.alert(
+        'Merci !',
+        `Merci d'avoir partage l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour valider (objectif 10 personnes).`
+      );
+    } else if (pendingSubmission) {
+      await submitPrediction(pendingSubmission);
+    } else {
+      Alert.alert('Merci !', "Merci d'avoir partage l'application. Vous pouvez maintenant pronostiquer.");
+    }
+
     setPendingShareFeedback(false);
-    setSharePromptVisible(false);
-  }, [user, userShareCount, localShareCount, updateUserProfile]);
+  }, [user, userShareCount, localShareCount, updateUserProfile, pendingSubmission, submitPrediction]);
 
   const resetShareProgressDev = () => {
     if (!__DEV__) {
@@ -373,7 +371,7 @@ const PredictionGameScreen: React.FC = () => {
     }
     Alert.alert(
       'Réinitialiser',
-      'Remettre la progression de partage à 0 ?',
+      'Remettre la progression de partage a 0 ?',
       [
         { text: 'Annuler', style: 'cancel' },
         {
@@ -382,7 +380,7 @@ const PredictionGameScreen: React.FC = () => {
           onPress: async () => {
             try {
               await AsyncStorage.removeItem(LOCAL_SHARE_COUNT_KEY);
-              // Remet l'état local à 0
+              // Remet l'état local a 0
               // (l'écran recalculera automatiquement le pourcentage)
               if (typeof setLocalShareCount === 'function') {
                 setLocalShareCount(0);
@@ -651,8 +649,10 @@ const PredictionGameScreen: React.FC = () => {
       } catch (error) {
         console.warn("Impossible d'enregistrer le brouillon de pronostic", error);
       }
-      setSharePromptVisible(true);
-      Alert.alert('Partage requis', "Partagez d'abord l'application sur WhatsApp pour finaliser votre pronostic.");
+      Alert.alert(
+        'Partage requis',
+        "Utilisez le bouton 'Partager' pour valider votre pronostique avant l'envoi (objectif 10 personnes)."
+      );
       return;
     }
 
@@ -715,7 +715,7 @@ const PredictionGameScreen: React.FC = () => {
       Alert.alert('Numéro invalide', 'Le Numéro WhatsApp fourni est invalide.');
       return;
     }
-    // Passe à l'étape de saisie du score
+    // Passe a l'étape de saisie du score
     setPredictionStep('score');
   };
 
@@ -734,6 +734,24 @@ const PredictionGameScreen: React.FC = () => {
           <MaterialCommunityIcons name="check-circle-outline" size={20} color="#fff" />
           <Text style={styles.submitButtonText}>Pronostic enregistre</Text>
         </View>
+      );
+    }
+    if (!hasCompletedShareRequirement) {
+      return (
+        <TouchableOpacity
+          style={[styles.submitButton, styles.shareButton, isSharing && styles.buttonDisabled]}
+          onPress={handleShareToWhatsApp}
+          disabled={isSharing}
+        >
+          {isSharing ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Ionicons name="logo-whatsapp" size={20} color="#fff" />
+              <Text style={styles.submitButtonText}>Partager</Text>
+            </>
+          )}
+        </TouchableOpacity>
       );
     }
     return (
@@ -828,6 +846,25 @@ const PredictionGameScreen: React.FC = () => {
 
         {renderResultCard()}
 
+        {!hasCompletedShareRequirement && (
+          <View style={styles.shareBanner}>
+            <View style={styles.shareBannerTextWrapper}>
+              <Text style={styles.shareBannerTitle}>Partager pour valider votre pronostique</Text>
+              <Text style={styles.shareBannerSubtitle}>
+                Partagez le lien de l'application a 10 personnes (minimum {REQUIRED_APP_SHARES} partages requis).
+              </Text>
+            </View>
+            <View style={styles.shareProgressTrack}>
+              <View style={[styles.shareProgressFill, { width: `${shareProgressPercent}%` }]} />
+            </View>
+            <Text style={styles.shareProgressHint}>
+              {remainingShares > 0
+                ? `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''} pour valider (objectif 10 personnes).`
+                : "Objectif atteint ! Merci pour le partage."}
+            </Text>
+          </View>
+        )}
+
         {currentPrediction && !matchEnded && (
           <View style={styles.votedCard}>
             <Text style={styles.votedTitle}>Votre pronostic actuel</Text>
@@ -860,63 +897,6 @@ const PredictionGameScreen: React.FC = () => {
           )}
         </View>
       </ScrollView>
-
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={sharePromptVisible}
-        onRequestClose={() => setSharePromptVisible(false)}
-      >
-        <Pressable
-          style={[styles.modalBackdrop, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 16 }]}
-          onPress={() => setSharePromptVisible(false)}
-        >
-          <Pressable style={[styles.modalContent, styles.shareModalContent]}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setSharePromptVisible(false)}>
-              <Ionicons name="close-circle" size={28} color="#9ca3af" />
-            </TouchableOpacity>
-            <Ionicons name="logo-whatsapp" size={48} color="#25D366" style={styles.shareModalIcon} />
-            <Text style={styles.shareModalTitle}>Partager pour valider votre pronostique</Text>
-            <Text style={styles.shareModalSubtitle}>
-              {pendingSubmission
-                ? "Partagez le lien de l'application a 10 personnes pour finaliser votre pronostique."
-                : "Partagez le lien de l'application a 10 personnes pour acceder aux Pronostics."}
-            </Text>
-            <View style={styles.shareModalLinkContainer}>
-              <Text style={styles.shareModalLink}>{APP_SHARE_URL}</Text>
-            </View>
-            <View style={styles.shareModalProgress}>
-              <View style={styles.shareProgressTrack}>
-                <View style={[styles.shareProgressFill, { width: `${shareProgressPercent}%` }]} />
-              </View>
-              <Text style={styles.shareModalProgressLabel}>
-                {hasCompletedShareRequirement
-                  ? 'Objectif atteint ! (10 personnes recommandees)'
-                  : `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''} pour valider (objectif 10 personnes).`}
-              </Text>
-            </View>
-            {!hasCompletedShareRequirement && (
-              <TouchableOpacity
-                style={[styles.shareModalButton, isSharing && styles.buttonDisabled]}
-                onPress={handleShareToWhatsApp}
-                disabled={isSharing}
-              >
-                {isSharing ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <View style={styles.shareModalButtonContent}>
-                    <Ionicons name="logo-whatsapp" size={22} color="#fff" />
-                    <Text style={styles.shareModalButtonText}>Partager sur WhatsApp</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity onPress={() => setSharePromptVisible(false)}>
-              <Text style={styles.shareModalSecondary}>Je partagerai plus tard</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
 
       <Modal
         animationType="fade"
@@ -1323,69 +1303,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#047857',
     borderRadius: 999,
   },
-  shareModalContent: {
-    alignItems: 'center',
-  },
-  shareModalIcon: {
-    marginBottom: 12,
-  },
-  shareModalTitle: {
-    color: '#111',
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  shareModalSubtitle: {
-    color: '#4b5563',
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  shareModalLinkContainer: {
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginBottom: 20,
-  },
-  shareModalLink: {
-    color: '#111',
-    fontWeight: '600',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  shareModalProgress: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  shareModalProgressLabel: {
-    marginTop: 8,
-    fontSize: 13,
-    color: '#047857',
-    textAlign: 'center',
-  },
-  shareModalButton: {
-    backgroundColor: '#25D366',
+  shareBanner: {
+    backgroundColor: '#ecfdf3',
     borderRadius: 16,
-    paddingVertical: 16,
-    width: '100%',
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+    padding: 16,
     marginBottom: 16,
+    gap: 12,
   },
-  shareModalButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  shareBannerTextWrapper: {
+    gap: 4,
   },
-  shareModalButtonText: {
-    color: '#fff',
+  shareBannerTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#065f46',
   },
-  shareModalSecondary: {
-    color: '#6b7280',
-    fontSize: 14,
+  shareBannerSubtitle: {
+    fontSize: 13,
+    color: '#047857',
+  },
+  shareProgressHint: {
+    fontSize: 12,
+    color: '#047857',
+    fontWeight: '600',
   },
 
   buttonDisabled: {
