@@ -796,7 +796,7 @@ const PredictionGameScreen: React.FC = () => {
       return (
         <View style={[styles.submitButton, styles.buttonDisabled]}>
           <MaterialCommunityIcons name="check-circle-outline" size={20} color="#fff" />
-          <Text style={styles.submitButtonText}>Pronostic enregistre</Text>
+          <Text style={styles.submitButtonText}>Pronostic validé</Text>
         </View>
       );
     }
