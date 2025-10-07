@@ -861,28 +861,6 @@ const PredictionGameScreen: React.FC = () => {
 
         {renderResultCard()}
 
-        {!hasCompletedShareRequirement && (
-          <View style={styles.shareRequirementCard}>
-            <View style={styles.shareRequirementTextContainer}>
-              <Text style={styles.shareRequirementTitle}>Partage requis</Text>
-              <Text style={styles.shareRequirementSubtitle}>
-                {pendingSubmission
-                  ? "Partagez l'application via WhatsApp (2 partages necessaires) pour finaliser votre pronostic."
-                  : "Partagez l'application via WhatsApp (2 partages necessaires) pour debloquer les pronostics."}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.shareRequirementCta}
-              onPress={openSharePromptAndIncrement}
-              onLongPress={resetShareProgressDev}
-              delayLongPress={800}
-            >
-              <Ionicons name="logo-whatsapp" size={18} color="#fff" />
-              <Text style={styles.shareRequirementCtaText}>Partager</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
         {currentPrediction && !matchEnded && (
           <View style={styles.votedCard}>
             <Text style={styles.votedTitle}>Votre pronostic actuel</Text>
@@ -1367,35 +1345,6 @@ const styles = StyleSheet.create({
   shareButton: {
     backgroundColor: '#25D366',
   },
-  shareRequirementCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#ecfdf3',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#bbf7d0',
-    padding: 16,
-    marginBottom: 16,
-    gap: 16,
-  },
-  shareRequirementTextContainer: {
-    flex: 1,
-  },
-  shareRequirementTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#065f46',
-  },
-  shareRequirementSubtitle: {
-    fontSize: 13,
-    color: '#047857',
-    marginTop: 4,
-  },
-  shareProgressWrapper: {
-    marginTop: 12,
-    width: '100%',
-  },
   shareProgressTrack: {
     height: 8,
     backgroundColor: '#d1fae5',
@@ -1406,33 +1355,6 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#047857',
     borderRadius: 999,
-  },
-  shareProgressMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  shareProgressLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#047857',
-  },
-  shareProgressRemaining: {
-    fontSize: 12,
-    color: '#047857',
-  },
-  shareRequirementCta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#25D366',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  shareRequirementCtaText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
   shareModalContent: {
     alignItems: 'center',
