@@ -118,7 +118,7 @@ function BrandRow({
   onSelectBrand: (brandId: string | null) => void;
 }) {
   return (
-    <div className="mt-4 flex items-center gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-6 md:gap-6 md:overflow-visible lg:grid-cols-8">
+    <div className="mt-4 flex items-center gap-4 overflow-x-auto pb-2 md:grid md:grid-flow-col md:auto-cols-fr md:items-start md:gap-8 md:overflow-visible">
       {brandHighlights.map(brand => {
         const isActive = brand.id === activeBrand;
         return (
