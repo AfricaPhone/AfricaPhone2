@@ -189,7 +189,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "xiaomi",
     description: "Le smartphone polyvalent avec capteur 200 MP et charge rapide.",
-    image: "https://via.placeholder.com/400x300.png?text=Redmi+Note+13+Pro",
+    image: "https://images.unsplash.com/photo-1610792516820-0d5f8e5385a6?auto=format&fit=crop&w=800&q=80",
     specs: "256 Go · 12 Go RAM",
     highlight: "Appareil photo 200 MP",
   },
@@ -200,7 +200,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "xiaomi",
     description: "La version 4G avec écran AMOLED 120 Hz et autonomie solide.",
-    image: "https://via.placeholder.com/400x300.png?text=Redmi+Note+13+Pro+4G",
+    image: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=800&q=80",
     specs: "256 Go · 8 Go RAM",
   },
   {
@@ -210,7 +210,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "xiaomi",
     description: "Un design premium et une expérience fluide à prix contenu.",
-    image: "https://via.placeholder.com/400x300.png?text=Redmi+Note+13",
+    image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 8 Go RAM",
   },
   {
@@ -220,7 +220,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "xiaomi",
     description: "Pensé pour le gaming mobile avec un écran 120 Hz ultra lumineux.",
-    image: "https://via.placeholder.com/400x300.png?text=Poco+X6+Pro",
+    image: "https://images.unsplash.com/photo-1546054454-aa26e2b734c7?auto=format&fit=crop&w=800&q=80",
     specs: "512 Go · 12 Go RAM",
     highlight: "Écran AMOLED 120 Hz",
   },
@@ -231,7 +231,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "xiaomi",
     description: "Performance et autonomie pour les power users au quotidien.",
-    image: "https://via.placeholder.com/400x300.png?text=Poco+X6",
+    image: "https://images.unsplash.com/photo-1549921296-3b4a4f919c9b?auto=format&fit=crop&w=800&q=80",
     specs: "256 Go · 8 Go RAM",
   },
   {
@@ -241,7 +241,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "xiaomi",
     description: "Ajoutez le NFC pour vos paiements mobiles sécurisés.",
-    image: "https://via.placeholder.com/400x300.png?text=Poco+X6+NFC",
+    image: "https://images.unsplash.com/photo-1510552776732-01acc9a4cbd0?auto=format&fit=crop&w=800&q=80",
     specs: "256 Go · 12 Go RAM",
   },
   {
@@ -251,7 +251,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "oale",
     description: "Essentiel et robuste, parfait pour une utilisation professionnelle.",
-    image: "https://via.placeholder.com/400x300.png?text=Oale+P10",
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 6 Go RAM",
     highlight: "Double SIM",
   },
@@ -262,7 +262,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "oale",
     description: "Un smartphone accessible avec batterie endurante.",
-    image: "https://via.placeholder.com/400x300.png?text=Oale+P8",
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80",
     specs: "64 Go · 4 Go RAM",
   },
   {
@@ -272,7 +272,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "villaon",
     description: "Immortalisez chaque instant avec sa caméra 50 MP et l’IA Tecno.",
-    image: "https://via.placeholder.com/400x300.png?text=Tecno+Spark+20",
+    image: "https://images.unsplash.com/photo-1617032212873-6849900f09da?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 8 Go RAM",
     highlight: "Caméra 50 MP",
   },
@@ -283,7 +283,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "villaon",
     description: "Conçu pour les réseaux sociaux avec une autonomie rassurante.",
-    image: "https://via.placeholder.com/400x300.png?text=Tecno+Spark+20C",
+    image: "https://images.unsplash.com/photo-1573167243879-df1e86cbb0f9?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 4 Go RAM",
   },
   {
@@ -293,7 +293,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "villaon",
     description: "Un grand écran lumineux et des performances équilibrées.",
-    image: "https://via.placeholder.com/400x300.png?text=Infinix+Hot+40",
+    image: "https://images.unsplash.com/photo-1585060544812-6b45742d7627?auto=format&fit=crop&w=800&q=80",
     specs: "256 Go · 8 Go RAM",
   },
   {
@@ -303,7 +303,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "villaon",
     description: "Conçu pour le streaming et la photo à prix malin.",
-    image: "https://via.placeholder.com/400x300.png?text=Infinix+Hot+40i",
+    image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 8 Go RAM",
   },
   {
@@ -313,7 +313,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "accessoires",
     description: "Profitez de One UI et d’un suivi logiciel longue durée.",
-    image: "https://via.placeholder.com/400x300.png?text=Galaxy+A25",
+    image: "https://images.unsplash.com/photo-1600172454520-13432b0fde0a?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 6 Go RAM",
   },
   {
@@ -323,7 +323,7 @@ export const allProducts: ProductSummary[] = [
     category: "Smartphone",
     brandId: "accessoires",
     description: "Le meilleur de Samsung sur un format compact et élégant.",
-    image: "https://via.placeholder.com/400x300.png?text=Galaxy+A15",
+    image: "https://images.unsplash.com/photo-1506812574058-fc75fa93fead?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 6 Go RAM",
   },
   {
@@ -333,7 +333,7 @@ export const allProducts: ProductSummary[] = [
     category: "Tablette",
     brandId: "accessoires",
     description: "Votre compagnon multimédia avec un écran 11 pouces immersif.",
-    image: "https://via.placeholder.com/400x300.png?text=Galaxy+Tab+A9",
+    image: "https://images.unsplash.com/photo-1510554310709-1982d92bd835?auto=format&fit=crop&w=800&q=80",
     specs: "64 Go · 4 Go RAM",
     highlight: 'Écran 11"',
   },
@@ -344,7 +344,7 @@ export const allProducts: ProductSummary[] = [
     category: "Tablette",
     brandId: "xiaomi",
     description: "Une tablette premium pour travailler, dessiner et se divertir.",
-    image: "https://via.placeholder.com/400x300.png?text=Xiaomi+Pad+6",
+    image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80",
     specs: "256 Go · 8 Go RAM",
   },
   {
@@ -354,7 +354,7 @@ export const allProducts: ProductSummary[] = [
     category: "Tablette",
     brandId: "accessoires",
     description: "Pensée pour la famille avec Kids Mode et son stéréo.",
-    image: "https://via.placeholder.com/400x300.png?text=Lenovo+Tab+M10",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 4 Go RAM",
   },
   {
@@ -364,7 +364,7 @@ export const allProducts: ProductSummary[] = [
     category: "Tablette",
     brandId: "oale",
     description: "Écran large, connectivité 4G et batterie longue durée.",
-    image: "https://via.placeholder.com/400x300.png?text=Oale+Pad+2",
+    image: "https://images.unsplash.com/photo-1576402187878-974f70c890a5?auto=format&fit=crop&w=800&q=80",
     specs: "128 Go · 6 Go RAM",
     highlight: "Batterie 8000 mAh",
   },
@@ -375,7 +375,7 @@ export const allProducts: ProductSummary[] = [
     category: "Wearable",
     brandId: "accessoires",
     description: "Suivez votre activité et recevez vos notifications en un clin d’œil.",
-    image: "https://via.placeholder.com/400x300.png?text=Apple+Watch+S9",
+    image: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=800&q=80",
     specs: "Puce S9 · Résistance 50 m",
   },
   {
@@ -385,7 +385,7 @@ export const allProducts: ProductSummary[] = [
     category: "Wearable",
     brandId: "xiaomi",
     description: "Un suivi sport complet avec GPS intégré et 100 modes.",
-    image: "https://via.placeholder.com/400x300.png?text=Xiaomi+Watch+2+Lite",
+    image: "https://images.unsplash.com/photo-1472417583565-62e7bdeda490?auto=format&fit=crop&w=800&q=80",
     specs: "GPS intégré · 100 sports",
   },
   {
@@ -395,7 +395,7 @@ export const allProducts: ProductSummary[] = [
     category: "Accessoire",
     brandId: "accessoires",
     description: "L’audio spatial immersif avec recharge MagSafe simplifiée.",
-    image: "https://via.placeholder.com/400x300.png?text=AirPods+3",
+    image: "https://images.unsplash.com/photo-1510924199351-4a516361b3b9?auto=format&fit=crop&w=800&q=80",
     specs: "Audio spatial · MagSafe",
   },
   {
@@ -405,7 +405,7 @@ export const allProducts: ProductSummary[] = [
     category: "Accessoire",
     brandId: "accessoires",
     description: "Une expérience sans fil confortable avec réduction de bruit.",
-    image: "https://via.placeholder.com/400x300.png?text=TWS+Pro",
+    image: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=800&q=80",
     specs: "Réduction de bruit",
   },
   {
@@ -415,7 +415,7 @@ export const allProducts: ProductSummary[] = [
     category: "Accessoire",
     brandId: "accessoires",
     description: "Rechargez vos appareils plusieurs fois, partout.",
-    image: "https://via.placeholder.com/400x300.png?text=Powerbank+20000",
+    image: "https://images.unsplash.com/photo-1580894894513-541e068a5b41?auto=format&fit=crop&w=800&q=80",
     specs: "Charge rapide 30 W",
   },
   {
@@ -425,7 +425,7 @@ export const allProducts: ProductSummary[] = [
     category: "Accessoire",
     brandId: "accessoires",
     description: "Un chargeur universel compact pour smartphones et laptops.",
-    image: "https://via.placeholder.com/400x300.png?text=Chargeur+65W",
+    image: "https://images.unsplash.com/photo-1472220625704-91e1462799b2?auto=format&fit=crop&w=800&q=80",
     specs: "Triple port USB-C / USB-A",
   },
   {
@@ -435,7 +435,7 @@ export const allProducts: ProductSummary[] = [
     category: "Accessoire",
     brandId: "accessoires",
     description: "Une finition mate anti-chocs compatible avec 30 modèles.",
-    image: "https://via.placeholder.com/400x300.png?text=Coque+Premium",
+    image: "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&w=800&q=80",
     specs: "Compatibilité 30+ modèles",
   },
   {
@@ -445,7 +445,7 @@ export const allProducts: ProductSummary[] = [
     category: "Accessoire",
     brandId: "accessoires",
     description: "Distribuez un réseau 4G fiable à toute la maison.",
-    image: "https://via.placeholder.com/400x300.png?text=Routeur+4G+LTE",
+    image: "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=800&q=80",
     specs: "Dual band · 64 appareils",
   },
 ];
