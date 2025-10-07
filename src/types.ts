@@ -55,6 +55,7 @@ export type User = {
   hasSharedApp?: boolean;
   appShareCount?: number;
   lastAppShareAt?: string;
+  isAdmin?: boolean;
 };
 
 // --- Favorites / Collections ---
@@ -131,6 +132,7 @@ export type RootStackParamList = {
   Brand: { brandId: string };
   MatchList: undefined;
   PredictionGame: { matchId: string };
+  PredictionRules: undefined;
   Store: undefined;
   SignUp: undefined;
   AuthPrompt: undefined;
@@ -141,6 +143,7 @@ export type RootStackParamList = {
   CategorySelection: undefined;
   Contest: { contestId: string };
   CandidateProfile: { candidate: Candidate };
+  AdminWinners: undefined;
 };
 
 export type MainStackParamList = {
@@ -169,6 +172,7 @@ export type Prediction = {
   createdAt: FirebaseFirestoreTypes.Timestamp;
   updatedAt?: FirebaseFirestoreTypes.Timestamp;
   isWinner?: boolean;
+  featuredWinner?: boolean;
 };
 
 export type Match = {

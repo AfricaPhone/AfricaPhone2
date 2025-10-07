@@ -5,8 +5,15 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function userRecord() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
     function isAdmin() {
-      return isSignedIn() && request.auth.token.admin == true;
+      return isSignedIn() && (
+        request.auth.token.admin == true ||
+        (userRecord().data != null && userRecord().data.isAdmin == true)
+      );
     }
 
     function isOwner(userId) {
@@ -62,7 +69,10 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, create, update, delete: if isAdmin() || isOwner(userId);
+      allow read: if isAdmin() || isOwner(userId);
+      allow create: if isAdmin() || (isOwner(userId) && request.resource.data.isAdmin != true);
+      allow update: if isAdmin() || (isOwner(userId) && resource.data.isAdmin == request.resource.data.isAdmin);
+      allow delete: if isAdmin() || isOwner(userId);
     }
 
     match /config/{docId} {

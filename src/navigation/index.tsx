@@ -21,9 +21,11 @@ import CategorySelectionScreen from '../screens/CategorySelectionScreen';
 import FilterScreen from '../screens/FilterScreen';
 import ContestScreen from '../screens/ContestScreen';
 import CandidateProfileScreen from '../screens/CandidateProfileScreen';
+import PredictionRulesScreen from '../screens/PredictionRulesScreen';
 // SUPPRESSION: L'import de ContestStatsScreen n'est plus nécessaire
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AdminWinnersScreen from '../screens/AdminWinnersScreen';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Main = createNativeStackNavigator<MainStackParamList>();
@@ -94,12 +96,14 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="Brand" component={BrandScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="MatchList" component={MatchListScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="PredictionGame" component={PredictionGameScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="PredictionRules" component={PredictionRulesScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Store" component={StoreScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="FilterScreenResults" component={FilterScreenResults} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="CategorySelection" component={CategorySelectionScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="FilterScreen" component={FilterScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Contest" component={ContestScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="AdminWinners" component={AdminWinnersScreen} options={{ headerShown: false }} />
       {/* SUPPRESSION: La déclaration de l'écran de statistiques n'est plus nécessaire */}
 
       {/* Screens modaux */}

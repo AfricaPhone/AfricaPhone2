@@ -50,6 +50,7 @@ const WHATSAPP_SHARE_MESSAGE = `Rejoins-moi sur AfricaPhone pour pronostiquer et
 const REQUIRED_APP_SHARES = 2;
 const LOCAL_SHARE_COUNT_KEY = 'local_app_share_count_v1';
 const GUEST_PREDICTION_STORAGE_PREFIX = 'guest_prediction_v1';
+const PENDING_PREDICTION_STORAGE_PREFIX = 'pending_prediction_v1';
 
 type CurrentPredictionSummary = {
   id?: string;
@@ -60,6 +61,14 @@ type CurrentPredictionSummary = {
   contactLastName?: string;
   contactPhone?: string;
   source: 'user' | 'guest';
+};
+
+type PendingSubmission = {
+  scoreA: number;
+  scoreB: number;
+  contactFirstName: string;
+  contactLastName: string;
+  contactPhone: string;
 };
 
 const formatFullName = (first?: string | null, last?: string | null) => {
@@ -89,6 +98,7 @@ const PredictionGameScreen: React.FC = () => {
   const [contactNameInput, setContactNameInput] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [guestPrediction, setGuestPrediction] = useState<CurrentPredictionSummary | null>(null);
+  const [pendingSubmission, setPendingSubmission] = useState<PendingSubmission | null>(null);
 
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -230,6 +240,66 @@ const PredictionGameScreen: React.FC = () => {
     }
   }, [currentPrediction?.id]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncPendingDraft = async () => {
+      const draftKey = `${PENDING_PREDICTION_STORAGE_PREFIX}_${matchId}`;
+
+      if (currentPrediction) {
+        try {
+          await AsyncStorage.removeItem(draftKey);
+        } catch (error) {
+          console.warn("Impossible de supprimer le brouillon de pronostic", error);
+        }
+        if (isMounted) {
+          setPendingSubmission(null);
+        }
+        return;
+      }
+
+      try {
+        const rawDraft = await AsyncStorage.getItem(draftKey);
+        if (!isMounted) {
+          return;
+        }
+
+        if (rawDraft) {
+          const parsed = JSON.parse(rawDraft);
+          const draftScoreA = typeof parsed.scoreA === 'number' ? parsed.scoreA : parseInt(parsed.scoreA, 10);
+          const draftScoreB = typeof parsed.scoreB === 'number' ? parsed.scoreB : parseInt(parsed.scoreB, 10);
+
+          if (!Number.isNaN(draftScoreA) && !Number.isNaN(draftScoreB)) {
+            const draft: PendingSubmission = {
+              scoreA: draftScoreA,
+              scoreB: draftScoreB,
+              contactFirstName: parsed.contactFirstName ?? '',
+              contactLastName: parsed.contactLastName ?? '',
+              contactPhone: parsed.contactPhone ?? '',
+            };
+            setPendingSubmission(draft);
+            setScoreA(String(draft.scoreA));
+            setScoreB(String(draft.scoreB));
+            setContactFirstName(draft.contactFirstName);
+            setContactLastName(draft.contactLastName);
+            setContactNameInput(formatFullName(draft.contactFirstName, draft.contactLastName));
+            setContactPhone(draft.contactPhone);
+          }
+        } else {
+          setPendingSubmission(null);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du brouillon de pronostic:', error);
+      }
+    };
+
+    syncPendingDraft();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPrediction?.id, matchId]);
+
   const userShareCount = user?.appShareCount ?? (user?.hasSharedApp ? REQUIRED_APP_SHARES : 0);
   const effectiveShareCount = Math.max(userShareCount || 0, localShareCount || 0);
   const shareProgressRatio = Math.min(effectiveShareCount / REQUIRED_APP_SHARES, 1);
@@ -245,14 +315,6 @@ const PredictionGameScreen: React.FC = () => {
     ],
     [insets.bottom, insets.top, keyboardVisible]
   );
-
-  const ensureUserHasShared = () => {
-    if (!hasCompletedShareRequirement) {
-      setSharePromptVisible(true);
-      return false;
-    }
-    return true;
-  };
 
   // Fermer automatiquement la modale de partage dès que l'objectif est atteint
   useEffect(() => {
@@ -465,13 +527,6 @@ const PredictionGameScreen: React.FC = () => {
       return;
     }
 
-    if (!ensureUserHasShared()) {
-      return;
-    }
-
-    setScoreA('');
-    setScoreB('');
-
     let updatedFirst = contactFirstName;
     let updatedLast = contactLastName;
 
@@ -501,17 +556,92 @@ const PredictionGameScreen: React.FC = () => {
     setModalVisible(true);
   };
 
+  const submitPrediction = useCallback(
+    async (submissionData: PendingSubmission) => {
+      const draftKey = `${PENDING_PREDICTION_STORAGE_PREFIX}_${matchId}`;
+      setIsSubmitting(true);
+      try {
+        const submitPredictionFn = httpsCallable(functions, 'submitPrediction');
+        const payload = {
+          matchId,
+          scoreA: submissionData.scoreA,
+          scoreB: submissionData.scoreB,
+          predictionId: currentPrediction?.id,
+          contactFirstName: submissionData.contactFirstName,
+          contactLastName: submissionData.contactLastName,
+          contactPhone: submissionData.contactPhone,
+        };
+
+        const result = await submitPredictionFn(payload);
+        const data = result.data as { success: boolean; message: string; predictionId?: string };
+
+        Alert.alert(data.success ? 'Succes' : 'Erreur', data.message);
+
+        if (data.success) {
+          if (!user) {
+            const newGuestPrediction: CurrentPredictionSummary = {
+              id: data.predictionId ?? currentPrediction?.id,
+              scoreA: submissionData.scoreA,
+              scoreB: submissionData.scoreB,
+              contactFirstName: submissionData.contactFirstName,
+              contactLastName: submissionData.contactLastName,
+              contactPhone: submissionData.contactPhone,
+              source: 'guest',
+            };
+            setGuestPrediction(newGuestPrediction);
+            try {
+              await AsyncStorage.setItem(
+                `${GUEST_PREDICTION_STORAGE_PREFIX}_${matchId}`,
+                JSON.stringify({
+                  id: newGuestPrediction.id,
+                  scoreA: newGuestPrediction.scoreA,
+                  scoreB: newGuestPrediction.scoreB,
+                  contactFirstName: newGuestPrediction.contactFirstName,
+                  contactLastName: newGuestPrediction.contactLastName,
+                  contactPhone: newGuestPrediction.contactPhone,
+                })
+              );
+            } catch (storageError) {
+              console.warn("Impossible d'enregistrer le pronostic invite localement", storageError);
+            }
+          }
+
+          try {
+            await AsyncStorage.removeItem(draftKey);
+          } catch (draftError) {
+            console.warn("Impossible de supprimer le brouillon de pronostic", draftError);
+          }
+          setPendingSubmission(null);
+
+          setContactFirstName(submissionData.contactFirstName);
+          setContactLastName(submissionData.contactLastName);
+          setContactNameInput(formatFullName(submissionData.contactFirstName, submissionData.contactLastName));
+          setContactPhone(submissionData.contactPhone);
+          setScoreA('');
+          setScoreB('');
+          setModalVisible(false);
+        }
+      } catch (error: any) {
+        console.error("Erreur d'enregistrement du Pronostic: ", error);
+        Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez reessayer.');
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [matchId, currentPrediction?.id, user]
+  );
+
   const handleSubmit = async () => {
     if (currentPrediction) {
       Alert.alert('Pronostic deja enregistre', 'Il ne peut plus etre modifie.');
       return;
     }
     if (matchStarted) {
-      Alert.alert('Trop tard !', 'Les Pronostics pour ce match sont terminés.');
+      Alert.alert('Trop tard !', 'Les Pronostics pour ce match sont termines.');
       return;
     }
     if (!scoreA.trim() || !scoreB.trim()) {
-      Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux équipes.');
+      Alert.alert('Score incomplet', 'Veuillez entrer un score pour les deux equipes.');
       return;
     }
 
@@ -521,11 +651,11 @@ const PredictionGameScreen: React.FC = () => {
     const normalizedPhone = trimmedPhone.replace(/\D+/g, '');
 
     if (!trimmedFirst || !trimmedLast || !trimmedPhone) {
-      Alert.alert('Informations requises', 'Merci de renseigner votre Nom et Prénom ainsi que votre Numéro WhatsApp.');
+      Alert.alert('Informations requises', 'Merci de renseigner votre Nom et Prenom ainsi que votre Numero WhatsApp.');
       return;
     }
     if (normalizedPhone.length < 6) {
-      Alert.alert('Numéro invalide', 'Le Numéro WhatsApp fourni est invalide.');
+      Alert.alert('Numero invalide', 'Le Numero WhatsApp fourni est invalide.');
       return;
     }
 
@@ -536,72 +666,33 @@ const PredictionGameScreen: React.FC = () => {
       return;
     }
 
+    const submissionData: PendingSubmission = {
+      scoreA: parsedScoreA,
+      scoreB: parsedScoreB,
+      contactFirstName: trimmedFirst,
+      contactLastName: trimmedLast,
+      contactPhone: trimmedPhone,
+    };
+
     if (!hasCompletedShareRequirement) {
-      Alert.alert('Partage requis', "Partagez d'abord l'application sur WhatsApp pour pronostiquer.");
+      setPendingSubmission(submissionData);
+      try {
+        await AsyncStorage.setItem(
+          `${PENDING_PREDICTION_STORAGE_PREFIX}_${matchId}`,
+          JSON.stringify(submissionData)
+        );
+      } catch (error) {
+        console.warn("Impossible d'enregistrer le brouillon de pronostic", error);
+      }
+      setSharePromptVisible(true);
+      Alert.alert('Partage requis', "Partagez d'abord l'application sur WhatsApp pour finaliser votre pronostic.");
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const submitPredictionFn = httpsCallable(functions, 'submitPrediction');
+    await submitPrediction(submissionData);
+  };
 
-      const payload = {
-        matchId,
-        scoreA: parsedScoreA,
-        scoreB: parsedScoreB,
-        predictionId: currentPrediction?.id,
-        contactFirstName: trimmedFirst,
-        contactLastName: trimmedLast,
-        contactPhone: trimmedPhone,
-      };
-
-      const result = await submitPredictionFn(payload);
-      const data = result.data as { success: boolean; message: string; predictionId?: string };
-
-      Alert.alert(data.success ? 'Succes' : 'Erreur', data.message);
-
-      if (data.success) {
-        if (!user) {
-          const newGuestPrediction: CurrentPredictionSummary = {
-            id: data.predictionId ?? currentPrediction?.id,
-            scoreA: parsedScoreA,
-            scoreB: parsedScoreB,
-            contactFirstName: trimmedFirst,
-            contactLastName: trimmedLast,
-            contactPhone: trimmedPhone,
-            source: 'guest',
-          };
-          setGuestPrediction(newGuestPrediction);
-          try {
-            await AsyncStorage.setItem(
-              `${GUEST_PREDICTION_STORAGE_PREFIX}_${matchId}`,
-              JSON.stringify({
-                id: newGuestPrediction.id,
-                scoreA: parsedScoreA,
-                scoreB: parsedScoreB,
-                contactFirstName: trimmedFirst,
-                contactLastName: trimmedLast,
-                contactPhone: trimmedPhone,
-              })
-            );
-          } catch (storageError) {
-            console.warn("Impossible d'enregistrer le pronostic invite localement", storageError);
-          }
-        }
-
-        setContactFirstName(trimmedFirst);
-        setContactLastName(trimmedLast);
-        setContactNameInput(formatFullName(trimmedFirst, trimmedLast));
-        setContactPhone(trimmedPhone);
-        setModalVisible(false);
-      }
-    } catch (error: any) {
-      console.error("Erreur d'enregistrement du Pronostic: ", error);
-      Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez réessayer.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };  const renderResultCard = () => {
+  const renderResultCard = () => {
     if (!matchEnded || !currentPrediction) return null;
 
     if (currentPrediction.isWinner) {
@@ -670,15 +761,6 @@ const PredictionGameScreen: React.FC = () => {
         </View>
       );
     }
-    if (!hasCompletedShareRequirement) {
-      return (
-        <TouchableOpacity style={[styles.submitButton, styles.shareButton]} onPress={openSharePromptAndIncrement}>
-          <MaterialCommunityIcons name="share-outline" size={20} color="#fff" />
-          <Text style={styles.submitButtonText}>Partager sur WhatsApp</Text>
-        </TouchableOpacity>
-      );
-    }
-
     if (currentPrediction) {
       return (
         <View style={[styles.submitButton, styles.buttonDisabled]}>
@@ -784,7 +866,9 @@ const PredictionGameScreen: React.FC = () => {
             <View style={styles.shareRequirementTextContainer}>
               <Text style={styles.shareRequirementTitle}>Partage requis</Text>
               <Text style={styles.shareRequirementSubtitle}>
-                Partagez l'application via WhatsApp (2 partages necessaires) pour debloquer les pronostics.
+                {pendingSubmission
+                  ? "Partagez l'application via WhatsApp (2 partages necessaires) pour finaliser votre pronostic."
+                  : "Partagez l'application via WhatsApp (2 partages necessaires) pour debloquer les pronostics."}
               </Text>
             </View>
             <TouchableOpacity
@@ -849,7 +933,9 @@ const PredictionGameScreen: React.FC = () => {
             <Ionicons name="logo-whatsapp" size={48} color="#25D366" style={styles.shareModalIcon} />
             <Text style={styles.shareModalTitle}>Partage WhatsApp obligatoire</Text>
             <Text style={styles.shareModalSubtitle}>
-              Partagez le lien de l'application à vos contacts (2 partages necessaires) pour accéder aux Pronostics.
+              {pendingSubmission
+                ? "Partagez le lien de l'application pour finaliser votre pronostic en attente (2 partages necessaires)."
+                : "Partagez le lien de l'application a vos contacts (2 partages necessaires) pour acceder aux Pronostics."}
             </Text>
             <View style={styles.shareModalLinkContainer}>
               <Text style={styles.shareModalLink}>{APP_SHARE_URL}</Text>

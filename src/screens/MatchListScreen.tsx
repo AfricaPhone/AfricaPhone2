@@ -1,12 +1,12 @@
 // src/screens/MatchListScreen.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { collection, onSnapshot, query, orderBy, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
-import { Match } from '../types';
+import { Match, Prediction } from '../types';
 
 // Component for a single match item in the list
 const MatchListItem: React.FC<{ item: Match }> = ({ item }) => {
@@ -65,6 +65,7 @@ const MatchListScreen: React.FC = () => {
   const navigation = useNavigation();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
+  const [winners, setWinners] = useState<Prediction[]>([]);
 
   useEffect(() => {
     const matchesRef = collection(db, 'matches');
@@ -89,6 +90,66 @@ const MatchListScreen: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  // Load featured winners for social proof
+  useEffect(() => {
+    const ref = collection(db, 'predictions');
+    // Only show winners curated by admin
+    const q = query(ref, where('featuredWinner', '==', true));
+    const unsub = onSnapshot(
+      q,
+      snap => {
+        const list: Prediction[] = [];
+        snap.forEach((d: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
+          list.push({ id: d.id, ...d.data() } as Prediction);
+        });
+        // Sort by createdAt desc client-side to avoid composite index
+        list.sort((a, b) => {
+          const ad = (a.createdAt as any)?.toDate?.() ? a.createdAt.toDate().getTime() : 0;
+          const bd = (b.createdAt as any)?.toDate?.() ? b.createdAt.toDate().getTime() : 0;
+          return bd - ad;
+        });
+        setWinners(list.slice(0, 12));
+      },
+      err => {
+        console.error('Erreur chargement gagnants:', err);
+      }
+    );
+    return () => unsub();
+  }, []);
+
+  const WinnersStrip = () => {
+    if (!winners.length) return null;
+    return (
+      <View style={styles.winnersCard}>
+        <View style={styles.winnersHeader}>
+          <View style={styles.winnersTitleLeft}>
+            <Ionicons name="trophy" size={18} color="#f59e0b" />
+            <Text style={styles.winnersTitle}>Anciens gagnants</Text>
+          </View>
+          <View style={styles.winnersRight}>
+            <Ionicons name="shield-checkmark-outline" size={16} color="#10b981" />
+            <Text style={styles.winnersRightText}>Vérifiés</Text>
+          </View>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.winnersRow}>
+          {winners.map(w => (
+            <View key={w.id} style={styles.winnerChip}>
+              <View style={styles.winnerIconWrap}>
+                <Ionicons name="trophy" size={14} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.winnerName} numberOfLines={1}>{w.userName}</Text>
+                <Text style={styles.winnerMeta}>
+                  {w.scoreA} - {w.scoreB}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="dark-content" />
@@ -108,6 +169,7 @@ const MatchListScreen: React.FC = () => {
           keyExtractor={item => item.id!}
           renderItem={({ item }) => <MatchListItem item={item} />}
           contentContainerStyle={styles.listContent}
+          ListHeaderComponent={<WinnersStrip />}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun match disponible</Text>
@@ -224,6 +286,48 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 40,
   },
+  winnersCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    padding: 12,
+    marginBottom: 12,
+  },
+  winnersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  winnersTitleLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  winnersTitle: { fontWeight: '700', color: '#111' },
+  winnersRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  winnersRightText: { color: '#065f46', fontSize: 12, fontWeight: '600' },
+  winnersRow: { gap: 8 },
+  winnerChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    marginRight: 8,
+    minWidth: 160,
+  },
+  winnerIconWrap: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#f59e0b',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  winnerName: { fontSize: 14, fontWeight: '600', color: '#111' },
+  winnerMeta: { fontSize: 12, color: '#6b7280' },
 });
 
 export default MatchListScreen;

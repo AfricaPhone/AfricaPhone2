@@ -104,6 +104,17 @@ const ProfileScreen: React.FC = () => {
           />
         </View>
 
+        {user?.isAdmin && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Administration</Text>
+            <ProfileListItem
+              icon="trophy-outline"
+              label="Gérer les gagnants"
+              onPress={() => navigation.navigate('AdminWinners')}
+            />
+          </View>
+        )}
+
         {user && (
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
             <Text style={styles.logoutButtonText}>Déconnexion</Text>
