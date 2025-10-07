@@ -33,7 +33,16 @@ import { Prediction, Match, RootStackParamList } from '../types';
 // MODIFICATION: Initialisez l'instance des Fonctions
 const functions = getFunctions();
 const APP_SHARE_URL = 'https://africaphone-africaphone.web.app/';
-const WHATSAPP_SHARE_MESSAGE = `Rejoins-moi sur AfricaPhone pour pronostiquer et tenter ta chance ! Telecharge l'application ici : ${APP_SHARE_URL}`;
+const WHATSAPP_SHARE_MESSAGE = `Rejoignez moi pour le match Classico 🔥⚽ BARÇA 🆚 REAL : Donne ton score exact et gagne GRATUITEMENT de téléphone chez *AFRICA PHONE* ! 📱🎯
+La boutique de vente de téléphones à prix très réduits, *AFRICA PHONE*,
+organise un grand jeu de pronostics pour te faire gagner gratuitement des téléphones ! 🎁
+
+📲 Télécharge l’application *Africa Phone* et donne ton score exact pour tenter de gagner ton téléphone !
+
+🔗 Lien de téléchargement : ${APP_SHARE_URL}
+📞 Appel & WhatsApp : *01 54 15 15 22*
+
+✨ Je viens de tenter ma chance, c’est 100 % gratuit et réel ! 😍`;
 const REQUIRED_APP_SHARES = 2;
 const LOCAL_SHARE_COUNT_KEY_PREFIX = 'local_app_share_count_v1';
 const GUEST_PREDICTION_STORAGE_PREFIX = 'guest_prediction_v1';
