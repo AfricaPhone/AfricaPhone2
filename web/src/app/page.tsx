@@ -88,45 +88,34 @@ function BrandGallery({
   onSelectBrand: (brandId: string | null) => void;
 }) {
   return (
-    <section id="marques" className="space-y-6">
+    <section id="marques" className="space-y-4">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold text-slate-900">Marques disponibles</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">Marques en vedette</h1>
         <p className="text-sm text-slate-600">
-          Cliquez sur une marque pour filtrer les produits AfricaPhone. Cliquez à nouveau pour afficher toutes les marques.
+          Sélectionnez une marque pour filtrer les produits. Cliquez à nouveau pour afficher la liste complète.
         </p>
       </header>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {brandHighlights.map(brand => {
-          const isActive = brand.id === activeBrand;
-          return (
-            <button
-              key={brand.id}
-              type="button"
-              onClick={() => onSelectBrand(isActive ? null : brand.id)}
-              className={`group flex h-full flex-col items-start justify-between rounded-3xl border border-transparent bg-gradient-to-br ${brand.background} p-5 text-left shadow-sm transition hover:shadow-md ${
-                isActive ? "ring-2 ring-offset-2 ring-slate-900" : ""
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <img
-                  src={brand.logoUrl}
-                  alt={`Logo ${brand.name}`}
-                  className="h-16 w-16 rounded-full border border-white/50 bg-white object-cover p-2 shadow-sm"
-                />
-                <div className="space-y-1">
-                  <span
-                    className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                    style={{ backgroundColor: `${brand.accentColor}1a`, color: brand.accentColor }}
-                  >
-                    {brand.tagline}
-                  </span>
-                  <h2 className="text-lg font-semibold text-slate-900">{brand.name}</h2>
+      <div className="relative">
+        <div className="flex items-center gap-3 overflow-x-auto pb-2">
+          {brandHighlights.map(brand => {
+            const isActive = brand.id === activeBrand;
+            return (
+              <button
+                key={brand.id}
+                type="button"
+                onClick={() => onSelectBrand(isActive ? null : brand.id)}
+                className={`relative flex min-w-[110px] cursor-pointer flex-col items-center gap-2 rounded-2xl px-4 py-3 transition ${
+                  isActive ? "bg-white shadow-md ring-2 ring-slate-900/80" : "bg-white/70 hover:bg-white"
+                }`}
+              >
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-white">
+                  <img src={brand.logoUrl} alt={`Logo ${brand.name}`} className="h-full w-full object-cover" />
                 </div>
-              </div>
-              <p className="mt-4 text-sm text-slate-700">{brand.description}</p>
-            </button>
-          );
-        })}
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">{brand.name}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

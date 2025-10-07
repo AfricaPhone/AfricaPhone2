@@ -31,7 +31,7 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#f97316",
     background: "from-orange-100 to-orange-50",
     description: "Smartphones optimisés pour l’Afrique, robustes et abordables.",
-    logoUrl: "https://via.placeholder.com/120x120.png?text=Oale",
+    logoUrl: "https://source.unsplash.com/seed/oale-logo/200x200?logo,orange",
   },
   {
     id: "xiaomi",
@@ -40,7 +40,7 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#2563eb",
     background: "from-blue-100 to-blue-50",
     description: "La performance accessible avec Redmi, Poco et les séries Pad.",
-    logoUrl: "https://via.placeholder.com/120x120.png?text=Xiaomi",
+    logoUrl: "https://source.unsplash.com/seed/xiaomi-logo/200x200?logo,blue",
   },
   {
     id: "villaon",
@@ -49,7 +49,7 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#16a34a",
     background: "from-green-100 to-emerald-50",
     description: "La gamme au meilleur prix pour rester connecté partout.",
-    logoUrl: "https://via.placeholder.com/120x120.png?text=Villaon",
+    logoUrl: "https://source.unsplash.com/seed/villaon-logo/200x200?logo,green",
   },
   {
     id: "accessoires",
@@ -58,7 +58,7 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#9333ea",
     background: "from-purple-100 to-fuchsia-50",
     description: "Tout pour compléter votre équipement mobile au quotidien.",
-    logoUrl: "https://via.placeholder.com/120x120.png?text=Accessoires",
+    logoUrl: "https://source.unsplash.com/seed/accessoires-logo/200x200?logo,purple",
   },
 ];
 
