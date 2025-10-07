@@ -10,6 +10,13 @@ import {
   type ProductSummary,
 } from "@/data/home";
 
+const NAV_ITEMS = [
+  { label: "Accueil", icon: HomeIcon, active: true },
+  { label: "Recherche", icon: SearchIcon, active: false },
+  { label: "Favoris", icon: HeartOutlineIcon, active: false },
+  { label: "Profil", icon: UserIcon, active: false },
+] as const;
+
 export default function Home() {
   const [activeBrand, setActiveBrand] = useState<string | null>(null);
   const [activeSegment, setActiveSegment] = useState<(typeof productSegments)[number]>(productSegments[0]);
@@ -32,9 +39,12 @@ export default function Home() {
   }, [activeSegment, activeBrand, searchTerm]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 py-6 md:flex md:items-center md:justify-center md:py-12">
-      <div className="mx-auto flex h-[min(812px,100vh-3rem)] w-full max-w-sm flex-col overflow-hidden rounded-3xl bg-white shadow-[0_20px_70px_rgba(15,23,42,0.25)] md:max-w-md md:h-[720px]">
-        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 md:px-6 md:pb-28 md:pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 py-6 md:py-10">
+      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-sm flex-col overflow-hidden rounded-3xl bg-white shadow-[0_20px_70px_rgba(15,23,42,0.25)] md:max-w-5xl md:min-h-[calc(100vh-6rem)] md:flex-row md:rounded-[32px]">
+        <aside className="hidden w-64 flex-col border-r border-slate-100 bg-slate-50/70 px-6 py-8 md:flex">
+          <DesktopNav />
+        </aside>
+        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 md:px-10 md:pb-14 md:pt-8">
           <StatusRibbon />
           <SearchRow searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
           <BrandRow activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
@@ -198,7 +208,7 @@ function ProductGrid({ products }: { products: ProductSummary[] }) {
   }
 
   return (
-    <div className="mt-6 grid grid-cols-2 gap-3">
+    <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
       {products.map(product => (
         <ProductCard key={product.id} product={product} />
       ))}
@@ -210,7 +220,7 @@ function ProductCard({ product }: { product: ProductSummary }) {
   return (
     <article className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
       <div className="relative">
-        <img src={product.image} alt={product.name} className="h-36 w-full object-cover" />
+        <img src={product.image} alt={product.name} className="h-36 w-full object-cover md:h-44" />
         <button
           type="button"
           className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow"
@@ -235,16 +245,9 @@ function ProductCard({ product }: { product: ProductSummary }) {
 }
 
 function BottomNav() {
-  const navItems = [
-    { label: "Accueil", icon: <HomeIcon className="h-5 w-5" />, active: true },
-    { label: "Recherche", icon: <SearchIcon className="h-5 w-5" />, active: false },
-    { label: "Favoris", icon: <HeartOutlineIcon className="h-5 w-5" />, active: false },
-    { label: "Profil", icon: <UserIcon className="h-5 w-5" />, active: false },
-  ];
-
   return (
-    <nav className="grid grid-cols-4 border-t border-slate-100 bg-white px-4 py-3 text-xs text-slate-500">
-      {navItems.map(item => (
+    <nav className="grid grid-cols-4 border-t border-slate-100 bg-white px-4 py-3 text-xs text-slate-500 md:hidden">
+      {NAV_ITEMS.map(item => (
         <button
           key={item.label}
           type="button"
@@ -252,10 +255,45 @@ function BottomNav() {
             item.active ? "text-slate-900" : "text-slate-400"
           }`}
         >
-          {item.icon}
+          <item.icon className="h-5 w-5" />
           <span className="font-medium">{item.label}</span>
         </button>
       ))}
+    </nav>
+  );
+}
+
+function DesktopNav() {
+  return (
+    <nav className="flex flex-1 flex-col gap-6">
+      <div className="space-y-1">
+        <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Navigation</p>
+        <span className="block h-px w-full bg-slate-200" />
+      </div>
+      <div className="flex flex-col gap-3 text-sm font-medium text-slate-500">
+        {NAV_ITEMS.map(item => (
+          <button
+            key={item.label}
+            type="button"
+            className={`flex items-center gap-3 rounded-full px-3 py-2 text-left transition ${
+              item.active ? "bg-white text-slate-900 shadow-sm" : "hover:bg-white hover:text-slate-800"
+            }`}
+          >
+            <item.icon className={`h-5 w-5 ${item.active ? "text-orange-500" : "text-slate-400"}`} />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+      <div className="mt-auto space-y-2 rounded-2xl border border-slate-200 bg-white px-4 py-5 text-xs text-slate-500">
+        <p className="text-sm font-semibold text-slate-900">Besoin d’aide ?</p>
+        <p>Contactez-nous sur WhatsApp pour un devis personnalisé.</p>
+        <button
+          type="button"
+          className="mt-2 inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+        >
+          Écrire sur WhatsApp
+        </button>
+      </div>
     </nav>
   );
 }
