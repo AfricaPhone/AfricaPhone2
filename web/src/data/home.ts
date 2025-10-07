@@ -19,6 +19,8 @@ export type BrandHighlight = {
   tagline: string;
   accentColor: string;
   background: string;
+  description: string;
+  logoUrl: string;
 };
 
 export const brandHighlights: BrandHighlight[] = [
@@ -28,6 +30,8 @@ export const brandHighlights: BrandHighlight[] = [
     tagline: "Exclusivités AfricaPhone",
     accentColor: "#f97316",
     background: "from-orange-100 to-orange-50",
+    description: "Smartphones optimisés pour l’Afrique, robustes et abordables.",
+    logoUrl: "https://via.placeholder.com/120x120.png?text=Oale",
   },
   {
     id: "xiaomi",
@@ -35,6 +39,8 @@ export const brandHighlights: BrandHighlight[] = [
     tagline: "Best-sellers Redmi & Poco",
     accentColor: "#2563eb",
     background: "from-blue-100 to-blue-50",
+    description: "La performance accessible avec Redmi, Poco et les séries Pad.",
+    logoUrl: "https://via.placeholder.com/120x120.png?text=Xiaomi",
   },
   {
     id: "villaon",
@@ -42,6 +48,8 @@ export const brandHighlights: BrandHighlight[] = [
     tagline: "Le rapport qualité/prix imbattable",
     accentColor: "#16a34a",
     background: "from-green-100 to-emerald-50",
+    description: "La gamme au meilleur prix pour rester connecté partout.",
+    logoUrl: "https://via.placeholder.com/120x120.png?text=Villaon",
   },
   {
     id: "accessoires",
@@ -49,6 +57,8 @@ export const brandHighlights: BrandHighlight[] = [
     tagline: "Chargeurs rapides, audio & plus",
     accentColor: "#9333ea",
     background: "from-purple-100 to-fuchsia-50",
+    description: "Tout pour compléter votre équipement mobile au quotidien.",
+    logoUrl: "https://via.placeholder.com/120x120.png?text=Accessoires",
   },
 ];
 
@@ -164,6 +174,9 @@ export type ProductSummary = {
   name: string;
   price: string;
   category: string;
+  brandId: string;
+  description: string;
+  image: string;
   specs?: string;
   highlight?: string;
 };
@@ -174,6 +187,9 @@ export const allProducts: ProductSummary[] = [
     name: "Redmi Note 13 Pro 5G",
     price: "199 900 F",
     category: "Smartphone",
+    brandId: "xiaomi",
+    description: "Le smartphone polyvalent avec capteur 200 MP et charge rapide.",
+    image: "https://via.placeholder.com/400x300.png?text=Redmi+Note+13+Pro",
     specs: "256 Go · 12 Go RAM",
     highlight: "Appareil photo 200 MP",
   },
@@ -182,6 +198,9 @@ export const allProducts: ProductSummary[] = [
     name: "Redmi Note 13 Pro 4G",
     price: "174 900 F",
     category: "Smartphone",
+    brandId: "xiaomi",
+    description: "La version 4G avec écran AMOLED 120 Hz et autonomie solide.",
+    image: "https://via.placeholder.com/400x300.png?text=Redmi+Note+13+Pro+4G",
     specs: "256 Go · 8 Go RAM",
   },
   {
@@ -189,6 +208,9 @@ export const allProducts: ProductSummary[] = [
     name: "Redmi Note 13",
     price: "149 900 F",
     category: "Smartphone",
+    brandId: "xiaomi",
+    description: "Un design premium et une expérience fluide à prix contenu.",
+    image: "https://via.placeholder.com/400x300.png?text=Redmi+Note+13",
     specs: "128 Go · 8 Go RAM",
   },
   {
@@ -196,6 +218,9 @@ export const allProducts: ProductSummary[] = [
     name: "Poco X6 Pro",
     price: "229 900 F",
     category: "Smartphone",
+    brandId: "xiaomi",
+    description: "Pensé pour le gaming mobile avec un écran 120 Hz ultra lumineux.",
+    image: "https://via.placeholder.com/400x300.png?text=Poco+X6+Pro",
     specs: "512 Go · 12 Go RAM",
     highlight: "Écran AMOLED 120 Hz",
   },
@@ -204,6 +229,9 @@ export const allProducts: ProductSummary[] = [
     name: "Poco X6",
     price: "179 900 F",
     category: "Smartphone",
+    brandId: "xiaomi",
+    description: "Performance et autonomie pour les power users au quotidien.",
+    image: "https://via.placeholder.com/400x300.png?text=Poco+X6",
     specs: "256 Go · 8 Go RAM",
   },
   {
@@ -211,6 +239,9 @@ export const allProducts: ProductSummary[] = [
     name: "Poco X6 NFC",
     price: "189 900 F",
     category: "Smartphone",
+    brandId: "xiaomi",
+    description: "Ajoutez le NFC pour vos paiements mobiles sécurisés.",
+    image: "https://via.placeholder.com/400x300.png?text=Poco+X6+NFC",
     specs: "256 Go · 12 Go RAM",
   },
   {
@@ -218,6 +249,9 @@ export const allProducts: ProductSummary[] = [
     name: "Oale P10",
     price: "94 900 F",
     category: "Smartphone",
+    brandId: "oale",
+    description: "Essentiel et robuste, parfait pour une utilisation professionnelle.",
+    image: "https://via.placeholder.com/400x300.png?text=Oale+P10",
     specs: "128 Go · 6 Go RAM",
     highlight: "Double SIM",
   },
@@ -226,6 +260,9 @@ export const allProducts: ProductSummary[] = [
     name: "Oale P8",
     price: "69 900 F",
     category: "Smartphone",
+    brandId: "oale",
+    description: "Un smartphone accessible avec batterie endurante.",
+    image: "https://via.placeholder.com/400x300.png?text=Oale+P8",
     specs: "64 Go · 4 Go RAM",
   },
   {
@@ -233,6 +270,9 @@ export const allProducts: ProductSummary[] = [
     name: "Tecno Spark 20",
     price: "87 900 F",
     category: "Smartphone",
+    brandId: "villaon",
+    description: "Immortalisez chaque instant avec sa caméra 50 MP et l’IA Tecno.",
+    image: "https://via.placeholder.com/400x300.png?text=Tecno+Spark+20",
     specs: "128 Go · 8 Go RAM",
     highlight: "Caméra 50 MP",
   },
@@ -241,6 +281,9 @@ export const allProducts: ProductSummary[] = [
     name: "Tecno Spark 20C",
     price: "74 900 F",
     category: "Smartphone",
+    brandId: "villaon",
+    description: "Conçu pour les réseaux sociaux avec une autonomie rassurante.",
+    image: "https://via.placeholder.com/400x300.png?text=Tecno+Spark+20C",
     specs: "128 Go · 4 Go RAM",
   },
   {
@@ -248,6 +291,9 @@ export const allProducts: ProductSummary[] = [
     name: "Infinix Hot 40",
     price: "104 900 F",
     category: "Smartphone",
+    brandId: "villaon",
+    description: "Un grand écran lumineux et des performances équilibrées.",
+    image: "https://via.placeholder.com/400x300.png?text=Infinix+Hot+40",
     specs: "256 Go · 8 Go RAM",
   },
   {
@@ -255,6 +301,9 @@ export const allProducts: ProductSummary[] = [
     name: "Infinix Hot 40i",
     price: "89 900 F",
     category: "Smartphone",
+    brandId: "villaon",
+    description: "Conçu pour le streaming et la photo à prix malin.",
+    image: "https://via.placeholder.com/400x300.png?text=Infinix+Hot+40i",
     specs: "128 Go · 8 Go RAM",
   },
   {
@@ -262,6 +311,9 @@ export const allProducts: ProductSummary[] = [
     name: "Samsung Galaxy A25 5G",
     price: "199 900 F",
     category: "Smartphone",
+    brandId: "accessoires",
+    description: "Profitez de One UI et d’un suivi logiciel longue durée.",
+    image: "https://via.placeholder.com/400x300.png?text=Galaxy+A25",
     specs: "128 Go · 6 Go RAM",
   },
   {
@@ -269,6 +321,9 @@ export const allProducts: ProductSummary[] = [
     name: "Samsung Galaxy A15",
     price: "134 900 F",
     category: "Smartphone",
+    brandId: "accessoires",
+    description: "Le meilleur de Samsung sur un format compact et élégant.",
+    image: "https://via.placeholder.com/400x300.png?text=Galaxy+A15",
     specs: "128 Go · 6 Go RAM",
   },
   {
@@ -276,14 +331,20 @@ export const allProducts: ProductSummary[] = [
     name: "Galaxy Tab A9",
     price: "219 900 F",
     category: "Tablette",
+    brandId: "accessoires",
+    description: "Votre compagnon multimédia avec un écran 11 pouces immersif.",
+    image: "https://via.placeholder.com/400x300.png?text=Galaxy+Tab+A9",
     specs: "64 Go · 4 Go RAM",
-    highlight: "Écran 11\"",
+    highlight: 'Écran 11"',
   },
   {
     id: "xiaomi-pad-6-256-8",
     name: "Xiaomi Pad 6",
     price: "254 900 F",
     category: "Tablette",
+    brandId: "xiaomi",
+    description: "Une tablette premium pour travailler, dessiner et se divertir.",
+    image: "https://via.placeholder.com/400x300.png?text=Xiaomi+Pad+6",
     specs: "256 Go · 8 Go RAM",
   },
   {
@@ -291,6 +352,9 @@ export const allProducts: ProductSummary[] = [
     name: "Lenovo Tab M10",
     price: "149 900 F",
     category: "Tablette",
+    brandId: "accessoires",
+    description: "Pensée pour la famille avec Kids Mode et son stéréo.",
+    image: "https://via.placeholder.com/400x300.png?text=Lenovo+Tab+M10",
     specs: "128 Go · 4 Go RAM",
   },
   {
@@ -298,6 +362,9 @@ export const allProducts: ProductSummary[] = [
     name: "Oale Pad 2",
     price: "129 900 F",
     category: "Tablette",
+    brandId: "oale",
+    description: "Écran large, connectivité 4G et batterie longue durée.",
+    image: "https://via.placeholder.com/400x300.png?text=Oale+Pad+2",
     specs: "128 Go · 6 Go RAM",
     highlight: "Batterie 8000 mAh",
   },
@@ -306,6 +373,9 @@ export const allProducts: ProductSummary[] = [
     name: "Apple Watch Series 9 GPS 41 mm",
     price: "259 900 F",
     category: "Wearable",
+    brandId: "accessoires",
+    description: "Suivez votre activité et recevez vos notifications en un clin d’œil.",
+    image: "https://via.placeholder.com/400x300.png?text=Apple+Watch+S9",
     specs: "Puce S9 · Résistance 50 m",
   },
   {
@@ -313,6 +383,9 @@ export const allProducts: ProductSummary[] = [
     name: "Xiaomi Watch 2 Lite",
     price: "59 900 F",
     category: "Wearable",
+    brandId: "xiaomi",
+    description: "Un suivi sport complet avec GPS intégré et 100 modes.",
+    image: "https://via.placeholder.com/400x300.png?text=Xiaomi+Watch+2+Lite",
     specs: "GPS intégré · 100 sports",
   },
   {
@@ -320,6 +393,9 @@ export const allProducts: ProductSummary[] = [
     name: "Apple AirPods 3",
     price: "159 900 F",
     category: "Accessoire",
+    brandId: "accessoires",
+    description: "L’audio spatial immersif avec recharge MagSafe simplifiée.",
+    image: "https://via.placeholder.com/400x300.png?text=AirPods+3",
     specs: "Audio spatial · MagSafe",
   },
   {
@@ -327,6 +403,9 @@ export const allProducts: ProductSummary[] = [
     name: "Écouteurs TWS Pro",
     price: "18 900 F",
     category: "Accessoire",
+    brandId: "accessoires",
+    description: "Une expérience sans fil confortable avec réduction de bruit.",
+    image: "https://via.placeholder.com/400x300.png?text=TWS+Pro",
     specs: "Réduction de bruit",
   },
   {
@@ -334,6 +413,9 @@ export const allProducts: ProductSummary[] = [
     name: "Powerbank 20 000 mAh",
     price: "24 900 F",
     category: "Accessoire",
+    brandId: "accessoires",
+    description: "Rechargez vos appareils plusieurs fois, partout.",
+    image: "https://via.placeholder.com/400x300.png?text=Powerbank+20000",
     specs: "Charge rapide 30 W",
   },
   {
@@ -341,6 +423,9 @@ export const allProducts: ProductSummary[] = [
     name: "Chargeur GaN 65 W",
     price: "15 900 F",
     category: "Accessoire",
+    brandId: "accessoires",
+    description: "Un chargeur universel compact pour smartphones et laptops.",
+    image: "https://via.placeholder.com/400x300.png?text=Chargeur+65W",
     specs: "Triple port USB-C / USB-A",
   },
   {
@@ -348,6 +433,9 @@ export const allProducts: ProductSummary[] = [
     name: "Coque protectrice premium",
     price: "8 900 F",
     category: "Accessoire",
+    brandId: "accessoires",
+    description: "Une finition mate anti-chocs compatible avec 30 modèles.",
+    image: "https://via.placeholder.com/400x300.png?text=Coque+Premium",
     specs: "Compatibilité 30+ modèles",
   },
   {
@@ -355,6 +443,9 @@ export const allProducts: ProductSummary[] = [
     name: "Routeur Wi-Fi 4G LTE",
     price: "39 900 F",
     category: "Accessoire",
+    brandId: "accessoires",
+    description: "Distribuez un réseau 4G fiable à toute la maison.",
+    image: "https://via.placeholder.com/400x300.png?text=Routeur+4G+LTE",
     specs: "Dual band · 64 appareils",
   },
 ];

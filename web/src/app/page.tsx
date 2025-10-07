@@ -1,24 +1,58 @@
+'use client';
+/* eslint-disable @next/next/no-img-element */
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  brandHighlights,
   allProducts,
-  heroContent,
-  insightCards,
-  productCollections,
-  promoCards,
+  brandHighlights,
+  type BrandHighlight,
+  type ProductSummary,
 } from "@/data/home";
 
 export default function Home() {
+  const [activeBrand, setActiveBrand] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const brandLookup = useMemo(
+    () =>
+      brandHighlights.reduce<Record<string, BrandHighlight>>((acc, brand) => {
+        acc[brand.id] = brand;
+        return acc;
+      }, {}),
+    []
+  );
+
+  const filteredProducts = useMemo(() => {
+    const normalizedQuery = searchTerm.trim().toLowerCase();
+
+    return allProducts.filter(product => {
+      const matchesBrand = activeBrand ? product.brandId === activeBrand : true;
+      const matchesQuery =
+        normalizedQuery.length === 0
+          ? true
+          : [product.name, product.category, product.description, product.specs ?? "", product.highlight ?? ""]
+              .join(" ")
+              .toLowerCase()
+              .includes(normalizedQuery);
+      return matchesBrand && matchesQuery;
+    });
+  }, [activeBrand, searchTerm]);
+
+  const activeBrandName = activeBrand ? brandLookup[activeBrand]?.name ?? null : null;
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-slate-50">
       <SiteHeader />
-      <main className="mx-auto flex max-w-6xl flex-col gap-20 px-6 pb-24 pt-12 lg:px-8">
-        <HeroSection />
-        <BrandShowcase />
-        <PromoHighlights />
-        <CollectionsSpotlight />
-        <FullProductList />
-        <InsightsGrid />
+      <main className="mx-auto flex max-w-6xl flex-col gap-12 px-6 py-12 lg:px-8">
+        <BrandGallery activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
+        <ProductExplorer
+          searchTerm={searchTerm}
+          onSearchTermChange={setSearchTerm}
+          products={filteredProducts}
+          activeBrandName={activeBrandName}
+          resetBrandFilter={() => setActiveBrand(null)}
+        />
       </main>
       <SiteFooter />
     </div>
@@ -32,292 +66,157 @@ function SiteHeader() {
         <Link href="/" className="text-lg font-semibold tracking-tight text-slate-900">
           AfricaPhone
         </Link>
-        <div className="hidden flex-1 items-center justify-center gap-6 md:flex">
-          <Link href="#catalogue" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-            Catalogue
-          </Link>
-          <Link href="#marques" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-            Marques
-          </Link>
-          <Link href="#services" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-            Services
-          </Link>
-          <Link href="#contest" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-            Concours
-          </Link>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="#prediction-game"
-            className="hidden rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900 md:inline-flex"
-          >
-            Pronostics
-          </Link>
-          <Link
-            href="#download"
-            className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-          >
-            Télécharger l’app
-          </Link>
-        </div>
+        <p className="hidden text-sm font-medium text-slate-500 md:block">
+          Smartphones · Tablettes · Accessoires · Services
+        </p>
+        <Link
+          href="#products"
+          className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
+          Voir les produits
+        </Link>
       </div>
     </header>
   );
 }
 
-function HeroSection() {
-  return (
-    <section id="hero" className="overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 px-8 py-16 text-white shadow-xl">
-      <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-        <div className="space-y-6">
-          <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1 text-sm font-medium text-white/80">
-            {heroContent.tag}
-          </span>
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-            {heroContent.title}
-          </h1>
-          <p className="text-base text-white/75 md:text-lg">{heroContent.description}</p>
-          <div className="flex flex-wrap gap-4 pt-2">
-            <Link
-              href={heroContent.primaryCta.href}
-              className="rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100"
-            >
-              {heroContent.primaryCta.label}
-            </Link>
-            <Link
-              href={heroContent.secondaryCta.href}
-              className="rounded-full border border-white/40 px-6 py-2.5 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10"
-            >
-              {heroContent.secondaryCta.label}
-            </Link>
-          </div>
-        </div>
-        <div className="relative flex h-full flex-col justify-center">
-          <div className="mx-auto w-full max-w-sm rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-            <div className="mb-4 flex items-center justify-between text-xs font-medium text-white/70">
-              <span>Populaires</span>
-              <span>Cette semaine</span>
-            </div>
-            <div className="space-y-4 text-sm">
-              {productCollections[0]?.items.slice(0, 3).map(item => (
-                <div key={item.id} className="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
-                  <div>
-                    <p className="font-semibold text-white">{item.name}</p>
-                    <p className="text-xs text-white/70">{item.highlight}</p>
-                  </div>
-                  <span className="text-sm font-semibold text-white">{item.price}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 flex items-center justify-between text-xs text-white/60">
-              <span>+30 nouveaux produits ajoutés</span>
-              <span>Catalogue mis à jour</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function BrandShowcase() {
-  return (
-    <section id="marques" className="space-y-8">
-      <SectionHeader
-        eyebrow="Marques partenaires"
-        title="Vos marques préférées, soigneusement sélectionnées."
-        description="Nous travaillons directement avec les constructeurs pour garantir authenticité, garantie et disponibilité."
-      />
-      <div className="grid gap-4 md:grid-cols-2">
-        {brandHighlights.map(brand => (
-          <article
-            key={brand.id}
-            className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br ${brand.background} p-6 shadow-sm transition hover:shadow-md`}
-          >
-            <div className="flex h-full flex-col justify-between">
-              <div className="space-y-2">
-                <span
-                  className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                  style={{ backgroundColor: `${brand.accentColor}1a`, color: brand.accentColor }}
-                >
-                  {brand.tagline}
-                </span>
-                <h3 className="text-2xl font-semibold text-slate-900">{brand.name}</h3>
-              </div>
-              <div className="mt-6 flex items-center justify-between text-sm font-medium text-slate-600">
-                <span>Voir la sélection</span>
-                <span aria-hidden className="text-lg transition group-hover:translate-x-1">→</span>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function PromoHighlights() {
-  return (
-    <section id="contest" className="space-y-8">
-      <SectionHeader
-        eyebrow="Expérience AfricaPhone"
-        title="Plus que de la vente : animations, concours et services."
-        description="Gardez le lien avec la communauté via les événements et services proposés sur l’application."
-      />
-      <div className="grid gap-4 md:grid-cols-3">
-        {promoCards.map(card => (
-          <article key={card.id} className="flex h-full flex-col justify-between rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md">
-            <div className="space-y-4">
-              {card.badge && (
-                <span className="inline-flex items-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
-                  {card.badge}
-                </span>
-              )}
-              <h3 className="text-xl font-semibold text-slate-900">{card.title}</h3>
-              <p className="text-sm text-slate-600">{card.description}</p>
-            </div>
-            <Link href={card.href} className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 hover:gap-3">
-              {card.ctaLabel}
-              <span aria-hidden>→</span>
-            </Link>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function CollectionsSpotlight() {
-  return (
-    <section id="catalogue" className="space-y-8">
-      <SectionHeader
-        eyebrow="Sélections du moment"
-        title="Nos collections inspirées des usages mobiles."
-        description="Populaires, tablettes, accessoires : retrouvez l’esprit de l’app dans une expérience web soignée."
-      />
-      <div className="space-y-10">
-        {productCollections.map(collection => (
-          <div key={collection.id} className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h3 className="text-2xl font-semibold text-slate-900">{collection.title}</h3>
-                <p className="text-sm text-slate-600">{collection.description}</p>
-              </div>
-              <Link href="#catalogue" className="text-sm font-semibold text-slate-900 hover:text-slate-700">
-                Voir tout
-              </Link>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {collection.items.map(item => (
-                <div key={item.id} className="flex flex-col rounded-2xl bg-slate-50/80 p-4 transition hover:bg-slate-100">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-base font-semibold text-slate-900">{item.name}</p>
-                      <p className="text-sm text-slate-600">{item.highlight}</p>
-                    </div>
-                    {item.badge && (
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-900 shadow-sm">
-                        {item.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-5 flex items-center justify-between text-sm">
-                    <span className="font-semibold text-slate-900">{item.price}</span>
-                    <Link href="#product" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-                      Voir le produit
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FullProductList() {
-  return (
-    <section id="products" className="space-y-8">
-      <SectionHeader
-        eyebrow="Catalogue complet"
-        title="Toute la gamme AfricaPhone en un coup d’œil."
-        description="Smartphones, tablettes, wearables et accessoires disponibles dans nos stocks. Données indicatives en attendant la connexion aux APIs."
-      />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {allProducts.map(product => (
-          <article
-            key={product.id}
-            className="flex h-full flex-col justify-between rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-          >
-            <div className="space-y-3">
-              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {product.category}
-              </span>
-              <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
-              {(product.highlight || product.specs) && (
-                <p className="text-sm text-slate-600">
-                  {product.highlight ?? product.specs}
-                </p>
-              )}
-              {product.highlight && product.specs && (
-                <p className="text-xs text-slate-500">{product.specs}</p>
-              )}
-            </div>
-            <div className="mt-6 flex items-center justify-between text-sm">
-              <span className="text-base font-semibold text-slate-900">{product.price}</span>
-              <Link href="#product" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-                Détails
-              </Link>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function InsightsGrid() {
-  return (
-    <section id="services" className="space-y-8">
-      <SectionHeader
-        eyebrow="Pourquoi AfricaPhone ?"
-        title="Un accompagnement complet avant et après l’achat."
-        description="L’expérience web prolonge les services de l’app et notre présence boutique."
-      />
-      <div className="grid gap-4 md:grid-cols-3">
-        {insightCards.map(card => (
-          <article key={card.id} className="flex h-full flex-col justify-between rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-slate-900">{card.title}</h3>
-              <p className="text-sm text-slate-600">{card.description}</p>
-            </div>
-            <Link href={card.href} className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 hover:gap-3">
-              En savoir plus <span aria-hidden>→</span>
-            </Link>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function SectionHeader({
-  eyebrow,
-  title,
-  description,
+function BrandGallery({
+  activeBrand,
+  onSelectBrand,
 }: {
-  eyebrow: string;
-  title: string;
-  description: string;
+  activeBrand: string | null;
+  onSelectBrand: (brandId: string | null) => void;
 }) {
   return (
-    <div className="space-y-3">
-      <span className="text-sm font-semibold uppercase tracking-wide text-slate-500">{eyebrow}</span>
-      <h2 className="text-3xl font-semibold text-slate-900">{title}</h2>
-      <p className="max-w-2xl text-sm text-slate-600">{description}</p>
-    </div>
+    <section id="marques" className="space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-2xl font-semibold text-slate-900">Marques disponibles</h1>
+        <p className="text-sm text-slate-600">
+          Cliquez sur une marque pour filtrer les produits AfricaPhone. Cliquez à nouveau pour afficher toutes les marques.
+        </p>
+      </header>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {brandHighlights.map(brand => {
+          const isActive = brand.id === activeBrand;
+          return (
+            <button
+              key={brand.id}
+              type="button"
+              onClick={() => onSelectBrand(isActive ? null : brand.id)}
+              className={`group flex h-full flex-col items-start justify-between rounded-3xl border border-transparent bg-gradient-to-br ${brand.background} p-5 text-left shadow-sm transition hover:shadow-md ${
+                isActive ? "ring-2 ring-offset-2 ring-slate-900" : ""
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <img
+                  src={brand.logoUrl}
+                  alt={`Logo ${brand.name}`}
+                  className="h-16 w-16 rounded-full border border-white/50 bg-white object-cover p-2 shadow-sm"
+                />
+                <div className="space-y-1">
+                  <span
+                    className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
+                    style={{ backgroundColor: `${brand.accentColor}1a`, color: brand.accentColor }}
+                  >
+                    {brand.tagline}
+                  </span>
+                  <h2 className="text-lg font-semibold text-slate-900">{brand.name}</h2>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-slate-700">{brand.description}</p>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ProductExplorer({
+  searchTerm,
+  onSearchTermChange,
+  products,
+  activeBrandName,
+  resetBrandFilter,
+}: {
+  searchTerm: string;
+  onSearchTermChange: (value: string) => void;
+  products: ProductSummary[];
+  activeBrandName: string | null;
+  resetBrandFilter: () => void;
+}) {
+  return (
+    <section id="products" className="space-y-6">
+      <header className="space-y-3">
+        <h2 className="text-2xl font-semibold text-slate-900">Rechercher un produit</h2>
+        <p className="text-sm text-slate-600">
+          Retrouvez la liste complète disponible en boutique et sur l’application. Utilisez la recherche pour filtrer par nom,
+          catégorie ou caractéristique technique.
+        </p>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          <span>{products.length} produit(s) affiché(s)</span>
+          {activeBrandName && (
+            <button
+              type="button"
+              onClick={resetBrandFilter}
+              className="inline-flex items-center gap-1 rounded-full bg-slate-200 px-2 py-1 font-semibold text-slate-700 hover:bg-slate-300"
+            >
+              {activeBrandName}
+              <span aria-hidden>×</span>
+            </button>
+          )}
+        </div>
+      </header>
+
+      <div className="relative">
+        <input
+          type="search"
+          value={searchTerm}
+          onChange={event => onSearchTermChange(event.target.value)}
+          placeholder="Rechercher un smartphone, une tablette, un accessoire..."
+          className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-700 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+        />
+        <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-sm text-slate-400">⌕</span>
+      </div>
+
+      {products.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-600">
+          Aucun produit ne correspond pour le moment. Essayez un autre mot-clé ou réinitialisez les filtres.
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map(product => (
+            <article
+              key={product.id}
+              className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+            >
+              <div className="relative h-48 w-full bg-slate-100">
+                <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+              </div>
+              <div className="flex flex-1 flex-col gap-3 p-5">
+                <div className="space-y-1">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{product.category}</span>
+                  <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
+                </div>
+                <p className="text-sm text-slate-600">{product.description}</p>
+                {product.highlight && <p className="text-xs font-semibold text-slate-500">{product.highlight}</p>}
+                {product.specs && (
+                  <p className="text-xs text-slate-500">
+                    <span className="font-medium text-slate-600">Fiche technique :</span> {product.specs}
+                  </p>
+                )}
+                <div className="mt-auto flex items-center justify-between pt-3">
+                  <span className="text-base font-semibold text-slate-900">{product.price}</span>
+                  <Link href="#details" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+                    Plus d’infos
+                  </Link>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -330,24 +229,21 @@ function SiteFooter() {
             AfricaPhone
           </Link>
           <div className="flex flex-wrap gap-4">
-            <Link href="#catalogue" className="hover:text-slate-900">
-              Catalogue
-            </Link>
             <Link href="#marques" className="hover:text-slate-900">
               Marques
             </Link>
-            <Link href="#services" className="hover:text-slate-900">
-              Services
+            <Link href="#products" className="hover:text-slate-900">
+              Produits
             </Link>
-            <Link href="#community" className="hover:text-slate-900">
-              Communauté
+            <Link href="#contact" className="hover:text-slate-900">
+              Contact
             </Link>
           </div>
         </div>
         <div className="flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} AfricaPhone. Tous droits réservés.</p>
           <p>
-            Suivez-nous sur <span className="font-medium text-slate-700">WhatsApp</span> &{" "}
+            Retrouvez-nous sur <span className="font-medium text-slate-700">WhatsApp</span> &{" "}
             <span className="font-medium text-slate-700">Facebook</span>.
           </p>
         </div>
