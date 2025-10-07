@@ -158,3 +158,203 @@ export const insightCards = [
     href: "#community",
   },
 ];
+
+export type ProductSummary = {
+  id: string;
+  name: string;
+  price: string;
+  category: string;
+  specs?: string;
+  highlight?: string;
+};
+
+export const allProducts: ProductSummary[] = [
+  {
+    id: "redmi-note-13-pro-5g-256-12",
+    name: "Redmi Note 13 Pro 5G",
+    price: "199 900 F",
+    category: "Smartphone",
+    specs: "256 Go · 12 Go RAM",
+    highlight: "Appareil photo 200 MP",
+  },
+  {
+    id: "redmi-note-13-pro-4g-256-8",
+    name: "Redmi Note 13 Pro 4G",
+    price: "174 900 F",
+    category: "Smartphone",
+    specs: "256 Go · 8 Go RAM",
+  },
+  {
+    id: "redmi-note-13-128-8",
+    name: "Redmi Note 13",
+    price: "149 900 F",
+    category: "Smartphone",
+    specs: "128 Go · 8 Go RAM",
+  },
+  {
+    id: "poco-x6-pro-512-12",
+    name: "Poco X6 Pro",
+    price: "229 900 F",
+    category: "Smartphone",
+    specs: "512 Go · 12 Go RAM",
+    highlight: "Écran AMOLED 120 Hz",
+  },
+  {
+    id: "poco-x6-256-8",
+    name: "Poco X6",
+    price: "179 900 F",
+    category: "Smartphone",
+    specs: "256 Go · 8 Go RAM",
+  },
+  {
+    id: "poco-x6-nfc-256-12",
+    name: "Poco X6 NFC",
+    price: "189 900 F",
+    category: "Smartphone",
+    specs: "256 Go · 12 Go RAM",
+  },
+  {
+    id: "oale-p10-128-6",
+    name: "Oale P10",
+    price: "94 900 F",
+    category: "Smartphone",
+    specs: "128 Go · 6 Go RAM",
+    highlight: "Double SIM",
+  },
+  {
+    id: "oale-p8-64-4",
+    name: "Oale P8",
+    price: "69 900 F",
+    category: "Smartphone",
+    specs: "64 Go · 4 Go RAM",
+  },
+  {
+    id: "tecno-spark-20-128-8",
+    name: "Tecno Spark 20",
+    price: "87 900 F",
+    category: "Smartphone",
+    specs: "128 Go · 8 Go RAM",
+    highlight: "Caméra 50 MP",
+  },
+  {
+    id: "tecno-spark-20c-128-4",
+    name: "Tecno Spark 20C",
+    price: "74 900 F",
+    category: "Smartphone",
+    specs: "128 Go · 4 Go RAM",
+  },
+  {
+    id: "infinix-hot-40-256-8",
+    name: "Infinix Hot 40",
+    price: "104 900 F",
+    category: "Smartphone",
+    specs: "256 Go · 8 Go RAM",
+  },
+  {
+    id: "infinix-hot-40i-128-8",
+    name: "Infinix Hot 40i",
+    price: "89 900 F",
+    category: "Smartphone",
+    specs: "128 Go · 8 Go RAM",
+  },
+  {
+    id: "samsung-a25-5g-128-6",
+    name: "Samsung Galaxy A25 5G",
+    price: "199 900 F",
+    category: "Smartphone",
+    specs: "128 Go · 6 Go RAM",
+  },
+  {
+    id: "samsung-a15-128-6",
+    name: "Samsung Galaxy A15",
+    price: "134 900 F",
+    category: "Smartphone",
+    specs: "128 Go · 6 Go RAM",
+  },
+  {
+    id: "samsung-tab-a9-64-4",
+    name: "Galaxy Tab A9",
+    price: "219 900 F",
+    category: "Tablette",
+    specs: "64 Go · 4 Go RAM",
+    highlight: "Écran 11\"",
+  },
+  {
+    id: "xiaomi-pad-6-256-8",
+    name: "Xiaomi Pad 6",
+    price: "254 900 F",
+    category: "Tablette",
+    specs: "256 Go · 8 Go RAM",
+  },
+  {
+    id: "lenovo-tab-m10-128-4",
+    name: "Lenovo Tab M10",
+    price: "149 900 F",
+    category: "Tablette",
+    specs: "128 Go · 4 Go RAM",
+  },
+  {
+    id: "oale-pad-2-128-6",
+    name: "Oale Pad 2",
+    price: "129 900 F",
+    category: "Tablette",
+    specs: "128 Go · 6 Go RAM",
+    highlight: "Batterie 8000 mAh",
+  },
+  {
+    id: "apple-watch-series-9-gps-41",
+    name: "Apple Watch Series 9 GPS 41 mm",
+    price: "259 900 F",
+    category: "Wearable",
+    specs: "Puce S9 · Résistance 50 m",
+  },
+  {
+    id: "xiaomi-watch-2-lite",
+    name: "Xiaomi Watch 2 Lite",
+    price: "59 900 F",
+    category: "Wearable",
+    specs: "GPS intégré · 100 sports",
+  },
+  {
+    id: "apple-airpods-3",
+    name: "Apple AirPods 3",
+    price: "159 900 F",
+    category: "Accessoire",
+    specs: "Audio spatial · MagSafe",
+  },
+  {
+    id: "buds-tws-pro",
+    name: "Écouteurs TWS Pro",
+    price: "18 900 F",
+    category: "Accessoire",
+    specs: "Réduction de bruit",
+  },
+  {
+    id: "powerbank-20000-30w",
+    name: "Powerbank 20 000 mAh",
+    price: "24 900 F",
+    category: "Accessoire",
+    specs: "Charge rapide 30 W",
+  },
+  {
+    id: "chargeur-65w-usbc",
+    name: "Chargeur GaN 65 W",
+    price: "15 900 F",
+    category: "Accessoire",
+    specs: "Triple port USB-C / USB-A",
+  },
+  {
+    id: "coque-premium-universelle",
+    name: "Coque protectrice premium",
+    price: "8 900 F",
+    category: "Accessoire",
+    specs: "Compatibilité 30+ modèles",
+  },
+  {
+    id: "routeur-4g-lte",
+    name: "Routeur Wi-Fi 4G LTE",
+    price: "39 900 F",
+    category: "Accessoire",
+    specs: "Dual band · 64 appareils",
+  },
+];

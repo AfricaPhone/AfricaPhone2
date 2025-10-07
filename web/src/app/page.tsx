@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   brandHighlights,
+  allProducts,
   heroContent,
   insightCards,
   productCollections,
@@ -16,6 +17,7 @@ export default function Home() {
         <BrandShowcase />
         <PromoHighlights />
         <CollectionsSpotlight />
+        <FullProductList />
         <InsightsGrid />
       </main>
       <SiteFooter />
@@ -229,6 +231,47 @@ function CollectionsSpotlight() {
               ))}
             </div>
           </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function FullProductList() {
+  return (
+    <section id="products" className="space-y-8">
+      <SectionHeader
+        eyebrow="Catalogue complet"
+        title="Toute la gamme AfricaPhone en un coup d’œil."
+        description="Smartphones, tablettes, wearables et accessoires disponibles dans nos stocks. Données indicatives en attendant la connexion aux APIs."
+      />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {allProducts.map(product => (
+          <article
+            key={product.id}
+            className="flex h-full flex-col justify-between rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+          >
+            <div className="space-y-3">
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {product.category}
+              </span>
+              <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
+              {(product.highlight || product.specs) && (
+                <p className="text-sm text-slate-600">
+                  {product.highlight ?? product.specs}
+                </p>
+              )}
+              {product.highlight && product.specs && (
+                <p className="text-xs text-slate-500">{product.specs}</p>
+              )}
+            </div>
+            <div className="mt-6 flex items-center justify-between text-sm">
+              <span className="text-base font-semibold text-slate-900">{product.price}</span>
+              <Link href="#product" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+                Détails
+              </Link>
+            </div>
+          </article>
         ))}
       </div>
     </section>
