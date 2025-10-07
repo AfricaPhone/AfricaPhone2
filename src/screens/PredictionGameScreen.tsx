@@ -45,7 +45,7 @@ const openWhatsApp = async () => {
   }
 };
 
-const APP_SHARE_URL = 'https://africaphone.app';
+const APP_SHARE_URL = 'https://africaphone-africaphone.web.app/';
 const WHATSAPP_SHARE_MESSAGE = `Rejoins-moi sur AfricaPhone pour pronostiquer et tenter ta chance ! Telecharge l'application ici : ${APP_SHARE_URL}`;
 const REQUIRED_APP_SHARES = 2;
 const LOCAL_SHARE_COUNT_KEY = 'local_app_share_count_v1';
