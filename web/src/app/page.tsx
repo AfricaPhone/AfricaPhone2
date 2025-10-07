@@ -39,20 +39,24 @@ export default function Home() {
   }, [activeSegment, activeBrand, searchTerm]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 py-6 md:py-10">
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-sm flex-col overflow-hidden rounded-3xl bg-white shadow-[0_20px_70px_rgba(15,23,42,0.25)] md:max-w-5xl md:min-h-[calc(100vh-6rem)] md:flex-row md:rounded-[32px]">
-        <aside className="hidden w-64 flex-col border-r border-slate-100 bg-slate-50/70 px-6 py-8 md:flex">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:flex-row md:px-8 lg:py-10">
+        <aside className="hidden w-full max-w-xs flex-col gap-6 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm md:flex">
           <DesktopNav />
         </aside>
-        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 md:px-10 md:pb-14 md:pt-8">
-          <StatusRibbon />
-          <SearchRow searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
-          <BrandRow activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
-          <SegmentTabs activeSegment={activeSegment} onSelectSegment={setActiveSegment} />
-          <PromoCarousel />
-          <ProductGrid products={filteredProducts} />
-        </main>
-        <BottomNav />
+        <div className="flex-1">
+          <div className="flex h-full min-h-[calc(100vh-4rem)] flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_16px_60px_rgba(15,23,42,0.18)]">
+            <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 sm:px-6 md:px-10 md:pb-12 md:pt-8">
+              <StatusRibbon />
+              <SearchRow searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
+              <BrandRow activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
+              <SegmentTabs activeSegment={activeSegment} onSelectSegment={setActiveSegment} />
+              <PromoCarousel />
+              <ProductGrid products={filteredProducts} />
+            </main>
+            <BottomNav />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -109,7 +113,7 @@ function SegmentTabs({
   onSelectSegment: (segment: (typeof productSegments)[number]) => void;
 }) {
   return (
-    <div className="mt-5 flex gap-5 overflow-x-auto pb-2 text-sm font-semibold text-slate-500">
+    <div className="mt-5 flex gap-5 overflow-x-auto pb-2 text-sm font-semibold text-slate-500 md:flex-wrap md:gap-6 md:overflow-visible">
       {productSegments.map(segment => {
         const isActive = segment === activeSegment;
         return (
@@ -136,7 +140,7 @@ function BrandRow({
   onSelectBrand: (brandId: string | null) => void;
 }) {
   return (
-    <div className="mt-4 flex items-center gap-4 overflow-x-auto pb-2">
+    <div className="mt-4 flex items-center gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:gap-6 md:overflow-visible">
       {brandHighlights.map(brand => {
         const isActive = brand.id === activeBrand;
         return (
