@@ -649,10 +649,7 @@ const PredictionGameScreen: React.FC = () => {
       } catch (error) {
         console.warn("Impossible d'enregistrer le brouillon de pronostic", error);
       }
-      Alert.alert(
-        'Partage requis',
-        "Utilisez le bouton 'Partager' pour valider votre pronostique avant l'envoi (objectif 10 personnes)."
-      );
+      await handleShareToWhatsApp();
       return;
     }
 
@@ -734,24 +731,6 @@ const PredictionGameScreen: React.FC = () => {
           <MaterialCommunityIcons name="check-circle-outline" size={20} color="#fff" />
           <Text style={styles.submitButtonText}>Pronostic enregistre</Text>
         </View>
-      );
-    }
-    if (!hasCompletedShareRequirement) {
-      return (
-        <TouchableOpacity
-          style={[styles.submitButton, styles.shareButton, isSharing && styles.buttonDisabled]}
-          onPress={handleShareToWhatsApp}
-          disabled={isSharing}
-        >
-          {isSharing ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <>
-              <Ionicons name="logo-whatsapp" size={20} color="#fff" />
-              <Text style={styles.submitButtonText}>Partager</Text>
-            </>
-          )}
-        </TouchableOpacity>
       );
     }
     return (
@@ -862,6 +841,20 @@ const PredictionGameScreen: React.FC = () => {
                 ? `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''} pour valider (objectif 10 personnes).`
                 : "Objectif atteint ! Merci pour le partage."}
             </Text>
+            <TouchableOpacity
+              style={[styles.shareBannerCta, isSharing && styles.buttonDisabled]}
+              onPress={handleShareToWhatsApp}
+              disabled={isSharing}
+            >
+              {isSharing ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name="logo-whatsapp" size={18} color="#fff" />
+                  <Text style={styles.shareBannerCtaText}>Partager maintenant</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         )}
 
@@ -1289,9 +1282,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  shareButton: {
-    backgroundColor: '#25D366',
-  },
   shareProgressTrack: {
     height: 8,
     backgroundColor: '#d1fae5',
@@ -1328,6 +1318,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#047857',
     fontWeight: '600',
+  },
+  shareBannerCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#25D366',
+    borderRadius: 12,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  shareBannerCtaText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 
   buttonDisabled: {
