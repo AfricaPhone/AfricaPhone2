@@ -909,11 +909,11 @@ const PredictionGameScreen: React.FC = () => {
               <Ionicons name="close-circle" size={28} color="#9ca3af" />
             </TouchableOpacity>
             <Ionicons name="logo-whatsapp" size={48} color="#25D366" style={styles.shareModalIcon} />
-            <Text style={styles.shareModalTitle}>Partage WhatsApp obligatoire</Text>
+            <Text style={styles.shareModalTitle}>Partager pour valider votre pronostique</Text>
             <Text style={styles.shareModalSubtitle}>
               {pendingSubmission
-                ? "Partagez le lien de l'application pour finaliser votre pronostic en attente (2 partages necessaires)."
-                : "Partagez le lien de l'application a vos contacts (2 partages necessaires) pour acceder aux Pronostics."}
+                ? "Partagez le lien de l'application a 10 personnes pour finaliser votre pronostique."
+                : "Partagez le lien de l'application a 10 personnes pour acceder aux Pronostics."}
             </Text>
             <View style={styles.shareModalLinkContainer}>
               <Text style={styles.shareModalLink}>{APP_SHARE_URL}</Text>
@@ -924,8 +924,8 @@ const PredictionGameScreen: React.FC = () => {
               </View>
               <Text style={styles.shareModalProgressLabel}>
                 {hasCompletedShareRequirement
-                  ? 'Objectif atteint !'
-                  : `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''} pour debloquer.`}
+                  ? 'Objectif atteint ! (10 personnes recommandees)'
+                  : `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''} pour valider (objectif 10 personnes).`}
               </Text>
             </View>
             {!hasCompletedShareRequirement && (
