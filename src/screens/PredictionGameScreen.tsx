@@ -723,11 +723,6 @@ const PredictionGameScreen: React.FC = () => {
   const renderResultCard = () => {
     if (!matchEnded) return null;
 
-    const finalScoreLabel =
-      match && typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number'
-        ? `${match.finalScoreA} - ${match.finalScoreB}`
-        : 'Score final non disponible';
-
     const predictionLabel = currentPrediction
       ? `${currentPrediction.scoreA} - ${currentPrediction.scoreB}`
       : null;
@@ -736,7 +731,7 @@ const PredictionGameScreen: React.FC = () => {
       <View style={[styles.resultCard, styles.neutralCard]}>
         <Ionicons name="information-circle-outline" size={24} color="#4b5563" />
         <View style={styles.resultTextContainer}>
-          <Text style={styles.resultTitle}>Score final : {finalScoreLabel}</Text>
+          <Text style={styles.resultTitle}>Match terminé</Text>
           {predictionLabel && (
             <Text style={styles.resultSubtitle}>Votre pronostic : {predictionLabel}</Text>
           )}
