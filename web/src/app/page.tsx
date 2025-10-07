@@ -89,33 +89,25 @@ function BrandGallery({
 }) {
   return (
     <section id="marques" className="space-y-4">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold text-slate-900">Marques en vedette</h1>
-        <p className="text-sm text-slate-600">
-          Sélectionnez une marque pour filtrer les produits. Cliquez à nouveau pour afficher la liste complète.
-        </p>
-      </header>
-      <div className="relative">
-        <div className="flex items-center gap-3 overflow-x-auto pb-2">
-          {brandHighlights.map(brand => {
-            const isActive = brand.id === activeBrand;
-            return (
-              <button
-                key={brand.id}
-                type="button"
-                onClick={() => onSelectBrand(isActive ? null : brand.id)}
-                className={`relative flex min-w-[110px] cursor-pointer flex-col items-center gap-2 rounded-2xl px-4 py-3 transition ${
-                  isActive ? "bg-white shadow-md ring-2 ring-slate-900/80" : "bg-white/70 hover:bg-white"
-                }`}
-              >
-                <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-white">
-                  <img src={brand.logoUrl} alt={`Logo ${brand.name}`} className="h-full w-full object-cover" />
-                </div>
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">{brand.name}</span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="flex items-center gap-3 overflow-x-auto pb-2">
+        {brandHighlights.map(brand => {
+          const isActive = brand.id === activeBrand;
+          return (
+            <button
+              key={brand.id}
+              type="button"
+              onClick={() => onSelectBrand(isActive ? null : brand.id)}
+              className={`relative flex min-w-[110px] cursor-pointer flex-col items-center gap-2 rounded-2xl px-4 py-3 transition ${
+                isActive ? "bg-white shadow-md ring-2 ring-slate-900/80" : "bg-white/70 hover:bg-white"
+              }`}
+            >
+              <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-white">
+                <img src={brand.logoUrl} alt={`Logo ${brand.name}`} className="h-full w-full object-cover" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">{brand.name}</span>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
@@ -137,11 +129,7 @@ function ProductExplorer({
   return (
     <section id="products" className="space-y-6">
       <header className="space-y-3">
-        <h2 className="text-2xl font-semibold text-slate-900">Rechercher un produit</h2>
-        <p className="text-sm text-slate-600">
-          Retrouvez la liste complète disponible en boutique et sur l’application. Utilisez la recherche pour filtrer par nom,
-          catégorie ou caractéristique technique.
-        </p>
+        <h2 className="text-2xl font-semibold text-slate-900">Produits</h2>
         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
           <span>{products.length} produit(s) affiché(s)</span>
           {activeBrandName && (
@@ -173,7 +161,7 @@ function ProductExplorer({
           Aucun produit ne correspond pour le moment. Essayez un autre mot-clé ou réinitialisez les filtres.
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {products.map(product => (
             <article
               key={product.id}
