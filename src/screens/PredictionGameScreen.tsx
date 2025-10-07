@@ -34,7 +34,7 @@ const functions = getFunctions();
 const APP_SHARE_URL = 'https://africaphone-africaphone.web.app/';
 const WHATSAPP_SHARE_MESSAGE = `Rejoins-moi sur AfricaPhone pour pronostiquer et tenter ta chance ! Telecharge l'application ici : ${APP_SHARE_URL}`;
 const REQUIRED_APP_SHARES = 2;
-const LOCAL_SHARE_COUNT_KEY = 'local_app_share_count_v1';
+const LOCAL_SHARE_COUNT_KEY_PREFIX = 'local_app_share_count_v1';
 const GUEST_PREDICTION_STORAGE_PREFIX = 'guest_prediction_v1';
 const PENDING_PREDICTION_STORAGE_PREFIX = 'pending_prediction_v1';
 
@@ -85,6 +85,7 @@ const PredictionGameScreen: React.FC = () => {
   const [contactPhone, setContactPhone] = useState('');
   const [guestPrediction, setGuestPrediction] = useState<CurrentPredictionSummary | null>(null);
   const [pendingSubmission, setPendingSubmission] = useState<PendingSubmission | null>(null);
+  const [sharePromptVisible, setSharePromptVisible] = useState(false);
 
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -95,6 +96,8 @@ const PredictionGameScreen: React.FC = () => {
   const [isSharing, setIsSharing] = useState(false);
   const [localShareCount, setLocalShareCount] = useState(0);
   const [pendingShareFeedback, setPendingShareFeedback] = useState(false);
+  const [winners, setWinners] = useState<Prediction[]>([]);
+  const [isLoadingWinners, setIsLoadingWinners] = useState(false);
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -106,17 +109,33 @@ const PredictionGameScreen: React.FC = () => {
     };
   }, []);
 
+  const localShareStorageKey = useMemo(
+    () => `${LOCAL_SHARE_COUNT_KEY_PREFIX}_${matchId}_${user?.id ?? 'guest'}`,
+    [matchId, user?.id]
+  );
+
   useEffect(() => {
+    let isMounted = true;
+    setLocalShareCount(0);
+
     (async () => {
       try {
-        const raw = await AsyncStorage.getItem(LOCAL_SHARE_COUNT_KEY);
+        const raw = await AsyncStorage.getItem(localShareStorageKey);
         const parsed = raw ? parseInt(raw, 10) : 0;
-        setLocalShareCount(Number.isFinite(parsed) ? parsed : 0);
+        if (isMounted) {
+          setLocalShareCount(Number.isFinite(parsed) ? parsed : 0);
+        }
       } catch (e) {
-        setLocalShareCount(0);
+        if (isMounted) {
+          setLocalShareCount(0);
+        }
       }
     })();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [localShareStorageKey]);
 
   useEffect(() => {
     let isMounted = true;
@@ -239,6 +258,7 @@ const PredictionGameScreen: React.FC = () => {
         }
         if (isMounted) {
           setPendingSubmission(null);
+          setSharePromptVisible(false);
         }
         return;
       }
@@ -263,6 +283,7 @@ const PredictionGameScreen: React.FC = () => {
               contactPhone: parsed.contactPhone ?? '',
             };
             setPendingSubmission(draft);
+            setSharePromptVisible(true);
             setScoreA(String(draft.scoreA));
             setScoreB(String(draft.scoreB));
             setContactFirstName(draft.contactFirstName);
@@ -272,6 +293,7 @@ const PredictionGameScreen: React.FC = () => {
           }
         } else {
           setPendingSubmission(null);
+          setSharePromptVisible(false);
         }
       } catch (error) {
         console.error('Erreur lors du chargement du brouillon de pronostic:', error);
@@ -285,8 +307,7 @@ const PredictionGameScreen: React.FC = () => {
     };
   }, [currentPrediction?.id, matchId]);
 
-  const userShareCount = user?.appShareCount ?? (user?.hasSharedApp ? REQUIRED_APP_SHARES : 0);
-  const effectiveShareCount = Math.max(userShareCount || 0, localShareCount || 0);
+  const effectiveShareCount = Math.min(localShareCount || 0, REQUIRED_APP_SHARES);
   const shareProgressRatio = Math.min(effectiveShareCount / REQUIRED_APP_SHARES, 1);
   const shareProgressPercent = Math.round(shareProgressRatio * 100);
   const remainingShares = Math.max(REQUIRED_APP_SHARES - effectiveShareCount, 0);
@@ -321,7 +342,7 @@ const PredictionGameScreen: React.FC = () => {
   };
 
   const applyShareProgress = useCallback(async () => {
-    const before = Math.min(Math.max(userShareCount || 0, localShareCount || 0), REQUIRED_APP_SHARES);
+    const before = Math.min(localShareCount || 0, REQUIRED_APP_SHARES);
     if (before >= REQUIRED_APP_SHARES) {
       setPendingShareFeedback(false);
       return;
@@ -329,25 +350,12 @@ const PredictionGameScreen: React.FC = () => {
 
     const after = Math.min(before + 1, REQUIRED_APP_SHARES);
 
-    if (!user) {
-      try {
-        await AsyncStorage.setItem(LOCAL_SHARE_COUNT_KEY, String(after));
-      } catch (err) {
-        console.error('Erreur stockage progression partage invite:', err);
-      }
-      setLocalShareCount(after);
-    } else {
-      try {
-        await updateUserProfile({
-          appShareCount: after,
-          hasSharedApp: after >= REQUIRED_APP_SHARES,
-          lastAppShareAt: new Date().toISOString(),
-        });
-      } catch (err) {
-        console.error("Erreur lors de l'increment du partage:", err);
-      }
-      setLocalShareCount(prev => Math.max(prev, after));
+    try {
+      await AsyncStorage.setItem(localShareStorageKey, String(after));
+    } catch (err) {
+      console.error('Erreur stockage progression partage:', err);
     }
+    setLocalShareCount(after);
 
     const remainingAfterShare = Math.max(REQUIRED_APP_SHARES - after, 0);
 
@@ -363,7 +371,7 @@ const PredictionGameScreen: React.FC = () => {
     }
 
     setPendingShareFeedback(false);
-  }, [user, userShareCount, localShareCount, updateUserProfile, pendingSubmission, submitPrediction]);
+  }, [localShareCount, localShareStorageKey, pendingSubmission, submitPrediction]);
 
   const resetShareProgressDev = () => {
     if (!__DEV__) {
@@ -379,7 +387,7 @@ const PredictionGameScreen: React.FC = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem(LOCAL_SHARE_COUNT_KEY);
+              await AsyncStorage.removeItem(localShareStorageKey);
               // Remet l'état local a 0
               // (l'écran recalculera automatiquement le pourcentage)
               if (typeof setLocalShareCount === 'function') {
@@ -416,10 +424,74 @@ const PredictionGameScreen: React.FC = () => {
     }, [pendingShareFeedback, applyShareProgress])
   );
 
+  const handleViewWinners = useCallback(() => {
+    if (!match) {
+      return;
+    }
+    navigation.navigate('MatchWinners', {
+      matchId,
+      teamA: match.teamA,
+      teamAFlag: match.teamALogo ?? null,
+      teamB: match.teamB,
+      teamBFlag: match.teamBLogo ?? null,
+      finalScoreA: typeof match.finalScoreA === 'number' ? match.finalScoreA : null,
+      finalScoreB: typeof match.finalScoreB === 'number' ? match.finalScoreB : null,
+    });
+  }, [navigation, match, matchId]);
+
   const matchEnded = useMemo(() => {
     if (!match) return false;
     return typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number';
   }, [match]);
+
+  useEffect(() => {
+    if (!matchEnded || !matchId) {
+      setWinners([]);
+      setIsLoadingWinners(false);
+      return;
+    }
+
+    setIsLoadingWinners(true);
+    const predictionsRef = collection(db, 'predictions');
+    const winnersQuery = query(predictionsRef, where('matchId', '==', matchId), where('isWinner', '==', true));
+
+    const unsubscribe = onSnapshot(
+      winnersQuery,
+      snapshot => {
+        const list: Prediction[] = [];
+        snapshot.forEach((docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
+          list.push({ id: docSnap.id, ...docSnap.data() } as Prediction);
+        });
+        setWinners(list);
+        setIsLoadingWinners(false);
+      },
+      error => {
+        console.error('Erreur de lecture des gagnants:', error);
+        setIsLoadingWinners(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [matchEnded, matchId]);
+
+  const hasWinners = winners.length > 0;
+
+  const isWinningPrediction = useMemo(() => {
+    if (!currentPrediction) {
+      return false;
+    }
+    if (isWinningPrediction) {
+      return true;
+    }
+    if (!matchEnded || !match) {
+      return false;
+    }
+    const { finalScoreA, finalScoreB } = match;
+    if (typeof finalScoreA !== 'number' || typeof finalScoreB !== 'number') {
+      return false;
+    }
+    return currentPrediction.scoreA === finalScoreA && currentPrediction.scoreB === finalScoreB;
+  }, [currentPrediction, match, matchEnded]);
 
   const communityTrends = useMemo(() => {
     if (!match || !match.trends || !match.predictionCount) return [];
@@ -576,7 +648,14 @@ const PredictionGameScreen: React.FC = () => {
           } catch (draftError) {
             console.warn("Impossible de supprimer le brouillon de pronostic", draftError);
           }
+          try {
+            await AsyncStorage.removeItem(localShareStorageKey);
+          } catch (shareError) {
+            console.warn("Impossible de supprimer la progression de partage", shareError);
+          }
+          setLocalShareCount(0);
           setPendingSubmission(null);
+          setSharePromptVisible(false);
 
           setContactFirstName(submissionData.contactFirstName);
           setContactLastName(submissionData.contactLastName);
@@ -593,7 +672,7 @@ const PredictionGameScreen: React.FC = () => {
         setIsSubmitting(false);
       }
     },
-    [matchId, currentPrediction?.id, user]
+    [matchId, currentPrediction?.id, user, localShareStorageKey]
   );
 
   const handleSubmit = async () => {
@@ -641,6 +720,7 @@ const PredictionGameScreen: React.FC = () => {
 
     if (!hasCompletedShareRequirement) {
       setPendingSubmission(submissionData);
+      setSharePromptVisible(true);
       try {
         await AsyncStorage.setItem(
           `${PENDING_PREDICTION_STORAGE_PREFIX}_${matchId}`,
@@ -649,7 +729,8 @@ const PredictionGameScreen: React.FC = () => {
       } catch (error) {
         console.warn("Impossible d'enregistrer le brouillon de pronostic", error);
       }
-      await handleShareToWhatsApp();
+      setModalVisible(false);
+      setPredictionStep('contact');
       return;
     }
 
@@ -725,6 +806,17 @@ const PredictionGameScreen: React.FC = () => {
         </View>
       );
     }
+    if (pendingSubmission && !hasCompletedShareRequirement) {
+      return null;
+    }
+    if (pendingSubmission && isSubmitting) {
+      return (
+        <View style={[styles.submitButton, styles.buttonDisabled]}>
+          <ActivityIndicator color="#fff" />
+          <Text style={styles.submitButtonText}>Validation en cours...</Text>
+        </View>
+      );
+    }
     if (currentPrediction) {
       return (
         <View style={[styles.submitButton, styles.buttonDisabled]}>
@@ -748,7 +840,7 @@ const PredictionGameScreen: React.FC = () => {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#111" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Jeu Pronostique</Text>
+          <Text style={styles.headerTitle}>Pronostics Football - Africaphone</Text>
           <View style={{ width: 40 }} />
         </View>
         <ActivityIndicator style={{ flex: 1 }} size="large" color="#FF7A00" />
@@ -781,7 +873,7 @@ const PredictionGameScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#111" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Jeu Pronostique</Text>
+        <Text style={styles.headerTitle}>Pronostics Football - Africaphone</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -825,7 +917,42 @@ const PredictionGameScreen: React.FC = () => {
 
         {renderResultCard()}
 
-        {!hasCompletedShareRequirement && (
+        {matchEnded && (
+          <View style={styles.winnersSection}>
+            <View style={styles.winnersSectionHeader}>
+              <Ionicons name="trophy-outline" size={20} color="#f59e0b" />
+              <View style={styles.winnersSectionText}>
+                <Text style={styles.winnersTitle}>Gagnants du match</Text>
+                <Text style={styles.winnersSubtitle}>
+                  {isLoadingWinners
+                    ? 'Chargement des gagnants...'
+                    : hasWinners
+                    ? `${winners.length} gagnant${winners.length > 1 ? 's' : ''} ont trouve le bon score.`
+                    : 'Aucun gagnant pour ce match.'}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={[
+                styles.winnersButton,
+                (isLoadingWinners || !hasWinners) && styles.winnersButtonDisabled,
+              ]}
+              onPress={handleViewWinners}
+              disabled={isLoadingWinners || !hasWinners}
+            >
+              {isLoadingWinners ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name="eye-outline" size={18} color="#fff" />
+                  <Text style={styles.winnersButtonText}>Voir les gagnants</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {sharePromptVisible && pendingSubmission && !hasCompletedShareRequirement && (
           <View style={styles.shareBanner}>
             <View style={styles.shareBannerTextWrapper}>
               <Text style={styles.shareBannerTitle}>Partager pour valider votre pronostique</Text>
@@ -1281,6 +1408,51 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  winnersSection: {
+    width: '100%',
+    backgroundColor: '#fff7ed',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#fed7aa',
+    padding: 16,
+    marginBottom: 16,
+    gap: 12,
+  },
+  winnersSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  winnersSectionText: {
+    flex: 1,
+  },
+  winnersTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#92400e',
+  },
+  winnersSubtitle: {
+    fontSize: 13,
+    color: '#b45309',
+  },
+  winnersButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#f97316',
+    borderRadius: 999,
+    paddingVertical: 10,
+  },
+  winnersButtonDisabled: {
+    backgroundColor: '#fb923c',
+    opacity: 0.6,
+  },
+  winnersButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
   },
   shareProgressTrack: {
     height: 8,

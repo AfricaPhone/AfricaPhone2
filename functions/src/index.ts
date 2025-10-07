@@ -71,6 +71,124 @@ export const validatePromoCode = onCall(async request => {
 });
 
 /**
+ * Permet de r��initialiser un pronostic pour remettre les tests a zero.
+ */
+export const resetPrediction = onCall(async request => {
+  const { matchId, predictionId, contactPhone } = request.data as {
+    matchId?: string;
+    predictionId?: string;
+    contactPhone?: string;
+  };
+
+  if (!matchId || typeof matchId !== 'string') {
+    throw new HttpsError('invalid-argument', 'matchId est obligatoire.');
+  }
+
+  const normalizePhone = (value: string) => value.replace(/\D+/g, '');
+  const uid = request.auth?.uid ?? null;
+  const normalizedPhone =
+    typeof contactPhone === 'string' && contactPhone.trim().length > 0
+      ? normalizePhone(contactPhone.trim())
+      : null;
+
+  if (!uid && !normalizedPhone) {
+    throw new HttpsError('unauthenticated', 'Impossible de verifier le proprietaire du pronostic.');
+  }
+
+  const predictionsRef = db.collection('predictions');
+  let targetSnap: FirebaseFirestore.DocumentSnapshot | null = null;
+
+  if (predictionId) {
+    const directRef = predictionsRef.doc(predictionId);
+    const directSnap = await directRef.get();
+    if (directSnap.exists) {
+      targetSnap = directSnap;
+    }
+  }
+
+  if (!targetSnap && uid) {
+    const byUser = await predictionsRef.where('matchId', '==', matchId).where('userId', '==', uid).limit(1).get();
+    if (!byUser.empty) {
+      targetSnap = byUser.docs[0];
+    }
+  }
+
+  if (!targetSnap && normalizedPhone) {
+    const byPhone = await predictionsRef
+      .where('matchId', '==', matchId)
+      .where('contactPhoneNormalized', '==', normalizedPhone)
+      .limit(1)
+      .get();
+    if (!byPhone.empty) {
+      targetSnap = byPhone.docs[0];
+    }
+  }
+
+  if (!targetSnap) {
+    throw new HttpsError('not-found', 'Aucun pronostic a reinitialiser pour ce match.');
+  }
+
+  const targetData = targetSnap.data() as {
+    matchId?: string;
+    userId?: string;
+    contactPhoneNormalized?: string;
+    scoreA?: number;
+    scoreB?: number;
+  };
+
+  if (targetData?.matchId !== matchId) {
+    throw new HttpsError('failed-precondition', 'Le pronostic trouve ne correspond pas au match demande.');
+  }
+
+  const belongsToUid = !!uid && targetData?.userId === uid;
+  const belongsToPhone = !!normalizedPhone && targetData?.contactPhoneNormalized === normalizedPhone;
+
+  if (!belongsToUid && !belongsToPhone) {
+    throw new HttpsError('permission-denied', 'Vous ne pouvez pas reinitialiser ce pronostic.');
+  }
+
+  const scoreA = typeof targetData?.scoreA === 'number' ? targetData.scoreA : null;
+  const scoreB = typeof targetData?.scoreB === 'number' ? targetData.scoreB : null;
+
+  const predictionRef = targetSnap.ref;
+  const matchRef = db.collection('matches').doc(matchId);
+
+  try {
+    await db.runTransaction(async transaction => {
+      transaction.delete(predictionRef);
+
+      const matchDoc = await transaction.get(matchRef);
+      if (!matchDoc.exists || scoreA === null || scoreB === null) {
+        return;
+      }
+
+      const matchData = matchDoc.data() || {};
+      const trends = matchData.trends || {};
+      const scoreKey = `${scoreA}-${scoreB}`;
+      const currentTrendCount = trends[scoreKey] || 0;
+      const currentTotal = matchData.predictionCount || 0;
+
+      const updates: Record<string, any> = {
+        predictionCount: Math.max(0, currentTotal - 1),
+      };
+
+      if (currentTrendCount <= 1) {
+        updates[`trends.${scoreKey}`] = admin.firestore.FieldValue.delete();
+      } else {
+        updates[`trends.${scoreKey}`] = currentTrendCount - 1;
+      }
+
+      transaction.update(matchRef, updates);
+    });
+  } catch (error) {
+    logger.error("Erreur lors de la reinitialisation du pronostic:", error);
+    throw new HttpsError('internal', 'Impossible de reinitialiser le pronostic.');
+  }
+
+  return { success: true };
+});
+
+/**
  * Gère la soumission (création/mise à jour) d'un pronostic.
  */
 export const submitPrediction = onCall(async request => {
@@ -647,8 +765,6 @@ export const verifyKkiapay = onCall({ region: REGION, secrets: [KKIA_PUBLIC, KKI
 
   return { ok: true, status: isSuccess ? 'success' : 'pending' };
 });
-
-
 
 
 

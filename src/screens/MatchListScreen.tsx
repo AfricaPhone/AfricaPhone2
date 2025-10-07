@@ -1,12 +1,12 @@
-// src/screens/MatchListScreen.tsx
+﻿// src/screens/MatchListScreen.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { collection, onSnapshot, query, orderBy, where, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { Ionicons } from '@expo/vector-icons';
+import { collection, onSnapshot, query, orderBy, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
-import { Match, Prediction } from '../types';
+import { Match, WinnerGalleryEntry } from '../types';
 
 // Component for a single match item in the list
 const MatchListItem: React.FC<{ item: Match }> = ({ item }) => {
@@ -18,12 +18,12 @@ const MatchListItem: React.FC<{ item: Match }> = ({ item }) => {
     const hasResult = typeof item.finalScoreA === 'number' && typeof item.finalScoreB === 'number';
 
     if (hasResult) {
-      return { text: 'Terminé', color: '#6b7280', icon: 'checkmark-circle' as const };
+      return { text: 'Termine', color: '#6b7280', icon: 'checkmark-circle' as const };
     }
     if (now > startTime) {
       return { text: 'En cours', color: '#ef4444', icon: 'flame' as const };
     }
-    return { text: 'À venir', color: '#22c55e', icon: 'time' as const };
+    return { text: 'A venir', color: '#22c55e', icon: 'time' as const };
   }, [item]);
 
   const handlePress = () => {
@@ -32,6 +32,13 @@ const MatchListItem: React.FC<{ item: Match }> = ({ item }) => {
 
   return (
     <TouchableOpacity style={styles.matchCard} onPress={handlePress} activeOpacity={0.7}>
+      <View style={styles.statusContainer}>
+        <View style={[styles.statusBadge, { backgroundColor: statusInfo.color }]}>
+          <Ionicons name={statusInfo.icon} size={12} color="#fff" />
+          <Text style={styles.statusText}>{statusInfo.text}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+      </View>
       <View style={styles.matchInfo}>
         <Text style={styles.competitionText}>{item.competition}</Text>
         <View style={styles.teamRow}>
@@ -49,13 +56,6 @@ const MatchListItem: React.FC<{ item: Match }> = ({ item }) => {
           })}
         </Text>
       </View>
-      <View style={styles.statusContainer}>
-        <View style={[styles.statusBadge, { backgroundColor: statusInfo.color }]}>
-          <Ionicons name={statusInfo.icon} size={12} color="#fff" />
-          <Text style={styles.statusText}>{statusInfo.text}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-      </View>
     </TouchableOpacity>
   );
 };
@@ -65,7 +65,7 @@ const MatchListScreen: React.FC = () => {
   const navigation = useNavigation();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
-  const [winners, setWinners] = useState<Prediction[]>([]);
+  const [winners, setWinners] = useState<WinnerGalleryEntry[]>([]);
 
   useEffect(() => {
     const matchesRef = collection(db, 'matches');
@@ -90,32 +90,34 @@ const MatchListScreen: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Load featured winners for social proof
+  // Load and display former winners curated by the admin
   useEffect(() => {
-    const ref = collection(db, 'predictions');
-    // Only show winners curated by admin
-    const q = query(ref, where('featuredWinner', '==', true));
-    const unsub = onSnapshot(
-      q,
-      snap => {
-        const list: Prediction[] = [];
-        snap.forEach((d: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
-          list.push({ id: d.id, ...d.data() } as Prediction);
+    const ref = collection(db, 'winnerGallery');
+    const winnersQuery = query(ref, orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(
+      winnersQuery,
+      snapshot => {
+        const list: WinnerGalleryEntry[] = [];
+        snapshot.forEach((d: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
+          list.push({ id: d.id, ...d.data() } as WinnerGalleryEntry);
         });
-        // Sort by createdAt desc client-side to avoid composite index
-        list.sort((a, b) => {
-          const ad = (a.createdAt as any)?.toDate?.() ? a.createdAt.toDate().getTime() : 0;
-          const bd = (b.createdAt as any)?.toDate?.() ? b.createdAt.toDate().getTime() : 0;
-          return bd - ad;
-        });
-        setWinners(list.slice(0, 12));
+        const visible = list.filter(item => item.isPublic !== false && item.photoUrl);
+        setWinners(visible.slice(0, 12));
       },
-      err => {
-        console.error('Erreur chargement gagnants:', err);
+      error => {
+        console.error('Erreur chargement gagnants:', error);
       }
     );
-    return () => unsub();
+    return () => unsubscribe();
   }, []);
+
+  const winnerRows = useMemo(() => {
+    const rows: WinnerGalleryEntry[][] = [];
+    for (let i = 0; i < winners.length; i += 2) {
+      rows.push(winners.slice(i, i + 2));
+    }
+    return rows;
+  }, [winners]);
 
   const WinnersStrip = () => {
     if (!winners.length) return null;
@@ -124,28 +126,23 @@ const MatchListScreen: React.FC = () => {
         <View style={styles.winnersHeader}>
           <View style={styles.winnersTitleLeft}>
             <Ionicons name="trophy" size={18} color="#f59e0b" />
-            <Text style={styles.winnersTitle}>Anciens gagnants</Text>
+            <Text style={styles.winnersTitle}>
+              Les anciens gagnants
+              {'\n'}des precedents pronostiques
+            </Text>
           </View>
-          <View style={styles.winnersRight}>
-            <Ionicons name="shield-checkmark-outline" size={16} color="#10b981" />
-            <Text style={styles.winnersRightText}>Vérifiés</Text>
-          </View>
+          <Text style={styles.winnersSubtitle}>Photos recentes</Text>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.winnersRow}>
-          {winners.map(w => (
-            <View key={w.id} style={styles.winnerChip}>
-              <View style={styles.winnerIconWrap}>
-                <Ionicons name="trophy" size={14} color="#fff" />
+        {winnerRows.map((row, rowIndex) => (
+          <View key={`winner-row-${rowIndex}`} style={styles.winnersRow}>
+            {row.map(winner => (
+              <View key={winner.id} style={styles.winnerCard}>
+                <Image source={{ uri: winner.photoUrl }} style={styles.winnerImage} />
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.winnerName} numberOfLines={1}>{w.userName}</Text>
-                <Text style={styles.winnerMeta}>
-                  {w.scoreA} - {w.scoreB}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+            ))}
+            {row.length === 1 && <View style={[styles.winnerCard, styles.winnerCardPlaceholder]} />}
+          </View>
+        ))}
       </View>
     );
   };
@@ -169,7 +166,8 @@ const MatchListScreen: React.FC = () => {
           keyExtractor={item => item.id!}
           renderItem={({ item }) => <MatchListItem item={item} />}
           contentContainerStyle={styles.listContent}
-          ListHeaderComponent={<WinnersStrip />}
+          ListFooterComponent={<WinnersStrip />}
+          ListFooterComponentStyle={styles.winnersFooter}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun match disponible</Text>
@@ -207,18 +205,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
   },
   matchCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 16,
+    paddingTop: 56,
     borderColor: '#e5e7eb',
     borderWidth: 1,
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    position: 'relative',
+    gap: 12,
   },
   matchInfo: {
     flex: 1,
@@ -251,8 +251,11 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
   },
   statusContainer: {
-    alignItems: 'center',
+    position: 'absolute',
+    top: 16,
+    right: 16,
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   statusBadge: {
@@ -294,6 +297,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
   },
+  winnersFooter: { paddingBottom: 32 },
   winnersHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -302,32 +306,28 @@ const styles = StyleSheet.create({
   },
   winnersTitleLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   winnersTitle: { fontWeight: '700', color: '#111' },
-  winnersRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  winnersRightText: { color: '#065f46', fontSize: 12, fontWeight: '600' },
-  winnersRow: { gap: 8 },
-  winnerChip: {
+  winnersSubtitle: { color: '#6b7280', fontSize: 12, fontWeight: '600' },
+  winnersRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    backgroundColor: '#f9fafb',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginRight: 8,
-    minWidth: 160,
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
-  winnerIconWrap: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#f59e0b',
-    alignItems: 'center',
-    justifyContent: 'center',
+  winnerCard: {
+    width: '48%',
+    aspectRatio: 1,
+    borderRadius: 16,
+    backgroundColor: '#f3f4f6',
+    overflow: 'hidden',
+    marginBottom: 12,
   },
-  winnerName: { fontSize: 14, fontWeight: '600', color: '#111' },
-  winnerMeta: { fontSize: 12, color: '#6b7280' },
+  winnerCardPlaceholder: {
+    opacity: 0,
+  },
+  winnerImage: {
+    width: '100%',
+    height: '100%',
+  },
 });
 
 export default MatchListScreen;
+

@@ -26,6 +26,7 @@ import PredictionRulesScreen from '../screens/PredictionRulesScreen';
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AdminWinnersScreen from '../screens/AdminWinnersScreen';
+import MatchWinnersScreen from '../screens/MatchWinnersScreen';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Main = createNativeStackNavigator<MainStackParamList>();
@@ -97,6 +98,7 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="MatchList" component={MatchListScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="PredictionGame" component={PredictionGameScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="PredictionRules" component={PredictionRulesScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="MatchWinners" component={MatchWinnersScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Store" component={StoreScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="FilterScreenResults" component={FilterScreenResults} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />

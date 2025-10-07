@@ -133,6 +133,15 @@ export type RootStackParamList = {
   MatchList: undefined;
   PredictionGame: { matchId: string };
   PredictionRules: undefined;
+  MatchWinners: {
+    matchId: string;
+    teamA: string;
+    teamAFlag?: string | null;
+    teamB: string;
+    teamBFlag?: string | null;
+    finalScoreA?: number | null;
+    finalScoreB?: number | null;
+  };
   Store: undefined;
   SignUp: undefined;
   AuthPrompt: undefined;
@@ -173,6 +182,16 @@ export type Prediction = {
   updatedAt?: FirebaseFirestoreTypes.Timestamp;
   isWinner?: boolean;
   featuredWinner?: boolean;
+};
+
+export type WinnerGalleryEntry = {
+  id?: string;
+  name?: string;
+  photoUrl: string;
+  description?: string;
+  isPublic?: boolean;
+  createdAt?: FirebaseFirestoreTypes.Timestamp;
+  updatedAt?: FirebaseFirestoreTypes.Timestamp;
 };
 
 export type Match = {
