@@ -480,17 +480,28 @@ const PredictionGameScreen: React.FC = () => {
     if (!currentPrediction) {
       return false;
     }
-    if (isWinningPrediction) {
+    if (currentPrediction.isWinner) {
       return true;
     }
     if (!matchEnded || !match) {
       return false;
     }
     const { finalScoreA, finalScoreB } = match;
-    if (typeof finalScoreA !== 'number' || typeof finalScoreB !== 'number') {
+    const actualScoreA =
+      typeof finalScoreA === 'number' ? finalScoreA : Number(finalScoreA);
+    const actualScoreB =
+      typeof finalScoreB === 'number' ? finalScoreB : Number(finalScoreB);
+    const predictedScoreA = Number(currentPrediction.scoreA);
+    const predictedScoreB = Number(currentPrediction.scoreB);
+    if (
+      !Number.isFinite(actualScoreA) ||
+      !Number.isFinite(actualScoreB) ||
+      !Number.isFinite(predictedScoreA) ||
+      !Number.isFinite(predictedScoreB)
+    ) {
       return false;
     }
-    return currentPrediction.scoreA === finalScoreA && currentPrediction.scoreB === finalScoreB;
+    return predictedScoreA === actualScoreA && predictedScoreB === actualScoreB;
   }, [currentPrediction, match, matchEnded]);
 
   const communityTrends = useMemo(() => {
