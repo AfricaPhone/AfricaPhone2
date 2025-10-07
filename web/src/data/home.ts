@@ -83,25 +83,7 @@ export type PromoCard = {
   image: string;
 };
 
-export const promoCards: PromoCard[] = [
-  {
-    id: "prediction",
-    title: "Pronostics Football",
-    description: "Tentez de deviner le score et gagnez des cadeaux exclusifs.",
-    ctaLabel: "Jouer maintenant",
-    href: "#prediction-game",
-    badge: "Gagnez",
-    image: "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1000&q=80",
-  },
-  {
-    id: "store",
-    title: "Notre boutique",
-    description: "Située près de l’Église des Vainqueurs, Cotonou. Passez nous voir !",
-    ctaLabel: "Découvrir",
-    href: "#boutique",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80",
-  },
-];
+export const promoCards: PromoCard[] = [];
 
 export type ProductHighlight = {
   id: string;

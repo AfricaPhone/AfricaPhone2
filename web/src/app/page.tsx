@@ -153,6 +153,10 @@ function BrandRow({
 }
 
 function PromoCarousel() {
+  if (promoCards.length === 0) {
+    return null;
+  }
+
   return (
     <div className="mt-6 flex gap-4 overflow-x-auto pb-1">
       {promoCards.map(card => (
