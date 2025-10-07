@@ -476,34 +476,6 @@ const PredictionGameScreen: React.FC = () => {
 
   const hasWinners = winners.length > 0;
 
-  const isWinningPrediction = useMemo(() => {
-    if (!currentPrediction) {
-      return false;
-    }
-    if (currentPrediction.isWinner) {
-      return true;
-    }
-    if (!matchEnded || !match) {
-      return false;
-    }
-    const { finalScoreA, finalScoreB } = match;
-    const actualScoreA =
-      typeof finalScoreA === 'number' ? finalScoreA : Number(finalScoreA);
-    const actualScoreB =
-      typeof finalScoreB === 'number' ? finalScoreB : Number(finalScoreB);
-    const predictedScoreA = Number(currentPrediction.scoreA);
-    const predictedScoreB = Number(currentPrediction.scoreB);
-    if (
-      !Number.isFinite(actualScoreA) ||
-      !Number.isFinite(actualScoreB) ||
-      !Number.isFinite(predictedScoreA) ||
-      !Number.isFinite(predictedScoreB)
-    ) {
-      return false;
-    }
-    return predictedScoreA === actualScoreA && predictedScoreB === actualScoreB;
-  }, [currentPrediction, match, matchEnded]);
-
   const communityTrends = useMemo(() => {
     if (!match || !match.trends || !match.predictionCount) return [];
 
@@ -749,28 +721,25 @@ const PredictionGameScreen: React.FC = () => {
   };
 
   const renderResultCard = () => {
-    if (!matchEnded || !currentPrediction) return null;
+    if (!matchEnded) return null;
 
-    if (currentPrediction.isWinner) {
-      return (
-        <View style={[styles.resultCard, styles.winnerCard]}>
-          <Ionicons name="trophy" size={24} color="#f59e0b" />
-          <View style={styles.resultTextContainer}>
-            <Text style={styles.resultTitle}>Score Exact !</Text>
-            <Text style={styles.resultSubtitle}>Bravo, vous êtes éligible pour l'étape suivante !</Text>
-          </View>
-        </View>
-      );
-    }
+    const finalScoreLabel =
+      match && typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number'
+        ? `${match.finalScoreA} - ${match.finalScoreB}`
+        : 'Score final non disponible';
+
+    const predictionLabel = currentPrediction
+      ? `${currentPrediction.scoreA} - ${currentPrediction.scoreB}`
+      : null;
 
     return (
-      <View style={[styles.resultCard, styles.loserCard]}>
-        <Ionicons name="sad-outline" size={24} color="#4b5563" />
+      <View style={[styles.resultCard, styles.neutralCard]}>
+        <Ionicons name="information-circle-outline" size={24} color="#4b5563" />
         <View style={styles.resultTextContainer}>
-          <Text style={styles.resultTitle}>Dommage, ce n'est pas le bon score.</Text>
-          <Text style={styles.resultSubtitle}>
-            Votre Pronostic : {currentPrediction.scoreA} - {currentPrediction.scoreB}
-          </Text>
+          <Text style={styles.resultTitle}>Score final : {finalScoreLabel}</Text>
+          {predictionLabel && (
+            <Text style={styles.resultSubtitle}>Votre pronostic : {predictionLabel}</Text>
+          )}
         </View>
       </View>
     );
@@ -1304,12 +1273,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     gap: 12,
   },
-  winnerCard: {
-    backgroundColor: '#fefce8',
-    borderColor: '#facc15',
-    borderWidth: 1,
-  },
-  loserCard: {
+  neutralCard: {
     backgroundColor: '#f3f4f6',
     borderColor: '#e5e7eb',
     borderWidth: 1,
@@ -1540,4 +1504,5 @@ const styles = StyleSheet.create({
 });
 
 export default PredictionGameScreen;
+
 
