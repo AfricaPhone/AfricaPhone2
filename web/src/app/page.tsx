@@ -32,9 +32,9 @@ export default function Home() {
   }, [activeSegment, activeBrand, searchTerm]);
 
   return (
-    <div className="min-h-screen bg-slate-200 py-4">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-sm flex-col overflow-hidden rounded-3xl bg-white shadow-[0_20px_60px_rgba(15,23,42,0.25)]">
-        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 py-6 md:flex md:items-center md:justify-center md:py-12">
+      <div className="mx-auto flex h-[min(812px,100vh-3rem)] w-full max-w-sm flex-col overflow-hidden rounded-3xl bg-white shadow-[0_20px_70px_rgba(15,23,42,0.25)] md:max-w-md md:h-[720px]">
+        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 md:px-6 md:pb-28 md:pt-8">
           <StatusRibbon />
           <SearchRow searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
           <BrandRow activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
