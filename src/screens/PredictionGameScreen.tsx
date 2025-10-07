@@ -1091,7 +1091,7 @@ const PredictionGameScreen: React.FC = () => {
                       {isSubmitting ? (
                         <ActivityIndicator color="#fff" />
                       ) : (
-                        <Text style={styles.modalSubmitText}>Valider le pronostic</Text>
+                      <Text style={styles.modalSubmitText}>Continuer</Text>
                       )}
                     </TouchableOpacity>
                   </>
