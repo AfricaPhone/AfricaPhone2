@@ -128,23 +128,6 @@ function ProductExplorer({
 }) {
   return (
     <section id="products" className="space-y-6">
-      <header className="space-y-3">
-        <h2 className="text-2xl font-semibold text-slate-900">Produits</h2>
-        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-          <span>{products.length} produit(s) affiché(s)</span>
-          {activeBrandName && (
-            <button
-              type="button"
-              onClick={resetBrandFilter}
-              className="inline-flex items-center gap-1 rounded-full bg-slate-200 px-2 py-1 font-semibold text-slate-700 hover:bg-slate-300"
-            >
-              {activeBrandName}
-              <span aria-hidden>×</span>
-            </button>
-          )}
-        </div>
-      </header>
-
       <div className="relative">
         <input
           type="search"
@@ -155,6 +138,18 @@ function ProductExplorer({
         />
         <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-sm text-slate-400">⌕</span>
       </div>
+      {activeBrandName && (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          <button
+            type="button"
+            onClick={resetBrandFilter}
+            className="inline-flex items-center gap-1 rounded-full bg-slate-200 px-2 py-1 font-semibold text-slate-700 hover:bg-slate-300"
+          >
+            {activeBrandName}
+            <span aria-hidden>×</span>
+          </button>
+        </div>
+      )}
 
       {products.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-600">
