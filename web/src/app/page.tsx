@@ -42,7 +42,6 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100">
       <div className="mx-auto flex w-full max-w-sm flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_16px_60px_rgba(15,23,42,0.18)] md:max-w-none md:min-h-screen md:rounded-none md:border-none md:shadow-none">
         <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 sm:px-6 md:px-12 md:pb-16 md:pt-10 lg:px-16">
-          <StatusRibbon />
           <SearchRow searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
           <BrandRow activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
           <SegmentTabs activeSegment={activeSegment} onSelectSegment={setActiveSegment} />
@@ -51,20 +50,6 @@ export default function Home() {
         </main>
         <BottomNav />
       </div>
-    </div>
-  );
-}
-
-function StatusRibbon() {
-  return (
-    <div className="flex items-center justify-between rounded-full bg-slate-900 px-4 py-2 text-white">
-      <div className="flex items-center gap-2 text-xs font-semibold">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
-          <WifiIcon className="h-3.5 w-3.5 text-white" />
-        </span>
-        <span>0</span>
-      </div>
-      <span className="text-xs font-medium text-white/70">Points</span>
     </div>
   );
 }
@@ -260,19 +245,6 @@ function BottomNav() {
   );
 }
 
-
-function WifiIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="M3 7.5C6.867 3.633 13.133 3.633 17 7.5M6.5 11C8.709 8.791 11.291 8.791 13.5 11M9.75 14.25C10.1642 14.25 10.5 14.5858 10.5 15C10.5 15.4142 10.1642 15.75 9.75 15.75C9.33579 15.75 9 15.4142 9 15C9 14.5858 9.33579 14.25 9.75 14.25Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 function SearchIcon({ className }: { className?: string }) {
   return (
