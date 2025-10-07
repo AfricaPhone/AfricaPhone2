@@ -40,8 +40,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100">
-      <div className="mx-auto flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_16px_60px_rgba(15,23,42,0.18)]">
-        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 sm:px-6 md:px-10 md:pb-12 md:pt-8">
+      <div className="mx-auto flex w-full max-w-sm flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_16px_60px_rgba(15,23,42,0.18)] md:max-w-none md:min-h-screen md:rounded-none md:border-none md:shadow-none">
+        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6 sm:px-6 md:px-12 md:pb-16 md:pt-10 lg:px-16">
           <StatusRibbon />
           <SearchRow searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
           <BrandRow activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
@@ -106,7 +106,7 @@ function SegmentTabs({
   onSelectSegment: (segment: (typeof productSegments)[number]) => void;
 }) {
   return (
-    <div className="mt-5 flex gap-5 overflow-x-auto pb-2 text-sm font-semibold text-slate-500 md:flex-wrap md:gap-6 md:overflow-visible">
+    <div className="mt-5 flex gap-5 overflow-x-auto pb-2 text-sm font-semibold text-slate-500 md:flex-wrap md:gap-8 md:overflow-visible">
       {productSegments.map(segment => {
         const isActive = segment === activeSegment;
         return (
@@ -133,7 +133,7 @@ function BrandRow({
   onSelectBrand: (brandId: string | null) => void;
 }) {
   return (
-    <div className="mt-4 flex items-center gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:gap-6 md:overflow-visible">
+    <div className="mt-4 flex items-center gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-6 md:gap-6 md:overflow-visible lg:grid-cols-8">
       {brandHighlights.map(brand => {
         const isActive = brand.id === activeBrand;
         return (
@@ -205,7 +205,7 @@ function ProductGrid({ products }: { products: ProductSummary[] }) {
   }
 
   return (
-    <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+    <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {products.map(product => (
         <ProductCard key={product.id} product={product} />
       ))}
