@@ -1,40 +1,19 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `src/` — React Native app (TypeScript): `components/`, `screens/`, `navigation/`, `store/`, `hooks/`, `services/`, `utils/`, `data/`, `config/`, `firebase/`.
-- Tests live next to code as `*.test.ts`/`*.test.tsx` and in `src/navigation/__tests__/`.
-- `functions/` — Firebase Cloud Functions (TypeScript). Source in `functions/src/`, compiled to `functions/lib/`.
-- `assets/` — images/fonts and other static assets.
-- `__mocks__/` — Jest mocks.
+The Expo/React Native app source lives in `src/`, split across feature folders such as `components/`, `screens/`, `store/`, and `services/`. Tests sit beside their units as `*.test.ts`/`*.test.tsx`, with navigation tests in `src/navigation/__tests__/`. Firebase Cloud Functions reside in `functions/src/` and compile to `functions/lib/`. Static images, fonts, and other assets belong in `assets/`, while Jest mocks stay under `__mocks__/`.
 
 ## Build, Test, and Development Commands
-- App
-  - `npm start` — start Expo dev server.
-  - `npm run android` / `npm run ios` / `npm run web` — run targets.
-  - `npm test` — run Jest (coverage enabled).
-  - `npm run lint` / `npm run lint:fix` — lint / auto‑fix.
-  - `npm run format` — Prettier write; `npm run check:types` — TypeScript check.
-- Cloud Functions
-  - `cd functions && npm run build` — compile TS.
-  - `cd functions && npm run serve` — local emulators.
-  - `cd functions && npm run deploy` — deploy functions.
+Run `npm start` for the Expo dev server, then `npm run android`, `npm run ios`, or `npm run web` to target specific platforms. Validate code with `npm run lint`, auto-format via `npm run format`, and check types using `npm run check:types`. Execute unit tests and collect coverage with `npm test`. For backend tasks, `cd functions && npm run build` compiles functions, and `npm run serve` launches local emulators.
 
 ## Coding Style & Naming Conventions
-- TypeScript; 2‑space indent, semicolons, single quotes, width 120, trailing commas (Prettier). Run `npm run format` before pushing.
-- ESLint with React/React Native/TS + Prettier integration. CI expects `npm run lint` to pass.
-- Naming: Components `PascalCase.tsx` (e.g., `ProductGridCard.tsx`), hooks `useX.ts`, utilities `camelCase.ts`, shared types in `src/types.ts`.
+Code is TypeScript with 2-space indentation, semicolons, single quotes, width 120, and trailing commas; run `npm run format` before committing. Use PascalCase for components (e.g., `ProductGridCard.tsx`), camelCase for utilities, and prefix hooks with `use`. Shared types belong in `src/types.ts`. ESLint with Prettier integration enforces these rules; address warnings before merging.
 
 ## Testing Guidelines
-- Frameworks: `jest-expo` + `@testing-library/react-native`.
-- Place tests as `*.test.ts`/`*.test.tsx` near the unit or under `__tests__/`.
-- Aim to cover components, hooks, and utilities; avoid testing implementation details. Run `npm test` locally; coverage is collected by Jest.
+Tests leverage `jest-expo` and `@testing-library/react-native`; prefer behavior-focused assertions over implementation details. Name files `Component.test.tsx` or `hook.test.ts` and colocate them with the code under test. Run `npm test` locally before pushing and ensure new features include coverage updates or clear justification.
 
 ## Commit & Pull Request Guidelines
-- Use Conventional Commits: `feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`.
-- Branch naming: `feature/…`, `fix/…`, `chore/…`.
-- PRs: clear description, scope, linked issues, and screenshots/GIFs for UI changes. Ensure `npm run lint`, `npm test`, and `npm run check:types` pass.
+Follow Conventional Commits such as `feat: add product carousel` or `fix: handle checkout errors`. PRs should summarize scope, list linked issues, and attach screenshots or GIFs for UI changes. Confirm `npm run lint`, `npm run check:types`, and `npm test` succeed, and note any skipped checks with rationale.
 
 ## Security & Configuration Tips
-- Do not commit secrets (Firebase admin keys, payment keys). For Cloud Functions, use `defineSecret` and Firebase Secret Manager; for the app, prefer EAS/Expo secrets.
-- Review `firestore.rules`, `storage.rules`, and `firebase.json` before deploys. Functions target Node `22`.
-
+Never commit secrets; use Expo or Firebase Secret Manager for sensitive config. Review `firestore.rules`, `storage.rules`, and `firebase.json` before deployments, and target Node 22 for Cloud Functions to stay aligned with the production runtime.
