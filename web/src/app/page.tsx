@@ -91,7 +91,7 @@ function SegmentTabs({
   onSelectSegment: (segment: (typeof productSegments)[number]) => void;
 }) {
   return (
-    <div className="mt-5 flex gap-5 overflow-x-auto pb-2 text-sm font-semibold text-slate-500 md:flex-wrap md:gap-8 md:overflow-visible">
+    <div className="mt-5 flex gap-5 overflow-x-auto pb-2 text-sm font-semibold text-slate-500 md:grid md:grid-flow-col md:auto-cols-fr md:gap-8 md:overflow-visible">
       {productSegments.map(segment => {
         const isActive = segment === activeSegment;
         return (
