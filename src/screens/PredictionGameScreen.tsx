@@ -31,20 +31,6 @@ import { Prediction, Match } from '../types';
 
 // MODIFICATION: Initialisez l'instance des Fonctions
 const functions = getFunctions();
-const openWhatsApp = async () => {
-  const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(WHATSAPP_SHARE_MESSAGE)}`;
-  try {
-    const canOpen = await Linking.canOpenURL(whatsappUrl);
-    if (canOpen) {
-      await Linking.openURL(whatsappUrl);
-    } else {
-      Alert.alert("WhatsApp non disponible", "Impossible d'ouvrir WhatsApp sur cet appareil.");
-    }
-  } catch (err) {
-    Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Reessayez.");
-  }
-};
-
 const APP_SHARE_URL = 'https://africaphone-africaphone.web.app/';
 const WHATSAPP_SHARE_MESSAGE = `Rejoins-moi sur AfricaPhone pour pronostiquer et tenter ta chance ! Telecharge l'application ici : ${APP_SHARE_URL}`;
 const REQUIRED_APP_SHARES = 2;
@@ -323,83 +309,63 @@ const PredictionGameScreen: React.FC = () => {
     }
   }, [hasCompletedShareRequirement, sharePromptVisible]);
 
-  const openSharePromptAndIncrement = async () => {
-  // Au clic: incrémente (local ou profil), marque un feedback en attente, puis ouvre WhatsApp directement
-  if (!user) {
-    const newLocal = Math.min((localShareCount ?? 0) + 1, REQUIRED_APP_SHARES);
-    try {
-      await AsyncStorage.setItem(LOCAL_SHARE_COUNT_KEY, String(newLocal));
-      setLocalShareCount(newLocal);
-    } catch (_) {
-      setLocalShareCount(newLocal);
-    }
-    setPendingShareFeedback(true);
-    await openWhatsApp();
-    return;
-  }
-  const updatedShareCount = Math.min((userShareCount ?? 0) + 1, REQUIRED_APP_SHARES);
-  try {
-    await updateUserProfile({
-      appShareCount: updatedShareCount,
-      hasSharedApp: updatedShareCount >= REQUIRED_APP_SHARES,
-      lastAppShareAt: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error("Erreur lors de l'incrément du partage:", error);
-  }
-  setPendingShareFeedback(true);
-  await openWhatsApp();
-};
-
   const handleShareToWhatsApp = async () => {
     const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(WHATSAPP_SHARE_MESSAGE)}`;
     setIsSharing(true);
     try {
-      // Incrémenter immédiatement le compteur pour un rendu 100% réactif
-      const before = Math.min(Math.max(userShareCount || 0, localShareCount || 0), REQUIRED_APP_SHARES);
-      const after = Math.min(before + 1, REQUIRED_APP_SHARES);
-      if (!user) {
-        const newLocal = after;
-        try {
-          await AsyncStorage.setItem(LOCAL_SHARE_COUNT_KEY, String(newLocal));
-        } catch (_) {
-          // ignore storage error
-        }
-        // Répercuter localement pour l'affichage
-        setLocalShareCount(newLocal);
-      } else {
-        try {
-          await updateUserProfile({
-            appShareCount: after,
-            hasSharedApp: after >= REQUIRED_APP_SHARES,
-            lastAppShareAt: new Date().toISOString(),
-          });
-        } catch (e) {
-          console.error("Erreur lors de l'incrément du partage:", e);
-        }
-        // Optimistic UI: refléter tout de suite côté local
-        setLocalShareCount(prev => Math.max(prev, after));
-      }
-
       const canOpen = await Linking.canOpenURL(whatsappUrl);
-      if (canOpen) {
-        await Linking.openURL(whatsappUrl);
+      if (!canOpen) {
+        throw new Error('WhatsApp non disponible');
       }
-
-      setSharePromptVisible(false);
-      const remainingAfterShare = Math.max(REQUIRED_APP_SHARES - after, 0);
-      const successMessage =
-        remainingAfterShare > 0
-          ? `Merci d'avoir partagé l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour debloquer les Pronostics.`
-          : `Merci d'avoir partagé l'application. Vous pouvez maintenant pronostiquer.`;
-      Alert.alert('Merci !', successMessage);
+      setPendingShareFeedback(true);
+      await Linking.openURL(whatsappUrl);
     } catch (error) {
       console.error('Erreur de partage WhatsApp: ', error);
       Alert.alert('Erreur', "Impossible d'ouvrir WhatsApp. Reessayez.");
+      setPendingShareFeedback(false);
     } finally {
       setIsSharing(false);
     }
   };
+
+  const applyShareProgress = useCallback(async () => {
+    const before = Math.min(Math.max(userShareCount || 0, localShareCount || 0), REQUIRED_APP_SHARES);
+    if (before >= REQUIRED_APP_SHARES) {
+      setPendingShareFeedback(false);
+      return;
+    }
+
+    const after = Math.min(before + 1, REQUIRED_APP_SHARES);
+
+    if (!user) {
+      try {
+        await AsyncStorage.setItem(LOCAL_SHARE_COUNT_KEY, String(after));
+      } catch (err) {
+        console.error('Erreur stockage progression partage invite:', err);
+      }
+      setLocalShareCount(after);
+    } else {
+      try {
+        await updateUserProfile({
+          appShareCount: after,
+          hasSharedApp: after >= REQUIRED_APP_SHARES,
+          lastAppShareAt: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error("Erreur lors de l'increment du partage:", err);
+      }
+      setLocalShareCount(prev => Math.max(prev, after));
+    }
+
+    const remainingAfterShare = Math.max(REQUIRED_APP_SHARES - after, 0);
+    const successMessage =
+      remainingAfterShare > 0
+        ? `Merci d'avoir partage l'application. Encore ${remainingAfterShare} partage${remainingAfterShare > 1 ? 's' : ''} pour valider (objectif 10 personnes).`
+        : "Merci d'avoir partage l'application. Vous pouvez maintenant pronostiquer.";
+    Alert.alert('Merci !', successMessage);
+    setPendingShareFeedback(false);
+    setSharePromptVisible(false);
+  }, [user, userShareCount, localShareCount, updateUserProfile]);
 
   const resetShareProgressDev = () => {
     if (!__DEV__) {
@@ -443,15 +409,16 @@ const PredictionGameScreen: React.FC = () => {
   }, [match]);
 
   
-  // Au retour sur cet écran après ouverture de WhatsApp, afficher le feedback (modal avec progression)
+  // Applique la progression de partage lorsque l'utilisateur revient depuis WhatsApp
   useFocusEffect(
     useCallback(() => {
       if (pendingShareFeedback) {
-        setSharePromptVisible(true);
-        setPendingShareFeedback(false);
+        applyShareProgress();
       }
-    }, [pendingShareFeedback])
-  );const matchEnded = useMemo(() => {
+    }, [pendingShareFeedback, applyShareProgress])
+  );
+
+  const matchEnded = useMemo(() => {
     if (!match) return false;
     return typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number';
   }, [match]);
