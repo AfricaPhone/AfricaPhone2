@@ -37,8 +37,8 @@ export default function Home() {
         <main className="flex-1 overflow-y-auto px-4 pb-24 pt-6">
           <StatusRibbon />
           <SearchRow searchTerm={searchTerm} onSearchTermChange={setSearchTerm} />
-          <SegmentTabs activeSegment={activeSegment} onSelectSegment={setActiveSegment} />
           <BrandRow activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
+          <SegmentTabs activeSegment={activeSegment} onSelectSegment={setActiveSegment} />
           <PromoCarousel />
           <ProductGrid products={filteredProducts} />
         </main>
