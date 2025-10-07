@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, Sha
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { RootStackParamList, Candidate } from '../types';
+import { RootStackParamList } from '../types';
 
 type CandidateProfileScreenRouteProp = RouteProp<RootStackParamList, 'CandidateProfile'>;
 

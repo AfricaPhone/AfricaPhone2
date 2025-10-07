@@ -1,16 +1,27 @@
 // src/screens/AdminWinnersScreen.tsx
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { db } from '../firebase/config';
-import { collection, doc, onSnapshot, query, where, setDoc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-import { Prediction } from '../types';
+import {
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  where,
+  setDoc,
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
+import { Prediction, RootStackParamList } from '../types';
 import { useStore } from '../store/StoreContext';
 
+const getTimestampMillis = (timestamp?: FirebaseFirestoreTypes.Timestamp): number => timestamp?.toDate().getTime() ?? 0;
+
 const AdminWinnersScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user } = useStore();
   const [loading, setLoading] = useState(true);
   const [winners, setWinners] = useState<Prediction[]>([]);
@@ -28,15 +39,11 @@ const AdminWinnersScreen: React.FC = () => {
       q,
       snap => {
         const list: Prediction[] = [];
-        snap.forEach((d: FirebaseFirestoreTypes.QueryDocumentSnapshot) => {
-          list.push({ id: d.id, ...d.data() } as Prediction);
+        snap.forEach((d: FirebaseFirestoreTypes.QueryDocumentSnapshot<Prediction>) => {
+          list.push({ id: d.id, ...d.data() });
         });
         // Sort by createdAt desc if available
-        list.sort((a, b) => {
-          const ad = (a.createdAt as any)?.toDate?.() ? a.createdAt.toDate().getTime() : 0;
-          const bd = (b.createdAt as any)?.toDate?.() ? b.createdAt.toDate().getTime() : 0;
-          return bd - ad;
-        });
+        list.sort((a, b) => getTimestampMillis(b.createdAt) - getTimestampMillis(a.createdAt));
         setWinners(list);
         setLoading(false);
       },
@@ -54,9 +61,10 @@ const AdminWinnersScreen: React.FC = () => {
       const ref = doc(db, 'predictions', item.id);
       const next = !item.featuredWinner;
       await setDoc(ref, { featuredWinner: next }, { merge: true });
-    } catch (e: any) {
-      console.error('Erreur mise à jour featuredWinner:', e);
-      Alert.alert('Erreur', e?.message || 'Impossible de mettre à jour.');
+    } catch (error: unknown) {
+      console.error('Erreur mise à jour featuredWinner:', error);
+      const message = error instanceof Error ? error.message : 'Impossible de mettre à jour.';
+      Alert.alert('Erreur', message);
     }
   }, []);
 
@@ -67,7 +75,9 @@ const AdminWinnersScreen: React.FC = () => {
           <Ionicons name="trophy" size={16} color={item.featuredWinner ? '#fff' : '#f59e0b'} />
         </View>
         <View>
-          <Text style={styles.name} numberOfLines={1}>{item.userName}</Text>
+          <Text style={styles.name} numberOfLines={1}>
+            {item.userName}
+          </Text>
           <Text style={styles.sub}>
             {item.scoreA} - {item.scoreB} • {item.matchId}
           </Text>
@@ -94,7 +104,7 @@ const AdminWinnersScreen: React.FC = () => {
           <Text style={styles.headerTitle}>Gestion des gagnants</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={styles.center}> 
+        <View style={styles.center}>
           <Ionicons name="lock-closed" size={24} color="#9ca3af" />
           <Text style={styles.denied}>Accès réservé aux administrateurs</Text>
         </View>
@@ -176,4 +186,3 @@ const styles = StyleSheet.create({
 });
 
 export default AdminWinnersScreen;
-

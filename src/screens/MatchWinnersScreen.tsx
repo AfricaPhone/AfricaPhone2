@@ -1,16 +1,9 @@
 // src/screens/MatchWinnersScreen.tsx
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, onSnapshot, query, where, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
@@ -29,8 +22,10 @@ const buildDisplayName = (prediction: Prediction) => {
   return prediction.userName?.trim() ?? 'Participant';
 };
 
+const getTimestampMillis = (timestamp?: FirebaseFirestoreTypes.Timestamp): number => timestamp?.toDate().getTime() ?? 0;
+
 const MatchWinnersScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<MatchWinnersRouteProp>();
   const { matchId, teamA, teamB, finalScoreA, finalScoreB } = route.params;
 
@@ -50,11 +45,7 @@ const MatchWinnersScreen: React.FC = () => {
           list.push({ id: docSnap.id, ...docSnap.data() } as Prediction);
         });
 
-        list.sort((a, b) => {
-          const aDate = (a.createdAt as any)?.toDate?.()?.getTime?.() ?? 0;
-          const bDate = (b.createdAt as any)?.toDate?.()?.getTime?.() ?? 0;
-          return bDate - aDate;
-        });
+        list.sort((a, b) => getTimestampMillis(b.createdAt) - getTimestampMillis(a.createdAt));
 
         setWinners(list);
         setLoading(false);
@@ -277,4 +268,3 @@ const styles = StyleSheet.create({
 });
 
 export default MatchWinnersScreen;
-

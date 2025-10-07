@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext, useCallback } from 'react';
 import { FirebaseAuthTypes, getAuth, onAuthStateChanged, signOut } from '@react-native-firebase/auth';
-import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
-import { collection, doc, getDoc, setDoc } from '@react-native-firebase/firestore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { doc, getDoc, setDoc } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { User } from '../types';
 
@@ -117,8 +117,7 @@ const normalizeUser = (
 
   const shareCountSource = rest.appShareCount ?? currentUser?.appShareCount;
   const legacyShareFlag = rest.hasSharedApp ?? currentUser?.hasSharedApp ?? false;
-  const resolvedAppShareCount =
-    shareCountSource ?? (legacyShareFlag ? REQUIRED_APP_SHARES : 0);
+  const resolvedAppShareCount = shareCountSource ?? (legacyShareFlag ? REQUIRED_APP_SHARES : 0);
   const resolvedHasSharedApp = legacyShareFlag || resolvedAppShareCount >= REQUIRED_APP_SHARES;
 
   return {

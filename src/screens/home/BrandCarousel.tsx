@@ -2,7 +2,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Brand } from '../../types';
+import type { NavigationProp } from '@react-navigation/native';
+import { Brand, RootStackParamList } from '../../types';
 import { useScrollCoordinator } from '../../contexts/ScrollCoordinator';
 
 interface Props {
@@ -12,14 +13,19 @@ interface Props {
 
 const BrandCarousel: React.FC<Props> = ({ brands, isLoading }) => {
   const { lockParentScroll, unlockParentScroll } = useScrollCoordinator();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   if (isLoading) {
     return <ActivityIndicator style={{ marginVertical: 20, height: 98 }} />;
   }
 
   return (
-    <FlatList nestedScrollEnabled onScrollBeginDrag={lockParentScroll} onScrollEndDrag={unlockParentScroll} onMomentumScrollEnd={unlockParentScroll} data={brands}
+    <FlatList
+      nestedScrollEnabled
+      onScrollBeginDrag={lockParentScroll}
+      onScrollEndDrag={unlockParentScroll}
+      onMomentumScrollEnd={unlockParentScroll}
+      data={brands}
       keyExtractor={item => item.id}
       horizontal
       showsHorizontalScrollIndicator={false}
@@ -67,4 +73,3 @@ const styles = StyleSheet.create({
 });
 
 export default BrandCarousel;
-

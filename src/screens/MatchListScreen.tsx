@@ -3,14 +3,15 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, onSnapshot, query, orderBy, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
-import { Match, WinnerGalleryEntry } from '../types';
+import { Match, WinnerGalleryEntry, RootStackParamList } from '../types';
 
 // Component for a single match item in the list
 const MatchListItem: React.FC<{ item: Match }> = ({ item }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const statusInfo = useMemo(() => {
     const now = new Date();
@@ -62,7 +63,7 @@ const MatchListItem: React.FC<{ item: Match }> = ({ item }) => {
 
 // Main screen component
 const MatchListScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [winners, setWinners] = useState<WinnerGalleryEntry[]>([]);
@@ -330,4 +331,3 @@ const styles = StyleSheet.create({
 });
 
 export default MatchListScreen;
-

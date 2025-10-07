@@ -37,8 +37,8 @@ const fmtXOF = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XO
 const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
 window.addEventListener('unhandledrejection', event => {
   const error = event && event.reason;
-  const message = typeof (error?.message) === 'string' ? error.message : '';
-  const code = typeof (error?.code) === 'string' ? error.code : '';
+  const message = typeof error?.message === 'string' ? error.message : '';
+  const code = typeof error?.code === 'string' ? error.code : '';
   if (code === 'permission-denied' || /permission/i.test(message)) {
     event.preventDefault();
     console.error('[Admin Panel] Operation blocked by Firestore security rules.', error);
@@ -461,7 +461,7 @@ async function handleRoute() {
   } else if (route === 'contests') {
     setCrumb('Concours');
     await ensureContestsLoaded();
-    await setSelectedContest(selectedContestId || (allContests[0]?.id || ''), { force: true });
+    await setSelectedContest(selectedContestId || allContests[0]?.id || '', { force: true });
   } else if (route === 'new-contest') {
     setCrumb('Nouveau concours');
     await ensureContestsLoaded();
@@ -472,7 +472,7 @@ async function handleRoute() {
     await renderContestFormPage(id);
   } else if (route === 'new-candidate') {
     await ensureContestsLoaded();
-    const contestId = id || selectedContestId || (allContests[0]?.id || '');
+    const contestId = id || selectedContestId || allContests[0]?.id || '';
     if (!contestId) {
       toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
       location.hash = '#/new-contest';
@@ -530,7 +530,7 @@ async function initAfterLogin() {
       } catch (err) {
         console.error('Settings: unable to update promo cards flag', err);
         input.checked = !next;
-        toast('Erreur', "Impossible de mettre à jour le paramètre", 'error');
+        toast('Erreur', 'Impossible de mettre à jour le paramètre', 'error');
       } finally {
         input.disabled = false;
       }
@@ -590,7 +590,7 @@ async function initAfterLogin() {
     location.hash = '#/new-contest';
   });
   $('#add-candidate')?.addEventListener('click', () => {
-    const targetId = selectedContestId || (allContests[0]?.id || '');
+    const targetId = selectedContestId || allContests[0]?.id || '';
     if (!targetId) {
       toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
       location.hash = '#/new-contest';
@@ -674,12 +674,7 @@ function updatePromoCardsKpi() {
 async function refreshContestPromoCard() {
   try {
     const contestsRef = collection(db, 'contests');
-    const contestQuery = query(
-      contestsRef,
-      where('status', '==', 'active'),
-      orderBy('endDate', 'asc'),
-      limit(1)
-    );
+    const contestQuery = query(contestsRef, where('status', '==', 'active'), orderBy('endDate', 'asc'), limit(1));
     const snap = await getDocs(contestQuery);
     if (snap.empty) {
       contestPromoCard = null;
@@ -687,7 +682,8 @@ async function refreshContestPromoCard() {
     }
     const docSnap = snap.docs[0];
     const data = docSnap.data() || {};
-    const fallbackImage = 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400&auto=format&fit=crop';
+    const fallbackImage =
+      'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400&auto=format&fit=crop';
     const image =
       (typeof data.heroImage === 'string' && data.heroImage) ||
       (typeof data.bannerImage === 'string' && data.bannerImage) ||
@@ -703,9 +699,7 @@ async function refreshContestPromoCard() {
       contestId: docSnap.id,
       title: typeof data.title === 'string' ? data.title : 'Concours',
       subtitle:
-        typeof data.description === 'string' && data.description
-          ? data.description
-          : 'Elisez votre candidat favori.',
+        typeof data.description === 'string' && data.description ? data.description : 'Elisez votre candidat favori.',
       cta: status === 'ended' ? 'Voir les resultats' : 'Participer',
       screen: 'Contest',
       image,
@@ -1324,7 +1318,6 @@ async function handleProductFormSubmit(e, id) {
   }
 }
 
-
 /* ============================ Contests UI ============================ */
 const getSelectedContest = () => allContests.find(contest => contest.id === selectedContestId) || null;
 
@@ -1334,7 +1327,8 @@ const CONTEST_STATUS_LABELS = {
   ended: 'Termin�',
 };
 
-const formatContestStatus = status => CONTEST_STATUS_LABELS[status] || (status ? status.charAt(0).toUpperCase() + status.slice(1) : '');
+const formatContestStatus = status =>
+  CONTEST_STATUS_LABELS[status] || (status ? status.charAt(0).toUpperCase() + status.slice(1) : '');
 
 const toInputDateValue = value => {
   if (!value) {
@@ -1366,7 +1360,10 @@ const updateContestFilterOptions = () => {
   }
   const currentValue = selectedContestId;
   const options = allContests
-    .map(contest => `<option value="${escapeAttr(contest.id)}"${contest.id === currentValue ? ' selected' : ''}>${escapeHtml(contest.title || contest.id)}</option>`)
+    .map(
+      contest =>
+        `<option value="${escapeAttr(contest.id)}"${contest.id === currentValue ? ' selected' : ''}>${escapeHtml(contest.title || contest.id)}</option>`
+    )
     .join('');
   select.innerHTML = allContests.length
     ? `<option value="">S�lectionner un concours</option>${options}`
@@ -1390,7 +1387,7 @@ const updateKpiCandidates = count => {
   }
 };
 
-const normalizeSearch = value => value ? value.trim().toLowerCase() : '';
+const normalizeSearch = value => (value ? value.trim().toLowerCase() : '');
 
 async function ensureContestsLoaded(force = false) {
   if (!force && allContests.length) {
@@ -1405,15 +1402,28 @@ async function ensureContestsLoaded(force = false) {
   const snapshot = await getDocs(contestsQuery);
   allContests = snapshot.docs.map(docSnap => {
     const data = docSnap.data() || {};
-    const rawEndDate = data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function' ? data.endDate.toDate() : data.endDate ? new Date(data.endDate) : null;
+    const rawEndDate =
+      data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function'
+        ? data.endDate.toDate()
+        : data.endDate
+          ? new Date(data.endDate)
+          : null;
     return {
       id: docSnap.id,
       title: typeof data.title === 'string' ? data.title : 'Concours',
       description: typeof data.description === 'string' ? data.description : '',
       status: typeof data.status === 'string' ? data.status : 'draft',
       endDate: rawEndDate,
-      totalParticipants: Number.isFinite(data.totalParticipants) ? data.totalParticipants : Number.isFinite(data.totalCandidates) ? data.totalCandidates : 0,
-      totalVotes: Number.isFinite(data.totalVotes) ? data.totalVotes : Number.isFinite(data.voteCount) ? data.voteCount : 0,
+      totalParticipants: Number.isFinite(data.totalParticipants)
+        ? data.totalParticipants
+        : Number.isFinite(data.totalCandidates)
+          ? data.totalCandidates
+          : 0,
+      totalVotes: Number.isFinite(data.totalVotes)
+        ? data.totalVotes
+        : Number.isFinite(data.voteCount)
+          ? data.voteCount
+          : 0,
     };
   });
   updateContestFilterOptions();
@@ -1531,7 +1541,8 @@ function renderContestsOverview() {
   updateKpiCandidates(candidates.length);
 
   const rows = visibleCandidates
-    .map((candidate, index) => `
+    .map(
+      (candidate, index) => `
         <tr>
           <td class="muted">${index + 1}</td>
           <td>
@@ -1549,7 +1560,8 @@ function renderContestsOverview() {
             <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> �diter</button>
             <button class="btn btn-danger btn-small" type="button" data-delete-candidate="${escapeAttr(candidate.id)}"><i data-lucide="trash-2" class="icon"></i></button>
           </td>
-        </tr>`)
+        </tr>`
+    )
     .join('');
 
   const tableHtml = visibleCandidates.length
@@ -1668,7 +1680,10 @@ async function handleCandidateDeletion(contestId, candidateId, label) {
   try {
     await deleteDoc(doc(db, 'contests', contestId, 'candidates', candidateId));
     const list = contestCandidates.get(contestId) || [];
-    contestCandidates.set(contestId, list.filter(candidate => candidate.id !== candidateId));
+    contestCandidates.set(
+      contestId,
+      list.filter(candidate => candidate.id !== candidateId)
+    );
     toast('Candidat supprim�', label, 'success');
     if (contestId === selectedContestId) {
       updateKpiCandidates((contestCandidates.get(contestId) || []).length);
@@ -1679,7 +1694,6 @@ async function handleCandidateDeletion(contestId, candidateId, label) {
     toast('Erreur', 'Suppression impossible pour le moment.', 'error');
   }
 }
-
 
 async function handleContestDeletion(contestId, label) {
   const confirmed = await openModal({
@@ -1738,8 +1752,8 @@ async function renderContestFormPage(id) {
             data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function'
               ? data.endDate.toDate()
               : data.endDate
-              ? new Date(data.endDate)
-              : null,
+                ? new Date(data.endDate)
+                : null,
           totalParticipants: Number.isFinite(data.totalParticipants) ? data.totalParticipants : 0,
           totalVotes: Number.isFinite(data.totalVotes) ? data.totalVotes : 0,
         };
@@ -1870,7 +1884,12 @@ async function handleContestFormSubmit(e, contestId) {
       await ensureContestsLoaded(true);
       await setSelectedContest(contestId, { force: true });
     } else {
-      const createdPayload = { ...payload, createdAt: serverTimestamp(), totalVotes: payload.totalVotes || 0, totalParticipants: payload.totalParticipants || 0 };
+      const createdPayload = {
+        ...payload,
+        createdAt: serverTimestamp(),
+        totalVotes: payload.totalVotes || 0,
+        totalParticipants: payload.totalParticipants || 0,
+      };
       const ref = await addDoc(collection(db, 'contests'), createdPayload);
       await updateDoc(ref, { id: ref.id });
       toast('Concours cr��', title, 'success');
@@ -1888,7 +1907,8 @@ async function handleContestFormSubmit(e, contestId) {
 
 async function renderCandidateFormPage(contestId, candidateId) {
   if (!contestId) {
-    $contestsContent.innerHTML = '<div class="empty-state"><p>S�lectionnez un concours avant d�ajouter un candidat.</p></div>';
+    $contestsContent.innerHTML =
+      '<div class="empty-state"><p>S�lectionnez un concours avant d�ajouter un candidat.</p></div>';
     return;
   }
   const contest = allContests.find(item => item.id === contestId) || null;
@@ -2012,7 +2032,6 @@ async function handleCandidateFormSubmit(e, contestId, candidateId) {
     setButtonLoading(submitBtn, false);
   }
 }
-
 
 /* ============================ Brands UI ============================ */
 $('#add-brand').addEventListener('click', () => (location.hash = '#/new-brand'));
@@ -2358,28 +2377,19 @@ $('#add-promocard').addEventListener('click', () => (location.hash = '#/new-prom
 $('#search-promocards').addEventListener('input', () => renderPromoCardList());
 
 function renderPromoCardList() {
-
   const term = normalizeSearch($('#search-promocards').value || '');
 
   const cards = getPromoCardsForDisplay();
 
   const arr = term
-
-    ? cards.filter(card => (`${card.title || ''} ${card.subtitle || ''}`).toLowerCase().includes(term))
-
+    ? cards.filter(card => `${card.title || ''} ${card.subtitle || ''}`.toLowerCase().includes(term))
     : cards;
 
-
-
   if (!arr.length) {
-
     $promoCardsContent.innerHTML = '<div class="center" style="padding:32px">Aucune carte promo.</div>';
 
     return;
-
   }
-
-
 
   const table = document.createElement('table');
 
@@ -2411,10 +2421,7 @@ function renderPromoCardList() {
 
   const tb = table.querySelector('#tbody-promocards');
 
-
-
   arr.forEach((card, index) => {
-
     const isContestCard = card.isContestCard === true;
 
     const tr = document.createElement('tr');
@@ -2422,17 +2429,15 @@ function renderPromoCardList() {
     tr.dataset.id = card.id;
 
     const sortLabel = isContestCard
-      ? (card.sortOrder < 0 ? 'Auto' : card.sortOrder ?? 'N/A')
-      : card.sortOrder ?? 'N/A';
+      ? card.sortOrder < 0
+        ? 'Auto'
+        : (card.sortOrder ?? 'N/A')
+      : (card.sortOrder ?? 'N/A');
 
     const destination = card.screen || (isContestCard ? 'Contest' : 'Aucune');
 
-
-
     const statusCell = isContestCard
-
       ? `<span class="chip">${card.isActive ? 'Active (auto)' : 'Inactif'}</span>`
-
       : `<label class="toggle">
 
           <span class="toggle-switch">
@@ -2445,27 +2450,15 @@ function renderPromoCardList() {
 
         </label>`;
 
-
-
     const actionsCell = isContestCard
-
       ? '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
-
         '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
-
         '<button class="btn btn-small" data-edit>Editer</button>' +
-
         '<button class="btn btn-danger btn-small" data-del>Supprimer</button>'
-
       : '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
-
         '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
-
         '<button class="btn btn-small" data-edit>Editer</button>' +
-
         '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
-
-
 
     tr.innerHTML = `
 
@@ -2481,26 +2474,20 @@ function renderPromoCardList() {
 
         <td class="actions">${actionsCell}</td>`;
 
-
-
     const moveUpBtn = tr.querySelector('[data-move-up]');
 
     const moveDownBtn = tr.querySelector('[data-move-down]');
 
     if (moveUpBtn) {
-
       moveUpBtn.disabled = index === 0;
 
       moveUpBtn.onclick = () => handlePromoCardMove(card.id, 'up');
-
     }
 
     if (moveDownBtn) {
-
       moveDownBtn.disabled = index === arr.length - 1;
 
       moveDownBtn.onclick = () => handlePromoCardMove(card.id, 'down');
-
     }
 
     if (isContestCard) {
@@ -2512,23 +2499,15 @@ function renderPromoCardList() {
       tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCardStatusToggle(card.id, e.target.checked);
     }
 
-
-
     tb.appendChild(tr);
-
   });
-
-
 
   $promoCardsContent.innerHTML = '';
 
   $promoCardsContent.appendChild(table);
 
   lucide.createIcons();
-
 }
-
-
 
 async function handlePromoCardStatusToggle(id, isActive) {
   try {
@@ -2889,24 +2868,3 @@ setTimeout(function () {
     content.setAttribute('tabindex', '-1');
   }
 }, 0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

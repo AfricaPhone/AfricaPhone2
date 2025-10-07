@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../types';
 
 const PredictionRulesScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -25,9 +27,13 @@ const PredictionRulesScreen: React.FC = () => {
             <MaterialCommunityIcons name="text-box-check-outline" size={20} color="#FF7A00" />
             <Text style={styles.cardTitle}>Comment participer</Text>
           </View>
-          <Text style={styles.paragraph}>1. Partagez l'application AfricaPhone sur WhatsApp pour débloquer le jeu (2 partages requis).</Text>
+          <Text style={styles.paragraph}>
+            1. Partagez l&apos;application AfricaPhone sur WhatsApp pour débloquer le jeu (2 partages requis).
+          </Text>
           <Text style={styles.paragraph}>2. Ouvrez la page du match et appuyez sur « Placer mon Pronostic ».</Text>
-          <Text style={styles.paragraph}>3. Renseignez vos informations de contact (Nom, Prénom, WhatsApp) puis entrez le score exact.</Text>
+          <Text style={styles.paragraph}>
+            3. Renseignez vos informations de contact (Nom, Prénom, WhatsApp) puis entrez le score exact.
+          </Text>
         </View>
 
         <View style={styles.card}>
@@ -44,8 +50,12 @@ const PredictionRulesScreen: React.FC = () => {
             <MaterialCommunityIcons name="trophy-outline" size={20} color="#FF7A00" />
             <Text style={styles.cardTitle}>Gagnants</Text>
           </View>
-          <Text style={styles.paragraph}>- Les joueurs qui trouvent le score exact sont déclarés gagnants pour ce match.</Text>
-          <Text style={styles.paragraph}>- Les gagnants seront contactés pour la suite ou les éventuelles récompenses.</Text>
+          <Text style={styles.paragraph}>
+            - Les joueurs qui trouvent le score exact sont déclarés gagnants pour ce match.
+          </Text>
+          <Text style={styles.paragraph}>
+            - Les gagnants seront contactés pour la suite ou les éventuelles récompenses.
+          </Text>
         </View>
 
         <View style={styles.card}>
@@ -54,7 +64,9 @@ const PredictionRulesScreen: React.FC = () => {
             <Text style={styles.cardTitle}>Bon à savoir</Text>
           </View>
           <Text style={styles.paragraph}>- Un seul pronostic par utilisateur et par match.</Text>
-          <Text style={styles.paragraph}>- En cas de souci, contactez l'équipe AfricaPhone via WhatsApp depuis l'application.</Text>
+          <Text style={styles.paragraph}>
+            - En cas de souci, contactez l&apos;équipe AfricaPhone via WhatsApp depuis l&apos;application.
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -96,4 +108,3 @@ const styles = StyleSheet.create({
 });
 
 export default PredictionRulesScreen;
-

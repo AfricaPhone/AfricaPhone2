@@ -44,7 +44,12 @@ const toDate = (value: unknown): Date => {
       return parsed;
     }
   }
-  if (typeof value === 'object' && value && 'toDate' in value && typeof (value as any).toDate === 'function') {
+  if (
+    typeof value === 'object' &&
+    value &&
+    'toDate' in value &&
+    typeof (value as { toDate?: () => Date }).toDate === 'function'
+  ) {
     try {
       const converted = (value as { toDate: () => Date }).toDate();
       if (converted instanceof Date && !Number.isNaN(converted.getTime())) {
@@ -145,7 +150,6 @@ export const fetchActiveContestId = async (): Promise<string | null> => {
     })
     .sort((a, b) => a.endDateValue - b.endDateValue);
   return sorted[0]?.id ?? null;
-
 };
 
 export const getContestById = async (contestId: string): Promise<Contest | null> => {
@@ -161,15 +165,8 @@ export const computeContestTotals = (
   const derivedVotes = candidates.reduce((total, candidate) => total + toNumber(candidate.voteCount), 0);
 
   return {
-    totalParticipants: contest?.totalParticipants && contest.totalParticipants > 0 ? contest.totalParticipants : derivedParticipants,
+    totalParticipants:
+      contest?.totalParticipants && contest.totalParticipants > 0 ? contest.totalParticipants : derivedParticipants,
     totalVotes: contest?.totalVotes && contest.totalVotes > 0 ? contest.totalVotes : derivedVotes,
   };
 };
-
-
-
-
-
-
-
-

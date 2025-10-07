@@ -261,4 +261,3 @@ export type UserContest = {
   contestName: string;
   badgeIcon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
-

@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Candidate, Contest } from '../types';
-import {
-  computeContestTotals,
-  subscribeToCandidates,
-  subscribeToContest,
-} from '../services/contestService';
+import { computeContestTotals, subscribeToCandidates, subscribeToContest } from '../services/contestService';
 
 type UseContestDataResult = {
   contest: Contest | null;

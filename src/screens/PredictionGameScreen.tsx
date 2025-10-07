@@ -21,13 +21,14 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 // MODIFICATION: Importez les dependances pour les fonctions Firebase
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { collection, onSnapshot, query, where, doc, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import { useStore } from '../store/StoreContext';
-import { Prediction, Match } from '../types';
+import { Prediction, Match, RootStackParamList } from '../types';
 
 // MODIFICATION: Initialisez l'instance des Fonctions
 const functions = getFunctions();
@@ -68,12 +69,14 @@ const formatFullName = (first?: string | null, last?: string | null) => {
   return parts.join(' ').trim();
 };
 
+type PredictionGameRoute = RouteProp<RootStackParamList, 'PredictionGame'>;
+
 const PredictionGameScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
-  const { matchId } = route.params as { matchId: string };
-  const { user, updateUserProfile } = useStore();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<PredictionGameRoute>();
+  const { matchId } = route.params;
+  const { user } = useStore();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [predictionStep, setPredictionStep] = useState<'contact' | 'score'>('contact');
@@ -242,7 +245,7 @@ const PredictionGameScreen: React.FC = () => {
     if (currentPrediction.contactPhone) {
       setContactPhone(currentPrediction.contactPhone);
     }
-  }, [currentPrediction?.id]);
+  }, [currentPrediction]);
 
   useEffect(() => {
     let isMounted = true;
@@ -254,7 +257,7 @@ const PredictionGameScreen: React.FC = () => {
         try {
           await AsyncStorage.removeItem(draftKey);
         } catch (error) {
-          console.warn("Impossible de supprimer le brouillon de pronostic", error);
+          console.warn('Impossible de supprimer le brouillon de pronostic', error);
         }
         if (isMounted) {
           setPendingSubmission(null);
@@ -305,7 +308,7 @@ const PredictionGameScreen: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [currentPrediction?.id, matchId]);
+  }, [currentPrediction, matchId]);
 
   const effectiveShareCount = Math.min(localShareCount || 0, REQUIRED_APP_SHARES);
   const shareProgressRatio = Math.min(effectiveShareCount / REQUIRED_APP_SHARES, 1);
@@ -373,40 +376,6 @@ const PredictionGameScreen: React.FC = () => {
     setPendingShareFeedback(false);
   }, [localShareCount, localShareStorageKey, pendingSubmission, submitPrediction]);
 
-  const resetShareProgressDev = () => {
-    if (!__DEV__) {
-      return;
-    }
-    Alert.alert(
-      'Réinitialiser',
-      'Remettre la progression de partage a 0 ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Réinitialiser',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await AsyncStorage.removeItem(localShareStorageKey);
-              // Remet l'état local a 0
-              // (l'écran recalculera automatiquement le pourcentage)
-              if (typeof setLocalShareCount === 'function') {
-                setLocalShareCount(0);
-              }
-              if (user) {
-                await updateUserProfile({ appShareCount: 0, hasSharedApp: false });
-              }
-              Alert.alert('OK', 'Progression réinitialisée.');
-            } catch (e) {
-              console.error('Erreur reset progression:', e);
-              Alert.alert('Erreur', 'Impossible de réinitialiser.');
-            }
-          },
-        },
-      ]
-    );
-  };
-
   const matchStarted = useMemo(() => {
     if (!match) return true;
     const GRACE_PERIOD_MS = 60 * 1000;
@@ -414,7 +383,6 @@ const PredictionGameScreen: React.FC = () => {
     return new Date().getTime() > cutOffTime;
   }, [match]);
 
-  
   // Applique la progression de partage lorsque l'utilisateur revient depuis WhatsApp
   useFocusEffect(
     useCallback(() => {
@@ -505,11 +473,11 @@ const PredictionGameScreen: React.FC = () => {
           console.error('Match non trouvé !');
           setMatch(null);
         }
-        if (loading) setLoading(false);
+        setLoading(false);
       },
       error => {
         console.error('Erreur de lecture du match: ', error);
-        if (loading) setLoading(false);
+        setLoading(false);
       }
     );
 
@@ -629,12 +597,12 @@ const PredictionGameScreen: React.FC = () => {
           try {
             await AsyncStorage.removeItem(draftKey);
           } catch (draftError) {
-            console.warn("Impossible de supprimer le brouillon de pronostic", draftError);
+            console.warn('Impossible de supprimer le brouillon de pronostic', draftError);
           }
           try {
             await AsyncStorage.removeItem(localShareStorageKey);
           } catch (shareError) {
-            console.warn("Impossible de supprimer la progression de partage", shareError);
+            console.warn('Impossible de supprimer la progression de partage', shareError);
           }
           setLocalShareCount(0);
           setPendingSubmission(null);
@@ -648,9 +616,10 @@ const PredictionGameScreen: React.FC = () => {
           setScoreB('');
           setModalVisible(false);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Erreur d'enregistrement du Pronostic: ", error);
-        Alert.alert('Erreur', error.message || 'Une erreur est survenue. Veuillez reessayer.');
+        const message = error instanceof Error ? error.message : 'Une erreur est survenue. Veuillez reessayer.';
+        Alert.alert('Erreur', message);
       } finally {
         setIsSubmitting(false);
       }
@@ -705,10 +674,7 @@ const PredictionGameScreen: React.FC = () => {
       setPendingSubmission(submissionData);
       setSharePromptVisible(true);
       try {
-        await AsyncStorage.setItem(
-          `${PENDING_PREDICTION_STORAGE_PREFIX}_${matchId}`,
-          JSON.stringify(submissionData)
-        );
+        await AsyncStorage.setItem(`${PENDING_PREDICTION_STORAGE_PREFIX}_${matchId}`, JSON.stringify(submissionData));
       } catch (error) {
         console.warn("Impossible d'enregistrer le brouillon de pronostic", error);
       }
@@ -723,18 +689,14 @@ const PredictionGameScreen: React.FC = () => {
   const renderResultCard = () => {
     if (!matchEnded) return null;
 
-    const predictionLabel = currentPrediction
-      ? `${currentPrediction.scoreA} - ${currentPrediction.scoreB}`
-      : null;
+    const predictionLabel = currentPrediction ? `${currentPrediction.scoreA} - ${currentPrediction.scoreB}` : null;
 
     return (
       <View style={[styles.resultCard, styles.neutralCard]}>
         <Ionicons name="information-circle-outline" size={24} color="#4b5563" />
         <View style={styles.resultTextContainer}>
           <Text style={styles.resultTitle}>Match terminé</Text>
-          {predictionLabel && (
-            <Text style={styles.resultSubtitle}>Votre pronostic : {predictionLabel}</Text>
-          )}
+          {predictionLabel && <Text style={styles.resultSubtitle}>Votre pronostic : {predictionLabel}</Text>}
         </View>
       </View>
     );
@@ -835,7 +797,7 @@ const PredictionGameScreen: React.FC = () => {
         </View>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Match non trouvé</Text>
-          <Text style={styles.emptySubText}>Ce match n'existe pas ou a été supprimé.</Text>
+          <Text style={styles.emptySubText}>Ce match n&apos;existe pas ou a été supprimé.</Text>
         </View>
       </SafeAreaView>
     );
@@ -902,16 +864,13 @@ const PredictionGameScreen: React.FC = () => {
                   {isLoadingWinners
                     ? 'Chargement des gagnants...'
                     : hasWinners
-                    ? `${winners.length} gagnant${winners.length > 1 ? 's' : ''} ont trouve le bon score.`
-                    : 'Aucun gagnant pour ce match.'}
+                      ? `${winners.length} gagnant${winners.length > 1 ? 's' : ''} ont trouve le bon score.`
+                      : 'Aucun gagnant pour ce match.'}
                 </Text>
               </View>
             </View>
             <TouchableOpacity
-              style={[
-                styles.winnersButton,
-                (isLoadingWinners || !hasWinners) && styles.winnersButtonDisabled,
-              ]}
+              style={[styles.winnersButton, (isLoadingWinners || !hasWinners) && styles.winnersButtonDisabled]}
               onPress={handleViewWinners}
               disabled={isLoadingWinners || !hasWinners}
             >
@@ -932,7 +891,7 @@ const PredictionGameScreen: React.FC = () => {
             <View style={styles.shareBannerTextWrapper}>
               <Text style={styles.shareBannerTitle}>Partager pour valider votre pronostique</Text>
               <Text style={styles.shareBannerSubtitle}>
-                Partagez le lien de l'application a 10 personnes (minimum {REQUIRED_APP_SHARES} partages requis).
+                Partagez le lien de l&apos;application a 10 personnes (minimum {REQUIRED_APP_SHARES} partages requis).
               </Text>
             </View>
             <View style={styles.shareProgressTrack}>
@@ -941,7 +900,7 @@ const PredictionGameScreen: React.FC = () => {
             <Text style={styles.shareProgressHint}>
               {remainingShares > 0
                 ? `Encore ${remainingShares} partage${remainingShares > 1 ? 's' : ''} pour valider (objectif 10 personnes).`
-                : "Objectif atteint ! Merci pour le partage."}
+                : 'Objectif atteint ! Merci pour le partage.'}
             </Text>
             <TouchableOpacity
               style={[styles.shareBannerCta, isSharing && styles.buttonDisabled]}
@@ -1033,22 +992,22 @@ const PredictionGameScreen: React.FC = () => {
                     <View style={styles.contactFieldsContainer}>
                       <TextInput
                         style={styles.contactInput}
-                        autoCapitalize='words'
+                        autoCapitalize="words"
                         value={contactNameInput}
                         onChangeText={handleContactNameChange}
-                        placeholder='Nom & Prénom'
-                        placeholderTextColor='#9ca3af'
-                        textContentType='name'
-                        returnKeyType='next'
+                        placeholder="Nom & Prénom"
+                        placeholderTextColor="#9ca3af"
+                        textContentType="name"
+                        returnKeyType="next"
                       />
                       <TextInput
                         style={[styles.contactInput, styles.contactInputLast]}
-                        keyboardType='phone-pad'
+                        keyboardType="phone-pad"
                         value={contactPhone}
                         onChangeText={setContactPhone}
-                        placeholder='Numéro WhatsApp'
-                        placeholderTextColor='#9ca3af'
-                        textContentType='telephoneNumber'
+                        placeholder="Numéro WhatsApp"
+                        placeholderTextColor="#9ca3af"
+                        textContentType="telephoneNumber"
                       />
                     </View>
                     <TouchableOpacity style={styles.modalSubmitButton} onPress={handleContactNext}>
@@ -1091,7 +1050,7 @@ const PredictionGameScreen: React.FC = () => {
                       {isSubmitting ? (
                         <ActivityIndicator color="#fff" />
                       ) : (
-                      <Text style={styles.modalSubmitText}>Continuer</Text>
+                        <Text style={styles.modalSubmitText}>Continuer</Text>
                       )}
                     </TouchableOpacity>
                   </>
@@ -1499,5 +1458,3 @@ const styles = StyleSheet.create({
 });
 
 export default PredictionGameScreen;
-
-

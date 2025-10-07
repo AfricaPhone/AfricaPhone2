@@ -57,14 +57,12 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
   const shouldShowBrands = brandsLoading || brands.length > 0;
   const shouldShowPromos = promoCardsLoading || promoCards.length > 0;
   const listHeaderComponent =
-    category === 'Populaires' && (shouldShowBrands || shouldShowPromos)
-      ? (
-          <View style={styles.populairesHeader}>
-            {shouldShowBrands && <BrandCarousel brands={brands} isLoading={brandsLoading} />}
-            {shouldShowPromos && <PromoCardsCarousel promoCards={promoCards} isLoading={promoCardsLoading} />}
-          </View>
-        )
-      : null;
+    category === 'Populaires' && (shouldShowBrands || shouldShowPromos) ? (
+      <View style={styles.populairesHeader}>
+        {shouldShowBrands && <BrandCarousel brands={brands} isLoading={brandsLoading} />}
+        {shouldShowPromos && <PromoCardsCarousel promoCards={promoCards} isLoading={promoCardsLoading} />}
+      </View>
+    ) : null;
 
   const [products, setProducts] = useState<Product[]>([]);
   const [lastDoc, setLastDoc] = useState<Snapshot | null>(null);
@@ -72,7 +70,6 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
 
   const buildQuery = useCallback(
     (startAfterDoc: Snapshot | null = null): FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> => {

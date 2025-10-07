@@ -3,26 +3,20 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Product } from '../types';
+import { Product, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { usePaginatedProducts, ProductQueryOptions } from '../hooks/usePaginatedProducts';
-
-type RouteParams = {
-  title: string;
-  category?: string;
-  brandId?: string;
-  searchQuery?: string;
-};
 
 type ViewMode = 'grid' | 'list';
 
 // CORRECTION: Le composant n'attend plus de props, il utilise les paramètres de la route.
 const ProductListScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
-  const { title, category, brandId, searchQuery } = route.params as RouteParams;
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'ProductList'>>();
+  const { title, category, brandId, searchQuery } = route.params;
 
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 

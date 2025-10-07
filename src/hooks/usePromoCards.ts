@@ -1,11 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  FirebaseFirestoreTypes,
-} from '@react-native-firebase/firestore';
+import { collection, getDocs, query, where, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { PromoCard } from '../types';
 import { db } from '../firebase/config';
 

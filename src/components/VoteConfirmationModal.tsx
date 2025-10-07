@@ -45,7 +45,10 @@ const VoteConfirmationModal: React.FC<Props> = ({
     }
     try {
       await Share.share({
-        message: 'Je soutiens ' + candidate.name + " au concours du Journaliste Tech de l'annee ! Faites comme moi ! #ConcoursAfricaphone",
+        message:
+          'Je soutiens ' +
+          candidate.name +
+          " au concours du Journaliste Tech de l'annee ! Faites comme moi ! #ConcoursAfricaphone",
       });
     } catch (error) {
       console.error('Erreur de partage:', error);

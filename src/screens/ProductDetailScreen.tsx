@@ -29,7 +29,7 @@ import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
 import { useBoutique } from '../store/BoutiqueContext';
 import { formatPrice } from '../utils/formatPrice';
-import { Product, RootStackParamList, Specification, BoutiqueInfo } from '../types';
+import { Product, RootStackParamList } from '../types';
 
 import PromoCodeModal from '../components/PromoCodeModal';
 
