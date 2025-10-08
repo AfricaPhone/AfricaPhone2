@@ -165,6 +165,7 @@ function setCrumb(name) {
 /* ============================ State ============================ */
 let allProducts = [];
 let allMatches = [];
+const matchPredictionsCache = new Map();
 let allPromoCards = [];
 let contestPromoCard = null;
 let allPromoCodes = []; // AJOUT
@@ -458,6 +459,9 @@ async function handleRoute() {
   } else if (route === 'edit-match' && id) {
     setCrumb('�diter match');
     await renderMatchFormPage(id);
+  } else if (route === 'match-predictions' && id) {
+    await ensureMatchesLoaded();
+    await renderMatchPredictionsPage(id);
   } else if (route === 'contests') {
     setCrumb('Concours');
     await ensureContestsLoaded();
@@ -1009,6 +1013,7 @@ async function handleDelete(id, name, type) {
       $('#kpi-brands').textContent = String(allBrands.length);
     } else if (type === 'matches') {
       allMatches = allMatches.filter(m => m.id !== id);
+      matchPredictionsCache.delete(id);
       renderMatchList();
       $('#kpi-matches').textContent = String(allMatches.length);
     } else if (type === 'promoCards') {
@@ -2209,15 +2214,19 @@ function renderMatchList() {
         : '';
     const tr = document.createElement('tr');
     tr.dataset.id = m.id;
-    tr.innerHTML = `
+  tr.innerHTML = `
 	  <td style="font-weight:800">${escapeHtml(m.teamA || '�quipe A')} vs ${escapeHtml(m.teamB || '�quipe B')}</td>
 	  <td>${escapeHtml(m.competition || '�')}</td>
 	  <td>${date ? fmtDate(date) : '�'}</td>
 	  <td class="actions">
 		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || '� jouer'}</span>
+		<button class="btn btn-small" data-view>Pronostics</button>
 		<button class="btn btn-small" data-edit>�diter</button>
 		<button class="btn btn-danger btn-small" data-del>Supprimer</button>
 	  </td>`;
+    tr.querySelector('[data-view]').addEventListener('click', function () {
+      location.hash = '#/match-predictions/' + m.id;
+    });
     tr.querySelector('[data-edit]').addEventListener('click', function () {
       location.hash = '#/edit-match/' + m.id;
     });
@@ -2228,6 +2237,291 @@ function renderMatchList() {
   });
   $matchesContent.innerHTML = '';
   $matchesContent.appendChild(table);
+}
+
+async function loadMatchPredictions(matchId, options = {}) {
+  const force = options.force === true;
+  if (!force && matchPredictionsCache.has(matchId)) {
+    return matchPredictionsCache.get(matchId);
+  }
+  if (force) {
+    matchPredictionsCache.delete(matchId);
+  }
+  const q = query(collection(db, 'predictions'), where('matchId', '==', matchId));
+  const snap = await getDocs(q);
+  const items = snap.docs.map(docSnap => {
+    const data = docSnap.data() || {};
+    const createdAt =
+      data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate()
+        : data.createdAt
+          ? new Date(data.createdAt)
+          : null;
+    const updatedAt =
+      data.updatedAt && typeof data.updatedAt.toDate === 'function'
+        ? data.updatedAt.toDate()
+        : data.updatedAt
+          ? new Date(data.updatedAt)
+          : null;
+    const contactFirstName = typeof data.contactFirstName === 'string' ? data.contactFirstName : '';
+    const contactLastName = typeof data.contactLastName === 'string' ? data.contactLastName : '';
+    const contactName = `${contactFirstName} ${contactLastName}`.trim();
+    const contactPhone =
+      typeof data.contactPhoneNormalized === 'string' && data.contactPhoneNormalized
+        ? data.contactPhoneNormalized
+        : typeof data.contactPhone === 'string'
+          ? data.contactPhone
+          : '';
+    const searchPieces = [
+      data.userName,
+      contactFirstName,
+      contactLastName,
+      contactPhone,
+      data.userId,
+      data.transactionId,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return {
+      id: docSnap.id,
+      userName: typeof data.userName === 'string' && data.userName ? data.userName : 'Participant',
+      userId: typeof data.userId === 'string' ? data.userId : '',
+      scoreA: typeof data.scoreA === 'number' ? data.scoreA : null,
+      scoreB: typeof data.scoreB === 'number' ? data.scoreB : null,
+      isWinner: data.isWinner === true,
+      featuredWinner: data.featuredWinner === true,
+      contactName,
+      contactPhone,
+      createdAt,
+      updatedAt,
+      searchIndex: searchPieces,
+    };
+  });
+  items.sort((a, b) => {
+    const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+    const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+    return bTime - aTime;
+  });
+  matchPredictionsCache.set(matchId, items);
+  return items;
+}
+
+async function renderMatchPredictionsPage(matchId) {
+  let match =
+    allMatches.find(function (m) {
+      return m.id === matchId;
+    }) ||
+    (await getDoc(doc(db, 'matches', matchId)).then(function (snap) {
+      return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    }));
+  if (!match) {
+    $matchesContent.innerHTML = '<div class="center" style="padding:32px">Match introuvable.</div>';
+    return;
+  }
+
+  const matchDate =
+    match.startTime && typeof match.startTime.toDate === 'function'
+      ? match.startTime.toDate()
+      : match.startTime
+        ? new Date(match.startTime)
+        : null;
+  const finalScore =
+    typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number'
+      ? `${match.finalScoreA} - ${match.finalScoreB}`
+      : '';
+
+  setCrumb(
+    'Pronostics \u00b7 ' +
+      (match.teamA || '�quipe A') +
+      ' vs ' +
+      (match.teamB || '�quipe B')
+  );
+
+  const container = document.createElement('div');
+  container.className = 'match-detail';
+  container.innerHTML = `
+    <div class="card match-summary">
+      <div class="summary-info">
+        <div class="match-title">${escapeHtml(match.teamA || '�quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || '�quipe B')}</div>
+        <div class="match-meta">
+          ${match.competition ? `<span class="chip">${escapeHtml(match.competition)}</span>` : ''}
+          <span class="muted">${matchDate ? fmtDate(matchDate) : 'Date &agrave; confirmer'}</span>
+        </div>
+        ${finalScore ? `<div class="match-score">Score final : <strong>${finalScore}</strong></div>` : ''}
+      </div>
+      <div class="match-actions">
+        <button class="btn btn-small" type="button" id="match-back"><i data-lucide="arrow-left" class="icon"></i> Retour</button>
+        <button class="btn btn-small" type="button" id="match-refresh"><i data-lucide="refresh-cw" class="icon"></i> Rafra&icirc;chir</button>
+      </div>
+    </div>
+    <div class="card predictions-toolbar">
+      <div class="field predictions-search">
+        <label class="label" for="pred-search">Recherche</label>
+        <input id="pred-search" class="input" type="search" placeholder="Nom, t&eacute;l&eacute;phone ou identifiant" />
+      </div>
+      <label class="toggle predictions-toggle">
+        <span class="toggle-switch">
+          <input type="checkbox" id="pred-winners-only" />
+          <span class="toggle-slider"></span>
+        </span>
+        <span>Gagnants uniquement</span>
+      </label>
+      <div class="kpi-counters">
+        <div class="kpi-card">
+          <div class="kpi-label">Pronostics</div>
+          <div class="kpi-value" id="pred-total">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Gagnants</div>
+          <div class="kpi-value" id="pred-winners">0</div>
+        </div>
+      </div>
+    </div>
+    <div id="predictions-table-wrap" class="predictions-card">
+      <div class="predictions-empty muted">Chargement des pronostics...</div>
+    </div>
+  `;
+
+  $matchesContent.innerHTML = '';
+  $matchesContent.appendChild(container);
+  lucide.createIcons();
+
+  const backBtn = container.querySelector('#match-back');
+  const refreshBtn = container.querySelector('#match-refresh');
+  const searchInput = container.querySelector('#pred-search');
+  const winnersToggle = container.querySelector('#pred-winners-only');
+  const tableWrap = container.querySelector('#predictions-table-wrap');
+  const totalEl = container.querySelector('#pred-total');
+  const winnersEl = container.querySelector('#pred-winners');
+
+  const state = {
+    items: [],
+    search: '',
+    winnersOnly: false,
+  };
+
+  function applyFilters() {
+    const term = normalizeSearch(state.search);
+    const winnersOnly = state.winnersOnly;
+    const total = state.items.length;
+    const winnersCount = state.items.filter(function (item) {
+      return item.isWinner;
+    }).length;
+    totalEl.textContent = String(total);
+    winnersEl.textContent = String(winnersCount);
+    let list = state.items;
+    if (term) {
+      list = list.filter(function (item) {
+        return item.searchIndex.includes(term);
+      });
+    }
+    if (winnersOnly) {
+      list = list.filter(function (item) {
+        return item.isWinner;
+      });
+    }
+    renderPredictionRows(list);
+  }
+
+  function renderPredictionRows(list) {
+    if (!list.length) {
+      tableWrap.innerHTML =
+        '<div class="predictions-empty">Aucun pronostic correspondant.</div>';
+      return;
+    }
+    const rows = list
+      .map(function (item) {
+        const statusPieces = [];
+        if (item.isWinner) {
+          statusPieces.push('<span class="badge">Gagnant</span>');
+        } else {
+          statusPieces.push('<span class="chip chip-muted">En attente</span>');
+        }
+        if (item.featuredWinner) {
+          statusPieces.push('<span class="chip chip-info">Mis en avant</span>');
+        }
+        const scoreLabel =
+          item.scoreA === null || item.scoreB === null ? '�' : `${item.scoreA} - ${item.scoreB}`;
+        const contactBits = [];
+        if (item.contactName) {
+          contactBits.push(escapeHtml(item.contactName));
+        }
+        if (item.contactPhone) {
+          contactBits.push('<span class="muted">' + escapeHtml(item.contactPhone) + '</span>');
+        }
+        const userIdLabel = item.userId ? '<div class="muted">ID: ' + escapeHtml(item.userId) + '</div>' : '';
+        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : '�';
+        return `
+          <tr class="${item.isWinner ? 'winner-row' : ''}">
+            <td>
+              <div class="pred-name">${escapeHtml(item.userName || 'Participant')}</div>
+              ${userIdLabel}
+            </td>
+            <td class="pred-score">${scoreLabel}</td>
+            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">�</span>'}</td>
+            <td class="pred-status">${statusPieces.join(' ')}</td>
+            <td>${createdLabel}</td>
+          </tr>`;
+      })
+      .join('');
+    tableWrap.innerHTML = `
+      <table class="table predictions-table">
+        <thead>
+          <tr>
+            <th>Participant</th>
+            <th>Pronostic</th>
+            <th>Contact</th>
+            <th>Statut</th>
+            <th>Enregistr&eacute; le</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+    lucide.createIcons();
+  }
+
+  async function fetchPredictions(force = false) {
+    if (force) {
+      tableWrap.innerHTML = '<div class="predictions-empty muted">Rafra&icirc;chissement...</div>';
+    }
+    try {
+      const data = await loadMatchPredictions(matchId, { force });
+      state.items = data;
+      applyFilters();
+      if (force) {
+        toast('Pronostics mis � jour', '', 'success');
+      }
+    } catch (error) {
+      console.error('Match predictions load failed', error);
+      tableWrap.innerHTML =
+        '<div class="predictions-empty">Impossible de charger les pronostics pour le moment.</div>';
+      toast('Erreur', 'Lecture des pronostics impossible.', 'error');
+    }
+  }
+
+  backBtn?.addEventListener('click', function () {
+    location.hash = '#/matches';
+  });
+  refreshBtn?.addEventListener('click', async function () {
+    refreshBtn.disabled = true;
+    try {
+      await fetchPredictions(true);
+    } finally {
+      refreshBtn.disabled = false;
+    }
+  });
+  searchInput?.addEventListener('input', function (e) {
+    state.search = e.target.value || '';
+    applyFilters();
+  });
+  winnersToggle?.addEventListener('change', function (e) {
+    state.winnersOnly = !!e.target.checked;
+    applyFilters();
+  });
+
+  await fetchPredictions();
 }
 
 async function renderMatchFormPage(id) {
