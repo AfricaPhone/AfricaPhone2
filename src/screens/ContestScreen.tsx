@@ -514,6 +514,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: '#e5e7eb',
     borderWidth: 1,
+    marginTop: 16,
   },
   contestTitle: { fontSize: 22, fontWeight: 'bold', color: '#111', marginTop: 12, textAlign: 'center' },
   contestDescription: {
