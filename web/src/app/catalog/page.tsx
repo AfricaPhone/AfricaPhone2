@@ -11,7 +11,6 @@ import {
   segmentOptions,
   type CatalogProduct,
   type PriceRange,
-  formatCurrency,
 } from "@/data/catalog";
 
 const QUICK_SEARCHES = [
@@ -897,6 +896,18 @@ function buildActiveChips({
 
 function sanitizeDigits(value: string) {
   return value.replace(/[^\d]/g, "");
+}
+
+function formatCurrency(value: number) {
+  try {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "XOF",
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${value} FCFA`;
+  }
 }
 
 function SearchIcon({ className }: { className?: string }) {

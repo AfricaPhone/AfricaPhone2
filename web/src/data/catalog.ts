@@ -41,11 +41,6 @@ export const brandOptions = Array.from(
 
 brandOptions.sort((a, b) => a.label.localeCompare(b.label));
 
-export const brandLabelById = brandOptions.reduce<Record<string, string>>((acc, brand) => {
-  acc[brand.id] = brand.label;
-  return acc;
-}, {});
-
 export const categoryOptions = Array.from(
   new Set(allProducts.map(product => product.category)),
 ).map(category => ({
@@ -78,20 +73,4 @@ export const catalogProducts: CatalogProduct[] = allProducts.map(product => {
 export function parsePriceValue(value: string): number {
   const digits = value.replace(/[^\d]/g, "");
   return digits ? Number(digits) : 0;
-}
-
-export function getProductById(productId: string) {
-  return catalogProducts.find(product => product.id === productId) ?? null;
-}
-
-export function formatCurrency(value: number) {
-  try {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "XOF",
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${value} FCFA`;
-  }
 }
