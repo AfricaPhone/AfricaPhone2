@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:staged": "npx lint-staged"
   },
   "dependencies": {
     "react": "19.1.0",
@@ -23,5 +24,13 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "@eslint/eslintrc": "^3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --max-warnings=0"
+    ],
+    "*.{json,md,css}": [
+      "prettier --check"
+    ]
   }
 }
