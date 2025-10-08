@@ -15,6 +15,8 @@ import {
   StatusBar,
   Animated,
   Easing,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -130,7 +132,15 @@ const useShimmer = () => {
   return { translateX };
 };
 
-const Skeleton = ({ height, radius = 16, style }: { height: number; radius?: number; style?: any }) => {
+const Skeleton = ({
+  height,
+  radius = 16,
+  style,
+}: {
+  height: number;
+  radius?: number;
+  style?: StyleProp<ViewStyle>;
+}) => {
   const { translateX } = useShimmer();
   return (
     <View
@@ -176,7 +186,7 @@ const Avatar = ({ uri, size = 40 }: { uri: string; size?: number }) => (
   />
 );
 
-const RippleBtn: React.FC<{ onPress?: () => void; style?: any; children: React.ReactNode }> = ({
+const RippleBtn: React.FC<{ onPress?: () => void; style?: StyleProp<ViewStyle>; children: React.ReactNode }> = ({
   onPress,
   style,
   children,

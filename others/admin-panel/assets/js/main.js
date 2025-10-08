@@ -12,6 +12,7 @@ import {
   getDocs,
   doc,
   getDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   addDoc,
@@ -36,8 +37,8 @@ const fmtXOF = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XO
 const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
 window.addEventListener('unhandledrejection', event => {
   const error = event && event.reason;
-  const message = typeof (error?.message) === 'string' ? error.message : '';
-  const code = typeof (error?.code) === 'string' ? error.code : '';
+  const message = typeof error?.message === 'string' ? error.message : '';
+  const code = typeof error?.code === 'string' ? error.code : '';
   if (code === 'permission-denied' || /permission/i.test(message)) {
     event.preventDefault();
     console.error('[Admin Panel] Operation blocked by Firestore security rules.', error);
@@ -164,6 +165,7 @@ function setCrumb(name) {
 /* ============================ State ============================ */
 let allProducts = [];
 let allMatches = [];
+const matchPredictionsCache = new Map();
 let allPromoCards = [];
 let contestPromoCard = null;
 let allPromoCodes = []; // AJOUT
@@ -188,6 +190,32 @@ let PREDEFINED_SPECS = [
   'Poids',
   'Syst�me',
 ];
+
+// --- Features / Flags ---
+let featuresConfig = { promoCardsEnabled: true };
+
+async function ensureFeaturesLoaded() {
+  try {
+    const ref = doc(db, 'config', 'features');
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      featuresConfig.promoCardsEnabled = data.promoCardsEnabled !== false;
+    } else {
+      featuresConfig.promoCardsEnabled = true;
+    }
+  } catch (err) {
+    console.error('Settings: unable to load features config', err);
+    featuresConfig.promoCardsEnabled = true;
+  }
+}
+
+function applyFeaturesToSettingsUI() {
+  const el = document.getElementById('toggle-promocards');
+  if (el) {
+    el.checked = !!featuresConfig.promoCardsEnabled;
+  }
+}
 
 /* ============================ Auth ============================ */
 const $login = $('#login'),
@@ -355,6 +383,18 @@ const $productsContent = $('#products-content'),
   $promoCodesContent = $('#promocodes-content');
 
 window.addEventListener('hashchange', handleRoute);
+window.addEventListener('hashchange', async function () {
+  try {
+    const parts = (location.hash || '#/products').split('/');
+    const route = parts[1] || 'products';
+    if (route === 'settings') {
+      await ensureFeaturesLoaded();
+      applyFeaturesToSettingsUI();
+    }
+  } catch (e) {
+    console.warn('Settings sync skipped', e);
+  }
+});
 async function handleRoute() {
   const parts = (location.hash || '#/products').split('/');
   const route = parts[1] || 'products';
@@ -419,10 +459,13 @@ async function handleRoute() {
   } else if (route === 'edit-match' && id) {
     setCrumb('�diter match');
     await renderMatchFormPage(id);
+  } else if (route === 'match-predictions' && id) {
+    await ensureMatchesLoaded();
+    await renderMatchPredictionsPage(id);
   } else if (route === 'contests') {
     setCrumb('Concours');
     await ensureContestsLoaded();
-    await setSelectedContest(selectedContestId || (allContests[0]?.id || ''), { force: true });
+    await setSelectedContest(selectedContestId || allContests[0]?.id || '', { force: true });
   } else if (route === 'new-contest') {
     setCrumb('Nouveau concours');
     await ensureContestsLoaded();
@@ -433,7 +476,7 @@ async function handleRoute() {
     await renderContestFormPage(id);
   } else if (route === 'new-candidate') {
     await ensureContestsLoaded();
-    const contestId = id || selectedContestId || (allContests[0]?.id || '');
+    const contestId = id || selectedContestId || allContests[0]?.id || '';
     if (!contestId) {
       toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
       location.hash = '#/new-contest';
@@ -476,6 +519,27 @@ async function handleRoute() {
 
 async function initAfterLogin() {
   lucide.createIcons();
+  // Settings: bind promo cards toggle if present
+  const promoToggle = document.getElementById('toggle-promocards');
+  if (promoToggle) {
+    promoToggle.onchange = async e => {
+      const input = e.target;
+      const next = !!input.checked;
+      input.disabled = true;
+      try {
+        const ref = doc(db, 'config', 'features');
+        await setDoc(ref, { promoCardsEnabled: next }, { merge: true });
+        featuresConfig.promoCardsEnabled = next;
+        toast('Paramètre enregistré', next ? 'Cartes promo activées' : 'Cartes promo désactivées', 'success');
+      } catch (err) {
+        console.error('Settings: unable to update promo cards flag', err);
+        input.checked = !next;
+        toast('Erreur', 'Impossible de mettre à jour le paramètre', 'error');
+      } finally {
+        input.disabled = false;
+      }
+    };
+  }
   // Raccourcis
   $('#quick-add-product').onclick = function () {
     location.hash = '#/new-product';
@@ -530,7 +594,7 @@ async function initAfterLogin() {
     location.hash = '#/new-contest';
   });
   $('#add-candidate')?.addEventListener('click', () => {
-    const targetId = selectedContestId || (allContests[0]?.id || '');
+    const targetId = selectedContestId || allContests[0]?.id || '';
     if (!targetId) {
       toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
       location.hash = '#/new-contest';
@@ -550,6 +614,17 @@ async function initAfterLogin() {
     }
   });
   handleRoute();
+  // If already on settings, sync feature toggles
+  try {
+    const parts = (location.hash || '#/products').split('/');
+    const route = parts[1] || 'products';
+    if (route === 'settings') {
+      await ensureFeaturesLoaded();
+      applyFeaturesToSettingsUI();
+    }
+  } catch (e) {
+    console.warn('Settings sync skipped', e);
+  }
 }
 
 /* ============================ Data Fetch ============================ */
@@ -603,12 +678,7 @@ function updatePromoCardsKpi() {
 async function refreshContestPromoCard() {
   try {
     const contestsRef = collection(db, 'contests');
-    const contestQuery = query(
-      contestsRef,
-      where('status', '==', 'active'),
-      orderBy('endDate', 'asc'),
-      limit(1)
-    );
+    const contestQuery = query(contestsRef, where('status', '==', 'active'), orderBy('endDate', 'asc'), limit(1));
     const snap = await getDocs(contestQuery);
     if (snap.empty) {
       contestPromoCard = null;
@@ -616,24 +686,28 @@ async function refreshContestPromoCard() {
     }
     const docSnap = snap.docs[0];
     const data = docSnap.data() || {};
-    const fallbackImage = 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400&auto=format&fit=crop';
+    const fallbackImage =
+      'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400&auto=format&fit=crop';
     const image =
       (typeof data.heroImage === 'string' && data.heroImage) ||
       (typeof data.bannerImage === 'string' && data.bannerImage) ||
       (typeof data.image === 'string' && data.image) ||
       fallbackImage;
     const status = typeof data.status === 'string' ? data.status : 'draft';
+    const explicitOrder =
+      typeof data.promoCardSortOrder === 'number' && Number.isFinite(data.promoCardSortOrder)
+        ? data.promoCardSortOrder
+        : -1;
     contestPromoCard = {
       id: `contest-${docSnap.id}`,
+      contestId: docSnap.id,
       title: typeof data.title === 'string' ? data.title : 'Concours',
       subtitle:
-        typeof data.description === 'string' && data.description
-          ? data.description
-          : 'Elisez votre candidat favori.',
+        typeof data.description === 'string' && data.description ? data.description : 'Elisez votre candidat favori.',
       cta: status === 'ended' ? 'Voir les resultats' : 'Participer',
       screen: 'Contest',
       image,
-      sortOrder: -1,
+      sortOrder: explicitOrder,
       isActive: status === 'active',
       isContestCard: true,
     };
@@ -939,6 +1013,7 @@ async function handleDelete(id, name, type) {
       $('#kpi-brands').textContent = String(allBrands.length);
     } else if (type === 'matches') {
       allMatches = allMatches.filter(m => m.id !== id);
+      matchPredictionsCache.delete(id);
       renderMatchList();
       $('#kpi-matches').textContent = String(allMatches.length);
     } else if (type === 'promoCards') {
@@ -1248,7 +1323,6 @@ async function handleProductFormSubmit(e, id) {
   }
 }
 
-
 /* ============================ Contests UI ============================ */
 const getSelectedContest = () => allContests.find(contest => contest.id === selectedContestId) || null;
 
@@ -1258,7 +1332,8 @@ const CONTEST_STATUS_LABELS = {
   ended: 'Termin�',
 };
 
-const formatContestStatus = status => CONTEST_STATUS_LABELS[status] || (status ? status.charAt(0).toUpperCase() + status.slice(1) : '');
+const formatContestStatus = status =>
+  CONTEST_STATUS_LABELS[status] || (status ? status.charAt(0).toUpperCase() + status.slice(1) : '');
 
 const toInputDateValue = value => {
   if (!value) {
@@ -1290,9 +1365,14 @@ const updateContestFilterOptions = () => {
   }
   const currentValue = selectedContestId;
   const options = allContests
-    .map(contest => `<option value="${escapeAttr(contest.id)}"${contest.id === currentValue ? ' selected' : ''}>${escapeHtml(contest.title || contest.id)}</option>`)
+    .map(
+      contest =>
+        `<option value="${escapeAttr(contest.id)}"${contest.id === currentValue ? ' selected' : ''}>${escapeHtml(contest.title || contest.id)}</option>`
+    )
     .join('');
-  select.innerHTML = `<option value="">S�lectionner un concours</option>${options}`;
+  select.innerHTML = allContests.length
+    ? `<option value="">S�lectionner un concours</option>${options}`
+    : '<option value="">Aucun concours disponible</option>';
   if (currentValue && select.value !== currentValue) {
     select.value = currentValue;
   }
@@ -1312,7 +1392,7 @@ const updateKpiCandidates = count => {
   }
 };
 
-const normalizeSearch = value => value ? value.trim().toLowerCase() : '';
+const normalizeSearch = value => (value ? value.trim().toLowerCase() : '');
 
 async function ensureContestsLoaded(force = false) {
   if (!force && allContests.length) {
@@ -1327,15 +1407,28 @@ async function ensureContestsLoaded(force = false) {
   const snapshot = await getDocs(contestsQuery);
   allContests = snapshot.docs.map(docSnap => {
     const data = docSnap.data() || {};
-    const rawEndDate = data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function' ? data.endDate.toDate() : data.endDate ? new Date(data.endDate) : null;
+    const rawEndDate =
+      data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function'
+        ? data.endDate.toDate()
+        : data.endDate
+          ? new Date(data.endDate)
+          : null;
     return {
       id: docSnap.id,
       title: typeof data.title === 'string' ? data.title : 'Concours',
       description: typeof data.description === 'string' ? data.description : '',
       status: typeof data.status === 'string' ? data.status : 'draft',
       endDate: rawEndDate,
-      totalParticipants: Number.isFinite(data.totalParticipants) ? data.totalParticipants : Number.isFinite(data.totalCandidates) ? data.totalCandidates : 0,
-      totalVotes: Number.isFinite(data.totalVotes) ? data.totalVotes : Number.isFinite(data.voteCount) ? data.voteCount : 0,
+      totalParticipants: Number.isFinite(data.totalParticipants)
+        ? data.totalParticipants
+        : Number.isFinite(data.totalCandidates)
+          ? data.totalCandidates
+          : 0,
+      totalVotes: Number.isFinite(data.totalVotes)
+        ? data.totalVotes
+        : Number.isFinite(data.voteCount)
+          ? data.voteCount
+          : 0,
     };
   });
   updateContestFilterOptions();
@@ -1418,7 +1511,7 @@ function renderContestsOverview() {
     updateKpiCandidates(0);
     $contestsContent.innerHTML = `
       <div class="empty-state">
-        <p>Aucun concours enregistr� pour le moment.</p>
+        <p>Aucun concours disponible.</p>
         <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Cr�er un concours</button>
       </div>`;
     $contestsContent.querySelector('[data-create-first-contest]')?.addEventListener('click', () => {
@@ -1453,7 +1546,8 @@ function renderContestsOverview() {
   updateKpiCandidates(candidates.length);
 
   const rows = visibleCandidates
-    .map((candidate, index) => `
+    .map(
+      (candidate, index) => `
         <tr>
           <td class="muted">${index + 1}</td>
           <td>
@@ -1471,7 +1565,8 @@ function renderContestsOverview() {
             <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> �diter</button>
             <button class="btn btn-danger btn-small" type="button" data-delete-candidate="${escapeAttr(candidate.id)}"><i data-lucide="trash-2" class="icon"></i></button>
           </td>
-        </tr>`)
+        </tr>`
+    )
     .join('');
 
   const tableHtml = visibleCandidates.length
@@ -1504,6 +1599,7 @@ function renderContestsOverview() {
           </div>
           <div class="actions">
             <span class="badge status-${escapeAttr(contest.status)}">${formatContestStatus(contest.status)}</span>
+            <button class="btn btn-icon btn-small" type="button" data-delete-current-contest title="Supprimer"><i data-lucide="trash-2" class="icon"></i></button>
             <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> �diter</button>
           </div>
         </div>
@@ -1542,6 +1638,11 @@ function renderContestsOverview() {
   const editButton = $contestsContent.querySelector('[data-edit-current-contest]');
   editButton?.addEventListener('click', () => {
     location.hash = `#/edit-contest/${contest.id}`;
+  });
+
+  const deleteButton = $contestsContent.querySelector('[data-delete-current-contest]');
+  deleteButton?.addEventListener('click', () => {
+    handleContestDeletion(contest.id, contest.title || 'ce concours');
   });
 
   const addCandidateButton = $contestsContent.querySelector('[data-add-candidate]');
@@ -1584,7 +1685,10 @@ async function handleCandidateDeletion(contestId, candidateId, label) {
   try {
     await deleteDoc(doc(db, 'contests', contestId, 'candidates', candidateId));
     const list = contestCandidates.get(contestId) || [];
-    contestCandidates.set(contestId, list.filter(candidate => candidate.id !== candidateId));
+    contestCandidates.set(
+      contestId,
+      list.filter(candidate => candidate.id !== candidateId)
+    );
     toast('Candidat supprim�', label, 'success');
     if (contestId === selectedContestId) {
       updateKpiCandidates((contestCandidates.get(contestId) || []).length);
@@ -1592,6 +1696,45 @@ async function handleCandidateDeletion(contestId, candidateId, label) {
     }
   } catch (error) {
     console.error(error);
+    toast('Erreur', 'Suppression impossible pour le moment.', 'error');
+  }
+}
+
+async function handleContestDeletion(contestId, label) {
+  const confirmed = await openModal({
+    title: 'Supprimer',
+    body: `Confirmer la suppression du concours <strong>${escapeHtml(label || 'ce concours')}</strong> ?`,
+    okText: 'Supprimer',
+    cancelText: 'Annuler',
+    danger: true,
+  });
+  if (!confirmed) {
+    return;
+  }
+  try {
+    await ensureContestCandidatesLoaded(contestId, true);
+    const candidates = [...(contestCandidates.get(contestId) || [])];
+    for (const candidate of candidates) {
+      await deleteDoc(doc(db, 'contests', contestId, 'candidates', candidate.id));
+    }
+    await deleteDoc(doc(db, 'contests', contestId));
+    contestCandidates.delete(contestId);
+    allContests = allContests.filter(item => item.id !== contestId);
+    updateContestFilterOptions();
+    updateKpiContests();
+    const wasSelected = selectedContestId === contestId;
+    if (wasSelected) {
+      const nextId = allContests[0]?.id || '';
+      await setSelectedContest(nextId, { force: true });
+    } else {
+      renderContestsOverview();
+    }
+    await refreshContestPromoCard();
+    renderPromoCardList();
+    updatePromoCardsKpi();
+    toast('Concours supprime', label || 'ce concours', 'success');
+  } catch (error) {
+    console.error('Contest deletion failed', error);
     toast('Erreur', 'Suppression impossible pour le moment.', 'error');
   }
 }
@@ -1614,8 +1757,8 @@ async function renderContestFormPage(id) {
             data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function'
               ? data.endDate.toDate()
               : data.endDate
-              ? new Date(data.endDate)
-              : null,
+                ? new Date(data.endDate)
+                : null,
           totalParticipants: Number.isFinite(data.totalParticipants) ? data.totalParticipants : 0,
           totalVotes: Number.isFinite(data.totalVotes) ? data.totalVotes : 0,
         };
@@ -1746,7 +1889,12 @@ async function handleContestFormSubmit(e, contestId) {
       await ensureContestsLoaded(true);
       await setSelectedContest(contestId, { force: true });
     } else {
-      const createdPayload = { ...payload, createdAt: serverTimestamp(), totalVotes: payload.totalVotes || 0, totalParticipants: payload.totalParticipants || 0 };
+      const createdPayload = {
+        ...payload,
+        createdAt: serverTimestamp(),
+        totalVotes: payload.totalVotes || 0,
+        totalParticipants: payload.totalParticipants || 0,
+      };
       const ref = await addDoc(collection(db, 'contests'), createdPayload);
       await updateDoc(ref, { id: ref.id });
       toast('Concours cr��', title, 'success');
@@ -1764,7 +1912,8 @@ async function handleContestFormSubmit(e, contestId) {
 
 async function renderCandidateFormPage(contestId, candidateId) {
   if (!contestId) {
-    $contestsContent.innerHTML = '<div class="empty-state"><p>S�lectionnez un concours avant d�ajouter un candidat.</p></div>';
+    $contestsContent.innerHTML =
+      '<div class="empty-state"><p>S�lectionnez un concours avant d�ajouter un candidat.</p></div>';
     return;
   }
   const contest = allContests.find(item => item.id === contestId) || null;
@@ -1888,7 +2037,6 @@ async function handleCandidateFormSubmit(e, contestId, candidateId) {
     setButtonLoading(submitBtn, false);
   }
 }
-
 
 /* ============================ Brands UI ============================ */
 $('#add-brand').addEventListener('click', () => (location.hash = '#/new-brand'));
@@ -2066,15 +2214,19 @@ function renderMatchList() {
         : '';
     const tr = document.createElement('tr');
     tr.dataset.id = m.id;
-    tr.innerHTML = `
+  tr.innerHTML = `
 	  <td style="font-weight:800">${escapeHtml(m.teamA || '�quipe A')} vs ${escapeHtml(m.teamB || '�quipe B')}</td>
 	  <td>${escapeHtml(m.competition || '�')}</td>
 	  <td>${date ? fmtDate(date) : '�'}</td>
 	  <td class="actions">
 		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || '� jouer'}</span>
+		<button class="btn btn-small" data-view>Pronostics</button>
 		<button class="btn btn-small" data-edit>�diter</button>
 		<button class="btn btn-danger btn-small" data-del>Supprimer</button>
 	  </td>`;
+    tr.querySelector('[data-view]').addEventListener('click', function () {
+      location.hash = '#/match-predictions/' + m.id;
+    });
     tr.querySelector('[data-edit]').addEventListener('click', function () {
       location.hash = '#/edit-match/' + m.id;
     });
@@ -2085,6 +2237,291 @@ function renderMatchList() {
   });
   $matchesContent.innerHTML = '';
   $matchesContent.appendChild(table);
+}
+
+async function loadMatchPredictions(matchId, options = {}) {
+  const force = options.force === true;
+  if (!force && matchPredictionsCache.has(matchId)) {
+    return matchPredictionsCache.get(matchId);
+  }
+  if (force) {
+    matchPredictionsCache.delete(matchId);
+  }
+  const q = query(collection(db, 'predictions'), where('matchId', '==', matchId));
+  const snap = await getDocs(q);
+  const items = snap.docs.map(docSnap => {
+    const data = docSnap.data() || {};
+    const createdAt =
+      data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate()
+        : data.createdAt
+          ? new Date(data.createdAt)
+          : null;
+    const updatedAt =
+      data.updatedAt && typeof data.updatedAt.toDate === 'function'
+        ? data.updatedAt.toDate()
+        : data.updatedAt
+          ? new Date(data.updatedAt)
+          : null;
+    const contactFirstName = typeof data.contactFirstName === 'string' ? data.contactFirstName : '';
+    const contactLastName = typeof data.contactLastName === 'string' ? data.contactLastName : '';
+    const contactName = `${contactFirstName} ${contactLastName}`.trim();
+    const contactPhone =
+      typeof data.contactPhoneNormalized === 'string' && data.contactPhoneNormalized
+        ? data.contactPhoneNormalized
+        : typeof data.contactPhone === 'string'
+          ? data.contactPhone
+          : '';
+    const searchPieces = [
+      data.userName,
+      contactFirstName,
+      contactLastName,
+      contactPhone,
+      data.userId,
+      data.transactionId,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return {
+      id: docSnap.id,
+      userName: typeof data.userName === 'string' && data.userName ? data.userName : 'Participant',
+      userId: typeof data.userId === 'string' ? data.userId : '',
+      scoreA: typeof data.scoreA === 'number' ? data.scoreA : null,
+      scoreB: typeof data.scoreB === 'number' ? data.scoreB : null,
+      isWinner: data.isWinner === true,
+      featuredWinner: data.featuredWinner === true,
+      contactName,
+      contactPhone,
+      createdAt,
+      updatedAt,
+      searchIndex: searchPieces,
+    };
+  });
+  items.sort((a, b) => {
+    const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+    const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+    return bTime - aTime;
+  });
+  matchPredictionsCache.set(matchId, items);
+  return items;
+}
+
+async function renderMatchPredictionsPage(matchId) {
+  let match =
+    allMatches.find(function (m) {
+      return m.id === matchId;
+    }) ||
+    (await getDoc(doc(db, 'matches', matchId)).then(function (snap) {
+      return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    }));
+  if (!match) {
+    $matchesContent.innerHTML = '<div class="center" style="padding:32px">Match introuvable.</div>';
+    return;
+  }
+
+  const matchDate =
+    match.startTime && typeof match.startTime.toDate === 'function'
+      ? match.startTime.toDate()
+      : match.startTime
+        ? new Date(match.startTime)
+        : null;
+  const finalScore =
+    typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number'
+      ? `${match.finalScoreA} - ${match.finalScoreB}`
+      : '';
+
+  setCrumb(
+    'Pronostics \u00b7 ' +
+      (match.teamA || '�quipe A') +
+      ' vs ' +
+      (match.teamB || '�quipe B')
+  );
+
+  const container = document.createElement('div');
+  container.className = 'match-detail';
+  container.innerHTML = `
+    <div class="card match-summary">
+      <div class="summary-info">
+        <div class="match-title">${escapeHtml(match.teamA || '�quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || '�quipe B')}</div>
+        <div class="match-meta">
+          ${match.competition ? `<span class="chip">${escapeHtml(match.competition)}</span>` : ''}
+          <span class="muted">${matchDate ? fmtDate(matchDate) : 'Date &agrave; confirmer'}</span>
+        </div>
+        ${finalScore ? `<div class="match-score">Score final : <strong>${finalScore}</strong></div>` : ''}
+      </div>
+      <div class="match-actions">
+        <button class="btn btn-small" type="button" id="match-back"><i data-lucide="arrow-left" class="icon"></i> Retour</button>
+        <button class="btn btn-small" type="button" id="match-refresh"><i data-lucide="refresh-cw" class="icon"></i> Rafra&icirc;chir</button>
+      </div>
+    </div>
+    <div class="card predictions-toolbar">
+      <div class="field predictions-search">
+        <label class="label" for="pred-search">Recherche</label>
+        <input id="pred-search" class="input" type="search" placeholder="Nom, t&eacute;l&eacute;phone ou identifiant" />
+      </div>
+      <label class="toggle predictions-toggle">
+        <span class="toggle-switch">
+          <input type="checkbox" id="pred-winners-only" />
+          <span class="toggle-slider"></span>
+        </span>
+        <span>Gagnants uniquement</span>
+      </label>
+      <div class="kpi-counters">
+        <div class="kpi-card">
+          <div class="kpi-label">Pronostics</div>
+          <div class="kpi-value" id="pred-total">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Gagnants</div>
+          <div class="kpi-value" id="pred-winners">0</div>
+        </div>
+      </div>
+    </div>
+    <div id="predictions-table-wrap" class="predictions-card">
+      <div class="predictions-empty muted">Chargement des pronostics...</div>
+    </div>
+  `;
+
+  $matchesContent.innerHTML = '';
+  $matchesContent.appendChild(container);
+  lucide.createIcons();
+
+  const backBtn = container.querySelector('#match-back');
+  const refreshBtn = container.querySelector('#match-refresh');
+  const searchInput = container.querySelector('#pred-search');
+  const winnersToggle = container.querySelector('#pred-winners-only');
+  const tableWrap = container.querySelector('#predictions-table-wrap');
+  const totalEl = container.querySelector('#pred-total');
+  const winnersEl = container.querySelector('#pred-winners');
+
+  const state = {
+    items: [],
+    search: '',
+    winnersOnly: false,
+  };
+
+  function applyFilters() {
+    const term = normalizeSearch(state.search);
+    const winnersOnly = state.winnersOnly;
+    const total = state.items.length;
+    const winnersCount = state.items.filter(function (item) {
+      return item.isWinner;
+    }).length;
+    totalEl.textContent = String(total);
+    winnersEl.textContent = String(winnersCount);
+    let list = state.items;
+    if (term) {
+      list = list.filter(function (item) {
+        return item.searchIndex.includes(term);
+      });
+    }
+    if (winnersOnly) {
+      list = list.filter(function (item) {
+        return item.isWinner;
+      });
+    }
+    renderPredictionRows(list);
+  }
+
+  function renderPredictionRows(list) {
+    if (!list.length) {
+      tableWrap.innerHTML =
+        '<div class="predictions-empty">Aucun pronostic correspondant.</div>';
+      return;
+    }
+    const rows = list
+      .map(function (item) {
+        const statusPieces = [];
+        if (item.isWinner) {
+          statusPieces.push('<span class="badge">Gagnant</span>');
+        } else {
+          statusPieces.push('<span class="chip chip-muted">En attente</span>');
+        }
+        if (item.featuredWinner) {
+          statusPieces.push('<span class="chip chip-info">Mis en avant</span>');
+        }
+        const scoreLabel =
+          item.scoreA === null || item.scoreB === null ? '�' : `${item.scoreA} - ${item.scoreB}`;
+        const contactBits = [];
+        if (item.contactName) {
+          contactBits.push(escapeHtml(item.contactName));
+        }
+        if (item.contactPhone) {
+          contactBits.push('<span class="muted">' + escapeHtml(item.contactPhone) + '</span>');
+        }
+        const userIdLabel = item.userId ? '<div class="muted">ID: ' + escapeHtml(item.userId) + '</div>' : '';
+        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : '�';
+        return `
+          <tr class="${item.isWinner ? 'winner-row' : ''}">
+            <td>
+              <div class="pred-name">${escapeHtml(item.userName || 'Participant')}</div>
+              ${userIdLabel}
+            </td>
+            <td class="pred-score">${scoreLabel}</td>
+            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">�</span>'}</td>
+            <td class="pred-status">${statusPieces.join(' ')}</td>
+            <td>${createdLabel}</td>
+          </tr>`;
+      })
+      .join('');
+    tableWrap.innerHTML = `
+      <table class="table predictions-table">
+        <thead>
+          <tr>
+            <th>Participant</th>
+            <th>Pronostic</th>
+            <th>Contact</th>
+            <th>Statut</th>
+            <th>Enregistr&eacute; le</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+    lucide.createIcons();
+  }
+
+  async function fetchPredictions(force = false) {
+    if (force) {
+      tableWrap.innerHTML = '<div class="predictions-empty muted">Rafra&icirc;chissement...</div>';
+    }
+    try {
+      const data = await loadMatchPredictions(matchId, { force });
+      state.items = data;
+      applyFilters();
+      if (force) {
+        toast('Pronostics mis � jour', '', 'success');
+      }
+    } catch (error) {
+      console.error('Match predictions load failed', error);
+      tableWrap.innerHTML =
+        '<div class="predictions-empty">Impossible de charger les pronostics pour le moment.</div>';
+      toast('Erreur', 'Lecture des pronostics impossible.', 'error');
+    }
+  }
+
+  backBtn?.addEventListener('click', function () {
+    location.hash = '#/matches';
+  });
+  refreshBtn?.addEventListener('click', async function () {
+    refreshBtn.disabled = true;
+    try {
+      await fetchPredictions(true);
+    } finally {
+      refreshBtn.disabled = false;
+    }
+  });
+  searchInput?.addEventListener('input', function (e) {
+    state.search = e.target.value || '';
+    applyFilters();
+  });
+  winnersToggle?.addEventListener('change', function (e) {
+    state.winnersOnly = !!e.target.checked;
+    applyFilters();
+  });
+
+  await fetchPredictions();
 }
 
 async function renderMatchFormPage(id) {
@@ -2234,28 +2671,19 @@ $('#add-promocard').addEventListener('click', () => (location.hash = '#/new-prom
 $('#search-promocards').addEventListener('input', () => renderPromoCardList());
 
 function renderPromoCardList() {
-
   const term = normalizeSearch($('#search-promocards').value || '');
 
   const cards = getPromoCardsForDisplay();
 
   const arr = term
-
-    ? cards.filter(card => (`${card.title || ''} ${card.subtitle || ''}`).toLowerCase().includes(term))
-
+    ? cards.filter(card => `${card.title || ''} ${card.subtitle || ''}`.toLowerCase().includes(term))
     : cards;
 
-
-
   if (!arr.length) {
-
     $promoCardsContent.innerHTML = '<div class="center" style="padding:32px">Aucune carte promo.</div>';
 
     return;
-
   }
-
-
 
   const table = document.createElement('table');
 
@@ -2287,26 +2715,23 @@ function renderPromoCardList() {
 
   const tb = table.querySelector('#tbody-promocards');
 
-
-
-  arr.forEach(card => {
-
+  arr.forEach((card, index) => {
     const isContestCard = card.isContestCard === true;
 
     const tr = document.createElement('tr');
 
     tr.dataset.id = card.id;
 
-    const sortLabel = isContestCard ? 'Auto' : card.sortOrder ?? 'N/A';
+    const sortLabel = isContestCard
+      ? card.sortOrder < 0
+        ? 'Auto'
+        : (card.sortOrder ?? 'N/A')
+      : (card.sortOrder ?? 'N/A');
 
     const destination = card.screen || (isContestCard ? 'Contest' : 'Aucune');
 
-
-
     const statusCell = isContestCard
-
       ? `<span class="chip">${card.isActive ? 'Active (auto)' : 'Inactif'}</span>`
-
       : `<label class="toggle">
 
           <span class="toggle-switch">
@@ -2319,17 +2744,15 @@ function renderPromoCardList() {
 
         </label>`;
 
-
-
     const actionsCell = isContestCard
-
-      ? '<span class="hint">Gere depuis la section Concours</span>'
-
-      : '<button class="btn btn-small" data-edit>Editer</button>' +
-
+      ? '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
+        '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+        '<button class="btn btn-small" data-edit>Editer</button>' +
+        '<button class="btn btn-danger btn-small" data-del>Supprimer</button>'
+      : '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
+        '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+        '<button class="btn btn-small" data-edit>Editer</button>' +
         '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
-
-
 
     tr.innerHTML = `
 
@@ -2345,35 +2768,40 @@ function renderPromoCardList() {
 
         <td class="actions">${actionsCell}</td>`;
 
+    const moveUpBtn = tr.querySelector('[data-move-up]');
 
+    const moveDownBtn = tr.querySelector('[data-move-down]');
 
-    if (!isContestCard) {
+    if (moveUpBtn) {
+      moveUpBtn.disabled = index === 0;
 
-      tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocard/${card.id}`);
-
-      tr.querySelector('[data-del]').onclick = () => handleDelete(card.id, card.title, 'promoCards');
-
-      tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCardStatusToggle(card.id, e.target.checked);
-
+      moveUpBtn.onclick = () => handlePromoCardMove(card.id, 'up');
     }
 
+    if (moveDownBtn) {
+      moveDownBtn.disabled = index === arr.length - 1;
 
+      moveDownBtn.onclick = () => handlePromoCardMove(card.id, 'down');
+    }
+
+    if (isContestCard) {
+      tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-contest/${card.contestId}`);
+      tr.querySelector('[data-del]').onclick = () => handleContestDeletion(card.contestId, card.title);
+    } else {
+      tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocard/${card.id}`);
+      tr.querySelector('[data-del]').onclick = () => handleDelete(card.id, card.title, 'promoCards');
+      tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCardStatusToggle(card.id, e.target.checked);
+    }
 
     tb.appendChild(tr);
-
   });
-
-
 
   $promoCardsContent.innerHTML = '';
 
   $promoCardsContent.appendChild(table);
 
   lucide.createIcons();
-
 }
-
-
 
 async function handlePromoCardStatusToggle(id, isActive) {
   try {
@@ -2384,6 +2812,55 @@ async function handlePromoCardStatusToggle(id, isActive) {
   } catch (error) {
     console.error('Erreur de mise � jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
+    renderPromoCardList();
+  }
+}
+
+async function handlePromoCardMove(id, direction) {
+  const list = getPromoCardsForDisplay();
+  const currentIndex = list.findIndex(card => card.id === id);
+  if (currentIndex === -1) {
+    return;
+  }
+  const offset = direction === 'up' ? -1 : 1;
+  const targetIndex = currentIndex + offset;
+  if (targetIndex < 0 || targetIndex >= list.length) {
+    return;
+  }
+  const [movedCard] = list.splice(currentIndex, 1);
+  list.splice(targetIndex, 0, movedCard);
+  try {
+    const updates = [];
+    const rebuilt = [];
+    list.forEach((card, idx) => {
+      const newOrder = (idx + 1) * 10;
+      if (card.isContestCard) {
+        if (card.sortOrder !== newOrder) {
+          card.sortOrder = newOrder;
+          updates.push(updateDoc(doc(db, 'contests', card.contestId), { promoCardSortOrder: newOrder }));
+        }
+        if (contestPromoCard && contestPromoCard.id === card.id) {
+          contestPromoCard.sortOrder = newOrder;
+        }
+      } else {
+        if (card.sortOrder !== newOrder) {
+          card.sortOrder = newOrder;
+          updates.push(updateDoc(doc(db, 'promoCards', card.id), { sortOrder: newOrder }));
+        }
+        const { isContestCard, contestId, ...rest } = card;
+        rebuilt.push(rest);
+      }
+    });
+    if (updates.length) {
+      await Promise.all(updates);
+    }
+    allPromoCards = rebuilt.sort((a, b) => getPromoSortOrder(a) - getPromoSortOrder(b));
+    renderPromoCardList();
+    toast('Ordre mis a jour', movedCard.title || 'Carte promo', 'success');
+  } catch (error) {
+    console.error('Promo card reorder failed', error);
+    toast('Erreur', 'Impossible de reordonner la carte.', 'error');
+    await ensurePromoCardsLoaded(true);
     renderPromoCardList();
   }
 }
@@ -2685,24 +3162,3 @@ setTimeout(function () {
     content.setAttribute('tabindex', '-1');
   }
 }, 0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

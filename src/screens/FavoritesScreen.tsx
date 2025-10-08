@@ -1,12 +1,13 @@
 // src/screens/FavoritesScreen.tsx
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFavorites } from '../store/FavoritesContext';
 import { useProducts } from '../store/ProductContext';
-import { Product } from '../types';
+import { Product, RootStackParamList } from '../types';
 import ProductGridCard from '../components/ProductGridCard';
 import ProductListItem from '../components/ProductListItem';
 
@@ -16,7 +17,7 @@ type SortKey = 'date' | 'priceAsc' | 'priceDesc';
 const FavoritesScreen: React.FC = () => {
   const { collections, createCollection } = useFavorites();
   const { getProductById } = useProducts();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [selectedCollectionId, setSelectedCollectionId] = useState(collections[0]?.id || null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -56,6 +57,25 @@ const FavoritesScreen: React.FC = () => {
 
     fetchFavoriteProducts();
   }, [selectedCollection, sort, getProductById]);
+
+  const cycleSortOrder = useCallback(() => {
+    setSort(prev => {
+      switch (prev) {
+        case 'date':
+          return 'priceAsc';
+        case 'priceAsc':
+          return 'priceDesc';
+        default:
+          return 'date';
+      }
+    });
+  }, []);
+
+  const sortLabels: Record<SortKey, string> = {
+    date: 'Recents',
+    priceAsc: 'Prix ↑',
+    priceDesc: 'Prix ↓',
+  };
 
   const handleCreateCollection = () => {
     Alert.prompt(
@@ -133,9 +153,9 @@ const FavoritesScreen: React.FC = () => {
             <Ionicons name="list" size={22} color={viewMode === 'list' ? '#111' : '#999'} />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.sortBtn}>
+        <TouchableOpacity style={styles.sortBtn} onPress={cycleSortOrder}>
           <MaterialCommunityIcons name="sort" size={18} color="#111" />
-          <Text style={styles.sortText}>Trier</Text>
+          <Text style={styles.sortText}>Trier ({sortLabels[sort]})</Text>
         </TouchableOpacity>
       </View>
 
@@ -155,7 +175,7 @@ const FavoritesScreen: React.FC = () => {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Aucun favori</Text>
-              <Text style={styles.emptySubText}>Appuyez sur l'icône ❤️ sur un produit pour l'ajouter.</Text>
+              <Text style={styles.emptySubText}>Appuyez sur l&apos;icône ❤️ sur un produit pour l&apos;ajouter.</Text>
             </View>
           }
         />

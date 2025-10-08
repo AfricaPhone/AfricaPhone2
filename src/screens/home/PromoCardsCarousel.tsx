@@ -19,8 +19,14 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
 
   const handleCardPress = useCallback(
     (card: PromoCard) => {
-      if (card.screen) {
-        navigation.navigate(card.screen, card.screenParams as any);
+      if (!card.screen) {
+        return;
+      }
+
+      if (card.screenParams) {
+        navigation.navigate(card.screen, card.screenParams as never);
+      } else {
+        navigation.navigate(card.screen);
       }
     },
     [navigation]

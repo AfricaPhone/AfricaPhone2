@@ -1,5 +1,8 @@
 import React, { useCallback, useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import ProductGrid from './ProductGrid';
+import PromoCardsCarousel from './PromoCardsCarousel';
+import BrandCarousel from './BrandCarousel';
 import {
   collection,
   getDocs,
@@ -12,6 +15,9 @@ import {
 } from '@react-native-firebase/firestore';
 import { Product } from '../../types';
 import { db } from '../../firebase/config';
+import { usePromoCards } from '../../hooks/usePromoCards';
+import { useFeatureFlags } from '../../hooks/useFeatureFlags';
+import { useProducts } from '../../store/ProductContext';
 
 const PAGE_SIZE = 10;
 
@@ -45,6 +51,18 @@ const getUniqueProducts = (products: Product[]): Product[] =>
 
 const CategoryScreen = ({ route }: { route: { params: { category: string } } }) => {
   const { category } = route.params;
+  const { promoCardsEnabled } = useFeatureFlags();
+  const { promoCards, loading: promoCardsLoading } = usePromoCards(category === 'Populaires' && promoCardsEnabled);
+  const { brands, brandsLoading } = useProducts();
+  const shouldShowBrands = brandsLoading || brands.length > 0;
+  const shouldShowPromos = promoCardsLoading || promoCards.length > 0;
+  const listHeaderComponent =
+    category === 'Populaires' && (shouldShowBrands || shouldShowPromos) ? (
+      <View style={styles.populairesHeader}>
+        {shouldShowBrands && <BrandCarousel brands={brands} isLoading={brandsLoading} />}
+        {shouldShowPromos && <PromoCardsCarousel promoCards={promoCards} isLoading={promoCardsLoading} />}
+      </View>
+    ) : null;
 
   const [products, setProducts] = useState<Product[]>([]);
   const [lastDoc, setLastDoc] = useState<Snapshot | null>(null);
@@ -52,7 +70,6 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
 
   const buildQuery = useCallback(
     (startAfterDoc: Snapshot | null = null): FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> => {
@@ -137,10 +154,18 @@ const CategoryScreen = ({ route }: { route: { params: { category: string } } }) 
       onLoadMore={loadMoreData}
       onRefresh={() => fetchData(true)}
       refreshing={refreshing}
-      listHeaderComponent={null}
+      listHeaderComponent={listHeaderComponent}
       hasMore={hasMore}
     />
   );
 };
+
+const styles = StyleSheet.create({
+  populairesHeader: {
+    backgroundColor: '#fff',
+    paddingVertical: 6,
+    gap: 6,
+  },
+});
 
 export default CategoryScreen;

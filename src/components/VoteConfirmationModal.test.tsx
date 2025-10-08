@@ -9,7 +9,11 @@ jest.mock('@expo/vector-icons', () => ({
 }));
 
 describe('VoteConfirmationModal', () => {
-  const shareSpy = jest.spyOn(Share, 'share').mockResolvedValue({} as any);
+  type ShareResult = Awaited<ReturnType<typeof Share.share>>;
+  const mockShareResult: ShareResult = {
+    action: Share.sharedAction,
+  };
+  const shareSpy = jest.spyOn(Share, 'share').mockResolvedValue(mockShareResult);
 
   const candidate: Candidate = {
     id: 'cand-1',
@@ -56,7 +60,8 @@ describe('VoteConfirmationModal', () => {
 
     expect(shareSpy).toHaveBeenCalledTimes(1);
     expect(shareSpy).toHaveBeenCalledWith({
-      message: "Je soutiens Jean Dupont au concours du Journaliste Tech de l'annee ! Faites comme moi ! #ConcoursAfricaphone",
+      message:
+        "Je soutiens Jean Dupont au concours du Journaliste Tech de l'annee ! Faites comme moi ! #ConcoursAfricaphone",
     });
   });
 

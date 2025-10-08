@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Switch, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Brand, FilterOptions } from '../types';
 import { useProducts } from '../store/ProductContext';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useFilters, PriceRange } from '../store/FilterContext';

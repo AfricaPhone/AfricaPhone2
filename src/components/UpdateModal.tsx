@@ -25,7 +25,7 @@ const UpdateModal: React.FC = () => {
           const url = config.update_url;
 
           // 2. Version de l'application "hardcodée"
-          const currentVersionCode = 4;
+          const currentVersionCode = 5;
 
           console.log(`Version Firestore: ${latestVersionCode}, Version App (Hardcodée): ${currentVersionCode}`);
 

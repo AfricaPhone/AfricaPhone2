@@ -3,7 +3,8 @@ import React, { useCallback } from 'react';
 import { ScrollCoordinatorProvider, useScrollCoordinator } from '../../contexts/ScrollCoordinator';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Product } from '../../types';
+import type { NavigationProp } from '@react-navigation/native';
+import { Product, RootStackParamList } from '../../types';
 import ProductGridCard from '../../components/ProductGridCard';
 import { GridSkeleton } from '../../components/SkeletonLoader';
 
@@ -29,7 +30,7 @@ const ProductGridInner: React.FC<Props> = ({
   hasMore,
 }) => {
   const { parentScrollEnabled } = useScrollCoordinator();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const renderItem = useCallback(
     ({ item }: { item: Product }) => (
@@ -61,7 +62,11 @@ const ProductGridInner: React.FC<Props> = ({
   };
 
   return (
-    <FlatList scrollEnabled={parentScrollEnabled} directionalLockEnabled nestedScrollEnabled data={products}
+    <FlatList
+      scrollEnabled={parentScrollEnabled}
+      directionalLockEnabled
+      nestedScrollEnabled
+      data={products}
       renderItem={renderItem}
       keyExtractor={item => item.id}
       numColumns={2}
@@ -103,9 +108,7 @@ const styles = StyleSheet.create({
   },
 });
 
-
-
-const ProductGrid: React.FC<Props> = (props) => {
+const ProductGrid: React.FC<Props> = props => {
   return (
     <ScrollCoordinatorProvider>
       <ProductGridInner {...props} />
@@ -114,6 +117,3 @@ const ProductGrid: React.FC<Props> = (props) => {
 };
 
 export default ProductGrid;
-
-
-

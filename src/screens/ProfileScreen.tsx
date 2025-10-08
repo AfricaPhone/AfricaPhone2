@@ -5,8 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useStore } from '../store/StoreContext';
 import ProfileListItem from '../components/ProfileListItem';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { UserContest } from '../types';
+import { UserContest, RootStackParamList } from '../types';
 
 // Données simulées pour les badges
 const mockParticipatedContests: UserContest[] = [
@@ -19,7 +20,7 @@ const mockParticipatedContests: UserContest[] = [
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useStore();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [notifications, setNotifications] = useState(true);
 
   const GuestView = () => (
@@ -103,6 +104,17 @@ const ProfileScreen: React.FC = () => {
             onPress={() => Alert.alert('Aide', "Écran d'aide à créer.")}
           />
         </View>
+
+        {user?.isAdmin && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Administration</Text>
+            <ProfileListItem
+              icon="trophy-outline"
+              label="Gérer les gagnants"
+              onPress={() => navigation.navigate('AdminWinners')}
+            />
+          </View>
+        )}
 
         {user && (
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>

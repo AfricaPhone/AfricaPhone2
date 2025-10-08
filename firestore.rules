@@ -5,8 +5,15 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function userRecord() {
+      return isSignedIn() ? get(/databases/$(database)/documents/users/$(request.auth.uid)) : null;
+    }
+
     function isAdmin() {
-      return isSignedIn() && request.auth.token.admin == true;
+      return isSignedIn() && (
+        request.auth.token.admin == true ||
+        (userRecord() != null && userRecord().data.isAdmin == true)
+      );
     }
 
     function isOwner(userId) {
@@ -15,6 +22,10 @@ service cloud.firestore {
 
     function matchesOwner(data) {
       return data.userId is string && isOwner(data.userId);
+    }
+
+    function isPublicWinner(data) {
+      return data != null && data.isWinner == true;
     }
 
     match /products/{productId} {
@@ -32,6 +43,11 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    match /winnerGallery/{winnerId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
     match /promoCodes/{codeId} {
       allow read, write: if isAdmin();
     }
@@ -42,10 +58,10 @@ service cloud.firestore {
     }
 
     match /predictions/{predictionId} {
-      allow read: if isAdmin() || matchesOwner(resource.data);
-      allow create: if isAdmin() || matchesOwner(request.resource.data);
-      allow update, delete: if isAdmin() || matchesOwner(resource.data);
-    }
+      allow read: if isAdmin() || matchesOwner(resource.data) || isPublicWinner(resource.data);
+     allow create: if isAdmin() || matchesOwner(request.resource.data);
+     allow update, delete: if isAdmin() || matchesOwner(resource.data);
+   }
 
     match /contests/{contestId} {
       allow read: if true;
@@ -62,7 +78,10 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, create, update, delete: if isAdmin() || isOwner(userId);
+      allow read: if isAdmin() || isOwner(userId);
+      allow create: if isAdmin() || isOwner(userId);
+      allow update: if isAdmin() || isOwner(userId);
+      allow delete: if isAdmin() || isOwner(userId);
     }
 
     match /config/{docId} {

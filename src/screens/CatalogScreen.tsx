@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { Product, RootStackParamList } from '../types';
+import { Product, RootStackParamList, Specification } from '../types';
 import { collection, query, where, orderBy, getDocs, FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { db } from '../firebase/config';
 import ProductGridCard from '../components/ProductGridCard';
@@ -128,7 +128,7 @@ type AlgoliaHit = {
   ordreVedette?: number;
   rom?: number;
   ram?: number;
-  specifications?: any[];
+  specifications?: Specification[];
 };
 
 const CatalogScreen: React.FC = () => {

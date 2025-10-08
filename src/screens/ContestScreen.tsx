@@ -29,14 +29,22 @@ import { useContestData } from '../hooks/useContestData';
 import { fetchActiveContestId } from '../services/contestService';
 // Plus de persistance locale ici; le serveur compte les votes
 
+type PaymentResult = {
+  transactionId?: string;
+  transaction_id?: string;
+  transactionID?: string;
+  status?: string;
+  message?: string;
+};
+
 const formatNumber = (num: number) => new Intl.NumberFormat('fr-FR').format(num);
 
-const CandidateCard: React.FC<{ item: Candidate; totalVotes: number; onVote: (c: Candidate) => void; disabled?: boolean }> = ({
-  item,
-  totalVotes,
-  onVote,
-  disabled = false,
-}) => {
+const CandidateCard: React.FC<{
+  item: Candidate;
+  totalVotes: number;
+  onVote: (c: Candidate) => void;
+  disabled?: boolean;
+}> = ({ item, totalVotes, onVote, disabled = false }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const percentage = totalVotes > 0 ? (item.voteCount / totalVotes) * 100 : 0;
   const animatedWidth = React.useRef(new Animated.Value(0)).current;
@@ -159,11 +167,7 @@ const ContestScreen: React.FC = () => {
     const src = Array.isArray(candidates) ? candidates : [];
     const term = (searchQuery || '').trim().toLowerCase();
     const filtered = term
-      ? src.filter(
-          c =>
-            (c.name || '').toLowerCase().includes(term) ||
-            (c.media || '').toLowerCase().includes(term)
-        )
+      ? src.filter(c => (c.name || '').toLowerCase().includes(term) || (c.media || '').toLowerCase().includes(term))
       : src;
     // Always show by voteCount desc
     return [...filtered].sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
@@ -189,7 +193,7 @@ const ContestScreen: React.FC = () => {
   }, [contest, candidates]);
 
   useEffect(() => {
-    const successUnsubscribe = addSuccessListener(async (data?: any) => {
+    const successUnsubscribe = addSuccessListener(async (data?: PaymentResult) => {
       try {
         const txId: string = String(data?.transactionId || data?.transaction_id || data?.transactionID || '');
         if (!txId) {
@@ -217,9 +221,10 @@ const ContestScreen: React.FC = () => {
         setModalVisible(true);
         setPendingCandidate(null);
         setHasVoted(true);
-      } catch (err) {
+      } catch (err: unknown) {
         setPaymentStatus('failed');
-        setPaymentMessage('Impossible de finaliser le vote.');
+        const message = err instanceof Error ? err.message : 'Impossible de finaliser le vote.';
+        setPaymentMessage(message);
         setSelectedCandidate(pendingCandidate ?? null);
         setModalVisible(true);
         setPendingCandidate(null);
@@ -227,7 +232,7 @@ const ContestScreen: React.FC = () => {
       }
     });
 
-    const failedUnsubscribe = addFailedListener((data?: any) => {
+    const failedUnsubscribe = addFailedListener((data?: PaymentResult) => {
       const txId = data?.transactionId ? String(data.transactionId) : null;
       if (txId) {
         setLastTransactionId(txId);
@@ -255,7 +260,7 @@ const ContestScreen: React.FC = () => {
         pendingUnsubscribe();
       }
     };
-  }, [addSuccessListener, addFailedListener, addPendingListener, pendingCandidate]);
+  }, [addSuccessListener, addFailedListener, addPendingListener, pendingCandidate, functionsInstance]);
 
   const handleDeactivateSearch = useCallback(() => {
     setIsSearchActive(false);
@@ -310,7 +315,7 @@ const ContestScreen: React.FC = () => {
         let intentIdCandidate: string | null = null;
         if (payload && typeof payload === 'object') {
           const recordPayload = payload as Record<string, unknown>;
-          const rawIntentId = (recordPayload['intentId'] ?? recordPayload['intent_id']) ?? null;
+          const rawIntentId = recordPayload['intentId'] ?? recordPayload['intent_id'] ?? null;
           if (typeof rawIntentId === 'string') {
             const trimmed = rawIntentId.trim();
             if (trimmed.length > 0) {
@@ -398,11 +403,7 @@ const ContestScreen: React.FC = () => {
           </>
         )}
       </View>
-      <TouchableOpacity
-        style={styles.searchBarContainer}
-        onPress={handleActivateSearch}
-        disabled={!contest || isBusy}
-      >
+      <TouchableOpacity style={styles.searchBarContainer} onPress={handleActivateSearch} disabled={!contest || isBusy}>
         <Ionicons name="search-outline" size={20} color="#8A8A8E" style={styles.searchIcon} />
         <Text style={styles.searchPlaceholder}>
           {contest ? 'Rechercher un candidat...' : isLoading ? 'Chargement...' : 'Aucun candidat disponible'}

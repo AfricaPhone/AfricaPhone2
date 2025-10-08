@@ -71,6 +71,122 @@ export const validatePromoCode = onCall(async request => {
 });
 
 /**
+ * Permet de r��initialiser un pronostic pour remettre les tests a zero.
+ */
+export const resetPrediction = onCall(async request => {
+  const { matchId, predictionId, contactPhone } = request.data as {
+    matchId?: string;
+    predictionId?: string;
+    contactPhone?: string;
+  };
+
+  if (!matchId || typeof matchId !== 'string') {
+    throw new HttpsError('invalid-argument', 'matchId est obligatoire.');
+  }
+
+  const normalizePhone = (value: string) => value.replace(/\D+/g, '');
+  const uid = request.auth?.uid ?? null;
+  const normalizedPhone =
+    typeof contactPhone === 'string' && contactPhone.trim().length > 0 ? normalizePhone(contactPhone.trim()) : null;
+
+  if (!uid && !normalizedPhone) {
+    throw new HttpsError('unauthenticated', 'Impossible de verifier le proprietaire du pronostic.');
+  }
+
+  const predictionsRef = db.collection('predictions');
+  let targetSnap: FirebaseFirestore.DocumentSnapshot | null = null;
+
+  if (predictionId) {
+    const directRef = predictionsRef.doc(predictionId);
+    const directSnap = await directRef.get();
+    if (directSnap.exists) {
+      targetSnap = directSnap;
+    }
+  }
+
+  if (!targetSnap && uid) {
+    const byUser = await predictionsRef.where('matchId', '==', matchId).where('userId', '==', uid).limit(1).get();
+    if (!byUser.empty) {
+      targetSnap = byUser.docs[0];
+    }
+  }
+
+  if (!targetSnap && normalizedPhone) {
+    const byPhone = await predictionsRef
+      .where('matchId', '==', matchId)
+      .where('contactPhoneNormalized', '==', normalizedPhone)
+      .limit(1)
+      .get();
+    if (!byPhone.empty) {
+      targetSnap = byPhone.docs[0];
+    }
+  }
+
+  if (!targetSnap) {
+    throw new HttpsError('not-found', 'Aucun pronostic a reinitialiser pour ce match.');
+  }
+
+  const targetData = targetSnap.data() as {
+    matchId?: string;
+    userId?: string;
+    contactPhoneNormalized?: string;
+    scoreA?: number;
+    scoreB?: number;
+  };
+
+  if (targetData?.matchId !== matchId) {
+    throw new HttpsError('failed-precondition', 'Le pronostic trouve ne correspond pas au match demande.');
+  }
+
+  const belongsToUid = !!uid && targetData?.userId === uid;
+  const belongsToPhone = !!normalizedPhone && targetData?.contactPhoneNormalized === normalizedPhone;
+
+  if (!belongsToUid && !belongsToPhone) {
+    throw new HttpsError('permission-denied', 'Vous ne pouvez pas reinitialiser ce pronostic.');
+  }
+
+  const scoreA = typeof targetData?.scoreA === 'number' ? targetData.scoreA : null;
+  const scoreB = typeof targetData?.scoreB === 'number' ? targetData.scoreB : null;
+
+  const predictionRef = targetSnap.ref;
+  const matchRef = db.collection('matches').doc(matchId);
+
+  try {
+    await db.runTransaction(async transaction => {
+      transaction.delete(predictionRef);
+
+      const matchDoc = await transaction.get(matchRef);
+      if (!matchDoc.exists || scoreA === null || scoreB === null) {
+        return;
+      }
+
+      const matchData = matchDoc.data() || {};
+      const trends = matchData.trends || {};
+      const scoreKey = `${scoreA}-${scoreB}`;
+      const currentTrendCount = trends[scoreKey] || 0;
+      const currentTotal = matchData.predictionCount || 0;
+
+      const updates: Record<string, any> = {
+        predictionCount: Math.max(0, currentTotal - 1),
+      };
+
+      if (currentTrendCount <= 1) {
+        updates[`trends.${scoreKey}`] = admin.firestore.FieldValue.delete();
+      } else {
+        updates[`trends.${scoreKey}`] = currentTrendCount - 1;
+      }
+
+      transaction.update(matchRef, updates);
+    });
+  } catch (error) {
+    logger.error('Erreur lors de la reinitialisation du pronostic:', error);
+    throw new HttpsError('internal', 'Impossible de reinitialiser le pronostic.');
+  }
+
+  return { success: true };
+});
+
+/**
  * Gère la soumission (création/mise à jour) d'un pronostic.
  */
 export const submitPrediction = onCall(async request => {
@@ -129,7 +245,8 @@ export const submitPrediction = onCall(async request => {
       }
       const existingData = existingPredictionSnap.data() as any;
       const ownedByUid = !!uid && existingData?.userId === uid;
-      const ownedByPhone = existingData?.contactPhoneNormalized && existingData.contactPhoneNormalized === normalizedPhone;
+      const ownedByPhone =
+        existingData?.contactPhoneNormalized && existingData.contactPhoneNormalized === normalizedPhone;
       if (!ownedByUid && !ownedByPhone) {
         throw new HttpsError('permission-denied', 'Vous ne pouvez pas modifier ce pronostic.');
       }
@@ -160,11 +277,15 @@ export const submitPrediction = onCall(async request => {
     }
 
     if (existingPredictionSnap && targetPredictionRef) {
-      logger.info('Mise � jour du pronostic', { predictionId: targetPredictionRef.id, matchId, source: 'submitPrediction' });
+      logger.info('Mise � jour du pronostic', {
+        predictionId: targetPredictionRef.id,
+        matchId,
+        source: 'submitPrediction',
+      });
       await targetPredictionRef.update({
         scoreA,
         scoreB,
-        userId: uid ?? (existingPredictionSnap.data()?.userId ?? `guest_${normalizedPhone}`),
+        userId: uid ?? existingPredictionSnap.data()?.userId ?? `guest_${normalizedPhone}`,
         userName,
         contactFirstName: firstName,
         contactLastName: lastName,
@@ -178,7 +299,7 @@ export const submitPrediction = onCall(async request => {
 
     const newPredictionRef = predictionsRef.doc();
     const fallbackUserId = uid ?? `guest_${normalizedPhone || newPredictionRef.id}`;
-    logger.info('Cr�ation d\'un pronostic', { matchId, fallbackUserId });
+    logger.info("Cr�ation d'un pronostic", { matchId, fallbackUserId });
     await newPredictionRef.set({
       userId: fallbackUserId,
       userName,
@@ -192,7 +313,12 @@ export const submitPrediction = onCall(async request => {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    return { success: true, message: 'Pronostic enregistr�. Bonne chance !', predictionId: newPredictionRef.id, created: true };
+    return {
+      success: true,
+      message: 'Pronostic enregistr�. Bonne chance !',
+      predictionId: newPredictionRef.id,
+      created: true,
+    };
   } catch (error) {
     logger.error("Erreur lors de l'�criture du pronostic:", error);
     if (error instanceof HttpsError) {
@@ -466,10 +592,14 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
 
     if (transactionId) {
       const paymentRef = db.collection('payments').doc(transactionId);
-      tx.set(paymentRef, {
-        candidateId: candidateId || null,
-        contestId: contestId || null,
-      }, { merge: true });
+      tx.set(
+        paymentRef,
+        {
+          candidateId: candidateId || null,
+          contestId: contestId || null,
+        },
+        { merge: true }
+      );
     }
 
     if (!contestId || !candidateId) {
@@ -488,26 +618,34 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
     const candidateRef = contestRef.collection('candidates').doc(candidateId);
     const voteRef = contestRef.collection('votes').doc(transactionId || `evt_${Date.now()}`);
 
-    tx.set(voteRef, {
-      transactionId: transactionId || null,
-      userId: intent.userId || 'guest',
-      candidateId,
-      contestId,
-      amount: effectiveAmount,
-      counted: true,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
+    tx.set(
+      voteRef,
+      {
+        transactionId: transactionId || null,
+        userId: intent.userId || 'guest',
+        candidateId,
+        contestId,
+        amount: effectiveAmount,
+        counted: true,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
 
     tx.set(candidateRef, { id: candidateId, contestId }, { merge: true });
     tx.set(contestRef, { id: contestId }, { merge: true });
     tx.update(candidateRef, { voteCount: admin.firestore.FieldValue.increment(votesToAdd) });
     tx.update(contestRef, { totalVotes: admin.firestore.FieldValue.increment(votesToAdd) });
 
-    tx.set(intentRef, {
-      status: 'counted',
-      transactionId: transactionId || null,
-      countedAt: admin.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
+    tx.set(
+      intentRef,
+      {
+        status: 'counted',
+        transactionId: transactionId || null,
+        countedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
 
     counted = true;
   });
@@ -516,146 +654,149 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
     logger.info('Vote counted from payment', { partnerId, transactionId, source });
   }
 }
-export const createVoteIntent = onCall({ region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET] }, async request => {
-  const uid = request.auth?.uid ?? 'guest';
-  const contestId = String((request.data as any)?.contestId || '');
-  const candidateId = String((request.data as any)?.candidateId || '');
-  const amount = Number((request.data as any)?.amount || VOTE_UNIT_XOF);
+export const createVoteIntent = onCall(
+  { region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET] },
+  async request => {
+    const uid = request.auth?.uid ?? 'guest';
+    const contestId = String((request.data as any)?.contestId || '');
+    const candidateId = String((request.data as any)?.candidateId || '');
+    const amount = Number((request.data as any)?.amount || VOTE_UNIT_XOF);
 
-  if (!contestId || !candidateId || !Number.isFinite(amount) || amount <= 0) {
-    throw new HttpsError('invalid-argument', 'Invalid payload');
-  }
-
-  const intentRef = db.collection('voteIntents').doc();
-  await intentRef.set({
-    intentId: intentRef.id,
-    userId: uid,
-    contestId,
-    candidateId,
-    amount,
-    status: 'pending',
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
-
-  return { intentId: intentRef.id };
-});
-
-export const kkiapayWebhook = onRequest({
-  region: REGION,
-  secrets: [KKIA_WEBHOOK_SECRET, KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX],
-}, async (req, res) => {
-  if (req.method !== 'POST') {
-    res.status(405).send('Method Not Allowed');
-    return;
-  }
-
-  const headerSecret = req.header('x-kkiapay-secret');
-  if (!headerSecret || headerSecret !== KKIA_WEBHOOK_SECRET.value()) {
-    logger.warn('Invalid webhook signature');
-    res.status(401).send('Invalid signature');
-    return;
-  }
-
-  const body: any = req.body || {};
-  const transactionId = String(body?.transactionId || '');
-  const partnerId = String(body?.partnerId || body?.partner_id || '');
-  const amount = Number(body?.amount || 0);
-  const event = String(body?.event || '');
-  const isPaymentSucces = body?.isPaymentSucces === true;
-
-  let verifiedSuccess = false;
-  try {
-    if (transactionId) {
-      const k = makeKkiapay();
-      const verif: any = await k.verify(transactionId).catch(() => null);
-      verifiedSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
+    if (!contestId || !candidateId || !Number.isFinite(amount) || amount <= 0) {
+      throw new HttpsError('invalid-argument', 'Invalid payload');
     }
-  } catch (e) {
-    logger.error('verify() error', e as any);
-  }
 
-  const finalSuccess = isPaymentSucces || verifiedSuccess || event === 'transaction.success';
-
-  if (transactionId) {
-    await db.collection('payments').doc(transactionId).set({
-      transactionId,
-      partnerId: partnerId || null,
+    const intentRef = db.collection('voteIntents').doc();
+    await intentRef.set({
+      intentId: intentRef.id,
+      userId: uid,
+      contestId,
+      candidateId,
       amount,
-      event,
-      status: finalSuccess ? 'success' : event === 'transaction.failed' ? 'failed' : 'pending',
-      source: 'webhook',
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
-  }
-
-  if (finalSuccess) {
-    await handleSuccessfulVote({
-      transactionId,
-      partnerId,
-      amount: Number.isFinite(amount) ? amount : undefined,
-      source: 'webhook',
+      status: 'pending',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    return { intentId: intentRef.id };
   }
+);
 
-  res.status(204).send();
-});
+export const kkiapayWebhook = onRequest(
+  {
+    region: REGION,
+    secrets: [KKIA_WEBHOOK_SECRET, KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX],
+  },
+  async (req, res) => {
+    if (req.method !== 'POST') {
+      res.status(405).send('Method Not Allowed');
+      return;
+    }
 
-export const verifyKkiapay = onCall({ region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX] }, async request => {
-  const txId = String((request.data as any)?.transactionId || '');
-  if (!txId) {
-    throw new HttpsError('invalid-argument', 'transactionId is required');
+    const headerSecret = req.header('x-kkiapay-secret');
+    if (!headerSecret || headerSecret !== KKIA_WEBHOOK_SECRET.value()) {
+      logger.warn('Invalid webhook signature');
+      res.status(401).send('Invalid signature');
+      return;
+    }
+
+    const body: any = req.body || {};
+    const transactionId = String(body?.transactionId || '');
+    const partnerId = String(body?.partnerId || body?.partner_id || '');
+    const amount = Number(body?.amount || 0);
+    const event = String(body?.event || '');
+    const isPaymentSucces = body?.isPaymentSucces === true;
+
+    let verifiedSuccess = false;
+    try {
+      if (transactionId) {
+        const k = makeKkiapay();
+        const verif: any = await k.verify(transactionId).catch(() => null);
+        verifiedSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
+      }
+    } catch (e) {
+      logger.error('verify() error', e as any);
+    }
+
+    const finalSuccess = isPaymentSucces || verifiedSuccess || event === 'transaction.success';
+
+    if (transactionId) {
+      await db
+        .collection('payments')
+        .doc(transactionId)
+        .set(
+          {
+            transactionId,
+            partnerId: partnerId || null,
+            amount,
+            event,
+            status: finalSuccess ? 'success' : event === 'transaction.failed' ? 'failed' : 'pending',
+            source: 'webhook',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+    }
+
+    if (finalSuccess) {
+      await handleSuccessfulVote({
+        transactionId,
+        partnerId,
+        amount: Number.isFinite(amount) ? amount : undefined,
+        source: 'webhook',
+      });
+    }
+
+    res.status(204).send();
   }
+);
 
-  const k = makeKkiapay();
-  const verif: any = await k.verify(txId);
-  const isSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
+export const verifyKkiapay = onCall(
+  { region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX] },
+  async request => {
+    const txId = String((request.data as any)?.transactionId || '');
+    if (!txId) {
+      throw new HttpsError('invalid-argument', 'transactionId is required');
+    }
 
-  const partnerId = String(verif?.partnerId || verif?.partner_id || (request.data as any)?.partnerId || '');
-  const amountFromVerification = Number(verif?.amount);
-  const amountFromRequest = Number((request.data as any)?.amount);
-  const amount = Number.isFinite(amountFromVerification)
-    ? amountFromVerification
-    : Number.isFinite(amountFromRequest)
-      ? amountFromRequest
-      : undefined;
+    const k = makeKkiapay();
+    const verif: any = await k.verify(txId);
+    const isSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
 
-  const updateData: Record<string, unknown> = {
-    transactionId: txId,
-    status: isSuccess ? 'success' : 'pending',
-    verification: verif || null,
-    source: 'callable',
-    verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-  };
+    const partnerId = String(verif?.partnerId || verif?.partner_id || (request.data as any)?.partnerId || '');
+    const amountFromVerification = Number(verif?.amount);
+    const amountFromRequest = Number((request.data as any)?.amount);
+    const amount = Number.isFinite(amountFromVerification)
+      ? amountFromVerification
+      : Number.isFinite(amountFromRequest)
+        ? amountFromRequest
+        : undefined;
 
-  if (partnerId) {
-    updateData.partnerId = partnerId;
-  }
-  if (typeof amount === 'number' && Number.isFinite(amount)) {
-    updateData.amount = amount;
-  }
-
-  await db.collection('payments').doc(txId).set(updateData, { merge: true });
-
-  if (isSuccess) {
-    await handleSuccessfulVote({
+    const updateData: Record<string, unknown> = {
       transactionId: txId,
-      partnerId,
-      amount,
+      status: isSuccess ? 'success' : 'pending',
+      verification: verif || null,
       source: 'callable',
-    });
+      verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (partnerId) {
+      updateData.partnerId = partnerId;
+    }
+    if (typeof amount === 'number' && Number.isFinite(amount)) {
+      updateData.amount = amount;
+    }
+
+    await db.collection('payments').doc(txId).set(updateData, { merge: true });
+
+    if (isSuccess) {
+      await handleSuccessfulVote({
+        transactionId: txId,
+        partnerId,
+        amount,
+        source: 'callable',
+      });
+    }
+
+    return { ok: true, status: isSuccess ? 'success' : 'pending' };
   }
-
-  return { ok: true, status: isSuccess ? 'success' : 'pending' };
-});
-
-
-
-
-
-
-
-
-
-
-
-
+);
