@@ -1,7 +1,8 @@
 'use client';
 /* eslint-disable @next/next/no-img-element */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import {
   allProducts,
   brandHighlights,
@@ -17,10 +18,13 @@ const NAV_ITEMS = [
   { label: "Profil", icon: UserIcon, active: false },
 ] as const;
 
+const BRAND_INFO = new Map(brandHighlights.map(brand => [brand.id, brand]));
+
 export default function Home() {
   const [activeBrand, setActiveBrand] = useState<string | null>(null);
   const [activeSegment, setActiveSegment] = useState<(typeof productSegments)[number]>(productSegments[0]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<ProductSummary | null>(null);
 
   const filteredProducts = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -38,6 +42,8 @@ export default function Home() {
     });
   }, [activeSegment, activeBrand, searchTerm]);
 
+  const closeProductDetail = () => setSelectedProduct(null);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100">
       <div className="mx-auto flex w-full max-w-sm flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_16px_60px_rgba(15,23,42,0.18)] md:max-w-none md:min-h-screen md:rounded-none md:border-none md:shadow-none">
@@ -46,10 +52,16 @@ export default function Home() {
           <BrandRow activeBrand={activeBrand} onSelectBrand={setActiveBrand} />
           <SegmentTabs activeSegment={activeSegment} onSelectSegment={setActiveSegment} />
           <PromoCarousel />
-          <ProductGrid products={filteredProducts} />
+          <ProductGrid products={filteredProducts} onSelectProduct={setSelectedProduct} />
         </main>
         <BottomNav />
       </div>
+      {selectedProduct && (
+        <ProductDetailSheet
+          product={selectedProduct}
+          onClose={closeProductDetail}
+        />
+      )}
     </div>
   );
 }
@@ -180,7 +192,13 @@ function PromoCarousel() {
   );
 }
 
-function ProductGrid({ products }: { products: ProductSummary[] }) {
+function ProductGrid({
+  products,
+  onSelectProduct,
+}: {
+  products: ProductSummary[];
+  onSelectProduct: (product: ProductSummary) => void;
+}) {
   if (products.length === 0) {
     return (
       <div className="mt-8 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
@@ -192,15 +210,34 @@ function ProductGrid({ products }: { products: ProductSummary[] }) {
   return (
     <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {products.map(product => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} onSelect={onSelectProduct} />
       ))}
     </div>
   );
 }
 
-function ProductCard({ product }: { product: ProductSummary }) {
+function ProductCard({
+  product,
+  onSelect,
+}: {
+  product: ProductSummary;
+  onSelect: (product: ProductSummary) => void;
+}) {
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect(product);
+    }
+  };
+
   return (
-    <article className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
+    <article
+      className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect(product)}
+      onKeyDown={handleKeyDown}
+    >
       <div className="relative">
         <img src={product.image} alt={product.name} className="h-36 w-full object-cover md:h-44" />
         <button
@@ -223,6 +260,136 @@ function ProductCard({ product }: { product: ProductSummary }) {
         <p className="pt-1 text-lg font-bold text-slate-900">{product.price}</p>
       </div>
     </article>
+  );
+}
+
+function ProductDetailSheet({
+  product,
+  onClose,
+}: {
+  product: ProductSummary;
+  onClose: () => void;
+}) {
+  const brandInfo = BRAND_INFO.get(product.brandId);
+  const brandLabel = brandInfo?.name ?? product.brandId;
+  const tagline = brandInfo?.tagline;
+
+  const featureCandidates = [
+    product.highlight,
+    product.storage ? `Stockage ${product.storage}` : null,
+    tagline,
+    "Livraison partout au Bénin",
+    "Assistance après-vente AfricaPhone",
+  ].filter((item): item is string => Boolean(item));
+
+  const features = Array.from(new Set(featureCandidates));
+
+  const specs = [
+    { label: "Segment", value: product.segment },
+    { label: "Catégorie", value: product.category },
+    { label: "Marque", value: brandLabel },
+    product.storage ? { label: "Capacité", value: product.storage } : null,
+  ].filter((spec): spec is { label: string; value: string } => Boolean(spec?.value));
+
+  const whatsappMessage = `Bonjour AfricaPhone, je suis intéressé par ${product.name} (${product.storage ?? "configuration standard"}). Pouvez-vous me confirmer la disponibilité ?`;
+  const whatsappLink = `https://wa.me/22961000000?text=${encodeURIComponent(whatsappMessage)}`;
+
+  useEffect(() => {
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 px-4 py-8 md:items-center"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl md:max-w-4xl"
+        onClick={event => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-slate-500 shadow hover:text-slate-900"
+          aria-label="Fermer la fiche produit"
+        >
+          <CloseIcon className="h-4 w-4" />
+        </button>
+        <div className="grid gap-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="relative bg-slate-100">
+            <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+          </div>
+          <div className="flex flex-col gap-5 p-6 md:p-8">
+            <div className="space-y-2">
+              <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                {brandLabel}
+              </span>
+              <h2 className="text-2xl font-bold text-slate-900 md:text-3xl">{product.name}</h2>
+              {tagline && <p className="text-sm text-slate-500">{tagline}</p>}
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Prix boutique</p>
+              <p className="mt-1 text-2xl font-bold text-slate-900">{product.price}</p>
+            </div>
+
+            <p className="text-sm leading-6 text-slate-600">{product.description}</p>
+
+            {features.length > 0 && (
+              <ul className="space-y-2 text-sm text-slate-600">
+                {features.map(feature => (
+                  <li key={feature} className="flex items-start gap-2">
+                    <CheckIcon className="mt-1 h-4 w-4 text-emerald-500" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {specs.length > 0 && (
+              <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {specs.map(spec => (
+                  <div key={`${spec.label}-${spec.value}`} className="rounded-xl border border-slate-200 px-3 py-2">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{spec.label}</dt>
+                    <dd className="text-sm font-semibold text-slate-900">{spec.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <div className="mt-auto flex flex-col gap-3 pt-2">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-600"
+              >
+                <WhatsappIcon className="h-5 w-5 text-white" />
+                Discuter sur WhatsApp
+              </a>
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -298,6 +465,52 @@ function HeartOutlineIcon({ className }: { className?: string }) {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="m5 10.5 2.667 2.667L15 6.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="m6 6 8 8M14 6l-8 8"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function WhatsappIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M12 20.5c4.69 0 8.5-3.692 8.5-8.25S16.69 4 12 4 3.5 7.692 3.5 12.25c0 1.427.382 2.77 1.05 3.935L3.5 21l5.019-1.64A8.716 8.716 0 0 0 12 20.5Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15.667 13.833c-.19.535-1.074 1.05-1.537 1.05-.462 0-.838.272-2.575-.868-1.737-1.14-2.77-2.997-2.857-3.159-.086-.163-.755-1.35-.755-2.146 0-.797.417-1.177.564-1.339.147-.163.326-.204.435-.204.109 0 .218.002.317.007.198.01.297.02.43.337.163.392.556 1.36.606 1.459.05.098.083.212.016.345-.068.132-.101.212-.2.326-.099.114-.21.248-.301.334-.099.094-.203.196-.099.386.104.19.462.81.991 1.312.68.652 1.254.859 1.446.955.191.095.309.082.425-.05.116-.134.49-.567.622-.758.132-.19.257-.16.43-.095.173.066 1.11.55 1.3.65.19.099.316.147.363.229.047.083.047.546-.144 1.082Z"
+        fill="currentColor"
       />
     </svg>
   );
