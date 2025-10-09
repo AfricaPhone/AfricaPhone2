@@ -9,8 +9,6 @@ import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import BrandScreen from '../screens/BrandScreen';
-import PredictionGameScreen from '../screens/PredictionGameScreen';
-import MatchListScreen from '../screens/MatchListScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import AuthPromptScreen from '../screens/AuthPromptScreen';
 import CreateProfileScreen from '../screens/CreateProfileScreen';
@@ -19,12 +17,9 @@ import FilterScreenResults from '../screens/FilterScreenResults';
 import ProductListScreen from '../screens/ProductListScreen';
 import CategorySelectionScreen from '../screens/CategorySelectionScreen';
 import FilterScreen from '../screens/FilterScreen';
-import PredictionRulesScreen from '../screens/PredictionRulesScreen';
-// SUPPRESSION: L'import de ContestStatsScreen n'est plus nécessaire
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AdminWinnersScreen from '../screens/AdminWinnersScreen';
-import MatchWinnersScreen from '../screens/MatchWinnersScreen';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Main = createNativeStackNavigator<MainStackParamList>();
@@ -93,10 +88,6 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="Main" component={MainStack} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Brand" component={BrandScreen} options={{ headerShown: false }} />
-      <RootStack.Screen name="MatchList" component={MatchListScreen} options={{ headerShown: false }} />
-      <RootStack.Screen name="PredictionGame" component={PredictionGameScreen} options={{ headerShown: false }} />
-      <RootStack.Screen name="PredictionRules" component={PredictionRulesScreen} options={{ headerShown: false }} />
-      <RootStack.Screen name="MatchWinners" component={MatchWinnersScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="Store" component={StoreScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="FilterScreenResults" component={FilterScreenResults} options={{ headerShown: false }} />
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />

@@ -15,10 +15,24 @@ import {
   setDoc,
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
-import { Prediction, RootStackParamList } from '../types';
+import { RootStackParamList } from '../types';
 import { useStore } from '../store/StoreContext';
 
 const getTimestampMillis = (timestamp?: FirebaseFirestoreTypes.Timestamp): number => timestamp?.toDate().getTime() ?? 0;
+
+type Prediction = {
+  id?: string;
+  userId?: string;
+  userName?: string;
+  matchId?: string;
+  scoreA?: number;
+  scoreB?: number;
+  contactFirstName?: string;
+  contactLastName?: string;
+  contactPhone?: string;
+  featuredWinner?: boolean;
+  createdAt?: FirebaseFirestoreTypes.Timestamp;
+};
 
 const AdminWinnersScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();

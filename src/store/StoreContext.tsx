@@ -129,7 +129,6 @@ const normalizeUser = (
     firstName: rest.firstName ?? currentUser?.firstName,
     lastName: rest.lastName ?? currentUser?.lastName,
     pushTokens: rest.pushTokens ?? currentUser?.pushTokens,
-    participatedContests: rest.participatedContests ?? currentUser?.participatedContests,
     hasSharedApp: resolvedHasSharedApp,
     appShareCount: resolvedAppShareCount,
     lastAppShareAt: rest.lastAppShareAt ?? currentUser?.lastAppShareAt,

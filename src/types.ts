@@ -1,7 +1,6 @@
 // src/types.ts
 import { DimensionValue } from 'react-native';
 import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // AJOUT: La définition de Segment est maintenant ici et est exportée
 export const SEGMENTS = ['Populaires', 'tablette', 'portable a touche', 'accessoire'] as const;
@@ -51,7 +50,6 @@ export type User = {
   phoneNumber?: string | null;
   initials: string;
   pushTokens?: string[];
-  participatedContests?: UserContest[];
   hasSharedApp?: boolean;
   appShareCount?: number;
   lastAppShareAt?: string;
@@ -130,18 +128,6 @@ export type RootStackParamList = {
   Main: undefined;
   ProductDetail: { productId: string };
   Brand: { brandId: string };
-  MatchList: undefined;
-  PredictionGame: { matchId: string };
-  PredictionRules: undefined;
-  MatchWinners: {
-    matchId: string;
-    teamA: string;
-    teamAFlag?: string | null;
-    teamB: string;
-    teamBFlag?: string | null;
-    finalScoreA?: number | null;
-    finalScoreB?: number | null;
-  };
   Store: undefined;
   SignUp: undefined;
   AuthPrompt: undefined;
@@ -150,8 +136,6 @@ export type RootStackParamList = {
   FilterScreen: undefined;
   ProductList: { title: string; category?: string; brandId?: string; searchQuery?: string };
   CategorySelection: undefined;
-  Contest: { contestId: string };
-  CandidateProfile: { candidate: Candidate };
   AdminWinners: undefined;
 };
 
@@ -166,47 +150,6 @@ export type TabParamList = {
   Profile: undefined;
 };
 
-// --- Prediction Game ---
-export type Prediction = {
-  id?: string;
-  userId: string;
-  userName: string;
-  matchId: string;
-  scoreA: number;
-  scoreB: number;
-  contactFirstName?: string;
-  contactLastName?: string;
-  contactPhone?: string;
-  contactPhoneNormalized?: string;
-  createdAt: FirebaseFirestoreTypes.Timestamp;
-  updatedAt?: FirebaseFirestoreTypes.Timestamp;
-  isWinner?: boolean;
-  featuredWinner?: boolean;
-};
-
-export type WinnerGalleryEntry = {
-  id?: string;
-  name?: string;
-  photoUrl: string;
-  description?: string;
-  isPublic?: boolean;
-  createdAt?: FirebaseFirestoreTypes.Timestamp;
-  updatedAt?: FirebaseFirestoreTypes.Timestamp;
-};
-
-export type Match = {
-  id?: string;
-  startTime: FirebaseFirestoreTypes.Timestamp;
-  finalScoreA?: number | null;
-  finalScoreB?: number | null;
-  teamA: string;
-  teamB: string;
-  teamALogo?: string;
-  teamBLogo?: string;
-  competition: string;
-  predictionCount?: number;
-  trends?: { [score: string]: number };
-};
 
 // --- Boutique Info ---
 export type BoutiqueInfo = {
@@ -222,42 +165,4 @@ export type BoutiqueInfo = {
   address?: string;
   openingHours?: string;
   category?: string;
-};
-
-// --- Carte Promotionnelle (HomeScreen) ---
-export type PromoCard = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  cta: string;
-  image: string;
-  screen?: keyof RootStackParamList;
-  screenParams?: object;
-  sortOrder: number;
-};
-
-// --- Concours de Vote ---
-export type Contest = {
-  id: string;
-  title: string;
-  description: string;
-  endDate: Date;
-  status: 'active' | 'ended';
-  totalParticipants: number;
-  totalVotes: number;
-};
-
-export type Candidate = {
-  id: string;
-  contestId: string;
-  name: string;
-  media: string;
-  photoUrl: string;
-  voteCount: number;
-};
-
-export type UserContest = {
-  contestId: string;
-  contestName: string;
-  badgeIcon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
