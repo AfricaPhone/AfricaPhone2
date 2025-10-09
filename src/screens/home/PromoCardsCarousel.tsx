@@ -1,8 +1,20 @@
 ﻿// src/screens/home/PromoCardsCarousel.tsx
-import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  FlatList,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { PromoCard, RootStackParamList } from '../../types';
 import { useScrollCoordinator } from '../../contexts/ScrollCoordinator';
 
@@ -11,18 +23,34 @@ interface Props {
   isLoading: boolean;
 }
 
-const CARD_WIDTH = 240;
+const CARD_WIDTH = 260;
+const CARD_GAP = 16;
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<PromoCard>);
 
 const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
   const { lockParentScroll, unlockParentScroll } = useScrollCoordinator();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const data = useMemo(() => promoCards, [promoCards]);
+
+  const handleMomentumScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const index = Math.round(offsetX / (CARD_WIDTH + CARD_GAP));
+      setActiveIndex(index);
+      unlockParentScroll();
+    },
+    [unlockParentScroll]
+  );
 
   const handleCardPress = useCallback(
     (card: PromoCard) => {
       if (!card.screen) {
         return;
       }
-
       if (card.screenParams) {
         navigation.navigate(card.screen, card.screenParams as never);
       } else {
@@ -34,116 +62,162 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
 
   const renderPromoCard = useCallback(
     ({ item, index }: { item: PromoCard; index: number }) => {
-      const cardStyle = [styles.cardWrapper, index === promoCards.length - 1 && styles.cardWrapperLast];
+      const inputRange = [
+        (index - 1) * (CARD_WIDTH + CARD_GAP),
+        index * (CARD_WIDTH + CARD_GAP),
+        (index + 1) * (CARD_WIDTH + CARD_GAP),
+      ];
+
+      const scale = scrollX.interpolate({
+        inputRange,
+        outputRange: [0.94, 1, 0.94],
+        extrapolate: 'clamp',
+      });
 
       return (
-        <TouchableOpacity style={cardStyle} onPress={() => handleCardPress(item)} activeOpacity={0.9}>
-          <ImageBackground source={{ uri: item.image }} style={styles.cardImage} imageStyle={{ borderRadius: 20 }}>
-            <LinearGradient colors={['rgba(0,0,0,0.65)', 'rgba(0,0,0,0.25)']} style={styles.promoOverlay}>
-              <View>
-                <Text style={styles.promoTitleLarge} numberOfLines={2}>
-                  {item.title}
-                </Text>
-                {item.subtitle && (
-                  <Text style={styles.promoSubLarge} numberOfLines={2}>
-                    {item.subtitle}
-                  </Text>
-                )}
-              </View>
-              <View style={styles.ctaWrapper}>
-                <View style={styles.promoCta}>
-                  <Text style={styles.promoCtaText}>{item.cta}</Text>
+        <Animated.View style={[styles.cardWrapper, { transform: [{ scale }] }]}>
+          <TouchableOpacity onPress={() => handleCardPress(item)} activeOpacity={0.9}>
+            <ImageBackground source={{ uri: item.image }} style={styles.cardImage} imageStyle={styles.cardImageRadius}>
+              <LinearGradient colors={['rgba(15,23,42,0.75)', 'rgba(15,23,42,0.2)']} style={styles.overlay}>
+                <View style={styles.cardContent}>
+                  <View style={{ gap: 4 }}>
+                    <Text style={styles.cardTitle} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+                    {item.subtitle ? (
+                      <Text style={styles.cardSubtitle} numberOfLines={2}>
+                        {item.subtitle}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.ctaRow}>
+                    <View style={styles.ctaPill}>
+                      <Text style={styles.ctaText}>{item.cta}</Text>
+                      <Ionicons name="arrow-forward" size={14} color="#0f172a" />
+                    </View>
+                  </View>
                 </View>
-              </View>
-            </LinearGradient>
-          </ImageBackground>
-        </TouchableOpacity>
+              </LinearGradient>
+            </ImageBackground>
+          </TouchableOpacity>
+        </Animated.View>
       );
     },
-    [handleCardPress, promoCards.length]
+    [handleCardPress, scrollX]
   );
 
   if (isLoading) {
     return <ActivityIndicator style={{ marginVertical: 12, height: 120 }} />;
   }
 
-  if (!promoCards.length) {
+  if (!data.length) {
     return null;
   }
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={promoCards}
+      <AnimatedFlatList
+        data={data}
         horizontal
         showsHorizontalScrollIndicator={false}
         keyExtractor={item => item.id}
         renderItem={renderPromoCard}
         contentContainerStyle={styles.listContent}
         onScrollBeginDrag={lockParentScroll}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
+          useNativeDriver: true,
+        })}
         onScrollEndDrag={unlockParentScroll}
-        onMomentumScrollEnd={unlockParentScroll}
+        onMomentumScrollBegin={lockParentScroll}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
         nestedScrollEnabled
         directionalLockEnabled
         decelerationRate="fast"
         snapToAlignment="start"
-        snapToInterval={CARD_WIDTH + 16}
+        snapToInterval={CARD_WIDTH + CARD_GAP}
         bounces={false}
       />
+      <View style={styles.dotsRow}>
+        {data.map((_, index) => {
+          const isActive = index === activeIndex;
+          return <View key={index} style={[styles.dot, isActive && styles.dotActive]} />;
+        })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 4,
+    paddingBottom: 8,
   },
   listContent: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
   },
   cardWrapper: {
     width: CARD_WIDTH,
-    marginRight: 16,
-    borderRadius: 20,
+    marginRight: CARD_GAP,
+    borderRadius: 24,
     overflow: 'hidden',
-  },
-  cardWrapperLast: {
-    marginRight: 0,
   },
   cardImage: {
     width: '100%',
-    height: 110,
+    height: 150,
   },
-  promoOverlay: {
+  cardImageRadius: {
+    borderRadius: 24,
+  },
+  overlay: {
     flex: 1,
-    padding: 8,
+    padding: 16,
     justifyContent: 'space-between',
   },
-  promoTitleLarge: {
-    fontSize: 14,
+  cardContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  cardTitle: {
+    fontSize: 16,
     fontWeight: '800',
-    color: '#fff',
-    maxWidth: '90%',
+    color: '#f8fafc',
   },
-  promoSubLarge: {
-    fontSize: 11,
-    color: '#f1f5f9',
-    maxWidth: '90%',
-    marginTop: 2,
+  cardSubtitle: {
+    fontSize: 12,
+    color: '#e2e8f0',
   },
-  ctaWrapper: {
+  ctaRow: {
     alignItems: 'flex-start',
   },
-  promoCta: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 99,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+  ctaPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
   },
-  promoCtaText: {
-    color: '#1e293b',
+  ctaText: {
+    fontSize: 12,
     fontWeight: '700',
-    fontSize: 11,
+    color: '#0f172a',
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 8,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(148,163,184,0.4)',
+  },
+  dotActive: {
+    width: 16,
+    backgroundColor: '#0f172a',
   },
 });
 

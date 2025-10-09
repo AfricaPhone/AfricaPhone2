@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import { Dimensions, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { Ionicons } from '@expo/vector-icons';
@@ -65,7 +65,7 @@ const HomeHero: React.FC = () => {
       <Carousel
         loop
         width={width}
-        height={width * 0.9}
+        height={Math.min(width * 0.65, 360)}
         autoPlay
         autoPlayInterval={4500}
         data={slides}
@@ -98,7 +98,11 @@ type HeroCardProps = {
 const HeroCard: React.FC<HeroCardProps> = ({ slide, onPress }) => {
   return (
     <View style={styles.cardWrapper}>
-      <ImageBackground source={{ uri: slide.image }} style={styles.backgroundImage} imageStyle={styles.backgroundImageContent}>
+      <ImageBackground
+        source={{ uri: slide.image }}
+        style={styles.backgroundImage}
+        imageStyle={styles.backgroundImageContent}
+      >
         <View style={[styles.overlay, { backgroundColor: `${slide.accentColor}99` }]} />
         <View style={styles.content}>
           <View style={styles.badge}>
@@ -107,7 +111,11 @@ const HeroCard: React.FC<HeroCardProps> = ({ slide, onPress }) => {
           </View>
           <Text style={styles.title}>{slide.title}</Text>
           <Text style={styles.description}>{slide.description}</Text>
-          <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[styles.cta, { backgroundColor: slide.accentColor }]}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={onPress}
+            style={[styles.cta, { backgroundColor: slide.accentColor }]}
+          >
             <Text style={styles.ctaText}>{slide.ctaLabel}</Text>
             <Ionicons name="arrow-forward" size={16} color="#fff" />
           </TouchableOpacity>
@@ -126,7 +134,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   backgroundImage: {
-    height: width * 0.9,
+    height: Math.min(width * 0.65, 360),
     justifyContent: 'flex-end',
     overflow: 'hidden',
     borderRadius: 28,

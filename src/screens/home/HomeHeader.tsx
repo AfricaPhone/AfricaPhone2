@@ -1,4 +1,4 @@
-// src/screens/home/HomeHeader.tsx
+﻿// src/screens/home/HomeHeader.tsx
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -19,6 +19,7 @@ import type { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { collection, endAt, getDocs, limit, orderBy, query, startAt } from '@react-native-firebase/firestore';
 import { db } from '../../firebase/config';
 import { Product, RootStackParamList, TabParamList } from '../../types';
+import { useFilters } from '../../store/FilterContext';
 
 interface Props {
   onFilterPress: () => void;
@@ -29,11 +30,28 @@ type HomeHeaderNavigation = CompositeNavigationProp<
   NativeStackNavigationProp<RootStackParamList>
 >;
 
+type QuickCategory = {
+  id: string;
+  label: string;
+  query: string;
+  color: string;
+  icon: keyof typeof Ionicons.glyphMap;
+};
+
 const MAX_RECENT_SEARCHES = 6;
 const RECENT_SEARCH_KEY = '@africaphone/recent-searches';
 
+const QUICK_CATEGORIES: QuickCategory[] = [
+  { id: 'flagship', label: 'Flagships', query: 'Galaxy S24', color: '#1d4ed8', icon: 'sparkles-outline' },
+  { id: 'budget', label: 'Budget', query: 'Itel', color: '#059669', icon: 'wallet-outline' },
+  { id: 'creator', label: 'Créateurs', query: 'Stabilisateur', color: '#c026d3', icon: 'aperture-outline' },
+  { id: 'audio', label: 'Audio', query: 'AirPods', color: '#f97316', icon: 'musical-notes-outline' },
+  { id: 'gaming', label: 'Gaming', query: 'Infinix Zero', color: '#dc2626', icon: 'game-controller-outline' },
+];
+
 const HomeHeader: React.FC<Props> = ({ onFilterPress }) => {
   const navigation = useNavigation<HomeHeaderNavigation>();
+  const { activeFilterCount } = useFilters();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -46,9 +64,7 @@ const HomeHeader: React.FC<Props> = ({ onFilterPress }) => {
   useEffect(() => {
     AsyncStorage.getItem(RECENT_SEARCH_KEY)
       .then(value => {
-        if (!value) {
-          return;
-        }
+        if (!value) return;
         const parsed = JSON.parse(value);
         if (Array.isArray(parsed)) {
           setRecentSearches(parsed.slice(0, MAX_RECENT_SEARCHES));
@@ -111,9 +127,7 @@ const HomeHeader: React.FC<Props> = ({ onFilterPress }) => {
 
   const handleSubmitSearch = useCallback(() => {
     const term = searchTerm.trim();
-    if (!term) {
-      return;
-    }
+    if (!term) return;
     updateRecentSearches(term);
     Keyboard.dismiss();
     setIsFocused(false);
@@ -133,36 +147,56 @@ const HomeHeader: React.FC<Props> = ({ onFilterPress }) => {
     [navigation, updateRecentSearches]
   );
 
-  const limitedSuggestions = useMemo(() => suggestions.slice(0, 5), [suggestions]);
+  const handleQuickCategory = useCallback(
+    (category: QuickCategory) => {
+      setSearchTerm(category.query);
+      updateRecentSearches(category.query);
+      setIsFocused(false);
+      navigation.navigate('ProductList', {
+        title: category.label,
+        searchQuery: category.query,
+      });
+    },
+    [navigation, updateRecentSearches]
+  );
 
+  const limitedSuggestions = useMemo(() => suggestions.slice(0, 5), [suggestions]);
   const showSuggestions =
     isFocused && (debouncedQuery.trim().length > 0 || recentSearches.length > 0 || suggestions.length > 0);
 
   return (
-    <View style={styles.fixedHeader}>
-      <View style={styles.searchContainer}>
-        <View style={styles.searchWrapper}>
-          <Ionicons name="search-outline" size={20} color="#8A8A8E" />
-          <TextInput
-            value={searchTerm}
-            onChangeText={setSearchTerm}
-            placeholder="Rechercher un appareil ou une marque"
-            placeholderTextColor="#8A8A8E"
-            returnKeyType="search"
-            onSubmitEditing={handleSubmitSearch}
-            onFocus={() => setIsFocused(true)}
-            style={styles.searchInput}
-          />
-          {searchTerm.length > 0 ? (
-            <TouchableOpacity onPress={() => setSearchTerm('')} accessibilityLabel="Effacer la recherche">
-              <Ionicons name="close-circle" size={18} color="#9CA3AF" />
-            </TouchableOpacity>
-          ) : null}
+    <View style={styles.root}>
+      <View style={styles.heroCard}>
+        <View style={styles.searchRow}>
+          <View style={styles.searchWrapper}>
+            <Ionicons name="search-outline" size={20} color="#e2e8f0" />
+            <TextInput
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+              placeholder="Rechercher un appareil ou une marque"
+              placeholderTextColor="#cbd5f5"
+              returnKeyType="search"
+              onSubmitEditing={handleSubmitSearch}
+              onFocus={() => setIsFocused(true)}
+              style={styles.searchInput}
+            />
+            {searchTerm.length > 0 ? (
+              <TouchableOpacity onPress={() => setSearchTerm('')} accessibilityLabel="Effacer la recherche">
+                <Ionicons name="close-circle" size={18} color="#cbd5f5" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+          <TouchableOpacity onPress={onFilterPress} style={styles.filterButton}>
+            <MaterialCommunityIcons name="filter-variant" size={18} color="#0f172a" />
+            <Text style={styles.filterButtonText}>Filtres</Text>
+            {activeFilterCount > 0 ? (
+              <View style={styles.filterBadge}>
+                <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+              </View>
+            ) : null}
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={onFilterPress} style={styles.filterButton}>
-          <MaterialCommunityIcons name="filter-variant" size={18} color="#111" />
-          <Text style={styles.filterButtonText}>Filtrer</Text>
-        </TouchableOpacity>
+        <QuickCategories categories={QUICK_CATEGORIES} onSelect={handleQuickCategory} />
       </View>
 
       {showSuggestions ? (
@@ -212,7 +246,7 @@ const HomeHeader: React.FC<Props> = ({ onFilterPress }) => {
                       AsyncStorage.removeItem(RECENT_SEARCH_KEY).catch(() => undefined);
                     }}
                   >
-                    <Text style={styles.clearHistory}>Effacer</Text>
+                    <Text style={styles.clearHistory}>Effacer l’historique</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.recentChipRow}>
@@ -241,54 +275,129 @@ const HomeHeader: React.FC<Props> = ({ onFilterPress }) => {
 
 export default HomeHeader;
 
+type QuickCategoriesProps = {
+  categories: QuickCategory[];
+  onSelect: (category: QuickCategory) => void;
+};
+
+const QuickCategories: React.FC<QuickCategoriesProps> = ({ categories, onSelect }) => {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickCategories}>
+      {categories.map(category => (
+        <TouchableOpacity
+          key={category.id}
+          style={[styles.quickCategory, { backgroundColor: `${category.color}15` }]}
+          onPress={() => onSelect(category)}
+          activeOpacity={0.85}
+        >
+          <View style={[styles.quickIconWrapper, { backgroundColor: category.color }]}>
+            <Ionicons name={category.icon} size={16} color="#fff" />
+          </View>
+          <Text style={styles.quickLabel}>{category.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  );
+};
+
 const styles = StyleSheet.create({
-  fixedHeader: {
-    backgroundColor: '#fff',
-    paddingBottom: 6,
-    paddingTop: 10,
+  root: {
+    backgroundColor: '#0f172a',
+    paddingBottom: 12,
+    paddingTop: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    zIndex: 20,
+    borderBottomColor: '#1f2937',
   },
-  searchContainer: {
+  heroCard: {
+    marginHorizontal: 16,
+    borderRadius: 24,
+    padding: 16,
+    gap: 16,
+    backgroundColor: '#111b2e',
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    shadowColor: '#0f172a',
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 16 },
+  },
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 16,
     gap: 12,
   },
   searchWrapper: {
     flex: 1,
-    backgroundColor: '#F2F3F5',
-    borderRadius: 16,
-    height: 44,
-    paddingHorizontal: 12,
+    backgroundColor: '#0b1324',
+    borderRadius: 18,
+    height: 48,
+    paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#1e293b',
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
+    marginLeft: 10,
     fontSize: 15,
-    color: '#111',
+    color: '#f8fafc',
     paddingVertical: 0,
   },
   filterButton: {
-    height: 44,
-    borderRadius: 16,
-    backgroundColor: '#F2F3F5',
-    alignItems: 'center',
     flexDirection: 'row',
-    paddingHorizontal: 14,
-    gap: 6,
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#f97316',
   },
   filterButtonText: {
-    color: '#111',
+    color: '#0f172a',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  filterBadge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#0f172a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  filterBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  quickCategories: {
+    gap: 12,
+  },
+  quickCategory: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 16,
+  },
+  quickIconWrapper: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickLabel: {
+    color: '#e2e8f0',
+    fontSize: 13,
     fontWeight: '600',
-    fontSize: 15,
   },
   suggestionCard: {
     marginHorizontal: 16,
-    marginTop: 8,
+    marginTop: 10,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#e5e7eb',
