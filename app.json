@@ -25,8 +25,8 @@
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "resize",
-      "versionCode": 7,
-      "runtimeVersion": "1.0.1"
+      "versionCode": 9,
+      "runtimeVersion": "1.2.1"
     },
     "web": {
       "favicon": "./assets/favicon.png"
