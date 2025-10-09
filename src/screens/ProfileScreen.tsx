@@ -6,17 +6,7 @@ import { useStore } from '../store/StoreContext';
 import ProfileListItem from '../components/ProfileListItem';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { UserContest, RootStackParamList } from '../types';
-
-// Données simulées pour les badges
-const mockParticipatedContests: UserContest[] = [
-  {
-    contestId: 'journalistes-tech-2025',
-    contestName: 'Trophée du Journaliste Tech 2025',
-    badgeIcon: 'seal',
-  },
-];
+import { RootStackParamList } from '../types';
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useStore();
@@ -53,20 +43,6 @@ const ProfileScreen: React.FC = () => {
           <Text style={styles.profileName}>{user?.name}</Text>
           <Text style={styles.profileEmail}>{user?.email || user?.phoneNumber}</Text>
         </View>
-      </View>
-      {/* AJOUT: Section des badges */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Mes Badges de Supporter</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeContainer}>
-          {mockParticipatedContests.map(contest => (
-            <View key={contest.contestId} style={styles.badge}>
-              <MaterialCommunityIcons name={contest.badgeIcon} size={32} color="#f59e0b" />
-              <Text style={styles.badgeText} numberOfLines={2}>
-                {contest.contestName}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
       </View>
     </>
   );
@@ -180,28 +156,6 @@ const styles = StyleSheet.create({
     color: '#888',
     textTransform: 'uppercase',
     marginBottom: 8,
-  },
-  badgeContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  badge: {
-    backgroundColor: '#fffbeb',
-    borderColor: '#fef3c7',
-    borderWidth: 1,
-    borderRadius: 12,
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 8,
-  },
-  badgeText: {
-    textAlign: 'center',
-    fontSize: 11,
-    color: '#713f12',
-    fontWeight: '600',
-    marginTop: 6,
   },
   logoutButton: {
     marginTop: 32,

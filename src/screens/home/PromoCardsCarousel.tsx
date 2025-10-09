@@ -23,6 +23,11 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
         return;
       }
 
+      const routeNames = navigation.getState()?.routeNames ?? [];
+      if (!routeNames.includes(card.screen)) {
+        return;
+      }
+
       if (card.screenParams) {
         navigation.navigate(card.screen, card.screenParams as never);
       } else {

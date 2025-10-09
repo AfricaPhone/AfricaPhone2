@@ -19,8 +19,6 @@ import FilterScreenResults from '../screens/FilterScreenResults';
 import ProductListScreen from '../screens/ProductListScreen';
 import CategorySelectionScreen from '../screens/CategorySelectionScreen';
 import FilterScreen from '../screens/FilterScreen';
-import ContestScreen from '../screens/ContestScreen';
-import CandidateProfileScreen from '../screens/CandidateProfileScreen';
 import PredictionRulesScreen from '../screens/PredictionRulesScreen';
 // SUPPRESSION: L'import de ContestStatsScreen n'est plus nécessaire
 import { RootStackParamList, TabParamList, MainStackParamList } from '../types';
@@ -104,7 +102,6 @@ const RootNavigator: React.FC = () => {
       <RootStack.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="CategorySelection" component={CategorySelectionScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="FilterScreen" component={FilterScreen} options={{ headerShown: false }} />
-      <RootStack.Screen name="Contest" component={ContestScreen} options={{ headerShown: false }} />
       <RootStack.Screen name="AdminWinners" component={AdminWinnersScreen} options={{ headerShown: false }} />
       {/* SUPPRESSION: La déclaration de l'écran de statistiques n'est plus nécessaire */}
 
@@ -117,7 +114,6 @@ const RootNavigator: React.FC = () => {
           component={CreateProfileScreen}
           options={{ headerShown: false, gestureEnabled: false }}
         />
-        <RootStack.Screen name="CandidateProfile" component={CandidateProfileScreen} options={{ headerShown: false }} />
       </RootStack.Group>
     </RootStack.Navigator>
   );
