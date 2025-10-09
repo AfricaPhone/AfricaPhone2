@@ -18,6 +18,11 @@
       "site": "africaphone-admin-pro",
       "public": "others/admin-panel",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    },
+    {
+      "site": "africaphone-admin-legal",
+      "public": "others/admin-panel",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }
   ]
 }
