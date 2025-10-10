@@ -1,6 +1,6 @@
 ﻿// src/components/ProductGridCard.tsx
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Product } from '../types';
@@ -16,8 +16,7 @@ type Props = {
 const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
   const { toggleFavorite, isFav } = useFavorites();
   const isFavorite = isFav(product.id);
-  const hasSpecs = typeof product.ram === 'number' && typeof product.rom === 'number';
-
+  const oldPriceValue = product.oldPrice ?? Math.round(product.price * 1.12);
   const badges = useMemo(() => {
     const list: Array<{ label: string; style: object }> = [];
     if (product.isVedette) {
@@ -32,6 +31,10 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
     return list;
   }, [product.isVedette, product.enPromotion, promoted]);
 
+  const handleWhatsApp = () => {
+    const message = encodeURIComponent(`Bonjour, je suis interesse par ${product.title}.`);
+    Linking.openURL(`https://wa.me/2290154151522?text=${message}`).catch(() => undefined);
+  };
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.92} onPress={onPress}>
       <View style={styles.imageWrap}>
@@ -73,17 +76,14 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
         <Text numberOfLines={2} style={styles.title}>
           {product.title}
         </Text>
-
-        {hasSpecs ? (
-          <Text style={styles.specsText}>
-            {product.rom} Go · {product.ram} Go RAM
-          </Text>
-        ) : null}
-
         <View style={styles.priceRow}>
-          {product.enPromotion ? <Ionicons name="flash-outline" size={14} color="#f97316" /> : null}
           <Text style={styles.price}>{formatPrice(product.price)}</Text>
+          <Text style={styles.oldPrice}>{formatPrice(oldPriceValue)}</Text>
         </View>
+        <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsApp} activeOpacity={0.9}>
+          <Ionicons name="logo-whatsapp" size={16} color="#22c55e" />
+          <Text style={styles.whatsappText}>WhatsApp</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -160,27 +160,42 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingBottom: 12,
     paddingTop: 10,
-    gap: 6,
+    gap: 10,
   },
   title: {
     fontSize: 13,
     color: '#0f172a',
     fontWeight: '600',
   },
-  specsText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#64748b',
-  },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   price: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '800',
     color: '#0f172a',
+  },
+  oldPrice: {
+    fontSize: 13,
+    color: '#94a3b8',
+    textDecorationLine: 'line-through',
+    fontWeight: '600',
+  },
+  whatsappButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: 999,
+    paddingVertical: 10,
+    backgroundColor: '#0f172a',
+  },
+  whatsappText: {
+    color: '#f8fafc',
+    fontSize: 13,
+    fontWeight: '700',
   },
 });
 

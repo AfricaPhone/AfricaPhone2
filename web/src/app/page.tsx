@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { ProductTile, ServiceHighlight } from "@/data/storefront";
+import ProductGridSection from "@/components/ProductGridSection";
+import type { ServiceHighlight } from "@/data/storefront";
 import {
   deliveryLocation,
   departments,
   footerColumns,
   footerLegal,
   predictionCard,
-  productShelves,
   serviceHighlights,
   spotlights,
   topNavShortcuts,
@@ -19,7 +19,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <Header />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-[0.2rem] pb-20 pt-10 sm:px-4 lg:px-8">
-        <ProductShelvesSection />
+        <ProductGridSection />
         <SpotlightSection />
         <EngagementSection />
         <ServicesSection />
@@ -29,9 +29,9 @@ export default function HomePage() {
   );
 }
 
-function Header() {
+export function Header() {
   return (
-    <header className="bg-slate-900 text-white shadow-lg shadow-slate-900/20">
+    <header className="sticky top-0 z-50 bg-slate-900 text-white shadow-lg shadow-slate-900/20">
       <TopNav />
       <SecondaryNav />
     </header>
@@ -128,67 +128,6 @@ function SecondaryNav() {
   );
 }
 
-function ProductShelvesSection() {
-  const allProducts = productShelves.flatMap(shelf => shelf.items);
-
-  return (
-    <section aria-labelledby="all-products" className="space-y-6">
-      <h2 id="all-products" className="sr-only">
-        Tous les produits
-      </h2>
-      <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] lg:grid-cols-3 lg:gap-x-4 lg:gap-y-[0.75rem] xl:grid-cols-4 xl:gap-x-5 xl:gap-y-[0.9375rem]">
-        {allProducts.map(product => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function ProductCard({ product }: { product: ProductTile }) {
-  return (
-    <Link href={product.href} className="group block h-full">
-      <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_36px_-20px_rgba(15,23,42,0.55)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_28px_48px_-18px_rgba(15,23,42,0.55)]">
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
-          {product.badge ? (
-            <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-rose-600 shadow-sm shadow-slate-900/10">
-              {product.badge}
-            </span>
-          ) : null}
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-600 text-white shadow-lg shadow-rose-600/30"
-          >
-            <BookmarkIcon className="h-4 w-4" />
-          </span>
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 18vw"
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-          />
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-rose-600 shadow-lg shadow-slate-900/20 transition duration-200 group-hover:scale-110"
-          >
-            <HeartIcon className="h-4 w-4" />
-          </span>
-        </div>
-        <div className="flex flex-1 flex-col gap-4 px-3 pb-4 pt-5 text-left sm:px-4">
-          <div className="space-y-2">
-            <p className="text-lg font-extrabold text-rose-600 sm:text-xl">{product.price}</p>
-            <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
-            <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
-          </div>
-          <span className="mt-auto flex h-11 items-center justify-center rounded-full bg-emerald-500 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition duration-200 hover:bg-emerald-600">
-            Whatsapp
-          </span>
-        </div>
-      </article>
-    </Link>
-  );
-}
 function SpotlightSection() {
   return (
     <section id="collections" className="space-y-6">
@@ -329,7 +268,7 @@ function ServiceCard({ service }: { service: ServiceHighlight }) {
   );
 }
 
-function Footer() {
+export function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-200">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-12 lg:flex-row lg:justify-between lg:px-8">
@@ -379,41 +318,6 @@ function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function BookmarkIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <path
-        d="M7.5 4.5h9a1.5 1.5 0 0 1 1.5 1.5v13.25l-6-3.25-6 3.25V6a1.5 1.5 0 0 1 1.5-1.5Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="m8.5 9 3.5-1.5L15.5 9"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function HeartIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <path
-        d="M12 20s-7-4.35-7-9.5A4.5 4.5 0 0 1 9.5 6 4.05 4.05 0 0 1 12 7.5 4.05 4.05 0 0 1 14.5 6 4.5 4.5 0 0 1 19 10.5C19 15.65 12 20 12 20Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 

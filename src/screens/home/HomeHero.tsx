@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Dimensions, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,37 +19,70 @@ type HeroSlide = {
 
 const SLIDES: HeroSlide[] = [
   {
-    id: 'focus-pro',
+    id: 'galaxy-s24',
     title: 'Galaxy S24 Ultra',
     subtitle: 'Pré-configuration premium',
-    description: 'Bénéficiez du transfert complet de données, de la pose verre trempé et d’une livraison express 24 h.',
+    description: 'Transfert complet de vos données, pose de verre trempé et installation d’accessoires en boutique.',
     ctaLabel: 'Réserver avec un expert',
     accentColor: '#DB2777',
     gradient: '#f472b6',
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80',
     icon: 'sparkles-outline',
   },
   {
-    id: 'trade-in',
-    title: 'Switch Days AfricaPhone',
-    subtitle: 'Reprise instantanée',
-    description: 'Faites estimer votre smartphone en boutique et repartez avec un bonus fidélité de 20 000 FCFA.',
-    ctaLabel: 'Estimer mon appareil',
+    id: 'iphone-care',
+    title: 'Pack iPhone Care+',
+    subtitle: 'Protection intégrale',
+    description: 'Film hydrogel, coque MagSafe et chargeur 35 W inclus avec votre nouveau smartphone.',
+    ctaLabel: 'Composer mon pack',
     accentColor: '#2563eb',
     gradient: '#60a5fa',
-    image: 'https://images.unsplash.com/photo-1580894894513-541e068a5b41?auto=format&fit=crop&w=1200&q=80',
-    icon: 'swap-horizontal-outline',
+    image: 'https://images.unsplash.com/photo-1512499617640-c2f999018b72?auto=format&fit=crop&w=1200&q=80',
+    icon: 'shield-checkmark-outline',
   },
   {
-    id: 'kkiapay',
-    title: 'Financement Kkiapay',
-    subtitle: 'Payez en 6 fois',
-    description: 'Recevez votre accord en moins de 3 minutes et profitez de mensualités adaptées à votre budget.',
-    ctaLabel: 'Démarrer une simulation',
+    id: 'fold-express',
+    title: 'Galaxy Z Fold Express',
+    subtitle: 'Expert pliables',
+    description: 'Séance de prise en main, transfert de données et prêt de coque renforcée offert.',
+    ctaLabel: 'Découvrir l’accompagnement',
+    accentColor: '#0ea5e9',
+    gradient: '#38bdf8',
+    image: 'https://images.unsplash.com/photo-1515523110800-9415d13b84fb?auto=format&fit=crop&w=1200&q=80',
+    icon: 'phone-portrait-outline',
+  },
+  {
+    id: 'accessory-club',
+    title: 'Accessory Club',
+    subtitle: 'Abonnement accessoires',
+    description: 'Chargeurs GaN, câbles tressés et écouteurs sans fil livrés tous les trimestres.',
+    ctaLabel: 'S’abonner',
+    accentColor: '#f97316',
+    gradient: '#fb923c',
+    image: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&w=1200&q=80',
+    icon: 'cube-outline',
+  },
+  {
+    id: 'pro-setup',
+    title: 'Setup Pro Creator',
+    subtitle: 'Bundle accessoire pro',
+    description: 'Smartphone 200 MP, stabilisateur et micro cravate pour vos tournages mobiles.',
+    ctaLabel: 'Voir le bundle',
+    accentColor: '#0f172a',
+    gradient: '#334155',
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1200&q=80',
+    icon: 'videocam-outline',
+  },
+  {
+    id: 'trade-in-plus',
+    title: 'Switch Days AfricaPhone',
+    subtitle: 'Reprise immédiate',
+    description: 'Estimation express WhatsApp et bonus fidélité de 20 000 FCFA sur votre prochain smartphone.',
+    ctaLabel: 'Estimer mon appareil',
     accentColor: '#10b981',
     gradient: '#34d399',
-    image: 'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1200&q=80',
-    icon: 'cash-outline',
+    image: 'https://images.unsplash.com/photo-1580894894513-541e068a5b41?auto=format&fit=crop&w=1200&q=80',
+    icon: 'swap-horizontal-outline',
   },
 ];
 
@@ -98,11 +131,7 @@ type HeroCardProps = {
 const HeroCard: React.FC<HeroCardProps> = ({ slide, onPress }) => {
   return (
     <View style={styles.cardWrapper}>
-      <ImageBackground
-        source={{ uri: slide.image }}
-        style={styles.backgroundImage}
-        imageStyle={styles.backgroundImageContent}
-      >
+      <ImageBackground source={{ uri: slide.image }} style={styles.backgroundImage} imageStyle={styles.backgroundImageContent}>
         <View style={[styles.overlay, { backgroundColor: `${slide.accentColor}99` }]} />
         <View style={styles.content}>
           <View style={styles.badge}>
@@ -111,11 +140,7 @@ const HeroCard: React.FC<HeroCardProps> = ({ slide, onPress }) => {
           </View>
           <Text style={styles.title}>{slide.title}</Text>
           <Text style={styles.description}>{slide.description}</Text>
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={onPress}
-            style={[styles.cta, { backgroundColor: slide.accentColor }]}
-          >
+          <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[styles.cta, { backgroundColor: slide.accentColor }]}>
             <Text style={styles.ctaText}>{slide.ctaLabel}</Text>
             <Ionicons name="arrow-forward" size={16} color="#fff" />
           </TouchableOpacity>

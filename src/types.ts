@@ -18,7 +18,9 @@ export type Product = {
   id: string;
   title: string;
   price: number;
+  oldPrice?: number;
   image: string;
+  gallery?: string[];
   imageUrls?: string[];
   blurhash?: string;
   category: Category;

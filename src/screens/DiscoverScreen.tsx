@@ -17,10 +17,12 @@ import {
   Easing,
   StyleProp,
   ViewStyle,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
+import { Ionicons } from '@expo/vector-icons';
 
 /**
  * DiscoverScreen — Fil de découverte “façon Facebook”, lecture seule (admins publient).
@@ -44,7 +46,9 @@ type Product = {
   id: string;
   title: string;
   price: number;
+  oldPrice?: number;
   image: string;
+  gallery: string[];
   category?: string;
 };
 
@@ -239,17 +243,36 @@ const PostHeader = ({ author, createdAt }: { author: PostBase['author']; created
 );
 
 /** -------- Cartes (outlined, sans ombres) -------- */
-const ProductCard = ({ p, onPress }: { p: Product; onPress: () => void }) => (
-  <RippleBtn onPress={onPress} style={styles.productCard}>
-    <Image source={{ uri: p.image }} style={styles.productImage} />
-    <View style={styles.productBody}>
-      <Text numberOfLines={2} style={styles.productTitle}>
-        {p.title}
-      </Text>
-      <Text style={styles.productPrice}>{formatPrice(p.price)}</Text>
-    </View>
-  </RippleBtn>
-);
+const ProductCard = ({ p, onPress }: { p: Product; onPress: () => void }) => {
+  const mainImage = p.gallery?.[0] ?? p.image;
+  const oldPriceValue = p.oldPrice ?? Math.round(p.price * 1.12);
+  const priceText = formatPrice(p.price);
+  const oldPriceText = formatPrice(oldPriceValue);
+
+  const handleWhatsApp = () => {
+    const message = encodeURIComponent(`Bonjour, je souhaite plus d'informations sur ${p.title}.`);
+    Linking.openURL(`https://wa.me/2290154151522?text=${message}`).catch(() => undefined);
+  };
+
+  return (
+    <RippleBtn onPress={onPress} style={styles.productCard}>
+      <Image source={{ uri: mainImage }} style={styles.productImage} />
+      <View style={styles.productBody}>
+        <Text numberOfLines={2} style={styles.productTitle}>
+          {p.title}
+        </Text>
+        <View style={styles.priceRow}>
+          <Text style={styles.productPrice}>{priceText}</Text>
+          <Text style={styles.productOldPrice}>{oldPriceText}</Text>
+        </View>
+        <TouchableOpacity style={styles.whatsappBtn} onPress={handleWhatsApp} activeOpacity={0.9}>
+          <Ionicons name="logo-whatsapp" size={14} color="#22c55e" />
+          <Text style={styles.whatsappTxt}>WhatsApp</Text>
+        </TouchableOpacity>
+      </View>
+    </RippleBtn>
+  );
+};
 
 const ProductPostCard = ({ post, onOpen }: { post: ProductPost; onOpen: () => void }) => (
   <View style={styles.post}>
@@ -389,28 +412,72 @@ const Counts = ({ likes, comments, shares }: { likes: number; comments: number; 
 
 /** -------- MOCK DATA & Pagination -------- */
 const AVATARS = [
-  'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=256',
-  'https://images.unsplash.com/photo-1511367461989-f85a21fda167?q=80&w=256',
-  'https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=256',
+  'https://images.unsplash.com/photo-1510552776732-01acc9a4cbd0?auto=format&fit=crop&w=256&q=80',
+  'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=256&q=80',
+  'https://images.unsplash.com/photo-1512499617640-c2f999018b72?auto=format&fit=crop&w=256&q=80',
+  'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=256&q=80',
+  'https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&w=256&q=80',
+  'https://images.unsplash.com/photo-1580894908361-967195033215?auto=format&fit=crop&w=256&q=80',
 ];
 const IMAGES = [
-  'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1600',
-  'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1600',
-  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1600',
-  'https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1600',
+  'https://dummyimage.com/640x640/111827/f8fafc&text=Smartphone+Prime',
+  'https://dummyimage.com/640x640/0f172a/f8fafc&text=Galaxy+S24',
+  'https://dummyimage.com/640x640/1e293b/f8fafc&text=Bundle+Audio',
+  'https://dummyimage.com/640x640/0b1324/f8fafc&text=Accessories',
+  'https://dummyimage.com/640x640/111111/f8fafc&text=Edition+Limit',
+  'https://dummyimage.com/640x640/0f172a/fee2e2&text=Promo+Flash',
+  'https://dummyimage.com/640x640/111827/bef264&text=Wearables',
+  'https://dummyimage.com/640x640/0f172a/c7d2fe&text=Audio+Pro',
+  'https://dummyimage.com/640x640/1f2937/fef3c7&text=Kit+Creator',
+  'https://dummyimage.com/640x640/111827/fbcfe8&text=Ultra+5G',
+  'https://dummyimage.com/640x640/0b1324/b5f5ec&text=Chargeur+GaN',
+  'https://dummyimage.com/640x640/1f2937/ede9fe&text=Montre+Connectee',
+  'https://dummyimage.com/640x640/111827/cbd5f5&text=Pack+Entreprise',
+  'https://dummyimage.com/640x640/0f172a/ffedd5&text=Tablette+Pro',
+  'https://dummyimage.com/640x640/1e293b/fcc5d8&text=Casque+ANC',
+  'https://dummyimage.com/640x640/0b1324/bae6fd&text=Ecran+AMOLED',
+  'https://dummyimage.com/640x640/111827/e9d5ff&text=Starter+Kit',
+  'https://dummyimage.com/640x640/0f172a/fee2e2&text=Promo+Vedette',
+  'https://dummyimage.com/640x640/1e293b/dbeafe&text=Pack+Photo',
+  'https://dummyimage.com/640x640/0b1324/fde68a&text=Offre+Prime',
 ];
 
 const rand = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
 
-const makeProduct = (i: number): Product => ({
-  id: `p-${i}`,
-  title:
-    ['Casque Bluetooth', 'Montre connectée', 'Caméra Action', 'Enceinte Portable', 'Clavier Mécanique'][i % 5] +
-    ` ${100 + i}`,
-  price: [59, 95, 129, 199, 279, 349][i % 6],
-  image: rand(IMAGES),
-  category: ['Audio', 'Wearables', 'Photo', 'Accessoires'][i % 4],
-});
+const buildGallery = (seed: number, size = 4): string[] => {
+  const gallery: string[] = [];
+  const limit = Math.min(size, IMAGES.length);
+  const offset = (seed * 3) % IMAGES.length;
+  for (let index = 0; index < limit; index++) {
+    gallery.push(IMAGES[(offset + index) % IMAGES.length]);
+  }
+  return gallery;
+};
+
+const PRODUCT_LIBRARY = [
+  { title: 'iPhone 15 Pro Max', category: 'Smartphone', price: 589, oldPrice: 659 },
+  { title: 'Galaxy S24+', category: 'Smartphone', price: 529, oldPrice: 589 },
+  { title: 'Tecno Spark 20 Pro', category: 'Smartphone', price: 419, oldPrice: 469 },
+  { title: 'Chargeur GaN 65 W', category: 'Accessoire', price: 89, oldPrice: 109 },
+  { title: 'Coque MagSafe Armor', category: 'Accessoire', price: 39, oldPrice: 49 },
+  { title: 'Galaxy Buds Live Pro', category: 'Audio', price: 149, oldPrice: 189 },
+  { title: 'Station de charge 6 ports', category: 'Accessoire', price: 129, oldPrice: 159 },
+  { title: 'Stabilisateur mobile 3 axes', category: 'Accessoire', price: 219, oldPrice: 259 },
+] as const;
+
+const makeProduct = (i: number): Product => {
+  const item = PRODUCT_LIBRARY[i % PRODUCT_LIBRARY.length];
+  const gallery = buildGallery(i);
+  return {
+    id: `p-${i}`,
+    title: item.title,
+    price: item.price,
+    oldPrice: item.oldPrice,
+    image: gallery[0],
+    gallery,
+    category: item.category,
+  };
+};
 
 const makeAuthor = (i: number) => ({
   name: ['TechOne', 'ShopLine', 'Gadgeto'][i % 3],
@@ -848,10 +915,38 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.outline,
   },
-  productImage: { width: '100%', height: Math.min(300, width * 0.6), backgroundColor: TOKENS.surfaceVariant },
-  productBody: { padding: 10, gap: 4 },
+  productImage: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: TOKENS.surfaceVariant,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.outline,
+  },
+  productBody: { padding: 12, gap: 8 },
   productTitle: { fontSize: 15, fontWeight: '700', color: TOKENS.text },
-  productPrice: { fontSize: 14, fontWeight: '700', color: '#475569' },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  productPrice: { fontSize: 16, fontWeight: '800', color: TOKENS.accent },
+  productOldPrice: {
+    fontSize: 13,
+    color: TOKENS.textMuted,
+    textDecorationLine: 'line-through',
+    fontWeight: '600',
+  },
+  whatsappBtn: {
+    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    borderRadius: 999,
+    paddingVertical: 8,
+    backgroundColor: TOKENS.accent,
+  },
+  whatsappTxt: { color: '#f8fafc', fontSize: 13, fontWeight: '700' },
 
   // Article
   articleTitle: { fontSize: 17, fontWeight: '800', color: TOKENS.text, marginBottom: 8 },

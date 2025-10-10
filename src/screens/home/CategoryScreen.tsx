@@ -31,10 +31,25 @@ const productsCollection = collection(db, 'products');
 const mapDocToProduct = (doc: Snapshot): Product => {
   const data = doc.data();
   const imageUrls = data.imageUrls || [];
+  const price =
+    typeof data.price === 'number'
+      ? data.price
+      : typeof data.price === 'string'
+      ? Number(data.price)
+      : 0;
+  const explicitOldPrice =
+    typeof data.oldPrice === 'number'
+      ? data.oldPrice
+      : typeof data.old_price === 'number'
+      ? data.old_price
+      : undefined;
+  const oldPrice = explicitOldPrice ?? (price ? Math.round(price * 1.12) : undefined);
+
   return {
     id: doc.id,
     title: data.name,
-    price: data.price,
+    price,
+    oldPrice,
     image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || FALLBACK_IMAGE,
     imageUrls,
     category: data.category?.toLowerCase() || data.brand?.toLowerCase() || 'inconnu',
