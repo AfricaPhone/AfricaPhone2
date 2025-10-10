@@ -18,7 +18,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <Header />
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 pb-20 pt-10 lg:px-8">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-[0.2rem] pb-20 pt-10 sm:px-4 lg:px-8">
         <ProductShelvesSection />
         <SpotlightSection />
         <EngagementSection />
@@ -129,31 +129,19 @@ function SecondaryNav() {
 }
 
 function ProductShelvesSection() {
+  const allProducts = productShelves.flatMap(shelf => shelf.items);
+
   return (
-    <div className="flex flex-col gap-16">
-      {productShelves.map(shelf => (
-        <section key={shelf.id} id={shelf.anchor} className="space-y-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-900">{shelf.title}</h2>
-              <p className="text-sm text-slate-600">{shelf.subtitle}</p>
-            </div>
-            <Link
-              href={shelf.cta.href}
-              className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
-            >
-              {shelf.cta.label}
-              <ArrowRightIcon className="h-4 w-4 text-orange-300" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3 lg:gap-4 xl:grid-cols-4 xl:gap-5">
-            {shelf.items.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
+    <section aria-labelledby="all-products" className="space-y-6">
+      <h2 id="all-products" className="sr-only">
+        Tous les produits
+      </h2>
+      <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] lg:grid-cols-3 lg:gap-x-4 lg:gap-y-[0.75rem] xl:grid-cols-4 xl:gap-x-5 xl:gap-y-[0.9375rem]">
+        {allProducts.map(product => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+    </section>
   );
 }
 
