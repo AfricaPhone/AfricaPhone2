@@ -146,7 +146,7 @@ function ProductShelvesSection() {
               <ArrowRightIcon className="h-4 w-4 text-orange-300" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3 lg:gap-4 xl:grid-cols-4 xl:gap-5">
             {shelf.items.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -187,7 +187,7 @@ function ProductCard({ product }: { product: ProductTile }) {
             <HeartIcon className="h-4 w-4" />
           </span>
         </div>
-        <div className="flex flex-1 flex-col gap-4 px-4 pb-4 pt-5 text-left">
+        <div className="flex flex-1 flex-col gap-4 px-3 pb-4 pt-5 text-left sm:px-4">
           <div className="space-y-2">
             <p className="text-lg font-extrabold text-rose-600 sm:text-xl">{product.price}</p>
             <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
