@@ -33,7 +33,7 @@ export type BrandHighlight = {
   cta: HeroLink;
 };
 
-export const brandHighlights: BrandHighlight[] = [
+const baseBrandHighlights: BrandHighlight[] = [
   {
     id: "tecno",
     name: "Tecno",
@@ -41,7 +41,7 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#2563eb",
     background: "from-blue-100 to-blue-50",
     description: "Design audacieux, performances équilibrées et services AfricaPhone premium.",
-    logoUrl: "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=200&q=80",
+    logoUrl: "https://images.unsplash.com/photo-1512499617640-c2f999018b72?auto=format&fit=crop&w=200&q=80",
     cta: { label: "Focus Tecno", href: "/catalog/tecno" },
   },
   {
@@ -51,7 +51,7 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#22c55e",
     background: "from-green-100 to-emerald-50",
     description: "Autonomie XXL, écrans 120 Hz et accessoires gaming pour créateurs nomades.",
-    logoUrl: "https://images.unsplash.com/photo-1610792516820-0d5f8e5385a6?auto=format&fit=crop&w=200&q=80",
+    logoUrl: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=200&q=80",
     cta: { label: "Voir la gamme Infinix", href: "/catalog/infinix" },
   },
   {
@@ -61,7 +61,7 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#f97316",
     background: "from-orange-100 to-orange-50",
     description: "Le meilleur de Xiaomi : capteurs 200 MP, charge turbo et MIUI optimisé.",
-    logoUrl: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=200&q=80",
+    logoUrl: "https://images.unsplash.com/photo-1510552776732-01acc9a4cbd0?auto=format&fit=crop&w=200&q=80",
     cta: { label: "Choisir un Redmi", href: "/catalog/redmi" },
   },
   {
@@ -71,7 +71,7 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#ef4444",
     background: "from-rose-100 to-rose-50",
     description: "Fiabilité, double SIM 4G et budgets maîtrisés pour rester joignable partout.",
-    logoUrl: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=200&q=80",
+    logoUrl: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=200&q=80",
     cta: { label: "Découvrir Itel", href: "/catalog/itel" },
   },
   {
@@ -81,10 +81,65 @@ export const brandHighlights: BrandHighlight[] = [
     accentColor: "#0f172a",
     background: "from-slate-200 to-slate-100",
     description: "Écosystème Galaxy, écrans AMOLED et productivité haut de gamme sur-mesure.",
-    logoUrl: "https://images.unsplash.com/photo-1603791440384-56cd371ee9a7?auto=format&fit=crop&w=200&q=80",
+    logoUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80",
     cta: { label: "Solutions Galaxy", href: "/catalog/samsung" },
   },
 ];
+
+const extraBrandHighlights: BrandHighlight[] = [
+  {
+    id: "apple",
+    name: "Apple",
+    tagline: "iPhone & Accessoires",
+    accentColor: "#111827",
+    background: "from-gray-100 to-slate-50",
+    description: "iPhone 15, MagSafe et intégration parfaite avec l’écosystème Apple.",
+    logoUrl: "https://images.unsplash.com/photo-1510520007849-4d0aa59249d8?auto=format&fit=crop&w=200&q=80",
+    cta: { label: "Découvrir iPhone", href: "/catalog/apple" },
+  },
+  {
+    id: "xiaomi",
+    name: "Xiaomi",
+    tagline: "HyperCharge & IA",
+    accentColor: "#fb7185",
+    background: "from-rose-100 to-pink-50",
+    description: "Smartphones Redmi & Xiaomi 13, charge 120 W et accessoires connectés.",
+    logoUrl: "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=200&q=80",
+    cta: { label: "Explorer Xiaomi", href: "/catalog/xiaomi" },
+  },
+  {
+    id: "oppo",
+    name: "OPPO",
+    tagline: "Portrait Pro",
+    accentColor: "#0ea5e9",
+    background: "from-sky-100 to-sky-50",
+    description: "Photo avancée, design premium et finitions colorées inédites.",
+    logoUrl: "https://images.unsplash.com/photo-1511243810619-5dd73a968f13?auto=format&fit=crop&w=200&q=80",
+    cta: { label: "Voir OPPO", href: "/catalog/oppo" },
+  },
+  {
+    id: "oneplus",
+    name: "OnePlus",
+    tagline: "Vitesse & Fluidité",
+    accentColor: "#be123c",
+    background: "from-red-100 to-rose-50",
+    description: "Charge Warp, OxygenOS ultra fluide et packs gaming mobiles.",
+    logoUrl: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=200&q=80",
+    cta: { label: "Choisir OnePlus", href: "/catalog/oneplus" },
+  },
+  {
+    id: "nokia",
+    name: "Nokia",
+    tagline: "Endurance & Fiabilité",
+    accentColor: "#1d4ed8",
+    background: "from-blue-100 to-slate-50",
+    description: "Téléphones durables, autonomie XL et accessoires robustes.",
+    logoUrl: "https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=200&q=80",
+    cta: { label: "Gamme Nokia", href: "/catalog/nokia" },
+  },
+];
+
+export const brandHighlights: BrandHighlight[] = [...baseBrandHighlights, ...extraBrandHighlights];
 
 export const productSegments = [
   "Populaires",
@@ -122,7 +177,7 @@ export type ProductCollection = {
   cta: HeroLink;
 };
 
-export const productCollections: ProductCollection[] = [
+const baseProductCollections: ProductCollection[] = [
   {
     id: "popular",
     title: "Populaires en ce moment",
@@ -148,6 +203,54 @@ export const productCollections: ProductCollection[] = [
     ],
   },
 ];
+
+const collectionVariantImages = [
+  "https://images.unsplash.com/photo-1512499617640-c2f999018b72?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1510552776732-01acc9a4cbd0?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1515523110800-9415d13b84fb?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1580894908361-967195033215?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1610792516820-0d5f8e5385a6?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1603791440384-56cd371ee9a7?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1605106702845-0e9c01f8d552?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1610894699474-45833b9c7c91?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=900&q=80"
+] as const;
+const collectionSuffixes = [
+  "Signature",
+  "Collection+",
+  "Edition Limitée",
+  "Bundle Pro",
+  "Sélection VIP",
+  "Kit Festival",
+  "Club Premium",
+  "Pack Confort",
+  "Pack Créatif",
+  "Pack Voyage"
+] as const;
+
+const variantProductCollections: ProductCollection[] = baseProductCollections.map((collection, index) => {
+  const suffix = collectionSuffixes[index % collectionSuffixes.length];
+  const items = collection.items.map((item, itemIndex) => {
+    const image = collectionVariantImages[(index * 4 + itemIndex) % collectionVariantImages.length];
+    return {
+      ...item,
+      id: `${item.id}-v${index}`,
+      image,
+    };
+  });
+  return {
+    ...collection,
+    id: `${collection.id}-plus`,
+    title: `${collection.title} ${suffix}`,
+    items,
+  };
+});
+
+export const productCollections: ProductCollection[] = [...baseProductCollections, ...variantProductCollections];
+
 
 export type InsightCard = {
   id: string;
@@ -235,7 +338,7 @@ export type ProductSummary = {
   highlight?: string;
 };
 
-export const allProducts: ProductSummary[] = [
+const baseProducts: ProductSummary[] = [
   {
     id: "redmi-note-13-pro-256-12",
     name: "Redmi Note 13 Pro 5G",
@@ -453,3 +556,48 @@ export const allProducts: ProductSummary[] = [
     highlight: "Support dédié PME",
   },
 ];
+
+const variantImages = [
+  "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1533228100845-08145b01de14?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1603791452906-a23c0f29bb70?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1610894699474-45833b9c7c91?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1617050359583-3c9a503d17ce?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1605106702845-0e9c01f8d552?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1610792516820-0d5f8e5385a6?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1524650359799-842906ca1c4c?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1599134842279-fe807d23316b?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1527430253228-e93688616381?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=900&q=80"
+] as const;
+const variantNameSuffixes = [
+  "Pack Accessoires",
+  "Édition Premium",
+  "Kit Productivité",
+  "Bundle Créateur",
+  "Édition Business",
+  "Pack Charge Turbo"
+] as const;
+
+const variantProducts: ProductSummary[] = baseProducts.map((product, index) => {
+  const suffix = variantNameSuffixes[index % variantNameSuffixes.length];
+  const image = variantImages[index % variantImages.length];
+  const highlight = product.highlight ? `${product.highlight} + pack accessoires` : 'Pack accessoires premium';
+  return {
+    ...product,
+    id: `${product.id}-bundle`,
+    name: `${product.name} ${suffix}`,
+    image,
+    highlight,
+  };
+});
+
+export const allProducts: ProductSummary[] = [...baseProducts, ...variantProducts];
+

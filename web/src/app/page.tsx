@@ -6,7 +6,6 @@ import {
   departments,
   footerColumns,
   footerLegal,
-  heroBanner,
   predictionCard,
   productShelves,
   serviceHighlights,
@@ -20,7 +19,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <Header />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 pb-20 pt-10 lg:px-8">
-        <HeroSection />
         <ProductShelvesSection />
         <SpotlightSection />
         <EngagementSection />
@@ -130,66 +128,6 @@ function SecondaryNav() {
   );
 }
 
-function HeroSection() {
-  return (
-    <section id="hero" className="grid gap-8 lg:grid-cols-[1.8fr_1.2fr]">
-      <div className="flex flex-col justify-between rounded-3xl bg-white p-10 shadow-xl shadow-slate-900/5">
-        <div className="space-y-6">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-orange-600">
-            {heroBanner.tag}
-          </span>
-          <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            {heroBanner.title}
-          </h1>
-          <p className="max-w-2xl text-base text-slate-600 md:text-lg">{heroBanner.description}</p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href={heroBanner.ctaPrimary.href}
-              className="rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:bg-orange-600"
-            >
-              {heroBanner.ctaPrimary.label}
-            </Link>
-            <Link
-              href={heroBanner.ctaSecondary.href}
-              className="rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
-            >
-              {heroBanner.ctaSecondary.label}
-            </Link>
-          </div>
-        </div>
-        <ul className="mt-8 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-          {heroBanner.highlights.map(item => (
-            <li
-              key={item}
-              className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-slate-700"
-            >
-              <CheckIcon className="h-4 w-4 text-emerald-500" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-xl shadow-slate-900/20">
-        <Image
-          src={heroBanner.image}
-          alt="Presentation catalogue AfricaPhone"
-          fill
-          priority
-          sizes="(max-width: 1024px) 100vw, 40vw"
-          className="object-cover opacity-90"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
-        <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-white/10 p-4 backdrop-blur">
-          <p className="text-xs font-semibold uppercase tracking-wide text-orange-200">Services inclus</p>
-          <p className="mt-1 text-sm text-white">
-            Configuration complete + extension AfricaCare offertes sur tous les flagships Prime.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function ProductShelvesSection() {
   return (
     <div className="flex flex-col gap-16">
@@ -208,7 +146,7 @@ function ProductShelvesSection() {
               <ArrowRightIcon className="h-4 w-4 text-orange-300" />
             </Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
             {shelf.items.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -221,59 +159,48 @@ function ProductShelvesSection() {
 
 function ProductCard({ product }: { product: ProductTile }) {
   return (
-    <article className="group flex h-full flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-      <div className="relative h-44 w-full overflow-hidden rounded-2xl bg-slate-100">
-        {product.badge ? (
-          <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-orange-200">
-            {product.badge}
+    <Link href={product.href} className="group block h-full">
+      <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_36px_-20px_rgba(15,23,42,0.55)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_28px_48px_-18px_rgba(15,23,42,0.55)]">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+          {product.badge ? (
+            <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-rose-600 shadow-sm shadow-slate-900/10">
+              {product.badge}
+            </span>
+          ) : null}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-600 text-white shadow-lg shadow-rose-600/30"
+          >
+            <BookmarkIcon className="h-4 w-4" />
           </span>
-        ) : null}
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          sizes="(max-width: 768px) 50vw, 25vw"
-          className="object-cover transition duration-300 group-hover:scale-105"
-        />
-      </div>
-      <div className="flex flex-1 flex-col gap-2">
-        <h3 className="text-base font-semibold text-slate-900">{product.name}</h3>
-        <p className="text-sm text-slate-500">{product.tagline}</p>
-        <RatingStars rating={product.rating} reviews={product.reviews} />
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold text-slate-900">{product.price}</span>
-          {product.oldPrice ? <span className="text-sm text-slate-400 line-through">{product.oldPrice}</span> : null}
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 18vw"
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-rose-600 shadow-lg shadow-slate-900/20 transition duration-200 group-hover:scale-110"
+          >
+            <HeartIcon className="h-4 w-4" />
+          </span>
         </div>
-        {product.savings ? <p className="text-xs font-semibold text-emerald-600">{product.savings}</p> : null}
-        <Link
-          href={product.href}
-          className="mt-auto inline-flex items-center justify-center rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
-        >
-          Ajouter au panier
-        </Link>
-      </div>
-    </article>
+        <div className="flex flex-1 flex-col gap-4 px-4 pb-4 pt-5 text-left">
+          <div className="space-y-2">
+            <p className="text-lg font-extrabold text-rose-600 sm:text-xl">{product.price}</p>
+            <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
+            <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
+          </div>
+          <span className="mt-auto flex h-11 items-center justify-center rounded-full bg-emerald-500 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition duration-200 hover:bg-emerald-600">
+            Whatsapp
+          </span>
+        </div>
+      </article>
+    </Link>
   );
 }
-
-function RatingStars({ rating, reviews }: { rating: number; reviews: number }) {
-  const rounded = Math.round(rating * 2) / 2;
-  const stars = Array.from({ length: 5 }, (_, index) => {
-    const starValue = index + 1;
-    const filled = starValue <= Math.floor(rounded);
-    const half = !filled && starValue - 0.5 === rounded;
-    return <StarIcon key={starValue} filled={filled} half={half} />;
-  });
-
-  return (
-    <div className="flex items-center gap-2 text-xs text-slate-500">
-      <div className="flex items-center">{stars}</div>
-      <span>{rating.toFixed(1)}</span>
-      <span>({reviews})</span>
-    </div>
-  );
-}
-
 function SpotlightSection() {
   return (
     <section id="collections" className="space-y-6">
@@ -467,6 +394,41 @@ function Footer() {
   );
 }
 
+function BookmarkIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M7.5 4.5h9a1.5 1.5 0 0 1 1.5 1.5v13.25l-6-3.25-6 3.25V6a1.5 1.5 0 0 1 1.5-1.5Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m8.5 9 3.5-1.5L15.5 9"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function HeartIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M12 20s-7-4.35-7-9.5A4.5 4.5 0 0 1 9.5 6 4.05 4.05 0 0 1 12 7.5 4.05 4.05 0 0 1 14.5 6 4.5 4.5 0 0 1 19 10.5C19 15.65 12 20 12 20Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function SearchIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 20 20" fill="none" className={className}>
@@ -554,38 +516,6 @@ function ArrowRightIcon({ className }: { className?: string }) {
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function StarIcon({ filled, half }: { filled?: boolean; half?: boolean }) {
-  if (half) {
-    return (
-      <svg viewBox="0 0 20 20" className="h-4 w-4 text-amber-400">
-        <defs>
-          <linearGradient id="halfGradient">
-            <stop offset="50%" stopColor="currentColor" />
-            <stop offset="50%" stopColor="transparent" />
-          </linearGradient>
-        </defs>
-        <path
-          d="m10 2.5 2.06 4.17 4.6.67-3.33 3.25.79 4.57L10 12.9l-4.12 2.18.79-4.57L3.33 7.34l4.6-.67L10 2.5Z"
-          fill="url(#halfGradient)"
-          stroke="currentColor"
-          strokeWidth="0.6"
-        />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 20 20" className="h-4 w-4 text-amber-400">
-      <path
-        d="m10 2.5 2.06 4.17 4.6.67-3.33 3.25.79 4.57L10 12.9l-4.12 2.18.79-4.57L3.33 7.34l4.6-.67L10 2.5Z"
-        fill={filled ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="0.6"
       />
     </svg>
   );

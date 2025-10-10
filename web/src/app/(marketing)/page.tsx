@@ -27,7 +27,7 @@ const NAV_LINKS = [
 ] as const;
 
 const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?auto=format&fit=crop&w=1600&q=80";
+  "https://images.unsplash.com/photo-1510552776732-01acc9a4cbd0?auto=format&fit=crop&w=1600&q=80";
 
 const COMMUNITY_STORIES = [
   {
