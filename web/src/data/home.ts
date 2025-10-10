@@ -104,31 +104,7 @@ export type PromoCard = {
   image: string;
 };
 
-export const promoCards: PromoCard[] = [
-  {
-    id: "launch-protect",
-    title: "Protection premium offerte",
-    description: "Film trempé HD + pose express pour toute précommande de flagship Galaxy.",
-    badge: "Offre limitée",
-    cta: { label: "Réserver maintenant", href: "#contact" },
-    image: "https://images.unsplash.com/photo-1480694313141-fce5e697ee25?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: "switch-days",
-    title: "Switch Days AfricaPhone",
-    description: "Reprise immédiate de votre ancien smartphone + bonus fidélité 20 000 FCFA.",
-    badge: "Trade-in",
-    cta: { label: "Estimer mon appareil", href: "#finance" },
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: "campus-pack",
-    title: "Pack Campus connecté",
-    description: "Tablette + MiFi + coaching productivité pour booster votre rentrée.",
-    cta: { label: "Découvrir l’offre", href: "#collections" },
-    image: "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=900&q=80",
-  },
-];
+export const promoCards: PromoCard[] = [];
 
 export type ProductHighlight = {
   id: string;

@@ -21,6 +21,10 @@ npx eas build -p android --profile production
 ou
 npx eas build -p android --profile development
 
+npx expo install react-dom react-native-web
+npm run web
+
+
 # 3. Pousser la nouvelle branche et lier les deux
 git push origin -u feature-renommee
 
