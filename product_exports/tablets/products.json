@@ -1,0 +1,531 @@
+[
+  {
+    "id": "3IQ7H5QKgL0q0AjNBPy2",
+    "name": "iPad 11 eme génération",
+    "price": 310000,
+    "brand": "IPad",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 256,
+      "ram": 4,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755542153662-IMG-20250818-WA0296.jpg?alt=media&token=97c9f081-9717-47a6-808d-05a29205b317",
+    "localImage": "images/ipad-11-eme-generation.jpg",
+    "localImageFromRoot": "tablets/images/ipad-11-eme-generation.jpg",
+    "firestoreData": {
+      "name": "iPad 11 eme génération",
+      "price": 310000,
+      "brand": "IPad",
+      "ram": 4,
+      "rom": 256,
+      "description": "L’iPad de 11e génération propose un affichage de 11 pouces. C’est un tout petit peu mieux que son prédécesseur (10,9 pouces). La technologie Liquid Retina est bien au rendez-vous, mais pas la large gamme de couleurs P3, une exclusivité des iPad plus haut de gamme (Air, Mini et Pro).",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755542153662-IMG-20250818-WA0296.jpg?alt=media&token=97c9f081-9717-47a6-808d-05a29205b317",
+      "category": "tablette",
+      "stock": null
+    }
+  },
+  {
+    "id": "B9mxO8u4TkomuEr5Zqs3",
+    "name": "Idino Notebook 10",
+    "price": 60000,
+    "brand": "Idino",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 512,
+      "ram": 8,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FB9mxO8u4TkomuEr5Zqs3%2F1756479926991_p1g67t_processed.webp",
+    "localImage": "images/idino-notebook-10.webp",
+    "localImageFromRoot": "tablets/images/idino-notebook-10.webp",
+    "firestoreData": {
+      "name": "Idino Notebook 10",
+      "brand": "Idino",
+      "category": "tablette",
+      "price": 60000,
+      "stock": null,
+      "ram": 8,
+      "rom": 512,
+      "description": "L’iDino Notebook 10 est une tablette Android 12 de 10,1 pouces, conçue pour le travail et le divertissement. Elle est équipée d’une batterie de 10 000 mAh, de 8 Go de RAM, de 512 Go de stockage, de la fonction double SIM avec support 4G/5G, ainsi que d’un écran IPS haute définition.\n\nSouvent proposée avec des accessoires comme un clavier Bluetooth et un stylet, elle constitue un appareil polyvalent, idéal aussi bien pour l’apprentissage que pour la productivité.",
+      "createdAt": {
+        "_seconds": 1756479928,
+        "_nanoseconds": 232000000
+      },
+      "updatedAt": {
+        "_seconds": 1756479928,
+        "_nanoseconds": 232000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FB9mxO8u4TkomuEr5Zqs3%2F1756479926991_p1g67t_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FB9mxO8u4TkomuEr5Zqs3%2F1756479926991_p1g67t_processed.webp"
+      ]
+    }
+  },
+  {
+    "id": "NHUq9iWhG1ZOGnFtSPtS",
+    "name": "Redmi Pad Pro 5G",
+    "price": 172000,
+    "brand": "Redmi",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 128,
+      "ram": 6,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FNHUq9iWhG1ZOGnFtSPtS%2F1756481518292_xojhxf_processed.webp",
+    "localImage": "images/redmi-pad-pro-5g.webp",
+    "localImageFromRoot": "tablets/images/redmi-pad-pro-5g.webp",
+    "firestoreData": {
+      "name": "Redmi Pad Pro 5G",
+      "brand": "Redmi",
+      "category": "tablette",
+      "stock": null,
+      "ram": 6,
+      "rom": 128,
+      "description": "La Redmi Pad Pro 5G est une tablette polyvalente dotée d’un écran 12,1 pouces 2,5K à 120 Hz, d’un processeur Snapdragon 7s Gen 2, d’une batterie de 10 000 mAh, de quatre haut-parleurs Dolby Atmos, ainsi que de la connectivité 5G.\n\nElle fonctionne sous Xiaomi HyperOS pour une intégration fluide entre appareils, et prend en charge le Redmi Smart Pen ainsi que le clavier afin de renforcer la productivité. Elle offre également une protection oculaire certifiée TÜV Rheinland (triple certification) pour un usage prolongé en toute sécurité.",
+      "createdAt": {
+        "_seconds": 1756481519,
+        "_nanoseconds": 530000000
+      },
+      "updatedAt": {
+        "_seconds": 1756481519,
+        "_nanoseconds": 530000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FNHUq9iWhG1ZOGnFtSPtS%2F1756481518292_xojhxf_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FNHUq9iWhG1ZOGnFtSPtS%2F1756481518292_xojhxf_processed.webp"
+      ],
+      "price": 172000
+    }
+  },
+  {
+    "id": "OpXGwe1IratcDUE0gpqo",
+    "name": "Itel VistaTab30s",
+    "price": 82000,
+    "brand": "Itel",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 128,
+      "ram": 4,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FOpXGwe1IratcDUE0gpqo%2F1759972378130_lw2rvh_processed.webp",
+    "localImage": "images/itel-vistatab30s.webp",
+    "localImageFromRoot": "tablets/images/itel-vistatab30s.webp",
+    "firestoreData": {
+      "name": "Itel VistaTab30s",
+      "brand": "Itel",
+      "category": "tablette",
+      "price": 82000,
+      "stock": null,
+      "ram": 4,
+      "rom": 128,
+      "description": "L’itel VistaTab30s (128 Go / 4 Go) est une tablette abordable et polyvalente, adaptée aussi bien pour l’éducation que pour le divertissement. Elle est dotée d’un écran de 11 pouces avec un taux de rafraîchissement de 90 Hz, pour une navigation plus fluide.  \n\nElle embarque le processeur Helio G88 (ou T606 selon version), accompagné de 4 Go de RAM et de 128 Go de stockage interne, extensible via microSD.  \n\nCôté photo, elle propose une caméra arrière de 8 MP et une caméra frontale de 5 MP, suffisantes pour les appels vidéo et les captures occasionnelles.  \n\nSa batterie de 7 000 mAh assure une autonomie solide pour une journée complète d’utilisation modérée.  \n\nElle supporte la connectivité 4G LTE, le Wi-Fi, le Bluetooth, et offre des fonctionnalités utiles comme le mode “Computer” pour transformer l’interface en écran de bureau.  \n\nC’est une tablette bien équilibrée pour une utilisation quotidienne, avec un bon rapport capacité / prix.",
+      "specifications": [],
+      "createdAt": {
+        "_seconds": 1759972378,
+        "_nanoseconds": 583000000
+      },
+      "updatedAt": {
+        "_seconds": 1759972378,
+        "_nanoseconds": 583000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FOpXGwe1IratcDUE0gpqo%2F1759972378130_lw2rvh_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FOpXGwe1IratcDUE0gpqo%2F1759972378130_lw2rvh_processed.webp"
+      ]
+    }
+  },
+  {
+    "id": "VQXbAeFDedWmnHvSPrNf",
+    "name": "Infinix Xpad",
+    "price": 120000,
+    "brand": "Infinix",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 256,
+      "ram": 16,
+      "ram_base": 8,
+      "ram_extension": 8
+    },
+    "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2FVQXbAeFDedWmnHvSPrNf.jpg?alt=media&token=5dd527c4-d0f0-4803-9aaf-f673aab0aef2",
+    "localImage": "images/infinix-xpad.jpg",
+    "localImageFromRoot": "tablets/images/infinix-xpad.jpg",
+    "firestoreData": {
+      "brand": "Infinix",
+      "rom": 256,
+      "ram": 16,
+      "ram_base": 8,
+      "ram_extension": 8,
+      "imagePath": "products/Infinix_Xpad_256Go_16Go.jpg",
+      "name": "Infinix Xpad",
+      "price": 120000,
+      "description": "L'Infinix XPAD est une tablette Android économique qui met l'accent sur la consommation multimédia et les fonctionnalités de base. Elle est équipée d'un écran IPS LCD de 11 pouces avec un taux de rafraîchissement de 90 Hz et une résolution FHD+, d'un processeur MediaTek Helio G99 et d'un système audio stéréo à 4 haut-parleurs. La tablette comprend également un assistant vocal Folax avec ChatGPT et est disponible dans différentes configurations de mémoire vive et de stockage, y compris des modèles LTE et WiFi uniquement. \nPrincipales caractéristiques et spécifications :\nÉcran : LCD IPS de 11 pouces avec une résolution FHD+ (1200 x 1920) et un taux de rafraîchissement de 90 Hz. \nProcesseur : MediaTek Helio G99, offrant un équilibre entre performance et efficacité. \nMémoire : Disponible en options 4 Go et 8 Go de RAM avec 128 Go ou 256 Go de stockage. \nBatterie : Batterie de 7000mAh avec charge de 10W. \nConnectivité : Double emplacement pour carte SIM et emplacement pour carte microSD pour l'extension du stockage. \nSystème d'exploitation : Android 14. \nAudio : Système audio stéréo à 4 haut-parleurs. \nCaractéristiques spéciales : Assistant vocal Folax avec intégration ChatGPT, offrant une utilisation mains libres et des tâches activées par la voix. \nAutres caractéristiques : Peut inclure un emplacement nano SIM et la prise en charge OTG pour la recharge filaire inversée. \nAccessoires en option : Certains modèles peuvent être livrés avec un étui-clavier Bluetooth, en particulier pour les versions LTE. \nInfinix Xpad GT (modèle plus haut de gamme) :\nÉcran LCD 13 pouces plus grand avec une résolution de 2880 x 1840, une profondeur de couleur de 10 bits et un taux de rafraîchissement de 144 Hz.\nPrise en charge du HDR10 pour des visuels améliorés.\n8 haut-parleurs pour une expérience audio plus immersive.\nAppareil photo arrière de 13 mégapixels avec flash LED.\nBatterie de 10 000mAh avec 33W",
+      "ordreVedette": 0,
+      "category": "tablette",
+      "stock": null,
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2FVQXbAeFDedWmnHvSPrNf.jpg?alt=media&token=5dd527c4-d0f0-4803-9aaf-f673aab0aef2"
+    }
+  },
+  {
+    "id": "Wg0QEB6RGWUidOjF6b9q",
+    "name": "Redmi Pad 2 4G",
+    "price": 108000,
+    "brand": "Redmi",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 128,
+      "ram": 4,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FWg0QEB6RGWUidOjF6b9q%2F1756481038728_z6gbtd_processed.webp",
+    "localImage": "images/redmi-pad-2-4g.webp",
+    "localImageFromRoot": "tablets/images/redmi-pad-2-4g.webp",
+    "firestoreData": {
+      "name": "Redmi Pad 2 4G",
+      "brand": "Redmi",
+      "category": "tablette",
+      "stock": null,
+      "ram": 4,
+      "rom": 128,
+      "description": "La Redmi Pad 2 4G est une tablette de 11 pouces équipée d’un écran 2,5K à 90 Hz, d’un processeur MediaTek Helio G100-Ultra et d’une batterie de 9 000 mAh. Elle offre une connectivité 4G LTE pour les données mobiles, prend en charge l’utilisation d’un stylet, et fonctionne sous HyperOS 2 de Xiaomi, basé sur Android 15.\n\nParmi ses points forts, on retrouve un système audio à quatre haut-parleurs avec Dolby Atmos, un appareil photo arrière de 8 MP, une caméra frontale de 5 MP, ainsi qu’un stockage extensible jusqu’à 2 To",
+      "createdAt": {
+        "_seconds": 1756481039,
+        "_nanoseconds": 945000000
+      },
+      "updatedAt": {
+        "_seconds": 1756481039,
+        "_nanoseconds": 945000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FWg0QEB6RGWUidOjF6b9q%2F1756481038728_z6gbtd_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FWg0QEB6RGWUidOjF6b9q%2F1756481038728_z6gbtd_processed.webp"
+      ],
+      "price": 108000
+    }
+  },
+  {
+    "id": "XvLktdmjsS2R0ZRJ5Ngv",
+    "name": "iPad 10eme génération",
+    "price": 220000,
+    "brand": "iPad",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 64,
+      "ram": 4,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755538957353-IMG-20250812-WA0028.jpg?alt=media&token=e49e83e6-1011-4e3b-b4cd-f4dbc3ff3f8e",
+    "localImage": "images/ipad-10eme-generation.jpg",
+    "localImageFromRoot": "tablets/images/ipad-10eme-generation.jpg",
+    "firestoreData": {
+      "name": "iPad 10eme génération",
+      "price": 220000,
+      "brand": "iPad",
+      "ram": 4,
+      "rom": 64,
+      "description": "Découvrez l'iPad 10e génération, un compagnon polyvalent conçu pour répondre à vos besoins quotidiens. Son écran Liquid Retina de 10,9 pouces garantit des images nettes et vibrantes, tandis que la puce A14 Bionic assure des performances fluides, que ce soit pour le multitâche, la création de contenu ou les jeux. Avec 64 Go de stockage, vous avez suffisamment d'espace pour vos applications, photos et documents. En plus de son design léger et élégant, la couleur bleue confère à cet iPad une touche unique et moderne. Sa connectivité Wi-Fi rapide vous permet de rester connecté où que vous soyez, et avec une autonomie prolongée, vous pouvez profiter de vos activités toute la journée.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755538957353-IMG-20250812-WA0028.jpg?alt=media&token=e49e83e6-1011-4e3b-b4cd-f4dbc3ff3f8e",
+      "category": "tablette",
+      "stock": null
+    }
+  },
+  {
+    "id": "diTVZFaIVokLDWnVKhhy",
+    "name": "iPad 10 eme génération",
+    "price": 295000,
+    "brand": "IPad",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 256,
+      "ram": 4,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755540739607-IMG-20250818-WA0297.jpg?alt=media&token=787f37c9-3626-4e88-9d6c-f289817d4c31",
+    "localImage": "images/ipad-10-eme-generation.jpg",
+    "localImageFromRoot": "tablets/images/ipad-10-eme-generation.jpg",
+    "firestoreData": {
+      "name": "iPad 10 eme génération",
+      "price": 295000,
+      "brand": "IPad",
+      "description": "L’iPad 10e génération combine puissance, portabilité et polyvalence pour vos radars avec son écran 10,9 pouces.\n\nQue ce soit pour Flightscope, Skytrak, Square Golf ou autres, cet Ipad est compatible avec un grand nombre de nos radars ! \n\nFacile d'utilisation, c'est le support visuel idéal",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755540739607-IMG-20250818-WA0297.jpg?alt=media&token=787f37c9-3626-4e88-9d6c-f289817d4c31",
+      "rom": 256,
+      "ram": 4,
+      "category": "tablette",
+      "stock": null
+    }
+  },
+  {
+    "id": "fLH4DUNHhwRwHjq0whcT",
+    "name": "iPad 11 eme génération",
+    "price": 260000,
+    "brand": "IPad",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 128,
+      "ram": 4,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755542026741-IMG-20250818-WA0297.jpg?alt=media&token=777698e4-bceb-4f46-aeff-d3b71bb2f605",
+    "localImage": "images/ipad-11-eme-generation-1.jpg",
+    "localImageFromRoot": "tablets/images/ipad-11-eme-generation-1.jpg",
+    "firestoreData": {
+      "name": "iPad 11 eme génération",
+      "price": 260000,
+      "brand": "IPad",
+      "description": "L’iPad de 11e génération propose un affichage de 11 pouces. C’est un tout petit peu mieux que son prédécesseur (10,9 pouces). La technologie Liquid Retina est bien au rendez-vous, mais pas la large gamme de couleurs P3, une exclusivité des iPad plus haut de gamme (Air, Mini et Pro).",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755542026741-IMG-20250818-WA0297.jpg?alt=media&token=777698e4-bceb-4f46-aeff-d3b71bb2f605",
+      "rom": 128,
+      "ram": 4,
+      "category": "tablette",
+      "stock": null
+    }
+  },
+  {
+    "id": "l8m9vFv1Il1RYRiTCRG0",
+    "name": "Tablette_Enfant SMART 8 PRO",
+    "price": 30000,
+    "brand": "TKCOSS",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 256,
+      "ram": 8,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755543896039-IMG-20250818-WA0312.jpg?alt=media&token=e55b7ae8-c90b-48de-89a2-0fa5c217a6fb",
+    "localImage": "images/tablette-enfant-smart-8-pro.jpg",
+    "localImageFromRoot": "tablets/images/tablette-enfant-smart-8-pro.jpg",
+    "firestoreData": {
+      "name": "Tablette_Enfant SMART 8 PRO",
+      "price": 30000,
+      "brand": "TKCOSS",
+      "ram": 8,
+      "rom": 256,
+      "description": "Tablette Éducative TIKCOSS SMART 8 PRO – Puissance et Apprentissage pour Enfant !\nOffrez à votre enfant une tablette performante et ludique avec la TIKCOSS SMART 8 PRO, conçue pour allier éducation, divertissement et sécurité.\n\nPoints forts :\n✅ Mémoire ultra-large : 256 Go ROM / 8 Go RAM\n✅ Connexion 4G pour rester toujours connecté  \n✅ Applications éducatives et jeux interactifs préinstallés  \n✅ Coque résistante avec poignée intégrée – idéale pour les enfants  \n✅ Garantie de 12 mois\n\nParfaite pour : apprendre, jouer, dessiner, écouter de la musique ou regarder des vidéos éducatives en toute sécurit.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755543896039-IMG-20250818-WA0312.jpg?alt=media&token=e55b7ae8-c90b-48de-89a2-0fa5c217a6fb",
+      "category": "tablette",
+      "stock": null
+    }
+  },
+  {
+    "id": "oiDFG0R6wGPySYaChIBf",
+    "name": "Idino BOOM",
+    "price": 60000,
+    "brand": "Idino",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 512,
+      "ram": 8,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FoiDFG0R6wGPySYaChIBf%2F1756480286782_3d5f0d_processed.webp",
+    "localImage": "images/idino-boom.webp",
+    "localImageFromRoot": "tablets/images/idino-boom.webp",
+    "firestoreData": {
+      "name": "Idino BOOM",
+      "brand": "Idino",
+      "category": "tablette",
+      "price": 60000,
+      "stock": null,
+      "ram": 8,
+      "rom": 512,
+      "description": "L’iDino BOOM est une tablette Android conçue à la fois pour le travail et le divertissement. Elle offre de hautes performances grâce à ses 8 Go de RAM et ses 512 Go de stockage, ainsi qu’un écran de 10,1 pouces et une batterie longue durée de 10 000 mAh.\n\nLivrée avec des accessoires comme un clavier pour plus de fonctionnalités, elle s’adresse aux étudiants, professionnels et créateurs de contenu qui recherchent un appareil polyvalent, idéal pour la productivité comme pour le divertissement",
+      "createdAt": {
+        "_seconds": 1756480287,
+        "_nanoseconds": 968000000
+      },
+      "updatedAt": {
+        "_seconds": 1756480287,
+        "_nanoseconds": 968000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FoiDFG0R6wGPySYaChIBf%2F1756480286782_3d5f0d_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FoiDFG0R6wGPySYaChIBf%2F1756480286782_3d5f0d_processed.webp"
+      ]
+    }
+  },
+  {
+    "id": "pF8UcQNTI7qQMwShqlfr",
+    "name": "Redmi Pad 2",
+    "price": 94000,
+    "brand": "Redmi",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 128,
+      "ram": 4,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FpF8UcQNTI7qQMwShqlfr%2F1759972540231_a9v2nd_processed.webp",
+    "localImage": "images/redmi-pad-2.webp",
+    "localImageFromRoot": "tablets/images/redmi-pad-2.webp",
+    "firestoreData": {
+      "name": "Redmi Pad 2",
+      "brand": "Redmi",
+      "category": "tablette",
+      "price": 94000,
+      "stock": null,
+      "ram": 4,
+      "rom": 128,
+      "description": "Le Redmi Pad 2 (128 Go / 4 Go) est une tablette polyvalente et fluide, idéale pour le divertissement, le travail et les études. Elle est équipée d’un grand écran LCD de 11 pouces en résolution 2,5K avec un taux de rafraîchissement de 90 Hz, offrant une excellente qualité d’image et une navigation agréable.\n\nElle fonctionne avec le processeur Snapdragon 680, accompagné de 4 Go de RAM et de 128 Go de stockage interne, extensible via carte microSD jusqu’à 1 To. Cette configuration assure une bonne performance pour le multitâche, les vidéos et les applications du quotidien.\n\nCôté photo, le Redmi Pad 2 dispose d’un appareil photo arrière de 8 MP et d’une caméra frontale de 5 MP, idéale pour les appels vidéo et les visioconférences. Sa batterie de 8000 mAh offre une grande autonomie, compatible avec la charge rapide de 18 W.\n\nLa tablette tourne sous Android 13 avec l’interface MIUI Pad, proposant une expérience fluide et optimisée pour le grand écran. Elle prend en charge le Wi-Fi, le Bluetooth et l’USB-C, offrant une connectivité complète et moderne.",
+      "specifications": [],
+      "createdAt": {
+        "_seconds": 1759972540,
+        "_nanoseconds": 721000000
+      },
+      "updatedAt": {
+        "_seconds": 1759972540,
+        "_nanoseconds": 721000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FpF8UcQNTI7qQMwShqlfr%2F1759972540231_a9v2nd_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FpF8UcQNTI7qQMwShqlfr%2F1759972540231_a9v2nd_processed.webp"
+      ]
+    }
+  },
+  {
+    "id": "q79Zki4C4HUbNKw1Rg40",
+    "name": "Redmi Pad 2 4G",
+    "price": 122000,
+    "brand": "Redmi",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 256,
+      "ram": 8,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fq79Zki4C4HUbNKw1Rg40%2F1756481222797_of5ui0_processed.webp",
+    "localImage": "images/redmi-pad-2-4g-1.webp",
+    "localImageFromRoot": "tablets/images/redmi-pad-2-4g-1.webp",
+    "firestoreData": {
+      "name": "Redmi Pad 2 4G",
+      "brand": "Redmi",
+      "category": "tablette",
+      "stock": null,
+      "ram": 8,
+      "rom": 256,
+      "description": "La Redmi Pad 2 4G est une tablette de 11 pouces équipée d’un écran 2,5K à 90 Hz, d’un processeur MediaTek Helio G100-Ultra et d’une batterie de 9 000 mAh. Elle offre une connectivité 4G LTE pour les données mobiles, prend en charge l’utilisation d’un stylet, et fonctionne sous HyperOS 2 de Xiaomi, basé sur Android 15.\n\nParmi ses points forts, on retrouve un système audio à quatre haut-parleurs avec Dolby Atmos, un appareil photo arrière de 8 MP, une caméra frontale de 5 MP, ainsi qu’un stockage extensible jusqu’à 2 To",
+      "createdAt": {
+        "_seconds": 1756481224,
+        "_nanoseconds": 63000000
+      },
+      "updatedAt": {
+        "_seconds": 1756481224,
+        "_nanoseconds": 63000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fq79Zki4C4HUbNKw1Rg40%2F1756481222797_of5ui0_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fq79Zki4C4HUbNKw1Rg40%2F1756481222797_of5ui0_processed.webp"
+      ],
+      "price": 122000
+    }
+  },
+  {
+    "id": "wNmqdwfvutu7ba7MZRp6",
+    "name": "Tablette Enfant Villaon Vkid 1",
+    "price": 30000,
+    "brand": "Villaon",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 32,
+      "ram": 4,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FwNmqdwfvutu7ba7MZRp6%2F1759966504774_4govj9_processed.webp",
+    "localImage": "images/tablette-enfant-villaon-vkid-1.webp",
+    "localImageFromRoot": "tablets/images/tablette-enfant-villaon-vkid-1.webp",
+    "firestoreData": {
+      "name": "Tablette Enfant Villaon Vkid 1",
+      "brand": "Villaon",
+      "stock": null,
+      "ram": 4,
+      "rom": 32,
+      "description": "📱 Tablette Villaon VKid 1\n\nLa tablette Villaon VKid 1 est un appareil de 8 pouces, abordable et parfait pour les jeunes enfants (âgés de 0 à 8 ans). 👶📲\nElle dispose de 32 Go de stockage (extensible) et de 2 Go de RAM, entièrement originale (pas de copie).\nLa tablette est livrée avec plus de 300 programmes éducatifs préinstallés, ce qui en fait un excellent choix pour l’apprentissage dès le premier jour. 🎓✨\n\nSon design est solide et adapté aux enfants, donc même si votre enfant est un peu brusque, la tablette résiste bien aux chutes. 💪\nEn plus, ses couleurs vives et attractives rendent l’apprentissage encore plus amusant. 🌈🎨\n\nDisponible en deux couleurs : bleu et rose, elle est proposée au prix exceptionnel de 63 800 ₦. 💸\nEt à l’occasion de notre offre de Noël, recevez un casque chat gratuit pour tout achat d’une tablette ! 🐱🎧\n\nAucun accessoire supplémentaire n’est nécessaire : il suffit de l’allumer, de la connecter au Wi-Fi (ou non), et de profiter immédiatement du contenu éducatif ! ✅\n\n🎄 Dépêchez-vous, ne ratez pas cette offre incroyable pour vos petits !\n👉 Commandez dès maintenant pour obtenir la vôtre ! 💌",
+      "specifications": [],
+      "createdAt": {
+        "_seconds": 1759966505,
+        "_nanoseconds": 247000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FwNmqdwfvutu7ba7MZRp6%2F1759966504774_4govj9_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FwNmqdwfvutu7ba7MZRp6%2F1759966504774_4govj9_processed.webp",
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FwNmqdwfvutu7ba7MZRp6%2F1759966517325_cqqqyf_processed.webp",
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FwNmqdwfvutu7ba7MZRp6%2F1759966528650_ut3j3g_processed.webp",
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FwNmqdwfvutu7ba7MZRp6%2F1759966531088_7dfu0e_processed.webp"
+      ],
+      "price": 30000,
+      "category": "tablette",
+      "updatedAt": {
+        "_seconds": 1759966566,
+        "_nanoseconds": 522000000
+      }
+    }
+  },
+  {
+    "id": "x1doUZLANVLOhvgKscXr",
+    "name": "Tablette Enfant Modio",
+    "price": 33000,
+    "brand": "Modio",
+    "category": "tablets",
+    "firestoreCategory": "tablette",
+    "capacities": {
+      "rom": 256,
+      "ram": 8,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fx1doUZLANVLOhvgKscXr%2F1756481765038_fi0kpp_processed.webp",
+    "localImage": "images/tablette-enfant-modio.webp",
+    "localImageFromRoot": "tablets/images/tablette-enfant-modio.webp",
+    "firestoreData": {
+      "name": "Tablette Enfant Modio",
+      "brand": "Modio",
+      "category": "tablette",
+      "price": 33000,
+      "stock": null,
+      "ram": 8,
+      "rom": 256,
+      "description": "Les tablettes Modio 5G varient selon le modèle, mais elles sont généralement des tablettes Android dotées d'un écran IPS, de connectivité 5G et Wi-Fi, d'une grande capacité de stockage et de RAM, et d'une batterie longue durée. Elles sont destinées à un usage polyvalent, incluant le divertissement, l'apprentissage pour enfants, et les tâches quotidiennes, avec des spécifications telles que des caméras frontale et arrière, un support double SIM sur certains modèles, et un processeur performant.",
+      "createdAt": {
+        "_seconds": 1756481766,
+        "_nanoseconds": 272000000
+      },
+      "updatedAt": {
+        "_seconds": 1756481766,
+        "_nanoseconds": 272000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fx1doUZLANVLOhvgKscXr%2F1756481765038_fi0kpp_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fx1doUZLANVLOhvgKscXr%2F1756481765038_fi0kpp_processed.webp"
+      ]
+    }
+  }
+]

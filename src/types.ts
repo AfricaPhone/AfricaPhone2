@@ -150,6 +150,19 @@ export type TabParamList = {
   Profile: undefined;
 };
 
+// --- Promo Cards ---
+export type PromoCard = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  cta: string;
+  image: string;
+  screen: keyof RootStackParamList;
+  screenParams?: Record<string, unknown>;
+  sortOrder?: number;
+  isActive?: boolean;
+};
+
 
 // --- Boutique Info ---
 export type BoutiqueInfo = {

@@ -1,0 +1,116 @@
+[
+  {
+    "id": "Ghjf2BfKDaSIWTkeinMW",
+    "name": "Câble chargeur rapide iphone MOXOM CC-64",
+    "price": 2000,
+    "brand": "MOXOM",
+    "category": "others",
+    "firestoreCategory": "",
+    "capacities": {
+      "rom": null,
+      "ram": null,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FGhjf2BfKDaSIWTkeinMW%2F1756135410328_mnd9np_processed.webp",
+    "localImage": "images/cable-chargeur-rapide-iphone-moxom-cc-64.webp",
+    "localImageFromRoot": "others/images/cable-chargeur-rapide-iphone-moxom-cc-64.webp",
+    "firestoreData": {
+      "name": "Câble chargeur rapide iphone MOXOM CC-64",
+      "brand": "MOXOM",
+      "category": "",
+      "price": 2000,
+      "stock": null,
+      "ram": null,
+      "rom": null,
+      "description": "",
+      "createdAt": {
+        "_seconds": 1756135410,
+        "_nanoseconds": 135000000
+      },
+      "updatedAt": {
+        "_seconds": 1756135410,
+        "_nanoseconds": 135000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FGhjf2BfKDaSIWTkeinMW%2F1756135410328_mnd9np_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FGhjf2BfKDaSIWTkeinMW%2F1756135410328_mnd9np_processed.webp"
+      ]
+    }
+  },
+  {
+    "id": "fZSbFdAhAF1vN5uy2zyi",
+    "name": "Voici une description simple et courte :   ---  🎶 Oraimo SpaceBuds – Écouteurs Bluetooth Son puissant et immersif avec design compact. ✅ Connexion stable – ✅ Autonomie longue durée – ✅ Confort idéal pour musique et appels.   ---  Veux-tu aussi une version ultra-courte et très vendeuse (style CoinAfrique) ?",
+    "price": null,
+    "brand": "",
+    "category": "others",
+    "firestoreCategory": "",
+    "capacities": {
+      "rom": null,
+      "ram": null,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": null,
+    "localImage": null,
+    "localImageFromRoot": null,
+    "firestoreData": {
+      "name": "Voici une description simple et courte :   ---  🎶 Oraimo SpaceBuds – Écouteurs Bluetooth Son puissant et immersif avec design compact. ✅ Connexion stable – ✅ Autonomie longue durée – ✅ Confort idéal pour musique et appels.   ---  Veux-tu aussi une version ultra-courte et très vendeuse (style CoinAfrique) ?",
+      "brand": "",
+      "category": "",
+      "price": null,
+      "stock": null,
+      "ram": null,
+      "rom": null,
+      "description": "",
+      "imageUrls": [],
+      "createdAt": {
+        "_seconds": 1756444384,
+        "_nanoseconds": 638000000
+      },
+      "updatedAt": {
+        "_seconds": 1756444384,
+        "_nanoseconds": 638000000
+      }
+    }
+  },
+  {
+    "id": "saNeOm94osIKaJG6LIRa",
+    "name": "Clé USB SANDISK 16GB",
+    "price": 4500,
+    "brand": "SANDISK",
+    "category": "others",
+    "firestoreCategory": "",
+    "capacities": {
+      "rom": null,
+      "ram": null,
+      "ram_base": null,
+      "ram_extension": null
+    },
+    "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FsaNeOm94osIKaJG6LIRa%2F1756110283430_txorub_processed.webp",
+    "localImage": "images/cle-usb-sandisk-16gb.webp",
+    "localImageFromRoot": "others/images/cle-usb-sandisk-16gb.webp",
+    "firestoreData": {
+      "name": "Clé USB SANDISK 16GB",
+      "brand": "SANDISK",
+      "category": "",
+      "price": 4500,
+      "stock": null,
+      "ram": null,
+      "rom": null,
+      "description": "",
+      "createdAt": {
+        "_seconds": 1756110283,
+        "_nanoseconds": 174000000
+      },
+      "updatedAt": {
+        "_seconds": 1756110283,
+        "_nanoseconds": 174000000
+      },
+      "imageUrl": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FsaNeOm94osIKaJG6LIRa%2F1756110283430_txorub_processed.webp",
+      "imageUrls": [
+        "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FsaNeOm94osIKaJG6LIRa%2F1756110283430_txorub_processed.webp"
+      ]
+    }
+  }
+]

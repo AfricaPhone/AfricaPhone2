@@ -1,0 +1,25 @@
+{
+  "total": 228,
+  "categories": {
+    "accessories": {
+      "count": 86,
+      "json": "accessories/products.json",
+      "imagesDir": "accessories/images"
+    },
+    "tablets": {
+      "count": 15,
+      "json": "tablets/products.json",
+      "imagesDir": "tablets/images"
+    },
+    "phones": {
+      "count": 124,
+      "json": "phones/products.json",
+      "imagesDir": "phones/images"
+    },
+    "others": {
+      "count": 3,
+      "json": "others/products.json",
+      "imagesDir": "others/images"
+    }
+  }
+}

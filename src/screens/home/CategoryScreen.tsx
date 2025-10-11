@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import ProductGrid from './ProductGrid';
 import PromoCardsCarousel from './PromoCardsCarousel';
@@ -13,11 +13,11 @@ import {
   where,
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
-import { Product } from '../../types';
+import { Product, PromoCard } from '../../types';
 import { db } from '../../firebase/config';
-import { usePromoCards } from '../../hooks/usePromoCards';
 import { useFeatureFlags } from '../../hooks/useFeatureFlags';
 import { useProducts } from '../../store/ProductContext';
+import { useBoutique } from '../../store/BoutiqueContext';
 
 const PAGE_SIZE = 10;
 
@@ -52,8 +52,30 @@ const getUniqueProducts = (products: Product[]): Product[] =>
 const CategoryScreen = ({ route }: { route: { params: { category: string } } }) => {
   const { category } = route.params;
   const { promoCardsEnabled } = useFeatureFlags();
-  const { promoCards, loading: promoCardsLoading } = usePromoCards(category === 'Populaires' && promoCardsEnabled);
+  const { boutiqueInfo, loading: boutiqueLoading } = useBoutique();
   const { brands, brandsLoading } = useProducts();
+  const shouldUseStorePromo = category === 'Populaires' && promoCardsEnabled;
+
+  const storePromoCard = useMemo<PromoCard | null>(() => {
+    if (!boutiqueInfo) {
+      return null;
+    }
+
+    return {
+      id: 'store-info',
+      title: boutiqueInfo.name || 'Notre boutique',
+      subtitle: boutiqueInfo.description || boutiqueInfo.address,
+      cta: 'Voir la boutique',
+      image:
+        boutiqueInfo.coverImageUrl ||
+        boutiqueInfo.profileImageUrl ||
+        'https://placehold.co/600x400/cccccc/ffffff?text=Boutique',
+      screen: 'Store',
+    };
+  }, [boutiqueInfo]);
+
+  const promoCards = shouldUseStorePromo && storePromoCard ? [storePromoCard] : [];
+  const promoCardsLoading = shouldUseStorePromo && boutiqueLoading;
   const shouldShowBrands = brandsLoading || brands.length > 0;
   const shouldShowPromos = promoCardsLoading || promoCards.length > 0;
   const listHeaderComponent =
