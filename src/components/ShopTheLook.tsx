@@ -39,7 +39,9 @@ const ShopTheLook: React.FC<Props> = ({ item }) => {
               <TouchableOpacity
                 key={marker.productId}
                 style={[styles.marker, { top: marker.top, left: marker.left }]}
-                onPress={() => navigation.navigate('ProductDetail', { productId: marker.productId })}
+                onPress={() =>
+                  navigation.navigate('ProductDetail', { productId: marker.productId, product })
+                }
               >
                 <View style={styles.markerDot} />
               </TouchableOpacity>

@@ -48,7 +48,7 @@ const FilterScreenResults: React.FC = () => {
     ({ item }: { item: Product }) => {
       const props = {
         product: item,
-        onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
+        onPress: () => navigation.navigate('ProductDetail', { productId: item.id, product: item }),
       };
       if (viewMode === 'grid') {
         return (

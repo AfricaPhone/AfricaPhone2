@@ -32,7 +32,7 @@ const ProductCarousel: React.FC<Props> = ({ title, productIds }) => {
   const renderItem = useCallback(
     ({ item }: { item: Product }) => {
       const handlePress = () => {
-        navigation.navigate('ProductDetail', { productId: item.id });
+        navigation.navigate('ProductDetail', { productId: item.id, product: item });
       };
 
       return (

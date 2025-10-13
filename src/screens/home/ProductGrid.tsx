@@ -49,7 +49,10 @@ const ProductGridInner: React.FC<Props> = ({
   const renderItem = useCallback(
     ({ item }: { item: Product }) => (
       <View style={styles.gridItem}>
-        <ProductGridCard product={item} onPress={() => navigation.navigate('ProductDetail', { productId: item.id })} />
+        <ProductGridCard
+          product={item}
+          onPress={() => navigation.navigate('ProductDetail', { productId: item.id, product: item })}
+        />
       </View>
     ),
     [navigation]

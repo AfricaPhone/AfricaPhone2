@@ -37,13 +37,18 @@ const productsCollection = collection(db, 'products');
 
 const mapDocToProduct = (doc: QuerySnapshot): Product => {
   const data = doc.data();
-  const imageUrls = data.imageUrls || [];
+  const rawImageUrls = Array.isArray(data.imageUrls) ? data.imageUrls : [];
+  const imageUrls = rawImageUrls.length > 0 ? rawImageUrls : data.imageUrl ? [data.imageUrl] : [];
+  const price = typeof data.price === 'number' ? data.price : typeof data.price === 'string' ? Number(data.price) : 0;
+  const oldPrice = typeof data.oldPrice === 'number' ? data.oldPrice : typeof data.old_price === 'number' ? data.old_price : undefined;
   return {
     id: doc.id,
     title: data.name,
-    price: data.price,
-    image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || '',
+    price,
+    oldPrice,
+    image: imageUrls.length > 0 ? imageUrls[0] : '',
     imageUrls,
+    gallery: imageUrls,
     category: (data.brand || 'inconnu').toLowerCase(),
     description: data.description,
     rom: data.rom,

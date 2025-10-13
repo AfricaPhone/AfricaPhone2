@@ -1,4 +1,4 @@
-// src/store/ProductContext.tsx
+﻿// src/store/ProductContext.tsx
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import {
   collection,
@@ -12,7 +12,7 @@ import {
 import { db } from '../firebase/config';
 import { Product, Brand } from '../types';
 
-// --- Logique de récupération des marques ---
+// --- Logique de rÃ©cupÃ©ration des marques ---
 export const fetchBrandsFromDB = async (): Promise<Brand[]> => {
   try {
     console.log('Fetching brands from Firestore...');
@@ -38,7 +38,7 @@ export const fetchBrandsFromDB = async (): Promise<Brand[]> => {
   }
 };
 
-// --- Définition de l'état et du type du contexte ---
+// --- DÃ©finition de l'Ã©tat et du type du contexte ---
 type ProductContextType = {
   brands: Brand[];
   brandsLoading: boolean;
@@ -53,7 +53,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [brands, setBrands] = useState<Brand[]>([]);
   const [brandsLoading, setBrandsLoading] = useState(true);
 
-  // Cache simple en mémoire pour les produits déjà récupérés
+  // Cache simple en mÃ©moire pour les produits dÃ©jÃ  rÃ©cupÃ©rÃ©s
   const productCache = useState(new Map<string, Product>())[0];
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     loadInitialData();
   }, []);
 
-  // Fonction pour récupérer un produit par son ID (toujours depuis Firestore pour la fraîcheur)
+  // Fonction pour rÃ©cupÃ©rer un produit par son ID (toujours depuis Firestore pour la fraÃ®cheur)
   const getProductById = useCallback(
     async (id: string): Promise<Product | undefined> => {
       try {
@@ -76,38 +76,45 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data) {
-            const imageUrls = data.imageUrls || [];
+            const rawImageUrls = Array.isArray(data.imageUrls) ? data.imageUrls : [];
+            const imageUrls = rawImageUrls.length > 0 ? rawImageUrls : data.imageUrl ? [data.imageUrl] : [];
+            const price = typeof data.price === 'number' ? data.price : typeof data.price === 'string' ? Number(data.price) : 0;
+            const oldPrice = typeof data.oldPrice === 'number' ? data.oldPrice : typeof data.old_price === 'number' ? data.old_price : undefined;
             const product: Product = {
               id: docSnap.id,
               title: data.name,
-              price: data.price,
+              price,
+              oldPrice,
               image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || '',
-              imageUrls: imageUrls,
+              imageUrls,
+              gallery: imageUrls,
               category: data.brand?.toLowerCase() || 'inconnu',
               description: data.description,
               rom: data.rom,
               ram: data.ram,
               ram_base: data.ram_base,
               ram_extension: data.ram_extension,
-              specifications: data.specifications || [], // MODIFICATION: Ajout des spécifications
+              specifications: data.specifications || [], // MODIFICATION: Ajout des specifications
+              enPromotion: data.enPromotion,
+              isVedette: data.ordreVedette > 0,
             };
-            // Mettre à jour le cache avec les données les plus récentes
+            // Mettre Ã  jour le cache avec les donnÃ©es les plus rÃ©centes
             productCache.set(id, product);
             return product;
           }
         }
 
-        console.warn(`Produit avec ID ${id} non trouvé ou données invalides.`);
+        console.warn(`Produit avec ID ${id} non trouvÃ© ou donnÃ©es invalides.`);
         return undefined;
       } catch (error) {
-        console.error(`Erreur de récupération du produit ${id}:`, error);
+        console.error(`Erreur de rÃ©cupÃ©ration du produit ${id}:`, error);
         return undefined;
       }
     },
     [productCache]
   );
 
-  // Nouvelle fonction pour lire le cache de manière synchrone
+  // Nouvelle fonction pour lire le cache de maniÃ¨re synchrone
   const getProductFromCache = useCallback(
     (id: string): Product | undefined => {
       return productCache.get(id);
@@ -128,7 +135,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
 };
 
-// --- Hook personnalisé ---
+// --- Hook personnalisÃ© ---
 export const useProducts = () => {
   const ctx = useContext(ProductContext);
   if (!ctx) throw new Error('useProducts must be used within a ProductProvider');

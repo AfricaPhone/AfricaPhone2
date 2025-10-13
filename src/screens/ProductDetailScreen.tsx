@@ -1,5 +1,5 @@
 // src/screens/ProductDetailScreen.tsx
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -108,41 +108,85 @@ const Tab = createMaterialTopTabNavigator();
 const ProductDetailScreen: React.FC = () => {
   const nav = useNavigation<ProductDetailScreenNavigationProp>();
   const route = useRoute<ProductDetailScreenRouteProp>();
-  const { productId } = route.params;
+  const { productId, product: initialProduct } = route.params;
 
   const insets = useSafeAreaInsets();
   const { toggleFavorite, isFav } = useFavorites();
   const { getProductById, getProductFromCache } = useProducts();
   const { boutiqueInfo } = useBoutique();
 
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<Product | null>(initialProduct ?? null);
+  const [loading, setLoading] = useState(!initialProduct);
   const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
   const [promoCode, setPromoCode] = useState<ValidatedPromo | null>(null);
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [isShareable, setIsShareable] = useState(false);
   const shareableImageUri = useRef<string | null>(null);
 
+  const mergeProductData = useCallback((current: Product | null, incoming?: Product | null): Product | null => {
+    if (!incoming) return current;
+    if (!current) return incoming;
+    const nextImageUrls =
+      incoming.imageUrls && incoming.imageUrls.length > 0
+        ? incoming.imageUrls
+        : current.imageUrls && current.imageUrls.length > 0
+        ? current.imageUrls
+        : undefined;
+    const nextGallery =
+      (incoming.gallery && incoming.gallery.length > 0 ? incoming.gallery : undefined) ??
+      (nextImageUrls && nextImageUrls.length > 0 ? nextImageUrls : undefined) ??
+      (current.gallery && current.gallery.length > 0 ? current.gallery : undefined);
+
+    return {
+      ...current,
+      ...incoming,
+      oldPrice: incoming.oldPrice ?? current.oldPrice,
+      image: incoming.image || current.image,
+      imageUrls: nextImageUrls,
+      gallery: nextGallery,
+      description: incoming.description ?? current.description,
+      rom: incoming.rom ?? current.rom,
+      ram: incoming.ram ?? current.ram,
+      ram_base: incoming.ram_base ?? current.ram_base,
+      ram_extension: incoming.ram_extension ?? current.ram_extension,
+      specifications: incoming.specifications?.length ? incoming.specifications : current.specifications,
+      enPromotion: incoming.enPromotion ?? current.enPromotion,
+      isVedette: incoming.isVedette ?? current.isVedette,
+    };
+  }, []);
+
   useEffect(() => {
+    let isMounted = true;
     const fetchProduct = async () => {
-      setLoading(true);
+      if (!initialProduct) {
+        setLoading(true);
+      }
       const cachedProduct = getProductFromCache(productId);
-      if (cachedProduct) {
-        setProduct(cachedProduct);
+      if (cachedProduct && isMounted) {
+        setProduct(prev => mergeProductData(prev, cachedProduct));
       }
 
       const freshProduct = await getProductById(productId);
-      if (freshProduct) {
-        setProduct(freshProduct);
+      if (freshProduct && isMounted) {
+        setProduct(prev => mergeProductData(prev, freshProduct));
       }
-      setLoading(false);
+
+      if (isMounted) {
+        setLoading(false);
+      }
     };
     fetchProduct();
-  }, [productId, getProductById, getProductFromCache]);
+    return () => {
+      isMounted = false;
+    };
+  }, [productId, getProductById, getProductFromCache, initialProduct, mergeProductData]);
 
   const gallery = useMemo(() => {
     if (product?.imageUrls && product.imageUrls.length > 0) {
       return product.imageUrls;
+    }
+    if (product?.gallery && product.gallery.length > 0) {
+      return product.gallery;
     }
     if (product?.image) {
       return [product.image];

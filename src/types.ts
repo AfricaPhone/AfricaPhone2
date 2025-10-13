@@ -130,7 +130,7 @@ export type FilterOptions = {
 
 export type RootStackParamList = {
   Main: undefined;
-  ProductDetail: { productId: string };
+  ProductDetail: { productId: string; product?: Product };
   Brand: { brandId: string };
   MatchList: undefined;
   PredictionGame: { matchId: string };

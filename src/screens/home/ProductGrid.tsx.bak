@@ -1,4 +1,4 @@
-// src/screens/home/ProductGrid.tsx
+﻿// src/screens/home/ProductGrid.tsx
 import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -32,7 +32,7 @@ const ProductGrid: React.FC<Props> = ({
   const renderItem = useCallback(
     ({ item }: { item: Product }) => (
       <View style={styles.gridItem}>
-        <ProductGridCard product={item} onPress={() => navigation.navigate('ProductDetail', { productId: item.id })} />
+        <ProductGridCard product={item} onPress={() => navigation.navigate('ProductDetail', { productId: item.id, product: item })} />
       </View>
     ),
     [navigation]
@@ -77,7 +77,7 @@ const ProductGrid: React.FC<Props> = ({
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF7A00" />}
       ListEmptyComponent={
         <View style={styles.emptyContainer}>
-          {!loading && <Text style={styles.emptyText}>Aucun produit dans cette catégorie.</Text>}
+          {!loading && <Text style={styles.emptyText}>Aucun produit dans cette catÃ©gorie.</Text>}
         </View>
       }
     />

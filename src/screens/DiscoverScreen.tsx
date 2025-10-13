@@ -18,6 +18,7 @@ import {
   StyleProp,
   ViewStyle,
   Linking,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -255,7 +256,14 @@ const ProductCard = ({ p, onPress }: { p: Product; onPress: () => void }) => {
   };
 
   return (
-    <RippleBtn onPress={onPress} style={styles.productCard}>
+    <Pressable
+      onPress={onPress}
+      android_ripple={{ color: 'rgba(15,23,42,0.08)' }}
+      style={({ pressed }) => [
+        styles.productCard,
+        Platform.OS === 'ios' && pressed ? { opacity: 0.96 } : null,
+      ]}
+    >
       <Image source={{ uri: mainImage }} style={styles.productImage} />
       <View style={styles.productBody}>
         <Text numberOfLines={2} style={styles.productTitle}>
@@ -265,12 +273,23 @@ const ProductCard = ({ p, onPress }: { p: Product; onPress: () => void }) => {
           <Text style={styles.productPrice}>{priceText}</Text>
           <Text style={styles.productOldPrice}>{oldPriceText}</Text>
         </View>
-        <TouchableOpacity style={styles.whatsappBtn} onPress={handleWhatsApp} activeOpacity={0.9}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.whatsappBtn,
+            pressed ? { opacity: Platform.OS === 'ios' ? 0.9 : 1 } : null,
+          ]}
+          android_ripple={{ color: 'rgba(255,255,255,0.14)' }}
+          onPress={event => {
+            event.stopPropagation();
+            handleWhatsApp();
+          }}
+          onPressIn={event => event.stopPropagation()}
+        >
           <Ionicons name="logo-whatsapp" size={14} color="#22c55e" />
           <Text style={styles.whatsappTxt}>WhatsApp</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
-    </RippleBtn>
+    </Pressable>
   );
 };
 
@@ -475,6 +494,7 @@ const makeProduct = (i: number): Product => {
     oldPrice: item.oldPrice,
     image: gallery[0],
     gallery,
+    imageUrls: gallery,
     category: item.category,
   };
 };
@@ -683,7 +703,7 @@ const DiscoverScreen: React.FC = () => {
             <ProductPostCard
               post={item}
               onOpen={() => {
-                navigation.navigate('ProductDetail', { productId: item.product.id });
+                navigation.navigate('ProductDetail', { productId: item.product.id, product: item.product });
               }}
             />
           );
@@ -691,7 +711,10 @@ const DiscoverScreen: React.FC = () => {
           return <ArticlePostCard post={item} />;
         case 'collection':
           return (
-            <CollectionPostCard post={item} onOpen={p => navigation.navigate('ProductDetail', { productId: p.id })} />
+            <CollectionPostCard
+              post={item}
+              onOpen={p => navigation.navigate('ProductDetail', { productId: p.id, product: p })}
+            />
           );
         case 'hero':
           return <HeroPostCard post={item} />;
@@ -699,7 +722,10 @@ const DiscoverScreen: React.FC = () => {
           return <TipPostCard post={item} />;
         case 'shoplook':
           return (
-            <ShopLookPostCard post={item} onOpen={p => navigation.navigate('ProductDetail', { productId: p.id })} />
+            <ShopLookPostCard
+              post={item}
+              onOpen={p => navigation.navigate('ProductDetail', { productId: p.id, product: p })}
+            />
           );
         case 'poll':
           return <PollPostCard post={item} />;

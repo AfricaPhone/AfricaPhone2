@@ -105,16 +105,25 @@ const formatPrice = (value?: number) => {
 
 const mapDocToProduct = (doc: FirebaseFirestoreTypes.QueryDocumentSnapshot): Product => {
   const data = doc.data();
+  const rawImageUrls = Array.isArray(data.imageUrls) ? data.imageUrls : [];
+  const imageUrls = rawImageUrls.length > 0 ? rawImageUrls : data.imageUrl ? [data.imageUrl] : [];
+  const price = typeof data.price === 'number' ? data.price : typeof data.price === 'string' ? Number(data.price) : 0;
+  const oldPrice = typeof data.oldPrice === 'number' ? data.oldPrice : typeof data.old_price === 'number' ? data.old_price : undefined;
   return {
     id: doc.id,
-    title: data.name, // Mappe 'name' vers 'title'
-    price: data.price,
-    image: data.imageUrl, // Mappe 'imageUrl' vers 'image'
-    category: data.brand?.toLowerCase() || 'inconnu',
+    title: data.name,
+    price,
+    oldPrice,
+    image: imageUrls.length > 0 ? imageUrls[0] : '',
+    imageUrls,
+    gallery: imageUrls,
+    category: (data.brand ?? 'inconnu').toLowerCase(),
     description: data.description,
     rom: data.rom,
     ram: data.ram,
     specifications: data.specifications || [],
+    enPromotion: data.enPromotion,
+    isVedette: data.ordreVedette > 0,
   };
 };
 
@@ -195,17 +204,26 @@ const CatalogScreen: React.FC = () => {
 
         if (cancelled) return;
 
-        const mapped: Product[] = res.hits.map((hit: AlgoliaHit) => ({
-          id: hit.objectID,
-          title: hit.name || '',
-          price: hit.price ?? 0,
-          image: hit.imageUrl || '',
-          category: (hit.brand || 'inconnu').toLowerCase(),
-          description: hit.description,
-          rom: hit.rom,
-          ram: hit.ram,
-          specifications: hit.specifications || [],
-        }));
+        const mapped: Product[] = res.hits.map((hit: AlgoliaHit) => {
+          const imageUrls = hit.imageUrl ? [hit.imageUrl] : [];
+          const price = typeof hit.price === 'number' ? hit.price : typeof hit.price === 'string' ? Number(hit.price) : 0;
+          return {
+            id: hit.objectID,
+            title: hit.name ?? '',
+            price,
+            oldPrice: undefined,
+            image: imageUrls.length > 0 ? imageUrls[0] : '',
+            imageUrls,
+            gallery: imageUrls,
+            category: (hit.brand || 'inconnu').toLowerCase(),
+            description: hit.description,
+            rom: hit.rom,
+            ram: hit.ram,
+            specifications: hit.specifications || [],
+            enPromotion: false,
+            isVedette: (hit.ordreVedette ?? 0) > 0,
+          };
+        });
         setResults(mapped);
       } catch (err) {
         console.error('Algolia search error:', err);
@@ -257,7 +275,7 @@ const CatalogScreen: React.FC = () => {
               <View style={styles.featuredGridItem}>
                 <ProductGridCard
                   product={item}
-                  onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+                  onPress={() => navigation.navigate('ProductDetail', { productId: item.id, product: item })}
                 />
               </View>
             )}
@@ -279,7 +297,7 @@ const CatalogScreen: React.FC = () => {
             <SearchResultItem
               item={item}
               query={debouncedQuery}
-              onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+              onPress={() => navigation.navigate('ProductDetail', { productId: item.id, product: item })}
             />
           )}
           ListEmptyComponent={

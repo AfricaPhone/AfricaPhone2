@@ -30,7 +30,8 @@ const productsCollection = collection(db, 'products');
 
 const mapDocToProduct = (doc: Snapshot): Product => {
   const data = doc.data();
-  const imageUrls = data.imageUrls || [];
+  const rawImageUrls = Array.isArray(data.imageUrls) ? data.imageUrls : [];
+  const imageUrls = rawImageUrls.length > 0 ? rawImageUrls : data.imageUrl ? [data.imageUrl] : [];
   const price =
     typeof data.price === 'number'
       ? data.price
@@ -52,6 +53,7 @@ const mapDocToProduct = (doc: Snapshot): Product => {
     oldPrice,
     image: imageUrls.length > 0 ? imageUrls[0] : data.imageUrl || FALLBACK_IMAGE,
     imageUrls,
+    gallery: imageUrls,
     category: data.category?.toLowerCase() || data.brand?.toLowerCase() || 'inconnu',
     description: data.description,
     rom: data.rom,

@@ -1,6 +1,6 @@
 ﻿// src/components/ProductGridCard.tsx
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Pressable, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Product } from '../types';
@@ -17,6 +17,7 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
   const { toggleFavorite, isFav } = useFavorites();
   const isFavorite = isFav(product.id);
   const oldPriceValue = product.oldPrice ?? Math.round(product.price * 1.12);
+
   const badges = useMemo(() => {
     const list: Array<{ label: string; style: object }> = [];
     if (product.isVedette) {
@@ -26,7 +27,7 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
       list.push({ label: 'Promo', style: styles.badgePromo });
     }
     if (promoted) {
-      list.push({ label: 'Sponsorisé', style: styles.badgeAd });
+      list.push({ label: 'Sponsorise', style: styles.badgeAd });
     }
     return list;
   }, [product.isVedette, product.enPromotion, promoted]);
@@ -35,8 +36,13 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
     const message = encodeURIComponent(`Bonjour, je suis interesse par ${product.title}.`);
     Linking.openURL(`https://wa.me/2290154151522?text=${message}`).catch(() => undefined);
   };
+
   return (
-    <TouchableOpacity style={styles.card} activeOpacity={0.92} onPress={onPress}>
+    <Pressable
+      android_ripple={{ color: 'rgba(15,23,42,0.08)' }}
+      style={({ pressed }) => [styles.card, Platform.OS === 'ios' && pressed ? { opacity: 0.96 } : null]}
+      onPress={onPress}
+    >
       <View style={styles.imageWrap}>
         {product.image ? (
           <Image
@@ -63,12 +69,9 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
           style={styles.heartBtn}
           onPress={() => toggleFavorite(product.id)}
           activeOpacity={0.85}
+          onPressIn={event => event.stopPropagation()}
         >
-          <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
-            size={18}
-            color={isFavorite ? '#e11d48' : '#0f172a'}
-          />
+          <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={18} color={isFavorite ? '#e11d48' : '#0f172a'} />
         </TouchableOpacity>
       </View>
 
@@ -80,12 +83,20 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
           <Text style={styles.price}>{formatPrice(product.price)}</Text>
           <Text style={styles.oldPrice}>{formatPrice(oldPriceValue)}</Text>
         </View>
-        <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsApp} activeOpacity={0.9}>
-          <Ionicons name="logo-whatsapp" size={16} color="#22c55e" />
-          <Text style={styles.whatsappText}>WhatsApp</Text>
-        </TouchableOpacity>
+        <Pressable
+          style={({ pressed }) => [styles.whatsappButton, pressed ? styles.whatsappButtonPressed : null]}
+          android_ripple={{ color: 'rgba(255,255,255,0.14)' }}
+          onPress={event => {
+            event.stopPropagation();
+            handleWhatsApp();
+          }}
+          onPressIn={event => event.stopPropagation()}
+        >
+          <Ionicons name="logo-whatsapp" size={16} color="#ffffff" />
+          <Text style={styles.whatsappText}>Contacter</Text>
+        </Pressable>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -190,12 +201,24 @@ const styles = StyleSheet.create({
     gap: 8,
     borderRadius: 999,
     paddingVertical: 10,
-    backgroundColor: '#0f172a',
+    paddingHorizontal: 14,
+    backgroundColor: '#22c55e',
+    shadowColor: '#22c55e',
+    shadowOpacity: 0.32,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
+  },
+  whatsappButtonPressed: {
+    backgroundColor: '#16a34a',
+    transform: [{ scale: 0.97 }],
   },
   whatsappText: {
-    color: '#f8fafc',
+    color: '#ffffff',
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
   },
 });
 

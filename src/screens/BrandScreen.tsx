@@ -129,7 +129,7 @@ const BrandScreen: React.FC = () => {
     ({ item }: { item: Product }) => {
       const props = {
         product: item,
-        onPress: () => navigation.navigate('ProductDetail', { productId: item.id }),
+        onPress: () => navigation.navigate('ProductDetail', { productId: item.id, product: item }),
       };
       if (viewMode === 'grid') {
         return (
@@ -223,7 +223,7 @@ const BrandScreen: React.FC = () => {
         {heroProduct ? (
           <FeaturedProductCard
             product={heroProduct}
-            onPress={() => navigation.navigate('ProductDetail', { productId: heroProduct.id })}
+            onPress={() => navigation.navigate('ProductDetail', { productId: heroProduct.id, product: heroProduct })}
             accentColor={story?.accentColor}
           />
         ) : null}
