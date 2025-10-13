@@ -310,12 +310,6 @@ export default function ProductGridSection() {
 
 function ProductCard({ product }: { product: ProductCardData }) {
   const priceLabel = formatPrice(product.price);
-  const whatsappMessage = encodeURIComponent(
-    product.price && Number.isFinite(product.price)
-      ? `Bonjour AfricaPhone, je suis interesse(e) par ${product.name} (${priceLabel}).`
-      : `Bonjour AfricaPhone, je suis interesse(e) par ${product.name}.`
-  );
-  const whatsappLink = `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${whatsappMessage}`;
   const detailHref = `/produits/${product.id}`;
 
   return (
@@ -358,17 +352,6 @@ function ProductCard({ product }: { product: ProductCardData }) {
           </div>
         </div>
       </Link>
-      <div className="px-3 pb-4 sm:px-4">
-        <a
-          href={whatsappLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2"
-        >
-          <WhatsAppIcon className="h-3.5 w-3.5" />
-          WhatsApp
-        </a>
-      </div>
     </article>
   );
 }
@@ -410,24 +393,6 @@ function HeartIcon({ className }: { className?: string }) {
         strokeWidth="1.4"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function WhatsAppIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <path
-        d="M12.04 2.75c-5.16 0-9.34 4.12-9.34 9.2 0 1.62.43 3.14 1.19 4.46L2 22l5.81-1.53a9.42 9.42 0 0 0 4.23 1c5.16 0 9.34-4.12 9.34-9.2s-4.18-9.52-9.34-9.52Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9.2 8.88c-.16-.36-.34-.37-.5-.38-.13-.01-.28-.01-.42-.01-.15 0-.4.05-.61.28-.21.23-.81.79-.81 1.92 0 1.13.83 2.23.95 2.39.12.16 1.62 2.58 4 3.51 1.98.71 2.38.57 2.81.54.43-.03 1.38-.56 1.58-1.1.2-.54.2-1 .14-1.1-.06-.1-.22-.16-.46-.28-.24-.12-1.38-.67-1.6-.75-.22-.08-.37-.12-.53.12-.16.24-.62.75-.76.9-.14.15-.28.17-.52.05-.24-.12-1.02-.37-1.95-1.17-.72-.63-1.2-1.4-1.34-1.64-.14-.24-.02-.37.1-.49.1-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.52-1.29-.74-1.77Z"
-        fill="currentColor"
       />
     </svg>
   );
