@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { allProducts, type ProductSummary } from '@/data/home';
 import {
   collection,
   DocumentData,
@@ -66,6 +67,18 @@ const safeString = (value: unknown): string | null => {
     return trimmed.length > 0 ? trimmed : null;
   }
   return null;
+};
+
+const parsePriceLabel = (value: string | null | undefined): number | null => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const digitsOnly = value.replace(/\D+/g, '');
+  if (digitsOnly.length === 0) {
+    return null;
+  }
+  const parsed = Number(digitsOnly);
+  return Number.isFinite(parsed) ? parsed : null;
 };
 
 const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardData | null => {
@@ -140,6 +153,33 @@ const dedupeProducts = (products: ProductCardData[]): ProductCardData[] => {
   });
 };
 
+const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
+  const price = parsePriceLabel(product.price);
+  const taglineCandidates = [
+    safeString(product.highlight),
+    [product.segment, product.storage].filter(Boolean).join(' • '),
+  ].filter((value): value is string => Boolean(value));
+
+  let badge: string | undefined;
+  const category = product.category.toLowerCase();
+  if (category.includes('offre') || category.includes('promo')) {
+    badge = 'Promo';
+  }
+
+  return {
+    id: product.id,
+    name: product.name,
+    price,
+    image: product.image,
+    tagline: taglineCandidates[0] ?? 'Produit sélectionné par AfricaPhone',
+    badge,
+  };
+};
+
+const STATIC_FALLBACK_PRODUCTS = dedupeProducts(
+  allProducts.slice(0, MAX_PRODUCTS).map(mapSummaryToProduct)
+);
+
 export default function ProductGridSection() {
   const [products, setProducts] = useState<ProductCardData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -183,10 +223,16 @@ export default function ProductGridSection() {
         .map(mapDocToProduct)
         .filter((product): product is ProductCardData => product !== null);
 
-      setProducts(dedupeProducts(mappedProducts));
+      let normalizedProducts = dedupeProducts(mappedProducts);
+
+      if (normalizedProducts.length === 0) {
+        normalizedProducts = STATIC_FALLBACK_PRODUCTS;
+      }
+
+      setProducts(normalizedProducts);
     } catch (error) {
       console.error('ProductGridSection: unable to load products', error);
-      setProducts([]);
+      setProducts(STATIC_FALLBACK_PRODUCTS);
       setError('Impossible de charger les produits pour le moment.');
     } finally {
       setLoading(false);
@@ -202,8 +248,10 @@ export default function ProductGridSection() {
       return Array.from({ length: 8 }).map((_, index) => <ProductCardSkeleton key={index} />);
     }
 
+    const productCards = products.map(product => <ProductCard key={product.id} product={product} />);
+
     if (error) {
-      return (
+      const errorCard = (
         <div className="col-span-full flex flex-col items-center justify-center gap-3 rounded-3xl border border-slate-200 bg-white/90 px-6 py-12 text-center shadow-[0_18px_36px_-20px_rgba(15,23,42,0.45)]">
           <p className="text-base font-semibold text-slate-900">Nous n&apos;avons pas pu afficher la boutique.</p>
           <p className="max-w-lg text-sm text-slate-500">
@@ -228,20 +276,24 @@ export default function ProductGridSection() {
           </div>
         </div>
       );
+
+      if (productCards.length > 0) {
+        return [errorCard, ...productCards];
+      }
+
+      return errorCard;
     }
 
     if (products.length === 0) {
       return (
         <div className="col-span-full flex flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-slate-50/80 px-6 py-16 text-center">
           <p className="text-base font-semibold text-slate-900">Aucun produit disponible pour le moment.</p>
-          <p className="text-sm text-slate-500">
-            Revenez bientôt ou contactez-nous pour une sélection personnalisée.
-          </p>
+          <p className="text-sm text-slate-500">Revenez bientôt ou contactez-nous pour une sélection personnalisée.</p>
         </div>
       );
     }
 
-    return products.map(product => <ProductCard key={product.id} product={product} />);
+    return productCards;
   }, [error, loadProducts, loading, products]);
 
   return (
@@ -260,19 +312,18 @@ function ProductCard({ product }: { product: ProductCardData }) {
   const priceLabel = formatPrice(product.price);
   const whatsappMessage = encodeURIComponent(
     product.price && Number.isFinite(product.price)
-      ? `Bonjour AfricaPhone, je suis intéressé(e) par ${product.name} (${priceLabel}).`
-      : `Bonjour AfricaPhone, je suis intéressé(e) par ${product.name}.`
+      ? `Bonjour AfricaPhone, je suis interesse(e) par ${product.name} (${priceLabel}).`
+      : `Bonjour AfricaPhone, je suis interesse(e) par ${product.name}.`
   );
   const whatsappLink = `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${whatsappMessage}`;
+  const detailHref = `/produits/${product.id}`;
 
   return (
-    <Link
-      href={whatsappLink}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
-    >
-      <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_36px_-20px_rgba(15,23,42,0.55)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_28px_48px_-18px_rgba(15,23,42,0.55)]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_36px_-20px_rgba(15,23,42,0.55)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_28px_48px_-18px_rgba(15,23,42,0.55)]">
+      <Link
+        href={detailHref}
+        className="flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+      >
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
           {product.badge ? (
             <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-rose-600 shadow-sm shadow-slate-900/10">
@@ -299,18 +350,26 @@ function ProductCard({ product }: { product: ProductCardData }) {
             <HeartIcon className="h-4 w-4" />
           </span>
         </div>
-        <div className="flex flex-1 flex-col gap-4 px-3 pb-4 pt-5 text-left sm:px-4">
+        <div className="flex flex-1 flex-col gap-4 px-3 pb-3 pt-5 text-left sm:px-4">
           <div className="space-y-2">
             <p className="text-lg font-extrabold text-rose-600 sm:text-xl">{priceLabel}</p>
             <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
             <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
           </div>
-          <span className="mt-auto inline-flex h-11 items-center justify-center rounded-full bg-emerald-500 px-6 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition duration-200 hover:bg-emerald-600">
-            Discuter sur WhatsApp
-          </span>
         </div>
-      </article>
-    </Link>
+      </Link>
+      <div className="px-3 pb-4 sm:px-4">
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2"
+        >
+          <WhatsAppIcon className="h-3.5 w-3.5" />
+          WhatsApp
+        </a>
+      </div>
+    </article>
   );
 }
 
@@ -351,6 +410,24 @@ function HeartIcon({ className }: { className?: string }) {
         strokeWidth="1.4"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M12.04 2.75c-5.16 0-9.34 4.12-9.34 9.2 0 1.62.43 3.14 1.19 4.46L2 22l5.81-1.53a9.42 9.42 0 0 0 4.23 1c5.16 0 9.34-4.12 9.34-9.2s-4.18-9.52-9.34-9.52Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.2 8.88c-.16-.36-.34-.37-.5-.38-.13-.01-.28-.01-.42-.01-.15 0-.4.05-.61.28-.21.23-.81.79-.81 1.92 0 1.13.83 2.23.95 2.39.12.16 1.62 2.58 4 3.51 1.98.71 2.38.57 2.81.54.43-.03 1.38-.56 1.58-1.1.2-.54.2-1 .14-1.1-.06-.1-.22-.16-.46-.28-.24-.12-1.38-.67-1.6-.75-.22-.08-.37-.12-.53.12-.16.24-.62.75-.76.9-.14.15-.28.17-.52.05-.24-.12-1.02-.37-1.95-1.17-.72-.63-1.2-1.4-1.34-1.64-.14-.24-.02-.37.1-.49.1-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.52-1.29-.74-1.77Z"
+        fill="currentColor"
       />
     </svg>
   );

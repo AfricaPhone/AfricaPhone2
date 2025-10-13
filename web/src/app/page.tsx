@@ -189,7 +189,7 @@ type EngagementCardProps = {
   tag: string;
   title: string;
   description: string;
-  bullets: string[];
+  bullets: readonly string[];
   cta: { label: string; href: string };
   image: string;
 };
