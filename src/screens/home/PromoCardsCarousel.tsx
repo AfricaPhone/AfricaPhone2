@@ -1,5 +1,5 @@
 ﻿// src/screens/home/PromoCardsCarousel.tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,21 +17,17 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
   const { lockParentScroll, unlockParentScroll } = useScrollCoordinator();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  const storePromoCard = useMemo(() => promoCards.find(card => card.screen === 'Store') ?? null, [promoCards]);
+  const filteredPromoCards = storePromoCard ? [storePromoCard] : [];
+
   const handleCardPress = useCallback(
     (card: PromoCard) => {
-      if (!card.screen) {
-        return;
-      }
-
-      const routeNames = navigation.getState()?.routeNames ?? [];
-      if (!routeNames.includes(card.screen)) {
-        return;
-      }
-
-      if (card.screenParams) {
-        navigation.navigate(card.screen, card.screenParams as never);
-      } else {
-        navigation.navigate(card.screen);
+      if (card.screen === 'Store') {
+        if (card.screenParams) {
+          navigation.navigate('Store', card.screenParams as never);
+        } else {
+          navigation.navigate('Store');
+        }
       }
     },
     [navigation]
@@ -39,7 +35,7 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
 
   const renderPromoCard = useCallback(
     ({ item, index }: { item: PromoCard; index: number }) => {
-      const cardStyle = [styles.cardWrapper, index === promoCards.length - 1 && styles.cardWrapperLast];
+      const cardStyle = [styles.cardWrapper, index === filteredPromoCards.length - 1 && styles.cardWrapperLast];
 
       return (
         <TouchableOpacity style={cardStyle} onPress={() => handleCardPress(item)} activeOpacity={0.9}>
@@ -65,21 +61,21 @@ const PromoCardsCarousel: React.FC<Props> = ({ promoCards, isLoading }) => {
         </TouchableOpacity>
       );
     },
-    [handleCardPress, promoCards.length]
+    [filteredPromoCards.length, handleCardPress]
   );
 
   if (isLoading) {
     return <ActivityIndicator style={{ marginVertical: 12, height: 120 }} />;
   }
 
-  if (!promoCards.length) {
+  if (!filteredPromoCards.length) {
     return null;
   }
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={promoCards}
+        data={filteredPromoCards}
         horizontal
         showsHorizontalScrollIndicator={false}
         keyExtractor={item => item.id}

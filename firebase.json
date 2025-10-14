@@ -21,15 +21,6 @@
   ],
   "hosting": [
     {
-      "site": "africaphone-admin-pro",
-      "public": "others/admin-panel",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ]
-    },
-    {
       "site": "africaphone-admin-legal",
       "public": "legal",
       "ignore": [

@@ -63,20 +63,6 @@ service cloud.firestore {
      allow update, delete: if isAdmin() || matchesOwner(resource.data);
    }
 
-    match /contests/{contestId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-
-      match /candidates/{candidateId} {
-        allow read: if true;
-        allow create, update, delete: if isAdmin();
-      }
-
-      match /votes/{voteId} {
-        allow read, write: if isAdmin();
-      }
-    }
-
     match /users/{userId} {
       allow read: if isAdmin() || isOwner(userId);
       allow create: if isAdmin() || isOwner(userId);
@@ -87,14 +73,6 @@ service cloud.firestore {
     match /config/{docId} {
       allow read: if true;
       allow write: if isAdmin();
-    }
-
-    match /voteIntents/{documentId} {
-      allow read, write: if isAdmin();
-    }
-
-    match /payments/{documentId} {
-      allow read, write: if isAdmin();
     }
 
     match /{document=**} {

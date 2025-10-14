@@ -25,7 +25,7 @@
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "resize",
-      "versionCode": 9,
+      "versionCode": 12,
       "runtimeVersion": "1.2.1"
     },
     "web": {

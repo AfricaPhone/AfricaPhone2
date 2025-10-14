@@ -26,7 +26,7 @@ import { RootStackParamList } from '../types';
  * DiscoverScreen — Fil de découverte “façon Facebook”, lecture seule (admins publient).
  * Style: Material/Flat sans aucune ombre (no shadow, no elevation).
  * - Hiérarchie par surfaces tonales et contours fins (outlined).
- * - Posts variés: product, article, collection, hero, tip, shop-the-look, poll (readonly).
+ * - Posts variés: product, article, collection, hero, tip, shop-the-look (readonly).
  * - Pull-to-refresh + scroll infini (mock data ici; branche ton backend plus tard).
  * - Compliant accessibilité (contrastes, tailles, hit targets).
  */
@@ -90,14 +90,7 @@ type ShopLookPost = PostBase & {
   products: Product[];
 };
 
-type PollPost = PostBase & {
-  type: 'poll';
-  question: string;
-  options: { id: string; label: string; votes: number }[];
-  totalVotes: number;
-};
-
-type Post = ProductPost | ArticlePost | CollectionPost | HeroPost | TipPost | ShopLookPost | PollPost;
+type Post = ProductPost | ArticlePost | CollectionPost | HeroPost | TipPost | ShopLookPost;
 
 const { width } = Dimensions.get('window');
 const GUTTER = 16;
@@ -352,31 +345,6 @@ const ShopLookPostCard = ({ post, onOpen }: { post: ShopLookPost; onOpen: (p: Pr
   </View>
 );
 
-const PollPostCard = ({ post }: { post: PollPost }) => {
-  const ratio = (v: number) => (post.totalVotes ? Math.round((v / post.totalVotes) * 100) : 0);
-  return (
-    <View style={styles.post}>
-      <PostHeader author={post.author} createdAt={post.createdAt} />
-      <Text style={styles.articleTitle}>{post.question}</Text>
-      <View style={{ marginTop: 10, gap: 10 }}>
-        {post.options.map(op => (
-          <View key={op.id} style={styles.pollRow}>
-            <View style={styles.pollBarBg}>
-              <View style={[styles.pollBarFill, { width: `${ratio(op.votes)}%` }]} />
-            </View>
-            <Text style={styles.pollLabel}>
-              {op.label} • {ratio(op.votes)}%
-            </Text>
-          </View>
-        ))}
-      </View>
-      <Text style={styles.pollMeta}>{post.totalVotes} votes</Text>
-      <Counts likes={post.likes} comments={post.comments} shares={post.shares} />
-      <Toolbar onLike={() => {}} onComment={() => {}} onShare={() => {}} />
-    </View>
-  );
-};
-
 const Counts = ({ likes, comments, shares }: { likes: number; comments: number; shares: number }) => (
   <View style={styles.counts}>
     <Text style={styles.countTxt}>{likes} j’aime</Text>
@@ -510,20 +478,16 @@ function makePage(page: number): Post[] {
       });
     } else {
       posts.push({
-        type: 'poll',
-        id: `post-poll-${base + i}`,
+        type: 'tip',
+        id: `post-tip-${base + i}-care`,
         author,
         createdAt,
-        likes: 12 + (i % 40),
-        comments: 3 + (i % 16),
-        shares: i % 6,
-        question: 'Team casque ou écouteurs pour le sport ?',
-        options: [
-          { id: 'a', label: 'Casque', votes: 120 + (i % 50) },
-          { id: 'b', label: 'Écouteurs', votes: 180 + (i % 60) },
-          { id: 'c', label: 'Peu importe', votes: 40 + (i % 20) },
-        ],
-        totalVotes: 120 + 180 + 40 + (i % 50) + (i % 60) + (i % 20),
+        likes: 14 + (i % 35),
+        comments: 2 + (i % 10),
+        shares: i % 4,
+        title: 'Prends soin de tes accessoires',
+        body: 'Nettoie régulièrement écouteurs et coques avec un chiffon doux légèrement humide pour prolonger leur durée de vie.',
+        icon: '🧼',
       });
     }
   }
@@ -601,7 +565,6 @@ const DiscoverScreen: React.FC = () => {
         return it.title.toLowerCase().includes(q) || (it.subtitle ?? '').toLowerCase().includes(q);
       if (it.type === 'tip') return it.title.toLowerCase().includes(q) || it.body.toLowerCase().includes(q);
       if (it.type === 'shoplook') return it.title.toLowerCase().includes(q);
-      if (it.type === 'poll') return it.question.toLowerCase().includes(q);
       return false;
     });
   }, [posts, activeChip, query]);
@@ -634,8 +597,6 @@ const DiscoverScreen: React.FC = () => {
           return (
             <ShopLookPostCard post={item} onOpen={p => navigation.navigate('ProductDetail', { productId: p.id })} />
           );
-        case 'poll':
-          return <PollPostCard post={item} />;
         default:
           return null;
       }
@@ -921,21 +882,6 @@ const styles = StyleSheet.create({
   lookImg: { width: '100%', height: 110, borderRadius: 10, backgroundColor: TOKENS.surfaceVariant, marginBottom: 8 },
   lookTitle: { fontSize: 13, fontWeight: '700', color: TOKENS.text },
   lookPrice: { fontSize: 12, fontWeight: '700', color: '#475569' },
-
-  // Poll (readonly)
-  pollRow: { gap: 6 },
-  pollBarBg: {
-    height: 10,
-    backgroundColor: TOKENS.surfaceVariant,
-    borderRadius: 999,
-    overflow: 'hidden',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: TOKENS.outline,
-  },
-  pollBarFill: { height: 10, backgroundColor: TOKENS.accent },
-  pollLabel: { fontSize: 13, color: TOKENS.text, marginTop: 2 },
-  pollMeta: { fontSize: 12, color: TOKENS.textSubtle, marginTop: 6 },
-
   // Counts & toolbar
   counts: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, marginBottom: 6 },
   countTxt: { color: TOKENS.textSubtle, fontSize: 12, fontWeight: '700' },

@@ -6,6 +6,7 @@
     "brand": "MOXOM",
     "category": "others",
     "firestoreCategory": "",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -45,6 +46,7 @@
     "brand": "",
     "category": "others",
     "firestoreCategory": "",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -81,6 +83,7 @@
     "brand": "SANDISK",
     "category": "others",
     "firestoreCategory": "",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,

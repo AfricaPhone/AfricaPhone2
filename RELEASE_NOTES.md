@@ -2,19 +2,17 @@
 
 ## Highlights
 
-- **Vote Sharing Copy Update**: the in-app sharing message now matches the marketing text from texte.txt, ensuring a consistent tone between mobile and campaigns.
-- **Update Banner Tuning**: the in-app update prompt checks Firestore and now targets version 5, keeping users align??s avec la derni??re release.
-- **Firebase Hosting (Admin Pro)**: dedicated Hosting site https://africaphone-admin-pro.web.app configured and deployed for the admin console.
-- **Match Predictions View (Admin)**: new admin panel screen lists every prediction submitted per match with search, winner filter, and status badges.
-- **Contest Screen Polish**: when no contest is available the info card now sits comfortably under the app bar, improving clarity.
+- Removed all Kkiapay integrations and legacy contest workflows from the mobile app and Firebase Functions.
+- Simplified Discover feed content by dropping poll cards and keeping editorial stories only.
+- Archived the legacy admin panel assets so the project now focuses solely on the shopping experience.
 
 ## Build & Deployment
 
-- Android EAS profile production now builds an **App Bundle (.aab)** for Play Store delivery.
-- Admin panel updates deployed to: https://africaphone-admin-pro.web.app
+- Android EAS profile `production` still produces the Play Store bundle (`eas build -p android --profile production`).
+- Firebase Hosting now serves only the legal documentation site; the admin console hosting target was removed.
 
 ## Next Steps
 
-- Run ""eas build -p android --profile production"" to produce the store-ready bundle.
-- Review Firebase Functions / rules if additional contest workflows are planned.
+- Deploy updated Firestore rules and indexes after syncing with the repository.
+- Regenerate Firebase Functions (`npm run build` in `functions/`) before the next deploy.
 

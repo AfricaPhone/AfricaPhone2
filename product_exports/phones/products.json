@@ -6,6 +6,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom6go ram64go",
     "capacities": {
       "rom": 6,
       "ram": 64,
@@ -13,8 +14,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F256vUGDONSHncfYmrgV3%2F1756293120458_i9lapo_processed.webp",
-    "localImage": "images/itel-a06.webp",
-    "localImageFromRoot": "phones/images/itel-a06.webp",
+    "localImage": "images/itel-a06-rom6go-ram64go.webp",
+    "localImageFromRoot": "phones/images/itel-a06-rom6go-ram64go.webp",
     "firestoreData": {
       "name": "Itel A06",
       "price": 35000,
@@ -42,6 +43,7 @@
     "brand": "Villaon",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram8go",
     "capacities": {
       "rom": 64,
       "ram": 8,
@@ -49,8 +51,8 @@
       "ram_extension": 4
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Villaon_V40s_64Go_8Go.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=hc3sW64qWGorelrF8Zwl%2BkbIYXjFFKCJexJ%2BGQ1uuW3V9GOUmGv17T9cthja8Qv4jnd3%2BPEFNRKvTMyn9a9NSkXAB%2Fnx5ZWoPpRp8GOapAVy%2FLHN%2FpV8NLkRvz92t9nW%2FH%2F9NBqYRON6187FWAYU7UjQXH0oSM7fodj6Wr6gLSx%2FGLnhXhV1%2FZSzre2apw%2FEWXiXaDzXkGl0a2qRzhn7OBBbO7E3GhQs3g%2FFmBETw55BPozULIiJ2uGfKenLmDUgvKrPveP1sL8shIktQ%2FFJE0wsKx%2FDeYB0WnDyktU0o4TlabeZtkRdP1QeFWJZp1yscFeGuSbe1YVXR6S3AlnZeA%3D%3D",
-    "localImage": "images/villaon-v40s.jpg",
-    "localImageFromRoot": "phones/images/villaon-v40s.jpg",
+    "localImage": "images/villaon-v40s-rom64go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/villaon-v40s-rom64go-ram8go.jpg",
     "firestoreData": {
       "brand": "Villaon",
       "rom": 64,
@@ -73,6 +75,7 @@
     "brand": "Villaon",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -80,8 +83,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F2n7hidI351l2F2GkJfy0%2F1759967274753_4zjs85_processed.webp",
-    "localImage": "images/villaon-v45.webp",
-    "localImageFromRoot": "phones/images/villaon-v45.webp",
+    "localImage": "images/villaon-v45-rom64go-ram4go.webp",
+    "localImageFromRoot": "phones/images/villaon-v45-rom64go-ram4go.webp",
     "firestoreData": {
       "name": "Villaon V45",
       "brand": "Villaon",
@@ -114,6 +117,7 @@
     "brand": "Poco",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -121,8 +125,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F3bnDVmn2Jp7affxvxsSY%2F1756475782322_hrd2ui_processed.webp",
-    "localImage": "images/poco-c61.webp",
-    "localImageFromRoot": "phones/images/poco-c61.webp",
+    "localImage": "images/poco-c61-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/poco-c61-rom128go-ram8go.webp",
     "firestoreData": {
       "brand": "Poco",
       "category": "smartphone",
@@ -153,6 +157,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -160,8 +165,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Redmi_Pad_Pro_256Go_16Go.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=XlrHA4qQHKR%2FJcqMALR3wPS67IyjJ%2ByDoO1Jq7qUpe3OjYHyWB44g3gInJ5VKP4%2BEwa%2BYxQgCfRnF5eGiycFACsjCezMOa9%2FCpfJNS8a6KadkM71sWXoW23AEpmElCK8i7QM3NY0%2F818C6DpJ%2BIxg%2Bz7XLmtZgOZ0Ef9wIapIsYiof38ZjaFk%2B2Z5kidhghaa6L0%2BTva4369BfFCGLAXKJMH%2FAU%2FBj0CosE3OKP%2F%2FGEtNYb%2FWywGYqCBrHyONMHUO6yVsE5r0K6XFVWdOhK%2BEIh3J0hIIOncHOpuIutsB63DBlVxunze8LhckyxqQqoGMxActMEkY%2FnnldZp50T0HA%3D%3D",
-    "localImage": "images/redmi-pad-pro-5g.jpg",
-    "localImageFromRoot": "phones/images/redmi-pad-pro-5g.jpg",
+    "localImage": "images/redmi-pad-pro-5g-rom256go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/redmi-pad-pro-5g-rom256go-ram16go.jpg",
     "firestoreData": {
       "brand": "Redmi",
       "rom": 256,
@@ -184,6 +189,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -191,8 +197,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F3rTfcG1pRb1Ei9xiQ2Rc%2F1759971149206_rtuv9c_processed.webp",
-    "localImage": "images/samsung-tab-a9.webp",
-    "localImageFromRoot": "phones/images/samsung-tab-a9.webp",
+    "localImage": "images/samsung-tab-a9-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/samsung-tab-a9-rom128go-ram8go.webp",
     "firestoreData": {
       "name": "Samsung Tab A9+",
       "brand": "Samsung",
@@ -224,6 +230,7 @@
     "brand": "Poco",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -231,8 +238,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F3u8Cgef0SRRCLNczX2oM%2F1756476412425_f5ndxy_processed.webp",
-    "localImage": "images/poco-c71.webp",
-    "localImageFromRoot": "phones/images/poco-c71.webp",
+    "localImage": "images/poco-c71-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/poco-c71-rom128go-ram8go.webp",
     "firestoreData": {
       "name": "Poco C71",
       "brand": "Poco",
@@ -263,6 +270,7 @@
     "brand": "Nokia",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -292,6 +300,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom16go ram256go",
     "capacities": {
       "rom": 16,
       "ram": 256,
@@ -299,8 +308,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755561428557-1000907420.jpg?alt=media&token=a065e807-04ac-4eca-896b-407cee728119",
-    "localImage": "images/tecno-spark-40-pro.jpg",
-    "localImageFromRoot": "phones/images/tecno-spark-40-pro.jpg",
+    "localImage": "images/tecno-spark-40-pro-rom16go-ram256go.jpg",
+    "localImageFromRoot": "phones/images/tecno-spark-40-pro-rom16go-ram256go.jpg",
     "firestoreData": {
       "name": "Tecno Spark 40 Pro+",
       "brand": "Tecno",
@@ -319,6 +328,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -326,8 +336,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F5pb9uZ92lsnynoAXdCoV%2F1756019401694_zdjmdo_processed.webp",
-    "localImage": "images/tecno-camon-40-pro.webp",
-    "localImageFromRoot": "phones/images/tecno-camon-40-pro.webp",
+    "localImage": "images/tecno-camon-40-pro-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/tecno-camon-40-pro-rom256go-ram16go.webp",
     "firestoreData": {
       "brand": "Tecno",
       "imagePath": "products/Tecno_Camon_40_Pro_256Go_+_8Go_RAM.jpg",
@@ -360,6 +370,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -367,8 +378,8 @@
       "ram_extension": 4
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F7niAK365ZqQhzqM8QkjB%2F1756891314462_g2gqts_processed.webp",
-    "localImage": "images/infinix-smart-10-plus.webp",
-    "localImageFromRoot": "phones/images/infinix-smart-10-plus.webp",
+    "localImage": "images/infinix-smart-10-plus-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/infinix-smart-10-plus-rom128go-ram8go.webp",
     "firestoreData": {
       "brand": "Infinix",
       "imagePath": "products/Infinix_Smart_10_Plus_128Go_+_3Go_RAM.jpg",
@@ -401,6 +412,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -408,8 +420,8 @@
       "ram_extension": 2
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F7sGMRY1W0MyGI2DMBLYy%2F1756891643345_pjt1th_processed.webp",
-    "localImage": "images/infinix-smart-10-hd.webp",
-    "localImageFromRoot": "phones/images/infinix-smart-10-hd.webp",
+    "localImage": "images/infinix-smart-10-hd-rom64go-ram4go.webp",
+    "localImageFromRoot": "phones/images/infinix-smart-10-hd-rom64go-ram4go.webp",
     "firestoreData": {
       "brand": "Infinix",
       "imagePath": "products/Infinix_Smart_10_HD_64Go_+_2Go_RAM.jpg",
@@ -441,6 +453,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram8go",
     "capacities": {
       "rom": 256,
       "ram": 8,
@@ -448,8 +461,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755612929342-IMG-20250818-WA0300.jpg?alt=media&token=7c61e843-546b-407f-8e6e-3ec7c412c3c2",
-    "localImage": "images/samsung-a55-5g.jpg",
-    "localImageFromRoot": "phones/images/samsung-a55-5g.jpg",
+    "localImage": "images/samsung-a55-5g-rom256go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/samsung-a55-5g-rom256go-ram8go.jpg",
     "firestoreData": {
       "name": "Samsung A55 5G",
       "brand": "Samsung",
@@ -468,6 +481,7 @@
     "brand": "Villaon",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom32go ram4go",
     "capacities": {
       "rom": 32,
       "ram": 4,
@@ -475,8 +489,8 @@
       "ram_extension": 2
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Villaon_V40_32Go_%2B_4Go_RAM.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=RZ60ADnDObz8IcRTD%2BmOE7EnU9VhyzrOCBL%2BN9UzeQrjPdF5JWG2bRu0OOipoKFSB5xWEMRB4Bgta86yrW3c8V8t9hcmjIdJmgfmDX04IdFyjbdcPa1lAq%2BabOO3rVdA2tuFiwxyyx0ByK6Lguf5l8Yz%2BszLem%2BZPtL0IqqJXSXulD7s4shZ66zL0jzh0ynuqjGFRJV4bGDfoIffwMEz2981Ek5ccXl3L75iPEG8mpHr7%2B57LKRqeIlRX7lF3QK5xs8sefbhRhuJV8F8tRZkCRNuEBadCCsAcpv7NAzg%2F%2BCYDEMd7KEJYOUmEShhU0oLS0BTVWdrrH6V7mKNKAW32w%3D%3D",
-    "localImage": "images/villaon-v40.jpg",
-    "localImageFromRoot": "phones/images/villaon-v40.jpg",
+    "localImage": "images/villaon-v40-rom32go-ram4go.jpg",
+    "localImageFromRoot": "phones/images/villaon-v40-rom32go-ram4go.jpg",
     "firestoreData": {
       "brand": "Villaon",
       "imagePath": "products/Villaon_V40_32Go_+_4Go_RAM.jpg",
@@ -499,6 +513,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -539,6 +554,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -581,6 +597,7 @@
     "brand": "OKING",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -609,6 +626,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -616,8 +634,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2F99OXVYSokBui96lqZHnI%2F1756892459573_tuag56_processed.webp",
-    "localImage": "images/infinix-hot-50.webp",
-    "localImageFromRoot": "phones/images/infinix-hot-50.webp",
+    "localImage": "images/infinix-hot-50-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/infinix-hot-50-rom256go-ram16go.webp",
     "firestoreData": {
       "brand": "Infinix",
       "imagePath": "products/Infinix_Hot_50_256Go_+_8Go_RAM.jpg",
@@ -650,6 +668,7 @@
     "brand": "MAXFONE",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -689,6 +708,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -696,8 +716,8 @@
       "ram_extension": 2
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Itel_A50_64Go_4Go.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=qhLzJCO%2FJXEarNUxYjND3lajOp4i9qX7IcJ6XXZ%2F4fow7zWinkrSzauqNFdKChUXJ%2FjJAb0vLI%2B2qoUx0j4riARH1UvGBm3XIApFuKiAwWZQBEba6HdQurwRYjp4LCU9igr2zoKhbPe2km9wDb1w9rcWyriKnm1PtksJEEpw3NIXr%2Fw9pGxgCXFPlpCljeqyrp8eVPKWXJCw9IaFEtztPESyGyHth6yIUPYEDhTQUXZC2YnuXsIhvFgEVNT9YEpkDJVkQWit5xZyC088Vq8TltONnAB578CtBmfj%2FT27B7gp14CWqMnlSODPQ91NnL63wXIa7r2qIk9LMQLIJ61rrQ%3D%3D",
-    "localImage": "images/itel-a50.jpg",
-    "localImageFromRoot": "phones/images/itel-a50.jpg",
+    "localImage": "images/itel-a50-rom128go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/itel-a50-rom128go-ram8go.jpg",
     "firestoreData": {
       "brand": "Itel",
       "ram_base": 2,
@@ -726,6 +746,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -733,8 +754,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2Fp_1755857073600.jpg?alt=media&token=f00dd9d8-6a63-4577-86f2-c6eeecac584a",
-    "localImage": "images/redmi-15c.jpg",
-    "localImageFromRoot": "phones/images/redmi-15c.jpg",
+    "localImage": "images/redmi-15c-rom256go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/redmi-15c-rom256go-ram16go.jpg",
     "firestoreData": {
       "name": "Redmi 15c",
       "brand": "Redmi",
@@ -758,6 +779,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -765,8 +787,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Itel_S25_Ultra_256Go_%2B_8Go_RAM.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=cdOnwl8k9VHQV%2Bt8I0EugmXhYgPsEVGAPf70%2FaT%2F54Ovojj9zQ4iwlr34fFyswc0NWW1k0GAq1isvTqxXulPJ9NkqGuZPsv5U50tV7hDYAsuc5iJYK2RdGXrr7rB5RvVclDBIL7LpRjRLImfytMP4Qfm5ImcuQvo8e4khqkFRknjdaazr7vuceQLziQFWAnEFtFPrFqoswkLmAF3%2BDN%2BBUVyhDAC4nyD6qdZJWiwU9%2Fl5SbXF3sCR9E22XD0SByQUzOtBMce7aRRSeXe7RH7SeE%2BCLAMhW%2Bt31ZCNNieLqQoTwGysy7%2FOLZZV7QZ%2BLx5XCA7eMZT7tp11DqiR4TeZQ%3D%3D",
-    "localImage": "images/itel-s25-ultra.jpg",
-    "localImageFromRoot": "phones/images/itel-s25-ultra.jpg",
+    "localImage": "images/itel-s25-ultra-rom256go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/itel-s25-ultra-rom256go-ram16go.jpg",
     "firestoreData": {
       "brand": "Itel",
       "imagePath": "products/Itel_S25_Ultra_256Go_+_8Go_RAM.jpg",
@@ -795,6 +817,7 @@
     "brand": "X-tigi",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -823,6 +846,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom512go ram24go",
     "capacities": {
       "rom": 512,
       "ram": 24,
@@ -830,8 +854,8 @@
       "ram_extension": 12
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2FDng1BacepkpYZrrZQGdD.jpg?alt=media&token=8dc13726-0bd3-4aa4-81c8-ea23067f8f1a",
-    "localImage": "images/redmi-note-14-pro-5g.jpg",
-    "localImageFromRoot": "phones/images/redmi-note-14-pro-5g.jpg",
+    "localImage": "images/redmi-note-14-pro-5g-rom512go-ram24go.jpg",
+    "localImageFromRoot": "phones/images/redmi-note-14-pro-5g-rom512go-ram24go.jpg",
     "firestoreData": {
       "imagePath": "products/Xiaomi_Redmi_Note_14_Pro+_5G_512Go_+_12Go_RAM.jpg",
       "brand": "Redmi",
@@ -855,6 +879,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram6go",
     "capacities": {
       "rom": 128,
       "ram": 6,
@@ -862,8 +887,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FEWUFOHz3cCYybm7yVx7o%2F1759969237236_6yw96a_processed.webp",
-    "localImage": "images/samsung-a36-5g.webp",
-    "localImageFromRoot": "phones/images/samsung-a36-5g.webp",
+    "localImage": "images/samsung-a36-5g-rom128go-ram6go.webp",
+    "localImageFromRoot": "phones/images/samsung-a36-5g-rom128go-ram6go.webp",
     "firestoreData": {
       "name": "Samsung A36 5G",
       "brand": "Samsung",
@@ -895,6 +920,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom512go ram8go",
     "capacities": {
       "rom": 512,
       "ram": 8,
@@ -902,8 +928,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755621391578-Repost%20%40storeimportadosbc%E2%9D%A4%EF%B8%8F%F0%9F%93%B2%20iPhone%2016%20Pro%20Max%20(256Gb)%20%F0%9F%98%8D%F0%9F%94%A5%20Nuevos%20%24930.000%20%F0%9F%94%A5%23iphone16%20%23iphon.webp?alt=media&token=cafa9bd8-a825-4f4b-83ee-22eba809b6e4",
-    "localImage": "images/iphone-16-pro-max.webp",
-    "localImageFromRoot": "phones/images/iphone-16-pro-max.webp",
+    "localImage": "images/iphone-16-pro-max-rom512go-ram8go.webp",
+    "localImageFromRoot": "phones/images/iphone-16-pro-max-rom512go-ram8go.webp",
     "firestoreData": {
       "name": "iPhone 16 pro max",
       "price": 785000,
@@ -923,6 +949,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom512go",
     "capacities": {
       "rom": 512,
       "ram": null,
@@ -930,8 +957,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FF3b0m56m4LEceG0EBF88%2F1759974414295_8wh4x2_processed.webp",
-    "localImage": "images/iphone-15-pro-max.webp",
-    "localImageFromRoot": "phones/images/iphone-15-pro-max.webp",
+    "localImage": "images/iphone-15-pro-max-rom512go.webp",
+    "localImageFromRoot": "phones/images/iphone-15-pro-max-rom512go.webp",
     "firestoreData": {
       "name": "iPhone 15 Pro Max",
       "brand": "iPhone",
@@ -963,6 +990,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -991,6 +1019,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go",
     "capacities": {
       "rom": 128,
       "ram": null,
@@ -998,8 +1027,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FGEcQAeJEcV6FfAYPRG73%2F1759974903185_28dmv5_processed.webp",
-    "localImage": "images/iphone-16-pro.webp",
-    "localImageFromRoot": "phones/images/iphone-16-pro.webp",
+    "localImage": "images/iphone-16-pro-rom128go.webp",
+    "localImageFromRoot": "phones/images/iphone-16-pro-rom128go.webp",
     "firestoreData": {
       "name": "iPhone 16 Pro",
       "brand": "iPhone",
@@ -1031,6 +1060,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1071,6 +1101,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -1078,8 +1109,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FIThzEhUXSngbfk3zJ2PE%2F1759969875635_jd36xv_processed.webp",
-    "localImage": "images/samsung-a17.webp",
-    "localImageFromRoot": "phones/images/samsung-a17.webp",
+    "localImage": "images/samsung-a17-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/samsung-a17-rom256go-ram16go.webp",
     "firestoreData": {
       "name": "Samsung A17",
       "brand": "Samsung",
@@ -1111,6 +1142,7 @@
     "brand": "H-MOBILE",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1151,6 +1183,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -1158,8 +1191,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FIfGS0QdBE02Ryj5HaEmJ%2F1756243572823_fz2qb8_processed.webp",
-    "localImage": "images/infinix-note-50.webp",
-    "localImageFromRoot": "phones/images/infinix-note-50.webp",
+    "localImage": "images/infinix-note-50-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/infinix-note-50-rom256go-ram16go.webp",
     "firestoreData": {
       "brand": "Infinix",
       "ram_extension": 8,
@@ -1190,6 +1223,7 @@
     "brand": "Villaon",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom32go ram4go",
     "capacities": {
       "rom": 32,
       "ram": 4,
@@ -1197,8 +1231,8 @@
       "ram_extension": 2
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Villaon_V20_SE_32Go_%2B_4Go_RAM.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=J9wuCa3dFKh%2B51XQQIr4Prve5xmRNvDJ2Jq7aD1IYOO0O2fgo9qa2TtlXO5CGURpduFJMpwTupvQyIabGGCIQl7scTTck4krdHjEjK9DJSg8%2FL3kCwDkZ2DKuIscRDonoKLCwkUjNfXgcfHP7Hp1BuDBTbKz8GcKkPANX7K4Bm%2BkPUsVLfRMnld70RuaI7m0ARE6u8VVwLBTJcZ6y49736pKR4xu7iy0wzgQXDfp5aH%2BzaoPkq%2FnBueYfT14Iq%2F3ZXSnWekP6jDnjLD6oVn8IUk4ui4EydsfrHd5%2F1YI8cR8TUrH8S8KYUyTXPQld9uAJ5xh6TKxofK5Iw%2B2D5ayUA%3D%3D",
-    "localImage": "images/villaon-v20-se.jpg",
-    "localImageFromRoot": "phones/images/villaon-v20-se.jpg",
+    "localImage": "images/villaon-v20-se-rom32go-ram4go.jpg",
+    "localImageFromRoot": "phones/images/villaon-v20-se-rom32go-ram4go.jpg",
     "firestoreData": {
       "brand": "Villaon",
       "imagePath": "products/Villaon_V20_SE_32Go_+_4Go_RAM.jpg",
@@ -1226,6 +1260,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram8go",
     "capacities": {
       "rom": 256,
       "ram": 8,
@@ -1233,8 +1268,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755609715111-IMG-20250818-WA0298.jpg?alt=media&token=6c2e1ae4-c868-4967-92fc-ce496fa75dc6",
-    "localImage": "images/samsung-a26-5g.jpg",
-    "localImageFromRoot": "phones/images/samsung-a26-5g.jpg",
+    "localImage": "images/samsung-a26-5g-rom256go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/samsung-a26-5g-rom256go-ram8go.jpg",
     "firestoreData": {
       "brand": "Samsung",
       "ram": 8,
@@ -1253,6 +1288,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -1260,8 +1296,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755560466563-1000907544.jpg?alt=media&token=a35c9018-d248-4064-92e6-8acf1d00c0f9",
-    "localImage": "images/itel-p65c.jpg",
-    "localImageFromRoot": "phones/images/itel-p65c.jpg",
+    "localImage": "images/itel-p65c-rom128go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/itel-p65c-rom128go-ram8go.jpg",
     "firestoreData": {
       "name": "Itel P65C",
       "price": 48000,
@@ -1280,6 +1316,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom8go ram128go",
     "capacities": {
       "rom": 8,
       "ram": 128,
@@ -1287,8 +1324,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FKa0yPBGxwNXnUpVIlA24%2F1756892034339_t3odea_processed.webp",
-    "localImage": "images/infinix-hot-60i.webp",
-    "localImageFromRoot": "phones/images/infinix-hot-60i.webp",
+    "localImage": "images/infinix-hot-60i-rom8go-ram128go.webp",
+    "localImageFromRoot": "phones/images/infinix-hot-60i-rom8go-ram128go.webp",
     "firestoreData": {
       "name": "Infinix Hot 60i",
       "price": 60000,
@@ -1316,6 +1353,7 @@
     "brand": "Poco",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -1323,8 +1361,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FKaQgIDHiGdyAR09PFq9N%2F1756477181447_kcwqps_processed.webp",
-    "localImage": "images/poco-c75.webp",
-    "localImageFromRoot": "phones/images/poco-c75.webp",
+    "localImage": "images/poco-c75-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/poco-c75-rom256go-ram16go.webp",
     "firestoreData": {
       "name": "Poco C75",
       "brand": "Poco",
@@ -1355,6 +1393,7 @@
     "brand": "OKING",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1383,6 +1422,7 @@
     "brand": "X-tigi",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1411,6 +1451,7 @@
     "brand": "Poco",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram12go",
     "capacities": {
       "rom": 128,
       "ram": 12,
@@ -1418,8 +1459,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FLUS50GSqkY96eOQS1TC1%2F1756476768561_sw0icn_processed.webp",
-    "localImage": "images/poco-c75-1.webp",
-    "localImageFromRoot": "phones/images/poco-c75-1.webp",
+    "localImage": "images/poco-c75-rom128go-ram12go.webp",
+    "localImageFromRoot": "phones/images/poco-c75-rom128go-ram12go.webp",
     "firestoreData": {
       "name": "Poco C75",
       "brand": "Poco",
@@ -1450,6 +1491,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -1457,8 +1499,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FLb0WXQqVNjMbZtYN28Yj%2F1756018289016_1ef468_processed.webp",
-    "localImage": "images/samsung-a16.webp",
-    "localImageFromRoot": "phones/images/samsung-a16.webp",
+    "localImage": "images/samsung-a16-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/samsung-a16-rom256go-ram16go.webp",
     "firestoreData": {
       "brand": "Samsung",
       "imagePath": "products/Samsung_Galaxy_A16_256Go_+_8Go_RAM.jpg",
@@ -1491,6 +1533,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1519,6 +1562,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -1526,8 +1570,8 @@
       "ram_extension": 4
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FMa0fE6HfgJtLSDcf6SEu%2F1756037609910_b8ykqx_processed.webp",
-    "localImage": "images/redmi-14c.webp",
-    "localImageFromRoot": "phones/images/redmi-14c.webp",
+    "localImage": "images/redmi-14c-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/redmi-14c-rom128go-ram8go.webp",
     "firestoreData": {
       "brand": "Redmi",
       "imagePath": "products/Redmi_14C_128Go_+_8Go_RAM.jpg",
@@ -1562,6 +1606,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1601,6 +1646,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go",
     "capacities": {
       "rom": 256,
       "ram": null,
@@ -1608,8 +1654,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FOHB0rNpwf1QvfcdV0bmr%2F1759974046857_7w7anm_processed.webp",
-    "localImage": "images/iphone-14-pro-max.webp",
-    "localImageFromRoot": "phones/images/iphone-14-pro-max.webp",
+    "localImage": "images/iphone-14-pro-max-rom256go.webp",
+    "localImageFromRoot": "phones/images/iphone-14-pro-max-rom256go.webp",
     "firestoreData": {
       "name": "iPhone 14 Pro Max",
       "brand": "iPhone",
@@ -1641,6 +1687,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1669,6 +1716,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -1676,8 +1724,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FPFPJvcpHfUuS27DHs4mC%2F1756321990365_vl0zvv_processed.webp",
-    "localImage": "images/itel-p40.webp",
-    "localImageFromRoot": "phones/images/itel-p40.webp",
+    "localImage": "images/itel-p40-rom64go-ram4go.webp",
+    "localImageFromRoot": "phones/images/itel-p40-rom64go-ram4go.webp",
     "firestoreData": {
       "name": "Itel P40",
       "brand": "Itel",
@@ -1710,6 +1758,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go",
     "capacities": {
       "rom": 256,
       "ram": null,
@@ -1717,8 +1766,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FPTnIThevYzOFU3QBLOAB%2F1759974738731_cu58zh_processed.webp",
-    "localImage": "images/iphone-16.webp",
-    "localImageFromRoot": "phones/images/iphone-16.webp",
+    "localImage": "images/iphone-16-rom256go.webp",
+    "localImageFromRoot": "phones/images/iphone-16-rom256go.webp",
     "firestoreData": {
       "name": "iPhone 16",
       "brand": "iPhone",
@@ -1750,6 +1799,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1790,6 +1840,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram4go",
     "capacities": {
       "rom": 128,
       "ram": 4,
@@ -1797,8 +1848,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755610004484-IMG-20250818-WA0299.jpg?alt=media&token=39e1bf18-1ab0-45e7-ad0b-2d0c51e9c7e5",
-    "localImage": "images/samsung-a06.jpg",
-    "localImageFromRoot": "phones/images/samsung-a06.jpg",
+    "localImage": "images/samsung-a06-rom128go-ram4go.jpg",
+    "localImageFromRoot": "phones/images/samsung-a06-rom128go-ram4go.jpg",
     "firestoreData": {
       "name": "Samsung A06",
       "price": 60000,
@@ -1817,6 +1868,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram8go",
     "capacities": {
       "rom": 256,
       "ram": 8,
@@ -1824,8 +1876,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755561786972-1000907429.jpg?alt=media&token=8616da78-094e-453d-92b5-abd7b5bb42b2",
-    "localImage": "images/redmi-pad-2.jpg",
-    "localImageFromRoot": "phones/images/redmi-pad-2.jpg",
+    "localImage": "images/redmi-pad-2-rom256go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/redmi-pad-2-rom256go-ram8go.jpg",
     "firestoreData": {
       "name": "Redmi Pad 2",
       "brand": "Redmi",
@@ -1844,6 +1896,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -1851,8 +1904,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755623161548-Infinix%20Hot%2050%20Pro%2B%20m%C3%A1s%20potente%20y%20m%C3%A1s%20delgado%20%F0%9F%98%B1%E2%80%93%20Pantalla-%206.78%E2%80%B3%203D-Curved%20AMOLED%20resolucion%201.webp?alt=media&token=1e11b765-4322-4cee-ba28-baa13483986c",
-    "localImage": "images/infinix-hot-50-pro.webp",
-    "localImageFromRoot": "phones/images/infinix-hot-50-pro.webp",
+    "localImage": "images/infinix-hot-50-pro-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/infinix-hot-50-pro-rom256go-ram16go.webp",
     "firestoreData": {
       "imagePath": "products/Infinix_Hot_50_Pro+_256Go_+_8Go_RAM.jpg",
       "ram_extension": 8,
@@ -1876,6 +1929,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram16go",
     "capacities": {
       "rom": 128,
       "ram": 16,
@@ -1883,8 +1937,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755560939600-1000907421.jpg?alt=media&token=9132e7af-02bf-4319-9a22-ca1398e20811",
-    "localImage": "images/tecno-spark-40-pro-1.jpg",
-    "localImageFromRoot": "phones/images/tecno-spark-40-pro-1.jpg",
+    "localImage": "images/tecno-spark-40-pro-rom128go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/tecno-spark-40-pro-rom128go-ram16go.jpg",
     "firestoreData": {
       "name": "Tecno Spark 40 Pro",
       "brand": "Tecno",
@@ -1903,6 +1957,7 @@
     "brand": "Poco",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram6go",
     "capacities": {
       "rom": 64,
       "ram": 6,
@@ -1910,8 +1965,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FSxPWiKB1P4eIo7JndICV%2F1756475485905_4j0inp_processed.webp",
-    "localImage": "images/poco-c61-1.webp",
-    "localImageFromRoot": "phones/images/poco-c61-1.webp",
+    "localImage": "images/poco-c61-rom64go-ram6go.webp",
+    "localImageFromRoot": "phones/images/poco-c61-rom64go-ram6go.webp",
     "firestoreData": {
       "category": "smartphone",
       "price": 43000,
@@ -1942,6 +1997,7 @@
     "brand": "X-tigi",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -1970,6 +2026,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram6go",
     "capacities": {
       "rom": 128,
       "ram": 6,
@@ -1977,8 +2034,8 @@
       "ram_extension": 3
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2FV2EocITFFjGj3ETHDkC7.jpg?alt=media&token=a335c3fb-4ecc-4dda-a6e3-997d5637d116",
-    "localImage": "images/tecno-pop-10.jpg",
-    "localImageFromRoot": "phones/images/tecno-pop-10.jpg",
+    "localImage": "images/tecno-pop-10-rom128go-ram6go.jpg",
+    "localImageFromRoot": "phones/images/tecno-pop-10-rom128go-ram6go.jpg",
     "firestoreData": {
       "brand": "Tecno",
       "imagePath": "products/Tecno_Pop_10_128Go_+_3Go_RAM.jpg",
@@ -2002,6 +2059,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -2009,8 +2067,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FWGV1AM3MVaVsWQnbzH7W%2F1759971493631_0tb6a2_processed.webp",
-    "localImage": "images/redmi-15-5g.webp",
-    "localImageFromRoot": "phones/images/redmi-15-5g.webp",
+    "localImage": "images/redmi-15-5g-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/redmi-15-5g-rom256go-ram16go.webp",
     "firestoreData": {
       "name": "Redmi 15 5G",
       "brand": "Redmi",
@@ -2049,6 +2107,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -2056,8 +2115,8 @@
       "ram_extension": 4
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FX1BQUnaiC3tRSB2onoVy%2F1756018450370_ppa0cg_processed.webp",
-    "localImage": "images/samsung-a16-1.webp",
-    "localImageFromRoot": "phones/images/samsung-a16-1.webp",
+    "localImage": "images/samsung-a16-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/samsung-a16-rom128go-ram8go.webp",
     "firestoreData": {
       "brand": "Samsung",
       "imagePath": "products/Samsung_Galaxy_A16_128Go_+_4Go_RAM.jpg",
@@ -2090,6 +2149,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -2097,8 +2157,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FXX1YMxYWoetdJn7lbZVd%2F1756292723292_bfdoek_processed.webp",
-    "localImage": "images/redmi-note-14-pro.webp",
-    "localImageFromRoot": "phones/images/redmi-note-14-pro.webp",
+    "localImage": "images/redmi-note-14-pro-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/redmi-note-14-pro-rom256go-ram16go.webp",
     "firestoreData": {
       "brand": "Redmi",
       "imagePath": "products/Xiaomi_Redmi_Note_14_Pro_256Go_+_8Go_RAM.jpg",
@@ -2129,6 +2189,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -2136,8 +2197,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FXi6pBq5fkZLY1slset1U%2F1756286449879_nsmlim_processed.webp",
-    "localImage": "images/redmi-14c-1.webp",
-    "localImageFromRoot": "phones/images/redmi-14c-1.webp",
+    "localImage": "images/redmi-14c-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/redmi-14c-rom256go-ram16go.webp",
     "firestoreData": {
       "brand": "Redmi",
       "imagePath": "products/Redmi_14C_256Go_+_8Go_RAM.jpg",
@@ -2168,6 +2229,7 @@
     "brand": "H-MOBILE",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -2207,6 +2269,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram6go",
     "capacities": {
       "rom": 64,
       "ram": 6,
@@ -2214,8 +2277,8 @@
       "ram_extension": 3
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2FZHxa6EZ6UgJUY2nidZW4.jpg?alt=media&token=8d9a01b6-659d-4589-bf69-ae8cca03b6c6",
-    "localImage": "images/tecno-pop-10-1.jpg",
-    "localImageFromRoot": "phones/images/tecno-pop-10-1.jpg",
+    "localImage": "images/tecno-pop-10-rom64go-ram6go.jpg",
+    "localImageFromRoot": "phones/images/tecno-pop-10-rom64go-ram6go.jpg",
     "firestoreData": {
       "brand": "Tecno",
       "imagePath": "products/Tecno_Pop_10_64Go_+_3Go_RAM.jpg",
@@ -2239,6 +2302,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram8go",
     "capacities": {
       "rom": 256,
       "ram": 8,
@@ -2246,8 +2310,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755621331582-Repost%20%40storeimportadosbc%E2%9D%A4%EF%B8%8F%F0%9F%93%B2%20iPhone%2016%20Pro%20Max%20(256Gb)%20%F0%9F%98%8D%F0%9F%94%A5%20Nuevos%20%24930.000%20%F0%9F%94%A5%23iphone16%20%23iphon.webp?alt=media&token=dfb76f97-453a-4b85-ae6e-4e504caeffb2",
-    "localImage": "images/iphone-16-pro-max-1.webp",
-    "localImageFromRoot": "phones/images/iphone-16-pro-max-1.webp",
+    "localImage": "images/iphone-16-pro-max-rom256go-ram8go.webp",
+    "localImageFromRoot": "phones/images/iphone-16-pro-max-rom256go-ram8go.webp",
     "firestoreData": {
       "name": "iPhone 16 pro max",
       "price": 725000,
@@ -2267,6 +2331,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -2306,6 +2371,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom8go ram128go",
     "capacities": {
       "rom": 8,
       "ram": 128,
@@ -2313,8 +2379,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755559610007-1000907537.webp?alt=media&token=cd430681-75f1-4f10-9f1c-fb48801192d7",
-    "localImage": "images/itel-p70.webp",
-    "localImageFromRoot": "phones/images/itel-p70.webp",
+    "localImage": "images/itel-p70-rom8go-ram128go.webp",
+    "localImageFromRoot": "phones/images/itel-p70-rom8go-ram128go.webp",
     "firestoreData": {
       "name": "Itel P70",
       "price": 56000,
@@ -2333,6 +2399,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -2340,8 +2407,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fas7hEXMYJDjGFYcCoTCh%2F1759971005428_lsevkg_processed.webp",
-    "localImage": "images/samsung-tab-a9-1.webp",
-    "localImageFromRoot": "phones/images/samsung-tab-a9-1.webp",
+    "localImage": "images/samsung-tab-a9-rom64go-ram4go.webp",
+    "localImageFromRoot": "phones/images/samsung-tab-a9-rom64go-ram4go.webp",
     "firestoreData": {
       "name": "Samsung Tab A9",
       "brand": "Samsung",
@@ -2374,6 +2441,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go",
     "capacities": {
       "rom": 256,
       "ram": null,
@@ -2381,8 +2449,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FawzBVKmeetk3JNcodHdr%2F1759975253853_v201s2_processed.webp",
-    "localImage": "images/iphone-16-pro-max-2.webp",
-    "localImageFromRoot": "phones/images/iphone-16-pro-max-2.webp",
+    "localImage": "images/iphone-16-pro-max-rom256go.webp",
+    "localImageFromRoot": "phones/images/iphone-16-pro-max-rom256go.webp",
     "firestoreData": {
       "name": "iPhone 16 pro max",
       "brand": "iPhone",
@@ -2414,6 +2482,7 @@
     "brand": "CALUS",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -2453,6 +2522,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -2481,6 +2551,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -2488,8 +2559,8 @@
       "ram_extension": 4
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fbnqer23V37eoPQSrgPmf%2F1756284012069_3ttu8s_processed.webp",
-    "localImage": "images/infinix-hot-50i.webp",
-    "localImageFromRoot": "phones/images/infinix-hot-50i.webp",
+    "localImage": "images/infinix-hot-50i-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/infinix-hot-50i-rom128go-ram8go.webp",
     "firestoreData": {
       "brand": "Infinix",
       "rom": 128,
@@ -2520,6 +2591,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -2527,8 +2599,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755561184588-1000907583.jpg?alt=media&token=84f37904-b42f-489d-a046-aeb6fd296a4e",
-    "localImage": "images/tecno-spark-40-pro-2.jpg",
-    "localImageFromRoot": "phones/images/tecno-spark-40-pro-2.jpg",
+    "localImage": "images/tecno-spark-40-pro-rom256go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/tecno-spark-40-pro-rom256go-ram16go.jpg",
     "firestoreData": {
       "name": "Tecno Spark 40 Pro",
       "price": 110000,
@@ -2547,6 +2619,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -2554,8 +2627,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Xiaomi_Redmi_Note_14_4G_256Go_%2B_8Go_RAM.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=XGfNEYwNHl5%2BXZIkRkKd8BxfCvyeGDa5sTRZER0S1tE3uiQkOhoSH0IqD3zlDgqPIVYqWJyS3A209vJGswKG3qC%2FFEYjuthRLsq4NRu2v9i5Qu2sWsjEMlcR%2F070dhz62Dje0Rwe72HHzjjctnHUHhjE%2FhmUoglF2BWNgfpLbOcLxdUBZPhXR7%2BGuff9edgP%2FKy8nmkK9ruJRFJLod91SsnIMqx3ktzoBBsQF24Hy5z4OK4Yehdn8JWLIpP5Q%2Fk1XuwUTckaAv4pJ5GmBZQJnFLuA1V3fnnF72a1yeU9FgrHya0h2p6WJ75ptG2nPm3YKzm4K1DB40ytT6%2F00RNEWg%3D%3D",
-    "localImage": "images/redmi-note-14.jpg",
-    "localImageFromRoot": "phones/images/redmi-note-14.jpg",
+    "localImage": "images/redmi-note-14-rom256go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/redmi-note-14-rom256go-ram16go.jpg",
     "firestoreData": {
       "imagePath": "products/Xiaomi_Redmi_Note_14_4G_256Go_+_8Go_RAM.jpg",
       "brand": "Redmi",
@@ -2578,6 +2651,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -2617,6 +2691,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom12go ram128go",
     "capacities": {
       "rom": 12,
       "ram": 128,
@@ -2624,8 +2699,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755559055761-1000907397.jpg?alt=media&token=aa053a93-944b-4597-bbef-595d4f08c2ab",
-    "localImage": "images/itel-a90.jpg",
-    "localImageFromRoot": "phones/images/itel-a90.jpg",
+    "localImage": "images/itel-a90-rom12go-ram128go.jpg",
+    "localImageFromRoot": "phones/images/itel-a90-rom12go-ram128go.jpg",
     "firestoreData": {
       "name": "Itel A90",
       "price": 45000,
@@ -2644,6 +2719,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -2651,8 +2727,8 @@
       "ram_extension": 4
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755622252909-Dispon%C3%ADvel%20para%20venda%20Xiaomi%20Redmi%20A5%20(4%2B128GB).%23capas%20%23peliculas%20%23porto%20%23helpmobilero%20%23helpmob.webp?alt=media&token=41eb7d26-9e34-40ad-866f-6e97dbd0380e",
-    "localImage": "images/redmi-a5.webp",
-    "localImageFromRoot": "phones/images/redmi-a5.webp",
+    "localImage": "images/redmi-a5-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/redmi-a5-rom128go-ram8go.webp",
     "firestoreData": {
       "imagePath": "products/Xiaomi_Redmi_A5_4G_128Go_+_4Go_RAM.jpg",
       "brand": "Redmi",
@@ -2676,6 +2752,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom32go ram4go",
     "capacities": {
       "rom": 32,
       "ram": 4,
@@ -2683,8 +2760,8 @@
       "ram_extension": 2
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Itel_A20_32Go_%2B_2Go_RAM.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=UC2UqpTw9fcdEirc9ortjvPQtHSdmYMhMASoBjPwbfg8U0LtlEL6CaKZgNSTaHjw8QNIhD3OPt1K94Wodvg49C%2FtamB7FE9sjJSblkpJCgNT7vI9lpXDbcDoQg%2FA1gdDZD928m%2B5O0INDOS7v0LHtmF%2B6o7wgILUYBVJ2LHnRoIbsKVPf4%2F5wEici1r5L7WBPwwWHZxPp2hVB0efL8WvVdyokiUM6G%2BKhvCKHJFg03Zyty5aYpsRaQCNX5Wo6nmRHzuv6ZbgITW99fpWxoaNlcTTxsFKEr7axxYQ8TV%2ByLRsGa1cQEa0Sbzd8%2BFKI1Eo6HbD%2Bog3n5K9KPliww9REg%3D%3D",
-    "localImage": "images/itel-a20.jpg",
-    "localImageFromRoot": "phones/images/itel-a20.jpg",
+    "localImage": "images/itel-a20-rom32go-ram4go.jpg",
+    "localImageFromRoot": "phones/images/itel-a20-rom32go-ram4go.jpg",
     "firestoreData": {
       "brand": "Itel",
       "imagePath": "products/Itel_A20_32Go_+_2Go_RAM.jpg",
@@ -2718,6 +2795,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram6go",
     "capacities": {
       "rom": 128,
       "ram": 6,
@@ -2725,8 +2803,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FcdYe4q12sQBJxTZSG2vi%2F1759969420601_5y4oqc_processed.webp",
-    "localImage": "images/samsung-a56-5g.webp",
-    "localImageFromRoot": "phones/images/samsung-a56-5g.webp",
+    "localImage": "images/samsung-a56-5g-rom128go-ram6go.webp",
+    "localImageFromRoot": "phones/images/samsung-a56-5g-rom128go-ram6go.webp",
     "firestoreData": {
       "name": "Samsung A56 5G",
       "brand": "Samsung",
@@ -2758,6 +2836,7 @@
     "brand": "Poco",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram6go",
     "capacities": {
       "rom": 64,
       "ram": 6,
@@ -2765,8 +2844,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fd6pBtg5Q9lXPmdMfQNnY%2F1756476211089_kwm275_processed.webp",
-    "localImage": "images/poco-c71-1.webp",
-    "localImageFromRoot": "phones/images/poco-c71-1.webp",
+    "localImage": "images/poco-c71-rom64go-ram6go.webp",
+    "localImageFromRoot": "phones/images/poco-c71-rom64go-ram6go.webp",
     "firestoreData": {
       "brand": "Poco",
       "category": "smartphone",
@@ -2797,6 +2876,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -2804,8 +2884,8 @@
       "ram_extension": 4
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/products/Itel_A80_128Go_%2B_4Go_RAM.jpg?GoogleAccessId=firebase-adminsdk-fbsvc%40africaphone-vente.iam.gserviceaccount.com&Expires=16447014000&Signature=UHEbw%2BOXhcl0W62uTFBZtQNrKySYZ1JmtuQ48rrqC%2B88mYi80FIJ%2F4D0ObnrmbQlLNCa2dfpp%2FYh3g5xVB%2BHfWzdLdAegSOjLLUozQgQdj%2Fncg0h9mj1qmAu5NmNX9SRRJeuMT4nWR33M1QmMOimiSt%2FSvjfciM4cx4froNWxNh%2BjTlfapLw3pqbw%2B4CB3%2Ft6MuZd9213eKDvLf5ohevtUU62w9WYLOZuU641Fmu2NR8r5l74j8ErhAPY%2FoGhB3q7a6WJHgJmY3Bd3Q9qwnDb%2BS%2FMZgErUUpNHDIWFLdBXmmDKCtTVw%2BdRK57Zr5RZ8udnoovefyZ7BEaqclsbvZJQ%3D%3D",
-    "localImage": "images/itel-a80.jpg",
-    "localImageFromRoot": "phones/images/itel-a80.jpg",
+    "localImage": "images/itel-a80-rom128go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/itel-a80-rom128go-ram8go.jpg",
     "firestoreData": {
       "brand": "Itel",
       "imagePath": "products/Itel_A80_128Go_+_4Go_RAM.jpg",
@@ -2828,6 +2908,7 @@
     "brand": "itel",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -2868,6 +2949,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go",
     "capacities": {
       "rom": 128,
       "ram": null,
@@ -2875,8 +2957,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FdDpxIvzVXhp0jraPiTZF%2F1759973941411_atg0ac_processed.webp",
-    "localImage": "images/iphone-14-pro-max-1.webp",
-    "localImageFromRoot": "phones/images/iphone-14-pro-max-1.webp",
+    "localImage": "images/iphone-14-pro-max-rom128go.webp",
+    "localImageFromRoot": "phones/images/iphone-14-pro-max-rom128go.webp",
     "firestoreData": {
       "name": "iPhone 14 Pro Max",
       "brand": "iPhone",
@@ -2908,6 +2990,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -2936,6 +3019,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -2943,8 +3027,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755560641805-1000907422.jpg?alt=media&token=8db8483a-e2d1-4e0c-9f5b-96fcb4faccdf",
-    "localImage": "images/tecno-spark-40.jpg",
-    "localImageFromRoot": "phones/images/tecno-spark-40.jpg",
+    "localImage": "images/tecno-spark-40-rom128go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/tecno-spark-40-rom128go-ram8go.jpg",
     "firestoreData": {
       "name": "Tecno Spark 40",
       "price": 62000,
@@ -2963,6 +3047,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -2970,8 +3055,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FiT35cyf5xEqAIi4XMIW9%2F1756243788430_31e45o_processed.webp",
-    "localImage": "images/infinix-note-50-pro.webp",
-    "localImageFromRoot": "phones/images/infinix-note-50-pro.webp",
+    "localImage": "images/infinix-note-50-pro-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/infinix-note-50-pro-rom256go-ram16go.webp",
     "firestoreData": {
       "brand": "Infinix",
       "rom": 256,
@@ -3003,6 +3088,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -3010,8 +3096,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2Fp_1755857606139.jpg?alt=media&token=793ee419-11d7-4da6-a06f-74a0e9a85218",
-    "localImage": "images/redmi-a3x.jpg",
-    "localImageFromRoot": "phones/images/redmi-a3x.jpg",
+    "localImage": "images/redmi-a3x-rom64go-ram4go.jpg",
+    "localImageFromRoot": "phones/images/redmi-a3x-rom64go-ram4go.jpg",
     "firestoreData": {
       "name": "Redmi A3X",
       "category": "smartphone",
@@ -3035,6 +3121,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom512go ram24go",
     "capacities": {
       "rom": 512,
       "ram": 24,
@@ -3042,8 +3129,8 @@
       "ram_extension": 12
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fk3eAgGt0NcjWm1iF9DfP%2F1756292684507_y71wr6_processed.webp",
-    "localImage": "images/redmi-note-13-pro.webp",
-    "localImageFromRoot": "phones/images/redmi-note-13-pro.webp",
+    "localImage": "images/redmi-note-13-pro-rom512go-ram24go.webp",
+    "localImageFromRoot": "phones/images/redmi-note-13-pro-rom512go-ram24go.webp",
     "firestoreData": {
       "brand": "Redmi",
       "rom": 512,
@@ -3074,6 +3161,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -3081,8 +3169,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2Fp_1755902841337.jpg?alt=media&token=ca8b0d6e-0ad3-4021-93e0-bcc9b912c46d",
-    "localImage": "images/tecno-spark-30c.jpg",
-    "localImageFromRoot": "phones/images/tecno-spark-30c.jpg",
+    "localImage": "images/tecno-spark-30c-rom128go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/tecno-spark-30c-rom128go-ram8go.jpg",
     "firestoreData": {
       "name": "Tecno Spark 30c",
       "brand": "Tecno",
@@ -3106,6 +3194,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -3113,8 +3202,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FkRX9j5kPYFPeDhBMKiAn%2F1759969548831_i4y07n_processed.webp",
-    "localImage": "images/samsung-a17-1.webp",
-    "localImageFromRoot": "phones/images/samsung-a17-1.webp",
+    "localImage": "images/samsung-a17-rom128go-ram8go.webp",
+    "localImageFromRoot": "phones/images/samsung-a17-rom128go-ram8go.webp",
     "firestoreData": {
       "name": "Samsung A17",
       "brand": "Samsung",
@@ -3146,6 +3235,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -3153,8 +3243,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2FlDtsN7vNTCJqZO3f2PSR.jpg?alt=media&token=edb2fe27-51d9-4f5f-b876-3534c8f7a198",
-    "localImage": "images/tecno-camon-40.jpg",
-    "localImageFromRoot": "phones/images/tecno-camon-40.jpg",
+    "localImage": "images/tecno-camon-40-rom256go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/tecno-camon-40-rom256go-ram16go.jpg",
     "firestoreData": {
       "brand": "Tecno",
       "imagePath": "products/Tecno_Camon_40_256Go_+_8Go_RAM.jpg",
@@ -3183,6 +3273,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -3225,6 +3316,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -3232,8 +3324,8 @@
       "ram_extension": 8
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755538576832-IMG-20250815-WA0029(2).jpg?alt=media&token=f0bb1159-afdc-462a-a83c-af94a2ce67b5",
-    "localImage": "images/infinix-hot-40.jpg",
-    "localImageFromRoot": "phones/images/infinix-hot-40.jpg",
+    "localImage": "images/infinix-hot-40-rom256go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/infinix-hot-40-rom256go-ram16go.jpg",
     "firestoreData": {
       "brand": "Infinix",
       "rom": 256,
@@ -3257,6 +3349,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram12go",
     "capacities": {
       "rom": 128,
       "ram": 12,
@@ -3264,8 +3357,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755559952856-1000907541.jpg?alt=media&token=f0075ece-2688-4bf9-918a-c6697a6f29c7",
-    "localImage": "images/itel-city100.jpg",
-    "localImageFromRoot": "phones/images/itel-city100.jpg",
+    "localImage": "images/itel-city100-rom128go-ram12go.jpg",
+    "localImageFromRoot": "phones/images/itel-city100-rom128go-ram12go.jpg",
     "firestoreData": {
       "name": "Itel CITY100",
       "brand": "Itel",
@@ -3290,6 +3383,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -3297,8 +3391,8 @@
       "ram_extension": 2
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2FmFQqrVpQAU2ffxX1sKDV.jpg?alt=media&token=ecee76cc-630c-4920-b03b-bbe72f0febc8",
-    "localImage": "images/tecno-pop-10c.jpg",
-    "localImageFromRoot": "phones/images/tecno-pop-10c.jpg",
+    "localImage": "images/tecno-pop-10c-rom64go-ram4go.jpg",
+    "localImageFromRoot": "phones/images/tecno-pop-10c-rom64go-ram4go.jpg",
     "firestoreData": {
       "brand": "Tecno",
       "ram_extension": 2,
@@ -3322,6 +3416,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -3329,8 +3424,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FmmxXO5F4lMHjZ1bVCA0b%2F1759970383162_xdniyz_processed.webp",
-    "localImage": "images/samsung-a17-5g.webp",
-    "localImageFromRoot": "phones/images/samsung-a17-5g.webp",
+    "localImage": "images/samsung-a17-5g-rom256go-ram16go.webp",
+    "localImageFromRoot": "phones/images/samsung-a17-5g-rom256go-ram16go.webp",
     "firestoreData": {
       "name": "Samsung A17 5G",
       "brand": "Samsung",
@@ -3362,6 +3457,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -3369,8 +3465,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FniuHgMigFvuQtd2JnbWh%2F1756199543406_5ib14v_processed.webp",
-    "localImage": "images/samsung-a07.webp",
-    "localImageFromRoot": "phones/images/samsung-a07.webp",
+    "localImage": "images/samsung-a07-rom64go-ram4go.webp",
+    "localImageFromRoot": "phones/images/samsung-a07-rom64go-ram4go.webp",
     "firestoreData": {
       "name": "Samsung A07",
       "brand": "Samsung",
@@ -3401,6 +3497,7 @@
     "brand": "Villaon",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -3430,6 +3527,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -3437,8 +3535,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FnzQ2CKB8aPcMFeGXL2kW%2F1756018647187_0hef13_processed.webp",
-    "localImage": "images/samsung-a05.webp",
-    "localImageFromRoot": "phones/images/samsung-a05.webp",
+    "localImage": "images/samsung-a05-rom64go-ram4go.webp",
+    "localImageFromRoot": "phones/images/samsung-a05-rom64go-ram4go.webp",
     "firestoreData": {
       "name": "Samsung A05",
       "brand": "Samsung",
@@ -3465,6 +3563,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram12go",
     "capacities": {
       "rom": 128,
       "ram": 12,
@@ -3472,8 +3571,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2Fp_1755857442953.jpg?alt=media&token=a65a80a6-b858-43c4-8258-d26b1a085b8d",
-    "localImage": "images/redmi-14c.jpg",
-    "localImageFromRoot": "phones/images/redmi-14c.jpg",
+    "localImage": "images/redmi-14c-rom128go-ram12go.jpg",
+    "localImageFromRoot": "phones/images/redmi-14c-rom128go-ram12go.jpg",
     "firestoreData": {
       "name": "Redmi 14c",
       "brand": "Redmi",
@@ -3501,6 +3600,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go",
     "capacities": {
       "rom": 128,
       "ram": null,
@@ -3508,8 +3608,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FoBfWQP89mtRhA1LEfqLp%2F1759974595932_2at0ls_processed.webp",
-    "localImage": "images/iphone-16-1.webp",
-    "localImageFromRoot": "phones/images/iphone-16-1.webp",
+    "localImage": "images/iphone-16-rom128go.webp",
+    "localImageFromRoot": "phones/images/iphone-16-rom128go.webp",
     "firestoreData": {
       "name": "iPhone 16",
       "brand": "iPhone",
@@ -3541,6 +3641,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -3581,6 +3682,7 @@
     "brand": "MAXFONE",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -3621,6 +3723,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram6go",
     "capacities": {
       "rom": 64,
       "ram": 6,
@@ -3628,8 +3731,8 @@
       "ram_extension": 3
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755622319798-Desbloqueie%20o%20potencial%20do%20Redmi%20A5!%20Com%2064GB%20de%20armazenamento%20e%203%20op%C3%A7%C3%B5es%20de%20cores%20incr%C3%ADveis%2C%20vo.jpg?alt=media&token=69036f78-57d8-42ef-9b1f-5fab710fce77",
-    "localImage": "images/redmi-a5.jpg",
-    "localImageFromRoot": "phones/images/redmi-a5.jpg",
+    "localImage": "images/redmi-a5-rom64go-ram6go.jpg",
+    "localImageFromRoot": "phones/images/redmi-a5-rom64go-ram6go.jpg",
     "firestoreData": {
       "brand": "Redmi",
       "imagePath": "products/Xiaomi_Redmi_A5_4G_64Go_+_3Go_RAM.jpg",
@@ -3652,6 +3755,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -3659,8 +3763,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755609983020-IMG-20250818-WA0303.jpg?alt=media&token=e08b150b-aff9-4f81-a1af-9457ce15e871",
-    "localImage": "images/samsung-a06-1.jpg",
-    "localImageFromRoot": "phones/images/samsung-a06-1.jpg",
+    "localImage": "images/samsung-a06-rom64go-ram4go.jpg",
+    "localImageFromRoot": "phones/images/samsung-a06-rom64go-ram4go.jpg",
     "firestoreData": {
       "name": "Samsung A06",
       "price": 52000,
@@ -3679,6 +3783,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram4go",
     "capacities": {
       "rom": 128,
       "ram": 4,
@@ -3686,8 +3791,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FrxuAixhWSL5Xh4R46uoG%2F1756199675860_q4by1l_processed.webp",
-    "localImage": "images/samsung-a07-1.webp",
-    "localImageFromRoot": "phones/images/samsung-a07-1.webp",
+    "localImage": "images/samsung-a07-rom128go-ram4go.webp",
+    "localImageFromRoot": "phones/images/samsung-a07-rom128go-ram4go.webp",
     "firestoreData": {
       "name": "Samsung A07",
       "brand": "Samsung",
@@ -3722,6 +3827,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom16go ram256go",
     "capacities": {
       "rom": 16,
       "ram": 256,
@@ -3729,8 +3835,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Frz8ROx9efVnCxOWY9TfY%2F1756892388606_7l5u71_processed.webp",
-    "localImage": "images/infinix-hot-60-pro.webp",
-    "localImageFromRoot": "phones/images/infinix-hot-60-pro.webp",
+    "localImage": "images/infinix-hot-60-pro-rom16go-ram256go.webp",
+    "localImageFromRoot": "phones/images/infinix-hot-60-pro-rom16go-ram256go.webp",
     "firestoreData": {
       "name": "Infinix Hot 60 Pro+",
       "brand": "Infinix",
@@ -3757,6 +3863,7 @@
     "brand": "",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -3785,6 +3892,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram630go",
     "capacities": {
       "rom": 256,
       "ram": 630,
@@ -3792,8 +3900,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fs45wo3EghLTi5GLkrRxR%2F1759975019997_b3qnwd_processed.webp",
-    "localImage": "images/iphone-16-pro-1.webp",
-    "localImageFromRoot": "phones/images/iphone-16-pro-1.webp",
+    "localImage": "images/iphone-16-pro-rom256go-ram630go.webp",
+    "localImageFromRoot": "phones/images/iphone-16-pro-rom256go-ram630go.webp",
     "firestoreData": {
       "name": "iPhone 16 Pro",
       "brand": "iPhone",
@@ -3825,6 +3933,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram8go",
     "capacities": {
       "rom": 256,
       "ram": 8,
@@ -3832,8 +3941,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755609760778-IMG-20250818-WA0302.jpg?alt=media&token=3afacffe-61da-4708-a0a1-fd1e13fec192",
-    "localImage": "images/samsung-a36-5g.jpg",
-    "localImageFromRoot": "phones/images/samsung-a36-5g.jpg",
+    "localImage": "images/samsung-a36-5g-rom256go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/samsung-a36-5g-rom256go-ram8go.jpg",
     "firestoreData": {
       "brand": "Samsung",
       "ram": 8,
@@ -3852,6 +3961,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram16go",
     "capacities": {
       "rom": 128,
       "ram": 16,
@@ -3859,8 +3969,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FsjLLAT8hzNORH2PMyiWS%2F1759970166947_lqzjai_processed.webp",
-    "localImage": "images/samsung-a17-5g-1.webp",
-    "localImageFromRoot": "phones/images/samsung-a17-5g-1.webp",
+    "localImage": "images/samsung-a17-5g-rom128go-ram16go.webp",
+    "localImageFromRoot": "phones/images/samsung-a17-5g-rom128go-ram16go.webp",
     "firestoreData": {
       "name": "Samsung A17 5G",
       "brand": "Samsung",
@@ -3892,6 +4002,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram8go",
     "capacities": {
       "rom": 128,
       "ram": 8,
@@ -3899,8 +4010,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2Fp_1755856858879.jpg?alt=media&token=8833e032-6c6a-497c-905b-23d689694cb1",
-    "localImage": "images/redmi-15c-1.jpg",
-    "localImageFromRoot": "phones/images/redmi-15c-1.jpg",
+    "localImage": "images/redmi-15c-rom128go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/redmi-15c-rom128go-ram8go.jpg",
     "firestoreData": {
       "name": "Redmi 15c",
       "brand": "Redmi",
@@ -3924,6 +4035,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go ram6go",
     "capacities": {
       "rom": 128,
       "ram": 6,
@@ -3931,8 +4043,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fty0DZFoKEgFjIGnxppyD%2F1759968646808_1zhxo1_processed.webp",
-    "localImage": "images/samsung-a26-5g.webp",
-    "localImageFromRoot": "phones/images/samsung-a26-5g.webp",
+    "localImage": "images/samsung-a26-5g-rom128go-ram6go.webp",
+    "localImageFromRoot": "phones/images/samsung-a26-5g-rom128go-ram6go.webp",
     "firestoreData": {
       "name": "Samsung A26 5G",
       "brand": "Samsung",
@@ -3964,6 +4076,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go",
     "capacities": {
       "rom": 256,
       "ram": null,
@@ -3971,8 +4084,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FuUwdWvmtajVZURcAnTNB%2F1759973006286_k5rb1h_processed.webp",
-    "localImage": "images/iphone-12-pro-max.webp",
-    "localImageFromRoot": "phones/images/iphone-12-pro-max.webp",
+    "localImage": "images/iphone-12-pro-max-rom256go.webp",
+    "localImageFromRoot": "phones/images/iphone-12-pro-max-rom256go.webp",
     "firestoreData": {
       "name": "iPhone 12 Pro Max",
       "brand": "iPhone",
@@ -4005,6 +4118,7 @@
     "brand": "Villaon",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram4go",
     "capacities": {
       "rom": 64,
       "ram": 4,
@@ -4012,8 +4126,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FutxRpsFhiuPvhKvfqfPp%2F1759967430805_5dysti_processed.webp",
-    "localImage": "images/villaon-v25.webp",
-    "localImageFromRoot": "phones/images/villaon-v25.webp",
+    "localImage": "images/villaon-v25-rom64go-ram4go.webp",
+    "localImageFromRoot": "phones/images/villaon-v25-rom64go-ram4go.webp",
     "firestoreData": {
       "name": "Villaon V25",
       "brand": "Villaon",
@@ -4047,6 +4161,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom512go ram16go",
     "capacities": {
       "rom": 512,
       "ram": 16,
@@ -4054,8 +4169,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2Fv3Ws0l0ecgYJd0BJpxd9%2F1756482423419_kobbqf_processed.webp",
-    "localImage": "images/infinix-zeroflip.webp",
-    "localImageFromRoot": "phones/images/infinix-zeroflip.webp",
+    "localImage": "images/infinix-zeroflip-rom512go-ram16go.webp",
+    "localImageFromRoot": "phones/images/infinix-zeroflip-rom512go-ram16go.webp",
     "firestoreData": {
       "name": "Infinix ZeroFlip",
       "brand": "Infinix",
@@ -4086,6 +4201,7 @@
     "brand": "Villaon",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -4117,6 +4233,7 @@
     "brand": "Redmi",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom512go ram24go",
     "capacities": {
       "rom": 512,
       "ram": 24,
@@ -4124,8 +4241,8 @@
       "ram_extension": 12
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755622526932-Redmi%20Note%2014%20Pro%20%E2%80%94%20%D0%BC%D0%BE%D1%89%D1%8C%2C%20%D1%81%D1%82%D0%B8%D0%BB%D1%8C%20%D0%B8%20%D0%BA%D0%B0%D0%BC%D0%B5%D1%80%D0%B0%20%D0%BD%D0%B0%20%D0%BC%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%D1%83%D0%BC%F0%9F%93%B1%206.67%E2%80%9D%20AMOLED%20120%20%D0%93%D1%86%20%E2%80%94%20%D1%8F%D1%80%D0%BA%D0%B8%D0%B9%20%D0%B8%20%D0%BF%D0%BB%D0%B0%D0%B2%D0%BD%D1%8B%D0%B9%20%D0%B4%D0%B8%D1%81%20(1).jpg?alt=media&token=8d9af9a2-713c-4444-ba21-44de0e827e5c",
-    "localImage": "images/redmi-note-14-pro.jpg",
-    "localImageFromRoot": "phones/images/redmi-note-14-pro.jpg",
+    "localImage": "images/redmi-note-14-pro-rom512go-ram24go.jpg",
+    "localImageFromRoot": "phones/images/redmi-note-14-pro-rom512go-ram24go.jpg",
     "firestoreData": {
       "imagePath": "products/Xiaomi_Redmi_Note_14_Pro_512Go_+_12Go_RAM.jpg",
       "brand": "Redmi",
@@ -4148,6 +4265,7 @@
     "brand": "Tecno",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram16go",
     "capacities": {
       "rom": 256,
       "ram": 16,
@@ -4155,8 +4273,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755560733541-1000907388.jpg?alt=media&token=012de3eb-10d3-4904-bc8e-c4d0dc3e3ecf",
-    "localImage": "images/tecno-spark-40-1.jpg",
-    "localImageFromRoot": "phones/images/tecno-spark-40-1.jpg",
+    "localImage": "images/tecno-spark-40-rom256go-ram16go.jpg",
+    "localImageFromRoot": "phones/images/tecno-spark-40-rom256go-ram16go.jpg",
     "firestoreData": {
       "name": "Tecno Spark 40",
       "brand": "Tecno",
@@ -4175,6 +4293,7 @@
     "brand": "Nokia",
     "category": "phones",
     "firestoreCategory": "portable a touche",
+    "variantSuffix": null,
     "capacities": {
       "rom": null,
       "ram": null,
@@ -4205,6 +4324,7 @@
     "brand": "Infinix",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom64go ram6go",
     "capacities": {
       "rom": 64,
       "ram": 6,
@@ -4212,8 +4332,8 @@
       "ram_extension": 3
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FwnKud5XL9VdLGhvEOSrH%2F1756891757769_4c8440_processed.webp",
-    "localImage": "images/infinix-smart-10.webp",
-    "localImageFromRoot": "phones/images/infinix-smart-10.webp",
+    "localImage": "images/infinix-smart-10-rom64go-ram6go.webp",
+    "localImageFromRoot": "phones/images/infinix-smart-10-rom64go-ram6go.webp",
     "firestoreData": {
       "brand": "Infinix",
       "imagePath": "products/Infinix_Smart_10_64Go_+_3Go_RAM.jpg",
@@ -4245,6 +4365,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom128go",
     "capacities": {
       "rom": 128,
       "ram": null,
@@ -4252,8 +4373,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FxIbNYM5EGOoOsPCDRG5G%2F1759972883136_jghvnc_processed.webp",
-    "localImage": "images/iphone-12-pro-max-1.webp",
-    "localImageFromRoot": "phones/images/iphone-12-pro-max-1.webp",
+    "localImage": "images/iphone-12-pro-max-rom128go.webp",
+    "localImageFromRoot": "phones/images/iphone-12-pro-max-rom128go.webp",
     "firestoreData": {
       "name": "iPhone 12 Pro Max",
       "brand": "iPhone",
@@ -4286,6 +4407,7 @@
     "brand": "Samsung",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go ram8go",
     "capacities": {
       "rom": 256,
       "ram": 8,
@@ -4293,8 +4415,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755609623635-IMG-20250818-WA0301.jpg?alt=media&token=e17d2fb2-4a45-494a-b660-749573325ca4",
-    "localImage": "images/samsung-a56-5g.jpg",
-    "localImageFromRoot": "phones/images/samsung-a56-5g.jpg",
+    "localImage": "images/samsung-a56-5g-rom256go-ram8go.jpg",
+    "localImageFromRoot": "phones/images/samsung-a56-5g-rom256go-ram8go.jpg",
     "firestoreData": {
       "name": "Samsung A56 5G",
       "brand": "Samsung",
@@ -4313,6 +4435,7 @@
     "brand": "Itel",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom32go ram4go",
     "capacities": {
       "rom": 32,
       "ram": 4,
@@ -4320,8 +4443,8 @@
       "ram_extension": null
     },
     "imageSource": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/product-images%2F1755561683510-1000907396.jpg?alt=media&token=eaf3d846-bc9f-481d-a0a7-4b866a7eb2ad",
-    "localImage": "images/itel-a50c.jpg",
-    "localImageFromRoot": "phones/images/itel-a50c.jpg",
+    "localImage": "images/itel-a50c-rom32go-ram4go.jpg",
+    "localImageFromRoot": "phones/images/itel-a50c-rom32go-ram4go.jpg",
     "firestoreData": {
       "name": "Itel A50c",
       "price": 37000,
@@ -4340,6 +4463,7 @@
     "brand": "iPhone",
     "category": "phones",
     "firestoreCategory": "smartphone",
+    "variantSuffix": "rom256go",
     "capacities": {
       "rom": 256,
       "ram": null,
@@ -4347,8 +4471,8 @@
       "ram_extension": null
     },
     "imageSource": "https://storage.googleapis.com/africaphone-vente.firebasestorage.app/product-images%2FzQeStZvKCYk6sw0g7nLD%2F1759974231198_9968v7_processed.webp",
-    "localImage": "images/iphone-15-pro-max-1.webp",
-    "localImageFromRoot": "phones/images/iphone-15-pro-max-1.webp",
+    "localImage": "images/iphone-15-pro-max-rom256go.webp",
+    "localImageFromRoot": "phones/images/iphone-15-pro-max-rom256go.webp",
     "firestoreData": {
       "name": "iPhone 15 Pro Max",
       "brand": "iPhone",

@@ -65,6 +65,105 @@ const sanitizeFilename = (value, fallback) => {
   return normalized.length > 0 ? normalized : fallback || 'image';
 };
 
+const parseNumeric = value => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.replace(',', '.').match(/[\d.]+/g);
+    if (!normalized) {
+      return null;
+    }
+    const parsed = Number(normalized.join(''));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+const formatCapacityLabel = (label, value) => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  const numeric = parseNumeric(value);
+  if (numeric) {
+    return `${label}${numeric}go`;
+  }
+
+  const raw = String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '');
+
+  return raw.length > 0 ? `${label}${raw}` : null;
+};
+
+const extractSpecificationCapacity = data => {
+  if (!Array.isArray(data?.specifications)) {
+    return null;
+  }
+
+  const candidates = data.specifications
+    .map(spec => {
+      const key = spec?.key ?? '';
+      const value = spec?.value ?? '';
+      return `${key} ${value}`.trim();
+    })
+    .filter(Boolean);
+
+  const joined = candidates.join(' ').toLowerCase();
+  const match = joined.match(/(\d+)\s*(?:gb|go)\s*(?:de)?\s*rom.*?(\d+)\s*(?:gb|go)\s*(?:de)?\s*ram/);
+  if (match) {
+    return `rom${match[1]}go ram${match[2]}go`;
+  }
+
+  const singleMatch = joined.match(/(\d+)\s*(?:gb|go)/);
+  if (singleMatch) {
+    return `rom${singleMatch[1]}go`;
+  }
+
+  return null;
+};
+
+const buildVariantSuffix = (data, categoryKey) => {
+  if (categoryKey !== 'phones') {
+    return null;
+  }
+
+  const parts = [];
+
+  const romLabel = formatCapacityLabel('rom', data?.rom ?? data?.storage ?? data?.memoire);
+  if (romLabel) {
+    parts.push(romLabel);
+  }
+
+  let ramLabel = formatCapacityLabel('ram', data?.ram);
+  if (!ramLabel) {
+    const ramBase = formatCapacityLabel('ram-base', data?.ram_base);
+    const ramExt = formatCapacityLabel('ram-ext', data?.ram_extension);
+    if (ramBase || ramExt) {
+      if (ramBase && ramExt) {
+        parts.push(`ram${ramBase.replace('ram-base', '')}+${ramExt.replace('ram-ext', '')}`);
+      } else if (ramBase) {
+        parts.push(`ram${ramBase.replace('ram-base', '')}`);
+      } else if (ramExt) {
+        parts.push(`ram${ramExt.replace('ram-ext', '')}`);
+      }
+    }
+  } else {
+    parts.push(ramLabel);
+  }
+
+  if (parts.length === 0) {
+    const fromSpecs = extractSpecificationCapacity(data);
+    if (fromSpecs) {
+      parts.push(fromSpecs);
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' ') : null;
+};
+
 const ensureDir = async dir => {
   await fsp.mkdir(dir, { recursive: true });
 };
@@ -198,7 +297,7 @@ const classifyProduct = data => {
   return 'others';
 };
 
-const buildProductRecord = (docId, rawData, imageSource, imagePaths, categoryKey) => {
+const buildProductRecord = (docId, rawData, imageSource, imagePaths, categoryKey, variantSuffix) => {
   const plain = serialiseFirestoreData(rawData);
 
   return {
@@ -208,6 +307,7 @@ const buildProductRecord = (docId, rawData, imageSource, imagePaths, categoryKey
     brand: plain.brand ?? null,
     category: categoryKey,
     firestoreCategory: plain.category ?? null,
+    variantSuffix: variantSuffix ?? null,
     capacities: {
       rom: plain.rom ?? null,
       ram: plain.ram ?? null,
@@ -221,12 +321,14 @@ const buildProductRecord = (docId, rawData, imageSource, imagePaths, categoryKey
   };
 };
 
-const downloadImageForProduct = async (docId, data, categoryDir, imagesDir) => {
+const downloadImageForProduct = async (docId, data, categoryKey, categoryDir, imagesDir) => {
   const imageSource = resolveImageSource(data);
-  const safeBaseName = sanitizeFilename(data?.name, docId);
+  const variantSuffix = buildVariantSuffix(data, categoryKey);
+  const baseNameRaw = [data?.name, variantSuffix].filter(Boolean).join(' ');
+  const safeBaseName = sanitizeFilename(baseNameRaw, docId);
   if (!imageSource) {
     console.warn(`Skipping image download for ${docId} (no image source)`);
-    return { imageSource: null, localPathCategory: null, localPathRoot: null };
+    return { imageSource: null, localPathCategory: null, localPathRoot: null, variantSuffix };
   }
 
   try {
@@ -248,13 +350,14 @@ const downloadImageForProduct = async (docId, data, categoryDir, imagesDir) => {
 
     return {
       imageSource,
+      variantSuffix,
       localPathCategory: toPosixPath(path.relative(categoryDir, outputPath)),
       localPathRoot: toPosixPath(path.relative(OUTPUT_ROOT, outputPath)),
     };
   } catch (error) {
     console.error(`Failed to download image for ${docId}: ${error.message}`);
     await sleep(250);
-    return { imageSource, localPathCategory: null, localPathRoot: null };
+    return { imageSource, variantSuffix, localPathCategory: null, localPathRoot: null };
   }
 };
 
@@ -271,9 +374,16 @@ const main = async () => {
     const data = doc.data();
     const categoryKey = classifyProduct(data);
     const bucket = CATEGORY_OUTPUTS[categoryKey] ?? CATEGORY_OUTPUTS.others;
-    const imageInfo = await downloadImageForProduct(doc.id, data, bucket.dir, bucket.imagesDir);
+    const imageInfo = await downloadImageForProduct(doc.id, data, bucket.key, bucket.dir, bucket.imagesDir);
 
-    const record = buildProductRecord(doc.id, data, imageInfo.imageSource, imageInfo, bucket.key);
+    const record = buildProductRecord(
+      doc.id,
+      data,
+      imageInfo.imageSource,
+      imageInfo,
+      bucket.key,
+      imageInfo.variantSuffix
+    );
     bucket.products.push(record);
     allProducts.push(record);
 

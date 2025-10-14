@@ -1,14 +1,6 @@
 {
   "indexes": [
     {
-      "collectionGroup": "contests",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "endDate", "order": "ASCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "promoCards",
       "queryScope": "COLLECTION",
       "fields": [
