@@ -301,7 +301,7 @@ export default function ProductGridSection() {
       <h2 id="all-products" className="sr-only">
         Tous les produits
       </h2>
-      <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] lg:grid-cols-3 lg:gap-x-4 lg:gap-y-[0.75rem] xl:grid-cols-4 xl:gap-x-5 xl:gap-y-[0.9375rem]">
+      <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
       </div>
     </section>
@@ -311,89 +311,57 @@ export default function ProductGridSection() {
 function ProductCard({ product }: { product: ProductCardData }) {
   const priceLabel = formatPrice(product.price);
   const detailHref = `/produits/${product.id}`;
+  const contactMessage = encodeURIComponent(`Bonjour AfricaPhone, je suis interesse(e) par ${product.name}.`);
+  const contactHref = `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${contactMessage}`;
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_36px_-20px_rgba(15,23,42,0.55)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_28px_48px_-18px_rgba(15,23,42,0.55)]">
+    <article className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md sm:p-4">
       <Link
         href={detailHref}
-        className="flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+        className="flex flex-1 flex-col gap-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       >
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-slate-50 sm:aspect-[4/5] lg:aspect-[3/4]">
           {product.badge ? (
-            <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-rose-600 shadow-sm shadow-slate-900/10">
+            <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600 shadow-sm shadow-slate-900/10">
               {product.badge}
             </span>
           ) : null}
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-600 text-white shadow-lg shadow-rose-600/30 transition duration-200 group-hover:scale-110"
-          >
-            <BookmarkIcon className="h-4 w-4" />
-          </span>
           <Image
             src={product.image}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 18vw"
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+            className="object-cover object-center transition duration-300 group-hover:scale-105"
           />
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-rose-600 shadow-lg shadow-slate-900/20 transition duration-200 group-hover:scale-110"
-          >
-            <HeartIcon className="h-4 w-4" />
-          </span>
         </div>
-        <div className="flex flex-1 flex-col gap-4 px-3 pb-3 pt-5 text-left sm:px-4">
-          <div className="space-y-2">
-            <p className="text-lg font-extrabold text-rose-600 sm:text-xl">{priceLabel}</p>
-            <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
-            <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
-          </div>
+        <div className="flex flex-1 flex-col gap-2 text-left">
+          <p className="text-base font-extrabold text-rose-600 sm:text-lg">{priceLabel}</p>
+          <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
+          <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
         </div>
       </Link>
+      <a
+        href={contactHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-3 flex items-center justify-center gap-2 rounded-full bg-orange-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
+      >
+        Contacter nous
+      </a>
     </article>
   );
 }
 
 function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_36px_-20px_rgba(15,23,42,0.45)]">
-      <div className="aspect-[4/3] w-full animate-pulse bg-slate-200" />
-      <div className="flex flex-1 flex-col gap-3 px-3 pb-4 pt-5 sm:px-4">
+    <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+      <div className="aspect-[4/3] w-full animate-pulse rounded-xl bg-slate-200" />
+      <div className="mt-3 flex flex-1 flex-col gap-2">
         <div className="h-4 w-1/3 animate-pulse rounded-full bg-slate-200" />
         <div className="h-4 w-2/3 animate-pulse rounded-full bg-slate-200" />
         <div className="h-3 w-4/5 animate-pulse rounded-full bg-slate-200" />
-        <div className="mt-auto h-11 animate-pulse rounded-full bg-slate-200" />
+        <div className="mt-auto h-9 animate-pulse rounded-full bg-slate-200" />
       </div>
     </div>
-  );
-}
-
-function BookmarkIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="M5.5 4h9a1.5 1.5 0 0 1 1.5 1.5v10a.5.5 0 0 1-.79.41L10 12.5l-5.21 3.41A.5.5 0 0 1 4 15.5v-10A1.5 1.5 0 0 1 5.5 4Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function HeartIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="M10 16.5s-5.5-3.3-5.5-7A3.5 3.5 0 0 1 8 6a3.74 3.74 0 0 1 2 1 3.74 3.74 0 0 1 2-1 3.5 3.5 0 0 1 3.5 3.5c0 3.7-5.5 7-5.5 7Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

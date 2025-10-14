@@ -3,14 +3,11 @@ import Link from "next/link";
 import ProductGridSection from "@/components/ProductGridSection";
 import type { ServiceHighlight } from "@/data/storefront";
 import {
-  deliveryLocation,
-  departments,
   footerColumns,
   footerLegal,
   predictionCard,
   serviceHighlights,
   spotlights,
-  topNavShortcuts,
   voteContestCard,
 } from "@/data/storefront";
 
@@ -31,100 +28,66 @@ export default function HomePage() {
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 bg-slate-900 text-white shadow-lg shadow-slate-900/20">
+    <header className="sticky top-0 z-50 bg-white text-slate-900 shadow-sm shadow-slate-900/10">
       <TopNav />
-      <SecondaryNav />
     </header>
   );
 }
 
 function TopNav() {
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-4 px-4 py-3 lg:px-8">
-      <Link href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-extrabold tracking-tight">
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500 text-lg text-slate-900">
-          AP
-        </span>
+    <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 lg:px-8">
+      <Link
+        href="/"
+        className="flex items-center gap-2 whitespace-nowrap text-xl font-extrabold tracking-tight text-slate-900"
+      >
+        <Image
+          src="/logo.png"
+          alt="Logo AfricaPhone"
+          width={40}
+          height={40}
+          priority
+          className="h-10 w-10 rounded-lg shadow-sm shadow-orange-500/30"
+        />
         <span>
           Africa<span className="text-orange-400">Phone</span>
         </span>
       </Link>
 
-      <div className="hidden min-w-[190px] flex-col text-xs sm:flex">
-        <span className="text-slate-300 uppercase">{deliveryLocation.label}</span>
-        <span className="flex items-center gap-1 font-semibold text-white">
-          <LocationIcon className="h-4 w-4 text-orange-300" />
-          {deliveryLocation.city}
-        </span>
-        <span className="text-[11px] text-slate-400">{deliveryLocation.note}</span>
-      </div>
-
-      <form className="order-3 w-full flex-1 sm:order-none">
-        <div className="flex items-center overflow-hidden rounded-full bg-white text-slate-900 ring-2 ring-transparent transition focus-within:ring-orange-400">
-          <button
-            type="button"
-            className="hidden items-center gap-1 border-r border-slate-200 bg-slate-100 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-200 sm:flex"
-          >
-            Tout
-            <ChevronDownIcon className="h-4 w-4 text-slate-500" />
-          </button>
+      <form className="order-3 w-full flex-1 min-w-[220px] sm:order-none sm:max-w-xl">
+        <div className="flex h-11 items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-900 transition focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100">
           <input
             type="search"
             placeholder="Rechercher un produit, une marque ou un service AfricaPhone"
-            className="h-12 flex-1 bg-transparent px-4 text-sm outline-none"
+            className="h-full flex-1 bg-transparent px-4 text-sm outline-none placeholder:text-slate-400"
           />
           <button
             type="submit"
-            className="flex h-12 w-14 items-center justify-center bg-orange-500 text-white transition hover:bg-orange-600"
+            className="flex h-full w-11 items-center justify-center bg-orange-500 text-white transition hover:bg-orange-600"
           >
             <SearchIcon className="h-5 w-5" />
           </button>
         </div>
       </form>
 
-      <div className="ml-auto hidden items-center gap-6 text-[11px] font-semibold uppercase tracking-wide md:flex">
-        {topNavShortcuts.map(item => (
-          <Link key={item.label} href={item.href} className="leading-tight text-slate-200 hover:text-orange-200">
-            <span className="block text-[10px] text-slate-400">{item.label}</span>
-            {item.badge ? <span className="text-sm capitalize text-white">{item.badge}</span> : null}
-          </Link>
-        ))}
-        <a href="tel:+2290154151522" className="leading-tight text-slate-200 transition hover:text-orange-200">
-          <span className="block text-[10px] text-slate-400">Conseiller</span>
-          <span className="text-sm">01 54 15 15 22</span>
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <a
+          href="tel:+2290154151522"
+          className="flex items-center gap-2 rounded-full border border-transparent bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:border-slate-900 hover:bg-white hover:text-slate-900"
+        >
+          <PhoneIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">01 54 15 15 22</span>
         </a>
+        <Link
+          href="#cart"
+          className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-900 transition hover:border-orange-400 hover:text-orange-500"
+        >
+          <CartIcon className="h-5 w-5 text-orange-500" />
+          <span className="hidden sm:inline">Panier</span>
+          <span className="rounded-full bg-orange-500 px-2 py-0.5 text-xs font-bold text-white">0</span>
+        </Link>
       </div>
-
-      <Link
-        href="#cart"
-        className="flex items-center gap-2 rounded-full bg-slate-800 px-3 py-2 text-sm font-semibold uppercase tracking-wide text-white hover:bg-slate-700"
-      >
-        <CartIcon className="h-5 w-5 text-orange-300" />
-        Panier
-        <span className="rounded-full bg-orange-500 px-2 py-0.5 text-xs text-slate-900">0</span>
-      </Link>
     </div>
-  );
-}
-
-function SecondaryNav() {
-  return (
-    <nav className="border-t border-slate-800 bg-slate-800 text-sm font-semibold text-slate-100">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto px-4 py-2 lg:px-8">
-        {departments.map((item, index) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={`flex flex-shrink-0 items-center gap-2 rounded-full px-3 py-2 transition hover:bg-slate-700 ${
-              index === 0 ? "bg-slate-700 text-white" : "bg-transparent"
-            }`}
-          >
-            {index === 0 ? <MenuIcon className="h-4 w-4 text-orange-300" /> : null}
-            {item.label}
-          </Link>
-        ))}
-      </div>
-    </nav>
   );
 }
 
@@ -338,39 +301,6 @@ function SearchIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </svg>
-  );
-}
-
-function LocationIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="M10 2.5c-2.9 0-5.25 2.28-5.25 5.09 0 3.94 4.7 9.24 4.9 9.47.19.21.47.34.76.34.3 0 .57-.13.76-.34.2-.23 4.9-5.53 4.9-9.47C15.25 4.78 12.9 2.5 10 2.5Zm0 6.88c-.98 0-1.77-.78-1.77-1.75 0-.97.79-1.75 1.77-1.75s1.77.78 1.77 1.75c0 .97-.79 1.75-1.77 1.75Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function ChevronDownIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="m5.5 7.75 4.5 4.5 4.5-4.5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function MenuIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }
