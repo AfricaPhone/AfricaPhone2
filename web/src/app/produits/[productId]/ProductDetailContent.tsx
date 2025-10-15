@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import type { DocumentData } from 'firebase/firestore';
 import type { ProductDetail as StaticProductDetail } from '@/data/product-details';
@@ -99,6 +100,7 @@ type ProductDetailContentProps = {
 };
 
 export default function ProductDetailContent({ productId, initialProduct }: ProductDetailContentProps) {
+  const router = useRouter();
   const [product, setProduct] = useState<CombinedProduct | null>(() =>
     initialProduct ? combineProductData(null, initialProduct) : null
   );
@@ -140,6 +142,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           setSelectedImage(0);
         }
       } catch (fetchError) {
+        console.error('ProductDetailContent: unable to load product', fetchError);
         const fallback = initialProduct ?? getProductDetail(productId) ?? null;
         if (isMounted) {
           if (fallback) {
@@ -202,6 +205,14 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-24 pt-12 text-slate-900 lg:px-8">
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-rose-400 hover:text-rose-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2"
+      >
+        <span aria-hidden="true">←</span>
+        <span>Retour</span>
+      </button>
       <nav className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm">
         <Link href="/" className="transition hover:text-rose-500">
           Accueil
