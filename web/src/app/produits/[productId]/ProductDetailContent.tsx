@@ -333,7 +333,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
         </nav>
 
         <div className="mt-4 flex flex-col gap-4 lg:mt-0">
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[22px] bg-white shadow-[0_28px_48px_-22px_rgba(15,23,42,0.35)]">
+          <div className="relative aspect-[3/4] w-full max-h-[60vh] overflow-hidden rounded-[22px] bg-white shadow-[0_28px_48px_-22px_rgba(15,23,42,0.35)] sm:max-h-[70vh] lg:aspect-[4/5] lg:max-h-none">
             <Image
               src={activeImage}
               alt={product.name}
@@ -347,6 +347,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 {product.badge}
               </span>
             ) : null}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/80 to-transparent lg:hidden" />
           </div>
           {product.gallery.length > 1 ? (
             <div className="flex gap-3 overflow-x-auto pb-2 lg:pb-0">
