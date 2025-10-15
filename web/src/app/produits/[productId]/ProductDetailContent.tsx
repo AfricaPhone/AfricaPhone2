@@ -333,7 +333,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
         </nav>
 
         <div className="mt-4 flex flex-col gap-4 lg:mt-0">
-          <div className="relative aspect-[3/4] w-full max-h-[60vh] overflow-hidden rounded-[22px] bg-white shadow-[0_28px_48px_-22px_rgba(15,23,42,0.35)] sm:max-h-[70vh] lg:aspect-[4/5] lg:max-h-none">
+          <div className="relative aspect-[3/4] w-full max-h-[60vh] overflow-hidden rounded-[22px] bg-white shadow-[0_28px_48px_-22px_rgba(15,23,42,0.35)] sm:max-h-[70vh] lg:aspect-[4/5] lg:max-h-[55vh]">
             <Image
               src={activeImage}
               alt={product.name}
