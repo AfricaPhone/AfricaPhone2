@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import ProductDetailContent from './ProductDetailContent';
 import { getProductDetail } from '@/data/product-details';
-import { Header, Footer } from '../../page';
+import { Footer } from '../../page';
 
 type ProductDetailPageProps = {
   params: {
@@ -42,7 +42,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
-      <Header />
       <Suspense
         fallback={
           <main className="mx-auto flex min-h-[60vh] w-full max-w-6xl items-center justify-center px-4 pb-24 pt-12 text-slate-600 lg:px-8">
