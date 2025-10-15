@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
@@ -7,12 +7,12 @@ import { allProducts, type ProductSummary } from '@/data/home';
 import {
   collection,
   DocumentData,
-  FirestoreError,
   getDocs,
   limit,
   orderBy,
   query,
   QueryDocumentSnapshot,
+  startAfter,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
@@ -24,6 +24,7 @@ type ProductCardData = {
   image: string;
   tagline: string;
   badge?: string;
+  ordreVedette?: number;
 };
 
 type FirestoreProductPayload = {
@@ -44,11 +45,11 @@ type FirestoreProductPayload = {
 const FALLBACK_IMAGE_DATA_URL =
   'data:image/svg+xml;charset=UTF-8,' +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><rect width="320" height="240" fill="#e2e8f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="18">Image à venir</text></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><rect width="320" height="240" fill="#e2e8f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="18">Image a venir</text></svg>`
   );
 
 const PRODUCTS_PHONE_NUMBER = '2290154151522';
-const MAX_PRODUCTS = 24;
+const PAGE_SIZE = 24;
 
 const toNumber = (value: unknown): number | null => {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -67,18 +68,6 @@ const safeString = (value: unknown): string | null => {
     return trimmed.length > 0 ? trimmed : null;
   }
   return null;
-};
-
-const parsePriceLabel = (value: string | null | undefined): number | null => {
-  if (typeof value !== 'string') {
-    return null;
-  }
-  const digitsOnly = value.replace(/\D+/g, '');
-  if (digitsOnly.length === 0) {
-    return null;
-  }
-  const parsed = Number(digitsOnly);
-  return Number.isFinite(parsed) ? parsed : null;
 };
 
 const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardData | null => {
@@ -115,30 +104,34 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
     storageDetails.push(`${ram} Go RAM`);
   }
   if (storageDetails.length > 0) {
-    taglineParts.push(storageDetails.join(' • '));
+    taglineParts.push(storageDetails.join(' / '));
   }
 
   if (taglineParts.length === 0) {
     const description = safeString(data.description);
     if (description) {
-      taglineParts.push(description.length > 90 ? `${description.slice(0, 90)}…` : description);
+      taglineParts.push(description.length > 90 ? `${description.slice(0, 90)}...` : description);
     }
   }
 
-  const badge =
-    data.enPromotion === true
-      ? 'Promo'
-      : typeof data.ordreVedette === 'number' && data.ordreVedette > 0
-        ? 'Vedette'
-        : undefined;
+  const rawOrdreVedette =
+    typeof data.ordreVedette === 'number'
+      ? data.ordreVedette
+      : typeof data.ordreVedette === 'string'
+      ? Number(data.ordreVedette)
+      : 0;
+  const ordreVedette = Number.isFinite(rawOrdreVedette) ? rawOrdreVedette : 0;
+
+  const badge = data.enPromotion === true ? 'Promo' : ordreVedette > 0 ? 'Vedette' : undefined;
 
   return {
     id: doc.id,
     name,
     price,
     image: primaryImage,
-    tagline: taglineParts.join(' • ') || 'Produit sélectionné par AfricaPhone',
+    tagline: taglineParts.join(' / ') || 'Produit selectionne par AfricaPhone',
     badge,
+    ordreVedette,
   };
 };
 
@@ -153,11 +146,23 @@ const dedupeProducts = (products: ProductCardData[]): ProductCardData[] => {
   });
 };
 
+const sortProducts = (items: ProductCardData[]): ProductCardData[] => {
+  return [...items].sort((a, b) => {
+    const vedetteA = a.ordreVedette ?? 0;
+    const vedetteB = b.ordreVedette ?? 0;
+    if (vedetteA !== vedetteB) {
+      return vedetteB - vedetteA;
+    }
+    return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' });
+  });
+};
+
 const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
-  const price = parsePriceLabel(product.price);
+  const digitsOnly = product.price.replace(/\D+/g, '');
+  const price = digitsOnly ? Number(digitsOnly) : null;
   const taglineCandidates = [
     safeString(product.highlight),
-    [product.segment, product.storage].filter(Boolean).join(' • '),
+    [product.segment, product.storage].filter(Boolean).join(' / '),
   ].filter((value): value is string => Boolean(value));
 
   let badge: string | undefined;
@@ -171,99 +176,124 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
     name: product.name,
     price,
     image: product.image,
-    tagline: taglineCandidates[0] ?? 'Produit sélectionné par AfricaPhone',
+    tagline: taglineCandidates[0] ?? 'Produit selectionne par AfricaPhone',
     badge,
+    ordreVedette: 0,
   };
 };
 
-const STATIC_FALLBACK_PRODUCTS = dedupeProducts(
-  allProducts.slice(0, MAX_PRODUCTS).map(mapSummaryToProduct)
+const STATIC_FALLBACK_PRODUCTS = sortProducts(
+  dedupeProducts(allProducts.slice(0, PAGE_SIZE).map(mapSummaryToProduct))
 );
 
 export default function ProductGridSection() {
   const [products, setProducts] = useState<ProductCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [paginationError, setPaginationError] = useState<string | null>(null);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMore, setHasMore] = useState(true);
 
-  const loadProducts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const productsCollection = collection(db, 'products');
-      const queries = [
-        query(productsCollection, orderBy('ordreVedette', 'desc'), limit(MAX_PRODUCTS)),
-        query(productsCollection, orderBy('name'), limit(MAX_PRODUCTS)),
-        query(productsCollection, limit(MAX_PRODUCTS)),
-      ];
+  const loadProducts = useCallback(
+    async (cursor: QueryDocumentSnapshot<DocumentData> | null, mode: 'replace' | 'append' = 'replace') => {
+      if (mode === 'replace') {
+        setLoading(true);
+        setError(null);
+        setPaginationError(null);
+      } else {
+        setLoadingMore(true);
+        setPaginationError(null);
+      }
 
-      let documents: QueryDocumentSnapshot<DocumentData>[] = [];
+      try {
+        const productsCollection = collection(db, 'products');
+        let baseQuery = query(productsCollection, orderBy('name'), limit(PAGE_SIZE));
+        if (cursor) {
+          baseQuery = query(baseQuery, startAfter(cursor));
+        }
 
-      for (const attempt of queries) {
-        try {
-          const snapshot = await getDocs(attempt);
-          if (!snapshot.empty) {
-            documents = snapshot.docs;
-            break;
+        const snapshot = await getDocs(baseQuery);
+        const mapped = snapshot.docs
+          .map(mapDocToProduct)
+          .filter((item): item is ProductCardData => item !== null);
+
+        if (mode === 'append') {
+          if (mapped.length > 0) {
+            setProducts(prev => sortProducts(dedupeProducts([...prev, ...mapped])));
+            setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
+            setHasMore(snapshot.docs.length === PAGE_SIZE);
+          } else {
+            setHasMore(false);
           }
-        } catch (error) {
-          const firestoreError = error as FirestoreError;
-          if (firestoreError.code === 'failed-precondition' || firestoreError.code === 'invalid-argument') {
-            continue;
+        } else {
+          if (mapped.length === 0) {
+            setProducts(STATIC_FALLBACK_PRODUCTS);
+            setHasMore(false);
+            setLastDoc(null);
+          } else {
+            setProducts(sortProducts(dedupeProducts(mapped)));
+            setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
+            setHasMore(snapshot.docs.length === PAGE_SIZE);
           }
-          throw error;
+        }
+      } catch (loadError) {
+        console.error('ProductGridSection: unable to load products', loadError);
+        if (mode === 'append') {
+          setPaginationError('Impossible de charger plus de produits pour le moment.');
+        } else {
+          setProducts(STATIC_FALLBACK_PRODUCTS);
+          setError('Impossible de charger les produits pour le moment.');
+          setHasMore(false);
+          setLastDoc(null);
+        }
+      } finally {
+        if (mode === 'replace') {
+          setLoading(false);
+        } else {
+          setLoadingMore(false);
         }
       }
-
-      if (documents.length === 0) {
-        const fallbackSnapshot = await getDocs(productsCollection);
-        documents = fallbackSnapshot.docs.slice(0, MAX_PRODUCTS);
-      }
-
-      const mappedProducts = documents
-        .map(mapDocToProduct)
-        .filter((product): product is ProductCardData => product !== null);
-
-      let normalizedProducts = dedupeProducts(mappedProducts);
-
-      if (normalizedProducts.length === 0) {
-        normalizedProducts = STATIC_FALLBACK_PRODUCTS;
-      }
-
-      setProducts(normalizedProducts);
-    } catch (error) {
-      console.error('ProductGridSection: unable to load products', error);
-      setProducts(STATIC_FALLBACK_PRODUCTS);
-      setError('Impossible de charger les produits pour le moment.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   useEffect(() => {
-    void loadProducts();
+    void loadProducts(null, 'replace');
   }, [loadProducts]);
+
+  const handleRetry = useCallback(() => {
+    void loadProducts(null, 'replace');
+  }, [loadProducts]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!hasMore || loadingMore) {
+      return;
+    }
+    void loadProducts(lastDoc, 'append');
+  }, [hasMore, lastDoc, loadProducts, loadingMore]);
 
   const content = useMemo(() => {
     if (loading) {
-      return Array.from({ length: 8 }).map((_, index) => <ProductCardSkeleton key={index} />);
+      return Array.from({ length: 8 }).map((_, index) => <ProductCardSkeleton key={`skeleton-${index}`} />);
     }
 
-    const productCards = products.map(product => <ProductCard key={product.id} product={product} />);
+    let cards = products.map(product => <ProductCard key={product.id} product={product} />);
 
     if (error) {
       const errorCard = (
         <div className="col-span-full flex flex-col items-center justify-center gap-3 rounded-3xl border border-slate-200 bg-white/90 px-6 py-12 text-center shadow-[0_18px_36px_-20px_rgba(15,23,42,0.45)]">
           <p className="text-base font-semibold text-slate-900">Nous n&apos;avons pas pu afficher la boutique.</p>
           <p className="max-w-lg text-sm text-slate-500">
-            Vérifiez votre connexion internet et réessayez. Vous pouvez également nous joindre directement sur WhatsApp.
+            Verifiez votre connexion internet et reessayez. Vous pouvez egalement nous joindre directement sur WhatsApp.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => void loadProducts()}
+              onClick={handleRetry}
               className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
             >
-              Réessayer
+              Reessayer
             </button>
             <a
               href={`https://wa.me/${PRODUCTS_PHONE_NUMBER}`}
@@ -277,24 +307,25 @@ export default function ProductGridSection() {
         </div>
       );
 
-      if (productCards.length > 0) {
-        return [errorCard, ...productCards];
-      }
-
-      return errorCard;
-    }
-
-    if (products.length === 0) {
+      cards = cards.length > 0 ? [errorCard, ...cards] : [errorCard];
+    } else if (cards.length === 0) {
       return (
         <div className="col-span-full flex flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-slate-50/80 px-6 py-16 text-center">
           <p className="text-base font-semibold text-slate-900">Aucun produit disponible pour le moment.</p>
-          <p className="text-sm text-slate-500">Revenez bientôt ou contactez-nous pour une sélection personnalisée.</p>
+          <p className="text-sm text-slate-500">Revenez bientot ou contactez-nous pour une selection personnalisee.</p>
         </div>
       );
     }
 
-    return productCards;
-  }, [error, loadProducts, loading, products]);
+    if (loadingMore) {
+      const skeletons = Array.from({ length: Math.min(4, PAGE_SIZE) }).map((_, index) => (
+        <ProductCardSkeleton key={`loading-more-${index}`} />
+      ));
+      cards = [...cards, ...skeletons];
+    }
+
+    return cards;
+  }, [error, handleRetry, loading, loadingMore, products]);
 
   return (
     <section aria-labelledby="all-products" className="space-y-6">
@@ -304,6 +335,21 @@ export default function ProductGridSection() {
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
       </div>
+      {hasMore && !loading ? (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+            className="rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {loadingMore ? 'Chargement...' : 'Afficher plus'}
+          </button>
+          {paginationError ? <p className="text-sm text-rose-600">{paginationError}</p> : null}
+        </div>
+      ) : paginationError ? (
+        <p className="mt-4 text-center text-sm text-rose-600">{paginationError}</p>
+      ) : null}
     </section>
   );
 }
@@ -346,7 +392,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
         rel="noopener noreferrer"
         className="mt-3 flex items-center justify-center gap-2 rounded-full bg-orange-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
       >
-        Contacter nous
+        Nous contacter
       </a>
     </article>
   );
