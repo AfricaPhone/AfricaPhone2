@@ -11,9 +11,9 @@ import BrandsCarousel from "@/components/BrandsCarousel";
 import { Header, Footer } from "../../page";
 
 type BrandPageProps = {
-  params: Promise<{
+  params: {
     brandId: string;
-  }>;
+  };
 };
 
 type BrandData = {
@@ -39,39 +39,14 @@ const FALLBACK_HERO_DATA_URL =
   );
 
 export default function BrandPage({ params }: BrandPageProps) {
-  const [brandId, setBrandId] = useState<string | null>(null);
+  const { brandId } = params;
   const router = useRouter();
+
+  const [brand, setBrand] = useState<BrandData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [brand, setBrand] = useState<BrandData | null>(null);
   const [logoErrored, setLogoErrored] = useState(false);
   const [heroErrored, setHeroErrored] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const resolveParams = async () => {
-      try {
-        const resolved = await params;
-        if (isMounted) {
-          setBrandId(resolved.brandId);
-        }
-      } catch (err) {
-        console.error("BrandPage: unable to resolve params", err);
-        if (isMounted) {
-          setError("Impossible de charger cette marque pour le moment.");
-          setBrand(null);
-          setLoading(false);
-        }
-      }
-    };
-
-    void resolveParams();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [params]);
 
   useEffect(() => {
     setLogoErrored(false);
@@ -79,50 +54,49 @@ export default function BrandPage({ params }: BrandPageProps) {
   }, [brandId]);
 
   useEffect(() => {
-    if (!brandId) {
-      return;
-    }
-    setBrand(null);
-    setError(null);
-    setLoading(true);
-  }, [brandId]);
-
-  useEffect(() => {
-    if (!brandId) {
-      return;
-    }
-
     let isMounted = true;
 
     const fetchBrand = async () => {
       setLoading(true);
       setError(null);
+      setBrand(null);
+
       try {
         const ref = doc(db, "brands", brandId);
         const snapshot = await getDoc(ref);
         if (!snapshot.exists()) {
           if (isMounted) {
-            setBrand(null);
             setError("Cette marque n'est plus disponible.");
           }
           return;
         }
+
         const data = snapshot.data() ?? {};
-        if (isMounted) {
-          setBrand({
-            id: snapshot.id,
-            name: typeof data.name === "string" && data.name.trim().length ? data.name.trim() : snapshot.id,
-            filterValue: typeof data.filterValue === "string" ? data.filterValue.trim() : null,
-            description: typeof data.description === "string" ? data.description.trim() : null,
-            tagline: typeof data.tagline === "string" ? data.tagline.trim() : null,
-            logoUrl: typeof data.logoUrl === "string" ? data.logoUrl.trim() : null,
-            heroImage: typeof data.heroImage === "string" ? data.heroImage.trim() : null,
-          });
+        if (!isMounted) {
+          return;
         }
+
+        const name =
+          typeof data.name === "string" && data.name.trim().length ? data.name.trim() : snapshot.id;
+        const filterValueRaw =
+          typeof data.filterValue === "string" && data.filterValue.trim().length
+            ? data.filterValue.trim()
+            : typeof data.name === "string"
+              ? data.name.trim()
+              : snapshot.id;
+
+        setBrand({
+          id: snapshot.id,
+          name,
+          filterValue: filterValueRaw,
+          description: typeof data.description === "string" ? data.description.trim() : null,
+          tagline: typeof data.tagline === "string" ? data.tagline.trim() : null,
+          logoUrl: typeof data.logoUrl === "string" ? data.logoUrl.trim() : null,
+          heroImage: typeof data.heroImage === "string" ? data.heroImage.trim() : null,
+        });
       } catch (err) {
         console.error("BrandPage: failed to load brand", err);
         if (isMounted) {
-          setBrand(null);
           setError("Impossible de charger cette marque pour le moment.");
         }
       } finally {
@@ -155,6 +129,7 @@ export default function BrandPage({ params }: BrandPageProps) {
       <Header />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
         <BrandsCarousel activeBrandId={brand?.id ?? null} />
+
         <section className="rounded-3xl bg-white px-4 py-6 shadow-[0_24px_48px_-28px_rgba(15,23,42,0.35)] sm:px-6">
           {loading ? (
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
@@ -179,26 +154,40 @@ export default function BrandPage({ params }: BrandPageProps) {
                         onError={() => setLogoErrored(true)}
                       />
                     ) : (
-                      <Image src={FALLBACK_LOGO_DATA_URL} alt="Logo AfricaPhone" fill sizes="56px" className="object-cover" />
+                      <Image
+                        src={FALLBACK_LOGO_DATA_URL}
+                        alt="Logo AfricaPhone"
+                        fill
+                        sizes="56px"
+                        className="object-cover"
+                      />
                     )}
                   </span>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">Univers marque</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+                      Univers marque
+                    </p>
                     <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{brand.name}</h1>
                   </div>
                 </div>
-                {brand.tagline ? <p className="text-sm font-semibold text-slate-600">{brand.tagline}</p> : null}
-                {brand.description ? <p className="text-sm text-slate-500">{brand.description}</p> : null}
+                {brand.tagline ? (
+                  <p className="text-sm font-semibold text-slate-600">{brand.tagline}</p>
+                ) : null}
+                {brand.description ? (
+                  <p className="text-sm text-slate-500">{brand.description}</p>
+                ) : null}
                 <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
                   <button
                     type="button"
                     onClick={() => router.back()}
                     className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 font-semibold text-slate-600 transition hover:border-orange-400 hover:text-orange-500"
                   >
-                    Retour
+                    ← Retour
                   </button>
                   <a
-                    href={`https://wa.me/2290154151522?text=${encodeURIComponent(`Bonjour AfricaPhone, je souhaite des conseils sur la marque ${brand.name}.`)}`}
+                    href={`https://wa.me/2290154151522?text=${encodeURIComponent(
+                      `Bonjour AfricaPhone, je souhaite des conseils sur la marque ${brand.name}.`
+                    )}`}
                     className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-1.5 font-semibold text-white transition hover:bg-orange-600"
                   >
                     Contacter un conseiller
@@ -216,7 +205,13 @@ export default function BrandPage({ params }: BrandPageProps) {
                     onError={() => setHeroErrored(true)}
                   />
                 ) : (
-                  <Image src={FALLBACK_HERO_DATA_URL} alt="Illustration AfricaPhone" fill className="object-cover" sizes="288px" />
+                  <Image
+                    src={FALLBACK_HERO_DATA_URL}
+                    alt="Illustration AfricaPhone"
+                    fill
+                    className="object-cover"
+                    sizes="288px"
+                  />
                 )}
               </div>
             </div>
@@ -230,15 +225,19 @@ export default function BrandPage({ params }: BrandPageProps) {
                 href="/"
                 className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-orange-400 hover:text-orange-500"
               >
-                Revenir a la boutique
+                Revenir à la boutique
               </Link>
             </div>
           )}
         </section>
+
         {loading ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, index) => (
-              <div key={`brand-grid-skeleton-${index}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div
+                key={`brand-grid-skeleton-${index}`}
+                className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
                 <div className="aspect-[3/4] w-full rounded-xl bg-slate-200" />
                 <div className="mt-3 space-y-2">
                   <div className="h-4 w-1/2 rounded-full bg-slate-200" />
@@ -248,26 +247,13 @@ export default function BrandPage({ params }: BrandPageProps) {
               </div>
             ))}
           </div>
-        ) : (
-          <ProductGridSection
-            selectedBrand={
-              selectedBrand ??
-              (brandId
-                ? {
-                    id: brandId,
-                    name: brandId,
-                    filterValue: brandId,
-                  }
-                : null)
-            }
-            enableStaticFallbacks
-          />
-        )}
+        ) : null}
+
+        {!loading && brand ? (
+          <ProductGridSection selectedBrand={selectedBrand} enableStaticFallbacks={false} />
+        ) : null}
       </main>
       <Footer />
     </div>
   );
 }
-
-
-

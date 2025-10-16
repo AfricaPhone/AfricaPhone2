@@ -203,8 +203,8 @@ export default function ProductGridSection(
   { selectedBrand = null, enableStaticFallbacks = true }: ProductGridSectionProps = {}
 ) {
   const [products, setProducts] = useState<ProductCardData[]>(() => {
-    if (enableStaticFallbacks) {
-      return selectedBrand ? getFallbackProducts(selectedBrand.id) : STATIC_FALLBACK_PRODUCTS;
+    if (!selectedBrand && enableStaticFallbacks) {
+      return STATIC_FALLBACK_PRODUCTS;
     }
     return [];
   });
@@ -223,12 +223,10 @@ export default function ProductGridSection(
 
   useEffect(() => {
     setLoading(true);
-    if (enableStaticFallbacks) {
-      if (brandFallbackId) {
-        setProducts(getFallbackProducts(brandFallbackId));
-      } else {
-        setProducts(STATIC_FALLBACK_PRODUCTS);
-      }
+    if (brandFallbackId) {
+      setProducts(enableStaticFallbacks ? getFallbackProducts(brandFallbackId) : []);
+    } else if (enableStaticFallbacks) {
+      setProducts(STATIC_FALLBACK_PRODUCTS);
     } else {
       setProducts([]);
     }
@@ -254,9 +252,11 @@ export default function ProductGridSection(
         const constraints: QueryConstraint[] = [];
         if (brandFilterValue) {
           constraints.push(where('brand', '==', brandFilterValue));
+          constraints.push(orderBy('name'));
+        } else {
+          constraints.push(orderBy('ordreVedette', 'desc'));
+          constraints.push(orderBy('name'));
         }
-        constraints.push(orderBy('ordreVedette', 'desc'));
-        constraints.push(orderBy('name'));
         if (cursor) {
           constraints.push(startAfter(cursor));
         }
@@ -278,20 +278,22 @@ export default function ProductGridSection(
           }
         } else {
           if (mapped.length === 0) {
-            if (enableStaticFallbacks) {
-              const fallback = getFallbackProducts(brandFallbackId);
-              setProducts(fallback);
-              if (fallback.length === 0) {
-                setError('Aucun produit disponible pour cette selection.');
+            if (brandFallbackId) {
+              if (enableStaticFallbacks) {
+                setProducts(getFallbackProducts(brandFallbackId));
               } else {
-                setError(null);
+                setProducts([]);
               }
-              setHasMore(false);
-              setLastDoc(null);
+            } else if (enableStaticFallbacks) {
+              setProducts(STATIC_FALLBACK_PRODUCTS);
             } else {
               setProducts([]);
-              setHasMore(false);
-              setLastDoc(null);
+            }
+            setHasMore(false);
+            setLastDoc(null);
+            if (!brandFallbackId && enableStaticFallbacks) {
+              setError('Impossible de charger les produits pour le moment.');
+            } else {
               setError(null);
             }
           } else {
