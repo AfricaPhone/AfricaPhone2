@@ -260,7 +260,7 @@ export default function BrandPage({ params }: BrandPageProps) {
                   }
                 : null)
             }
-            enableStaticFallbacks={false}
+            enableStaticFallbacks
           />
         )}
       </main>
