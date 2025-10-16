@@ -1,24 +1,18 @@
 'use client';
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ProductGridSection from "@/components/ProductGridSection";
-import BrandsCarousel, { BrandItem } from "@/components/BrandsCarousel";
+import BrandsCarousel from "@/components/BrandsCarousel";
 import { footerColumns, footerLegal } from "@/data/storefront";
 
 export default function HomePage() {
-  const [selectedBrand, setSelectedBrand] = useState<BrandItem | null>(null);
-
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <Header />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
-        <BrandsCarousel
-          selectedBrandId={selectedBrand?.id ?? null}
-          onBrandSelect={brand => setSelectedBrand(brand && brand.id ? brand : null)}
-        />
-        <ProductGridSection selectedBrand={selectedBrand} />
+        <BrandsCarousel />
+        <ProductGridSection />
       </main>
       <Footer />
     </div>

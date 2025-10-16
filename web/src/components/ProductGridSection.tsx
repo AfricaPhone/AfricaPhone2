@@ -195,7 +195,7 @@ const getFallbackProducts = (brandId?: string | null): ProductCardData[] => {
 const STATIC_FALLBACK_PRODUCTS = getFallbackProducts();
 
 type ProductGridSectionProps = {
-  selectedBrand?: { id: string; name: string } | null;
+  selectedBrand?: { id: string; name: string; filterValue?: string | null } | null;
 };
 
 export default function ProductGridSection({ selectedBrand = null }: ProductGridSectionProps = {}) {
@@ -208,7 +208,11 @@ export default function ProductGridSection({ selectedBrand = null }: ProductGrid
   const [paginationError, setPaginationError] = useState<string | null>(null);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const brandFilterValue = selectedBrand?.name?.trim() ? selectedBrand.name.trim() : null;
+  const brandFilterValue = selectedBrand?.filterValue?.trim()
+    ? selectedBrand.filterValue.trim()
+    : selectedBrand?.name?.trim()
+      ? selectedBrand.name.trim()
+      : null;
   const brandFallbackId = selectedBrand?.id ?? null;
 
   useEffect(() => {
@@ -242,6 +246,7 @@ export default function ProductGridSection({ selectedBrand = null }: ProductGrid
           constraints.push(where('brand', '==', brandFilterValue));
         }
         constraints.push(orderBy('ordreVedette', 'desc'));
+        constraints.push(orderBy('name'));
         if (cursor) {
           constraints.push(startAfter(cursor));
         }

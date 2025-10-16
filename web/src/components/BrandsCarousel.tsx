@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebaseClient";
 
@@ -10,19 +11,23 @@ export type BrandItem = {
   name: string;
   logoUrl: string;
   sortOrder?: number;
+  filterValue?: string | null;
+  heroImage?: string | null;
+  description?: string | null;
+  tagline?: string | null;
 };
 
 type BrandsCarouselProps = {
-  selectedBrandId?: string | null;
-  onBrandSelect: (brand: BrandItem | null) => void;
+  activeBrandId?: string | null;
 };
 
 const SCROLL_CLASSNAME = "brand-strip-scroll";
 
-export default function BrandsCarousel({ selectedBrandId, onBrandSelect }: BrandsCarouselProps) {
+export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
   const [brands, setBrands] = useState<BrandItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     let isMounted = true;
@@ -56,6 +61,18 @@ export default function BrandsCarousel({ selectedBrandId, onBrandSelect }: Brand
             if (typeof data.sortOrder === "number") {
               brand.sortOrder = data.sortOrder;
             }
+            if (typeof data.filterValue === "string") {
+              brand.filterValue = data.filterValue.trim();
+            }
+            if (typeof data.heroImage === "string") {
+              brand.heroImage = data.heroImage.trim();
+            }
+            if (typeof data.description === "string") {
+              brand.description = data.description.trim();
+            }
+            if (typeof data.tagline === "string") {
+              brand.tagline = data.tagline.trim();
+            }
             return brand;
           })
           .filter((item): item is BrandItem => item !== null);
@@ -82,13 +99,9 @@ export default function BrandsCarousel({ selectedBrandId, onBrandSelect }: Brand
 
   const handleSelect = useCallback(
     (brand: BrandItem) => {
-      if (brand.id === selectedBrandId) {
-        onBrandSelect(null);
-        return;
-      }
-      onBrandSelect(brand);
+      router.push(`/marques/${brand.id}`);
     },
-    [onBrandSelect, selectedBrandId]
+    [router]
   );
 
   const content = useMemo(() => {
@@ -115,7 +128,7 @@ export default function BrandsCarousel({ selectedBrandId, onBrandSelect }: Brand
       <div className={`${SCROLL_CLASSNAME} mb-2 -mx-2 overflow-x-auto px-2 pb-1`}>
         <div className="flex items-center gap-4">
           {brands.map(brand => {
-            const isActive = brand.id === selectedBrandId;
+            const isActive = brand.id === activeBrandId;
             return (
               <button
                 key={brand.id}
@@ -137,7 +150,7 @@ export default function BrandsCarousel({ selectedBrandId, onBrandSelect }: Brand
         </div>
       </div>
     );
-  }, [brands, error, handleSelect, loading, selectedBrandId]);
+  }, [activeBrandId, brands, error, handleSelect, loading]);
 
   return (
     <>
