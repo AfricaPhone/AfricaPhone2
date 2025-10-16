@@ -84,8 +84,11 @@ export function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-200">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-12 lg:flex-row lg:justify-between lg:px-8">
-        <div className="flex-1 space-y-4">
-          <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-white">
+        <div className="flex w-full max-w-sm flex-col items-center gap-4 text-center lg:max-w-none lg:flex-1 lg:items-start lg:text-left">
+          <Link
+            href="/"
+            className="flex items-center justify-center gap-2 text-2xl font-bold text-white lg:justify-start"
+          >
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500 text-lg text-slate-900">
               AP
             </span>
@@ -95,7 +98,10 @@ export function Footer() {
             Catalogues verifies, stocks physiques et experts passionnes pour vous accompagner avant et apres votre
             achat.
           </p>
-          <a href="tel:+2290154151522" className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200">
+          <a
+            href="tel:+2290154151522"
+            className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-orange-200"
+          >
             <PhoneIcon className="h-5 w-5" />
             01 54 15 15 22
           </a>
