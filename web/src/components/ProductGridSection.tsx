@@ -196,12 +196,18 @@ const STATIC_FALLBACK_PRODUCTS = getFallbackProducts();
 
 type ProductGridSectionProps = {
   selectedBrand?: { id: string; name: string; filterValue?: string | null } | null;
+  enableStaticFallbacks?: boolean;
 };
 
-export default function ProductGridSection({ selectedBrand = null }: ProductGridSectionProps = {}) {
-  const [products, setProducts] = useState<ProductCardData[]>(() =>
-    selectedBrand ? getFallbackProducts(selectedBrand.id) : STATIC_FALLBACK_PRODUCTS
-  );
+export default function ProductGridSection(
+  { selectedBrand = null, enableStaticFallbacks = true }: ProductGridSectionProps = {}
+) {
+  const [products, setProducts] = useState<ProductCardData[]>(() => {
+    if (enableStaticFallbacks) {
+      return selectedBrand ? getFallbackProducts(selectedBrand.id) : STATIC_FALLBACK_PRODUCTS;
+    }
+    return [];
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -217,16 +223,20 @@ export default function ProductGridSection({ selectedBrand = null }: ProductGrid
 
   useEffect(() => {
     setLoading(true);
-    if (brandFallbackId) {
-      setProducts(getFallbackProducts(brandFallbackId));
+    if (enableStaticFallbacks) {
+      if (brandFallbackId) {
+        setProducts(getFallbackProducts(brandFallbackId));
+      } else {
+        setProducts(STATIC_FALLBACK_PRODUCTS);
+      }
     } else {
-      setProducts(STATIC_FALLBACK_PRODUCTS);
+      setProducts([]);
     }
     setHasMore(true);
     setLastDoc(null);
     setError(null);
     setPaginationError(null);
-  }, [brandFallbackId]);
+  }, [brandFallbackId, enableStaticFallbacks]);
 
   const loadProducts = useCallback(
     async (cursor: QueryDocumentSnapshot<DocumentData> | null, mode: 'replace' | 'append' = 'replace') => {
@@ -268,17 +278,27 @@ export default function ProductGridSection({ selectedBrand = null }: ProductGrid
           }
         } else {
           if (mapped.length === 0) {
-            const fallback = getFallbackProducts(brandFallbackId);
-            setProducts(fallback);
-            if (fallback.length === 0) {
-              setError('Aucun produit disponible pour cette sélection.');
+            if (enableStaticFallbacks) {
+              const fallback = getFallbackProducts(brandFallbackId);
+              setProducts(fallback);
+              if (fallback.length === 0) {
+                setError('Aucun produit disponible pour cette selection.');
+              } else {
+                setError(null);
+              }
+              setHasMore(false);
+              setLastDoc(null);
+            } else {
+              setProducts([]);
+              setHasMore(false);
+              setLastDoc(null);
+              setError(null);
             }
-            setHasMore(false);
-            setLastDoc(null);
           } else {
             setProducts(sortProducts(dedupeProducts(mapped)));
             setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
             setHasMore(snapshot.docs.length === PAGE_SIZE);
+            setError(null);
           }
         }
       } catch (loadError) {
@@ -286,14 +306,21 @@ export default function ProductGridSection({ selectedBrand = null }: ProductGrid
         if (mode === 'append') {
           setPaginationError('Impossible de charger plus de produits pour le moment.');
         } else {
-          const fallback = getFallbackProducts(brandFallbackId);
-          setProducts(fallback);
-          setHasMore(false);
-          setLastDoc(null);
-          if (!brandFallbackId) {
-            setError('Impossible de charger les produits pour le moment.');
+          if (enableStaticFallbacks) {
+            const fallback = getFallbackProducts(brandFallbackId);
+            setProducts(fallback);
+            setHasMore(false);
+            setLastDoc(null);
+            if (!brandFallbackId) {
+              setError('Impossible de charger les produits pour le moment.');
+            } else {
+              setError(null);
+            }
           } else {
-            setError(null);
+            setProducts([]);
+            setHasMore(false);
+            setLastDoc(null);
+            setError('Impossible de charger les produits pour le moment.');
           }
         }
       } finally {
@@ -304,7 +331,7 @@ export default function ProductGridSection({ selectedBrand = null }: ProductGrid
         }
       }
   },
-    [brandFallbackId, brandFilterValue]
+    [brandFallbackId, brandFilterValue, enableStaticFallbacks]
   );
 
   useEffect(() => {
@@ -411,6 +438,11 @@ function ProductCard({ product }: { product: ProductCardData }) {
   const detailHref = `/produits/${product.id}`;
   const contactMessage = encodeURIComponent(`Bonjour AfricaPhone, je suis interesse(e) par ${product.name}.`);
   const contactHref = `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${contactMessage}`;
+  const [imageErrored, setImageErrored] = useState(false);
+
+  useEffect(() => {
+    setImageErrored(false);
+  }, [product.image]);
 
   return (
     <article className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md sm:p-4">
@@ -425,11 +457,12 @@ function ProductCard({ product }: { product: ProductCardData }) {
             </span>
           ) : null}
           <Image
-            src={product.image}
+            src={!imageErrored ? product.image : FALLBACK_IMAGE_DATA_URL}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 18vw"
             className="object-cover object-center transition duration-300 group-hover:scale-105"
+            onError={() => setImageErrored(true)}
           />
         </div>
         <div className="flex flex-1 flex-col gap-2 text-left">
