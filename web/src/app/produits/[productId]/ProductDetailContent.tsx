@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -175,6 +175,9 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
   }, [product, selectedImage]);
 
   const [activeTab, setActiveTab] = useState<'specs' | 'description'>('specs');
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string>('');
 
   useEffect(() => {
     if (!product) {
@@ -184,6 +187,67 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       setActiveTab('description');
     }
   }, [activeTab, product]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShareUrl(window.location.href);
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    if (!shareMessage) {
+      return;
+    }
+    const timeout = setTimeout(() => setShareMessage(null), 2500);
+    return () => clearTimeout(timeout);
+  }, [shareMessage]);
+
+  const toggleFavorite = useCallback(() => {
+    setIsFavorite(prev => !prev);
+    setShareMessage(isFavorite ? 'Retire des favoris' : 'Ajoute aux favoris');
+  }, [isFavorite]);
+
+  const handleShare = useCallback(async () => {
+    const urlToShare = typeof window !== 'undefined' ? window.location.href : shareUrl;
+    if (!urlToShare) {
+      setShareMessage('Lien indisponible pour le partage.');
+      return;
+    }
+
+    const shareData = {
+      title: product?.name ?? 'AfricaPhone',
+      text: product?.tagline ?? product?.name ?? 'Découvrez ce produit AfricaPhone',
+      url: urlToShare,
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share(shareData);
+        setShareMessage('Lien partage avec succes.');
+        return;
+      }
+    } catch (err) {
+      const abortError = err instanceof Error && err.name === 'AbortError';
+      if (!abortError) {
+        console.error('ProductDetailContent: web share failed', err);
+      }
+      if (abortError) {
+        return;
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(urlToShare);
+        setShareMessage('Lien copie dans le presse-papiers.');
+        return;
+      } catch (clipboardError) {
+        console.error('ProductDetailContent: clipboard copy failed', clipboardError);
+      }
+    }
+
+    setShareMessage(`Copiez ce lien : ${urlToShare}`);
+  }, [product?.name, product?.tagline, shareUrl]);
 
   if (loading && !product) {
     return (
@@ -278,6 +342,30 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     </div>
   );
 
+  const favoriteButtonClass = isFavorite
+    ? 'inline-flex h-10 w-10 items-center justify-center rounded-full bg-rose-500 text-white shadow-sm shadow-rose-500/30 transition hover:bg-rose-600'
+    : 'inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:text-rose-500';
+
+  const shareButtonClass =
+    'inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:text-orange-500';
+
+  const actionButtons = (
+    <>
+      <button
+        type="button"
+        onClick={toggleFavorite}
+        className={favoriteButtonClass}
+        aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+        aria-pressed={isFavorite}
+      >
+        <HeartIcon className="h-4 w-4" />
+      </button>
+      <button type="button" onClick={handleShare} className={shareButtonClass} aria-label="Partager">
+        <ShareIcon className="h-4 w-4" />
+      </button>
+    </>
+  );
+
   const whatsappCta = (
     <a
       href={product.whatsappLink}
@@ -292,6 +380,9 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
   return (
     <>
+      <span className="sr-only" aria-live="polite" role="status">
+        {shareMessage ?? ''}
+      </span>
       <main className="mx-auto w-full max-w-6xl px-4 pb-32 pt-6 text-slate-900 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:px-8 lg:pb-20">
         <div className="sticky top-0 z-40 -mx-4 mb-5 flex items-center justify-between border-b border-slate-200/80 bg-slate-100/95 px-4 py-3 shadow-sm shadow-slate-900/10 backdrop-blur supports-[backdrop-filter]:bg-slate-100/80 lg:hidden">
           <button
@@ -302,22 +393,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
             <ArrowLeftIcon className="h-4 w-4" />
           </button>
           <p className="mx-4 flex-1 truncate text-center text-sm font-semibold text-slate-900">{product.name}</p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500"
-              aria-label="Ajouter aux favoris"
-            >
-              <HeartIcon className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500"
-              aria-label="Partager"
-            >
-              <ShareIcon className="h-4 w-4" />
-            </button>
-          </div>
+          <div className="flex items-center gap-2">{actionButtons}</div>
         </div>
 
         <nav className="hidden items-center gap-2 text-xs font-medium text-slate-500 lg:col-span-2 lg:flex">
@@ -380,22 +456,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 <p className="text-xs font-semibold uppercase tracking-wide text-rose-500">Disponible</p>
                 <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">{product.name}</h1>
               </div>
-              <div className="hidden items-center gap-2 lg:flex">
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500"
-                  aria-label="Ajouter aux favoris"
-                >
-                  <HeartIcon className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500"
-                  aria-label="Partager"
-                >
-                  <ShareIcon className="h-4 w-4" />
-                </button>
-              </div>
+              <div className="hidden items-center gap-2 lg:flex">{actionButtons}</div>
             </div>
             <p className="text-sm text-slate-500">{product.tagline}</p>
             <div className="flex items-end justify-between">
