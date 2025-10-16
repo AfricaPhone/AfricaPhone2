@@ -99,9 +99,9 @@ export default function BrandsCarousel({ selectedBrandId, onBrandSelect, onReset
               key={`brand-skeleton-${index}`}
               className="snap-start px-1"
             >
-              <div className="flex w-20 flex-col items-center gap-2">
-                <div className="h-16 w-16 animate-pulse rounded-full bg-slate-200" />
-                <div className="h-3 w-12 animate-pulse rounded-full bg-slate-200" />
+              <div className="flex w-24 flex-col items-center gap-3">
+                <div className="h-20 w-20 animate-pulse rounded-full bg-slate-200" />
+                <div className="h-3 w-16 animate-pulse rounded-full bg-slate-200" />
               </div>
             </div>
           ))}
@@ -133,39 +133,29 @@ export default function BrandsCarousel({ selectedBrandId, onBrandSelect, onReset
               className="snap-start px-1"
             >
               <span
-                className={`relative flex h-16 w-16 items-center justify-center rounded-full border transition-transform duration-200 ${
-                  isActive
-                    ? "border-orange-500 bg-orange-50 shadow-lg shadow-orange-500/20"
-                    : "border-slate-200 bg-white shadow-sm shadow-slate-900/10 hover:-translate-y-1"
+                className={`relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-lg shadow-slate-900/40 transition-transform duration-200 ${
+                  isActive ? "-translate-y-1.5 ring-2 ring-orange-400 ring-offset-2 ring-offset-white" : "hover:-translate-y-1"
                 }`}
               >
-                <Image
-                  src={brand.logoUrl}
-                  alt={brand.name}
-                  fill
-                  sizes="64px"
-                  className="rounded-full object-cover"
-                />
+                <span className="relative h-16 w-16 overflow-hidden rounded-full bg-white shadow-inner shadow-slate-900/40">
+                  <Image
+                    src={brand.logoUrl}
+                    alt={brand.name}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                </span>
               </span>
-              <span className="mt-2 block w-20 truncate text-center text-xs font-semibold text-slate-600">
+              <span className="mt-3 block w-24 truncate text-center text-xs font-semibold uppercase tracking-wide text-slate-600">
                 {brand.name}
               </span>
             </button>
           );
         })}
-        <button
-          key="cta"
-          type="button"
-          onClick={onReset}
-          className="snap-start px-1"
-        >
-          <span className="flex h-16 w-28 items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 text-center text-xs font-semibold text-slate-600 shadow-sm transition hover:border-orange-400 hover:text-orange-500">
-            Toutes les marques
-          </span>
-        </button>
       </Carousel>
     );
-  }, [brands, error, handleSelect, loading, onReset, selectedBrandId]);
+  }, [brands, error, handleSelect, loading, selectedBrandId]);
 
   if (!cards) {
     return null;
