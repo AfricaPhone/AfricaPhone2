@@ -279,8 +279,10 @@ export default function ProductGridSection(
           } else if (candidate === 'value' && brandFilterValue) {
             constraints.push(where('brand', '==', brandFilterValue));
           }
-          constraints.push(orderBy('ordreVedette', 'desc'));
-          constraints.push(orderBy('name'));
+          if (!candidate) {
+            constraints.push(orderBy('ordreVedette', 'desc'));
+            constraints.push(orderBy('name'));
+          }
           if (cursor) {
             constraints.push(startAfter(cursor));
           }

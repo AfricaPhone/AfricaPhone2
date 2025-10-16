@@ -129,17 +129,18 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
       return null;
     }
 
+    const items = brands.map(brand => (
+      <div key={brand.id} className="lg:flex lg:justify-center">
+        <BrandLogoButton brand={brand} isActive={brand.id === activeBrandId} onSelect={handleSelect} />
+      </div>
+    ));
+
     return (
-      <div className={`${SCROLL_CLASSNAME} mb-2 -mx-2 overflow-x-auto px-2 pb-1`}>
-        <div className="flex items-center gap-4">
-          {brands.map(brand => (
-            <BrandLogoButton
-              key={brand.id}
-              brand={brand}
-              isActive={brand.id === activeBrandId}
-              onSelect={handleSelect}
-            />
-          ))}
+      <div
+        className={`${SCROLL_CLASSNAME} mb-2 -mx-2 overflow-x-auto px-2 pb-1 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0`}
+      >
+        <div className="flex items-center gap-4 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] lg:gap-6">
+          {items}
         </div>
       </div>
     );
@@ -177,7 +178,7 @@ function BrandLogoButton({ brand, isActive, onSelect }: BrandLogoButtonProps) {
     <button
       type="button"
       onClick={() => onSelect(brand)}
-      className="flex flex-col items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition"
+      className="flex flex-col items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition lg:w-full lg:max-w-[9rem]"
     >
       <span
         className={`relative h-14 w-14 overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${
