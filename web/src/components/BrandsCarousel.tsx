@@ -22,6 +22,11 @@ type BrandsCarouselProps = {
 };
 
 const SCROLL_CLASSNAME = "brand-strip-scroll";
+const FALLBACK_LOGO_DATA_URL =
+  "data:image/svg+xml;charset=UTF-8," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="#f1f5f9"/><text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#1f2937">AP</text></svg>`
+  );
 
 export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
   const [brands, setBrands] = useState<BrandItem[]>([]);
@@ -127,26 +132,14 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
     return (
       <div className={`${SCROLL_CLASSNAME} mb-2 -mx-2 overflow-x-auto px-2 pb-1`}>
         <div className="flex items-center gap-4">
-          {brands.map(brand => {
-            const isActive = brand.id === activeBrandId;
-            return (
-              <button
-                key={brand.id}
-                type="button"
-                onClick={() => handleSelect(brand)}
-                className="flex flex-col items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition"
-              >
-                <span
-                  className={`relative h-14 w-14 overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${
-                    isActive ? "-translate-y-1 ring-2 ring-orange-400 ring-offset-2 ring-offset-slate-100" : "hover:-translate-y-1"
-                  }`}
-                >
-                  <Image src={brand.logoUrl} alt={brand.name} fill sizes="56px" className="object-cover" />
-                </span>
-                <span className="w-20 truncate text-center">{brand.name}</span>
-              </button>
-            );
-          })}
+          {brands.map(brand => (
+            <BrandLogoButton
+              key={brand.id}
+              brand={brand}
+              isActive={brand.id === activeBrandId}
+              onSelect={handleSelect}
+            />
+          ))}
         </div>
       </div>
     );
@@ -164,5 +157,43 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
         }
       `}</style>
     </>
+  );
+}
+
+type BrandLogoButtonProps = {
+  brand: BrandItem;
+  isActive: boolean;
+  onSelect: (brand: BrandItem) => void;
+};
+
+function BrandLogoButton({ brand, isActive, onSelect }: BrandLogoButtonProps) {
+  const [errored, setErrored] = useState(false);
+
+  useEffect(() => {
+    setErrored(false);
+  }, [brand.logoUrl]);
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(brand)}
+      className="flex flex-col items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition"
+    >
+      <span
+        className={`relative h-14 w-14 overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${
+          isActive ? "-translate-y-1 ring-2 ring-orange-400 ring-offset-2 ring-offset-slate-100" : "hover:-translate-y-1"
+        }`}
+      >
+        <Image
+          src={!errored ? brand.logoUrl : FALLBACK_LOGO_DATA_URL}
+          alt={brand.name}
+          fill
+          sizes="56px"
+          className="object-cover"
+          onError={() => setErrored(true)}
+        />
+      </span>
+      <span className="w-20 truncate text-center">{brand.name}</span>
+    </button>
   );
 }

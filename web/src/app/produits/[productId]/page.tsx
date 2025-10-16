@@ -5,13 +5,14 @@ import { getProductDetail } from '@/data/product-details';
 import { Header, Footer } from '../../page';
 
 type ProductDetailPageProps = {
-  params: {
+  params: Promise<{
     productId: string;
-  };
+  }>;
 };
 
-export function generateMetadata({ params }: ProductDetailPageProps): Metadata {
-  const product = getProductDetail(params.productId);
+export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+  const { productId } = await params;
+  const product = getProductDetail(productId);
 
   if (!product) {
     return {
@@ -37,8 +38,9 @@ export function generateMetadata({ params }: ProductDetailPageProps): Metadata {
   };
 }
 
-export default function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const initialProduct = getProductDetail(params.productId) ?? null;
+export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
+  const { productId } = await params;
+  const initialProduct = getProductDetail(productId) ?? null;
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
@@ -52,7 +54,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           </main>
         }
       >
-        <ProductDetailContent productId={params.productId} initialProduct={initialProduct} />
+        <ProductDetailContent productId={productId} initialProduct={initialProduct} />
       </Suspense>
       <div className="hidden md:block">
         <Footer />
