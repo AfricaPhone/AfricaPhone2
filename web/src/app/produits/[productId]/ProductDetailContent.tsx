@@ -293,7 +293,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
   return (
     <>
       <main className="mx-auto w-full max-w-6xl px-4 pb-32 pt-6 text-slate-900 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:px-8 lg:pb-20">
-        <div className="mb-5 flex items-center justify-between lg:hidden">
+        <div className="sticky top-0 z-40 -mx-4 mb-5 flex items-center justify-between border-b border-slate-200/80 bg-slate-100/95 px-4 py-3 shadow-sm shadow-slate-900/10 backdrop-blur supports-[backdrop-filter]:bg-slate-100/80 lg:hidden">
           <button
             type="button"
             onClick={() => router.back()}
