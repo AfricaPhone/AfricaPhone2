@@ -454,35 +454,7 @@ export const serviceHighlights: ServiceHighlight[] = [
   },
 ] as const;
 
-export const footerColumns = [
-  {
-    title: 'AfricaPhone',
-    links: [
-      { label: 'Qui sommes-nous ?', href: '#about' },
-      { label: 'Boutiques et horaires', href: '#stores' },
-      { label: 'Programme ambassadeur', href: '#community' },
-      { label: 'Recrutement', href: '#jobs' },
-    ],
-  },
-  {
-    title: 'Aide',
-    links: [
-      { label: 'Suivre ma commande', href: '#orders' },
-      { label: 'Prendre rendez-vous', href: '#services' },
-      { label: 'Questions frequentes', href: '#faq' },
-      { label: 'Support WhatsApp 01 54 15 15 22', href: '#contact' },
-    ],
-  },
-  {
-    title: 'Services premium',
-    links: [
-      { label: 'AfricaCare', href: '#support' },
-      { label: 'Financement et reprise', href: '#finance' },
-      { label: 'Solutions entreprises', href: '#business' },
-      { label: 'Studio createurs', href: '#creator' },
-    ],
-  },
-] as const;
+export const footerColumns: Array<{ title: string; links: Array<{ label: string; href: string }> }> = [];
 
 export const footerLegal = [
   { label: 'Conditions generales de vente', href: '#cgv' },
