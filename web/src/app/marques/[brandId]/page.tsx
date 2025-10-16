@@ -118,13 +118,16 @@ export default function BrandPage({ params }: BrandPageProps) {
       return null;
     }
     const trimmedId = typeof brand.id === "string" ? brand.id.trim() : brand.id;
-    const computedFilterValue =
-      (typeof brand.filterValue === "string" && brand.filterValue.trim().length > 0
+    const trimmedName = typeof brand.name === "string" ? brand.name.trim() : brand.name;
+    const trimmedFilter =
+      typeof brand.filterValue === "string" && brand.filterValue.trim().length > 0
         ? brand.filterValue.trim()
-        : null) ?? (typeof trimmedId === "string" && trimmedId.length > 0 ? trimmedId : null) ?? brand.name;
+        : null;
+    const computedFilterValue =
+      trimmedFilter ?? (typeof trimmedName === "string" && trimmedName.length > 0 ? trimmedName : null) ?? trimmedId ?? null;
     return {
-      id: brand.id,
-      name: brand.name,
+      id: typeof trimmedId === "string" && trimmedId.length > 0 ? trimmedId : brand.id,
+      name: typeof trimmedName === "string" && trimmedName.length > 0 ? trimmedName : brand.name,
       filterValue: computedFilterValue,
     };
   }, [brand]);

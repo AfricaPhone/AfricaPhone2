@@ -199,6 +199,8 @@ type ProductGridSectionProps = {
   enableStaticFallbacks?: boolean;
 };
 
+type BrandFilterMode = 'id' | 'value' | null;
+
 const sanitizeFilterValue = (value?: string | null): string | null => {
   if (typeof value !== 'string') {
     return null;
@@ -222,11 +224,22 @@ export default function ProductGridSection(
   const [paginationError, setPaginationError] = useState<string | null>(null);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const brandFilterValue =
-    sanitizeFilterValue(selectedBrand?.filterValue) ??
-    sanitizeFilterValue(selectedBrand?.id) ??
-    sanitizeFilterValue(selectedBrand?.name);
-  const brandFallbackId = selectedBrand?.id ?? null;
+  const brandIdCandidate = sanitizeFilterValue(selectedBrand?.id);
+  const brandNameCandidate = sanitizeFilterValue(selectedBrand?.name);
+  const brandFilterCandidate = sanitizeFilterValue(selectedBrand?.filterValue);
+  const brandFilterValue = brandFilterCandidate ?? brandNameCandidate ?? brandIdCandidate;
+  const brandFallbackId = brandIdCandidate ?? null;
+  const [brandFilterMode, setBrandFilterMode] = useState<BrandFilterMode>(null);
+
+  useEffect(() => {
+    if (brandFallbackId) {
+      setBrandFilterMode('id');
+    } else if (brandFilterValue) {
+      setBrandFilterMode('value');
+    } else {
+      setBrandFilterMode(null);
+    }
+  }, [brandFallbackId, brandFilterValue]);
 
   useEffect(() => {
     setLoading(true);
@@ -254,23 +267,40 @@ export default function ProductGridSection(
         setPaginationError(null);
       }
 
+      let shouldSwitchMode = false;
+      let nextMode: BrandFilterMode = null;
+
       try {
         const productsCollection = collection(db, 'products');
         const constraints: QueryConstraint[] = [];
-        if (brandFilterValue) {
+        const activeMode = brandFilterMode;
+
+        if (activeMode === 'id') {
+          if (brandFallbackId) {
+            constraints.push(where('brandId', '==', brandFallbackId));
+          } else if (brandFilterValue) {
+            constraints.push(where('brand', '==', brandFilterValue));
+          }
+        } else if (activeMode === 'value') {
+          if (brandFilterValue) {
+            constraints.push(where('brand', '==', brandFilterValue));
+          } else if (brandFallbackId) {
+            constraints.push(where('brandId', '==', brandFallbackId));
+          }
+        } else if (brandFallbackId) {
+          constraints.push(where('brandId', '==', brandFallbackId));
+        } else if (brandFilterValue) {
           constraints.push(where('brand', '==', brandFilterValue));
-          constraints.push(orderBy('name'));
-        } else {
-          constraints.push(orderBy('ordreVedette', 'desc'));
-          constraints.push(orderBy('name'));
         }
+
+        constraints.push(orderBy('ordreVedette', 'desc'));
+        constraints.push(orderBy('name'));
         if (cursor) {
           constraints.push(startAfter(cursor));
         }
         constraints.push(limit(PAGE_SIZE));
 
-        const baseQuery = query(productsCollection, ...constraints);
-        const snapshot = await getDocs(baseQuery);
+        const snapshot = await getDocs(query(productsCollection, ...constraints));
         const mapped = snapshot.docs
           .map(mapDocToProduct)
           .filter((item): item is ProductCardData => item !== null);
@@ -285,22 +315,27 @@ export default function ProductGridSection(
           }
         } else {
           if (mapped.length === 0) {
-            if (brandFallbackId) {
-              if (enableStaticFallbacks) {
-                setProducts(getFallbackProducts(brandFallbackId));
-              } else {
-                setProducts([]);
-              }
+            if (
+              brandFilterMode === 'id' &&
+              brandFilterValue &&
+              (!brandFallbackId || brandFilterValue !== brandFallbackId)
+            ) {
+              shouldSwitchMode = true;
+              nextMode = 'value';
             } else if (enableStaticFallbacks) {
-              setProducts(STATIC_FALLBACK_PRODUCTS);
+              const fallback = getFallbackProducts(brandFallbackId);
+              setProducts(fallback);
+              if (fallback.length === 0) {
+                setError('Aucun produit disponible pour cette selection.');
+              } else {
+                setError(null);
+              }
+              setHasMore(false);
+              setLastDoc(null);
             } else {
               setProducts([]);
-            }
-            setHasMore(false);
-            setLastDoc(null);
-            if (!brandFallbackId && enableStaticFallbacks) {
-              setError('Impossible de charger les produits pour le moment.');
-            } else {
+              setHasMore(false);
+              setLastDoc(null);
               setError(null);
             }
           } else {
@@ -314,33 +349,36 @@ export default function ProductGridSection(
         console.error('ProductGridSection: unable to load products', loadError);
         if (mode === 'append') {
           setPaginationError('Impossible de charger plus de produits pour le moment.');
-        } else {
-          if (enableStaticFallbacks) {
-            const fallback = getFallbackProducts(brandFallbackId);
-            setProducts(fallback);
-            setHasMore(false);
-            setLastDoc(null);
-            if (!brandFallbackId) {
-              setError('Impossible de charger les produits pour le moment.');
-            } else {
-              setError(null);
-            }
-          } else {
-            setProducts([]);
-            setHasMore(false);
-            setLastDoc(null);
+        } else if (enableStaticFallbacks) {
+          const fallback = getFallbackProducts(brandFallbackId);
+          setProducts(fallback);
+          setHasMore(false);
+          setLastDoc(null);
+          if (!brandFallbackId) {
             setError('Impossible de charger les produits pour le moment.');
+          } else {
+            setError(null);
           }
+        } else {
+          setProducts([]);
+          setHasMore(false);
+          setLastDoc(null);
+          setError('Impossible de charger les produits pour le moment.');
         }
       } finally {
+        if (shouldSwitchMode && nextMode !== null) {
+          setBrandFilterMode(nextMode);
+        }
         if (mode === 'replace') {
-          setLoading(false);
+          if (!(shouldSwitchMode && nextMode !== null)) {
+            setLoading(false);
+          }
         } else {
           setLoadingMore(false);
         }
       }
   },
-    [brandFallbackId, brandFilterValue, enableStaticFallbacks]
+    [brandFallbackId, brandFilterValue, brandFilterMode, enableStaticFallbacks]
   );
 
   useEffect(() => {
