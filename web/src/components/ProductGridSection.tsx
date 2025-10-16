@@ -196,13 +196,9 @@ const STATIC_FALLBACK_PRODUCTS = getFallbackProducts();
 
 type ProductGridSectionProps = {
   selectedBrand?: { id: string; name: string } | null;
-  onClearBrand?: () => void;
 };
 
-export default function ProductGridSection({
-  selectedBrand = null,
-  onClearBrand,
-}: ProductGridSectionProps = {}) {
+export default function ProductGridSection({ selectedBrand = null }: ProductGridSectionProps = {}) {
   const [products, setProducts] = useState<ProductCardData[]>(() =>
     selectedBrand ? getFallbackProducts(selectedBrand.id) : STATIC_FALLBACK_PRODUCTS
   );
@@ -212,10 +208,11 @@ export default function ProductGridSection({
   const [paginationError, setPaginationError] = useState<string | null>(null);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const brandFilterValue = selectedBrand?.name ?? null;
+  const brandFilterValue = selectedBrand?.name?.trim() ? selectedBrand.name.trim() : null;
   const brandFallbackId = selectedBrand?.id ?? null;
 
   useEffect(() => {
+    setLoading(true);
     if (brandFallbackId) {
       setProducts(getFallbackProducts(brandFallbackId));
     } else {
@@ -223,6 +220,8 @@ export default function ProductGridSection({
     }
     setHasMore(true);
     setLastDoc(null);
+    setError(null);
+    setPaginationError(null);
   }, [brandFallbackId]);
 
   const loadProducts = useCallback(
@@ -243,7 +242,6 @@ export default function ProductGridSection({
           constraints.push(where('brand', '==', brandFilterValue));
         }
         constraints.push(orderBy('ordreVedette', 'desc'));
-        constraints.push(orderBy('name'));
         if (cursor) {
           constraints.push(startAfter(cursor));
         }
@@ -285,9 +283,13 @@ export default function ProductGridSection({
         } else {
           const fallback = getFallbackProducts(brandFallbackId);
           setProducts(fallback);
-          setError('Impossible de charger les produits pour le moment.');
           setHasMore(false);
           setLastDoc(null);
+          if (!brandFallbackId) {
+            setError('Impossible de charger les produits pour le moment.');
+          } else {
+            setError(null);
+          }
         }
       } finally {
         if (mode === 'replace') {
@@ -377,22 +379,6 @@ export default function ProductGridSection({
       <h2 id="all-products" className="sr-only">
         Tous les produits
       </h2>
-      {selectedBrand ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white px-4 py-3 text-sm shadow-sm shadow-slate-900/10">
-          <span className="font-semibold text-slate-700">
-            Catalogue {selectedBrand.name}
-          </span>
-          {onClearBrand ? (
-            <button
-              type="button"
-              onClick={onClearBrand}
-              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-orange-400 hover:text-orange-500"
-            >
-              Effacer
-            </button>
-          ) : null}
-        </div>
-      ) : null}
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
       </div>

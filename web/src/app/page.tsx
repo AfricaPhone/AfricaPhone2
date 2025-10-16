@@ -13,13 +13,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <Header />
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-[0.2rem] pb-20 pt-10 sm:px-4 lg:px-8">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
         <BrandsCarousel
           selectedBrandId={selectedBrand?.id ?? null}
-          onBrandSelect={setSelectedBrand}
-          onReset={() => setSelectedBrand(null)}
+          onBrandSelect={brand => setSelectedBrand(brand && brand.id ? brand : null)}
         />
-        <ProductGridSection selectedBrand={selectedBrand} onClearBrand={() => setSelectedBrand(null)} />
+        <ProductGridSection selectedBrand={selectedBrand} />
       </main>
       <Footer />
     </div>
