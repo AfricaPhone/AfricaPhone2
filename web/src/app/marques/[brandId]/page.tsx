@@ -117,10 +117,15 @@ export default function BrandPage({ params }: BrandPageProps) {
     if (!brand) {
       return null;
     }
+    const trimmedId = typeof brand.id === "string" ? brand.id.trim() : brand.id;
+    const computedFilterValue =
+      (typeof brand.filterValue === "string" && brand.filterValue.trim().length > 0
+        ? brand.filterValue.trim()
+        : null) ?? (typeof trimmedId === "string" && trimmedId.length > 0 ? trimmedId : null) ?? brand.name;
     return {
       id: brand.id,
       name: brand.name,
-      filterValue: brand.filterValue ?? brand.name,
+      filterValue: computedFilterValue,
     };
   }, [brand]);
 

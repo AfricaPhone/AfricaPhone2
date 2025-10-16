@@ -199,6 +199,14 @@ type ProductGridSectionProps = {
   enableStaticFallbacks?: boolean;
 };
 
+const sanitizeFilterValue = (value?: string | null): string | null => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
 export default function ProductGridSection(
   { selectedBrand = null, enableStaticFallbacks = true }: ProductGridSectionProps = {}
 ) {
@@ -214,11 +222,10 @@ export default function ProductGridSection(
   const [paginationError, setPaginationError] = useState<string | null>(null);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const brandFilterValue = selectedBrand?.filterValue?.trim()
-    ? selectedBrand.filterValue.trim()
-    : selectedBrand?.name?.trim()
-      ? selectedBrand.name.trim()
-      : null;
+  const brandFilterValue =
+    sanitizeFilterValue(selectedBrand?.filterValue) ??
+    sanitizeFilterValue(selectedBrand?.id) ??
+    sanitizeFilterValue(selectedBrand?.name);
   const brandFallbackId = selectedBrand?.id ?? null;
 
   useEffect(() => {
