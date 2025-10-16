@@ -54,7 +54,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       >
         <ProductDetailContent productId={params.productId} initialProduct={initialProduct} />
       </Suspense>
-      <Footer />
+      <div className="hidden md:block">
+        <Footer />
+      </div>
     </div>
   );
 }
