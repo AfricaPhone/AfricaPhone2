@@ -274,7 +274,11 @@ export default function ProductGridSection(
             setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
             setHasMore(snapshot.docs.length === PAGE_SIZE);
           } else {
-            setHasMore(false);
+            const nextCursor = snapshot.docs[snapshot.docs.length - 1] ?? null;
+            if (nextCursor) {
+              setLastDoc(nextCursor);
+            }
+            setHasMore(snapshot.docs.length === PAGE_SIZE && nextCursor !== null);
           }
         } else {
           if (mapped.length === 0) {
