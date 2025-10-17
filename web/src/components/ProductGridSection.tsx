@@ -9,7 +9,6 @@ import {
   DocumentData,
   getDocs,
   limit,
-  orderBy,
   query,
   QueryDocumentSnapshot,
   QueryConstraint,
@@ -52,6 +51,7 @@ const FALLBACK_IMAGE_DATA_URL =
 
 const PRODUCTS_PHONE_NUMBER = '2290154151522';
 const PAGE_SIZE = 24;
+const REQUEST_PAGE_SIZE = PAGE_SIZE + 1;
 
 const toNumber = (value: unknown): number | null => {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -252,88 +252,77 @@ export default function ProductGridSection(
         const constraints: QueryConstraint[] = [];
         if (brandFilterValue) {
           constraints.push(where('brand', '==', brandFilterValue));
-          constraints.push(orderBy('name'));
-        } else {
-          constraints.push(orderBy('ordreVedette', 'desc'));
-          constraints.push(orderBy('name'));
         }
         if (cursor) {
           constraints.push(startAfter(cursor));
         }
-        constraints.push(limit(PAGE_SIZE));
+        constraints.push(limit(REQUEST_PAGE_SIZE));
 
-        const baseQuery = query(productsCollection, ...constraints);
-        const snapshot = await getDocs(baseQuery);
-        const mapped = snapshot.docs
+        const snapshot = await getDocs(query(productsCollection, ...constraints));
+        const docs = snapshot.docs;
+        const hasMorePage = docs.length === REQUEST_PAGE_SIZE;
+        const visibleDocs = hasMorePage ? docs.slice(0, PAGE_SIZE) : docs;
+        const mapped = visibleDocs
           .map(mapDocToProduct)
           .filter((item): item is ProductCardData => item !== null);
+        const nextCursor =
+          visibleDocs.length > 0 ? visibleDocs[visibleDocs.length - 1] : cursor ? cursor : null;
 
         if (mode === 'append') {
           if (mapped.length > 0) {
             setProducts(prev => sortProducts(dedupeProducts([...prev, ...mapped])));
-            setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
-            setHasMore(snapshot.docs.length === PAGE_SIZE);
+            setLastDoc(nextCursor);
+            setHasMore(hasMorePage);
           } else {
-            const nextCursor = snapshot.docs[snapshot.docs.length - 1] ?? null;
-            if (nextCursor) {
-              setLastDoc(nextCursor);
-            }
-            setHasMore(snapshot.docs.length === PAGE_SIZE && nextCursor !== null);
+            setHasMore(false);
           }
+          setLoadingMore(false);
         } else {
           if (mapped.length === 0) {
-            if (brandFallbackId) {
-              if (enableStaticFallbacks) {
-                setProducts(getFallbackProducts(brandFallbackId));
+            if (enableStaticFallbacks) {
+              const fallback = getFallbackProducts(brandFallbackId);
+              setProducts(fallback);
+              if (fallback.length === 0) {
+                setError('Aucun produit disponible pour cette selection.');
               } else {
-                setProducts([]);
+                setError(null);
               }
-            } else if (enableStaticFallbacks) {
-              setProducts(STATIC_FALLBACK_PRODUCTS);
             } else {
               setProducts([]);
+              setError(null);
             }
             setHasMore(false);
             setLastDoc(null);
-            if (!brandFallbackId && enableStaticFallbacks) {
-              setError('Impossible de charger les produits pour le moment.');
-            } else {
-              setError(null);
-            }
           } else {
             setProducts(sortProducts(dedupeProducts(mapped)));
-            setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
-            setHasMore(snapshot.docs.length === PAGE_SIZE);
+            setLastDoc(nextCursor);
+            setHasMore(hasMorePage);
             setError(null);
           }
+          setLoading(false);
         }
       } catch (loadError) {
         console.error('ProductGridSection: unable to load products', loadError);
         if (mode === 'append') {
           setPaginationError('Impossible de charger plus de produits pour le moment.');
-        } else {
-          if (enableStaticFallbacks) {
-            const fallback = getFallbackProducts(brandFallbackId);
-            setProducts(fallback);
-            setHasMore(false);
-            setLastDoc(null);
-            if (!brandFallbackId) {
-              setError('Impossible de charger les produits pour le moment.');
-            } else {
-              setError(null);
-            }
-          } else {
-            setProducts([]);
-            setHasMore(false);
-            setLastDoc(null);
+          setLoadingMore(false);
+        } else if (enableStaticFallbacks) {
+          const fallback = getFallbackProducts(brandFallbackId);
+          setProducts(fallback);
+          setHasMore(false);
+          setLastDoc(null);
+          if (!brandFallbackId) {
             setError('Impossible de charger les produits pour le moment.');
+          } else {
+            setError(null);
           }
-        }
-      } finally {
-        if (mode === 'replace') {
           setLoading(false);
         } else {
-          setLoadingMore(false);
+          setProducts([]);
+          setHasMore(false);
+          setLastDoc(null);
+          setError('Impossible de charger les produits pour le moment.');
+          setLoading(false);
         }
       }
   },
