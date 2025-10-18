@@ -1,0 +1,57 @@
+name: Deploy Web to Firebase Hosting
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '20'
+  PROJECT_ID: africaphone-vente
+  FIREBASE_TARGET: africaphone-org
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run check:types
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build Expo web bundle
+        run: npm run build:web
+
+      - name: Upload production bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: web-build
+          if-no-files-found: error
+
+      - name: Deploy to Firebase Hosting (live)
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AFRICAPHONE_ORG }}'
+          projectId: ${{ env.PROJECT_ID }}
+          target: ${{ env.FIREBASE_TARGET }}
+          channelId: live

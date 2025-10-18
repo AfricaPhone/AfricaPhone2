@@ -1,5 +1,20 @@
 {
   "projects": {
     "default": "africaphone-vente"
+  },
+  "targets": {
+    "africaphone-vente": {
+      "hosting": {
+        "africaphone-admin-pro": [
+          "africaphone-admin-pro"
+        ],
+        "africaphone-admin-legal": [
+          "africaphone-admin-legal"
+        ],
+        "africaphone-org": [
+          "africaphone-org"
+        ]
+      }
+    }
   }
 }

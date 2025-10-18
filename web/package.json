@@ -7,6 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "deploy:web": "npm --prefix .. run deploy:web",
     "lint:staged": "npx lint-staged",
     "check:types": "tsc --noEmit"
   },
