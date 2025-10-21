@@ -1,8 +1,8 @@
 'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import Link from 'next/link';
+import Image from 'next/image';
+import { useEffect, useMemo, useState } from 'react';
 import {
   allProducts,
   brandHighlights,
@@ -13,39 +13,39 @@ import {
   productSegments,
   promoCards,
   type HeroLink,
-} from "@/data/home";
-import Carousel from "@/components/Carousel";
+} from '@/data/home';
+import Carousel from '@/components/Carousel';
 
 const NAV_LINKS = [
-  { label: "Catalogue", href: "#catalogue" },
-  { label: "Collections", href: "#collections" },
-  { label: "Services", href: "#services" },
-  { label: "Financement", href: "#finance" },
-  { label: "Communauté", href: "#community" },
-  { label: "Engagement", href: "#narrative" },
-  { label: "Contact", href: "#contact" },
+  { label: 'Catalogue', href: '#catalogue' },
+  { label: 'Collections', href: '#collections' },
+  { label: 'Services', href: '#services' },
+  { label: 'Financement', href: '#finance' },
+  { label: 'Communauté', href: '#community' },
+  { label: 'Engagement', href: '#narrative' },
+  { label: 'Contact', href: '#contact' },
 ] as const;
 
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1510552776732-01acc9a4cbd0?auto=format&fit=crop&w=1600&q=80";
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1510552776732-01acc9a4cbd0?auto=format&fit=crop&w=1600&q=80';
 
 const COMMUNITY_STORIES = [
   {
-    name: "Sonia, Photographe",
+    name: 'Sonia, Photographe',
     message:
-      "“AfricaPhone m’a guidée vers un Galaxy ultra adapté à mon travail. Un service premium et un suivi WhatsApp réactif !”",
+      '“AfricaPhone m’a guidée vers un Galaxy ultra adapté à mon travail. Un service premium et un suivi WhatsApp réactif !”',
   },
   {
-    name: "Brice, Ambassadeur",
+    name: 'Brice, Ambassadeur',
     message:
-      "“Grâce au programme ambassadeur, je partage mes bons plans et j’accède à des avantages exclusifs chaque mois.”",
+      '“Grâce au programme ambassadeur, je partage mes bons plans et j’accède à des avantages exclusifs chaque mois.”',
   },
   {
-    name: "Linda, Entrepreneure",
-    message:
-      "“Le paiement fractionné Kkiapay m’a permis d’équiper mon équipe sans bloquer ma trésorerie.”",
+    name: 'Linda, Entrepreneure',
+    message: '“Le paiement fractionné Kkiapay m’a permis d’équiper mon équipe sans bloquer ma trésorerie.”',
   },
 ] as const;
+
+export const dynamic = 'force-dynamic';
 
 export default function MarketingPage() {
   return (
@@ -73,14 +73,14 @@ function Header() {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
     <header
       className={`sticky top-0 z-50 bg-white/70 backdrop-blur transition-shadow ${
-        scrolled ? "shadow-lg shadow-slate-900/10" : "shadow-none"
+        scrolled ? 'shadow-lg shadow-slate-900/10' : 'shadow-none'
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
@@ -130,7 +130,9 @@ function HeroSection() {
           <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-orange-200">
             {heroContent.tag}
           </span>
-          <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">{heroContent.title}</h1>
+          <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+            {heroContent.title}
+          </h1>
           <p className="text-base text-slate-200 sm:text-lg">{heroContent.description}</p>
           <div className="flex flex-wrap gap-3">
             {ctas.map(cta => (
@@ -203,7 +205,8 @@ function BrandHighlightsSection() {
           <div>
             <h2 className="text-3xl font-bold text-slate-900">Univers partenaires AfricaPhone</h2>
             <p className="text-sm text-slate-500">
-              Des marques sélectionnées pour leur innovation, leur fiabilité et notre capacité à les accompagner localement.
+              Des marques sélectionnées pour leur innovation, leur fiabilité et notre capacité à les accompagner
+              localement.
             </p>
           </div>
         </div>
@@ -215,7 +218,13 @@ function BrandHighlightsSection() {
             >
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow">
-                  <Image src={brand.logoUrl} alt={brand.name} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
+                  <Image
+                    src={brand.logoUrl}
+                    alt={brand.name}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
                 </span>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">{brand.name}</h3>
@@ -308,7 +317,9 @@ function SegmentsSection() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-3xl font-bold text-slate-900">Explorez nos univers</h2>
-            <p className="text-sm text-slate-500">Populaires, tablettes ou accessoires : trouvez votre prochain compagnon mobile.</p>
+            <p className="text-sm text-slate-500">
+              Populaires, tablettes ou accessoires : trouvez votre prochain compagnon mobile.
+            </p>
           </div>
         </div>
         <div className="mt-8 flex flex-wrap gap-3">
@@ -320,7 +331,7 @@ function SegmentsSection() {
                 type="button"
                 onClick={() => setActiveSegment(segment)}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  isActive ? "bg-slate-900 text-white shadow" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  isActive ? 'bg-slate-900 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 {segment}
@@ -432,16 +443,16 @@ function FinanceSection() {
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           {[
             {
-              title: "Paiement fractionné",
-              description: "Réglez en plusieurs fois sans tracer votre trésorerie grâce à notre partenaire Kkiapay.",
+              title: 'Paiement fractionné',
+              description: 'Réglez en plusieurs fois sans tracer votre trésorerie grâce à notre partenaire Kkiapay.',
             },
             {
-              title: "Simulation instantanée",
-              description: "Obtenez votre accord en moins de 3 minutes, en boutique ou en ligne.",
+              title: 'Simulation instantanée',
+              description: 'Obtenez votre accord en moins de 3 minutes, en boutique ou en ligne.',
             },
             {
-              title: "Contrats limpides",
-              description: "Aucun frais caché, rappel automatique et assistance personnalisée à chaque étape.",
+              title: 'Contrats limpides',
+              description: 'Aucun frais caché, rappel automatique et assistance personnalisée à chaque étape.',
             },
           ].map(item => (
             <article
@@ -454,12 +465,11 @@ function FinanceSection() {
           ))}
           <article className="flex h-full flex-col justify-between gap-4 rounded-3xl bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 p-6 shadow-xl">
             <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-wide text-orange-100">
-                Offre premium
-              </span>
+              <span className="text-xs font-semibold uppercase tracking-wide text-orange-100">Offre premium</span>
               <h3 className="text-xl font-semibold text-white">Kkiapay x AfricaPhone</h3>
               <p className="text-sm text-white/90">
-                Un conseiller vous accompagne pour choisir la formule la plus adaptée à votre budget et planifier vos livraisons.
+                Un conseiller vous accompagne pour choisir la formule la plus adaptée à votre budget et planifier vos
+                livraisons.
               </p>
             </div>
             <Link
@@ -484,7 +494,8 @@ function CommunitySection() {
           <div>
             <h2 className="text-3xl font-bold text-slate-900">La communauté AfricaPhone</h2>
             <p className="text-sm text-slate-500">
-              Ambassadeurs, créateurs et entrepreneurs partagent leurs inspirations et bénéficient d’avantages exclusifs.
+              Ambassadeurs, créateurs et entrepreneurs partagent leurs inspirations et bénéficient d’avantages
+              exclusifs.
             </p>
           </div>
           <Link
@@ -505,9 +516,9 @@ function CommunitySection() {
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
                   {story.name
-                    .split(" ")
+                    .split(' ')
                     .map(part => part[0])
-                    .join("")
+                    .join('')
                     .slice(0, 2)}
                 </div>
                 <div>
@@ -570,7 +581,9 @@ function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div className="space-y-3">
             <h3 className="text-2xl font-semibold text-white">Restez informé des nouveautés AfricaPhone</h3>
-            <p className="text-sm text-slate-300">News produits, avant-premières et offres réservées à notre communauté.</p>
+            <p className="text-sm text-slate-300">
+              News produits, avant-premières et offres réservées à notre communauté.
+            </p>
           </div>
           <form className="flex w-full max-w-lg flex-col gap-3 sm:flex-row">
             <input
@@ -596,7 +609,8 @@ function Footer() {
             AfricaPhone
           </Link>
           <p className="text-sm text-slate-300">
-            AfricaPhone accompagne les passionnés du mobile partout au Bénin avec des conseils premium, un financement flexible et un suivi long terme.
+            AfricaPhone accompagne les passionnés du mobile partout au Bénin avec des conseils premium, un financement
+            flexible et un suivi long terme.
           </p>
           <div className="flex gap-3">
             <Link
@@ -668,8 +682,8 @@ function HeroButton({ cta }: { cta: HeroLink }) {
       href={cta.href}
       className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition ${
         primary
-          ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30 hover:bg-orange-600"
-          : "border border-white/30 bg-white/10 text-white hover:bg-white/20"
+          ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30 hover:bg-orange-600'
+          : 'border border-white/30 bg-white/10 text-white hover:bg-white/20'
       }`}
     >
       {cta.label}
@@ -680,13 +694,8 @@ function HeroButton({ cta }: { cta: HeroLink }) {
 
 function ArrowIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 18 18" fill="none" className={className ?? "h-3 w-3"}>
-      <path
-        d="M3.75 9h10.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+    <svg viewBox="0 0 18 18" fill="none" className={className ?? 'h-3 w-3'}>
+      <path d="M3.75 9h10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <path
         d="m9.75 5.25 4.5 3.75-4.5 3.75"
         stroke="currentColor"

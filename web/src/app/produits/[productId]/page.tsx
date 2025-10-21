@@ -5,13 +5,13 @@ import { getProductDetail } from '@/data/product-details';
 import { Header, Footer } from '../../page';
 
 type ProductDetailPageProps = {
-  params: Promise<{
+  params: {
     productId: string;
-  }>;
+  };
 };
 
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
-  const { productId } = await params;
+  const { productId } = params;
   const product = getProductDetail(productId);
 
   if (!product) {
@@ -38,8 +38,8 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
   };
 }
 
-export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { productId } = await params;
+export default function ProductDetailPage({ params }: ProductDetailPageProps) {
+  const { productId } = params;
   const initialProduct = getProductDetail(productId) ?? null;
 
   return (

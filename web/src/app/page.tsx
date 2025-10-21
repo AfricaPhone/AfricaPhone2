@@ -1,10 +1,10 @@
 'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import ProductGridSection from "@/components/ProductGridSection";
-import BrandsCarousel from "@/components/BrandsCarousel";
-import { footerColumns, footerLegal } from "@/data/storefront";
+import Image from 'next/image';
+import Link from 'next/link';
+import ProductGridSection from '@/components/ProductGridSection';
+import BrandsCarousel from '@/components/BrandsCarousel';
+import { footerColumns, footerLegal } from '@/data/storefront';
 
 export default function HomePage() {
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import type { PropsWithChildren, ReactNode } from "react";
+import type { PropsWithChildren, ReactNode } from 'react';
 
 type CarouselProps = PropsWithChildren<{
   className?: string;

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -28,18 +27,15 @@ const DEFAULT_DELIVERY_NOTES = [
 const DEFAULT_SERVICES = [
   {
     title: 'Configuration offerte',
-    description:
-      'Mise en route complete, transfert de vos donnees et installation des applications essentielles.',
+    description: 'Mise en route complete, transfert de vos donnees et installation des applications essentielles.',
   },
   {
     title: 'Assistance locale',
-    description:
-      'Support AfricaCare 7j/7 avec prise en charge prioritaire en boutique ou a distance.',
+    description: 'Support AfricaCare 7j/7 avec prise en charge prioritaire en boutique ou a distance.',
   },
   {
     title: 'Accessoires adaptes',
-    description:
-      'Selection d accessoires recommandes par nos experts, disponibles en retrait ou livraison.',
+    description: 'Selection d accessoires recommandes par nos experts, disponibles en retrait ou livraison.',
   },
 ] as const;
 type FirestoreProductPayload = {
@@ -281,7 +277,10 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     product.specs.length > 0 ? (
       <div className="space-y-3 rounded-3xl bg-white p-4 shadow-[0_24px_44px_-28px_rgba(15,23,42,0.22)] lg:p-6">
         {product.specs.map(spec => (
-          <div key={`${spec.label}-${spec.value}`} className="flex items-start justify-between gap-4 text-sm text-slate-700">
+          <div
+            key={`${spec.label}-${spec.value}`}
+            className="flex items-start justify-between gap-4 text-sm text-slate-700"
+          >
             <span className="font-semibold text-slate-500">{spec.label}</span>
             <span className="text-right font-semibold text-slate-900">{spec.value}</span>
           </div>
@@ -466,7 +465,9 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                   <p className="text-sm text-slate-400 line-through">{product.oldPriceLabel}</p>
                 ) : null}
                 {product.savingsLabel ? (
-                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">{product.savingsLabel}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+                    {product.savingsLabel}
+                  </p>
                 ) : null}
               </div>
               <button
@@ -481,7 +482,10 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
           <div className="rounded-[22px] bg-white p-4 shadow-[0_28px_48px_-28px_rgba(15,23,42,0.28)] lg:p-6">
             <nav className="flex border-b border-slate-200">
-              {[{ id: 'specs', label: 'Specifications' }, { id: 'description', label: 'Description' }].map(tab => (
+              {[
+                { id: 'specs', label: 'Specifications' },
+                { id: 'description', label: 'Description' },
+              ].map(tab => (
                 <button
                   key={tab.id}
                   type="button"
@@ -574,7 +578,9 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
   const highlightSource: string[] = [];
   if (Array.isArray(payload.highlights)) {
     highlightSource.push(
-      ...(payload.highlights as unknown[]).filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      ...(payload.highlights as unknown[]).filter(
+        (item): item is string => typeof item === 'string' && item.trim().length > 0
+      )
     );
   } else if (typeof payload.highlight === 'string' && payload.highlight.trim().length > 0) {
     highlightSource.push(payload.highlight.trim());
@@ -645,17 +651,14 @@ function combineProductData(
   const oldPriceLabel = oldPriceNumber ? formatPrice(oldPriceNumber) : undefined;
   const savingsLabel = staticProduct?.savings ?? undefined;
 
-  const highlights = dedupeArray([
-    ...(firestoreProduct?.highlights ?? []),
-    ...(staticProduct?.highlights ?? []),
-  ]);
+  const highlights = dedupeArray([...(firestoreProduct?.highlights ?? []), ...(staticProduct?.highlights ?? [])]);
 
   const specs = mergeSpecs(firestoreProduct?.specs ?? [], staticProduct?.specs ?? []);
 
   const services =
-    staticProduct?.services?.map(service => ({ ...service })) ?? Array.from(DEFAULT_SERVICES, service => ({ ...service }));
-  const deliveryNotes =
-    staticProduct?.deliveryNotes?.slice() ?? Array.from(DEFAULT_DELIVERY_NOTES);
+    staticProduct?.services?.map(service => ({ ...service })) ??
+    Array.from(DEFAULT_SERVICES, service => ({ ...service }));
+  const deliveryNotes = staticProduct?.deliveryNotes?.slice() ?? Array.from(DEFAULT_DELIVERY_NOTES);
 
   const tagline =
     firestoreProduct?.tagline ||
@@ -816,8 +819,20 @@ function ShareIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M8.43 11.72 15.57 7.03" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M8.43 12.28 15.57 16.97" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M8.43 11.72 15.57 7.03"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.43 12.28 15.57 16.97"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

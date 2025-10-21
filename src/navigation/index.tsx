@@ -1,5 +1,6 @@
 // src/navigation/index.tsx
 import React from 'react';
+import '../firebase/config'; // Ensure Firebase initializes before screens register
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';

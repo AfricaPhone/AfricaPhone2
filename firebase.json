@@ -40,18 +40,10 @@
     },
     {
       "site": "africaphone-org",
-      "public": "web-build",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ],
+      "source": "web",
+      "frameworksBackend": {
+        "region": "us-central1"
+      },
       "headers": [
         {
           "source": "**/*.@(js|css|png|jpg|jpeg|svg|gif|webp|ico|woff|woff2)",

@@ -37,13 +37,8 @@ export const heroBanner = {
     'Stock physique garanti, configuration avant livraison et assistance locale pour chaque appareil. Nos experts vous conseillent comme en boutique, directement en ligne.',
   ctaPrimary: { label: 'Explorer les nouveautes', href: '#deals' },
   ctaSecondary: { label: 'Prendre rendez-vous boutique', href: '#services' },
-  image:
-    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80',
-  highlights: [
-    'Livraison express 24 h',
-    'Reprise & financement Kkiapay',
-    'Assistance apres-vente AfricaCare',
-  ],
+  image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80',
+  highlights: ['Livraison express 24 h', 'Reprise & financement Kkiapay', 'Assistance apres-vente AfricaCare'],
 } as const;
 
 export type ProductTile = {
@@ -87,8 +82,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Prime',
         rating: 4.9,
         reviews: 182,
-        image:
-          'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -101,8 +95,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Stock magasin',
         rating: 4.8,
         reviews: 134,
-        image:
-          'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -115,8 +108,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Deal du jour',
         rating: 4.7,
         reviews: 204,
-        image:
-          'https://images.unsplash.com/photo-1604161545028-6c2b3f9c9450?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1604161545028-6c2b3f9c9450?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -129,8 +121,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Nouveaute',
         rating: 4.6,
         reviews: 98,
-        image:
-          'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -143,8 +134,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Prime',
         rating: 4.5,
         reviews: 121,
-        image:
-          'https://images.unsplash.com/photo-1580894908361-967195033215?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1580894908361-967195033215?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -157,8 +147,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Selection boutique',
         rating: 4.6,
         reviews: 76,
-        image:
-          'https://images.unsplash.com/photo-1512496130939-2c4f79935e4f?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1512496130939-2c4f79935e4f?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -171,8 +160,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Pack pro',
         rating: 4.9,
         reviews: 88,
-        image:
-          'https://images.unsplash.com/photo-1585792180666-f7347c490ee2?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1585792180666-f7347c490ee2?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -185,8 +173,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Audio',
         rating: 4.8,
         reviews: 55,
-        image:
-          'https://images.unsplash.com/photo-1512054502226-69b79ce2e69e?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1512054502226-69b79ce2e69e?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
     ],
@@ -206,8 +193,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Best seller',
         rating: 4.7,
         reviews: 312,
-        image:
-          'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -218,8 +204,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Creator friendly',
         rating: 4.5,
         reviews: 163,
-        image:
-          'https://images.unsplash.com/photo-1549921296-3ecf396e6e19?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1549921296-3ecf396e6e19?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -230,8 +215,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Innovation',
         rating: 4.6,
         reviews: 74,
-        image:
-          'https://images.unsplash.com/photo-1592899677977-9c10ca58807f?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1592899677977-9c10ca58807f?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -242,8 +226,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Nouveaute',
         rating: 4.4,
         reviews: 58,
-        image:
-          'https://images.unsplash.com/photo-1529336953121-ad569cc01c33?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1529336953121-ad569cc01c33?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -254,8 +237,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Performance',
         rating: 4.8,
         reviews: 65,
-        image:
-          'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -266,8 +248,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Value',
         rating: 4.3,
         reviews: 41,
-        image:
-          'https://images.unsplash.com/photo-1526401485004-46910ecc8e51?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1526401485004-46910ecc8e51?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
     ],
@@ -287,8 +268,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Power delivery',
         rating: 4.8,
         reviews: 93,
-        image:
-          'https://images.unsplash.com/photo-1580894908361-967195033215?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1580894908361-967195033215?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -299,8 +279,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Creator',
         rating: 4.7,
         reviews: 57,
-        image:
-          'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -311,8 +290,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Apple',
         rating: 4.9,
         reviews: 201,
-        image:
-          'https://images.unsplash.com/photo-1588422333078-6885f4962855?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1588422333078-6885f4962855?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -323,8 +301,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Audio',
         rating: 4.8,
         reviews: 146,
-        image:
-          'https://images.unsplash.com/photo-1465145498025-928c7c83d69b?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1465145498025-928c7c83d69b?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -335,8 +312,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Desk setup',
         rating: 4.6,
         reviews: 44,
-        image:
-          'https://images.unsplash.com/photo-1618005198919-d3d4b5a92eee?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92eee?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
       {
@@ -347,8 +323,7 @@ export const productShelves: ProductShelf[] = [
         badge: 'Lifestyle',
         rating: 4.7,
         reviews: 32,
-        image:
-          'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=640&q=80',
+        image: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=640&q=80',
         href: '#',
       },
     ],
@@ -368,24 +343,21 @@ export const spotlights: Spotlight[] = [
     id: 'tecno',
     title: 'Univers Tecno Phantom',
     description: 'Decouvrez nos exclusivites Phantom Ultimate avec livraison premium et accessoires offerts.',
-    image:
-      'https://images.unsplash.com/photo-1609250291996-0a5f7f0cc761?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1609250291996-0a5f7f0cc761?auto=format&fit=crop&w=800&q=80',
     href: '#',
   },
   {
     id: 'infinix',
     title: 'Infinix Gaming Lab',
     description: 'Zero Ultra, GT 20 Pro et accessoires e-sport selectionnes par nos coaches.',
-    image:
-      'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&w=800&q=80',
     href: '#',
   },
   {
     id: 'samsung',
     title: 'Experience Galaxy',
     description: 'Essayez nos foldables en boutique et beneficiez de la configuration Smart Switch incluse.',
-    image:
-      'https://images.unsplash.com/photo-1595233451831-2c1b3c4d7e90?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1595233451831-2c1b3c4d7e90?auto=format&fit=crop&w=800&q=80',
     href: '#',
   },
 ] as const;
@@ -393,16 +365,14 @@ export const spotlights: Spotlight[] = [
 export const voteContestCard = {
   tag: 'Vote & gagne',
   title: 'Concours AfricaPhone Awards',
-  description:
-    'Soutenez votre journaliste tech prefere et tentez de gagner un smartphone offert par AfricaPhone.',
+  description: 'Soutenez votre journaliste tech prefere et tentez de gagner un smartphone offert par AfricaPhone.',
   bullets: [
     'Votes en temps reel, resultat publie chaque semaine',
     'Recevez un bon d achat si votre candidate arrive dans le top 3',
     'Partagez votre vote et doublez vos chances au tirage final',
   ],
   cta: { label: 'Voter maintenant', href: '#vote' },
-  image:
-    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80',
+  image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80',
 } as const;
 
 export const predictionCard = {
@@ -416,8 +386,7 @@ export const predictionCard = {
     'Partage ton pronostic WhatsApp pour debloquer un cadeau mystere',
   ],
   cta: { label: 'Tenter ma chance', href: '#pronostic' },
-  image:
-    'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+  image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
 } as const;
 
 export type ServiceHighlight = {

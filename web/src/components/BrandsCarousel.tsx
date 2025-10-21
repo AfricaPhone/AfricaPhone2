@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db } from "@/lib/firebaseClient";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebaseClient';
 
 export type BrandItem = {
   id: string;
@@ -21,9 +21,9 @@ type BrandsCarouselProps = {
   activeBrandId?: string | null;
 };
 
-const SCROLL_CLASSNAME = "brand-strip-scroll";
+const SCROLL_CLASSNAME = 'brand-strip-scroll';
 const FALLBACK_LOGO_DATA_URL =
-  "data:image/svg+xml;charset=UTF-8," +
+  'data:image/svg+xml;charset=UTF-8,' +
   encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="#f1f5f9"/><text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#1f2937">AP</text></svg>`
   );
@@ -41,8 +41,8 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
       setLoading(true);
       setError(null);
       try {
-        const brandsCollection = collection(db, "brands");
-        const brandsQuery = query(brandsCollection, orderBy("sortOrder", "asc"));
+        const brandsCollection = collection(db, 'brands');
+        const brandsQuery = query(brandsCollection, orderBy('sortOrder', 'asc'));
         const snapshot = await getDocs(brandsQuery);
 
         if (!isMounted) {
@@ -52,8 +52,8 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
         const mapped = snapshot.docs
           .map(doc => {
             const data = doc.data() ?? {};
-            const name = typeof data.name === "string" ? data.name.trim() : null;
-            const logoUrl = typeof data.logoUrl === "string" ? data.logoUrl.trim() : null;
+            const name = typeof data.name === 'string' ? data.name.trim() : null;
+            const logoUrl = typeof data.logoUrl === 'string' ? data.logoUrl.trim() : null;
             if (!name || !logoUrl) {
               return null;
             }
@@ -63,19 +63,19 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
               name,
               logoUrl,
             };
-            if (typeof data.sortOrder === "number") {
+            if (typeof data.sortOrder === 'number') {
               brand.sortOrder = data.sortOrder;
             }
-            if (typeof data.filterValue === "string") {
+            if (typeof data.filterValue === 'string') {
               brand.filterValue = data.filterValue.trim();
             }
-            if (typeof data.heroImage === "string") {
+            if (typeof data.heroImage === 'string') {
               brand.heroImage = data.heroImage.trim();
             }
-            if (typeof data.description === "string") {
+            if (typeof data.description === 'string') {
               brand.description = data.description.trim();
             }
-            if (typeof data.tagline === "string") {
+            if (typeof data.tagline === 'string') {
               brand.tagline = data.tagline.trim();
             }
             return brand;
@@ -84,9 +84,9 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
 
         setBrands(mapped);
       } catch (fetchError) {
-        console.error("BrandsCarousel: unable to load brands", fetchError);
+        console.error('BrandsCarousel: unable to load brands', fetchError);
         if (isMounted) {
-          setError("Impossible de charger les marques pour le moment.");
+          setError('Impossible de charger les marques pour le moment.');
         }
       } finally {
         if (isMounted) {
@@ -182,7 +182,9 @@ function BrandLogoButton({ brand, isActive, onSelect }: BrandLogoButtonProps) {
     >
       <span
         className={`relative h-14 w-14 overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${
-          isActive ? "-translate-y-1 ring-2 ring-orange-400 ring-offset-2 ring-offset-slate-100" : "hover:-translate-y-1"
+          isActive
+            ? '-translate-y-1 ring-2 ring-orange-400 ring-offset-2 ring-offset-slate-100'
+            : 'hover:-translate-y-1'
         }`}
       >
         <Image

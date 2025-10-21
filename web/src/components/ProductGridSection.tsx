@@ -85,10 +85,7 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
           .map(url => url.trim())
       : [];
 
-  const primaryImage =
-    imageCandidates[0] ??
-    safeString(data.imageUrl) ??
-    FALLBACK_IMAGE_DATA_URL;
+  const primaryImage = imageCandidates[0] ?? safeString(data.imageUrl) ?? FALLBACK_IMAGE_DATA_URL;
 
   const taglineParts: string[] = [];
   const brand = safeString(data.brand);
@@ -120,8 +117,8 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
     typeof data.ordreVedette === 'number'
       ? data.ordreVedette
       : typeof data.ordreVedette === 'string'
-      ? Number(data.ordreVedette)
-      : 0;
+        ? Number(data.ordreVedette)
+        : 0;
   const ordreVedette = Number.isFinite(rawOrdreVedette) ? rawOrdreVedette : 0;
 
   const badge = data.enPromotion === true ? 'Promo' : ordreVedette > 0 ? 'Vedette' : undefined;
@@ -185,9 +182,7 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
 };
 
 const getFallbackProducts = (brandId?: string | null): ProductCardData[] => {
-  const source = brandId
-    ? allProducts.filter(product => product.brandId === brandId)
-    : allProducts;
+  const source = brandId ? allProducts.filter(product => product.brandId === brandId) : allProducts;
   const sliced = source.slice(0, PAGE_SIZE).map(mapSummaryToProduct);
   return sortProducts(dedupeProducts(sliced));
 };
@@ -199,9 +194,10 @@ type ProductGridSectionProps = {
   enableStaticFallbacks?: boolean;
 };
 
-export default function ProductGridSection(
-  { selectedBrand = null, enableStaticFallbacks = true }: ProductGridSectionProps = {}
-) {
+export default function ProductGridSection({
+  selectedBrand = null,
+  enableStaticFallbacks = true,
+}: ProductGridSectionProps = {}) {
   const [products, setProducts] = useState<ProductCardData[]>(() => {
     if (!selectedBrand && enableStaticFallbacks) {
       return STATIC_FALLBACK_PRODUCTS;
@@ -262,11 +258,8 @@ export default function ProductGridSection(
         const docs = snapshot.docs;
         const hasMorePage = docs.length === REQUEST_PAGE_SIZE;
         const visibleDocs = hasMorePage ? docs.slice(0, PAGE_SIZE) : docs;
-        const mapped = visibleDocs
-          .map(mapDocToProduct)
-          .filter((item): item is ProductCardData => item !== null);
-        const nextCursor =
-          visibleDocs.length > 0 ? visibleDocs[visibleDocs.length - 1] : cursor ? cursor : null;
+        const mapped = visibleDocs.map(mapDocToProduct).filter((item): item is ProductCardData => item !== null);
+        const nextCursor = visibleDocs.length > 0 ? visibleDocs[visibleDocs.length - 1] : cursor ? cursor : null;
 
         if (mode === 'append') {
           if (mapped.length > 0) {
@@ -325,7 +318,7 @@ export default function ProductGridSection(
           setLoading(false);
         }
       }
-  },
+    },
     [brandFallbackId, brandFilterValue, enableStaticFallbacks]
   );
 
