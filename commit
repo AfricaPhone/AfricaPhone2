@@ -111,4 +111,33 @@ Installer: winget install --id GitHub.cli -e
 Login: gh auth login
 Créer et pousser d’un coup: gh repo create <toi>/<repo> --private --source . --remote origin --push
 22
- à
+ 
+
+
+
+
+
+
+
+
+
+Pour raccorder ton domaine africaphone.org (acheté chez Numecheat/Namecheap) à Firebase Hosting, suis ces étapes :
+
+Ajouter le domaine dans Firebase
+
+Va sur la console Firebase → Projet africaphone-vente → rubrique Hosting.
+Clique sur Ajouter un domaine personnalisé, saisis africaphone.org (et, si tu veux, www.africaphone.org dans la foulée).
+Firebase génère alors des enregistrements DNS (type TXT pour la vérification, puis A et éventuellement AAAA/CNAME). A pour africaphone.org → 199.36.158.100;TXT pour africaphone.org → hosting-site=africaphone-org.
+Créer les entrées DNS chez Numecheat
+
+Connecte-toi à ton registrar, ouvre la gestion DNS du domaine.
+Ajoute d’abord l’enregistrement TXT de vérification que Firebase t’a fourni. Attends quelques minutes, puis clique sur Vérifier dans la console Firebase.
+Une fois vérifié, ajoute les enregistrements A (et AAAA si fournis) qui pointent vers les IP de Firebase. Si tu configures aussi www, il faudra créer un CNAME www → africaphone.org.
+Propagation et HTTPS
+
+La propagation DNS peut prendre 15 min à plusieurs heures. Tu peux vérifier avec nslookup/dig ou via le tableau de bord Firebase (état « propagation en cours »).
+Dès que les enregistrements sont actifs, Firebase utilisera automatiquement un certificat SSL Let’s Encrypt pour le domaine. Attends que le statut passe à « Actif ».
+Redirection (facultatif)
+
+Si tu veux forcer www vers la racine (ou l’inverse), configure la redirection dans l’onglet Domaine personnalisé de Firebase Hosting.
+Une fois ces étapes terminées et la propagation terminée, https://africaphone.org (et www.africaphone.org si ajouté) pointeront sur ton site Firebase Hosting.

@@ -145,8 +145,20 @@ const dedupeProducts = (products: ProductCardData[]): ProductCardData[] => {
   });
 };
 
-const sortProducts = (items: ProductCardData[]): ProductCardData[] => {
-  return [...items].sort((a, b) => {
+const sortProducts = (items: ProductCardData[], mode: 'default' | 'brand' = 'default'): ProductCardData[] => {
+  const list = [...items];
+  if (mode === 'brand') {
+    return list.sort((a, b) => {
+      const priceA = typeof a.price === 'number' && Number.isFinite(a.price) ? a.price : Number.POSITIVE_INFINITY;
+      const priceB = typeof b.price === 'number' && Number.isFinite(b.price) ? b.price : Number.POSITIVE_INFINITY;
+      if (priceA !== priceB) {
+        return priceA - priceB;
+      }
+      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' });
+    });
+  }
+
+  return list.sort((a, b) => {
     const vedetteA = a.ordreVedette ?? 0;
     const vedetteB = b.ordreVedette ?? 0;
     if (vedetteA !== vedetteB) {
@@ -184,7 +196,8 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
 const getFallbackProducts = (brandId?: string | null): ProductCardData[] => {
   const source = brandId ? allProducts.filter(product => product.brandId === brandId) : allProducts;
   const sliced = source.slice(0, PAGE_SIZE).map(mapSummaryToProduct);
-  return sortProducts(dedupeProducts(sliced));
+  const sortMode: 'default' | 'brand' = brandId ? 'brand' : 'default';
+  return sortProducts(dedupeProducts(sliced), sortMode);
 };
 
 const STATIC_FALLBACK_PRODUCTS = getFallbackProducts();
@@ -198,6 +211,7 @@ export default function ProductGridSection({
   selectedBrand = null,
   enableStaticFallbacks = true,
 }: ProductGridSectionProps = {}) {
+  const sortMode: 'default' | 'brand' = selectedBrand ? 'brand' : 'default';
   const [products, setProducts] = useState<ProductCardData[]>(() => {
     if (!selectedBrand && enableStaticFallbacks) {
       return STATIC_FALLBACK_PRODUCTS;
@@ -263,7 +277,7 @@ export default function ProductGridSection({
 
         if (mode === 'append') {
           if (mapped.length > 0) {
-            setProducts(prev => sortProducts(dedupeProducts([...prev, ...mapped])));
+            setProducts(prev => sortProducts(dedupeProducts([...prev, ...mapped]), sortMode));
             setLastDoc(nextCursor);
             setHasMore(hasMorePage);
           } else {
@@ -287,7 +301,7 @@ export default function ProductGridSection({
             setHasMore(false);
             setLastDoc(null);
           } else {
-            setProducts(sortProducts(dedupeProducts(mapped)));
+            setProducts(sortProducts(dedupeProducts(mapped), sortMode));
             setLastDoc(nextCursor);
             setHasMore(hasMorePage);
             setError(null);
@@ -319,7 +333,7 @@ export default function ProductGridSection({
         }
       }
     },
-    [brandFallbackId, brandFilterValue, enableStaticFallbacks]
+    [brandFallbackId, brandFilterValue, enableStaticFallbacks, sortMode]
   );
 
   useEffect(() => {
