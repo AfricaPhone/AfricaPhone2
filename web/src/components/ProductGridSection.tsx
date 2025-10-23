@@ -7,12 +7,15 @@ import { allProducts, type ProductSummary } from '@/data/home';
 import {
   collection,
   DocumentData,
+  endAt,
   getDocs,
   limit,
+  orderBy,
   query,
   QueryDocumentSnapshot,
   QueryConstraint,
   startAfter,
+  startAt,
   where,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
@@ -168,6 +171,34 @@ const sortProducts = (items: ProductCardData[], mode: 'default' | 'brand' = 'def
   });
 };
 
+const normalizeText = (value: string): string =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+const filterProductsBySearchTerm = (items: ProductCardData[], term: string): ProductCardData[] => {
+  const trimmed = term.trim();
+  if (trimmed.length === 0) {
+    return items;
+  }
+  const normalizedTerm = normalizeText(trimmed);
+  return items.filter(item => {
+    const candidates = [item.name, item.tagline, item.badge ?? ''];
+    return candidates.some(candidate => normalizeText(candidate).includes(normalizedTerm));
+  });
+};
+
+const getSearchRangeEnd = (value: string): string | null => {
+  if (value.length === 0) {
+    return null;
+  }
+  const lastCharIndex = value.length - 1;
+  const lastChar = value.charCodeAt(lastCharIndex);
+  const nextChar = String.fromCharCode(lastChar + 1);
+  return `${value.slice(0, lastCharIndex)}${nextChar}`;
+};
+
 const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
   const digitsOnly = product.price.replace(/\D+/g, '');
   const price = digitsOnly ? Number(digitsOnly) : null;
@@ -205,13 +236,17 @@ const STATIC_FALLBACK_PRODUCTS = getFallbackProducts();
 type ProductGridSectionProps = {
   selectedBrand?: { id: string; name: string; filterValue?: string | null } | null;
   enableStaticFallbacks?: boolean;
+  searchQuery?: string | null;
 };
 
 export default function ProductGridSection({
   selectedBrand = null,
   enableStaticFallbacks = true,
+  searchQuery = '',
 }: ProductGridSectionProps = {}) {
   const sortMode: 'default' | 'brand' = selectedBrand ? 'brand' : 'default';
+  const trimmedSearchTerm = searchQuery?.trim() ?? '';
+  const searchRangeEnd = useMemo(() => getSearchRangeEnd(trimmedSearchTerm), [trimmedSearchTerm]);
   const [products, setProducts] = useState<ProductCardData[]>(() => {
     if (!selectedBrand && enableStaticFallbacks) {
       return STATIC_FALLBACK_PRODUCTS;
@@ -233,7 +268,9 @@ export default function ProductGridSection({
 
   useEffect(() => {
     setLoading(true);
-    if (brandFallbackId) {
+    if (trimmedSearchTerm.length > 0) {
+      setProducts([]);
+    } else if (brandFallbackId) {
       setProducts(enableStaticFallbacks ? getFallbackProducts(brandFallbackId) : []);
     } else if (enableStaticFallbacks) {
       setProducts(STATIC_FALLBACK_PRODUCTS);
@@ -244,7 +281,7 @@ export default function ProductGridSection({
     setLastDoc(null);
     setError(null);
     setPaginationError(null);
-  }, [brandFallbackId, enableStaticFallbacks]);
+  }, [brandFallbackId, enableStaticFallbacks, trimmedSearchTerm]);
 
   const loadProducts = useCallback(
     async (cursor: QueryDocumentSnapshot<DocumentData> | null, mode: 'replace' | 'append' = 'replace') => {
@@ -263,7 +300,17 @@ export default function ProductGridSection({
         if (brandFilterValue) {
           constraints.push(where('brand', '==', brandFilterValue));
         }
-        if (cursor) {
+        if (trimmedSearchTerm.length > 0) {
+          constraints.push(orderBy('name'));
+          if (cursor) {
+            constraints.push(startAfter(cursor));
+          } else {
+            constraints.push(startAt(trimmedSearchTerm));
+          }
+          if (searchRangeEnd) {
+            constraints.push(endAt(searchRangeEnd));
+          }
+        } else if (cursor) {
           constraints.push(startAfter(cursor));
         }
         constraints.push(limit(REQUEST_PAGE_SIZE));
@@ -289,15 +336,10 @@ export default function ProductGridSection({
             if (enableStaticFallbacks) {
               const fallback = getFallbackProducts(brandFallbackId);
               setProducts(fallback);
-              if (fallback.length === 0) {
-                setError('Aucun produit disponible pour cette selection.');
-              } else {
-                setError(null);
-              }
             } else {
               setProducts([]);
-              setError(null);
             }
+            setError(null);
             setHasMore(false);
             setLastDoc(null);
           } else {
@@ -318,22 +360,30 @@ export default function ProductGridSection({
           setProducts(fallback);
           setHasMore(false);
           setLastDoc(null);
+          const fetchErrorMessage =
+            trimmedSearchTerm.length > 0
+              ? 'Impossible de charger les resultats pour cette recherche pour le moment.'
+              : 'Impossible de charger les produits pour le moment.';
           if (!brandFallbackId) {
-            setError('Impossible de charger les produits pour le moment.');
+            setError(fetchErrorMessage);
           } else {
-            setError(null);
+            setError(trimmedSearchTerm.length > 0 ? fetchErrorMessage : null);
           }
           setLoading(false);
         } else {
           setProducts([]);
           setHasMore(false);
           setLastDoc(null);
-          setError('Impossible de charger les produits pour le moment.');
+          setError(
+            trimmedSearchTerm.length > 0
+              ? 'Impossible de charger les resultats pour cette recherche pour le moment.'
+              : 'Impossible de charger les produits pour le moment.'
+          );
           setLoading(false);
         }
       }
     },
-    [brandFallbackId, brandFilterValue, enableStaticFallbacks, sortMode]
+    [brandFallbackId, brandFilterValue, enableStaticFallbacks, searchRangeEnd, sortMode, trimmedSearchTerm]
   );
 
   useEffect(() => {
@@ -351,12 +401,34 @@ export default function ProductGridSection({
     void loadProducts(lastDoc, 'append');
   }, [hasMore, lastDoc, loadProducts, loadingMore]);
 
+  const filteredProducts = useMemo(
+    () => filterProductsBySearchTerm(products, trimmedSearchTerm),
+    [products, trimmedSearchTerm]
+  );
+
+  const emptyStateTitle = useMemo(() => {
+    if (trimmedSearchTerm.length > 0) {
+      return `Aucun produit ne correspond a la recherche "${trimmedSearchTerm}".`;
+    }
+    if (selectedBrand) {
+      return `Aucun produit ${selectedBrand.name} disponible pour le moment.`;
+    }
+    return 'Aucun produit disponible pour le moment.';
+  }, [selectedBrand, trimmedSearchTerm]);
+
+  const emptyStateDescription = useMemo(() => {
+    if (trimmedSearchTerm.length > 0) {
+      return 'Essayez un autre terme ou contactez-nous pour une recherche personnalisee.';
+    }
+    return 'Revenez bientot ou contactez-nous pour une selection personnalisee.';
+  }, [trimmedSearchTerm]);
+
   const content = useMemo(() => {
     if (loading) {
       return Array.from({ length: 8 }).map((_, index) => <ProductCardSkeleton key={`skeleton-${index}`} />);
     }
 
-    let cards = products.map(product => <ProductCard key={product.id} product={product} />);
+    let cards = filteredProducts.map(product => <ProductCard key={product.id} product={product} />);
 
     if (error) {
       const errorCard = (
@@ -387,13 +459,10 @@ export default function ProductGridSection({
 
       cards = cards.length > 0 ? [errorCard, ...cards] : [errorCard];
     } else if (cards.length === 0) {
-      const noProductTitle = selectedBrand
-        ? `Aucun produit ${selectedBrand.name} disponible pour le moment.`
-        : 'Aucun produit disponible pour le moment.';
       return (
         <div className="col-span-full flex flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-slate-50/80 px-6 py-16 text-center">
-          <p className="text-base font-semibold text-slate-900">{noProductTitle}</p>
-          <p className="text-sm text-slate-500">Revenez bientot ou contactez-nous pour une selection personnalisee.</p>
+          <p className="text-base font-semibold text-slate-900">{emptyStateTitle}</p>
+          <p className="text-sm text-slate-500">{emptyStateDescription}</p>
         </div>
       );
     }
@@ -406,7 +475,7 @@ export default function ProductGridSection({
     }
 
     return cards;
-  }, [error, handleRetry, loading, loadingMore, products, selectedBrand]);
+  }, [emptyStateDescription, emptyStateTitle, error, filteredProducts, handleRetry, loading, loadingMore]);
 
   return (
     <section aria-labelledby="all-products" className="space-y-6">

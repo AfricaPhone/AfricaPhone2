@@ -1,5 +1,6 @@
 'use client';
 
+import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import ProductGridSection from '@/components/ProductGridSection';
@@ -7,27 +8,63 @@ import BrandsCarousel from '@/components/BrandsCarousel';
 import { footerColumns, footerLegal } from '@/data/storefront';
 
 export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchSubmit = useCallback((term: string) => {
+    setSearchQuery(term.trim());
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
-      <Header />
+      <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
         <BrandsCarousel />
-        <ProductGridSection />
+        <ProductGridSection searchQuery={searchQuery} />
       </main>
       <Footer />
     </div>
   );
 }
 
-export function Header() {
+type HeaderProps = {
+  searchQuery: string;
+  onSubmitSearch: (term: string) => void;
+};
+
+export function Header({ searchQuery, onSubmitSearch }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-white text-slate-900 shadow-sm shadow-slate-900/10">
-      <TopNav />
+      <TopNav searchQuery={searchQuery} onSubmitSearch={onSubmitSearch} />
     </header>
   );
 }
 
-function TopNav() {
+type TopNavProps = {
+  searchQuery: string;
+  onSubmitSearch: (term: string) => void;
+};
+
+export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
+  const [localQuery, setLocalQuery] = useState(searchQuery);
+
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
+  const handleSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const trimmedValue = localQuery.trim();
+      onSubmitSearch(trimmedValue);
+      setLocalQuery(trimmedValue);
+    },
+    [localQuery, onSubmitSearch]
+  );
+
+  const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setLocalQuery(event.target.value);
+  }, []);
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 lg:px-8">
       <Link
@@ -47,16 +84,25 @@ function TopNav() {
         </span>
       </Link>
 
-      <form className="order-3 w-full flex-1 min-w-[220px] sm:order-none sm:max-w-xl">
+      <form
+        className="order-3 w-full min-w-[220px] flex-1 sm:order-none sm:max-w-xl"
+        onSubmit={handleSubmit}
+        role="search"
+        aria-label="Recherche catalogue"
+      >
         <div className="flex h-11 items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-900 transition focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100">
           <input
             type="search"
             placeholder="Rechercher un produit, une marque ou un service AfricaPhone"
             className="h-full flex-1 bg-transparent px-4 text-sm outline-none placeholder:text-slate-400"
+            value={localQuery}
+            onChange={handleInputChange}
+            aria-label="Champ de recherche"
           />
           <button
             type="submit"
             className="flex h-full w-11 items-center justify-center bg-orange-500 text-white transition hover:bg-orange-600"
+            aria-label="Rechercher"
           >
             <SearchIcon className="h-5 w-5" />
           </button>

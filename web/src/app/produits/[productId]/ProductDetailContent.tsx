@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import type { DocumentData } from 'firebase/firestore';
@@ -212,7 +211,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
     const shareData = {
       title: product?.name ?? 'AfricaPhone',
-      text: product?.tagline ?? product?.name ?? 'Découvrez ce produit AfricaPhone',
+      text: product?.tagline ?? product?.name ?? 'Decouvrez ce produit AfricaPhone',
       url: urlToShare,
     };
 
@@ -245,6 +244,22 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     setShareMessage(`Copiez ce lien : ${urlToShare}`);
   }, [product?.name, product?.tagline, shareUrl]);
 
+  const orderedSpecs = useMemo(() => {
+    if (!product) {
+      return [];
+    }
+    const specs = product.specs ?? [];
+    if (specs.length === 0) {
+      return [];
+    }
+    const normalizeLabel = (label: string) => label.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const capacityIndex = specs.findIndex(spec => normalizeLabel(spec.label).includes('capac'));
+    if (capacityIndex > 0) {
+      return [specs[capacityIndex], ...specs.filter((_, index) => index !== capacityIndex)];
+    }
+    return specs.slice();
+  }, [product]);
+
   if (loading && !product) {
     return (
       <div className="mx-auto flex min-h-[60vh] w-full max-w-6xl items-center justify-center">
@@ -274,64 +289,62 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
   }
 
   const specsContent =
-    product.specs.length > 0 ? (
-      <div className="space-y-3 rounded-3xl bg-white p-4 shadow-[0_24px_44px_-28px_rgba(15,23,42,0.22)] lg:p-6">
-        {product.specs.map(spec => (
+    orderedSpecs.length > 0 ? (
+      <div className="overflow-hidden rounded-[28px] border border-[#EFF0F4] bg-white shadow-[0_12px_32px_rgba(17,17,17,0.06)]">
+        {orderedSpecs.map((spec, index) => (
           <div
             key={`${spec.label}-${spec.value}`}
-            className="flex items-start justify-between gap-4 text-sm text-slate-700"
+            className={`flex items-center justify-between px-6 py-5 text-[15px] leading-6 ${
+              index < orderedSpecs.length - 1 ? 'border-b border-[#F1F2F6]' : ''
+            }`}
           >
-            <span className="font-semibold text-slate-500">{spec.label}</span>
-            <span className="text-right font-semibold text-slate-900">{spec.value}</span>
+            <span className="text-[15px] font-medium text-[#7A7C80]">{spec.label}</span>
+            <span className="max-w-[55%] text-right text-[15px] font-semibold text-[#111111]">{spec.value}</span>
           </div>
         ))}
       </div>
     ) : (
-      <p className="rounded-2xl bg-white p-4 text-sm text-slate-500 shadow-[0_24px_44px_-28px_rgba(15,23,42,0.18)]">
+      <div className="overflow-hidden rounded-[28px] border border-[#EFF0F4] bg-white px-6 py-5 text-[15px] text-[#7A7C80] shadow-[0_12px_32px_rgba(17,17,17,0.06)]">
         Specifications a venir.
-      </p>
+      </div>
     );
 
   const descriptionContent = (
-    <div className="space-y-4 rounded-3xl bg-white p-4 shadow-[0_24px_44px_-28px_rgba(15,23,42,0.22)] lg:p-6">
-      <p className="text-sm leading-relaxed text-slate-600">{product.description}</p>
+    <div className="space-y-5 rounded-[28px] border border-[#EFF0F4] bg-white px-6 py-6 text-[15px] leading-relaxed text-[#7A7C80] shadow-[0_12px_32px_rgba(17,17,17,0.06)]">
+      <p className="text-[#111111]">{product.description}</p>
       {product.highlights.length ? (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Points forts</p>
-          <ul className="space-y-2">
-            {product.highlights.map(highlight => (
-              <li key={highlight} className="flex items-start gap-3 text-sm text-slate-600">
-                <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-700">
-                  &bull;
-                </span>
-                <span>{highlight}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className="space-y-3 text-[#7A7C80]">
+          {product.highlights.map(highlight => (
+            <li key={highlight} className="flex items-start gap-3">
+              <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#111111]" />
+              <span>{highlight}</span>
+            </li>
+          ))}
+        </ul>
       ) : null}
       {product.services.length ? (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Services inclus</p>
+        <div className="space-y-2 text-[#7A7C80]">
+          <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Services inclus</p>
           <ul className="space-y-2">
             {product.services.map(service => (
-              <li key={service.title} className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
-                <p className="text-sm font-semibold text-slate-900">{service.title}</p>
-                <p className="text-sm text-slate-500">{service.description}</p>
+              <li
+                key={service.title}
+                className="rounded-[18px] border border-[#F3F4F7] bg-[#FAFBFD] px-4 py-3 text-[14px] text-[#7A7C80]"
+              >
+                <p className="text-[15px] font-semibold text-[#111111]">{service.title}</p>
+                <p>{service.description}</p>
               </li>
             ))}
           </ul>
         </div>
       ) : null}
       {product.deliveryNotes.length ? (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Livraison & suivi</p>
-          <ul className="space-y-2 text-sm text-slate-600">
+        <div className="space-y-2 text-[#7A7C80]">
+          <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Livraison &amp; suivi</p>
+          <ul className="space-y-2">
             {product.deliveryNotes.map(note => (
               <li key={note} className="flex items-start gap-3">
-                <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-700">
-                  &bull;
-                </span>
+                <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#111111]" />
                 <span>{note}</span>
               </li>
             ))}
@@ -341,194 +354,151 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     </div>
   );
 
-  const favoriteButtonClass = isFavorite
-    ? 'inline-flex h-10 w-10 items-center justify-center rounded-full bg-rose-500 text-white shadow-sm shadow-rose-500/30 transition hover:bg-rose-600'
-    : 'inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:text-rose-500';
-
-  const shareButtonClass =
-    'inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:text-orange-500';
-
-  const actionButtons = (
-    <>
-      <button
-        type="button"
-        onClick={toggleFavorite}
-        className={favoriteButtonClass}
-        aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-        aria-pressed={isFavorite}
-      >
-        <HeartIcon className="h-4 w-4" />
-      </button>
-      <button type="button" onClick={handleShare} className={shareButtonClass} aria-label="Partager">
-        <ShareIcon className="h-4 w-4" />
-      </button>
-    </>
-  );
-
-  const whatsappCta = (
-    <a
-      href={product.whatsappLink}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-3 text-base font-semibold text-white transition hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white lg:text-sm"
-    >
-      <WhatsAppIcon className="h-5 w-5" />
-      Commander via WhatsApp
-    </a>
-  );
-
   return (
     <>
       <span className="sr-only" aria-live="polite" role="status">
         {shareMessage ?? ''}
       </span>
-      <main className="mx-auto w-full max-w-6xl px-4 pb-32 pt-6 text-slate-900 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:px-8 lg:pb-20">
-        <div className="sticky top-0 z-40 -mx-4 mb-5 flex items-center justify-between border-b border-slate-200/80 bg-slate-100/95 px-4 py-3 shadow-sm shadow-slate-900/10 backdrop-blur supports-[backdrop-filter]:bg-slate-100/80 lg:hidden">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-transparent bg-white text-slate-700 shadow-sm transition hover:border-rose-400 hover:text-rose-500"
-          >
-            <ArrowLeftIcon className="h-4 w-4" />
-          </button>
-          <p className="mx-4 flex-1 truncate text-center text-sm font-semibold text-slate-900">{product.name}</p>
-          <div className="flex items-center gap-2">{actionButtons}</div>
-        </div>
-
-        <nav className="hidden items-center gap-2 text-xs font-medium text-slate-500 lg:col-span-2 lg:flex">
-          <Link href="/" className="transition hover:text-rose-500">
-            Accueil
-          </Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/#catalogue" className="transition hover:text-rose-500">
-            Catalogue
-          </Link>
-          <span aria-hidden="true">/</span>
-          <span className="text-slate-700">{product.name}</span>
-        </nav>
-
-        <div className="mt-4 flex flex-col gap-4 lg:mt-0">
-          <div className="relative aspect-[3/4] w-full max-h-[60vh] overflow-hidden rounded-[22px] bg-white shadow-[0_28px_48px_-22px_rgba(15,23,42,0.35)] sm:max-h-[70vh] lg:aspect-[4/5] lg:max-h-[55vh]">
-            <Image
-              src={activeImage}
-              alt={product.name}
-              fill
-              sizes="(max-width: 1024px) 90vw, 45vw"
-              className="object-cover"
-              priority
-            />
-            {product.badge ? (
-              <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-600 shadow">
-                {product.badge}
-              </span>
-            ) : null}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/80 to-transparent lg:hidden" />
-          </div>
-          {product.gallery.length > 1 ? (
-            <div className="flex gap-3 overflow-x-auto pb-2 lg:pb-0">
-              {product.gallery.map((imageUrl, index) => (
-                <button
-                  key={`${imageUrl}-${index}`}
-                  type="button"
-                  onClick={() => setSelectedImage(index)}
-                  className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 ${
-                    selectedImage === index ? 'border-rose-500' : 'border-transparent'
-                  }`}
-                >
-                  <Image
-                    src={imageUrl}
-                    alt={`${product.name} - vignette ${index + 1}`}
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
-
-        <aside className="mt-6 flex flex-col gap-6 lg:mt-0">
-          <header className="space-y-4 rounded-[22px] bg-white p-5 shadow-[0_32px_56px_-28px_rgba(15,23,42,0.35)]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-rose-500">Disponible</p>
-                <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">{product.name}</h1>
-              </div>
-              <div className="hidden items-center gap-2 lg:flex">{actionButtons}</div>
-            </div>
-            <p className="text-sm text-slate-500">{product.tagline}</p>
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-2xl font-semibold text-slate-900 sm:text-3xl">{product.formattedPrice}</p>
-                {product.oldPriceLabel ? (
-                  <p className="text-sm text-slate-400 line-through">{product.oldPriceLabel}</p>
-                ) : null}
-                {product.savingsLabel ? (
-                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
-                    {product.savingsLabel}
-                  </p>
-                ) : null}
-              </div>
+      <main className="flex w-full justify-center bg-[#FFFFFF] pb-[108px] lg:pb-12">
+        <div className="flex min-h-screen w-full max-w-[540px] flex-col bg-[#FFFFFF] text-[#111111]">
+          <header className="flex h-[68px] items-center justify-between px-6 sm:h-[82px]">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              aria-label="Retour"
+              className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border border-[#1111111a] text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-14 sm:w-14"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </button>
+            <h1 className="text-[20px] font-semibold leading-[22px] text-[#111111] sm:text-[21px]">{product.name}</h1>
+            <div className="flex items-center gap-[14px]">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow"
+                onClick={toggleFavorite}
+                aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                aria-pressed={isFavorite}
+                className={`inline-flex h-[46px] w-[46px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[51px] sm:w-[51px] ${
+                  isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
+                }`}
               >
-                <TagIcon className="h-4 w-4" />
-                Code Promo
+                <HeartIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleShare}
+                aria-label="Partager"
+                className="inline-flex h-[50px] w-[50px] items-center justify-center rounded-full border border-[#111111] bg-white text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-[59px] sm:w-[59px]"
+              >
+                <ShareIcon className="h-5 w-5" />
               </button>
             </div>
           </header>
 
-          <div className="rounded-[22px] bg-white p-4 shadow-[0_28px_48px_-28px_rgba(15,23,42,0.28)] lg:p-6">
-            <nav className="flex border-b border-slate-200">
-              {[
-                { id: 'specs', label: 'Specifications' },
-                { id: 'description', label: 'Description' },
-              ].map(tab => (
+          <section className="relative w-full overflow-hidden aspect-[540/542] max-h-[520px]">
+            <Image
+              src={activeImage}
+              alt={product.name}
+              fill
+              sizes="540px"
+              className="object-cover object-center"
+              priority
+            />
+          </section>
+
+          <div className="flex flex-1 flex-col px-6 pb-12">
+            <div className="mt-[clamp(28px,10vw,65px)] flex items-start justify-between">
+              <div>
+                <p className="text-[24px] font-bold leading-[24px] tracking-[-0.3px] text-[#111111]">
+                  {product.formattedPrice}
+                </p>
+                {product.oldPriceLabel ? (
+                  <span className="mt-3 inline-block text-[12px] font-semibold text-[#929497] line-through decoration-[#929497] decoration-2">
+                    {product.oldPriceLabel}
+                  </span>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                className="inline-flex h-[52px] w-[172px] items-center justify-center gap-3 rounded-[30px] bg-[#111111] text-white transition hover:bg-[#2c2c2c] sm:h-[59px] sm:w-[186px]"
+              >
+                <span className="flex h-6 w-6 items-center justify-center">
+                  <GiftIcon className="h-5 w-5 text-white" />
+                </span>
+                <span className="text-[16px] font-semibold leading-none">Code Promo</span>
+              </button>
+            </div>
+
+            <div className="mt-6 h-px w-full bg-[#ECEDEF]" />
+
+            <div className="mt-8">
+              <div className="flex items-center justify-between">
                 <button
-                  key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id as 'specs' | 'description')}
-                  className={`relative px-3 pb-3 text-sm font-semibold transition ${
-                    activeTab === tab.id ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
+                  onClick={() => setActiveTab('specs')}
+                  className={`text-[16px] font-semibold ${
+                    activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
                   }`}
                 >
-                  {tab.label}
-                  {activeTab === tab.id ? <span className="absolute inset-x-0 -bottom-0.5 h-0.5 bg-slate-900" /> : null}
+                  Specifications
                 </button>
-              ))}
-            </nav>
-            <div className="mt-4">{activeTab === 'specs' ? specsContent : descriptionContent}</div>
-          </div>
-
-          <div className="hidden rounded-[22px] bg-slate-900 p-5 text-white shadow-[0_32px_56px_-28px_rgba(16,185,129,0.45)] lg:block">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">Conseiller AfricaPhone</p>
-              <p className="text-lg font-bold">Besoin d aide ?</p>
-              <p className="text-sm text-slate-200">
-                Contactez-nous pour reserver, verifier le stock ou obtenir un paiement a distance.
-              </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('description')}
+                  className={`text-[16px] font-semibold ${
+                    activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                  }`}
+                >
+                  Description
+                </button>
+              </div>
+              <div className="relative mt-4 h-[2px] w-full bg-[#ECEDEF]">
+                <span
+                  className="absolute top-0 h-[2px] w-[245px] bg-[#111111] transition-all duration-200"
+                  style={{ left: activeTab === 'specs' ? '0' : 'calc(100% - 245px)' }}
+                />
+              </div>
             </div>
-            <div className="mt-4 flex flex-col gap-3">
-              {whatsappCta}
-              <p className="text-xs text-slate-300">
-                Numero direct{' '}
-                <a href="tel:+2290154151522" className="font-semibold text-white underline">
-                  01 54 15 15 22
-                </a>
-              </p>
-            </div>
-          </div>
 
-          {error ? (
-            <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">{error}</p>
-          ) : null}
-        </aside>
+            <div className="mt-9">{activeTab === 'specs' ? specsContent : descriptionContent}</div>
+
+            {error ? (
+              <p className="mt-6 rounded-[24px] bg-[#FFF6E6] px-4 py-4 text-[14px] font-medium text-[#C05621]">
+                {error}
+              </p>
+            ) : null}
+
+            <a
+              href={product.whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-12 hidden h-[68px] items-center gap-3 rounded-[34px] bg-[#26D367] px-5 text-white shadow-[0_16px_26px_rgba(38,211,103,0.28)] transition hover:bg-[#1fb358] lg:flex"
+            >
+              <span className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-white">
+                <WhatsAppGlyph className="h-5 w-5 text-[#26D367]" />
+              </span>
+              <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
+                Commander via WhatsApp
+              </span>
+            </a>
+          </div>
+        </div>
       </main>
-
-      <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-6xl bg-white/95 px-4 pb-4 pt-3 shadow-[0_-18px_28px_-22px_rgba(15,23,42,0.18)] backdrop-blur lg:hidden">
-        {whatsappCta}
+      <div className="fixed inset-x-0 bottom-0 z-30 flex justify-center bg-[#FFFFFFF2] pb-[calc(env(safe-area-inset-bottom,0)+16px)] pt-3 shadow-[0_-18px_28px_-16px_rgba(17,17,17,0.18)] backdrop-blur lg:hidden">
+        <div className="w-full max-w-[540px] px-6">
+          <a
+            href={product.whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-[68px] items-center gap-3 rounded-[34px] bg-[#26D367] px-5 text-white shadow-[0_16px_26px_rgba(38,211,103,0.28)] transition hover:bg-[#1fb358]"
+          >
+            <span className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-white">
+              <WhatsAppGlyph className="h-5 w-5 text-[#26D367]" />
+            </span>
+            <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
+              Commander via WhatsApp
+            </span>
+          </a>
+        </div>
       </div>
     </>
   );
@@ -762,18 +732,26 @@ function buildWhatsappLink({ name, priceLabel }: { name: string; priceLabel: str
   return `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${encoded}`;
 }
 
-function WhatsAppIcon({ className }: { className?: string }) {
+function WhatsAppGlyph({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
       <path
-        d="M12.04 2.75c-5.16 0-9.34 4.12-9.34 9.2 0 1.62.43 3.14 1.19 4.46L2 22l5.81-1.53a9.42 9.42 0 0 0 4.23 1c5.16 0 9.34-4.12 9.34-9.2s-4.18-9.52-9.34-9.52Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M12 2C6.46 2 2 6.22 2 11.56c0 1.77.5 3.43 1.36 4.86L2 22l5.39-1.39c1.45.8 3.09 1.23 4.61 1.23 5.54 0 10-4.22 10-9.56S17.54 2 12 2Z"
+        fill="currentColor"
       />
       <path
-        d="M9.2 8.88c-.16-.36-.34-.37-.5-.38-.13-.01-.28-.01-.42-.01-.15 0-.4.05-.61.28-.21.23-.81.79-.81 1.92 0 1.13.83 2.23.95 2.39.12.16 1.62 2.58 4 3.51 1.98.71 2.38.57 2.81.54.43-.03 1.38-.56 1.58-1.1.2-.54.2-1 .14-1.1-.06-.1-.22-.16-.46-.28-.24-.12-1.38-.67-1.6-.75-.22-.08-.37-.12-.53.12-.16.24-.62.75-.76.9-.14.15-.28.17-.52.05-.24-.12-1.02-.37-1.95-1.17-.72-.63-1.2-1.4-1.34-1.64-.14-.24-.02-.37.1-.49.1-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.52-1.29-.74-1.77Z"
+        d="M16.04 14.59c-.2-.11-1.15-.62-1.33-.69-.18-.07-.31-.11-.44.11-.13.21-.5.69-.61.83-.11.13-.21.15-.4.06-.19-.1-.8-.3-1.51-.92-.56-.5-.93-1.09-1.04-1.28-.11-.19-.01-.3.09-.41.09-.09.21-.22.31-.33.1-.11.13-.18.19-.3.06-.12.02-.23-.02-.33-.05-.1-.37-.92-.5-1.26-.13-.32-.26-.28-.37-.29-.09-.01-.22-.01-.33-.01-.11 0-.3.04-.46.22-.16.18-.6.59-.6 1.43 0 .84.62 1.65.71 1.77.09.12 1.26 2 3.11 2.72.78.29 1.31.47 1.78.3.27-.11.86-.43.98-.85.11-.42.11-.77.08-.85-.04-.08-.16-.14-.34-.23Z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+}
+
+function GiftIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M20 8.75h-3.19c.38-.58.59-1.24.59-1.95A2.81 2.81 0 0 0 14.61 4c-1.26 0-2.36.79-2.61 2.06C11.75 4.79 10.65 4 9.39 4A2.81 2.81 0 0 0 6.6 6.8c0 .71.21 1.37.59 1.95H4a1.25 1.25 0 0 0-1.25 1.25v2c0 .69.56 1.25 1.25 1.25h.75v6.5A2.25 2.25 0 0 0 7 21.75h10a2.25 2.25 0 0 0 2.25-2.25v-6.5h.75A1.25 1.25 0 0 0 21.25 12v-2a1.25 1.25 0 0 0-1.25-1.25Zm-5.39-2.5c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-2.61c.26-1.52 1.16-2.5 2.61-2.5Zm-7.72 1.25c0-.69.56-1.25 1.25-1.25 1.45 0 2.35.98 2.61 2.5H8.14c-.69 0-1.25-.56-1.25-1.25ZM7.25 20.5a1.25 1.25 0 0 1-1.25-1.25v-6.5h5v7.75H7.25Zm11 0h-4.75v-7.75h5v6.5a1.25 1.25 0 0 1-1.25 1.25Zm2-9.25H4v-2h16v2Z"
         fill="currentColor"
       />
     </svg>
@@ -833,21 +811,6 @@ function ShareIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </svg>
-  );
-}
-
-function TagIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="M11.17 3.08 4.6 3.1c-.83 0-1.5.67-1.5 1.5v6.55c0 .4.16.78.44 1.06l4.76 4.76c.59.59 1.56.59 2.16 0l6.55-6.55c.59-.59.59-1.56 0-2.16l-4.76-4.76a1.5 1.5 0 0 0-1.07-.44Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M7.5 8a1.25 1.25 0 1 0 0-2.5A1.25 1.25 0 0 0 7.5 8Z" fill="currentColor" />
     </svg>
   );
 }
