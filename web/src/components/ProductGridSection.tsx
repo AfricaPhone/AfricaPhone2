@@ -21,6 +21,8 @@ import {
 import { db } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
+type SegmentKey = 'Populaires' | 'tablette' | 'portable a touche' | 'accessoire';
+
 type ProductCardData = {
   id: string;
   name: string;
@@ -29,6 +31,8 @@ type ProductCardData = {
   tagline: string;
   badge?: string;
   ordreVedette?: number;
+  categoryKey: SegmentKey | null;
+  segmentKey: SegmentKey | null;
 };
 
 type FirestoreProductPayload = {
@@ -44,6 +48,10 @@ type FirestoreProductPayload = {
   ram_extension?: unknown;
   enPromotion?: unknown;
   ordreVedette?: unknown;
+  category?: unknown;
+  segment?: unknown;
+  type?: unknown;
+  tags?: unknown;
 };
 
 const FALLBACK_IMAGE_DATA_URL =
@@ -125,6 +133,21 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
   const ordreVedette = Number.isFinite(rawOrdreVedette) ? rawOrdreVedette : 0;
 
   const badge = data.enPromotion === true ? 'Promo' : ordreVedette > 0 ? 'Vedette' : undefined;
+  const rawCategory = safeString(data.category) ?? safeString(data.type);
+  const rawSegment = safeString(data.segment);
+  const rawTags = Array.isArray(data.tags) ? data.tags : [];
+  const categoryKey = inferSegmentKeyFromValue(rawCategory);
+  let segmentKey = inferSegmentKeyFromValue(rawSegment) ?? categoryKey;
+
+  if (!segmentKey) {
+    for (const tag of rawTags) {
+      const inferred = inferSegmentKeyFromValue(tag);
+      if (inferred) {
+        segmentKey = inferred;
+        break;
+      }
+    }
+  }
 
   return {
     id: doc.id,
@@ -134,6 +157,8 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
     tagline: taglineParts.join(' / ') || 'Produit selectionne par AfricaPhone',
     badge,
     ordreVedette,
+    categoryKey: categoryKey ?? segmentKey ?? null,
+    segmentKey: segmentKey ?? categoryKey ?? null,
   };
 };
 
@@ -199,6 +224,59 @@ const getSearchRangeEnd = (value: string): string | null => {
   return `${value.slice(0, lastCharIndex)}${nextChar}`;
 };
 
+const inferSegmentKeyFromValue = (value: unknown): SegmentKey | null => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = normalizeText(value);
+  if (normalized.length === 0) {
+    return null;
+  }
+  if (normalized.includes('tablette')) {
+    return 'tablette';
+  }
+  if (normalized.includes('portable a touche') || normalized.includes('touches')) {
+    return 'portable a touche';
+  }
+  if (normalized.includes('accessoire') || normalized.includes('audio') || normalized.includes('gadget')) {
+    return 'accessoire';
+  }
+  if (normalized.includes('populaire') || normalized.includes('vedette')) {
+    return 'Populaires';
+  }
+  return null;
+};
+
+const fallbackFilterBySegment: Record<SegmentKey, (product: ProductSummary) => boolean> = {
+  Populaires: () => true,
+  tablette: product =>
+    inferSegmentKeyFromValue(product.segment) === 'tablette' || inferSegmentKeyFromValue(product.category) === 'tablette',
+  'portable a touche': product =>
+    inferSegmentKeyFromValue(product.segment) === 'portable a touche' ||
+    inferSegmentKeyFromValue(product.category) === 'portable a touche',
+  accessoire: product =>
+    inferSegmentKeyFromValue(product.segment) === 'accessoire' ||
+    inferSegmentKeyFromValue(product.category) === 'accessoire',
+};
+
+const SEGMENTS: Array<{
+  key: SegmentKey;
+  label: string;
+  icon: (props: { className?: string }) => JSX.Element;
+}> = [
+  { key: 'Populaires', label: 'Populaires', icon: StarOutlineIcon },
+  { key: 'tablette', label: 'Tablettes', icon: TabletIcon },
+  { key: 'portable a touche', label: 'A touches', icon: KeypadIcon },
+  { key: 'accessoire', label: 'Accessoires', icon: HeadsetIcon },
+];
+
+const productMatchesSegment = (product: ProductCardData, segment: SegmentKey): boolean => {
+  if (segment === 'Populaires') {
+    return true;
+  }
+  return product.categoryKey === segment || product.segmentKey === segment;
+};
+
 const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
   const digitsOnly = product.price.replace(/\D+/g, '');
   const price = digitsOnly ? Number(digitsOnly) : null;
@@ -213,6 +291,9 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
     badge = 'Promo';
   }
 
+  const categoryKey = inferSegmentKeyFromValue(product.category);
+  const summarySegmentKey = inferSegmentKeyFromValue(product.segment);
+
   return {
     id: product.id,
     name: product.name,
@@ -221,17 +302,21 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
     tagline: taglineCandidates[0] ?? 'Produit selectionne par AfricaPhone',
     badge,
     ordreVedette: 0,
+    categoryKey: categoryKey ?? summarySegmentKey ?? null,
+    segmentKey: summarySegmentKey ?? categoryKey ?? null,
   };
 };
 
-const getFallbackProducts = (brandId?: string | null): ProductCardData[] => {
-  const source = brandId ? allProducts.filter(product => product.brandId === brandId) : allProducts;
+const getFallbackProducts = (brandId?: string | null, segment: SegmentKey = 'Populaires'): ProductCardData[] => {
+  let source = brandId ? allProducts.filter(product => product.brandId === brandId) : allProducts;
+  const fallbackFilter = fallbackFilterBySegment[segment];
+  if (segment !== 'Populaires') {
+    source = source.filter(fallbackFilter);
+  }
   const sliced = source.slice(0, PAGE_SIZE).map(mapSummaryToProduct);
   const sortMode: 'default' | 'brand' = brandId ? 'brand' : 'default';
   return sortProducts(dedupeProducts(sliced), sortMode);
 };
-
-const STATIC_FALLBACK_PRODUCTS = getFallbackProducts();
 
 type ProductGridSectionProps = {
   selectedBrand?: { id: string; name: string; filterValue?: string | null } | null;
@@ -244,12 +329,18 @@ export default function ProductGridSection({
   enableStaticFallbacks = true,
   searchQuery = '',
 }: ProductGridSectionProps = {}) {
+  const [activeSegment, setActiveSegment] = useState<SegmentKey>('Populaires');
   const sortMode: 'default' | 'brand' = selectedBrand ? 'brand' : 'default';
   const trimmedSearchTerm = searchQuery?.trim() ?? '';
   const searchRangeEnd = useMemo(() => getSearchRangeEnd(trimmedSearchTerm), [trimmedSearchTerm]);
+  const categoryFilterValue = activeSegment === 'Populaires' ? null : activeSegment;
+  const activeSegmentLabel = useMemo(
+    () => SEGMENTS.find(segment => segment.key === activeSegment)?.label ?? 'Populaires',
+    [activeSegment]
+  );
   const [products, setProducts] = useState<ProductCardData[]>(() => {
     if (!selectedBrand && enableStaticFallbacks) {
-      return STATIC_FALLBACK_PRODUCTS;
+      return getFallbackProducts(null, 'Populaires');
     }
     return [];
   });
@@ -271,9 +362,9 @@ export default function ProductGridSection({
     if (trimmedSearchTerm.length > 0) {
       setProducts([]);
     } else if (brandFallbackId) {
-      setProducts(enableStaticFallbacks ? getFallbackProducts(brandFallbackId) : []);
+      setProducts(enableStaticFallbacks ? getFallbackProducts(brandFallbackId, activeSegment) : []);
     } else if (enableStaticFallbacks) {
-      setProducts(STATIC_FALLBACK_PRODUCTS);
+      setProducts(getFallbackProducts(null, activeSegment));
     } else {
       setProducts([]);
     }
@@ -281,7 +372,7 @@ export default function ProductGridSection({
     setLastDoc(null);
     setError(null);
     setPaginationError(null);
-  }, [brandFallbackId, enableStaticFallbacks, trimmedSearchTerm]);
+  }, [activeSegment, brandFallbackId, enableStaticFallbacks, trimmedSearchTerm]);
 
   const loadProducts = useCallback(
     async (cursor: QueryDocumentSnapshot<DocumentData> | null, mode: 'replace' | 'append' = 'replace') => {
@@ -299,6 +390,9 @@ export default function ProductGridSection({
         const constraints: QueryConstraint[] = [];
         if (brandFilterValue) {
           constraints.push(where('brand', '==', brandFilterValue));
+        }
+        if (categoryFilterValue) {
+          constraints.push(where('category', '==', categoryFilterValue));
         }
         if (trimmedSearchTerm.length > 0) {
           constraints.push(orderBy('name'));
@@ -334,7 +428,7 @@ export default function ProductGridSection({
         } else {
           if (mapped.length === 0) {
             if (enableStaticFallbacks) {
-              const fallback = getFallbackProducts(brandFallbackId);
+              const fallback = getFallbackProducts(brandFallbackId, activeSegment);
               setProducts(fallback);
             } else {
               setProducts([]);
@@ -356,7 +450,7 @@ export default function ProductGridSection({
           setPaginationError('Impossible de charger plus de produits pour le moment.');
           setLoadingMore(false);
         } else if (enableStaticFallbacks) {
-          const fallback = getFallbackProducts(brandFallbackId);
+          const fallback = getFallbackProducts(brandFallbackId, activeSegment);
           setProducts(fallback);
           setHasMore(false);
           setLastDoc(null);
@@ -383,7 +477,16 @@ export default function ProductGridSection({
         }
       }
     },
-    [brandFallbackId, brandFilterValue, enableStaticFallbacks, searchRangeEnd, sortMode, trimmedSearchTerm]
+    [
+      activeSegment,
+      brandFallbackId,
+      brandFilterValue,
+      categoryFilterValue,
+      enableStaticFallbacks,
+      searchRangeEnd,
+      sortMode,
+      trimmedSearchTerm,
+    ]
   );
 
   useEffect(() => {
@@ -401,20 +504,37 @@ export default function ProductGridSection({
     void loadProducts(lastDoc, 'append');
   }, [hasMore, lastDoc, loadProducts, loadingMore]);
 
-  const filteredProducts = useMemo(
-    () => filterProductsBySearchTerm(products, trimmedSearchTerm),
-    [products, trimmedSearchTerm]
+  const handleSegmentChange = useCallback((segment: SegmentKey) => {
+    setActiveSegment(current => (current === segment ? current : segment));
+  }, []);
+
+  const segmentFilteredProducts = useMemo(() => {
+    if (!categoryFilterValue) {
+      return products;
+    }
+    return products.filter(product => productMatchesSegment(product, categoryFilterValue));
+  }, [categoryFilterValue, products]);
+
+  const visibleProducts = useMemo(
+    () => filterProductsBySearchTerm(segmentFilteredProducts, trimmedSearchTerm),
+    [segmentFilteredProducts, trimmedSearchTerm]
   );
 
   const emptyStateTitle = useMemo(() => {
     if (trimmedSearchTerm.length > 0) {
       return `Aucun produit ne correspond a la recherche "${trimmedSearchTerm}".`;
     }
+    if (categoryFilterValue) {
+      if (selectedBrand) {
+        return `Aucun produit ${selectedBrand.name} dans ${activeSegmentLabel.toLowerCase()} pour le moment.`;
+      }
+      return `Aucun produit ${activeSegmentLabel.toLowerCase()} disponible pour le moment.`;
+    }
     if (selectedBrand) {
       return `Aucun produit ${selectedBrand.name} disponible pour le moment.`;
     }
     return 'Aucun produit disponible pour le moment.';
-  }, [selectedBrand, trimmedSearchTerm]);
+  }, [activeSegmentLabel, categoryFilterValue, selectedBrand, trimmedSearchTerm]);
 
   const emptyStateDescription = useMemo(() => {
     if (trimmedSearchTerm.length > 0) {
@@ -428,7 +548,7 @@ export default function ProductGridSection({
       return Array.from({ length: 8 }).map((_, index) => <ProductCardSkeleton key={`skeleton-${index}`} />);
     }
 
-    let cards = filteredProducts.map(product => <ProductCard key={product.id} product={product} />);
+    let cards = visibleProducts.map(product => <ProductCard key={product.id} product={product} />);
 
     if (error) {
       const errorCard = (
@@ -475,13 +595,38 @@ export default function ProductGridSection({
     }
 
     return cards;
-  }, [emptyStateDescription, emptyStateTitle, error, filteredProducts, handleRetry, loading, loadingMore]);
+  }, [emptyStateDescription, emptyStateTitle, error, handleRetry, loading, loadingMore, visibleProducts]);
 
   return (
     <section aria-labelledby="all-products" className="space-y-6">
       <h2 id="all-products" className="sr-only">
         Tous les produits
       </h2>
+      <div className="-mx-1 overflow-x-auto border-b border-slate-200 pb-3">
+        <div className="flex min-w-max items-center gap-2 px-1" role="group" aria-label="Filtrer les produits">
+          {SEGMENTS.map(segment => {
+            const isActive = segment.key === activeSegment;
+            return (
+              <button
+                key={segment.key}
+                type="button"
+                onClick={() => handleSegmentChange(segment.key)}
+                aria-pressed={isActive}
+                className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  isActive
+                    ? 'border-orange-200 bg-orange-50 text-orange-600 shadow-sm shadow-orange-200/40'
+                    : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-700'
+                }`}
+              >
+                <segment.icon
+                  className={`h-4 w-4 transition-colors ${isActive ? 'text-orange-500' : 'text-slate-500 group-hover:text-orange-500'}`}
+                />
+                {segment.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
       </div>
@@ -565,5 +710,68 @@ function ProductCardSkeleton() {
         <div className="mt-auto h-9 animate-pulse rounded-full bg-slate-200" />
       </div>
     </div>
+  );
+}
+
+function StarOutlineIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M12 4.5 14.31 9l5.19.76-3.75 3.66.89 5.18L12 15.99l-4.64 2.51.89-5.18L4.5 9.76 9.69 9 12 4.5Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function TabletIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="6" y="3.75" width="12" height="16.5" rx="2.25" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="12" cy="17.5" r="0.75" fill="currentColor" />
+    </svg>
+  );
+}
+
+function KeypadIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="5.25" y="3.75" width="13.5" height="16.5" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <g fill="currentColor">
+        <circle cx="9" cy="8.5" r="0.75" />
+        <circle cx="12" cy="8.5" r="0.75" />
+        <circle cx="15" cy="8.5" r="0.75" />
+        <circle cx="9" cy="12" r="0.75" />
+        <circle cx="12" cy="12" r="0.75" />
+        <circle cx="15" cy="12" r="0.75" />
+        <circle cx="9" cy="15.5" r="0.75" />
+        <circle cx="12" cy="15.5" r="0.75" />
+        <circle cx="15" cy="15.5" r="0.75" />
+      </g>
+    </svg>
+  );
+}
+
+function HeadsetIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M19.5 12.75v1.5a2.25 2.25 0 0 1-2.25 2.25H15v-6.75h2.25A2.25 2.25 0 0 1 19.5 12v.75ZM4.5 12.75v1.5A2.25 2.25 0 0 0 6.75 16.5H9v-6.75H6.75A2.25 2.25 0 0 0 4.5 12v.75ZM6.75 9a5.25 5.25 0 0 1 10.5 0"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 16.5v.75A2.25 2.25 0 0 0 11.25 19.5h1.5A2.25 2.25 0 0 0 15 17.25V16.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
