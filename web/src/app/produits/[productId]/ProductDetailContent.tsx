@@ -174,6 +174,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
   const [isFavorite, setIsFavorite] = useState(false);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string>('');
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
 
   useEffect(() => {
     if (!product) {
@@ -243,47 +244,114 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     setShareMessage(isFavorite ? 'Retire des favoris' : 'Ajoute aux favoris');
   }, [isFavorite]);
 
+  const resolvedShareUrl = useMemo(() => {
+    if (shareUrl) {
+      return shareUrl;
+    }
+    if (typeof window !== 'undefined') {
+      return window.location.href;
+    }
+    return '';
+  }, [shareUrl]);
+
+  const shareTitle = product?.name ?? 'AfricaPhone';
+  const shareText = product?.tagline ?? product?.name ?? 'Decouvrez ce produit AfricaPhone';
+
   const handleShare = useCallback(async () => {
-    const urlToShare = typeof window !== 'undefined' ? window.location.href : shareUrl;
-    if (!urlToShare) {
+    if (!resolvedShareUrl) {
       setShareMessage('Lien indisponible pour le partage.');
+      setShareSheetOpen(true);
       return;
     }
 
-    const shareData = {
-      title: product?.name ?? 'AfricaPhone',
-      text: product?.tagline ?? product?.name ?? 'Decouvrez ce produit AfricaPhone',
-      url: urlToShare,
-    };
-
-    try {
-      if (typeof navigator !== 'undefined' && navigator.share) {
-        await navigator.share(shareData);
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: resolvedShareUrl,
+        });
         setShareMessage('Lien partage avec succes.');
         return;
-      }
-    } catch (err) {
-      const abortError = err instanceof Error && err.name === 'AbortError';
-      if (!abortError) {
+      } catch (err) {
+        const abortError = err instanceof Error && err.name === 'AbortError';
+        if (abortError) {
+          return;
+        }
         console.error('ProductDetailContent: web share failed', err);
       }
-      if (abortError) {
-        return;
-      }
     }
 
+    setShareSheetOpen(true);
+  }, [resolvedShareUrl, shareText, shareTitle]);
+
+  const handleCopyLink = useCallback(async () => {
+    if (!resolvedShareUrl) {
+      setShareMessage('Lien indisponible pour le partage.');
+      return;
+    }
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       try {
-        await navigator.clipboard.writeText(urlToShare);
+        await navigator.clipboard.writeText(resolvedShareUrl);
         setShareMessage('Lien copie dans le presse-papiers.');
+        setShareSheetOpen(false);
         return;
-      } catch (clipboardError) {
-        console.error('ProductDetailContent: clipboard copy failed', clipboardError);
+      } catch (error) {
+        console.error('ProductDetailContent: clipboard copy failed', error);
       }
     }
+    setShareMessage(`Copiez ce lien : ${resolvedShareUrl}`);
+    setShareSheetOpen(false);
+  }, [resolvedShareUrl]);
 
-    setShareMessage(`Copiez ce lien : ${urlToShare}`);
-  }, [product?.name, product?.tagline, shareUrl]);
+  const handleOpenShareTarget = useCallback(
+    (url: string) => {
+      if (!resolvedShareUrl) {
+        setShareMessage('Lien indisponible pour le partage.');
+        return;
+      }
+      if (typeof window !== 'undefined') {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setShareSheetOpen(false);
+        setShareMessage('Lien partage via votre application.');
+      }
+    },
+    [resolvedShareUrl]
+  );
+
+  const shareTargets = useMemo(() => {
+    if (!resolvedShareUrl) {
+      return [];
+    }
+    const encodedUrl = encodeURIComponent(resolvedShareUrl);
+    const encodedText = encodeURIComponent(shareText);
+    return [
+      {
+        label: 'WhatsApp',
+        hint: 'Envoyer sur WhatsApp',
+        className: 'bg-[#25D366] text-white',
+        action: () => handleOpenShareTarget(`https://wa.me/?text=${encodedText}%20${encodedUrl}`),
+      },
+      {
+        label: 'Facebook',
+        hint: 'Publier sur Facebook',
+        className: 'bg-[#1877F2] text-white',
+        action: () => handleOpenShareTarget(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`),
+      },
+      {
+        label: 'X (Twitter)',
+        hint: 'Partager sur X',
+        className: 'bg-[#111111] text-white',
+        action: () => handleOpenShareTarget(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`),
+      },
+      {
+        label: 'Copier le lien',
+        hint: 'Copier dans le presse-papiers',
+        className: 'bg-white text-[#111111] border border-[#11111114]',
+        action: handleCopyLink,
+      },
+    ];
+  }, [handleCopyLink, handleOpenShareTarget, resolvedShareUrl, shareText]);
 
   const orderedSpecs = useMemo(() => {
     if (!product) {
@@ -398,6 +466,47 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       <span className="sr-only" aria-live="polite" role="status">
         {shareMessage ?? ''}
       </span>
+      {shareMessage ? (
+        <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#111111] px-4 py-2 text-sm font-semibold text-white shadow-xl shadow-slate-900/30">
+          {shareMessage}
+        </div>
+      ) : null}
+      {shareSheetOpen ? (
+        <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 px-4 pb-8">
+          <button
+            type="button"
+            aria-label="Fermer la fenetre de partage"
+            className="absolute inset-0 h-full w-full cursor-default"
+            onClick={() => setShareSheetOpen(false)}
+          />
+          <div className="relative z-50 w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl shadow-slate-900/30">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-[#111111]">Partager ce produit</h2>
+              <button
+                type="button"
+                onClick={() => setShareSheetOpen(false)}
+                className="rounded-full border border-[#1111111a] p-2 text-[#111111] transition hover:bg-[#111111] hover:text-white"
+              >
+                <CloseIcon className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-[#6B7280]">Choisissez une option de partage ou copiez le lien.</p>
+            <div className="mt-4 grid gap-3">
+              {shareTargets.map(target => (
+                <button
+                  key={target.label}
+                  type="button"
+                  onClick={target.action}
+                  className={`flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition hover:brightness-95 ${target.className}`}
+                >
+                  <span>{target.label}</span>
+                  <span className="text-xs font-medium opacity-80">{target.hint}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
       <main className="flex w-full justify-center bg-[#FFFFFF] pb-[108px] lg:pb-12">
         <div className="flex min-h-screen w-full max-w-[540px] flex-col bg-[#FFFFFF] text-[#111111]">
           <header className="flex h-[68px] items-center justify-between px-3 sm:h-[82px]">
@@ -850,6 +959,20 @@ function ShareIcon({ className }: { className?: string }) {
         d="M8.43 12.28 15.57 16.97"
         stroke="currentColor"
         strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="m6 6 8 8M14 6l-8 8"
+        stroke="currentColor"
+        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
