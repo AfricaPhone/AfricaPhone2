@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
+import type { SegmentKey } from '@/types/catalog';
+import { inferSegmentKeyFromValue } from '@/types/catalog';
 
 export type BrandItem = {
   id: string;
@@ -19,6 +21,7 @@ export type BrandItem = {
 
 type BrandsCarouselProps = {
   activeBrandId?: string | null;
+  segment?: SegmentKey | null;
 };
 
 const SCROLL_CLASSNAME = 'brand-strip-scroll';
@@ -28,7 +31,7 @@ const FALLBACK_LOGO_DATA_URL =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="#f1f5f9"/><text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#1f2937">AP</text></svg>`
   );
 
-export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
+export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouselProps) {
   const [brands, setBrands] = useState<BrandItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,7 +115,7 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
   const content = useMemo(() => {
     if (loading) {
       return (
-        <div className={`${SCROLL_CLASSNAME} mb-2 -mx-2 overflow-x-auto px-2 pb-1`}>
+        <div className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1`}>
           <div className="flex items-center gap-4">
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={`brand-skeleton-${index}`} className="flex w-20 flex-col items-center gap-2">
@@ -125,11 +128,24 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
       );
     }
 
-    if (error || brands.length === 0) {
+    const filteredBrands = segment
+      ? brands.filter(brand => {
+          const inferred =
+            inferSegmentKeyFromValue(brand.filterValue) ??
+            inferSegmentKeyFromValue(brand.tagline) ??
+            inferSegmentKeyFromValue(brand.description);
+          if (!inferred) {
+            return segment === 'telephone';
+          }
+          return inferred === segment;
+        })
+      : brands;
+
+    if (error || filteredBrands.length === 0) {
       return null;
     }
 
-    const items = brands.map(brand => (
+    const items = filteredBrands.map(brand => (
       <div key={brand.id} className="lg:flex lg:justify-center">
         <BrandLogoButton brand={brand} isActive={brand.id === activeBrandId} onSelect={handleSelect} />
       </div>
@@ -137,14 +153,14 @@ export default function BrandsCarousel({ activeBrandId }: BrandsCarouselProps) {
 
     return (
       <div
-        className={`${SCROLL_CLASSNAME} mb-2 -mx-2 overflow-x-auto px-2 pb-1 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0`}
+        className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0`}
       >
         <div className="flex items-center gap-4 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] lg:gap-6">
           {items}
         </div>
       </div>
     );
-  }, [activeBrandId, brands, error, handleSelect, loading]);
+  }, [activeBrandId, brands, error, handleSelect, loading, segment]);
 
   return (
     <>

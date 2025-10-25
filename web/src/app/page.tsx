@@ -4,7 +4,6 @@ import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react'
 import Image from 'next/image';
 import Link from 'next/link';
 import ProductGridSection from '@/components/ProductGridSection';
-import BrandsCarousel from '@/components/BrandsCarousel';
 import { footerColumns, footerLegal } from '@/data/storefront';
 
 export default function HomePage() {
@@ -18,7 +17,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-white text-slate-900">
       <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
-        <BrandsCarousel />
         <ProductGridSection searchQuery={searchQuery} />
       </main>
       <Footer />

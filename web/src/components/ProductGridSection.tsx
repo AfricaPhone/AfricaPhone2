@@ -20,8 +20,9 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
-
-type SegmentKey = 'telephone' | 'tablette' | 'portable a touche' | 'accessoire';
+import BrandsCarousel from '@/components/BrandsCarousel';
+import type { SegmentKey } from '@/types/catalog';
+import { inferSegmentKeyFromValue } from '@/types/catalog';
 
 type ProductCardData = {
   id: string;
@@ -224,29 +225,6 @@ const getSearchRangeEnd = (value: string): string | null => {
   return `${value.slice(0, lastCharIndex)}${nextChar}`;
 };
 
-const inferSegmentKeyFromValue = (value: unknown): SegmentKey | null => {
-  if (typeof value !== 'string') {
-    return null;
-  }
-  const normalized = normalizeText(value);
-  if (normalized.length === 0) {
-    return null;
-  }
-  if (normalized.includes('tablette')) {
-    return 'tablette';
-  }
-  if (normalized.includes('portable a touche') || normalized.includes('touches')) {
-    return 'portable a touche';
-  }
-  if (normalized.includes('accessoire') || normalized.includes('audio') || normalized.includes('gadget')) {
-    return 'accessoire';
-  }
-  if (normalized.includes('populaire') || normalized.includes('vedette') || normalized.includes('tele')) {
-    return 'telephone';
-  }
-  return null;
-};
-
 const fallbackFilterBySegment: Record<SegmentKey, (product: ProductSummary) => boolean> = {
   telephone: product =>
     inferSegmentKeyFromValue(product.segment) === 'telephone' ||
@@ -352,6 +330,7 @@ export default function ProductGridSection({
       ? selectedBrand.name.trim()
       : null;
   const brandFallbackId = selectedBrand?.id ?? null;
+  const activeBrandId = selectedBrand?.id ?? null;
 
   useEffect(() => {
     setLoading(true);
@@ -625,6 +604,7 @@ export default function ProductGridSection({
           </div>
         </div>
       </div>
+      <BrandsCarousel segment={activeSegment} activeBrandId={activeBrandId} />
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
       </div>
