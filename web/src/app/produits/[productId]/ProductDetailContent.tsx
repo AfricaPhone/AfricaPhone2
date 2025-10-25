@@ -290,32 +290,30 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
   const specsContent =
     orderedSpecs.length > 0 ? (
-      <div className="overflow-hidden rounded-[28px] border border-[#EFF0F4] bg-white shadow-[0_12px_32px_rgba(17,17,17,0.06)]">
+      <div className="space-y-2">
         {orderedSpecs.map((spec, index) => (
           <div
             key={`${spec.label}-${spec.value}`}
-            className={`flex items-center justify-between px-6 py-5 text-[15px] leading-6 ${
-              index < orderedSpecs.length - 1 ? 'border-b border-[#F1F2F6]' : ''
+            className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${
+              index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
             }`}
           >
-            <span className="text-[15px] font-medium text-[#7A7C80]">{spec.label}</span>
-            <span className="max-w-[55%] text-right text-[15px] font-semibold text-[#111111]">{spec.value}</span>
+            <span className="text-[#7A7C80]">{spec.label}</span>
+            <span className="max-w-[55%] text-right font-semibold">{spec.value}</span>
           </div>
         ))}
       </div>
     ) : (
-      <div className="overflow-hidden rounded-[28px] border border-[#EFF0F4] bg-white px-6 py-5 text-[15px] text-[#7A7C80] shadow-[0_12px_32px_rgba(17,17,17,0.06)]">
-        Specifications a venir.
-      </div>
+      <p className="text-[13px] text-[#7A7C80]">Specifications a venir.</p>
     );
 
   const descriptionContent = (
-    <div className="space-y-5 rounded-[28px] border border-[#EFF0F4] bg-white px-6 py-6 text-[15px] leading-relaxed text-[#7A7C80] shadow-[0_12px_32px_rgba(17,17,17,0.06)]">
-      <p className="text-[#111111]">{product.description}</p>
+    <div className="space-y-4 text-[13px] leading-relaxed text-[#4B5563]">
+      <p className="font-medium text-[#111111]">{product.description}</p>
       {product.highlights.length ? (
-        <ul className="space-y-3 text-[#7A7C80]">
+        <ul className="space-y-2">
           {product.highlights.map(highlight => (
-            <li key={highlight} className="flex items-start gap-3">
+            <li key={highlight} className="flex items-start gap-2">
               <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#111111]" />
               <span>{highlight}</span>
             </li>
@@ -323,15 +321,15 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
         </ul>
       ) : null}
       {product.services.length ? (
-        <div className="space-y-2 text-[#7A7C80]">
-          <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Services inclus</p>
-          <ul className="space-y-2">
+        <div className="space-y-1.5">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Services inclus</p>
+          <ul className="space-y-1.5">
             {product.services.map(service => (
               <li
                 key={service.title}
-                className="rounded-[18px] border border-[#F3F4F7] bg-[#FAFBFD] px-4 py-3 text-[14px] text-[#7A7C80]"
+                className="rounded-[14px] border border-[#F3F4F7] bg-[#FAFBFD] px-3 py-2 text-[13px] text-[#4B5563]"
               >
-                <p className="text-[15px] font-semibold text-[#111111]">{service.title}</p>
+                <p className="font-semibold text-[#111111]">{service.title}</p>
                 <p>{service.description}</p>
               </li>
             ))}
@@ -339,11 +337,11 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
         </div>
       ) : null}
       {product.deliveryNotes.length ? (
-        <div className="space-y-2 text-[#7A7C80]">
-          <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Livraison &amp; suivi</p>
-          <ul className="space-y-2">
+        <div className="space-y-1.5">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Livraison &amp; suivi</p>
+          <ul className="space-y-1.5">
             {product.deliveryNotes.map(note => (
-              <li key={note} className="flex items-start gap-3">
+              <li key={note} className="flex items-start gap-2">
                 <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#111111]" />
                 <span>{note}</span>
               </li>
@@ -361,7 +359,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       </span>
       <main className="flex w-full justify-center bg-[#FFFFFF] pb-[108px] lg:pb-12">
         <div className="flex min-h-screen w-full max-w-[540px] flex-col bg-[#FFFFFF] text-[#111111]">
-          <header className="flex h-[68px] items-center justify-between px-6 sm:h-[82px]">
+          <header className="flex h-[68px] items-center justify-between px-3 sm:h-[82px]">
             <button
               type="button"
               onClick={() => router.back()}
@@ -394,48 +392,48 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
             </div>
           </header>
 
-          <section className="relative w-full overflow-hidden aspect-[540/542] max-h-[520px]">
+          <section className="relative flex h-[352px] w-full items-center justify-center overflow-hidden bg-[#F5F7FA] sm:h-[420px]">
             <Image
               src={activeImage}
               alt={product.name}
               fill
               sizes="540px"
-              className="object-cover object-center"
+              className="object-contain"
               priority
             />
           </section>
 
-          <div className="flex flex-1 flex-col px-6 pb-12">
-            <div className="mt-[clamp(28px,10vw,65px)] flex items-start justify-between">
+          <div className="flex flex-1 flex-col px-3 pb-12">
+            <div className="mt-4 flex items-center justify-between">
               <div>
-                <p className="text-[24px] font-bold leading-[24px] tracking-[-0.3px] text-[#111111]">
+                <p className="text-[18px] font-semibold leading-[22px] tracking-[-0.2px] text-[#111111]">
                   {product.formattedPrice}
                 </p>
                 {product.oldPriceLabel ? (
-                  <span className="mt-3 inline-block text-[12px] font-semibold text-[#929497] line-through decoration-[#929497] decoration-2">
+                  <span className="mt-1 inline-block text-[11px] font-semibold text-[#929497] line-through decoration-[#929497] decoration-2">
                     {product.oldPriceLabel}
                   </span>
                 ) : null}
               </div>
               <button
                 type="button"
-                className="inline-flex h-[52px] w-[172px] items-center justify-center gap-3 rounded-[30px] bg-[#111111] text-white transition hover:bg-[#2c2c2c] sm:h-[59px] sm:w-[186px]"
+                className="inline-flex h-9 items-center gap-2 rounded-full bg-[#111111] px-4 text-white transition hover:bg-[#2c2c2c]"
               >
-                <span className="flex h-6 w-6 items-center justify-center">
+                <span className="flex h-5 w-5 items-center justify-center">
                   <GiftIcon className="h-5 w-5 text-white" />
                 </span>
-                <span className="text-[16px] font-semibold leading-none">Code Promo</span>
+                <span className="text-[13px] font-semibold leading-none">Code Promo</span>
               </button>
             </div>
 
-            <div className="mt-6 h-px w-full bg-[#ECEDEF]" />
+            <div className="mt-3 h-px w-full bg-[#ECEDEF]" />
 
-            <div className="mt-8">
-              <div className="flex items-center justify-between">
+            <div className="mt-3">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab('specs')}
-                  className={`text-[16px] font-semibold ${
+                  className={`flex-1 py-2 text-center text-[16px] font-semibold ${
                     activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
                   }`}
                 >
@@ -444,22 +442,25 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 <button
                   type="button"
                   onClick={() => setActiveTab('description')}
-                  className={`text-[16px] font-semibold ${
+                  className={`flex-1 py-2 text-center text-[16px] font-semibold ${
                     activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
                   }`}
                 >
                   Description
                 </button>
               </div>
-              <div className="relative mt-4 h-[2px] w-full bg-[#ECEDEF]">
+              <div className="relative mt-2 h-[2px] w-full bg-[#ECEDEF]">
                 <span
-                  className="absolute top-0 h-[2px] w-[245px] bg-[#111111] transition-all duration-200"
-                  style={{ left: activeTab === 'specs' ? '0' : 'calc(100% - 245px)' }}
+                  className="absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200"
+                  style={{
+                    left: activeTab === 'specs' ? '0' : 'calc(50% + 0.25rem)',
+                    width: 'calc(50% - 0.25rem)',
+                  }}
                 />
               </div>
             </div>
 
-            <div className="mt-9">{activeTab === 'specs' ? specsContent : descriptionContent}</div>
+            <div className="mt-4">{activeTab === 'specs' ? specsContent : descriptionContent}</div>
 
             {error ? (
               <p className="mt-6 rounded-[24px] bg-[#FFF6E6] px-4 py-4 text-[14px] font-medium text-[#C05621]">
@@ -471,9 +472,9 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
               href={product.whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-12 hidden h-[68px] items-center gap-3 rounded-[34px] bg-[#26D367] px-5 text-white shadow-[0_16px_26px_rgba(38,211,103,0.28)] transition hover:bg-[#1fb358] lg:flex"
+              className="mt-12 hidden h-12 items-center gap-2.5 rounded-full bg-[#26D367] px-5 text-white transition hover:bg-[#1fb358] lg:flex"
             >
-              <span className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-white">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
                 <WhatsAppGlyph className="h-5 w-5 text-[#26D367]" />
               </span>
               <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
@@ -484,14 +485,14 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
         </div>
       </main>
       <div className="fixed inset-x-0 bottom-0 z-30 flex justify-center bg-[#FFFFFFF2] pb-[calc(env(safe-area-inset-bottom,0)+16px)] pt-3 shadow-[0_-18px_28px_-16px_rgba(17,17,17,0.18)] backdrop-blur lg:hidden">
-        <div className="w-full max-w-[540px] px-6">
+        <div className="w-full max-w-[540px] px-3">
           <a
             href={product.whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-[68px] items-center gap-3 rounded-[34px] bg-[#26D367] px-5 text-white shadow-[0_16px_26px_rgba(38,211,103,0.28)] transition hover:bg-[#1fb358]"
+            className="flex h-12 items-center gap-2.5 rounded-full bg-[#26D367] px-5 text-white transition hover:bg-[#1fb358]"
           >
-            <span className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
               <WhatsAppGlyph className="h-5 w-5 text-[#26D367]" />
             </span>
             <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
@@ -814,3 +815,4 @@ function ShareIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+

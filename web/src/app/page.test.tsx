@@ -1,17 +1,17 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { TopNav } from './page';
+import { TopBar } from './page';
 
-describe('TopNav search interaction', () => {
-  it('submits current search term when clicking the search button', () => {
+describe('TopBar search interaction', () => {
+  it('submits current search term on form submit', () => {
     const handleSubmit = jest.fn();
 
-    render(<TopNav searchQuery="" onSubmitSearch={handleSubmit} />);
+    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} />);
 
-    const input = screen.getByLabelText(/champ de recherche/i);
+    const input = screen.getByPlaceholderText(/rechercher/i);
     fireEvent.change(input, { target: { value: 'Galaxy S24' } });
 
-    const button = screen.getByRole('button', { name: /rechercher/i });
-    fireEvent.click(button);
+    const form = screen.getByRole('search', { name: /catalogue/i });
+    fireEvent.submit(form);
 
     expect(handleSubmit).toHaveBeenCalledTimes(1);
     expect(handleSubmit).toHaveBeenCalledWith('Galaxy S24');
@@ -20,9 +20,9 @@ describe('TopNav search interaction', () => {
   it('trims whitespace before propagating the search term', () => {
     const handleSubmit = jest.fn();
 
-    render(<TopNav searchQuery="" onSubmitSearch={handleSubmit} />);
+    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} />);
 
-    const input = screen.getByLabelText(/champ de recherche/i);
+    const input = screen.getByPlaceholderText(/rechercher/i);
     fireEvent.change(input, { target: { value: '   Infinix Zero   ' } });
 
     const form = screen.getByRole('search', { name: /catalogue/i });
