@@ -5,9 +5,13 @@ service firebase.storage {
       return request.auth != null && request.auth.token.admin == true;
     }
 
-    match /{allPaths=**} {
+    match /public/{allPaths=**} {
       allow get: if true;
       allow list, create, update, delete: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow get, list, create, update, delete: if isAdmin();
     }
   }
 }

@@ -12,23 +12,42 @@ type FirebaseConfig = {
   appId: string;
 };
 
-const DEFAULT_CONFIG: FirebaseConfig = {
-  apiKey: 'AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M',
-  authDomain: 'africaphone-vente.firebaseapp.com',
-  projectId: 'africaphone-vente',
-  storageBucket: 'africaphone-vente.firebasestorage.app',
-  messagingSenderId: '203471818329',
-  appId: '1:203471818329:web:c2c77d48098c1a6a596b48',
+const resolveConfig = (): FirebaseConfig => {
+  const envConfig: FirebaseConfig = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? '',
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? '',
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? '',
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '',
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? '',
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? '',
+  };
+
+  const missing = Object.entries(envConfig)
+    .filter(([, value]) => !value)
+    .map(([key]) => key);
+
+  if (missing.length > 0) {
+    if (process.env.NODE_ENV === 'test') {
+      return {
+        apiKey: envConfig.apiKey || 'test-api-key',
+        authDomain: envConfig.authDomain || 'test-auth-domain',
+        projectId: envConfig.projectId || 'test-project',
+        storageBucket: envConfig.storageBucket || 'test-bucket',
+        messagingSenderId: envConfig.messagingSenderId || '0',
+        appId: envConfig.appId || 'test-app',
+      };
+    }
+    throw new Error(
+      `Firebase configuration missing environment variables: ${missing.join(
+        ', '
+      )}. Ensure NEXT_PUBLIC_FIREBASE_* values are set.`
+    );
+  }
+
+  return envConfig;
 };
 
-const firebaseConfig: FirebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || DEFAULT_CONFIG.apiKey,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || DEFAULT_CONFIG.authDomain,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || DEFAULT_CONFIG.projectId,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || DEFAULT_CONFIG.storageBucket,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || DEFAULT_CONFIG.messagingSenderId,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || DEFAULT_CONFIG.appId,
-};
+const firebaseConfig = resolveConfig();
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 

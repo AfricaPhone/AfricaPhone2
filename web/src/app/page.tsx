@@ -130,6 +130,8 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
   );
 }
 
+export const TopBar = TopNav;
+
 export function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-200">
