@@ -5,9 +5,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import type { DocumentData } from 'firebase/firestore';
+import { logEvent } from 'firebase/analytics';
 import type { ProductDetail as StaticProductDetail } from '@/data/product-details';
 import { getProductDetail } from '@/data/product-details';
-import { db } from '@/lib/firebaseClient';
+import { db, getAnalyticsClient } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
 const FALLBACK_IMAGE_DATA_URL =
@@ -196,6 +197,46 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     const timeout = setTimeout(() => setShareMessage(null), 2500);
     return () => clearTimeout(timeout);
   }, [shareMessage]);
+
+  useEffect(() => {
+    if (!product) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const sendAnalytics = async () => {
+      const analytics = await getAnalyticsClient();
+      if (!analytics || cancelled) {
+        return;
+      }
+
+      try {
+        const eventParams: Record<string, unknown> = {
+          items: [
+            {
+              item_id: product.id,
+              item_name: product.name,
+              price: product.price ?? undefined,
+            },
+          ],
+        };
+        if (product.price !== null) {
+          eventParams.value = product.price;
+          eventParams.currency = 'XOF';
+        }
+        logEvent(analytics, 'view_item', eventParams);
+      } catch (eventError) {
+        console.error('ProductDetailContent: analytics event failed', eventError);
+      }
+    };
+
+    void sendAnalytics();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.id]);
 
   const toggleFavorite = useCallback(() => {
     setIsFavorite(prev => !prev);

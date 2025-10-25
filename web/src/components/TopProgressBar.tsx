@@ -6,6 +6,7 @@ import Router from 'next/router';
 const PROGRESS_UPDATE_INTERVAL = 180;
 const INITIAL_PROGRESS = 12;
 const MAX_PROGRESS_BEFORE_COMPLETE = 90;
+const CHROME_BLUE = '#1a73e8';
 
 const growTowards = (current: number) => {
   if (current >= MAX_PROGRESS_BEFORE_COMPLETE) {
@@ -65,8 +66,9 @@ const TopProgressBar: React.FC = () => {
       style={{ opacity: visible ? 1 : 0, transition: 'opacity 150ms ease' }}
     >
       <div
-        className="h-[3px] w-full bg-gradient-to-r from-orange-400 via-orange-500 to-slate-900"
+        className="h-[3px] w-full rounded-r-sm shadow-[0_1px_4px_rgba(26,115,232,0.45)]"
         style={{
+          backgroundColor: CHROME_BLUE,
           transform: `scaleX(${Math.max(progress, visible ? INITIAL_PROGRESS : 0) / 100})`,
           transformOrigin: '0% 50%',
           transition: 'transform 120ms ease-out',

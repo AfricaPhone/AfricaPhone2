@@ -21,7 +21,7 @@ import {
 import { db } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
-type SegmentKey = 'Populaires' | 'tablette' | 'portable a touche' | 'accessoire';
+type SegmentKey = 'telephone' | 'tablette' | 'portable a touche' | 'accessoire';
 
 type ProductCardData = {
   id: string;
@@ -241,14 +241,16 @@ const inferSegmentKeyFromValue = (value: unknown): SegmentKey | null => {
   if (normalized.includes('accessoire') || normalized.includes('audio') || normalized.includes('gadget')) {
     return 'accessoire';
   }
-  if (normalized.includes('populaire') || normalized.includes('vedette')) {
-    return 'Populaires';
+  if (normalized.includes('populaire') || normalized.includes('vedette') || normalized.includes('tele')) {
+    return 'telephone';
   }
   return null;
 };
 
 const fallbackFilterBySegment: Record<SegmentKey, (product: ProductSummary) => boolean> = {
-  Populaires: () => true,
+  telephone: product =>
+    inferSegmentKeyFromValue(product.segment) === 'telephone' ||
+    inferSegmentKeyFromValue(product.category) === 'telephone',
   tablette: product =>
     inferSegmentKeyFromValue(product.segment) === 'tablette' || inferSegmentKeyFromValue(product.category) === 'tablette',
   'portable a touche': product =>
@@ -264,16 +266,15 @@ const SEGMENTS: Array<{
   label: string;
   icon: (props: { className?: string }) => JSX.Element;
 }> = [
-  { key: 'Populaires', label: 'Populaires', icon: StarOutlineIcon },
+  { key: 'telephone', label: 'Téléphones', icon: StarOutlineIcon },
   { key: 'tablette', label: 'Tablettes', icon: TabletIcon },
   { key: 'portable a touche', label: 'A touches', icon: KeypadIcon },
   { key: 'accessoire', label: 'Accessoires', icon: HeadsetIcon },
 ];
 
+const SEGMENT_SCROLL_CLASSNAME = 'product-segment-scroll';
+
 const productMatchesSegment = (product: ProductCardData, segment: SegmentKey): boolean => {
-  if (segment === 'Populaires') {
-    return true;
-  }
   return product.categoryKey === segment || product.segmentKey === segment;
 };
 
@@ -307,12 +308,10 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
   };
 };
 
-const getFallbackProducts = (brandId?: string | null, segment: SegmentKey = 'Populaires'): ProductCardData[] => {
+const getFallbackProducts = (brandId?: string | null, segment: SegmentKey = 'telephone'): ProductCardData[] => {
   let source = brandId ? allProducts.filter(product => product.brandId === brandId) : allProducts;
   const fallbackFilter = fallbackFilterBySegment[segment];
-  if (segment !== 'Populaires') {
-    source = source.filter(fallbackFilter);
-  }
+  source = source.filter(fallbackFilter);
   const sliced = source.slice(0, PAGE_SIZE).map(mapSummaryToProduct);
   const sortMode: 'default' | 'brand' = brandId ? 'brand' : 'default';
   return sortProducts(dedupeProducts(sliced), sortMode);
@@ -329,21 +328,18 @@ export default function ProductGridSection({
   enableStaticFallbacks = true,
   searchQuery = '',
 }: ProductGridSectionProps = {}) {
-  const [activeSegment, setActiveSegment] = useState<SegmentKey>('Populaires');
+  const [activeSegment, setActiveSegment] = useState<SegmentKey>('telephone');
   const sortMode: 'default' | 'brand' = selectedBrand ? 'brand' : 'default';
   const trimmedSearchTerm = searchQuery?.trim() ?? '';
   const searchRangeEnd = useMemo(() => getSearchRangeEnd(trimmedSearchTerm), [trimmedSearchTerm]);
-  const categoryFilterValue = activeSegment === 'Populaires' ? null : activeSegment;
+  const categoryFilterValue = activeSegment === 'telephone' ? null : activeSegment;
   const activeSegmentLabel = useMemo(
-    () => SEGMENTS.find(segment => segment.key === activeSegment)?.label ?? 'Populaires',
+    () => SEGMENTS.find(segment => segment.key === activeSegment)?.label ?? 'Téléphones',
     [activeSegment]
   );
-  const [products, setProducts] = useState<ProductCardData[]>(() => {
-    if (!selectedBrand && enableStaticFallbacks) {
-      return getFallbackProducts(null, 'Populaires');
-    }
-    return [];
-  });
+  const [products, setProducts] = useState<ProductCardData[]>(() =>
+    !selectedBrand && enableStaticFallbacks ? getFallbackProducts(null, 'telephone') : []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -602,29 +598,31 @@ export default function ProductGridSection({
       <h2 id="all-products" className="sr-only">
         Tous les produits
       </h2>
-      <div className="-mx-1 overflow-x-auto border-b border-slate-200 pb-3">
-        <div className="flex min-w-max items-center gap-2 px-1" role="group" aria-label="Filtrer les produits">
-          {SEGMENTS.map(segment => {
-            const isActive = segment.key === activeSegment;
-            return (
-              <button
-                key={segment.key}
-                type="button"
-                onClick={() => handleSegmentChange(segment.key)}
-                aria-pressed={isActive}
-                className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                  isActive
-                    ? 'border-orange-200 bg-orange-50 text-orange-600 shadow-sm shadow-orange-200/40'
-                    : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-700'
-                }`}
-              >
-                <segment.icon
-                  className={`h-4 w-4 transition-colors ${isActive ? 'text-orange-500' : 'text-slate-500 group-hover:text-orange-500'}`}
-                />
-                {segment.label}
-              </button>
-            );
-          })}
+      <div className="border-b border-slate-200 pb-3">
+        <div className={`${SEGMENT_SCROLL_CLASSNAME} -mx-1 overflow-x-auto px-1`}>
+          <div className="flex min-w-max items-center gap-2" role="group" aria-label="Filtrer les produits">
+            {SEGMENTS.map(segment => {
+              const isActive = segment.key === activeSegment;
+              return (
+                <button
+                  key={segment.key}
+                  type="button"
+                  onClick={() => handleSegmentChange(segment.key)}
+                  aria-pressed={isActive}
+                  className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    isActive
+                      ? 'border-orange-200 bg-orange-50 text-orange-600 shadow-sm shadow-orange-200/40'
+                      : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-700'
+                  }`}
+                >
+                  <segment.icon
+                    className={`h-4 w-4 transition-colors ${isActive ? 'text-orange-500' : 'text-slate-500 group-hover:text-orange-500'}`}
+                  />
+                  {segment.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
@@ -645,6 +643,14 @@ export default function ProductGridSection({
       ) : paginationError ? (
         <p className="mt-4 text-center text-sm text-rose-600">{paginationError}</p>
       ) : null}
+      <style jsx global>{`
+        .${SEGMENT_SCROLL_CLASSNAME} {
+          scrollbar-width: none;
+        }
+        .${SEGMENT_SCROLL_CLASSNAME}::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </section>
   );
 }

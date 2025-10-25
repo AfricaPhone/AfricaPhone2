@@ -1,9 +1,8 @@
-import { Suspense } from 'react';
+import { Suspense, cache } from 'react';
 import type { Metadata } from 'next';
 import ProductDetailContent from './ProductDetailContent';
-import { getProductDetail } from '@/data/product-details';
-import ProductPageHeader from './ProductPageHeader';
 import { Footer } from '../../page';
+import { getProductDetail } from '@/data/product-details';
 
 type ProductDetailPageProps = {
   params: {
@@ -11,55 +10,159 @@ type ProductDetailPageProps = {
   };
 };
 
-export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
-  const { productId } = params;
-  const product = getProductDetail(productId);
+type FirestoreValue =
+  | { stringValue: string }
+  | { integerValue: string }
+  | { doubleValue: number }
+  | { arrayValue: { values?: FirestoreValue[] } }
+  | { mapValue: { fields?: Record<string, FirestoreValue> } }
+  | { nullValue: null };
 
-  if (!product) {
-    return {
-      title: 'Produit AfricaPhone',
-      description:
-        'Consultez la selection AfricaPhone de smartphones, tablettes et accessoires avec verification boutique et assistance locale.',
-    };
+type FirestoreDocument = {
+  fields?: Record<string, FirestoreValue>;
+};
+
+type ProductMeta = {
+  name: string | null;
+  description: string | null;
+  image: string | null;
+};
+
+const PRODUCT_ID_REGEXP = /^[\w-]{1,128}$/;
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80';
+const DEFAULT_DESCRIPTION =
+  'Découvrez les smartphones, tablettes et accessoires sélectionnés par AfricaPhone avec assistance locale.';
+const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'africaphone-vente';
+const FIREBASE_API_KEY =
+  process.env.FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M';
+const FIRESTORE_ENDPOINT = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/products`;
+
+const parseString = (value?: FirestoreValue | null): string | null => {
+  if (!value) {
+    return null;
+  }
+  if ('stringValue' in value) {
+    const trimmed = value.stringValue.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  if ('integerValue' in value) {
+    const trimmed = value.integerValue.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  if ('doubleValue' in value) {
+    return Number.isFinite(value.doubleValue) ? String(value.doubleValue) : null;
+  }
+  return null;
+};
+
+const parseStringArray = (value?: FirestoreValue | null): string[] => {
+  if (!value || !('arrayValue' in value)) {
+    return [];
+  }
+  const items = value.arrayValue.values ?? [];
+  return items
+    .map(item => parseString(item))
+    .filter((entry): entry is string => Boolean(entry))
+    .map(entry => entry.trim());
+};
+
+const fetchProductMetadata = cache(async (productId: string): Promise<ProductMeta | null> => {
+  if (!PRODUCT_ID_REGEXP.test(productId)) {
+    return null;
   }
 
-  const baseTitle = `${product.name} - AfricaPhone`;
+  try {
+    const response = await fetch(`${FIRESTORE_ENDPOINT}/${productId}?key=${FIREBASE_API_KEY}`, {
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const document = (await response.json()) as FirestoreDocument;
+    if (!document.fields) {
+      return null;
+    }
+
+    const { fields } = document;
+    const name = parseString(fields.name);
+    const description =
+      parseString(fields.description) ??
+      parseString(fields.tagline) ??
+      parseString(fields.summary) ??
+      null;
+    const imageCandidates = [
+      parseString(fields.imageUrl),
+      ...parseStringArray(fields.imageUrls),
+    ].filter((item): item is string => Boolean(item));
+    const image = imageCandidates.length > 0 ? imageCandidates[0] : null;
+
+    if (!name && !description && !image) {
+      return null;
+    }
+
+    return { name: name ?? null, description, image };
+  } catch (error) {
+    console.error(`ProductDetailPage: metadata fetch failed for ${productId}`, error);
+    return null;
+  }
+});
+
+export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+  const initialProduct = getProductDetail(params.productId);
+  const meta = await fetchProductMetadata(params.productId);
+
+  const baseName = meta?.name ?? initialProduct?.name ?? 'Produit AfricaPhone';
   const description =
-    product.description ||
-    `Decouvrez ${product.name} dans la boutique AfricaPhone. Stock physique, verification avant livraison et assistance locale.`;
+    meta?.description ??
+    initialProduct?.description ??
+    initialProduct?.tagline ??
+    DEFAULT_DESCRIPTION;
+  const image =
+    meta?.image ??
+    initialProduct?.gallery?.[0] ??
+    initialProduct?.image ??
+    FALLBACK_IMAGE;
+
+  const title = `${baseName} | AfricaPhone`;
 
   return {
-    title: baseTitle,
+    title,
     description,
     openGraph: {
-      title: baseTitle,
+      title,
       description,
-      images: product.gallery?.length ? product.gallery : [product.image],
+      type: 'website',
+      images: [{ url: image, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [image],
     },
   };
 }
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { productId } = params;
-  const initialProduct = getProductDetail(productId) ?? null;
+  const initialProduct = getProductDetail(params.productId) ?? null;
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
-      <div className="hidden md:block">
-        <ProductPageHeader />
-      </div>
+    <div className="min-h-screen bg-white text-slate-900">
       <Suspense
         fallback={
-          <main className="mx-auto flex min-h-[60vh] w-full max-w-6xl items-center justify-center px-4 pb-24 pt-12 text-slate-600 lg:px-8">
-            Chargement du produit...
-          </main>
+          <div className="flex min-h-[40vh] items-center justify-center px-4 py-12">
+            <span className="inline-block h-9 w-9 animate-spin rounded-full border-2 border-orange-500 border-r-transparent" />
+          </div>
         }
       >
-        <ProductDetailContent productId={productId} initialProduct={initialProduct} />
+        <ProductDetailContent productId={params.productId} initialProduct={initialProduct} />
       </Suspense>
-      <div className="hidden md:block">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   );
 }

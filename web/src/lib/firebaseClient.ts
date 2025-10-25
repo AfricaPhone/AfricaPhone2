@@ -1,6 +1,8 @@
 import { getApps, initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
+type Analytics = import('firebase/analytics').Analytics;
+
 type FirebaseConfig = {
   apiKey: string;
   authDomain: string;
@@ -31,3 +33,26 @@ const firebaseConfig: FirebaseConfig = {
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
+
+let analyticsPromise: Promise<Analytics | null> | null = null;
+
+export const getAnalyticsClient = async (): Promise<Analytics | null> => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  if (!analyticsPromise) {
+    analyticsPromise = (async () => {
+      try {
+        const { isSupported, getAnalytics } = await import('firebase/analytics');
+        const supported = await isSupported();
+        return supported ? getAnalytics(app) : null;
+      } catch (error) {
+        console.error('Firebase analytics not available', error);
+        return null;
+      }
+    })();
+  }
+
+  return analyticsPromise;
+};
