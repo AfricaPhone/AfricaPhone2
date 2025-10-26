@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import type { GalleryImage } from '@/data/nousTrouver';
 
+const GALLERY_SCROLL_CLASS = 'nous-trouver-gallery-scroll';
+
 export function NousTrouverGallery({ images }: { images: GalleryImage[] }) {
   if (images.length === 0) {
     return null;
@@ -11,10 +13,12 @@ export function NousTrouverGallery({ images }: { images: GalleryImage[] }) {
       <div className="flex items-baseline justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Un apercu de nos espaces</h2>
         {images.length > 3 ? (
-          <span className="hidden text-xs font-semibold uppercase tracking-wide text-orange-500 lg:inline">Faites defiler</span>
+          <span className="hidden text-xs font-semibold uppercase tracking-wide text-orange-500 lg:inline">
+            Faites defiler
+          </span>
         ) : null}
       </div>
-      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 lg:pb-3">
+      <div className={`${GALLERY_SCROLL_CLASS} flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 lg:pb-3`}>
         {images.map(image => (
           <div
             key={image.src}
@@ -31,6 +35,14 @@ export function NousTrouverGallery({ images }: { images: GalleryImage[] }) {
           </div>
         ))}
       </div>
+      <style jsx global>{`
+        .${GALLERY_SCROLL_CLASS} {
+          scrollbar-width: none;
+        }
+        .${GALLERY_SCROLL_CLASS}::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </section>
   );
 }
