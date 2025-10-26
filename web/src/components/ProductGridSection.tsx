@@ -576,12 +576,12 @@ export default function ProductGridSection({
   }, [emptyStateDescription, emptyStateTitle, error, handleRetry, loading, loadingMore, visibleProducts]);
 
   return (
-    <section aria-labelledby="all-products" className="space-y-6">
+    <section aria-labelledby="all-products" className="space-y-6 overflow-x-hidden">
       <h2 id="all-products" className="sr-only">
         Tous les produits
       </h2>
       <div className="border-b border-slate-200 pb-3">
-        <div className={`${SEGMENT_SCROLL_CLASSNAME} -mx-1 overflow-x-auto px-1`}>
+        <div className={`${SEGMENT_SCROLL_CLASSNAME} overflow-x-auto -mx-1 px-1`}>
           <div className="flex min-w-max items-center gap-2" role="group" aria-label="Filtrer les produits">
             {SEGMENTS.map(segment => {
               const isActive = segment.key === activeSegment;

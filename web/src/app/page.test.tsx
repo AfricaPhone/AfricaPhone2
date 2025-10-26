@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { TopBar } from './page';
+import { TopBar } from '@/components/HomePageClient';
 
 describe('TopBar search interaction', () => {
   it('submits current search term on form submit', () => {
