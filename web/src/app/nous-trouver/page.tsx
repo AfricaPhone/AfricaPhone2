@@ -17,7 +17,7 @@ export default function NousTrouverPage() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-3 pb-16 pt-10 sm:px-4 lg:px-6">
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-2 pb-16 pt-10 sm:px-3 lg:px-5">
         <NousTrouverGallery images={galleryImages} />
 
         <NousTrouverHero
