@@ -174,7 +174,6 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
   const [isFavorite, setIsFavorite] = useState(false);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string>('');
-  const [shareSheetOpen, setShareSheetOpen] = useState(false);
 
   useEffect(() => {
     if (!product) {
@@ -260,7 +259,6 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
   const handleShare = useCallback(async () => {
     if (!resolvedShareUrl) {
       setShareMessage('Lien indisponible pour le partage.');
-      setShareSheetOpen(true);
       return;
     }
 
@@ -282,76 +280,18 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       }
     }
 
-    setShareSheetOpen(true);
-  }, [resolvedShareUrl, shareText, shareTitle]);
-
-  const handleCopyLink = useCallback(async () => {
-    if (!resolvedShareUrl) {
-      setShareMessage('Lien indisponible pour le partage.');
-      return;
-    }
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(resolvedShareUrl);
         setShareMessage('Lien copie dans le presse-papiers.');
-        setShareSheetOpen(false);
         return;
       } catch (error) {
         console.error('ProductDetailContent: clipboard copy failed', error);
       }
     }
+
     setShareMessage(`Copiez ce lien : ${resolvedShareUrl}`);
-    setShareSheetOpen(false);
-  }, [resolvedShareUrl]);
-
-  const handleOpenShareTarget = useCallback(
-    (url: string) => {
-      if (!resolvedShareUrl) {
-        setShareMessage('Lien indisponible pour le partage.');
-        return;
-      }
-      if (typeof window !== 'undefined') {
-        window.open(url, '_blank', 'noopener,noreferrer');
-        setShareSheetOpen(false);
-        setShareMessage('Lien partage via votre application.');
-      }
-    },
-    [resolvedShareUrl]
-  );
-
-  const shareTargets = useMemo(() => {
-    if (!resolvedShareUrl) {
-      return [];
-    }
-    const encodedUrl = encodeURIComponent(resolvedShareUrl);
-    const encodedText = encodeURIComponent(shareText);
-    return [
-      {
-        label: 'WhatsApp',
-        hint: 'Envoyer sur WhatsApp',
-        className: 'bg-[#25D366] text-white',
-        action: () => handleOpenShareTarget(`https://wa.me/?text=${encodedText}%20${encodedUrl}`),
-      },
-      {
-        label: 'Facebook',
-        hint: 'Publier sur Facebook',
-        className: 'bg-[#1877F2] text-white',
-        action: () => handleOpenShareTarget(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`),
-      },
-      {
-        label: 'X (Twitter)',
-        hint: 'Partager sur X',
-        className: 'bg-[#111111] text-white',
-        action: () => handleOpenShareTarget(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`),
-      },
-      {
-        label: 'Copier le lien',
-        hint: 'Copier dans le presse-papiers',
-        className: 'bg-white text-[#111111] border border-[#11111114]',
-        action: handleCopyLink,
-      },
-    ];
-  }, [handleCopyLink, handleOpenShareTarget, resolvedShareUrl, shareText]);
+  }, [resolvedShareUrl, shareText, shareTitle]);
 
   const orderedSpecs = useMemo(() => {
     if (!product) {
@@ -469,42 +409,6 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       {shareMessage ? (
         <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#111111] px-4 py-2 text-sm font-semibold text-white shadow-xl shadow-slate-900/30">
           {shareMessage}
-        </div>
-      ) : null}
-      {shareSheetOpen ? (
-        <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 px-4 pb-8">
-          <button
-            type="button"
-            aria-label="Fermer la fenetre de partage"
-            className="absolute inset-0 h-full w-full cursor-default"
-            onClick={() => setShareSheetOpen(false)}
-          />
-          <div className="relative z-50 w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl shadow-slate-900/30">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[#111111]">Partager ce produit</h2>
-              <button
-                type="button"
-                onClick={() => setShareSheetOpen(false)}
-                className="rounded-full border border-[#1111111a] p-2 text-[#111111] transition hover:bg-[#111111] hover:text-white"
-              >
-                <CloseIcon className="h-4 w-4" />
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-[#6B7280]">Choisissez une option de partage ou copiez le lien.</p>
-            <div className="mt-4 grid gap-3">
-              {shareTargets.map(target => (
-                <button
-                  key={target.label}
-                  type="button"
-                  onClick={target.action}
-                  className={`flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition hover:brightness-95 ${target.className}`}
-                >
-                  <span>{target.label}</span>
-                  <span className="text-xs font-medium opacity-80">{target.hint}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       ) : null}
       <main className="flex w-full justify-center bg-[#FFFFFF] pb-[108px] lg:pb-12">
