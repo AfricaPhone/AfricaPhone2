@@ -593,12 +593,12 @@ export default function ProductGridSection({
                   aria-pressed={isActive}
                   className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
                     isActive
-                      ? 'border-orange-200 bg-orange-50 text-orange-600 shadow-sm shadow-orange-200/40'
+                      ? 'border-transparent bg-orange-500 text-white shadow-sm shadow-orange-500/40 hover:bg-orange-600'
                       : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-700'
                   }`}
                 >
                   <segment.icon
-                    className={`h-4 w-4 transition-colors ${isActive ? 'text-orange-500' : 'text-slate-500 group-hover:text-orange-500'}`}
+                    className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-orange-500'}`}
                   />
                   {segment.label}
                 </button>
