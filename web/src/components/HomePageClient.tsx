@@ -107,11 +107,11 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
 
       <div className="ml-auto">
         <Link
-          href="#contact"
+          href="/nous-trouver"
           className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
         >
           <LocatorIcon className="h-4 w-4" />
-          Où nous trouver
+          Ou nous trouver
         </Link>
       </div>
     </div>
@@ -135,7 +135,7 @@ export function Footer() {
             Africa<span className="text-orange-400">Phone</span>
           </Link>
           <p className="text-sm text-slate-400">
-            Catalogues vérifiés, stocks physiques et experts passionnés pour vous accompagner avant et après votre achat.
+            Catalogues verifies, stocks physiques et experts passionnes pour vous accompagner avant et apres votre achat.
           </p>
           <a
             href="tel:+2290154151522"
@@ -164,7 +164,7 @@ export function Footer() {
       </div>
       <div className="border-t border-slate-800">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-4 py-6 text-xs text-slate-500 sm:flex-row sm:justify-between lg:px-8">
-          <span>&copy; {new Date().getFullYear()} AfricaPhone. Tous droits réservés.</span>
+          <span>&copy; {new Date().getFullYear()} AfricaPhone. Tous droits reserves.</span>
           <div className="flex flex-wrap justify-center gap-4">
             {footerLegal.map(item => (
               <Link key={item.label} href={item.href} className="hover:text-orange-200">

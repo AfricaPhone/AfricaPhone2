@@ -687,7 +687,7 @@ function TopProductCard({ product }: { product: ProductCardData }) {
   return (
     <Link
       href={detailHref}
-      className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0 sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]"
+      className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0 sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]"
     >
       <div className="relative flex-[0_0_65%] w-full overflow-hidden bg-slate-50">
         <Image
@@ -695,11 +695,11 @@ function TopProductCard({ product }: { product: ProductCardData }) {
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 28vw, 190px"
-          className="object-cover object-center transition duration-300 group-hover:scale-105"
+          className="object-cover object-center"
           onError={() => setImageErrored(true)}
         />
         {product.badge ? (
-          <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600 shadow-sm shadow-slate-900/10">
+          <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600">
             {product.badge}
           </span>
         ) : null}
@@ -720,7 +720,7 @@ function TopProductCard({ product }: { product: ProductCardData }) {
 
 function TopProductSkeleton() {
   return (
-    <div className="flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]">
+    <div className="flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]">
       <div className="flex-[0_0_65%] animate-pulse bg-slate-200" />
       <div className="flex flex-[0_0_35%] flex-col justify-between px-2 pb-2 pt-1.5 sm:px-3 sm:pb-3">
         <div className="h-3 w-2/3 animate-pulse rounded-full bg-slate-200" />
@@ -743,14 +743,14 @@ function ProductCard({ product }: { product: ProductCardData }) {
   }, [product.image]);
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <Link
         href={detailHref}
         className="flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0"
       >
         <div className="relative aspect-[3/4] w-full overflow-hidden sm:aspect-[4/5] lg:aspect-[3/4]">
           {product.badge ? (
-            <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600 shadow-sm shadow-slate-900/10">
+            <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600">
               {product.badge}
             </span>
           ) : null}
@@ -759,7 +759,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
             alt={product.name}
             fill
             sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 18vw"
-            className="object-cover object-center transition duration-300 group-hover:scale-105"
+          className="object-cover object-center"
             onError={() => setImageErrored(true)}
           />
         </div>
@@ -783,7 +783,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
 
 function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div className="aspect-[4/3] w-full animate-pulse bg-slate-200" />
       <div className="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4">
         <div className="h-4 w-1/3 animate-pulse rounded-full bg-slate-200" />
