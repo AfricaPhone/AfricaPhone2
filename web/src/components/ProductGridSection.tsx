@@ -251,6 +251,7 @@ const SEGMENTS: Array<{
 ];
 
 const SEGMENT_SCROLL_CLASSNAME = 'product-segment-scroll';
+const TOP_PRODUCTS_SCROLL_CLASSNAME = 'top-products-scroll';
 
 const productMatchesSegment = (product: ProductCardData, segment: SegmentKey): boolean => {
   return product.categoryKey === segment || product.segmentKey === segment;
@@ -490,6 +491,8 @@ export default function ProductGridSection({
     return products.filter(product => productMatchesSegment(product, categoryFilterValue));
   }, [categoryFilterValue, products]);
 
+  const topProducts = useMemo(() => segmentFilteredProducts.slice(0, 8), [segmentFilteredProducts]);
+
   const visibleProducts = useMemo(
     () => filterProductsBySearchTerm(segmentFilteredProducts, trimmedSearchTerm),
     [segmentFilteredProducts, trimmedSearchTerm]
@@ -604,6 +607,9 @@ export default function ProductGridSection({
           </div>
         </div>
       </div>
+      {(loading && topProducts.length === 0) || topProducts.length > 0 ? (
+        <TopProductsRail products={topProducts} loading={loading} />
+      ) : null}
       <BrandsCarousel segment={activeSegment} activeBrandId={activeBrandId} />
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
@@ -630,8 +636,98 @@ export default function ProductGridSection({
         .${SEGMENT_SCROLL_CLASSNAME}::-webkit-scrollbar {
           display: none;
         }
+        .${TOP_PRODUCTS_SCROLL_CLASSNAME} {
+          scrollbar-width: none;
+        }
+        .${TOP_PRODUCTS_SCROLL_CLASSNAME}::-webkit-scrollbar {
+          display: none;
+        }
       `}</style>
     </section>
+  );
+}
+
+function TopProductsRail({ products, loading }: { products: ProductCardData[]; loading: boolean }) {
+  const showSkeleton = loading && products.length === 0;
+  if (!showSkeleton && products.length === 0) {
+    return null;
+  }
+
+  const items = showSkeleton
+    ? Array.from({ length: 4 }).map((_, index) => <TopProductSkeleton key={`top-skeleton-${index}`} />)
+    : products.map(product => <TopProductCard key={`top-${product.id}`} product={product} />);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-baseline justify-between gap-2">
+        <h3 className="text-lg font-bold text-slate-900">Top produits</h3>
+        <span className="text-xs font-semibold uppercase tracking-wide text-orange-500">Faites defiler</span>
+      </div>
+      <div className="relative overflow-hidden">
+        <div className={`${TOP_PRODUCTS_SCROLL_CLASSNAME} flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-x-contain px-1 pb-3 pe-8 sm:gap-3 sm:px-1.5 sm:pe-12 lg:gap-4 lg:px-2 lg:pe-16`}>
+          {items}
+        </div>
+        {(showSkeleton || products.length > 2) && (
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white to-transparent sm:w-14" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TopProductCard({ product }: { product: ProductCardData }) {
+  const detailHref = `/produits/${product.id}`;
+  const priceLabel = formatPrice(product.price);
+  const [imageErrored, setImageErrored] = useState(false);
+
+  useEffect(() => {
+    setImageErrored(false);
+  }, [product.image]);
+
+  return (
+    <Link
+      href={detailHref}
+      className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0 sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]"
+    >
+      <div className="relative flex-[0_0_65%] w-full overflow-hidden bg-slate-50">
+        <Image
+          src={!imageErrored ? product.image : FALLBACK_IMAGE_DATA_URL}
+          alt={product.name}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 28vw, 190px"
+          className="object-cover object-center transition duration-300 group-hover:scale-105"
+          onError={() => setImageErrored(true)}
+        />
+        {product.badge ? (
+          <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600 shadow-sm shadow-slate-900/10">
+            {product.badge}
+          </span>
+        ) : null}
+      </div>
+      <div className="flex flex-[0_0_35%] flex-col justify-between px-2 pb-2 pt-1.5 text-left sm:px-3 sm:pb-3">
+        <p className="truncate text-[11px] font-semibold text-slate-900">{product.name}</p>
+        <p
+          className="text-[10px] text-slate-500"
+          style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 1 }}
+        >
+          {product.tagline}
+        </p>
+        <p className="text-[13px] font-extrabold text-rose-600">{priceLabel}</p>
+      </div>
+    </Link>
+  );
+}
+
+function TopProductSkeleton() {
+  return (
+    <div className="flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]">
+      <div className="flex-[0_0_65%] animate-pulse bg-slate-200" />
+      <div className="flex flex-[0_0_35%] flex-col justify-between px-2 pb-2 pt-1.5 sm:px-3 sm:pb-3">
+        <div className="h-3 w-2/3 animate-pulse rounded-full bg-slate-200" />
+        <div className="h-3 w-full animate-pulse rounded-full bg-slate-200" />
+        <div className="h-3 w-1/3 animate-pulse rounded-full bg-slate-200" />
+      </div>
+    </div>
   );
 }
 
@@ -647,12 +743,12 @@ function ProductCard({ product }: { product: ProductCardData }) {
   }, [product.image]);
 
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md sm:p-4">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md">
       <Link
         href={detailHref}
-        className="flex flex-1 flex-col gap-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+        className="flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0"
       >
-        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-slate-50 sm:aspect-[4/5] lg:aspect-[3/4]">
+        <div className="relative aspect-[3/4] w-full overflow-hidden sm:aspect-[4/5] lg:aspect-[3/4]">
           {product.badge ? (
             <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600 shadow-sm shadow-slate-900/10">
               {product.badge}
@@ -667,7 +763,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
             onError={() => setImageErrored(true)}
           />
         </div>
-        <div className="flex flex-1 flex-col gap-2 text-left">
+        <div className="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3 text-left sm:px-5 sm:pb-5 sm:pt-4">
           <p className="text-base font-extrabold text-rose-600 sm:text-lg">{priceLabel}</p>
           <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
           <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
@@ -677,7 +773,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
         href={contactHref}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 flex items-center justify-center gap-2 rounded-full bg-orange-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
+        className="mx-4 mb-4 flex items-center justify-center gap-2 rounded-full bg-orange-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 sm:mx-5"
       >
         Nous contacter
       </a>
@@ -687,14 +783,14 @@ function ProductCard({ product }: { product: ProductCardData }) {
 
 function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
-      <div className="aspect-[4/3] w-full animate-pulse rounded-xl bg-slate-200" />
-      <div className="mt-3 flex flex-1 flex-col gap-2">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="aspect-[4/3] w-full animate-pulse bg-slate-200" />
+      <div className="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4">
         <div className="h-4 w-1/3 animate-pulse rounded-full bg-slate-200" />
         <div className="h-4 w-2/3 animate-pulse rounded-full bg-slate-200" />
         <div className="h-3 w-4/5 animate-pulse rounded-full bg-slate-200" />
-        <div className="mt-auto h-9 animate-pulse rounded-full bg-slate-200" />
       </div>
+      <div className="mx-4 mb-4 h-9 animate-pulse rounded-full bg-slate-200 sm:mx-5" />
     </div>
   );
 }

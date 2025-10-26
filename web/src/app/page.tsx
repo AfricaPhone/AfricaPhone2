@@ -77,9 +77,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
           priority
           className="h-10 w-10 rounded-lg shadow-sm shadow-orange-500/30"
         />
-        <span>
-          Africa<span className="text-orange-400">Phone</span>
-        </span>
+        <span>AfricaPhone</span>
       </Link>
 
       <form
@@ -214,6 +212,20 @@ function LocatorIcon({ className }: { className?: string }) {
       />
       <path
         d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function PhoneIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.32 2H7.5a2 2 0 0 1 2 1.72 12.3 12.3 0 0 0 .67 2.71 2 2 0 0 1-.45 2.11l-1.07 1.07a16 16 0 0 0 6 6l1.07-1.07a2 2 0 0 1 2.11-.45 12.3 12.3 0 0 0 2.71.67A2 2 0 0 1 22 16.92Z"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
