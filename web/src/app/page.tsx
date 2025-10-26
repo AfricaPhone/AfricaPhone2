@@ -107,21 +107,13 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         </div>
       </form>
 
-      <div className="ml-auto flex items-center gap-2 sm:gap-3">
-        <a
-          href="tel:+2290154151522"
-          className="flex items-center gap-2 rounded-full border border-transparent bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:border-slate-900 hover:bg-white hover:text-slate-900"
-        >
-          <PhoneIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">01 54 15 15 22</span>
-        </a>
+      <div className="ml-auto">
         <Link
-          href="#cart"
-          className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-900 transition hover:border-orange-400 hover:text-orange-500"
+          href="#contact"
+          className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
         >
-          <CartIcon className="h-5 w-5 text-orange-500" />
-          <span className="hidden sm:inline">Panier</span>
-          <span className="rounded-full bg-orange-500 px-2 py-0.5 text-xs font-bold text-white">0</span>
+          <LocatorIcon className="h-4 w-4" />
+          Où nous trouver
         </Link>
       </div>
     </div>
@@ -210,32 +202,23 @@ function SearchIcon({ className }: { className?: string }) {
   );
 }
 
-function CartIcon({ className }: { className?: string }) {
+function LocatorIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
       <path
-        d="M5.5 6h-.75c-.62 0-1.12.5-1.12 1.12v.01c0 .62.5 1.12 1.12 1.12h.96l2.02 8.44a1.12 1.12 0 0 0 1.09.85h8.11a1.12 1.12 0 0 0 1.07-.79l2.11-6.77a.56.56 0 0 0-.54-.72H8.84"
+        d="M12 21s7-5.25 7-11a7 7 0 1 0-14 0c0 5.75 7 11 7 11Z"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M10 21a1.25 1.25 0 1 0 0-2.5A1.25 1.25 0 0 0 10 21Z" fill="currentColor" />
-      <path d="M17 21a1.25 1.25 0 1 0 0-2.5A1.25 1.25 0 0 0 17 21Z" fill="currentColor" />
-    </svg>
-  );
-}
-
-function PhoneIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
       <path
-        d="M8.25 4.5h7.5A2.25 2.25 0 0 1 18 6.75v10.5A2.25 2.25 0 0 1 15.75 19.5h-7.5A2.25 2.25 0 0 1 6 17.25V6.75A2.25 2.25 0 0 1 8.25 4.5Z"
+        d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
         stroke="currentColor"
         strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
-      <path d="M9 7.5h6M9 16.5h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M12 14.25a1.125 1.125 0 1 0 0-2.25 1.125 1.125 0 0 0 0 2.25Z" fill="currentColor" />
     </svg>
   );
 }
