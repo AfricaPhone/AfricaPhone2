@@ -276,30 +276,29 @@ function SearchModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 z-[70] flex items-start justify-center bg-slate-900/50 px-4 py-10 sm:py-16"
+      className="fixed inset-0 z-[70] flex h-full w-full flex-col bg-white"
     >
-      <div className="absolute inset-0 cursor-pointer" aria-hidden="true" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-xl rounded-3xl bg-white p-5 shadow-2xl shadow-slate-900/20 sm:p-7">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 id={titleId} className="text-lg font-semibold text-slate-900">
-            Recherche dans le catalogue
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
-            aria-label="Fermer la fenêtre de recherche"
-          >
-            <CloseIcon className="h-4 w-4" />
-          </button>
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          role="search"
-          aria-label="Recherche catalogue"
-          className="space-y-4"
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 pb-3 pt-6 sm:px-6 sm:pb-4">
+        <h2 id={titleId} className="text-lg font-semibold text-slate-900">
+          Recherche dans le catalogue
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
+          aria-label="Fermer la fenêtre de recherche"
         >
+          <CloseIcon className="h-4 w-4" />
+        </button>
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        role="search"
+        aria-label="Recherche catalogue"
+        className="flex h-full flex-1 flex-col"
+      >
+        <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6">
           <div className="flex h-12 items-center rounded-full border border-slate-300 bg-slate-50 px-4">
             <input
               autoFocus
@@ -312,7 +311,7 @@ function SearchModal({
             />
           </div>
 
-          <div className="flex flex-wrap gap-2" aria-label="Suggestions de recherche">
+          <div className="mt-5 flex flex-wrap gap-2" aria-label="Suggestions de recherche">
             {suggestions.map(suggestion => (
               <button
                 key={suggestion}
@@ -324,24 +323,24 @@ function SearchModal({
               </button>
             ))}
           </div>
+        </div>
 
-          <div className="flex items-center justify-end gap-2 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/60"
-            >
-              Rechercher
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="flex items-center justify-end gap-2 border-t border-slate-200 px-4 py-4 sm:px-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/60"
+          >
+            Rechercher
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
