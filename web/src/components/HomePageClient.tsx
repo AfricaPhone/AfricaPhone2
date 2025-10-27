@@ -128,11 +128,10 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         <button
           type="button"
           onClick={handleShareClick}
-          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
+          className="inline-flex shrink-0 items-center justify-center text-slate-600 transition hover:text-slate-900"
           aria-label="Partager AfricaPhone"
         >
-          <ShareIcon className="h-5 w-5" />
-          Partager
+                    <ShareIcon className="h-5 w-5" />
         </button>
 
         <form
@@ -226,6 +225,8 @@ function LocatorIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+
 
 
 
