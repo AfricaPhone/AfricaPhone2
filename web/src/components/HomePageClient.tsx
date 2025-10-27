@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -124,11 +124,11 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         <span>AfricaPhone</span>
       </Link>
 
-      <div className="order-3 flex w-full items-center gap-3 sm:order-none sm:max-w-xl">
+      <div className="order-3 flex w-full flex-wrap items-center gap-2 sm:order-none">
         <button
           type="button"
           onClick={handleShareClick}
-          className="inline-flex items-center gap-2 px-2 py-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
           aria-label="Partager AfricaPhone"
         >
           <ShareIcon className="h-5 w-5" />
@@ -136,7 +136,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         </button>
 
         <form
-          className="flex-1"
+          className="min-w-[160px] flex-1"
           onSubmit={handleSubmit}
           role="search"
           aria-label="Recherche catalogue"
@@ -152,7 +152,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
             />
             <button
               type="submit"
-              className="inline-flex h-full items-center justify-center bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="inline-flex h-full items-center justify-center whitespace-nowrap bg-slate-900 px-3 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-slate-800"
               aria-label="Rechercher"
             >
               Rechercher
@@ -163,7 +163,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         <button
           type="button"
           onClick={handleFilterClick}
-          className="inline-flex h-11 items-center justify-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+          className="inline-flex h-11 items-center justify-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
           aria-label="Ouvrir les filtres"
         >
           Filtrer
@@ -226,5 +226,6 @@ function LocatorIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
 
 
