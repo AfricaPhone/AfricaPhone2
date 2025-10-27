@@ -124,11 +124,11 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         <span>AfricaPhone</span>
       </Link>
 
-      <div className="order-3 flex w-full flex-wrap items-center gap-2 sm:order-none">
+      <div className="order-3 flex w-full flex-nowrap items-center gap-2 sm:order-none">
         <button
           type="button"
           onClick={handleShareClick}
-          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
+          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
           aria-label="Partager AfricaPhone"
         >
           <ShareIcon className="h-5 w-5" />
@@ -136,7 +136,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         </button>
 
         <form
-          className="min-w-[160px] flex-1"
+          className="flex-[1_1_140px]"
           onSubmit={handleSubmit}
           role="search"
           aria-label="Recherche catalogue"
@@ -144,8 +144,8 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
           <div className="flex h-11 items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-900 transition focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-200">
             <input
               type="search"
-              placeholder="Rechercher un produit, une marque ou un service AfricaPhone"
-              className="h-full flex-1 bg-transparent px-4 text-sm outline-none placeholder:text-slate-400"
+              placeholder="Rechercher un produit"
+              className="h-full flex-1 bg-transparent px-3 text-xs outline-none placeholder:text-slate-400"
               value={localQuery}
               onChange={handleInputChange}
               aria-label="Champ de recherche"
@@ -163,7 +163,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         <button
           type="button"
           onClick={handleFilterClick}
-          className="inline-flex h-11 items-center justify-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+          className="inline-flex shrink-0 h-11 items-center justify-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
           aria-label="Ouvrir les filtres"
         >
           Filtrer
@@ -226,6 +226,8 @@ function LocatorIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+
 
 
 
