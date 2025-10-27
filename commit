@@ -141,3 +141,11 @@ Redirection (facultatif)
 
 Si tu veux forcer www vers la racine (ou l’inverse), configure la redirection dans l’onglet Domaine personnalisé de Firebase Hosting.
 Une fois ces étapes terminées et la propagation terminée, https://africaphone.org (et www.africaphone.org si ajouté) pointeront sur ton site Firebase Hosting.
+
+
+
+
+
+
+
+

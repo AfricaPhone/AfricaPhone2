@@ -236,40 +236,38 @@ function CartIcon({ className }: { className?: string }) {
 
 function PronosticsPromoCard() {
   return (
-    <section aria-labelledby="pronostics-promo-title" className="overflow-hidden rounded-3xl bg-slate-900 text-white shadow-lg shadow-slate-900/30">
-      <div className="relative flex flex-col gap-6 overflow-hidden px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-8 lg:px-10">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,122,0,0.25),_transparent_55%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.35),_transparent_60%)]" />
-          <Image src="/images/pronostics-banner.jpg" alt="Bandeau jeu pronostics" fill priority={false} className="object-cover opacity-30 mix-blend-screen" />
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/40 via-slate-900/20 to-slate-900/80" />
-          <div className="absolute -right-16 top-10 hidden h-52 w-52 rounded-full border border-white/10 bg-white/5 blur-3xl sm:block" />
-        </div>
-        <div className="relative z-10 flex flex-1 flex-col gap-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-orange-200/90">Jeu AfricaPhone</p>
-          <h2 id="pronostics-promo-title" className="text-2xl font-bold sm:text-3xl">
-            Pronostique et gagne le match
+    <section aria-labelledby="pronostics-promo-title">
+      <Link
+        href="/pronostics"
+        className="group relative block h-[176px] w-full overflow-hidden rounded-[24px] shadow-lg shadow-slate-900/25 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[184px]"
+        aria-labelledby="pronostics-promo-title"
+      >
+        <Image
+          src="/pronostics/hero-ball.jpg"
+          alt="Ballon de football sur gazon"
+          fill
+          priority={false}
+          className="object-cover transition duration-300 group-hover:scale-[1.02] group-active:scale-[0.99] [filter:saturate(0.95)_contrast(1.05)]"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,0,0,0.45)_0%,rgba(0,0,0,0.1)_60%,rgba(0,0,0,0)_100%)]" />
+        <div className="absolute left-5 top-5 flex h-full max-h-[136px] flex-col justify-start gap-4 text-white sm:left-6 sm:top-6">
+          <h2
+            id="pronostics-promo-title"
+            className="text-[22px] font-black leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] sm:text-[24px]"
+          >
+            Pronostics Football
           </h2>
-          <div className="flex items-center gap-3 text-sm font-semibold text-orange-100">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/15 shadow-inner shadow-black/30">
-              <span role="img" aria-label="ballon" className="text-lg">
-                ⚽
-              </span>
-            </span>
-            <span>Score exact + partage WhatsApp = participation validée.</span>
-          </div>
+          <span
+            className="inline-flex h-10 items-center justify-center rounded-full bg-white px-5 text-[15px] font-semibold text-[#1F2A44] shadow-[0_4px_12px_rgba(0,0,0,0.18)] transition group-active:opacity-90 group-active:shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
+            aria-hidden="true"
+          >
+            Jouer maintenant
+          </span>
         </div>
-        <Link
-          href="/pronostics"
-          className="relative z-10 inline-flex items-center justify-center rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-900/40 transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          Accéder au pronostic
-        </Link>
-      </div>
+      </Link>
     </section>
   );
 }
-
 function PhoneIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
@@ -283,3 +281,4 @@ function PhoneIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+

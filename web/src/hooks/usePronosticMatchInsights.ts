@@ -4,6 +4,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { Timestamp, collection, doc, onSnapshot, orderBy, query, where, type FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
 import type { Match, Prediction } from '@/types/pronostics';
+import {
+  DEMO_MATCH_ID,
+  DEMO_MATCH_ID_SECONDARY,
+  demoMatch,
+  demoSecondaryMatch,
+  demoSecondaryWinners,
+  demoWinners,
+} from '@/data/pronostics-demo';
 
 type MatchInsightsState = {
   match: Match | null;
@@ -27,6 +35,13 @@ export function usePronosticMatchInsights(matchId: string | null): MatchInsights
       setMatch(null);
       setLoadingMatch(false);
       setErrorMatch(null);
+      return;
+    }
+
+    if (matchId === DEMO_MATCH_ID || matchId === DEMO_MATCH_ID_SECONDARY) {
+      setMatch(matchId === DEMO_MATCH_ID ? demoMatch : demoSecondaryMatch);
+      setErrorMatch(null);
+      setLoadingMatch(false);
       return;
     }
 
@@ -87,6 +102,13 @@ export function usePronosticMatchInsights(matchId: string | null): MatchInsights
       setWinners([]);
       setLoadingWinners(false);
       setErrorWinners(null);
+      return;
+    }
+
+    if (matchId === DEMO_MATCH_ID || matchId === DEMO_MATCH_ID_SECONDARY) {
+      setWinners(matchId === DEMO_MATCH_ID ? demoWinners : demoSecondaryWinners);
+      setErrorWinners(null);
+      setLoadingWinners(false);
       return;
     }
 

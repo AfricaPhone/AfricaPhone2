@@ -1,10 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { SVGProps } from 'react';
 import { usePronosticMatches } from '@/hooks/usePronosticMatches';
 import type { Match } from '@/types/pronostics';
+import { demoMatch, demoSecondaryMatch } from '@/data/pronostics-demo';
+
+import Image from 'next/image';
 
 const galleryImages = [
   { src: '/pronostics/gallery/gagnant-1.jpg', alt: 'Gagnant 1 tenant son lot' },
@@ -21,13 +23,6 @@ export default function PronosticsPage() {
   const router = useRouter();
   const { matches, loading, error } = usePronosticMatches();
 
-  const primaryMatch = matches.length > 0 ? matches[0] : undefined;
-  const matchStatus: MatchStatus = getMatchStatus(primaryMatch);
-  const categoryLabel = primaryMatch?.competition ?? 'Classico';
-  const teamA = primaryMatch?.teamA ?? 'Real Madrid';
-  const teamB = primaryMatch?.teamB ?? 'FC Barcelona';
-  const dateLabel = primaryMatch?.startTime ? formatMatchDate(primaryMatch.startTime) : 'Dimanche 26 Octobre À 16:15';
-
   const handleBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back();
@@ -36,28 +31,57 @@ export default function PronosticsPage() {
     }
   };
 
-  const handleMatchNavigate = () => {
-    if (primaryMatch) {
-      router.push(`/pronostics/${primaryMatch.id}`);
+  const handleMatchNavigate = (matchId: string | null | undefined) => {
+    if (matchId) {
+      router.push(`/pronostics/${matchId}`);
     }
   };
+
+  const mergedMatches: Match[] = (() => {
+    const base = matches.length > 0 ? [...matches] : [demoMatch];
+    if (!base.some(match => match.id === demoSecondaryMatch.id)) {
+      base.push(demoSecondaryMatch);
+    }
+    return base;
+  })();
+
+  const matchCards = (() => {
+    if (loading) {
+      return [
+        <MatchCard key="loading" loading match={undefined} error={null} interactive={false} onSelect={() => undefined} />,
+      ];
+    }
+
+    if (error) {
+      return [
+        <MatchCard key="error" loading={false} match={undefined} error={error} interactive={false} onSelect={() => undefined} />,
+      ];
+    }
+
+    if (mergedMatches.length === 0) {
+      return [
+        <MatchCard key="empty" loading={false} match={undefined} error={null} interactive={false} onSelect={() => undefined} />,
+      ];
+    }
+
+    return mergedMatches.map(match => (
+      <MatchCard
+        key={match.id}
+        loading={false}
+        match={match}
+        error={null}
+        interactive
+        onSelect={() => handleMatchNavigate(match.id)}
+      />
+    ));
+  })();
 
   return (
     <div className="relative min-h-screen bg-[#F6F7F9] text-[#111827]">
       <AppBar title="Choisir un Match" onBack={handleBack} />
       <main className="mx-auto w-full max-w-screen-sm px-4 pb-28 pt-4">
         <section className="flex flex-col gap-4">
-          <MatchCard
-            category={categoryLabel}
-            teamA={teamA}
-            teamB={teamB}
-            dateLabel={dateLabel}
-            status={matchStatus}
-            loading={loading}
-            error={error}
-            interactive={Boolean(primaryMatch)}
-            onSelect={handleMatchNavigate}
-          />
+          {matchCards}
           <WinnersGallery images={galleryImages} />
         </section>
       </main>
@@ -66,18 +90,14 @@ export default function PronosticsPage() {
 }
 
 type MatchCardProps = {
-  category: string;
-  teamA: string;
-  teamB: string;
-  dateLabel: string;
-  status: MatchStatus;
+  match?: Match;
   loading: boolean;
   error: string | null;
   interactive: boolean;
   onSelect: () => void;
 };
 
-function MatchCard({ category, teamA, teamB, dateLabel, status, loading, error, interactive, onSelect }: MatchCardProps) {
+function MatchCard({ match, loading, error, interactive, onSelect }: MatchCardProps) {
   if (loading) {
     return (
       <article className="rounded-2xl border border-[#E6E8EC] bg-white p-4 shadow-[0_1px_2px_rgba(17,24,39,0.08)]">
@@ -101,6 +121,19 @@ function MatchCard({ category, teamA, teamB, dateLabel, status, loading, error, 
     );
   }
 
+  if (!match) {
+    return (
+      <article className="rounded-2xl border border-dashed border-[#E6E8EC] bg-white/70 p-4 text-sm text-[#6B7280]">
+        Aucun match disponible pour le moment. Revenez plus tard.
+      </article>
+    );
+  }
+
+  const status = getMatchStatus(match);
+  const category = match.competition ?? 'Match';
+  const teamA = match.teamA;
+  const teamB = match.teamB;
+  const dateLabel = formatMatchDate(match.startTime);
   const badge = getStatusBadge(status);
 
   return (

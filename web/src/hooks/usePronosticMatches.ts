@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { collection, onSnapshot, orderBy, query, type FirestoreError } from 'firebase/firestore';
+import { Timestamp, collection, onSnapshot, orderBy, query, type FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
 import type { Match } from '@/types/pronostics';
+import { demoMatch, demoSecondaryMatch } from '@/data/pronostics-demo';
 
 type PronosticMatchesState = {
   matches: Match[];
@@ -15,12 +16,16 @@ type PronosticMatchesState = {
  * Placeholder hook that will be wired to Firestore in a later step.
  * For now it exposes the shape consumed by the pronostics page.
  */
+
+const HARDCODED_MATCHES: Match[] = [demoMatch, demoSecondaryMatch];
+
 export function usePronosticMatches(): PronosticMatchesState {
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [matches, setMatches] = useState<Match[]>(HARDCODED_MATCHES);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true);
     const matchesRef = collection(db, 'matches');
     const matchesQuery = query(matchesRef, orderBy('startTime', 'desc'));
 
@@ -58,13 +63,13 @@ export function usePronosticMatches(): PronosticMatchesState {
           });
         });
 
-        setMatches(mapped);
+        setMatches(mapped.length > 0 ? mapped : HARDCODED_MATCHES);
         setError(null);
         setLoading(false);
       },
       (firestoreError: FirestoreError) => {
         console.error('usePronosticMatches: unable to read matches', firestoreError);
-        setMatches([]);
+        setMatches(HARDCODED_MATCHES);
         setError('Impossible de charger les matchs pour le moment.');
         setLoading(false);
       }
