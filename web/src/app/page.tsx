@@ -19,6 +19,7 @@ export default function HomePage() {
       <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
         <BrandsCarousel />
+        <PronosticsPromoCard />
         <ProductGridSection searchQuery={searchQuery} />
       </main>
       <Footer />
@@ -110,6 +111,13 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
       </form>
 
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <Link
+          href="/pronostics"
+          className="flex items-center gap-2 rounded-full border border-transparent bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-orange-300 transition hover:bg-orange-600"
+        >
+          <span className="hidden h-2 w-2 rounded-full bg-white/80 sm:inline-block" aria-hidden="true" />
+          <span>Pronostics</span>
+        </Link>
         <a
           href="tel:+2290154151522"
           className="flex items-center gap-2 rounded-full border border-transparent bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:border-slate-900 hover:bg-white hover:text-slate-900"
@@ -223,6 +231,42 @@ function CartIcon({ className }: { className?: string }) {
       <path d="M10 21a1.25 1.25 0 1 0 0-2.5A1.25 1.25 0 0 0 10 21Z" fill="currentColor" />
       <path d="M17 21a1.25 1.25 0 1 0 0-2.5A1.25 1.25 0 0 0 17 21Z" fill="currentColor" />
     </svg>
+  );
+}
+
+function PronosticsPromoCard() {
+  return (
+    <section aria-labelledby="pronostics-promo-title" className="overflow-hidden rounded-3xl bg-slate-900 text-white shadow-lg shadow-slate-900/30">
+      <div className="relative flex flex-col gap-6 overflow-hidden px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-8 lg:px-10">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,122,0,0.25),_transparent_55%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.35),_transparent_60%)]" />
+          <Image src="/images/pronostics-banner.jpg" alt="Bandeau jeu pronostics" fill priority={false} className="object-cover opacity-30 mix-blend-screen" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/40 via-slate-900/20 to-slate-900/80" />
+          <div className="absolute -right-16 top-10 hidden h-52 w-52 rounded-full border border-white/10 bg-white/5 blur-3xl sm:block" />
+        </div>
+        <div className="relative z-10 flex flex-1 flex-col gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-orange-200/90">Jeu AfricaPhone</p>
+          <h2 id="pronostics-promo-title" className="text-2xl font-bold sm:text-3xl">
+            Pronostique et gagne le match
+          </h2>
+          <div className="flex items-center gap-3 text-sm font-semibold text-orange-100">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/15 shadow-inner shadow-black/30">
+              <span role="img" aria-label="ballon" className="text-lg">
+                ⚽
+              </span>
+            </span>
+            <span>Score exact + partage WhatsApp = participation validée.</span>
+          </div>
+        </div>
+        <Link
+          href="/pronostics"
+          className="relative z-10 inline-flex items-center justify-center rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-900/40 transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          Accéder au pronostic
+        </Link>
+      </div>
+    </section>
   );
 }
 
