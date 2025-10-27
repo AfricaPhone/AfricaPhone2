@@ -44,3 +44,22 @@ export type WinnerGalleryEntry = {
 export type MatchWithWinners = Match & {
   winners: Prediction[];
 };
+
+export type Contest = {
+  id: string;
+  title: string;
+  description: string;
+  endDate: Date;
+  status: 'active' | 'ended';
+  totalParticipants: number;
+  totalVotes: number;
+};
+
+export type Candidate = {
+  id: string;
+  contestId: string;
+  name: string;
+  media: string;
+  photoUrl: string;
+  voteCount: number;
+};

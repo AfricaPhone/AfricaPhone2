@@ -19,7 +19,7 @@ export default function HomePage() {
       <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
         <BrandsCarousel />
-        <PronosticsPromoCard />
+        <CommunityPromotionRow />
         <ProductGridSection searchQuery={searchQuery} />
       </main>
       <Footer />
@@ -111,13 +111,6 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
       </form>
 
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
-        <Link
-          href="/pronostics"
-          className="flex items-center gap-2 rounded-full border border-transparent bg-orange-500 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-orange-300 transition hover:bg-orange-600"
-        >
-          <span className="hidden h-2 w-2 rounded-full bg-white/80 sm:inline-block" aria-hidden="true" />
-          <span>Pronostics</span>
-        </Link>
         <a
           href="tel:+2290154151522"
           className="flex items-center gap-2 rounded-full border border-transparent bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:border-slate-900 hover:bg-white hover:text-slate-900"
@@ -234,9 +227,20 @@ function CartIcon({ className }: { className?: string }) {
   );
 }
 
+function CommunityPromotionRow() {
+  return (
+    <section aria-label="Jeux & concours AfricaPhone" className="-mx-[0.2rem] px-[0.2rem] sm:mx-0 sm:px-0">
+      <div className="flex snap-x gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible">
+        <PronosticsPromoCard />
+        <VoteContestPromoCard />
+      </div>
+    </section>
+  );
+}
+
 function PronosticsPromoCard() {
   return (
-    <section aria-labelledby="pronostics-promo-title">
+    <article className="flex min-w-[78vw] max-w-[420px] flex-shrink-0 snap-center sm:min-w-0 sm:max-w-none">
       <Link
         href="/pronostics"
         className="group relative block h-[176px] w-full overflow-hidden rounded-[24px] shadow-lg shadow-slate-900/25 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[184px]"
@@ -265,7 +269,45 @@ function PronosticsPromoCard() {
           </span>
         </div>
       </Link>
-    </section>
+    </article>
+  );
+}
+
+function VoteContestPromoCard() {
+  return (
+    <article className="flex min-w-[78vw] max-w-[420px] flex-shrink-0 snap-center sm:min-w-0 sm:max-w-none">
+      <Link
+        href="/votes"
+        className="group relative block h-[176px] w-full overflow-hidden rounded-[24px] shadow-lg shadow-slate-900/25 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[184px]"
+        aria-labelledby="votes-promo-title"
+      >
+        <Image
+          src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80"
+          alt="Public applaudissant un concours"
+          fill
+          priority={false}
+          className="object-cover transition duration-300 group-hover:scale-[1.02] group-active:scale-[0.99]"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.25)_55%,rgba(0,0,0,0)_100%)]" />
+        <div className="absolute left-5 top-5 flex h-full max-h-[140px] flex-col justify-start gap-3 text-white sm:left-6 sm:top-6">
+          <span className="inline-flex w-fit rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/90">
+            Concours de vote
+          </span>
+          <h2
+            id="votes-promo-title"
+            className="text-[22px] font-black leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] sm:text-[24px]"
+          >
+            AfricaPhone Awards
+          </h2>
+          <span
+            className="inline-flex h-10 items-center justify-center rounded-full bg-white px-5 text-[15px] font-semibold text-[#1F2A44] shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition group-active:opacity-90 group-active:shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
+            aria-hidden="true"
+          >
+            Voter maintenant
+          </span>
+        </div>
+      </Link>
+    </article>
   );
 }
 function PhoneIcon({ className }: { className?: string }) {
