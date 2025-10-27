@@ -480,7 +480,7 @@ export default function PredictionDetailPanel({
   };
 
   const actionButton = useMemo(() => {
-    if (!match) {
+    if (!match || !shareProgress.complete) {
       return null;
     }
     if (!canSubmit) {
@@ -556,7 +556,7 @@ export default function PredictionDetailPanel({
   }, [lastSubmission, match, matchEnded]);
 
   const currentPredictionCard = useMemo(() => {
-    if (!lastSubmission || matchEnded) {
+    if (!lastSubmission || matchEnded || !shareProgress.complete) {
       return null;
     }
     return (
@@ -567,7 +567,7 @@ export default function PredictionDetailPanel({
         </span>
       </div>
     );
-  }, [lastSubmission, matchEnded]);
+  }, [lastSubmission, match, matchEnded, shareProgress.complete]);
 
   const shareBanner = useMemo(() => {
     if (!sharePromptVisible || !pendingSubmission) {
@@ -615,7 +615,7 @@ export default function PredictionDetailPanel({
   }, [handleShare, isSharing, pendingSubmission, resetDraft, shareProgress.complete, shareProgress.percent, shareProgress.remaining, sharePromptVisible]);
 
   const shareHelperCard = useMemo(() => {
-    if (!match || sharePromptVisible) {
+    if (!match || sharePromptVisible || shareProgress.complete) {
       return null;
     }
     return (
@@ -737,8 +737,12 @@ export default function PredictionDetailPanel({
         {shareBanner}
         {shareHelperCard}
         {actionButton}
-        <TrendsSection trends={communityTrends} total={match.predictionCount ?? 0} />
-        <WinnersSection winners={winners} loading={loadingWinners} error={errorWinners} />
+        {shareProgress.complete ? (
+          <>
+            <TrendsSection trends={communityTrends} total={match.predictionCount ?? 0} />
+            <WinnersSection winners={winners} loading={loadingWinners} error={errorWinners} />
+          </>
+        ) : null}
       </div>
 
       {modalOpen && (
