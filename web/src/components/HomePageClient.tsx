@@ -131,7 +131,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
           className="inline-flex shrink-0 items-center justify-center text-slate-600 transition hover:text-slate-900"
           aria-label="Partager AfricaPhone"
         >
-                    <ShareIcon className="h-5 w-5" />
+          <ShareIcon className="h-5 w-5" />
         </button>
 
         <form
@@ -151,7 +151,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
             />
             <button
               type="submit"
-              className="inline-flex h-full items-center justify-center whitespace-nowrap bg-slate-900 px-3 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-slate-800"
+              className="sr-only"
               aria-label="Rechercher"
             >
               Rechercher
@@ -225,10 +225,3 @@ function LocatorIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
-
-
-
-
-
-
