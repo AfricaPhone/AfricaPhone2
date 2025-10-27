@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useId, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -43,27 +43,36 @@ type TopNavProps = {
   onSubmitSearch: (term: string) => void;
 };
 
+const SUGGESTED_QUERIES = [
+  'Tecno Camon 30',
+  'Samsung Galaxy',
+  'iPhone 15',
+  'AirPods',
+  'Accessoires',
+  'Tablettes Android',
+] as const;
+
 export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
-  const [localQuery, setLocalQuery] = useState(searchQuery);
+  const [isSearchOpen, setSearchOpen] = useState(false);
+  const [modalQuery, setModalQuery] = useState(searchQuery);
   const router = useRouter();
+  const searchModalId = useId();
 
   useEffect(() => {
-    setLocalQuery(searchQuery);
-  }, [searchQuery]);
+    if (!isSearchOpen) {
+      setModalQuery(searchQuery);
+    }
+  }, [isSearchOpen, searchQuery]);
 
-  const handleSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const trimmedValue = localQuery.trim();
-      onSubmitSearch(trimmedValue);
-      setLocalQuery(trimmedValue);
+  const triggerSearch = useCallback(
+    (term: string) => {
+      const trimmed = term.trim();
+      onSubmitSearch(trimmed);
+      setModalQuery(trimmed);
+      setSearchOpen(false);
     },
-    [localQuery, onSubmitSearch]
+    [onSubmitSearch]
   );
-
-  const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setLocalQuery(event.target.value);
-  }, []);
 
   const handleFilterClick = useCallback(() => {
     router.push('/filtrer');
@@ -107,6 +116,33 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
     }
   }, []);
 
+  const handleOpenSearch = useCallback(() => {
+    setModalQuery(searchQuery);
+    setSearchOpen(true);
+  }, [searchQuery]);
+
+  const handleCloseSearch = useCallback(() => {
+    setSearchOpen(false);
+  }, []);
+
+  const handleModalQueryChange = useCallback((value: string) => {
+    setModalQuery(value);
+  }, []);
+
+  const handleModalSubmit = useCallback(() => {
+    triggerSearch(modalQuery);
+  }, [modalQuery, triggerSearch]);
+
+  const handleSuggestionSelect = useCallback(
+    (value: string) => {
+      triggerSearch(value);
+    },
+    [triggerSearch]
+  );
+
+  const displayQuery = searchQuery.trim();
+  const hasActiveQuery = displayQuery.length > 0;
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 lg:px-8">
       <Link
@@ -134,30 +170,21 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
           <ShareIcon className="h-5 w-5" />
         </button>
 
-        <form
-          className="flex-[1_1_140px]"
-          onSubmit={handleSubmit}
-          role="search"
-          aria-label="Recherche catalogue"
-        >
-          <div className="flex h-11 items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-900 transition focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-200">
-            <input
-              type="search"
-              placeholder="Rechercher un produit"
-              className="h-full flex-1 bg-transparent px-3 text-xs outline-none placeholder:text-slate-400"
-              value={localQuery}
-              onChange={handleInputChange}
-              aria-label="Champ de recherche"
-            />
-            <button
-              type="submit"
-              className="sr-only"
-              aria-label="Rechercher"
-            >
-              Rechercher
-            </button>
-          </div>
-        </form>
+        <div className="flex-[1_1_140px]">
+          <button
+            type="button"
+            onClick={handleOpenSearch}
+            className="flex h-11 w-full items-center justify-between gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 text-left text-xs font-medium text-slate-500 transition hover:border-slate-900 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
+            aria-haspopup="dialog"
+            aria-expanded={isSearchOpen}
+            aria-controls={searchModalId}
+          >
+            <span className={hasActiveQuery ? 'truncate text-slate-900' : 'truncate'}>
+              {hasActiveQuery ? displayQuery : 'Rechercher un produit'}
+            </span>
+            <span className="text-[0.625rem] uppercase tracking-wide text-slate-400">Ouvrir</span>
+          </button>
+        </div>
 
         <button
           type="button"
@@ -178,11 +205,146 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
           Ou nous trouver
         </Link>
       </div>
+      <SearchModal
+        open={isSearchOpen}
+        modalId={searchModalId}
+        query={modalQuery}
+        suggestions={SUGGESTED_QUERIES}
+        onClose={handleCloseSearch}
+        onQueryChange={handleModalQueryChange}
+        onSubmit={handleModalSubmit}
+        onSelectSuggestion={handleSuggestionSelect}
+      />
     </div>
   );
 }
 
 export const TopBar = TopNav;
+
+type SearchModalProps = {
+  open: boolean;
+  modalId: string;
+  query: string;
+  suggestions: readonly string[];
+  onClose: () => void;
+  onQueryChange: (value: string) => void;
+  onSubmit: () => void;
+  onSelectSuggestion: (value: string) => void;
+};
+
+function SearchModal({
+  open,
+  modalId,
+  query,
+  suggestions,
+  onClose,
+  onQueryChange,
+  onSubmit,
+  onSelectSuggestion,
+}: SearchModalProps) {
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open, onClose]);
+
+  if (!open) {
+    return null;
+  }
+
+  const titleId = `${modalId}-title`;
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit();
+  };
+
+  return (
+    <div
+      id={modalId}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      className="fixed inset-0 z-[70] flex items-start justify-center bg-slate-900/50 px-4 py-10 sm:py-16"
+    >
+      <div className="absolute inset-0 cursor-pointer" aria-hidden="true" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-xl rounded-3xl bg-white p-5 shadow-2xl shadow-slate-900/20 sm:p-7">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 id={titleId} className="text-lg font-semibold text-slate-900">
+            Recherche dans le catalogue
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
+            aria-label="Fermer la fenêtre de recherche"
+          >
+            <CloseIcon className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          role="search"
+          aria-label="Recherche catalogue"
+          className="space-y-4"
+        >
+          <div className="flex h-12 items-center rounded-full border border-slate-300 bg-slate-50 px-4">
+            <input
+              autoFocus
+              type="search"
+              value={query}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => onQueryChange(event.target.value)}
+              placeholder="Rechercher un produit ou une marque"
+              className="h-full w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              aria-label="Saisir une recherche produit"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2" aria-label="Suggestions de recherche">
+            {suggestions.map(suggestion => (
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => onSelectSuggestion(suggestion)}
+                className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-900 hover:bg-slate-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/60"
+            >
+              Rechercher
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function ShareIcon({ className }: { className?: string }) {
   return (
@@ -219,6 +381,20 @@ function LocatorIcon({ className }: { className?: string }) {
         d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
         stroke="currentColor"
         strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M5 5l10 10M15 5 5 15"
+        stroke="currentColor"
+        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
