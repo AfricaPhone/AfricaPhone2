@@ -69,6 +69,44 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
     router.push('/filtrer');
   }, [router]);
 
+  const handleShareClick = useCallback(async () => {
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://africaphone.com';
+    const shareTitle = 'AfricaPhone';
+    const shareText = 'Découvrez la boutique AfricaPhone et nos offres mobiles.';
+
+    if (typeof navigator !== 'undefined') {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl,
+          });
+          return;
+        } catch (error) {
+          const abortError = error instanceof Error && error.name === 'AbortError';
+          if (!abortError) {
+            console.error('TopNav: web share failed', error);
+          }
+        }
+      }
+
+      if (navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          return;
+        } catch (error) {
+          console.error('TopNav: clipboard copy failed', error);
+        }
+      }
+    }
+
+    const fallbackUrl = `https://wa.me/22954151522?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`;
+    if (typeof window !== 'undefined') {
+      window.open(fallbackUrl, '_blank');
+    }
+  }, []);
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 lg:px-8">
       <Link
@@ -86,31 +124,50 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         <span>AfricaPhone</span>
       </Link>
 
-      <form
-        className="order-3 w-full min-w-[220px] flex-1 sm:order-none sm:max-w-xl"
-        onSubmit={handleSubmit}
-        role="search"
-        aria-label="Recherche catalogue"
-      >
-        <div className="flex h-11 items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-900 transition focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-200">
-          <input
-            type="search"
-            placeholder="Rechercher un produit, une marque ou un service AfricaPhone"
-            className="h-full flex-1 bg-transparent px-4 text-sm outline-none placeholder:text-slate-400"
-            value={localQuery}
-            onChange={handleInputChange}
-            aria-label="Champ de recherche"
-          />
-          <button
-            type="button"
-            onClick={handleFilterClick}
-            className="flex h-full items-center justify-center bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-            aria-label="Ouvrir les filtres"
-          >
-            Filtrer
-          </button>
-        </div>
-      </form>
+      <div className="order-3 flex w-full items-center gap-2 sm:order-none sm:max-w-xl">
+        <button
+          type="button"
+          onClick={handleShareClick}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
+          aria-label="Partager AfricaPhone"
+        >
+          <ShareIcon className="h-5 w-5" />
+        </button>
+
+        <form
+          className="flex-1"
+          onSubmit={handleSubmit}
+          role="search"
+          aria-label="Recherche catalogue"
+        >
+          <div className="flex h-11 items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-900 transition focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-200">
+            <input
+              type="search"
+              placeholder="Rechercher un produit, une marque ou un service AfricaPhone"
+              className="h-full flex-1 bg-transparent px-4 text-sm outline-none placeholder:text-slate-400"
+              value={localQuery}
+              onChange={handleInputChange}
+              aria-label="Champ de recherche"
+            />
+            <button
+              type="submit"
+              className="flex h-full w-11 items-center justify-center bg-slate-900 text-white transition hover:bg-slate-800"
+              aria-label="Rechercher"
+            >
+              <SearchIcon className="h-5 w-5" />
+            </button>
+          </div>
+        </form>
+
+        <button
+          type="button"
+          onClick={handleFilterClick}
+          className="inline-flex h-11 items-center justify-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+          aria-label="Ouvrir les filtres"
+        >
+          Filtrer
+        </button>
+      </div>
 
       <div className="ml-auto">
         <Link
@@ -126,6 +183,48 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
 }
 
 export const TopBar = TopNav;
+
+function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M17.5 8.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM6.5 14.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM17.5 20.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.43 11.72 15.57 7.03M8.43 12.28l7.14 4.69"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M9.5 15.417c3.25 0 5.917-2.667 5.917-5.917C15.417 6.25 12.75 3.583 9.5 3.583 6.25 3.583 3.583 6.25 3.583 9.5 3.583 12.75 6.25 15.417 9.5 15.417Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m14.167 14.167 2.5 2.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function LocatorIcon({ className }: { className?: string }) {
   return (
