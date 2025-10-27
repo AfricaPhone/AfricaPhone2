@@ -86,7 +86,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         role="search"
         aria-label="Recherche catalogue"
       >
-        <div className="flex h-11 items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-900 transition focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100">
+        <div className="flex h-11 items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-900 transition focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-200">
           <input
             type="search"
             placeholder="Rechercher un produit, une marque ou un service AfricaPhone"
@@ -97,7 +97,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
           />
           <button
             type="submit"
-            className="flex h-full w-11 items-center justify-center bg-orange-500 text-white transition hover:bg-orange-600"
+            className="flex h-full w-11 items-center justify-center bg-slate-900 text-white transition hover:bg-slate-800"
             aria-label="Rechercher"
           >
             <SearchIcon className="h-5 w-5" />

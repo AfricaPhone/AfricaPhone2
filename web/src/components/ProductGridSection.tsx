@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
@@ -28,7 +28,7 @@ type ProductCardData = {
   id: string;
   name: string;
   price: number | null;
-  image: string;
+  image: string | null;
   tagline: string;
   badge?: string;
   ordreVedette?: number;
@@ -54,12 +54,6 @@ type FirestoreProductPayload = {
   type?: unknown;
   tags?: unknown;
 };
-
-const FALLBACK_IMAGE_DATA_URL =
-  'data:image/svg+xml;charset=UTF-8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><rect width="320" height="240" fill="#e2e8f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="18">Image a venir</text></svg>`
-  );
 
 const PRODUCTS_PHONE_NUMBER = '2290154151522';
 const PAGE_SIZE = 24;
@@ -97,7 +91,7 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
           .map(url => url.trim())
       : [];
 
-  const primaryImage = imageCandidates[0] ?? safeString(data.imageUrl) ?? FALLBACK_IMAGE_DATA_URL;
+  const primaryImage = imageCandidates[0] ?? safeString(data.imageUrl) ?? null;
 
   const taglineParts: string[] = [];
   const brand = safeString(data.brand);
@@ -244,7 +238,7 @@ const SEGMENTS: Array<{
   label: string;
   icon: (props: { className?: string }) => JSX.Element;
 }> = [
-  { key: 'telephone', label: 'Téléphones', icon: StarOutlineIcon },
+  { key: 'telephone', label: 'T?l?phones', icon: StarOutlineIcon },
   { key: 'tablette', label: 'Tablettes', icon: TabletIcon },
   { key: 'portable a touche', label: 'A touches', icon: KeypadIcon },
   { key: 'accessoire', label: 'Accessoires', icon: HeadsetIcon },
@@ -278,7 +272,7 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
     id: product.id,
     name: product.name,
     price,
-    image: product.image,
+    image: safeString(product.image) ?? null,
     tagline: taglineCandidates[0] ?? 'Produit selectionne par AfricaPhone',
     badge,
     ordreVedette: 0,
@@ -313,7 +307,7 @@ export default function ProductGridSection({
   const searchRangeEnd = useMemo(() => getSearchRangeEnd(trimmedSearchTerm), [trimmedSearchTerm]);
   const categoryFilterValue = activeSegment === 'telephone' ? null : activeSegment;
   const activeSegmentLabel = useMemo(
-    () => SEGMENTS.find(segment => segment.key === activeSegment)?.label ?? 'Téléphones',
+    () => SEGMENTS.find(segment => segment.key === activeSegment)?.label ?? 'T?l?phones',
     [activeSegment]
   );
   const [products, setProducts] = useState<ProductCardData[]>(() =>
@@ -593,12 +587,12 @@ export default function ProductGridSection({
                   aria-pressed={isActive}
                   className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
                     isActive
-                      ? 'border-transparent bg-orange-500 text-white shadow-sm shadow-orange-500/40 hover:bg-orange-600'
-                      : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-700'
+                      ? 'border-transparent bg-slate-900 text-white shadow-sm shadow-slate-900/30 hover:bg-slate-800'
+                      : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
                   }`}
                 >
                   <segment.icon
-                    className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-orange-500'}`}
+                    className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-900'}`}
                   />
                   {segment.label}
                 </button>
@@ -661,15 +655,11 @@ function TopProductsRail({ products, loading }: { products: ProductCardData[]; l
     <div className="space-y-3">
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="text-lg font-bold text-slate-900">Top produits</h3>
-        <span className="text-xs font-semibold uppercase tracking-wide text-orange-500">Faites defiler</span>
       </div>
       <div className="relative overflow-hidden">
         <div className={`${TOP_PRODUCTS_SCROLL_CLASSNAME} flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-x-contain px-1 pb-3 pe-8 sm:gap-3 sm:px-1.5 sm:pe-12 lg:gap-4 lg:px-2 lg:pe-16`}>
           {items}
         </div>
-        {(showSkeleton || products.length > 2) && (
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white to-transparent sm:w-14" />
-        )}
       </div>
     </div>
   );
@@ -690,18 +680,15 @@ function TopProductCard({ product }: { product: ProductCardData }) {
       className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0 sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]"
     >
       <div className="relative flex-[0_0_65%] w-full overflow-hidden bg-slate-50">
-        <Image
-          src={!imageErrored ? product.image : FALLBACK_IMAGE_DATA_URL}
-          alt={product.name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 28vw, 190px"
-          className="object-cover object-center"
-          onError={() => setImageErrored(true)}
-        />
-        {product.badge ? (
-          <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600">
-            {product.badge}
-          </span>
+        {!imageErrored && product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 28vw, 190px"
+            className="object-cover object-center"
+            onError={() => setImageErrored(true)}
+          />
         ) : null}
       </div>
       <div className="flex flex-[0_0_35%] flex-col justify-between px-2 pb-2 pt-1.5 text-left sm:px-3 sm:pb-3">
@@ -734,8 +721,6 @@ function TopProductSkeleton() {
 function ProductCard({ product }: { product: ProductCardData }) {
   const priceLabel = formatPrice(product.price);
   const detailHref = `/produits/${product.id}`;
-  const contactMessage = encodeURIComponent(`Bonjour AfricaPhone, je suis interesse(e) par ${product.name}.`);
-  const contactHref = `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${contactMessage}`;
   const [imageErrored, setImageErrored] = useState(false);
 
   useEffect(() => {
@@ -749,19 +734,16 @@ function ProductCard({ product }: { product: ProductCardData }) {
         className="flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0"
       >
         <div className="relative aspect-[3/4] w-full overflow-hidden sm:aspect-[4/5] lg:aspect-[3/4]">
-          {product.badge ? (
-            <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-orange-600">
-              {product.badge}
-            </span>
+          {!imageErrored && product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 18vw"
+              className="object-cover object-center"
+              onError={() => setImageErrored(true)}
+            />
           ) : null}
-          <Image
-            src={!imageErrored ? product.image : FALLBACK_IMAGE_DATA_URL}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 18vw"
-          className="object-cover object-center"
-            onError={() => setImageErrored(true)}
-          />
         </div>
         <div className="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3 text-left sm:px-5 sm:pb-5 sm:pt-4">
           <p className="text-base font-extrabold text-rose-600 sm:text-lg">{priceLabel}</p>
@@ -769,14 +751,6 @@ function ProductCard({ product }: { product: ProductCardData }) {
           <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
         </div>
       </Link>
-      <a
-        href={contactHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mx-4 mb-4 flex items-center justify-center gap-2 rounded-full bg-orange-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 sm:mx-5"
-      >
-        Nous contacter
-      </a>
     </article>
   );
 }
@@ -790,7 +764,6 @@ function ProductCardSkeleton() {
         <div className="h-4 w-2/3 animate-pulse rounded-full bg-slate-200" />
         <div className="h-3 w-4/5 animate-pulse rounded-full bg-slate-200" />
       </div>
-      <div className="mx-4 mb-4 h-9 animate-pulse rounded-full bg-slate-200 sm:mx-5" />
     </div>
   );
 }
@@ -857,3 +830,10 @@ function HeadsetIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+
+
+
+
+
+
