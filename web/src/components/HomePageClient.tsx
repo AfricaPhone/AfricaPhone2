@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ProductGridSection from '@/components/ProductGridSection';
 import SiteFooter from '@/components/SiteFooter';
 
@@ -44,6 +45,7 @@ type TopNavProps = {
 
 export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
   const [localQuery, setLocalQuery] = useState(searchQuery);
+  const router = useRouter();
 
   useEffect(() => {
     setLocalQuery(searchQuery);
@@ -62,6 +64,10 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
   const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setLocalQuery(event.target.value);
   }, []);
+
+  const handleFilterClick = useCallback(() => {
+    router.push('/filtrer');
+  }, [router]);
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 lg:px-8">
@@ -96,11 +102,12 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
             aria-label="Champ de recherche"
           />
           <button
-            type="submit"
-            className="flex h-full w-11 items-center justify-center bg-slate-900 text-white transition hover:bg-slate-800"
-            aria-label="Rechercher"
+            type="button"
+            onClick={handleFilterClick}
+            className="flex h-full items-center justify-center bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+            aria-label="Ouvrir les filtres"
           >
-            <SearchIcon className="h-5 w-5" />
+            Filtrer
           </button>
         </div>
       </form>
@@ -119,27 +126,6 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
 }
 
 export const TopBar = TopNav;
-
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="M9.5 15.417c3.25 0 5.917-2.667 5.917-5.917C15.417 6.25 12.75 3.583 9.5 3.583 6.25 3.583 3.583 6.25 3.583 9.5 3.583 12.75 6.25 15.417 9.5 15.417Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="m14.167 14.167 2.5 2.5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function LocatorIcon({ className }: { className?: string }) {
   return (
