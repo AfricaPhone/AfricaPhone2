@@ -72,7 +72,7 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
   const handleShareClick = useCallback(async () => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://africaphone.com';
     const shareTitle = 'AfricaPhone';
-    const shareText = 'Découvrez la boutique AfricaPhone et nos offres mobiles.';
+    const shareText = 'Decouvrez la boutique AfricaPhone et nos offres mobiles.';
 
     if (typeof navigator !== 'undefined') {
       if (navigator.share) {
@@ -124,14 +124,15 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         <span>AfricaPhone</span>
       </Link>
 
-      <div className="order-3 flex w-full items-center gap-2 sm:order-none sm:max-w-xl">
+      <div className="order-3 flex w-full items-center gap-3 sm:order-none sm:max-w-xl">
         <button
           type="button"
           onClick={handleShareClick}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
+          className="inline-flex items-center gap-2 px-2 py-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
           aria-label="Partager AfricaPhone"
         >
           <ShareIcon className="h-5 w-5" />
+          Partager
         </button>
 
         <form
@@ -151,10 +152,10 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
             />
             <button
               type="submit"
-              className="flex h-full w-11 items-center justify-center bg-slate-900 text-white transition hover:bg-slate-800"
+              className="inline-flex h-full items-center justify-center bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
               aria-label="Rechercher"
             >
-              <SearchIcon className="h-5 w-5" />
+              Rechercher
             </button>
           </div>
         </form>
@@ -205,27 +206,6 @@ function ShareIcon({ className }: { className?: string }) {
   );
 }
 
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="M9.5 15.417c3.25 0 5.917-2.667 5.917-5.917C15.417 6.25 12.75 3.583 9.5 3.583 6.25 3.583 3.583 6.25 3.583 9.5 3.583 12.75 6.25 15.417 9.5 15.417Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="m14.167 14.167 2.5 2.5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function LocatorIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
@@ -246,4 +226,5 @@ function LocatorIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
 
