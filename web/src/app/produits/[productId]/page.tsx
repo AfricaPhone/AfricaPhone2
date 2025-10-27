@@ -29,8 +29,6 @@ type ProductMeta = {
 };
 
 const PRODUCT_ID_REGEXP = /^[\w-]{1,128}$/;
-const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80';
 const DEFAULT_DESCRIPTION =
   'Découvrez les smartphones, tablettes et accessoires sélectionnés par AfricaPhone avec assistance locale.';
 const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'africaphone-vente';
@@ -122,30 +120,42 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
     initialProduct?.description ??
     initialProduct?.tagline ??
     DEFAULT_DESCRIPTION;
-  const image =
-    meta?.image ??
-    initialProduct?.gallery?.[0] ??
-    initialProduct?.image ??
-    FALLBACK_IMAGE;
+  const image = meta?.image ?? initialProduct?.gallery?.[0] ?? initialProduct?.image ?? null;
 
   const title = `${baseName} | AfricaPhone`;
 
-  return {
+  const metadata: Metadata = {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: 'website',
+  };
+
+  const openGraphBase = {
+    title,
+    description,
+    type: 'website' as const,
+  };
+
+  if (image) {
+    metadata.openGraph = {
+      ...openGraphBase,
       images: [{ url: image, width: 1200, height: 630 }],
-    },
-    twitter: {
+    };
+    metadata.twitter = {
       card: 'summary_large_image',
       title,
       description,
       images: [image],
-    },
-  };
+    };
+  } else {
+    metadata.openGraph = openGraphBase;
+    metadata.twitter = {
+      card: 'summary',
+      title,
+      description,
+    };
+  }
+
+  return metadata;
 }
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {

@@ -17,7 +17,7 @@ export default function HomePageClient() {
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
       <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 overflow-x-hidden px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
-        <ProductGridSection searchQuery={searchQuery} />
+        <ProductGridSection searchQuery={searchQuery} enableStaticFallbacks={false} />
       </main>
       <SiteFooter />
     </div>

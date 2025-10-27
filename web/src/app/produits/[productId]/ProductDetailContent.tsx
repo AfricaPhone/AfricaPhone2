@@ -11,12 +11,6 @@ import { getProductDetail } from '@/data/product-details';
 import { db, getAnalyticsClient } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
-const FALLBACK_IMAGE_DATA_URL =
-  'data:image/svg+xml;charset=UTF-8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><rect width="320" height="240" fill="#e2e8f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="18">Image a venir</text></svg>`
-  );
-
 const PRODUCTS_PHONE_NUMBER = '2290154151522';
 const DEFAULT_DELIVERY_NOTES = [
   'Retrait express en boutique AfricaPhone ou livraison sous 24 h sur Grand Cotonou.',
@@ -60,7 +54,7 @@ type FirestoreProduct = {
   name: string;
   price: number | null;
   oldPrice: number | null;
-  image: string;
+  image: string | null;
   gallery: string[];
   tagline: string;
   description: string | null;
@@ -165,9 +159,9 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
   const activeImage = useMemo(() => {
     if (!product || product.gallery.length === 0) {
-      return FALLBACK_IMAGE_DATA_URL;
+      return null;
     }
-    return product.gallery[selectedImage] ?? product.gallery[0];
+    return product.gallery[selectedImage] ?? product.gallery[0] ?? null;
   }, [product, selectedImage]);
 
   const [activeTab, setActiveTab] = useState<'specs' | 'description'>('specs');
@@ -236,7 +230,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     return () => {
       cancelled = true;
     };
-  }, [product?.id]);
+  }, [product]);
 
   const toggleFavorite = useCallback(() => {
     setIsFavorite(prev => !prev);
@@ -447,14 +441,18 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           </header>
 
           <section className="relative flex h-[352px] w-full items-center justify-center overflow-hidden bg-[#F5F7FA] sm:h-[420px]">
-            <Image
-              src={activeImage}
-              alt={product.name}
-              fill
-              sizes="540px"
-              className="object-contain"
-              priority
-            />
+            {activeImage ? (
+              <Image
+                src={activeImage}
+                alt={product.name}
+                fill
+                sizes="540px"
+                className="object-contain"
+                priority
+              />
+            ) : (
+              <p className="px-6 text-center text-sm font-medium text-[#4B5563]">Image non disponible pour ce produit.</p>
+            )}
           </section>
 
           <div className="flex flex-1 flex-col px-3 pb-12">
@@ -571,7 +569,11 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
           .map(url => url.trim())
       : [];
 
-  const primaryImage = imageCandidates[0] ?? safeString(payload.imageUrl) ?? FALLBACK_IMAGE_DATA_URL;
+  const primaryImageCandidate = imageCandidates[0] ?? safeString(payload.imageUrl) ?? null;
+  const gallery = dedupeArray([primaryImageCandidate, ...imageCandidates]).filter(
+    (image): image is string => typeof image === 'string' && image.trim().length > 0
+  );
+  const primaryImage = gallery[0] ?? null;
 
   const taglineParts: string[] = [];
   const brand = safeString(payload.brand);
@@ -636,9 +638,7 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
     price,
     oldPrice,
     image: primaryImage,
-    gallery: dedupeArray([primaryImage, ...imageCandidates]).filter(
-      image => typeof image === 'string' && image.trim().length > 0
-    ),
+    gallery,
     tagline: taglineParts.join(' / ') || 'Produit AfricaPhone',
     description: safeString(payload.description),
     brand: brand ?? null,
@@ -710,7 +710,7 @@ function combineProductData(
     savingsLabel,
     badge: firestoreProduct?.badge ?? staticProduct?.badge,
     description,
-    gallery: gallery.length > 0 ? gallery : [FALLBACK_IMAGE_DATA_URL],
+    gallery,
     highlights,
     specs,
     services,
@@ -863,20 +863,6 @@ function ShareIcon({ className }: { className?: string }) {
         d="M8.43 12.28 15.57 16.97"
         stroke="currentColor"
         strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
-      <path
-        d="m6 6 8 8M14 6l-8 8"
-        stroke="currentColor"
-        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

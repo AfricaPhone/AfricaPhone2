@@ -20,12 +20,6 @@ type BrandData = {
   logoUrl?: string | null;
 };
 
-const FALLBACK_LOGO_DATA_URL =
-  'data:image/svg+xml;charset=UTF-8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="#f1f5f9"/><text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#1f2937">AP</text></svg>`
-  );
-
 const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
   const router = useRouter();
   const [brand, setBrand] = useState<BrandData | null>(null);
@@ -126,15 +120,21 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
             </div>
           ) : brand ? (
             <div className="flex items-center gap-2">
-              <span className="relative h-10 w-10 overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15">
-                <Image
-                  src={!logoErrored && brand.logoUrl ? brand.logoUrl : FALLBACK_LOGO_DATA_URL}
-                  alt={brand.name}
-                  fill
-                  sizes="40px"
-                  className="object-cover"
-                  onError={() => setLogoErrored(true)}
-                />
+              <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15">
+                {brand.logoUrl && !logoErrored ? (
+                  <Image
+                    src={brand.logoUrl}
+                    alt={brand.name}
+                    fill
+                    sizes="40px"
+                    className="object-cover"
+                    onError={() => setLogoErrored(true)}
+                  />
+                ) : (
+                  <span className="text-sm font-bold uppercase tracking-wide text-slate-600">
+                    {brand.name.slice(0, 2).toUpperCase()}
+                  </span>
+                )}
               </span>
               <div className="flex flex-col text-left">
                 <span className="text-sm font-semibold text-slate-900 sm:text-base">{brand.name}</span>

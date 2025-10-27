@@ -25,11 +25,6 @@ type BrandsCarouselProps = {
 };
 
 const SCROLL_CLASSNAME = 'brand-strip-scroll';
-const FALLBACK_LOGO_DATA_URL =
-  'data:image/svg+xml;charset=UTF-8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="#f1f5f9"/><text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#1f2937">AP</text></svg>`
-  );
 
 export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouselProps) {
   const [brands, setBrands] = useState<BrandItem[]>([]);
@@ -197,20 +192,26 @@ function BrandLogoButton({ brand, isActive, onSelect }: BrandLogoButtonProps) {
       className="flex flex-col items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition lg:w-full lg:max-w-[9rem]"
     >
       <span
-        className={`relative h-14 w-14 overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${
+        className={`relative grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${
           isActive
             ? '-translate-y-1 ring-2 ring-orange-400 ring-offset-2 ring-offset-slate-100'
             : 'hover:-translate-y-1'
         }`}
       >
-        <Image
-          src={!errored ? brand.logoUrl : FALLBACK_LOGO_DATA_URL}
-          alt={brand.name}
-          fill
-          sizes="56px"
-          className="object-cover"
-          onError={() => setErrored(true)}
-        />
+        {!errored ? (
+          <Image
+            src={brand.logoUrl}
+            alt={brand.name}
+            fill
+            sizes="56px"
+            className="object-cover"
+            onError={() => setErrored(true)}
+          />
+        ) : (
+          <span className="text-sm font-bold uppercase tracking-wide text-slate-600">
+            {brand.name.slice(0, 2).toUpperCase()}
+          </span>
+        )}
       </span>
       <span className="w-20 truncate text-center">{brand.name}</span>
     </button>
