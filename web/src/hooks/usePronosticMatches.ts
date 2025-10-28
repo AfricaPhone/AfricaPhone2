@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Timestamp, collection, onSnapshot, orderBy, query, type FirestoreError } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, type FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
 import type { Match } from '@/types/pronostics';
 import { demoMatch, demoSecondaryMatch } from '@/data/pronostics-demo';

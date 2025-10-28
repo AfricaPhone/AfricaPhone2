@@ -1,6 +1,5 @@
 'use client';
 
-import type { SVGProps } from 'react';
 import { useRouter } from 'next/navigation';
 import PredictionDetailPanel from '@/components/pronostics/PredictionDetailPanel';
 import { usePronosticMatchInsights } from '@/hooks/usePronosticMatchInsights';

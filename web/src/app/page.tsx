@@ -243,7 +243,7 @@ function PronosticsPromoCard() {
     <article className="flex min-w-[78vw] max-w-[420px] flex-shrink-0 snap-center sm:min-w-0 sm:max-w-none">
       <Link
         href="/pronostics"
-        className="group relative block h-[176px] w-full overflow-hidden rounded-[24px] shadow-lg shadow-slate-900/25 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[184px]"
+        className="group relative block h-[176px] w-full overflow-hidden rounded-[24px] shadow-lg shadow-slate-900/25 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[184px]"
         aria-labelledby="pronostics-promo-title"
       >
         <Image
@@ -278,7 +278,7 @@ function VoteContestPromoCard() {
     <article className="flex min-w-[78vw] max-w-[420px] flex-shrink-0 snap-center sm:min-w-0 sm:max-w-none">
       <Link
         href="/votes"
-        className="group relative block h-[176px] w-full overflow-hidden rounded-[24px] shadow-lg shadow-slate-900/25 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[184px]"
+        className="group relative block h-[176px] w-full overflow-hidden rounded-[24px] shadow-lg shadow-slate-900/25 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[184px]"
         aria-labelledby="votes-promo-title"
       >
         <Image

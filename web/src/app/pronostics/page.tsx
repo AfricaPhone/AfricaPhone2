@@ -141,7 +141,7 @@ function MatchCard({ match, loading, error, interactive, onSelect }: MatchCardPr
       type="button"
       disabled={!interactive}
       onClick={onSelect}
-      className="group relative w-full rounded-2xl border border-[#E6E8EC] bg-white p-4 text-left shadow-[0_1px_2px_rgba(17,24,39,0.08)] transition-transform duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2 disabled:cursor-default disabled:opacity-90"
+      className="group relative w-full rounded-2xl border border-[#E6E8EC] bg-white p-4 text-left shadow-[0_1px_2px_rgba(17,24,39,0.08)] transition-transform duration-150 ease-out focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2 disabled:cursor-default disabled:opacity-90"
     >
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-semibold uppercase tracking-wide text-[#FEA31B]">{category}</span>
@@ -186,7 +186,7 @@ function WinnersGallery({ images }: WinnersGalleryProps) {
         </div>
         <a
           href="/pronostics/photos"
-          className="mt-1 text-[14px] font-semibold text-[#6B7280] underline-offset-2 transition hover:text-[#111827] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
+          className="mt-1 text-[14px] font-semibold text-[#6B7280] underline-offset-2 transition hover:text-[#111827] focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
         >
           Photos recentes
         </a>
@@ -221,7 +221,7 @@ function AppBar({ title, onBack }: AppBarProps) {
         <button
           type="button"
           onClick={onBack}
-          className="flex h-11 w-11 items-center justify-center rounded-full text-[#111827] transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
           aria-label="Retour"
         >
           <ChevronLeftIcon className="h-5 w-5" />

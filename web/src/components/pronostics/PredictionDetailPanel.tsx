@@ -578,7 +578,7 @@ export default function PredictionDetailPanel({
         <div className="flex flex-col gap-2">
           <span className="text-base font-semibold text-emerald-800">Partager pour valider</span>
           <span className="text-sm text-emerald-600">
-            Partagez le lien de l'application a {REQUIRED_APP_SHARES} personne(s) pour confirmer votre participation.
+            Partagez le lien de l&apos;application a {REQUIRED_APP_SHARES} personne(s) pour confirmer votre participation.
           </span>
         </div>
         <div className="h-2 w-full rounded-full bg-emerald-100">
