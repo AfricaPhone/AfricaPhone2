@@ -80,6 +80,7 @@ export default function VoteContestClientPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalCandidate, setModalCandidate] = useState<Candidate | null>(null);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
   const pendingCandidateRef = useRef<Candidate | null>(null);
   const previousBodyOverflow = useRef<string | null>(null);
 
@@ -213,8 +214,25 @@ export default function VoteContestClientPage() {
     });
   }, [candidates, searchQuery]);
 
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  const contestEnded = useMemo(() => {
+    if (!contest) {
+      return false;
+    }
+    if (contest.status === 'ended') {
+      return true;
+    }
+    return contest.endDate.getTime() <= now;
+  }, [contest, now]);
+
   const isBusy = isLoading || resolvingContestId || isPreparingPayment;
-  const votingClosed = !contest || contest.status !== 'active';
+  const votingClosed = !contest || contestEnded;
 
   const handleBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {
@@ -462,6 +480,7 @@ export default function VoteContestClientPage() {
             hasVoted={hasVoted}
             storedVote={storedVote}
             errorMessage={contestError}
+            contestEnded={contestEnded}
           />
         )}
 
@@ -482,6 +501,7 @@ export default function VoteContestClientPage() {
             storedVote={storedVote}
             searchQuery={searchQuery}
             onVote={handleVote}
+            contestEnded={contestEnded}
           />
         )}
       </main>
@@ -503,6 +523,7 @@ export default function VoteContestClientPage() {
           storedVote={storedVote}
           searchQuery={searchQuery}
           onVote={handleVote}
+          contestEnded={contestEnded}
         />
       </VoteSearchOverlay>
 
@@ -526,6 +547,7 @@ type ContestHeroProps = {
   hasVoted: boolean;
   storedVote: StoredVoteInfo | null;
   errorMessage: string | null;
+  contestEnded: boolean;
 };
 
 function ContestHero({
@@ -536,6 +558,7 @@ function ContestHero({
   hasVoted,
   storedVote,
   errorMessage,
+  contestEnded,
 }: ContestHeroProps) {
   const [timeLeft, setTimeLeft] = useState<Countdown | null>(() =>
     contest ? calculateTimeLeft(contest.endDate) : null
@@ -546,12 +569,17 @@ function ContestHero({
       setTimeLeft(null);
       return;
     }
-    setTimeLeft(calculateTimeLeft(contest.endDate));
-    const timer = window.setInterval(() => {
+    if (contestEnded) {
+      setTimeLeft(null);
+      return;
+    }
+    const update = () => {
       setTimeLeft(calculateTimeLeft(contest.endDate));
-    }, 1000);
+    };
+    update();
+    const timer = window.setInterval(update, 1000);
     return () => window.clearInterval(timer);
-  }, [contest]);
+  }, [contest, contestEnded]);
 
   if (errorMessage) {
     return (
@@ -593,21 +621,21 @@ function ContestHero({
             <TrophyIcon className="h-6 w-6 text-white" />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-white/70">Concours en cours</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-white/70">
+              {contestEnded ? 'Concours clôturé' : 'Concours en cours'}
+            </span>
             <h2 className="text-xl font-bold leading-tight">{contest?.title ?? 'Concours'}</h2>
           </div>
         </div>
 
-        {contest && contest.status === 'ended' ? (
+        {contestEnded ? (
           <p className="rounded-full bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white">
-            Concours termine
+            Concours clôturé
           </p>
         ) : timeLeft ? (
           <CountdownPills {...timeLeft} />
         ) : (
-          <p className="rounded-full bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white">
-            Debut imminent
-          </p>
+          null
         )}
 
         {hasVoted ? (
@@ -635,6 +663,7 @@ type CandidateListProps = {
   storedVote: StoredVoteInfo | null;
   searchQuery: string;
   onVote: (candidate: Candidate) => void;
+  contestEnded: boolean;
 };
 
 function CandidateList({
@@ -646,6 +675,7 @@ function CandidateList({
   storedVote,
   searchQuery,
   onVote,
+  contestEnded,
 }: CandidateListProps) {
   if (!isBusy && candidates.length === 0) {
     return (
@@ -664,7 +694,7 @@ function CandidateList({
     );
   }
 
-  const votingDisabled = !contest || contest.status !== 'active';
+  const votingDisabled = !contest || contestEnded;
   const disableButtons = isBusy || hasVoted || votingDisabled;
   const votedCandidateId = storedVote?.candidateId ?? null;
 
@@ -705,14 +735,16 @@ function CandidateList({
                   </span>
                   <span className="text-sm text-slate-500">{candidate.media}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onVote(candidate)}
-                  disabled={disableButtons}
-                  className="inline-flex items-center justify-center rounded-full bg-[#111827] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition enabled:hover:bg-[#0f172a] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Voter
-                </button>
+                {!votingDisabled ? (
+                  <button
+                    type="button"
+                    onClick={() => onVote(candidate)}
+                    disabled={disableButtons}
+                    className="inline-flex items-center justify-center rounded-full bg-[#111827] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition enabled:hover:bg-[#0f172a] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Voter
+                  </button>
+                ) : null}
               </div>
               <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
                 <span>{formatNumber(candidate.voteCount)} voix</span>

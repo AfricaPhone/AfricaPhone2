@@ -69,13 +69,15 @@ const mapContest = (snapshot: DocumentSnapshot<DocumentData>): Contest | null =>
     return null;
   }
 
-  const statusValue = data.status === 'ended' ? 'ended' : DEFAULT_STATUS;
+  const endDate = toDate(data.endDate ?? data.endsAt ?? data.end_time);
+  const hasEnded = endDate.getTime() <= Date.now();
+  const statusValue = data.status === 'ended' || hasEnded ? 'ended' : DEFAULT_STATUS;
 
   return {
     id: snapshot.id,
     title: typeof data.title === 'string' ? data.title : 'Concours',
     description: typeof data.description === 'string' ? data.description : '',
-    endDate: toDate(data.endDate ?? data.endsAt ?? data.end_time),
+    endDate,
     status: statusValue,
     totalParticipants: toNumber(data.totalParticipants ?? data.participantCount ?? data.totalCandidates),
     totalVotes: toNumber(data.totalVotes ?? data.voteCount),

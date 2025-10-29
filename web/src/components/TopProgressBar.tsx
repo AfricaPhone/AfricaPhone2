@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Router from 'next/router';
+import { usePathname } from 'next/navigation';
 
 const PROGRESS_UPDATE_INTERVAL = 180;
 const INITIAL_PROGRESS = 12;
@@ -16,47 +16,59 @@ const growTowards = (current: number) => {
 };
 
 const TopProgressBar: React.FC = () => {
+  const pathname = usePathname();
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const completeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const handleStart = () => {
-      setVisible(true);
-      setProgress(INITIAL_PROGRESS);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      timerRef.current = setInterval(() => {
-        setProgress(prev => growTowards(prev));
-      }, PROGRESS_UPDATE_INTERVAL);
-    };
+    if (!pathname) {
+      return undefined;
+    }
 
-    const handleDone = () => {
+    setVisible(true);
+    setProgress(INITIAL_PROGRESS);
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    timerRef.current = setInterval(() => {
+      setProgress(prev => growTowards(prev));
+    }, PROGRESS_UPDATE_INTERVAL);
+
+    if (completeTimeoutRef.current) {
+      clearTimeout(completeTimeoutRef.current);
+    }
+
+    completeTimeoutRef.current = setTimeout(() => {
+      setProgress(100);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+      hideTimeoutRef.current = setTimeout(() => {
+        setVisible(false);
+        setProgress(0);
+      }, 220);
+    }, 400);
+
+    return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
-      setProgress(100);
-      setTimeout(() => {
-        setVisible(false);
-        setProgress(0);
-      }, 220);
-    };
-
-    Router.events.on('routeChangeStart', handleStart);
-    Router.events.on('routeChangeComplete', handleDone);
-    Router.events.on('routeChangeError', handleDone);
-
-    return () => {
-      Router.events.off('routeChangeStart', handleStart);
-      Router.events.off('routeChangeComplete', handleDone);
-      Router.events.off('routeChangeError', handleDone);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+      if (completeTimeoutRef.current) {
+        clearTimeout(completeTimeoutRef.current);
+        completeTimeoutRef.current = null;
+      }
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
       }
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <div

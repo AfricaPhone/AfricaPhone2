@@ -1,12 +1,13 @@
 'use client';
 
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { firebaseApp } from '@/lib/firebaseClient';
 
 export const REQUIRED_APP_SHARES: number = 2;
 export const LOCAL_SHARE_COUNT_KEY_PREFIX = 'pronostics_share_count_v1';
 export const PENDING_SUBMISSION_KEY_PREFIX = 'pronostics_pending_submission_v1';
 
-const functions = getFunctions();
+const functions = getFunctions(firebaseApp);
 
 export type SubmitPronosticRequest = {
   matchId: string;
