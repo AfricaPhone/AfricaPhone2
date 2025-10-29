@@ -1,11 +1,18 @@
-﻿'use client';
+'use client';
 
-import { ChangeEvent, FormEvent, useCallback, useEffect, useId, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useId, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProductGridSection from '@/components/ProductGridSection';
 import SiteFooter from '@/components/SiteFooter';
+import { formatPrice } from '@/utils/formatPrice';
+import {
+  ALGOLIA_INDEX_NAME,
+  algoliaClient,
+  MIN_ALGOLIA_TERM_LENGTH,
+  type AlgoliaProductHit,
+} from '@/lib/algoliaClient';
 
 export default function HomePageClient() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,11 +21,15 @@ export default function HomePageClient() {
     setSearchQuery(term.trim());
   }, []);
 
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+  }, []);
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
-      <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} />
+      <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} onClearSearch={handleClearSearch} />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 overflow-x-hidden px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
-        <ProductGridSection searchQuery={searchQuery} enableStaticFallbacks={false} />
+        <ProductGridSection enableStaticFallbacks={false} />
       </main>
       <SiteFooter />
     </div>
@@ -28,12 +39,13 @@ export default function HomePageClient() {
 type HeaderProps = {
   searchQuery: string;
   onSubmitSearch: (term: string) => void;
+  onClearSearch: () => void;
 };
 
-export function Header({ searchQuery, onSubmitSearch }: HeaderProps) {
+export function Header({ searchQuery, onSubmitSearch, onClearSearch }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-white text-slate-900 shadow-sm shadow-slate-900/10">
-      <TopNav searchQuery={searchQuery} onSubmitSearch={onSubmitSearch} />
+      <TopNav searchQuery={searchQuery} onSubmitSearch={onSubmitSearch} onClearSearch={onClearSearch} />
     </header>
   );
 }
@@ -41,6 +53,7 @@ export function Header({ searchQuery, onSubmitSearch }: HeaderProps) {
 type TopNavProps = {
   searchQuery: string;
   onSubmitSearch: (term: string) => void;
+  onClearSearch: () => void;
 };
 
 const SUGGESTED_QUERIES = [
@@ -52,7 +65,7 @@ const SUGGESTED_QUERIES = [
   'Tablettes Android',
 ] as const;
 
-export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
+export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavProps) {
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [modalQuery, setModalQuery] = useState(searchQuery);
   const router = useRouter();
@@ -70,8 +83,9 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
       onSubmitSearch(trimmed);
       setModalQuery(trimmed);
       setSearchOpen(false);
+      onClearSearch();
     },
-    [onSubmitSearch]
+    [onClearSearch, onSubmitSearch]
   );
 
   const handleFilterClick = useCallback(() => {
@@ -79,34 +93,32 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
   }, [router]);
 
   const handleShareClick = useCallback(async () => {
-    const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://africaphone.com';
+    const shareUrl = 'https://africaphone.org';
     const shareTitle = 'AfricaPhone';
     const shareText = 'Decouvrez la boutique AfricaPhone et nos offres mobiles.';
 
-    if (typeof navigator !== 'undefined') {
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: shareTitle,
-            text: shareText,
-            url: shareUrl,
-          });
-          return;
-        } catch (error) {
-          const abortError = error instanceof Error && error.name === 'AbortError';
-          if (!abortError) {
-            console.error('TopNav: web share failed', error);
-          }
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (error) {
+        const abortError = error instanceof Error && error.name === 'AbortError';
+        if (!abortError) {
+          console.error('TopNav: web share failed', error);
         }
       }
+    }
 
-      if (navigator.clipboard) {
-        try {
-          await navigator.clipboard.writeText(shareUrl);
-          return;
-        } catch (error) {
-          console.error('TopNav: clipboard copy failed', error);
-        }
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        return;
+      } catch (error) {
+        console.error('TopNav: clipboard copy failed', error);
       }
     }
 
@@ -123,7 +135,9 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
 
   const handleCloseSearch = useCallback(() => {
     setSearchOpen(false);
-  }, []);
+    setModalQuery('');
+    onClearSearch();
+  }, [onClearSearch]);
 
   const handleModalQueryChange = useCallback((value: string) => {
     setModalQuery(value);
@@ -134,33 +148,49 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
   }, [modalQuery, triggerSearch]);
 
   const handleSuggestionSelect = useCallback(
-    (value: string) => {
+    (value: string, options?: { id?: string }) => {
+      if (options?.id) {
+        onClearSearch();
+        router.push(`/produits/${options.id}`);
+        return;
+      }
       triggerSearch(value);
     },
-    [triggerSearch]
+    [onClearSearch, router, triggerSearch]
   );
 
   const displayQuery = searchQuery.trim();
   const hasActiveQuery = displayQuery.length > 0;
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 lg:px-8">
-      <Link
-        href="/"
-        className="flex items-center gap-2 whitespace-nowrap text-xl font-extrabold tracking-tight text-slate-900"
-      >
-        <Image
-          src="/logo.png"
-          alt="Logo AfricaPhone"
-          width={40}
-          height={40}
-          priority
-          className="h-10 w-10 rounded-lg shadow-sm shadow-orange-500/30"
-        />
-        <span>AfricaPhone</span>
-      </Link>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 sm:gap-4 lg:px-8">
+      <div className="flex w-full items-center gap-3">
+        <Link
+          href="/"
+          className="flex items-center gap-2 whitespace-nowrap text-xl font-extrabold tracking-tight text-slate-900"
+        >
+          <Image
+            src="/logo.png"
+            alt="Logo AfricaPhone"
+            width={40}
+            height={40}
+            priority
+            className="h-10 w-10 rounded-lg shadow-sm shadow-orange-500/30"
+          />
+          <span>AfricaPhone</span>
+        </Link>
+        <div className="ml-auto">
+          <Link
+            href="/nous-trouver"
+            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            <LocatorIcon className="h-4 w-4" />
+            Ou nous trouver
+          </Link>
+        </div>
+      </div>
 
-      <div className="order-3 flex w-full flex-nowrap items-center gap-2 sm:order-none">
+      <div className="flex w-full flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={handleShareClick}
@@ -196,20 +226,11 @@ export function TopNav({ searchQuery, onSubmitSearch }: TopNavProps) {
         </button>
       </div>
 
-      <div className="ml-auto">
-        <Link
-          href="/nous-trouver"
-          className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-        >
-          <LocatorIcon className="h-4 w-4" />
-          Ou nous trouver
-        </Link>
-      </div>
       <SearchModal
         open={isSearchOpen}
         modalId={searchModalId}
         query={modalQuery}
-        suggestions={SUGGESTED_QUERIES}
+        fallbackSuggestions={SUGGESTED_QUERIES}
         onClose={handleCloseSearch}
         onQueryChange={handleModalQueryChange}
         onSubmit={handleModalSubmit}
@@ -225,23 +246,182 @@ type SearchModalProps = {
   open: boolean;
   modalId: string;
   query: string;
-  suggestions: readonly string[];
+  fallbackSuggestions: readonly string[];
   onClose: () => void;
   onQueryChange: (value: string) => void;
   onSubmit: () => void;
-  onSelectSuggestion: (value: string) => void;
+  onSelectSuggestion: (value: string, opts?: { id?: string }) => void;
+};
+
+type SearchResult = {
+  id: string;
+  name: string;
+  brand: string | null;
+  price: number | null;
+  image: string | null;
+  rom: number | null;
+  ram: number | null;
+  description: string | null;
+};
+
+const toNumber = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+const safeString = (value: unknown): string | null => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  return null;
+};
+
+const extractPrimaryImage = (hit: AlgoliaProductHit): string | null => {
+  const urls = Array.isArray(hit.imageUrls)
+    ? (hit.imageUrls as unknown[])
+        .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+        .map(url => url.trim())
+    : [];
+  if (urls.length > 0) {
+    return urls[0];
+  }
+  return safeString(hit.imageUrl);
+};
+
+const mapHitToSearchResult = (hit: AlgoliaProductHit): SearchResult | null => {
+  const id = typeof hit.objectID === 'string' ? hit.objectID.trim() : '';
+  const name = safeString(hit.name);
+  if (!id || !name) {
+    return null;
+  }
+  return {
+    id,
+    name,
+    brand: safeString(hit.brand),
+    price: toNumber(hit.price),
+    image: extractPrimaryImage(hit),
+    rom: toNumber(hit.rom),
+    ram: toNumber(hit.ram),
+    description: safeString(hit.description),
+  };
+};
+
+const buildSecondaryLabel = (result: SearchResult): string | null => {
+  const parts: string[] = [];
+  if (result.rom) {
+    parts.push(`${result.rom} Go`);
+  }
+  if (result.ram) {
+    parts.push(`${result.ram} Go`);
+  }
+  if (parts.length > 0) {
+    return parts.join(' + ');
+  }
+  if (result.description) {
+    return result.description.length > 80 ? `${result.description.slice(0, 80)}...` : result.description;
+  }
+  return null;
 };
 
 function SearchModal({
   open,
   modalId,
   query,
-  suggestions,
+  fallbackSuggestions,
   onClose,
   onQueryChange,
   onSubmit,
   onSelectSuggestion,
 }: SearchModalProps) {
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loadingResults, setLoadingResults] = useState(false);
+  const [resultsError, setResultsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      setResults([]);
+      setLoadingResults(false);
+      setResultsError(null);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const trimmed = query.trim();
+    if (trimmed.length < MIN_ALGOLIA_TERM_LENGTH) {
+      setResults([]);
+      setResultsError(null);
+      setLoadingResults(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingResults(true);
+    setResultsError(null);
+
+    const timeoutId = window.setTimeout(() => {
+      (async () => {
+        try {
+          const response = await algoliaClient.searchSingleIndex<AlgoliaProductHit>({
+            indexName: ALGOLIA_INDEX_NAME,
+            searchParams: {
+              query: trimmed,
+              hitsPerPage: 8,
+              attributesToRetrieve: [
+                'objectID',
+                'name',
+                'brand',
+                'price',
+                'imageUrl',
+                'imageUrls',
+                'rom',
+                'ram',
+                'description',
+              ],
+            },
+          });
+
+          if (cancelled) {
+            return;
+          }
+
+          const mapped = response.hits
+            .map(mapHitToSearchResult)
+            .filter((item): item is SearchResult => item !== null);
+          setResults(mapped);
+        } catch (error) {
+          if (cancelled) {
+            return;
+          }
+          console.error('SearchModal: unable to fetch Algolia suggestions', error);
+          setResults([]);
+          setResultsError("Nous n'avons pas pu charger les resultats de recherche.");
+        } finally {
+          if (!cancelled) {
+            setLoadingResults(false);
+          }
+        }
+      })().catch(() => {
+        // Error already handled in try/catch block above.
+      });
+    }, 220);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [open, query]);
+
   useEffect(() => {
     if (!open) {
       return;
@@ -264,6 +444,10 @@ function SearchModal({
   }
 
   const titleId = `${modalId}-title`;
+  const trimmedQuery = query.trim();
+  const usingDynamicResults = trimmedQuery.length >= MIN_ALGOLIA_TERM_LENGTH;
+  const hasResults = results.length > 0;
+  const showSkeletons = loadingResults && results.length === 0;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -286,7 +470,7 @@ function SearchModal({
           type="button"
           onClick={onClose}
           className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
-          aria-label="Fermer la fenêtre de recherche"
+          aria-label="Fermer la fen?tre de recherche"
         >
           <CloseIcon className="h-4 w-4" />
         </button>
@@ -311,35 +495,106 @@ function SearchModal({
             />
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2" aria-label="Suggestions de recherche">
-            {suggestions.map(suggestion => (
-              <button
-                key={suggestion}
-                type="button"
-                onClick={() => onSelectSuggestion(suggestion)}
-                className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-900 hover:bg-slate-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
+          {usingDynamicResults ? (
+            <div className="mt-5 flex flex-col gap-3" aria-label="Resultats de recherche">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Resultats</p>
+                {loadingResults ? (
+                  <span className="text-[0.7rem] text-slate-400">Chargement...</span>
+                ) : null}
+              </div>
+              {resultsError ? <p className="text-sm text-rose-500">{resultsError}</p> : null}
+              {!loadingResults && !resultsError && !hasResults ? (
+                <p className="text-sm text-slate-500">
+                  Aucun produit ne correspond a &laquo; {trimmedQuery} &raquo; pour le moment.
+                </p>
+              ) : null}
+              {showSkeletons ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <div
+                      key={`search-skeleton-${index}`}
+                      className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3"
+                    >
+                      <div className="h-14 w-14 animate-pulse rounded-xl bg-slate-200" />
+                      <div className="flex flex-1 flex-col gap-2">
+                        <div className="h-3 w-3/4 animate-pulse rounded-full bg-slate-200" />
+                        <div className="h-3 w-1/2 animate-pulse rounded-full bg-slate-200" />
+                        <div className="h-3 w-1/4 animate-pulse rounded-full bg-slate-200" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {results.map(result => {
+                const secondaryLabel = buildSecondaryLabel(result);
+                const priceLabel = result.price != null ? formatPrice(result.price) : null;
+                return (
+                  <button
+                    key={result.id}
+                    type="button"
+                    onClick={() => onSelectSuggestion(result.name, { id: result.id })}
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition hover:border-orange-400 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400/40"
+                  >
+                    <span className="relative h-14 w-14 overflow-hidden rounded-xl bg-slate-100">
+                      {result.image ? (
+                        <Image
+                          src={result.image}
+                          alt={result.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover object-center"
+                        />
+                      ) : (
+                        <span className="grid h-full w-full place-items-center text-xs font-semibold text-slate-400">
+                          AP
+                        </span>
+                      )}
+                    </span>
+                    <span className="flex flex-1 flex-col gap-1">
+                      <span className="text-sm font-semibold text-slate-900">
+                        {result.brand ? (
+                          <>
+                            <span className="font-bold text-orange-500">{result.brand}</span>{' '}
+                            <span>{result.name}</span>
+                          </>
+                        ) : (
+                          result.name
+                        )}
+                      </span>
+                      {secondaryLabel ? (
+                        <span className="text-xs text-slate-500">{secondaryLabel}</span>
+                      ) : null}
+                      {priceLabel ? (
+                        <span className="text-sm font-semibold text-slate-900">{priceLabel}</span>
+                      ) : (
+                        <span className="text-xs text-slate-400">Prix disponible sur demande</span>
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-5 flex flex-wrap gap-2" aria-label="Suggestions de recherche">
+              <div className="w-full text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Suggestions populaires
+              </div>
+              {fallbackSuggestions.map((suggestion, index) => (
+                <button
+                  key={`${suggestion}-${index}`}
+                  type="button"
+                  onClick={() => onSelectSuggestion(suggestion)}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-900 hover:bg-slate-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center justify-end gap-2 border-t border-slate-200 px-4 py-4 sm:px-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/60"
-          >
-            Rechercher
-          </button>
-        </div>
+        <div className="border-t border-slate-200 px-4 py-4 sm:px-6" />
       </form>
     </div>
   );
@@ -400,3 +655,4 @@ function CloseIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+

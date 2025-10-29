@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { allProducts, type ProductSummary } from '@/data/home';
+import BrandsCarousel from '@/components/BrandsCarousel';
 import {
   collection,
   DocumentData,
@@ -20,9 +21,15 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
-import BrandsCarousel from '@/components/BrandsCarousel';
 import type { SegmentKey } from '@/types/catalog';
 import { inferSegmentKeyFromValue } from '@/types/catalog';
+import {
+  ALGOLIA_ATTRIBUTES_TO_RETRIEVE,
+  ALGOLIA_INDEX_NAME,
+  algoliaClient,
+  MIN_ALGOLIA_TERM_LENGTH,
+  type AlgoliaProductHit,
+} from '@/lib/algoliaClient';
 
 type ProductCardData = {
   id: string;
@@ -34,6 +41,7 @@ type ProductCardData = {
   ordreVedette?: number;
   categoryKey: SegmentKey | null;
   segmentKey: SegmentKey | null;
+  brandName?: string | null;
 };
 
 type FirestoreProductPayload = {
@@ -55,9 +63,11 @@ type FirestoreProductPayload = {
   tags?: unknown;
 };
 
+type AlgoliaHit = AlgoliaProductHit;
+
 const PRODUCTS_PHONE_NUMBER = '2290154151522';
-const PAGE_SIZE = 24;
-const REQUEST_PAGE_SIZE = PAGE_SIZE + 1;
+const INITIAL_PAGE_SIZE = 24;
+const LOAD_MORE_PAGE_SIZE = 34;
 
 const toNumber = (value: unknown): number | null => {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -154,6 +164,86 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
     ordreVedette,
     categoryKey: categoryKey ?? segmentKey ?? null,
     segmentKey: segmentKey ?? categoryKey ?? null,
+    brandName: brand ?? null,
+  };
+};
+
+const mapAlgoliaHitToProduct = (hit: AlgoliaHit): ProductCardData | null => {
+  if (typeof hit.objectID !== 'string' || hit.objectID.trim().length === 0) {
+    return null;
+  }
+
+  const id = hit.objectID.trim();
+  const name = safeString(hit.name) ?? 'Produit AfricaPhone';
+  const price = toNumber(hit.price);
+
+  const imageCandidates =
+    Array.isArray(hit.imageUrls) && hit.imageUrls.length > 0
+      ? (hit.imageUrls as unknown[])
+          .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+          .map(url => url.trim())
+      : [];
+
+  const primaryImage = imageCandidates[0] ?? safeString(hit.imageUrl) ?? null;
+
+  const taglineParts: string[] = [];
+  const brand = safeString(hit.brand);
+  if (brand) {
+    taglineParts.push(brand);
+  }
+
+  const rom = toNumber(hit.rom);
+  const ram = toNumber(hit.ram);
+  const storageDetails: string[] = [];
+  if (rom) {
+    storageDetails.push(`${rom} Go`);
+  }
+  if (ram) {
+    storageDetails.push(`${ram} Go RAM`);
+  }
+  if (storageDetails.length > 0) {
+    taglineParts.push(storageDetails.join(' / '));
+  }
+
+  if (taglineParts.length === 0) {
+    const description = safeString(hit.description);
+    if (description) {
+      taglineParts.push(description.length > 90 ? `${description.slice(0, 90)}...` : description);
+    }
+  }
+
+  const rawOrdreVedette = toNumber(hit.ordreVedette) ?? 0;
+  const badge = hit.enPromotion === true ? 'Promo' : rawOrdreVedette > 0 ? 'Vedette' : undefined;
+  const rawCategory = safeString(hit.category);
+  const rawSegment = safeString(hit.segment);
+  const rawTags = Array.isArray(hit.tags) ? hit.tags : [];
+  const categoryKey = inferSegmentKeyFromValue(rawCategory);
+  let segmentKey = inferSegmentKeyFromValue(rawSegment) ?? categoryKey;
+
+  if (!segmentKey) {
+    for (const tag of rawTags) {
+      if (typeof tag !== 'string') {
+        continue;
+      }
+      const inferred = inferSegmentKeyFromValue(tag);
+      if (inferred) {
+        segmentKey = inferred;
+        break;
+      }
+    }
+  }
+
+  return {
+    id,
+    name,
+    price,
+    image: primaryImage,
+    tagline: taglineParts.join(' / ') || 'Produit selectionne par AfricaPhone',
+    badge,
+    ordreVedette: rawOrdreVedette,
+    categoryKey: categoryKey ?? segmentKey ?? null,
+    segmentKey: segmentKey ?? categoryKey ?? null,
+    brandName: brand ?? null,
   };
 };
 
@@ -204,7 +294,7 @@ const filterProductsBySearchTerm = (items: ProductCardData[], term: string): Pro
   }
   const normalizedTerm = normalizeText(trimmed);
   return items.filter(item => {
-    const candidates = [item.name, item.tagline, item.badge ?? ''];
+    const candidates = [item.name, item.tagline, item.badge ?? '', item.brandName ?? ''];
     return candidates.some(candidate => normalizeText(candidate).includes(normalizedTerm));
   });
 };
@@ -217,6 +307,20 @@ const getSearchRangeEnd = (value: string): string | null => {
   const lastChar = value.charCodeAt(lastCharIndex);
   const nextChar = String.fromCharCode(lastChar + 1);
   return `${value.slice(0, lastCharIndex)}${nextChar}`;
+};
+
+const productMatchesBrandFilter = (product: ProductCardData, brandFilter: string | null): boolean => {
+  if (!brandFilter) {
+    return true;
+  }
+  const normalizedFilter = normalizeText(brandFilter);
+  const brand = product.brandName ? normalizeText(product.brandName) : null;
+  if (brand) {
+    if (brand === normalizedFilter || brand.includes(normalizedFilter) || normalizedFilter.includes(brand)) {
+      return true;
+    }
+  }
+  return normalizeText(product.tagline).includes(normalizedFilter);
 };
 
 const fallbackFilterBySegment: Record<SegmentKey, (product: ProductSummary) => boolean> = {
@@ -278,6 +382,7 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
     ordreVedette: 0,
     categoryKey: categoryKey ?? summarySegmentKey ?? null,
     segmentKey: summarySegmentKey ?? categoryKey ?? null,
+    brandName: safeString(product.brandId) ?? null,
   };
 };
 
@@ -285,7 +390,7 @@ const getFallbackProducts = (brandId?: string | null, segment: SegmentKey = 'tel
   let source = brandId ? allProducts.filter(product => product.brandId === brandId) : allProducts;
   const fallbackFilter = fallbackFilterBySegment[segment];
   source = source.filter(fallbackFilter);
-  const sliced = source.slice(0, PAGE_SIZE).map(mapSummaryToProduct);
+  const sliced = source.slice(0, INITIAL_PAGE_SIZE).map(mapSummaryToProduct);
   const sortMode: 'default' | 'brand' = brandId ? 'brand' : 'default';
   return sortProducts(dedupeProducts(sliced), sortMode);
 };
@@ -294,12 +399,14 @@ type ProductGridSectionProps = {
   selectedBrand?: { id: string; name: string; filterValue?: string | null } | null;
   enableStaticFallbacks?: boolean;
   searchQuery?: string | null;
+  showSegments?: boolean;
 };
 
 export default function ProductGridSection({
   selectedBrand = null,
   enableStaticFallbacks = true,
   searchQuery = '',
+  showSegments = true,
 }: ProductGridSectionProps = {}) {
   const [activeSegment, setActiveSegment] = useState<SegmentKey>('telephone');
   const sortMode: 'default' | 'brand' = selectedBrand ? 'brand' : 'default';
@@ -319,6 +426,7 @@ export default function ProductGridSection({
   const [paginationError, setPaginationError] = useState<string | null>(null);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  const [searchAttempt, setSearchAttempt] = useState(0);
   const brandFilterValue = selectedBrand?.filterValue?.trim()
     ? selectedBrand.filterValue.trim()
     : selectedBrand?.name?.trim()
@@ -338,14 +446,91 @@ export default function ProductGridSection({
     } else {
       setProducts([]);
     }
-    setHasMore(true);
+    setHasMore(trimmedSearchTerm.length >= MIN_ALGOLIA_TERM_LENGTH ? false : true);
     setLastDoc(null);
     setError(null);
     setPaginationError(null);
+    setLoadingMore(false);
   }, [activeSegment, brandFallbackId, enableStaticFallbacks, trimmedSearchTerm]);
+
+  useEffect(() => {
+    if (trimmedSearchTerm.length < MIN_ALGOLIA_TERM_LENGTH) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    const runSearch = async () => {
+      setLoading(true);
+      setError(null);
+      setPaginationError(null);
+      setLoadingMore(false);
+      setLastDoc(null);
+      setHasMore(false);
+
+      try {
+        const response = await algoliaClient.searchSingleIndex<AlgoliaHit>({
+          indexName: ALGOLIA_INDEX_NAME,
+          searchParams: {
+            query: trimmedSearchTerm,
+            hitsPerPage: INITIAL_PAGE_SIZE,
+            attributesToRetrieve: [...ALGOLIA_ATTRIBUTES_TO_RETRIEVE],
+          },
+        });
+
+        if (isCancelled) {
+          return;
+        }
+
+        const mapped = response.hits
+          .map(mapAlgoliaHitToProduct)
+          .filter((item): item is ProductCardData => item !== null);
+        const withBrandFilter = brandFilterValue
+          ? mapped.filter(product => productMatchesBrandFilter(product, brandFilterValue))
+          : mapped;
+
+        setProducts(sortProducts(dedupeProducts(withBrandFilter), sortMode));
+      } catch (searchError) {
+        console.error('ProductGridSection: Algolia search failed', searchError);
+        if (!isCancelled) {
+          setError('Impossible de charger les resultats pour cette recherche pour le moment.');
+          if (enableStaticFallbacks) {
+            setProducts(getFallbackProducts(brandFallbackId, activeSegment));
+          } else {
+            setProducts([]);
+          }
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void runSearch();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    activeSegment,
+    brandFallbackId,
+    brandFilterValue,
+    enableStaticFallbacks,
+    sortMode,
+    trimmedSearchTerm,
+    searchAttempt,
+  ]);
 
   const loadProducts = useCallback(
     async (cursor: QueryDocumentSnapshot<DocumentData> | null, mode: 'replace' | 'append' = 'replace') => {
+      if (trimmedSearchTerm.length >= MIN_ALGOLIA_TERM_LENGTH) {
+        if (mode === 'append') {
+          setLoadingMore(false);
+        }
+        return;
+      }
+
       if (mode === 'replace') {
         setLoading(true);
         setError(null);
@@ -357,6 +542,8 @@ export default function ProductGridSection({
 
       try {
         const productsCollection = collection(db, 'products');
+        const pageSize = mode === 'append' ? LOAD_MORE_PAGE_SIZE : INITIAL_PAGE_SIZE;
+        const requestSize = pageSize + 1;
         const constraints: QueryConstraint[] = [];
         if (brandFilterValue) {
           constraints.push(where('brand', '==', brandFilterValue));
@@ -377,18 +564,18 @@ export default function ProductGridSection({
         } else if (cursor) {
           constraints.push(startAfter(cursor));
         }
-        constraints.push(limit(REQUEST_PAGE_SIZE));
+        constraints.push(limit(requestSize));
 
         const snapshot = await getDocs(query(productsCollection, ...constraints));
         const docs = snapshot.docs;
-        const hasMorePage = docs.length === REQUEST_PAGE_SIZE;
-        const visibleDocs = hasMorePage ? docs.slice(0, PAGE_SIZE) : docs;
+        const hasMorePage = docs.length === requestSize;
+        const visibleDocs = hasMorePage ? docs.slice(0, pageSize) : docs;
         const mapped = visibleDocs.map(mapDocToProduct).filter((item): item is ProductCardData => item !== null);
         const nextCursor = visibleDocs.length > 0 ? visibleDocs[visibleDocs.length - 1] : cursor ? cursor : null;
 
         if (mode === 'append') {
           if (mapped.length > 0) {
-            setProducts(prev => sortProducts(dedupeProducts([...prev, ...mapped]), sortMode));
+            setProducts(prev => dedupeProducts([...prev, ...mapped]));
             setLastDoc(nextCursor);
             setHasMore(hasMorePage);
           } else {
@@ -460,19 +647,29 @@ export default function ProductGridSection({
   );
 
   useEffect(() => {
+    if (trimmedSearchTerm.length >= MIN_ALGOLIA_TERM_LENGTH) {
+      return;
+    }
     void loadProducts(null, 'replace');
-  }, [loadProducts]);
+  }, [loadProducts, trimmedSearchTerm]);
 
   const handleRetry = useCallback(() => {
+    if (trimmedSearchTerm.length >= MIN_ALGOLIA_TERM_LENGTH) {
+      setSearchAttempt(previous => previous + 1);
+      return;
+    }
     void loadProducts(null, 'replace');
-  }, [loadProducts]);
+  }, [loadProducts, trimmedSearchTerm]);
 
   const handleLoadMore = useCallback(() => {
+    if (trimmedSearchTerm.length >= MIN_ALGOLIA_TERM_LENGTH) {
+      return;
+    }
     if (!hasMore || loadingMore) {
       return;
     }
     void loadProducts(lastDoc, 'append');
-  }, [hasMore, lastDoc, loadProducts, loadingMore]);
+  }, [hasMore, lastDoc, loadProducts, loadingMore, trimmedSearchTerm]);
 
   const handleSegmentChange = useCallback((segment: SegmentKey) => {
     setActiveSegment(current => (current === segment ? current : segment));
@@ -560,7 +757,7 @@ export default function ProductGridSection({
     }
 
     if (loadingMore) {
-      const skeletons = Array.from({ length: Math.min(4, PAGE_SIZE) }).map((_, index) => (
+      const skeletons = Array.from({ length: LOAD_MORE_PAGE_SIZE }).map((_, index) => (
         <ProductCardSkeleton key={`loading-more-${index}`} />
       ));
       cards = [...cards, ...skeletons];
@@ -574,37 +771,39 @@ export default function ProductGridSection({
       <h2 id="all-products" className="sr-only">
         Tous les produits
       </h2>
-      <div className="border-b border-slate-200 pb-3">
-        <div className={`${SEGMENT_SCROLL_CLASSNAME} overflow-x-auto -mx-1 px-1`}>
-          <div className="flex min-w-max items-center gap-2" role="group" aria-label="Filtrer les produits">
-            {SEGMENTS.map(segment => {
-              const isActive = segment.key === activeSegment;
-              return (
-                <button
-                  key={segment.key}
-                  type="button"
-                  onClick={() => handleSegmentChange(segment.key)}
-                  aria-pressed={isActive}
-                  className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                    isActive
-                      ? 'border-transparent bg-slate-900 text-white shadow-sm shadow-slate-900/30 hover:bg-slate-800'
-                      : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
-                  }`}
-                >
-                  <segment.icon
-                    className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-900'}`}
-                  />
-                  {segment.label}
-                </button>
-              );
-            })}
+      {showSegments ? (
+        <div className="border-b border-slate-200 pb-3">
+          <div className={`${SEGMENT_SCROLL_CLASSNAME} overflow-x-auto -mx-1 px-1`}>
+            <div className="flex min-w-max items-center gap-2" role="group" aria-label="Filtrer les produits">
+              {SEGMENTS.map(segment => {
+                const isActive = segment.key === activeSegment;
+                return (
+                  <button
+                    key={segment.key}
+                    type="button"
+                    onClick={() => handleSegmentChange(segment.key)}
+                    aria-pressed={isActive}
+                    className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                      isActive
+                        ? 'border-transparent bg-slate-900 text-white shadow-sm shadow-slate-900/30 hover:bg-slate-800'
+                        : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+                    }`}
+                  >
+                    <segment.icon
+                      className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-900'}`}
+                    />
+                    {segment.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
+      {!selectedBrand ? <BrandsCarousel segment={activeSegment} activeBrandId={activeBrandId} /> : null}
       {(loading && topProducts.length === 0) || topProducts.length > 0 ? (
         <TopProductsRail products={topProducts} loading={loading} />
       ) : null}
-      <BrandsCarousel segment={activeSegment} activeBrandId={activeBrandId} />
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
       </div>
@@ -830,6 +1029,7 @@ function HeadsetIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
 
 
 

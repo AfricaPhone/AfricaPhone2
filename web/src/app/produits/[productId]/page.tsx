@@ -1,7 +1,6 @@
 import { Suspense, cache } from 'react';
 import type { Metadata } from 'next';
 import ProductDetailContent from './ProductDetailContent';
-import SiteFooter from '@/components/SiteFooter';
 import { getProductDetail } from '@/data/product-details';
 
 type ProductDetailPageProps = {
@@ -172,7 +171,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       >
         <ProductDetailContent productId={params.productId} initialProduct={initialProduct} />
       </Suspense>
-      <SiteFooter />
     </div>
   );
 }

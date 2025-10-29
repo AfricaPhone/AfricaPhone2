@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
@@ -14,10 +14,10 @@ type BrandPageClientProps = {
 type BrandData = {
   id: string;
   name: string;
-  filterValue?: string | null;
-  description?: string | null;
-  tagline?: string | null;
-  logoUrl?: string | null;
+  filterValue: string | null;
+  description: string | null;
+  tagline: string | null;
+  logoUrl: string | null;
 };
 
 const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
@@ -26,9 +26,11 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logoErrored, setLogoErrored] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
 
   useEffect(() => {
     setLogoErrored(false);
+    setShareError(null);
   }, [brandId]);
 
   useEffect(() => {
@@ -42,6 +44,7 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
       try {
         const ref = doc(db, 'brands', brandId);
         const snapshot = await getDoc(ref);
+
         if (!snapshot.exists()) {
           if (isMounted) {
             setError("Cette marque n'est plus disponible.");
@@ -54,17 +57,16 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
           return;
         }
 
-        const name = typeof data.name === 'string' && data.name.trim().length ? data.name.trim() : snapshot.id;
-        const filterValue =
-          typeof data.filterValue === 'string' && data.filterValue.trim().length ? data.filterValue.trim() : name;
+        const name = getString(data.name) ?? snapshot.id;
+        const filterValue = getString(data.filterValue) ?? name;
 
         setBrand({
           id: snapshot.id,
           name,
           filterValue,
-          description: typeof data.description === 'string' ? data.description.trim() : null,
-          tagline: typeof data.tagline === 'string' ? data.tagline.trim() : null,
-          logoUrl: typeof data.logoUrl === 'string' ? data.logoUrl.trim() : null,
+          description: getString(data.description),
+          tagline: getString(data.tagline),
+          logoUrl: getString(data.logoUrl),
         });
       } catch (err) {
         console.error('BrandPage: failed to load brand', err);
@@ -89,22 +91,64 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
     if (!brand) {
       return null;
     }
-    const cleanId = typeof brand.id === 'string' ? brand.id.trim() : brand.id;
-    const cleanName = typeof brand.name === 'string' ? brand.name.trim() : brand.name;
-    const cleanFilter =
-      typeof brand.filterValue === 'string' && brand.filterValue.trim().length > 0 ? brand.filterValue.trim() : null;
+    const id = brand.id.trim();
+    const name = brand.name.trim();
+    const filterValue =
+      brand.filterValue && brand.filterValue.trim().length > 0 ? brand.filterValue.trim() : name;
 
     return {
-      id: cleanId ?? brand.id,
-      name: cleanName ?? brand.name,
-      filterValue: cleanFilter ?? cleanName ?? cleanId ?? null,
+      id,
+      name,
+      filterValue,
     };
   }, [brand]);
 
+  const handleShare = useCallback(async () => {
+    if (!brand) {
+      return;
+    }
+    const shareUrl =
+      typeof window !== 'undefined' ? window.location.href : `https://africaphone.org/marques/${brand.id}`;
+    const shareTitle = `AfricaPhone | ${brand.name}`;
+    const shareText = `Découvrez la sélection ${brand.name} sur AfricaPhone.`;
+
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        setShareError(null);
+        return;
+      } catch (err) {
+        const abortError = err instanceof Error && err.name === 'AbortError';
+        if (!abortError) {
+          console.error('BrandPage: native share failed', err);
+          setShareError("Le partage n'a pas pu être effectué.");
+        }
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareError('Lien copié dans le presse-papiers.');
+        return;
+      } catch (err) {
+        console.error('BrandPage: clipboard copy failed', err);
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.open(`https://wa.me/22954151522?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`, '_blank');
+    }
+  }, [brand]);
+
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-slate-100/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3 lg:px-6">
+    <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 lg:px-8">
           <button
             type="button"
             onClick={() => router.back()}
@@ -113,13 +157,17 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
             <BackIcon className="h-4 w-4" />
             Retour
           </button>
+
           {loading ? (
             <div className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-full bg-slate-200" />
-              <span className="h-3 w-20 rounded-full bg-slate-200" />
+              <div className="h-10 w-10 rounded-full bg-slate-200" />
+              <div className="space-y-1">
+                <div className="h-4 w-24 rounded-full bg-slate-200" />
+                <div className="h-3 w-32 rounded-full bg-slate-200" />
+              </div>
             </div>
           ) : brand ? (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-1 items-center gap-3">
               <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15">
                 {brand.logoUrl && !logoErrored ? (
                   <Image
@@ -136,7 +184,7 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
                   </span>
                 )}
               </span>
-              <div className="flex flex-col text-left">
+              <div className="flex flex-col">
                 <span className="text-sm font-semibold text-slate-900 sm:text-base">{brand.name}</span>
                 {brand.tagline ? (
                   <span className="text-xs font-medium text-slate-500 sm:text-sm">{brand.tagline}</span>
@@ -144,37 +192,35 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
               </div>
             </div>
           ) : (
-            <span className="text-sm font-semibold text-slate-700">Marque introuvable</span>
+            <span className="flex-1 text-sm font-semibold text-slate-700">Marque introuvable</span>
           )}
-          <span className="hidden h-8 w-[92px] shrink-0 lg:block" />
+
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-orange-400 hover:text-orange-500"
+            disabled={!brand}
+          >
+            <ShareIcon className="h-4 w-4" />
+            Partager
+          </button>
         </div>
+        {shareError ? (
+          <p className="px-4 pb-2 text-center text-xs font-medium text-slate-500 sm:text-sm">{shareError}</p>
+        ) : null}
       </header>
 
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 pb-16 pt-6 lg:px-6">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pb-16 pt-6 sm:px-4 lg:px-8">
         {loading ? (
-          <div className="space-y-4">
-            <div className="h-4 w-1/2 rounded-full bg-slate-200" />
-            <div className="h-4 w-3/4 rounded-full bg-slate-200" />
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <div
-                  key={`brand-grid-skeleton-${index}`}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="aspect-[3/4] w-full rounded-xl bg-slate-200" />
-                  <div className="mt-3 space-y-2">
-                    <div className="h-4 w-1/2 rounded-full bg-slate-200" />
-                    <div className="h-3 w-3/4 rounded-full bg-slate-200" />
-                    <div className="h-3 w-2/3 rounded-full bg-slate-200" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SkeletonSection />
         ) : brand ? (
           <>
-            {brand.description ? <p className="text-sm text-slate-600 sm:text-base">{brand.description}</p> : null}
-            <ProductGridSection selectedBrand={selectedBrand} enableStaticFallbacks={false} />
+            {brand.description ? (
+              <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600 sm:text-base">
+                {brand.description}
+              </div>
+            ) : null}
+            <ProductGridSection selectedBrand={selectedBrand} enableStaticFallbacks={false} showSegments={false} />
           </>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
@@ -196,19 +242,67 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
   );
 };
 
+const SkeletonSection = () => (
+  <div className="space-y-4">
+    <div className="h-4 w-1/2 rounded-full bg-slate-200" />
+    <div className="h-4 w-3/4 rounded-full bg-slate-200" />
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div key={`brand-grid-skeleton-${index}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="aspect-[3/4] w-full rounded-xl bg-slate-200" />
+          <div className="mt-3 space-y-2">
+            <div className="h-4 w-1/2 rounded-full bg-slate-200" />
+            <div className="h-3 w-3/4 rounded-full bg-slate-200" />
+            <div className="h-3 w-2/3 rounded-full bg-slate-200" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 function BackIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" className={className}>
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
       <path
-        d="M8.25 5.75 3 10l5.25 4.25"
+        d="M5.25 12h13.5"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M3 10h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11.25 6 5.25 12l6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
+}
+
+function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M17.5 8.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM6.5 14.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM17.5 20.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.43 11.72 15.57 7.03M8.43 12.28l7.14 4.69"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function getString(value: unknown): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 export default BrandPageClient;

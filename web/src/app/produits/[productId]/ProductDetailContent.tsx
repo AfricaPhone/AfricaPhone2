@@ -333,18 +333,26 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
   const specsContent =
     orderedSpecs.length > 0 ? (
-      <div className="space-y-2">
-        {orderedSpecs.map((spec, index) => (
-          <div
-            key={`${spec.label}-${spec.value}`}
-            className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${
-              index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
-            }`}
-          >
-            <span className="text-[#7A7C80]">{spec.label}</span>
-            <span className="max-w-[55%] text-right font-semibold">{spec.value}</span>
-          </div>
-        ))}
+      <div className="space-y-3">
+        <div className="space-y-2">
+          {orderedSpecs.map((spec, index) => (
+            <div
+              key={`${spec.label}-${spec.value}`}
+              className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${
+                index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
+              }`}
+            >
+              <span className="text-[#7A7C80]">{spec.label}</span>
+              <span className="max-w-[55%] text-right font-semibold">{spec.value}</span>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-2xl border border-[#E6E9F0] bg-[#F7F9FC] px-4 py-3 text-[12px] text-[#48505C]">
+          <p className="font-semibold text-[#111111]">Livraison &amp; horaires</p>
+          <p>
+            Livraison partout au B&eacute;nin. Nous sommes ouverts tous les jours du Lundi au Dimanche.
+          </p>
+        </div>
       </div>
     ) : (
       <p className="text-[13px] text-[#7A7C80]">Specifications a venir.</p>
@@ -617,11 +625,13 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
   if (brand) {
     specs.push({ label: 'Marque', value: brand });
   }
-  if (rom) {
-    specs.push({ label: 'Stockage', value: `${rom} Go` });
-  }
-  if (ram) {
-    specs.push({ label: 'Memoire vive', value: `${ram} Go` });
+  if (rom || ram) {
+    const romLabel = rom ? `${rom} Go ROM` : null;
+    const ramLabel = ram ? `${ram} Go RAM` : null;
+    specs.push({
+      label: 'Capacite',
+      value: [romLabel, ramLabel].filter(Boolean).join(' / '),
+    });
   }
   const ramBase = safeString(payload.ram_base);
   const ramExtension = safeString(payload.ram_extension);
@@ -725,19 +735,31 @@ function mergeSpecs(
   primarySpecs: Array<{ label: string; value: string }>,
   fallbackSpecs: Array<{ label: string; value: string }> | undefined
 ) {
+  const normalizeKey = (label: string) => label.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
   const map = new Map<string, { label: string; value: string }>();
   for (const spec of fallbackSpecs ?? []) {
-    const key = spec.label.trim().toLowerCase();
+    const key = normalizeKey(spec.label);
     if (!map.has(key)) {
       map.set(key, { label: spec.label, value: spec.value });
     }
   }
   for (const spec of primarySpecs) {
-    const key = spec.label.trim().toLowerCase();
+    const key = normalizeKey(spec.label);
     map.set(key, { label: spec.label, value: spec.value });
   }
 
-  return Array.from(map.values());
+  const shouldHide = (key: string) =>
+    key === 'stockage' ||
+    key === 'stockageinterne' ||
+    key === 'rom' ||
+    key === 'ram' ||
+    key.startsWith('memoire') ||
+    key.endsWith('memoire') ||
+    key.includes('ram');
+
+  return Array.from(map.entries())
+    .filter(([key]) => !shouldHide(key))
+    .map(([, value]) => value);
 }
 
 function dedupeArray<T>(items: (T | null | undefined)[]): T[] {
