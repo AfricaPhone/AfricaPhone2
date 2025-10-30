@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getPendingSubmissionKey,
@@ -48,6 +49,7 @@ export default function PredictionDetailPanel({
   loadingWinners,
   errorWinners,
 }: PredictionDetailPanelProps) {
+  const router = useRouter();
   const [contactNameInput, setContactNameInput] = useState('');
   const [contactFirstName, setContactFirstName] = useState('');
   const [contactLastName, setContactLastName] = useState('');
@@ -69,6 +71,13 @@ export default function PredictionDetailPanel({
   const [modalError, setModalError] = useState<string | null>(null);
 
   const matchId = match?.id ?? null;
+
+  const handleNavigateToWinners = useCallback(() => {
+    if (!matchId) {
+      return;
+    }
+    router.push(`/pronostics/${matchId}/winners`);
+  }, [matchId, router]);
 
   const shareStorageKey = useMemo(() => (matchId ? getShareStorageKey(matchId) : null), [matchId]);
   const pendingSubmissionKey = useMemo(() => (matchId ? getPendingSubmissionKey(matchId) : null), [matchId]);
@@ -732,17 +741,21 @@ export default function PredictionDetailPanel({
       <div className="flex flex-col gap-4">
         {matchCard}
         {resultBanner}
+        {shareProgress.complete ? (
+          <WinnersSection
+            winners={winners}
+            loading={loadingWinners}
+            error={errorWinners}
+            matchEnded={matchEnded}
+            onViewWinners={handleNavigateToWinners}
+          />
+        ) : null}
         {currentPredictionCard}
         {submissionFeedback}
         {shareBanner}
         {shareHelperCard}
         {actionButton}
-        {shareProgress.complete ? (
-          <>
-            <TrendsSection trends={communityTrends} total={match.predictionCount ?? 0} />
-            <WinnersSection winners={winners} loading={loadingWinners} error={errorWinners} />
-          </>
-        ) : null}
+        {shareProgress.complete ? <TrendsSection trends={communityTrends} total={match.predictionCount ?? 0} /> : null}
       </div>
 
       {modalOpen && (
@@ -903,34 +916,51 @@ type WinnersSectionProps = {
   winners: Prediction[];
   loading: boolean;
   error: string | null;
+  matchEnded: boolean;
+  onViewWinners: () => void;
 };
 
-function WinnersSection({ winners, loading, error }: WinnersSectionProps) {
+function WinnersSection({ winners, loading, error, matchEnded, onViewWinners }: WinnersSectionProps) {
+  const winnersCount = winners.length;
+  const summaryMessage =
+    error != null
+      ? null
+      : loading
+      ? 'Chargement des gagnants...'
+      : !matchEnded
+      ? 'Les gagnants seront affiches apres la fin du match.'
+      : winnersCount > 0
+      ? `${winnersCount} ${winnersCount > 1 ? 'gagnants ont trouve le bon score.' : 'gagnant a trouve le bon score.'}`
+      : 'Les gagnants seront annonces prochainement.';
+
+  const buttonDisabled = !matchEnded;
+  const buttonBaseClasses =
+    'flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600';
+  const buttonVariantClasses = buttonDisabled
+    ? 'cursor-not-allowed bg-orange-200 text-orange-500 opacity-70'
+    : 'bg-orange-500 text-white hover:bg-orange-600';
+
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-orange-200 bg-[#FFF7ED] px-4 py-4">
-      <header className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-orange-700">Gagnants du match</span>
-        {loading && <span className="text-xs text-orange-500">Chargement...</span>}
-      </header>
-      {error && <p className="text-xs text-orange-600">{error}</p>}
-      {!error && !loading && winners.length === 0 && (
-        <p className="text-xs text-orange-600">Les gagnants seront annonces une fois le match termine.</p>
-      )}
-      {!loading && winners.length > 0 && (
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {winners.map(winner => (
-            <li key={winner.id} className="rounded-2xl border border-orange-100 bg-white px-3 py-2 text-xs text-orange-700">
-              <p className="font-semibold text-orange-900">{winner.userName}</p>
-              <p className="mt-1 flex items-center gap-2 text-[11px] text-orange-600">
-                <span className="rounded-full bg-orange-500 px-2 py-0.5 font-mono text-[11px] font-bold text-white">
-                  {winner.scoreA} - {winner.scoreB}
-                </span>
-                {winner.contactPhone && <span className="text-[11px] text-orange-500">{winner.contactPhone}</span>}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
+    <section className="flex flex-col gap-4 rounded-2xl border border-orange-200 bg-[#FFF7ED] px-4 py-4">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+          <TrophyIcon className="h-5 w-5" />
+        </div>
+        <div className="flex flex-1 flex-col gap-1">
+          <span className="text-sm font-semibold text-orange-700">Gagnants du match</span>
+          {summaryMessage ? <span className="text-xs text-orange-600">{summaryMessage}</span> : null}
+          {error ? <span className="text-xs font-semibold text-orange-600">{error}</span> : null}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onViewWinners}
+        disabled={buttonDisabled}
+        className={`${buttonBaseClasses} ${buttonVariantClasses}`}
+      >
+        <EyeIcon className="h-4 w-4" />
+        Voir les gagnants
+      </button>
     </section>
   );
 }
@@ -972,6 +1002,23 @@ function formatFullName(first?: string, last?: string): string {
 }
 
 type IconProps = React.SVGProps<SVGSVGElement>;
+
+function EyeIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
 
 function TrophyIcon(props: IconProps) {
   return (
