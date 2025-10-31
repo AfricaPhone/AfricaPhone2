@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { Header } from '../../page';
+import { Header } from '@/components/HomePageClient';
 
 export default function ProductPageHeader() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -10,5 +10,9 @@ export default function ProductPageHeader() {
     setSearchQuery(term.trim());
   }, []);
 
-  return <Header searchQuery={searchQuery} onSubmitSearch={handleSubmit} />;
+  const handleClear = useCallback(() => {
+    setSearchQuery('');
+  }, []);
+
+  return <Header searchQuery={searchQuery} onSubmitSearch={handleSubmit} onClearSearch={handleClear} />;
 }

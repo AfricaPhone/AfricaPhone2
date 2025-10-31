@@ -38,7 +38,7 @@ export function NousTrouverLocations({ overview }: { overview: StoreOverview }) 
         </div>
       </div>
       <div className="rounded-3xl border border-slate-200 bg-white px-6 py-6 sm:px-8">
-        <h2 className="text-xl font-semibold text-slate-900">Horaires d'ouverture</h2>
+        <h2 className="text-xl font-semibold text-slate-900">Horaires d&apos;ouverture</h2>
         <p className="mt-2 text-sm text-slate-600">Passez sans rendez-vous ou planifiez votre visite selon vos disponibilites.</p>
         <ul className="mt-6 space-y-3 text-sm text-slate-700">
           {overview.openingHours.map(item => (

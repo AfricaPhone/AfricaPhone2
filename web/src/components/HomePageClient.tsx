@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useId, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -106,25 +106,15 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
         });
         return;
       } catch (error) {
-        const abortError = error instanceof Error && error.name === 'AbortError';
-        if (!abortError) {
-          console.error('TopNav: web share failed', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
         }
+        console.error('TopNav: web share failed', error);
       }
     }
 
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        return;
-      } catch (error) {
-        console.error('TopNav: clipboard copy failed', error);
-      }
-    }
-
-    const fallbackUrl = `https://wa.me/22954151522?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`;
     if (typeof window !== 'undefined') {
-      window.open(fallbackUrl, '_blank');
+      window.alert('Partage indisponible sur votre appareil. Copiez le lien https://africaphone.org manuellement.');
     }
   }, []);
 
@@ -655,4 +645,6 @@ function CloseIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+
 

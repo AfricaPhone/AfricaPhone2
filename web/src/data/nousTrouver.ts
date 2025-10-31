@@ -41,6 +41,12 @@ export type StoreOverview = {
   mapEmbed: string;
 };
 
+export type SupportChannel = {
+  label: string;
+  value: string;
+  href: string;
+};
+
 export const storeOverview: StoreOverview = {
   name: 'Africa PHONE',
   category: 'Boutique officielle',

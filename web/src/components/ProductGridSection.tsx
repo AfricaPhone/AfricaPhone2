@@ -342,7 +342,7 @@ const SEGMENTS: Array<{
   label: string;
   icon: (props: { className?: string }) => JSX.Element;
 }> = [
-  { key: 'telephone', label: 'T?l?phones', icon: StarOutlineIcon },
+  { key: 'telephone', label: 'T\u00e9l\u00e9phones', icon: StarOutlineIcon },
   { key: 'tablette', label: 'Tablettes', icon: TabletIcon },
   { key: 'portable a touche', label: 'A touches', icon: KeypadIcon },
   { key: 'accessoire', label: 'Accessoires', icon: HeadsetIcon },
@@ -876,9 +876,9 @@ function TopProductCard({ product }: { product: ProductCardData }) {
   return (
     <Link
       href={detailHref}
-      className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0 sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]"
+      className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0 sm:min-w-[160px] sm:max-w-[160px] h-[252px] sm:h-[268px]"
     >
-      <div className="relative flex-[0_0_65%] w-full overflow-hidden bg-slate-50">
+      <div className="relative flex-[0_0_60%] w-full overflow-hidden bg-slate-50">
         {!imageErrored && product.image ? (
           <Image
             src={product.image}
@@ -890,15 +890,36 @@ function TopProductCard({ product }: { product: ProductCardData }) {
           />
         ) : null}
       </div>
-      <div className="flex flex-[0_0_35%] flex-col justify-between px-2 pb-2 pt-1.5 text-left sm:px-3 sm:pb-3">
-        <p className="truncate text-[11px] font-semibold text-slate-900">{product.name}</p>
+      <div className="flex flex-[0_0_40%] flex-col gap-1.5 px-2 pb-2 pt-2 text-left sm:px-3 sm:pb-3">
+        <p className="truncate text-[11px] font-semibold text-slate-900 sm:text-xs">{product.name}</p>
         <p
           className="text-[10px] text-slate-500"
-          style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 1 }}
+          style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 2 }}
         >
           {product.tagline}
         </p>
-        <p className="text-[13px] font-extrabold text-rose-600">{priceLabel}</p>
+        <div className="mt-auto space-y-1">
+          <p className="text-[13px] font-extrabold text-rose-600 sm:text-sm">{priceLabel}</p>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-2.5 py-1 text-[10px] font-semibold text-white transition group-hover:bg-orange-600 sm:text-xs">
+            Voir details
+            <svg className="h-3 w-3" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M3.5 7H10.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M7.5 4L10.5 7L7.5 10"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </div>
       </div>
     </Link>
   );
@@ -906,12 +927,13 @@ function TopProductCard({ product }: { product: ProductCardData }) {
 
 function TopProductSkeleton() {
   return (
-    <div className="flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white sm:min-w-[152px] sm:max-w-[152px] h-[216px] sm:h-[228px]">
-      <div className="flex-[0_0_65%] animate-pulse bg-slate-200" />
-      <div className="flex flex-[0_0_35%] flex-col justify-between px-2 pb-2 pt-1.5 sm:px-3 sm:pb-3">
+    <div className="flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white sm:min-w-[160px] sm:max-w-[160px] h-[252px] sm:h-[268px]">
+      <div className="flex-[0_0_60%] animate-pulse bg-slate-200" />
+      <div className="flex flex-[0_0_40%] flex-col justify-between px-2 pb-2 pt-2 sm:px-3 sm:pb-3">
         <div className="h-3 w-2/3 animate-pulse rounded-full bg-slate-200" />
-        <div className="h-3 w-full animate-pulse rounded-full bg-slate-200" />
-        <div className="h-3 w-1/3 animate-pulse rounded-full bg-slate-200" />
+        <div className="h-3 w-5/6 animate-pulse rounded-full bg-slate-200" />
+        <div className="h-3 w-3/4 animate-pulse rounded-full bg-slate-200" />
+        <div className="h-3 w-1/2 animate-pulse rounded-full bg-slate-200" />
       </div>
     </div>
   );
@@ -930,7 +952,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <Link
         href={detailHref}
-        className="flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0"
+        className="group flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0"
       >
         <div className="relative aspect-[3/4] w-full overflow-hidden sm:aspect-[4/5] lg:aspect-[3/4]">
           {!imageErrored && product.image ? (
@@ -948,6 +970,27 @@ function ProductCard({ product }: { product: ProductCardData }) {
           <p className="text-base font-extrabold text-rose-600 sm:text-lg">{priceLabel}</p>
           <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
           <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
+          <div className="mt-auto">
+            <span className="inline-flex max-w-fit items-center gap-2 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-orange-600 sm:text-sm">
+              Voir details
+              <svg className="h-3.5 w-3.5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M3.5 7H10.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M7.5 4L10.5 7L7.5 10"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </div>
         </div>
       </Link>
     </article>
