@@ -34,3 +34,20 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Firebase Storage Bucket Copy Script
+
+Use `scripts/copy-storage-bucket.js` to clone the contents of one Firebase Storage bucket into another (for example, copying from `africaphone-vente.firebasestorage.app` to `africaphone-vente.appspot.com`).
+
+1. Make sure the Firebase Admin service account JSON is available and point `GOOGLE_APPLICATION_CREDENTIALS` to it.
+2. Run the script from the `web` directory with the source and destination buckets.
+
+PowerShell example:
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\Users\USER\Desktop\AFRICA Phone\AfricaPhone2\africaphone-vente-firebase-adminsdk-fbsvc-fb10b566a3.json"
+cd web
+node scripts/copy-storage-bucket.js --from africaphone-vente.firebasestorage.app --to africaphone-vente.appspot.com
+```
+
+Add `--dry-run` to preview which objects would be copied, `--prefix <folder/>` to limit the scope to a subdirectory, and `--concurrency <n>` (or `COPY_STORAGE_CONCURRENCY`) to adjust how many files copy in parallel.

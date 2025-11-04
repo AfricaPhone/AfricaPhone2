@@ -13,6 +13,7 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.17.3",
     "firebase": "^12.4.0",
     "firebase-admin": "^13.5.0",
     "kkiapay": "^2.0.23",
