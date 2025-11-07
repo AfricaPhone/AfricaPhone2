@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "jest",
     "deploy:web": "npm --prefix .. run deploy:web",
+    "deploy:form": "firebase deploy --only hosting:contest-form",
     "lint:staged": "npx lint-staged",
     "check:types": "tsc --noEmit"
   },

@@ -472,7 +472,7 @@ export default function PredictionDetailPanel({
     shareProgress.remaining,
   ]);
 
-  const handleOpenModal = () => {
+  const handleOpenModal = useCallback(() => {
     if (!canSubmit) {
       return;
     }
@@ -480,7 +480,7 @@ export default function PredictionDetailPanel({
     setModalError(null);
     setModalStep('contact');
     setModalOpen(true);
-  };
+  }, [canSubmit]);
 
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -576,7 +576,7 @@ export default function PredictionDetailPanel({
         </span>
       </div>
     );
-  }, [lastSubmission, match, matchEnded, shareProgress.complete]);
+  }, [lastSubmission, matchEnded, shareProgress.complete]);
 
   const shareBanner = useMemo(() => {
     if (!sharePromptVisible || !pendingSubmission) {
