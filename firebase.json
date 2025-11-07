@@ -92,7 +92,7 @@
     },
     {
       "target": "contest-form",
-      "source": "web",
+      "source": "FormVote",
       "frameworksBackend": {
         "region": "us-central1"
       },

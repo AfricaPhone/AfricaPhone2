@@ -15,9 +15,10 @@
           "africaphone-org"
         ],
         "contest-form": [
-          "africaphone-org"
+          "africaphone-contest-form"
         ]
       }
     }
-  }
+  },
+  "etags": {}
 }
