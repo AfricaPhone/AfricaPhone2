@@ -151,4 +151,11 @@ Une fois ces étapes terminées et la propagation terminée, https://africaphone
 
 
 
-hidden au lieu de active
+Livraison réalisée : Codex a extrait la route /votes/candidature dans un nouvel espace autonome, a renforcé toute la stack (types, utils, règles Firestore/Storage, CLI contest-settings, scripts npm) et a publié ce mini-site sur un hosting Firebase dédié.
+Lien de test : le formulaire est maintenant accessible ici : https://africaphone-contest-form.web.app/votes/candidature (c’est le build le plus récent).
+Commit : feat: add standalone contest form hosting contient l’ensemble des changements (nouveau dossier, config Firebase, doc).
+Actions manuelles demandées :
+Créer/mettre à jour le document Firestore contestSubmissions/settings (champ contestId, sitePublicUrl à https://africaphone-contest-form.web.app/votes, isOpen). Lien direct : https://console.firebase.google.com/project/africaphone-vente/firestore/data/~2FcontestSubmissions~2Fsettings
+Si Firestore réclame plus tard des indexes (verrou téléphone/email), les créer via https://console.firebase.google.com/project/africaphone-vente/firestore/indexes
+Vérifier dans Storage que les règles et le dossier contest-submissions/** respectent bien les métadonnées (source =contest-form) : https://console.firebase.google.com/project/africaphone-vente/storage/africaphone-vente.firebasestorage.app/files
+Optionnel : rattacher ce nouveau site Hosting à une appli Web Firebase pour éviter l’avertissement CLI : https://console.firebase.google.com/project/africaphone-vente/settings/general

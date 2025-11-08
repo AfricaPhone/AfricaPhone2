@@ -346,14 +346,12 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
 
   return (
     <section className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-4 py-12 sm:px-6 lg:px-12">
-        <header className="space-y-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-          <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-10">
+        <header className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <NextImage src="/logo.png" alt="AfricaPhone" width={120} height={40} className="h-10 w-auto" />
-              <div className="rounded-full border border-emerald-400/40 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-300">
-                Parcours candidature presse
-              </div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-white/70">Formulaire de candidature presse</p>
             </div>
             <Link
               href={contestLink}
@@ -364,27 +362,9 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
               Accéder au site public
             </Link>
           </div>
-          <div className="space-y-4">
-            <h1 className="text-3xl font-bold leading-tight text-white md:text-4xl">
-              Déposez votre candidature presse en toute autonomie
-            </h1>
-            <p className="text-base text-slate-200 md:text-lg">
-              Remplissez ce formulaire sécurisé pour figurer instantanément sur la plateforme de vote AfricaPhone. Vos
-              informations sont synchronisées avec Firebase (Firestore + Storage) et validées avant publication.
-            </p>
-            <div className="flex flex-wrap items-center gap-4 text-sm font-semibold">
-              <span className="rounded-full border border-white/20 px-4 py-1 text-white/80">
-                Concours actif&nbsp;: {sanitizeContestId(initialSettings.contestId, 'press-stars-2025')}
-              </span>
-              <span
-                className={`rounded-full px-4 py-1 ${
-                  isContestOpen ? 'bg-emerald-500/20 text-emerald-200' : 'bg-rose-500/20 text-rose-100'
-                }`}
-              >
-                {isContestOpen ? 'Phase de candidatures ouverte' : 'La phase de candidatures est clôturée'}
-              </span>
-            </div>
-          </div>
+          <p className="mt-4 text-base text-white/80">
+            Merci de renseigner les informations ci-dessous pour proposer votre profil journalistique.
+          </p>
         </header>
 
         {statusMessage.message ? (
@@ -404,27 +384,14 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
           onSubmit={handleSubmit}
           className="grid gap-8 rounded-3xl border border-white/10 bg-slate-950/40 p-6 shadow-xl shadow-black/20 md:grid-cols-3 md:gap-10"
         >
+          <input type="hidden" name="contestId" value={formValues.contestId} readOnly />
           {!isContestOpen ? (
             <div className="md:col-span-3 rounded-2xl border border-rose-400/40 bg-rose-500/10 p-4 text-sm font-semibold text-rose-100">
               La phase de candidatures est clôturée.
             </div>
           ) : null}
           <div className="space-y-6 md:col-span-2">
-            <div className="grid gap-5 md:grid-cols-2">
-              <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-                ID du concours
-                <input
-                  type="text"
-                  name="contestId"
-                  value={formValues.contestId}
-                  onChange={handleInputChange}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                  placeholder="press-stars-2025"
-                  required
-                />
-                {errors.contestId ? <span className="text-xs text-rose-300">{errors.contestId}</span> : null}
-              </label>
-              <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
+            <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
                 Nom complet
                 <input
                   type="text"
@@ -437,7 +404,6 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 />
                 {errors.fullName ? <span className="text-xs text-rose-300">{errors.fullName}</span> : null}
               </label>
-            </div>
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
               Média ou organe
               <input
@@ -465,7 +431,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             </label>
             <div className="grid gap-5 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-                Téléphone WhatsApp (+229…)
+                Téléphone WhatsApp (+229...)
                 <input
                   type="tel"
                   name="phone"
@@ -475,7 +441,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                   placeholder="+229XXXXXXXXX"
                   required
                 />
-                <span className="text-xs text-slate-300">Format international requis. Prévisualisation&nbsp;: {phonePreview}</span>
+                <span className="text-xs text-white/60">Format international requis. Prévisualisation&nbsp;: {phonePreview}</span>
                 {errors.phone ? <span className="text-xs text-rose-300">{errors.phone}</span> : null}
               </label>
               <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
@@ -497,12 +463,12 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             <div>
               <h2 className="text-lg font-semibold text-white">Photo officielle</h2>
               <p className="text-sm text-white/70">
-                JPG/PNG 5 Mo max. Éclairage uniforme, cadrage poitrine ou portrait serré recommandé.
+                JPG/PNG 5 Mo max. Éclairage uniforme et cadrage poitrine ou portrait serré recommandés.
               </p>
             </div>
-            <label className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-10 text-center text-sm text-white/70 transition hover:border-white/50">
+            <label className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-10 text-center text-sm text-white/80 transition hover:border-white/60">
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={!isContestOpen} />
-              <span className="rounded-full border border-white/20 px-4 py-1 text-xs uppercase tracking-wide text-white/60">
+              <span className="rounded-full border border-white/20 px-4 py-1 text-xs uppercase tracking-wide text-white/70">
                 {photoState.status === 'uploading' ? 'Téléversement...' : 'Sélectionner un fichier'}
               </span>
               {photoState.url ? (
@@ -536,7 +502,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 <button
                   type="button"
                   onClick={handleClearDraft}
-                  className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-white/40 hover:text-white"
+                  className="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-white/40 hover:text-white"
                 >
                   Effacer le brouillon
                 </button>
@@ -545,13 +511,10 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             <button
               type="submit"
               disabled={!isContestOpen || isSubmitting}
-              className="w-full rounded-full bg-emerald-400 px-6 py-4 text-sm font-semibold uppercase tracking-wide text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-emerald-400/50 disabled:text-white/60"
+              className="w-full rounded-full bg-emerald-400 px-6 py-4 text-sm font-semibold uppercase tracking-wide text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-emerald-400/40 disabled:text-white/60"
             >
               {isContestOpen ? (isSubmitting ? 'Envoi en cours...' : 'Soumettre ma candidature') : 'Candidatures clôturées'}
             </button>
-            <p className="text-xs text-white/60">
-              Une copie sécurisée de vos données est transmise à Firestore (collection <code>contests/&lt;id&gt;/candidates</code>) ainsi qu’à un dossier protégé de Firebase Storage. Vos informations privées (WhatsApp, e-mail) ne sont visibles que par l’équipe AfricaPhone.
-            </p>
           </div>
         </form>
       </div>
