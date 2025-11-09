@@ -83,6 +83,7 @@ type CombinedProduct = {
   rating?: number;
   reviews?: number;
   whatsappLink: string;
+  productUrl: string;
 };
 
 type ValidatedPromo = {
@@ -736,13 +737,12 @@ function PromoCodeModal({ open, code, error, isSubmitting, onClose, onApply, onC
               type="text"
               inputMode="text"
               autoComplete="off"
-              spellCheck={false}
-              value={code}
-              onChange={event => onCodeChange(event.target.value)}
-              placeholder="AFRICA2024"
-              className="mt-2 h-12 w-full rounded-[16px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-[15px] font-semibold tracking-[0.12em] text-[#111111] outline-none transition focus:border-[#111111] focus:bg-white"
-              autoFocus
-            />
+                spellCheck={false}
+                value={code}
+                onChange={event => onCodeChange(event.target.value)}
+                className="mt-2 h-12 w-full rounded-[16px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-[15px] font-semibold tracking-[0.12em] text-[#111111] outline-none transition focus:border-[#111111] focus:bg-white"
+                autoFocus
+              />
           </div>
           {error ? <p className="text-sm font-medium text-[#DC2626]">{error}</p> : null}
           <button
@@ -913,9 +913,11 @@ function combineProductData(
     staticProduct?.description ||
     'Produit selectionne par AfricaPhone avec verification boutique et assistance locale.';
 
+  const productUrl = buildProductUrl(resolvedId);
   const whatsappLink = buildWhatsappLink({
     name: firestoreProduct?.name ?? staticProduct?.name ?? 'Produit AfricaPhone',
     priceLabel: priceNumber ? formattedPrice : null,
+    productUrl,
   });
 
   return {
@@ -936,6 +938,7 @@ function combineProductData(
     rating: staticProduct?.rating,
     reviews: staticProduct?.reviews,
     whatsappLink,
+    productUrl,
   };
 }
 
@@ -1009,11 +1012,24 @@ function parsePriceLabel(label: string | undefined | null): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function buildWhatsappLink({ name, priceLabel }: { name: string; priceLabel: string | null }) {
-  const baseMessage = priceLabel
+function buildProductUrl(productId: string) {
+  return `https://africaphone-org.web.app/produits/${productId}`;
+}
+
+function buildWhatsappLink({
+  name,
+  priceLabel,
+  productUrl,
+}: {
+  name: string;
+  priceLabel: string | null;
+  productUrl: string;
+}) {
+  const intro = priceLabel
     ? `Bonjour AfricaPhone, je vous contacte depuis votre site web et je suis intéressé(e) par ${name} (${priceLabel}).`
     : `Bonjour AfricaPhone, je vous contacte depuis votre site web et je suis intéressé(e) par ${name}.`;
-  const encoded = encodeURIComponent(baseMessage);
+  const message = `${intro}\nLien du produit : ${productUrl}`;
+  const encoded = encodeURIComponent(message);
   return `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${encoded}`;
 }
 

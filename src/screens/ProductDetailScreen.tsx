@@ -244,7 +244,9 @@ const ProductDetailScreen: React.FC = () => {
       return;
     }
     const phoneNumber = boutiqueInfo.whatsappNumber;
+    const productLink = buildProductShareUrl(product.id || productId);
     let message = `Bonjour AfricaPhone, je vous contacte depuis votre site web et je suis intéressé(e) par ${product.title} (${formatPrice(product.price)}).`;
+    message += `\nLien du produit : ${productLink}`;
 
     if (promoCode) {
       message += `\nMon code promo est : ${promoCode.code}`;
@@ -670,3 +672,5 @@ const buildPromoBenefitText = (promo: ValidatedPromo) => {
   const valueLabel = promo.type === 'percentage' ? `${promo.value}%` : formatPrice(promo.value);
   return `Avec ce code promo, vous bénéficiez d'une réduction de ${valueLabel} sur tout article que vous achetez. Ce code promo ne peut être utilisé qu'une seule fois par vous.`;
 };
+
+const buildProductShareUrl = (id: string) => `https://africaphone-org.web.app/produits/${id}`;
