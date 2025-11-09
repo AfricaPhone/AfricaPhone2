@@ -3,14 +3,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminDb, getAdminBucket } from '@/lib/firebaseAdmin';
 import { fetchContestSubmissionSettings } from '@/server/contestSubmissions';
 import type { ContestCandidateResponse } from '@/types/contestSubmission';
-import {
-  MAX_BIO_LENGTH,
-  isEmailValid,
-  isPhotoPathValid,
-  normalizeEmail,
-  normalizePhoneNumber,
-  slugifyCandidate,
-} from '@/utils/contestCandidate';
+import { MAX_BIO_LENGTH, isPhotoPathValid, normalizePhoneNumber, slugifyCandidate } from '@/utils/contestCandidate';
 import { sha256HexNode } from '@/utils/hashNode';
 
 type SubmitRequestBody = {
@@ -19,7 +12,6 @@ type SubmitRequestBody = {
   media?: string;
   biography?: string;
   phone?: string;
-  email?: string;
   photoPath?: string;
 };
 
@@ -78,13 +70,7 @@ export async function POST(request: NextRequest) {
     return errorResponse('Le numéro WhatsApp doit être au format international (+229...).');
   }
 
-  const emailNormalized = normalizeEmail(payload.email || undefined);
-  if (!isEmailValid(payload.email)) {
-    return errorResponse("L'adresse e-mail n'est pas valide.");
-  }
-
   const phoneHash = sha256HexNode(phoneNormalized);
-  const emailHash = emailNormalized ? sha256HexNode(emailNormalized) : null;
   if (!isPhotoPathValid(contestId, phoneHash, payload.photoPath)) {
     return errorResponse('La photo téléversée est invalide ou manquante.');
   }
@@ -121,9 +107,6 @@ export async function POST(request: NextRequest) {
     const profilesRef = adminDb.collection('contestCandidateProfiles');
     const privateRef = profilesRef.doc(candidateRef.id);
     const phoneLockRef = adminDb.collection('contestCandidateLocks').doc(`${contestId}__${phoneHash}`);
-    const emailLockRef = emailHash ?
-      adminDb.collection('contestCandidateEmailLocks').doc(`${contestId}__${emailHash}`) :
-      null;
 
     const slug = slugifyCandidate(`${fullName}-${media}`) || slugifyCandidate(phoneNormalized);
 
@@ -153,9 +136,6 @@ export async function POST(request: NextRequest) {
       phone: payload.phone?.trim(),
       phoneNormalized,
       phoneHash,
-      email: emailNormalized || null,
-      emailNormalized: emailNormalized || null,
-      emailHash: emailHash || null,
       createdAt: now,
       updatedAt: now,
       source: 'form',
@@ -167,13 +147,6 @@ export async function POST(request: NextRequest) {
         throw new Error('PHONE_EXISTS');
       }
 
-      if (emailLockRef) {
-        const emailLockSnapshot = await transaction.get(emailLockRef);
-        if (emailLockSnapshot.exists) {
-          throw new Error('EMAIL_EXISTS');
-        }
-      }
-
       transaction.set(candidateRef, payloadToStore);
       transaction.set(privateRef, privatePayload);
       transaction.set(phoneLockRef, {
@@ -183,15 +156,6 @@ export async function POST(request: NextRequest) {
         createdAt: now,
         source: 'form',
       });
-      if (emailLockRef && emailHash) {
-        transaction.set(emailLockRef, {
-          contestId,
-          emailHash,
-          candidateId: candidateRef.id,
-          createdAt: now,
-          source: 'form',
-        });
-      }
     });
 
     const responseBody: ContestCandidateResponse = {
@@ -205,9 +169,6 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       if (error.message === 'PHONE_EXISTS') {
         return errorResponse('Un profil est déjà associé à ce numéro WhatsApp.', 409);
-      }
-      if (error.message === 'EMAIL_EXISTS') {
-        return errorResponse('Cette adresse e-mail est déjà liée à un autre candidat.', 409);
       }
     }
     console.error('submitContestCandidate: unexpected error', error);

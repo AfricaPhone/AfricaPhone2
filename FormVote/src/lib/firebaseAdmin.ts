@@ -14,34 +14,73 @@ const DEFAULT_STORAGE_BUCKET =
   process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
   'africaphone-vente.firebasestorage.app';
 
-const cleanPrivateKey = (key: string) => key.replace(/\\n/g, '\n');
+const cleanPrivateKey = (key: string) =>
+  key
+    .replace(/\r/g, '')
+    .replace(/\\n/g, '\n')
+    .trim();
+
+const decodePrivateKey = (value?: string | null): string | null => {
+  if (!value) {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  if (trimmed.includes('BEGIN PRIVATE KEY')) {
+    return trimmed;
+  }
+  try {
+    const decoded = Buffer.from(trimmed, 'base64').toString('utf8').trim();
+    if (decoded.includes('BEGIN PRIVATE KEY')) {
+      return decoded;
+    }
+  } catch (error) {
+    console.warn('firebaseAdmin: unable to decode base64 private key payload.', error);
+  }
+  return null;
+};
+
+const getEnvPrivateKey = (): string | null => {
+  const base64Key = decodePrivateKey(process.env.FIREBASE_ADMIN_PRIVATE_KEY_BASE64);
+  if (base64Key) {
+    return base64Key;
+  }
+  return decodePrivateKey(process.env.FIREBASE_ADMIN_PRIVATE_KEY);
+};
+
+const parseInlineServiceAccount = (payload: string): ServiceAccount => {
+  try {
+    const trimmed = payload.trim();
+    const decoded =
+      trimmed.startsWith('{') ?
+        trimmed :
+        Buffer.from(trimmed, 'base64').toString('utf8');
+    const parsed = JSON.parse(decoded);
+    if (!parsed.project_id || !parsed.client_email || !parsed.private_key) {
+      throw new Error('Invalid FIREBASE_ADMIN_CREDENTIALS payload.');
+    }
+    return {
+      projectId: parsed.project_id,
+      clientEmail: parsed.client_email,
+      privateKey: parsed.private_key,
+    };
+  } catch (error) {
+    console.error('firebaseAdmin: unable to parse FIREBASE_ADMIN_CREDENTIALS', error);
+    throw error;
+  }
+};
 
 const parseServiceAccount = (): ServiceAccount | null => {
   const inlineCredential = process.env.FIREBASE_ADMIN_CREDENTIALS;
   if (inlineCredential) {
-    try {
-      const decoded =
-        inlineCredential.trim().startsWith('{') ?
-          inlineCredential :
-          Buffer.from(inlineCredential, 'base64').toString('utf8');
-      const parsed = JSON.parse(decoded);
-      if (!parsed.project_id || !parsed.client_email || !parsed.private_key) {
-        throw new Error('Invalid FIREBASE_ADMIN_CREDENTIALS payload.');
-      }
-      return {
-        projectId: parsed.project_id,
-        clientEmail: parsed.client_email,
-        privateKey: parsed.private_key,
-      };
-    } catch (error) {
-      console.error('firebaseAdmin: unable to parse FIREBASE_ADMIN_CREDENTIALS', error);
-      throw error;
-    }
+    return parseInlineServiceAccount(inlineCredential);
   }
 
-  const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
-  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID || DEFAULT_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL?.trim();
+  const privateKey = getEnvPrivateKey();
+  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID?.trim() || DEFAULT_PROJECT_ID;
 
   if (clientEmail && privateKey) {
     return {

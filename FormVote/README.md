@@ -9,7 +9,7 @@ Instance autonome du formulaire /votes/candidature pour AfricaPhone. Cette app N
 ## Prerequis
 
 - Node 20.11+ (aligne avec l'environnement Firebase)
-- Firebase CLI connectee au projet fricaphone-vente
+- Firebase CLI connectee au projet africaphone-vente
 - Acces au bucket Storage et a Firestore (service account avec droits Storage Admin et Datastore User)
 
 ## Variables d'environnement
@@ -20,9 +20,16 @@ Copiez .env.local.example en .env.local puis completez :
 | --- | --- |
 | NEXT_PUBLIC_FIREBASE_* | Config client Firebase (Project ID, API key, bucket...). |
 | FIREBASE_ADMIN_CREDENTIALS | JSON complet (ou base64) des credentials Admin. Laisser vide si vous utilisez les variables FIREBASE_ADMIN_CLIENT_EMAIL, FIREBASE_ADMIN_PRIVATE_KEY, FIREBASE_ADMIN_PROJECT_ID. |
+| FIREBASE_ADMIN_PRIVATE_KEY_BASE64 | Variante base64 de la cle privee (facultatif, mais pratique pour les environnements CI). |
 | FIREBASE_ADMIN_STORAGE_BUCKET | Bucket utilise pour stocker les photos compressees. |
 
-Le backend lit les parametres d'ouverture du concours dans irestore.collection('contestSubmissions').doc('settings'), qui doit contenir contestId, sitePublicUrl et isOpen.
+Le backend lit les parametres d'ouverture du concours dans firestore.collection('contestSubmissions').doc('settings'), qui doit contenir contestId, sitePublicUrl et isOpen.
+
+## Développement local
+
+- `npm run dev` charge Inter et Roboto Mono depuis `src/fonts/` (plus aucun appel réseau vers Google Fonts).
+- Les identifiants Firebase Admin sont lus à partir de `.env.local` (`FIREBASE_ADMIN_CREDENTIALS` ou FIREBASE_ADMIN_CLIENT_EMAIL/FIREBASE_ADMIN_PRIVATE_KEY[_BASE64]/FIREBASE_ADMIN_PROJECT_ID`). Aucun fichier JSON local n'est requis.
+- Décommentez `CONTEST_FORM_USE_STATIC_SETTINGS=true` dans `.env.local` pour travailler hors-ligne (Firestore non requis, valeurs par défaut utilisées).
 
 ## Commandes utiles
 
@@ -35,8 +42,7 @@ npm run build        # next build (doit rester sans warnings)
 npm run deploy       # build + firebase deploy --only hosting:contest-form
 `
 
-> 
-pm run deploy publie exclusivement FormVote/ sur la cible contest-form.
+> npm run deploy publie exclusivement FormVote/ sur la cible contest-form.
 
 ## Flux de traitement
 
@@ -49,4 +55,4 @@ pm run deploy publie exclusivement FormVote/ sur la cible contest-form.
 
 - Creer/mettre a jour contestSubmissions/settings (ouverture du concours, URL officielle).
 - Verifier que le bucket Storage accepte bien les fichiers marques customMetadata.source === "contest-form" (automatique lors de l'upload via ce client).
-- Ajouter les index Firestore requis (voir irestore.indexes.json a la racine du repo si Firestore le demande apres deploiement).
+- Ajouter les index Firestore requis (voir firestore.indexes.json a la racine du repo si Firestore le demande apres deploiement).

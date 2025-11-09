@@ -12,7 +12,6 @@ export type ContestCandidateDraft = {
   media: string;
   biography: string;
   phone: string;
-  email?: string;
   photoPath?: string;
   photoUrl?: string;
 };
@@ -23,7 +22,6 @@ export type ContestCandidatePayload = {
   media: string;
   biography: string;
   phone: string;
-  email?: string;
   photoPath: string;
 };
 

@@ -44,7 +44,6 @@ const emptyDraft: ContestCandidateDraft = {
   media: '',
   biography: '',
   phone: '',
-  email: '',
 };
 
 const sanitizeContestId = (value: string, fallback: string) => {
@@ -143,6 +142,26 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
   }, []);
 
   const isContestOpen = initialSettings.isOpen;
+  const mediaBiographyValue = useMemo(() => {
+    if (formValues.media && formValues.biography) {
+      return `${formValues.media}\n${formValues.biography}`;
+    }
+    return formValues.media || formValues.biography || '';
+  }, [formValues.media, formValues.biography]);
+
+  const handleMediaBiographyChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    const { value } = event.target;
+    if (value.length > MAX_BIO_LENGTH) {
+      return;
+    }
+    const [firstLine = '', ...rest] = value.split(/\r?\n/);
+    const biography = rest.join('\n').replace(/^\s+/, '');
+    setFormValues(prev => ({
+      ...prev,
+      media: firstLine.trim(),
+      biography,
+    }));
+  };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
@@ -157,20 +176,24 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     if (!formValues.fullName.trim()) {
       nextErrors.fullName = 'Nom complet requis.';
     }
-    if (!formValues.media.trim()) {
-      nextErrors.media = 'Média ou organe requis.';
-    }
-    if (formValues.biography.trim().length === 0) {
-      nextErrors.biography = 'Biographie requise.';
-    } else if (formValues.biography.trim().length > MAX_BIO_LENGTH) {
-      nextErrors.biography = `Maximum ${MAX_BIO_LENGTH} caractères.`;
+    const trimmedMedia = formValues.media.trim();
+    const trimmedBiography = formValues.biography.trim();
+    const combinedLength = mediaBiographyValue.length;
+    if (combinedLength === 0) {
+      nextErrors.biography = 'Média & biographie requis.';
+    } else {
+      if (!trimmedMedia) {
+        nextErrors.biography = 'Média ou organe requis.';
+      } else if (!trimmedBiography) {
+        nextErrors.biography = 'Biographie requise.';
+      }
+      if (combinedLength > MAX_BIO_LENGTH) {
+        nextErrors.biography = `Maximum ${MAX_BIO_LENGTH} caractères.`;
+      }
     }
     const normalizedPhone = normalizePhoneNumber(formValues.phone);
     if (!normalizedPhone) {
       nextErrors.phone = 'Numéro WhatsApp au format international requis.';
-    }
-    if (formValues.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValues.email.trim())) {
-      nextErrors.email = 'Adresse e-mail invalide.';
     }
     if (!photoState.path) {
       nextErrors.photo = 'Merci de téléverser votre photo.';
@@ -311,7 +334,6 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
         media: formValues.media.trim(),
         biography: formValues.biography.trim(),
         phone: normalizedPhone,
-        email: formValues.email?.trim() || undefined,
         photoPath: photoState.path,
       };
       const response = await fetch('/api/submitContestCandidate', {
@@ -346,14 +368,12 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
 
   return (
     <section className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-4 py-12 sm:px-6 lg:px-12">
-        <header className="space-y-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-          <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-10">
+        <header className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <NextImage src="/logo.png" alt="AfricaPhone" width={120} height={40} className="h-10 w-auto" />
-              <div className="rounded-full border border-emerald-400/40 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-300">
-                Parcours candidature presse
-              </div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-white/70">Formulaire de candidature presse</p>
             </div>
             <Link
               href={contestLink}
@@ -363,27 +383,6 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             >
               Accéder au site public
             </Link>
-          </div>
-          <div className="space-y-4">
-            <h1 className="text-3xl font-bold leading-tight text-white md:text-4xl">
-              Déposez votre candidature presse en toute autonomie
-            </h1>
-            <p className="text-base text-slate-200 md:text-lg">
-              Remplissez ce formulaire sécurisé pour figurer instantanément sur la plateforme de vote AfricaPhone. Vos
-              informations sont synchronisées avec Firebase (Firestore + Storage) et validées avant publication.
-            </p>
-            <div className="flex flex-wrap items-center gap-4 text-sm font-semibold">
-              <span className="rounded-full border border-white/20 px-4 py-1 text-white/80">
-                Concours actif&nbsp;: {sanitizeContestId(initialSettings.contestId, 'press-stars-2025')}
-              </span>
-              <span
-                className={`rounded-full px-4 py-1 ${
-                  isContestOpen ? 'bg-emerald-500/20 text-emerald-200' : 'bg-rose-500/20 text-rose-100'
-                }`}
-              >
-                {isContestOpen ? 'Phase de candidatures ouverte' : 'La phase de candidatures est clôturée'}
-              </span>
-            </div>
           </div>
         </header>
 
@@ -404,27 +403,14 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
           onSubmit={handleSubmit}
           className="grid gap-8 rounded-3xl border border-white/10 bg-slate-950/40 p-6 shadow-xl shadow-black/20 md:grid-cols-3 md:gap-10"
         >
+          <input type="hidden" name="contestId" value={formValues.contestId} readOnly />
           {!isContestOpen ? (
             <div className="md:col-span-3 rounded-2xl border border-rose-400/40 bg-rose-500/10 p-4 text-sm font-semibold text-rose-100">
               La phase de candidatures est clôturée.
             </div>
           ) : null}
           <div className="space-y-6 md:col-span-2">
-            <div className="grid gap-5 md:grid-cols-2">
-              <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-                ID du concours
-                <input
-                  type="text"
-                  name="contestId"
-                  value={formValues.contestId}
-                  onChange={handleInputChange}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                  placeholder="press-stars-2025"
-                  required
-                />
-                {errors.contestId ? <span className="text-xs text-rose-300">{errors.contestId}</span> : null}
-              </label>
-              <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
+            <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
                 Nom complet
                 <input
                   type="text"
@@ -437,72 +423,41 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 />
                 {errors.fullName ? <span className="text-xs text-rose-300">{errors.fullName}</span> : null}
               </label>
-            </div>
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Média ou organe
-              <input
-                type="text"
-                name="media"
-                value={formValues.media}
-                onChange={handleInputChange}
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                placeholder="Radio XYZ, TV5 Monde..."
-                required
-              />
-              {errors.media ? <span className="text-xs text-rose-300">{errors.media}</span> : null}
-            </label>
-            <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Biographie courte ({formValues.biography.length}/{MAX_BIO_LENGTH})
+              Média & biographie ({mediaBiographyValue.length}/{MAX_BIO_LENGTH})
               <textarea
-                name="biography"
-                value={formValues.biography}
-                onChange={handleInputChange}
+                name="mediaBiography"
+                value={mediaBiographyValue}
+                onChange={handleMediaBiographyChange}
                 className="min-h-[140px] rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
                 maxLength={MAX_BIO_LENGTH}
-                placeholder="En 3 ou 4 phrases, présentez votre parcours..."
+                placeholder="Commencez par votre média ou organe (ex : Radio XYZ), puis décrivez votre parcours."
               />
               {errors.biography ? <span className="text-xs text-rose-300">{errors.biography}</span> : null}
             </label>
-            <div className="grid gap-5 md:grid-cols-2">
-              <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-                Téléphone WhatsApp (+229…)
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formValues.phone}
-                  onChange={handleInputChange}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                  placeholder="+229XXXXXXXXX"
-                  required
-                />
-                <span className="text-xs text-slate-300">Format international requis. Prévisualisation&nbsp;: {phonePreview}</span>
-                {errors.phone ? <span className="text-xs text-rose-300">{errors.phone}</span> : null}
-              </label>
-              <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-                E-mail (optionnel)
-                <input
-                  type="email"
-                  name="email"
-                  value={formValues.email}
-                  onChange={handleInputChange}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                  placeholder="vous@media.africa"
-                />
-                {errors.email ? <span className="text-xs text-rose-300">{errors.email}</span> : null}
-              </label>
-            </div>
+            <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
+              Téléphone WhatsApp (+229)
+              <input
+                type="tel"
+                name="phone"
+                value={formValues.phone}
+                onChange={handleInputChange}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
+                placeholder="+229XXXXXXXXX"
+                required
+              />
+              <span className="text-xs text-white/60">Format international requis. Prévisualisation&nbsp;: {phonePreview}</span>
+              {errors.phone ? <span className="text-xs text-rose-300">{errors.phone}</span> : null}
+            </label>
           </div>
 
           <div className="space-y-6 rounded-3xl border border-white/10 bg-white/5 p-5">
             <div>
               <h2 className="text-lg font-semibold text-white">Photo officielle</h2>
-              <p className="text-sm text-white/70">
-                JPG/PNG 5 Mo max. Éclairage uniforme, cadrage poitrine ou portrait serré recommandé.
-              </p>
             </div>
-            <label className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-10 text-center text-sm text-white/70 transition hover:border-white/50">
+            <label className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-10 text-center text-sm text-white/80 transition hover:border-white/60">
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={!isContestOpen} />
-              <span className="rounded-full border border-white/20 px-4 py-1 text-xs uppercase tracking-wide text-white/60">
+              <span className="rounded-full border border-white/20 px-4 py-1 text-xs uppercase tracking-wide text-white/70">
                 {photoState.status === 'uploading' ? 'Téléversement...' : 'Sélectionner un fichier'}
               </span>
               {photoState.url ? (
@@ -536,7 +491,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 <button
                   type="button"
                   onClick={handleClearDraft}
-                  className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-white/40 hover:text-white"
+                  className="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-white/40 hover:text-white"
                 >
                   Effacer le brouillon
                 </button>
@@ -545,13 +500,10 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             <button
               type="submit"
               disabled={!isContestOpen || isSubmitting}
-              className="w-full rounded-full bg-emerald-400 px-6 py-4 text-sm font-semibold uppercase tracking-wide text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-emerald-400/50 disabled:text-white/60"
+              className="w-full rounded-full bg-emerald-400 px-6 py-4 text-sm font-semibold uppercase tracking-wide text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-emerald-400/40 disabled:text-white/60"
             >
               {isContestOpen ? (isSubmitting ? 'Envoi en cours...' : 'Soumettre ma candidature') : 'Candidatures clôturées'}
             </button>
-            <p className="text-xs text-white/60">
-              Une copie sécurisée de vos données est transmise à Firestore (collection <code>contests/&lt;id&gt;/candidates</code>) ainsi qu’à un dossier protégé de Firebase Storage. Vos informations privées (WhatsApp, e-mail) ne sont visibles que par l’équipe AfricaPhone.
-            </p>
           </div>
         </form>
       </div>
