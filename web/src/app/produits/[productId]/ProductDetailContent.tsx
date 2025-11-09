@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import type { DocumentData } from 'firebase/firestore';
 import { logEvent } from 'firebase/analytics';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import type { ProductDetail as StaticProductDetail } from '@/data/product-details';
 import { getProductDetail } from '@/data/product-details';
 import { db, getAnalyticsClient } from '@/lib/firebaseClient';
@@ -82,6 +83,12 @@ type CombinedProduct = {
   rating?: number;
   reviews?: number;
   whatsappLink: string;
+};
+
+type ValidatedPromo = {
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: number;
 };
 
 type ProductDetailContentProps = {
@@ -168,6 +175,12 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
   const [isFavorite, setIsFavorite] = useState(false);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string>('');
+  const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<ValidatedPromo | null>(null);
+  const [promoNotice, setPromoNotice] = useState<string | null>(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!product) {
@@ -191,6 +204,26 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     const timeout = setTimeout(() => setShareMessage(null), 2500);
     return () => clearTimeout(timeout);
   }, [shareMessage]);
+
+  useEffect(() => {
+    if (!promoNotice) {
+      return;
+    }
+    const timeout = setTimeout(() => setPromoNotice(null), 3500);
+    return () => clearTimeout(timeout);
+  }, [promoNotice]);
+
+  const whatsappLinkWithPromo = useMemo(() => {
+    if (!product) {
+      return '#';
+    }
+    return appendPromoToWhatsappLink(product.whatsappLink, appliedPromo);
+  }, [appliedPromo, product]);
+
+  const promoBenefitText = useMemo(
+    () => (appliedPromo ? buildPromoBenefitSentence(appliedPromo) : null),
+    [appliedPromo]
+  );
 
   useEffect(() => {
     if (!product) {
@@ -286,6 +319,51 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
     setShareMessage(`Copiez ce lien : ${resolvedShareUrl}`);
   }, [resolvedShareUrl, shareText, shareTitle]);
+
+  const handlePromoInputChange = useCallback(
+    (value: string) => {
+      setPromoInput(value.toUpperCase());
+      if (promoError) {
+        setPromoError(null);
+      }
+    },
+    [promoError]
+  );
+
+  const handleApplyPromoCode = useCallback(async () => {
+    const formatted = promoInput.trim().toUpperCase();
+    if (!formatted) {
+      setPromoError('Veuillez entrer un code promo.');
+      return;
+    }
+    setIsValidatingPromo(true);
+    setPromoError(null);
+    try {
+      const functions = getFunctions();
+      const validatePromo = httpsCallable<{ code: string }, ValidatedPromo>(functions, 'validatePromoCode');
+      const result = await validatePromo({ code: formatted });
+      const data = result.data;
+      setAppliedPromo(data);
+      setPromoNotice(`Le code "${data.code}" a été appliqué avec succès.`);
+      setPromoInput('');
+      setIsPromoModalOpen(false);
+    } catch (error) {
+      console.error('ProductDetailContent: promo validation failed', error);
+      setPromoError(extractErrorMessage(error));
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  }, [promoInput]);
+
+  const handleRemovePromoCode = useCallback(() => {
+    setAppliedPromo(null);
+    setPromoNotice(null);
+  }, []);
+
+  const handleClosePromoModal = useCallback(() => {
+    setIsPromoModalOpen(false);
+    setPromoError(null);
+  }, []);
 
   const orderedSpecs = useMemo(() => {
     if (!product) {
@@ -424,7 +502,9 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
             >
               <ArrowLeftIcon className="h-5 w-5" />
             </button>
-            <h1 className="text-[20px] font-semibold leading-[22px] text-[#111111] sm:text-[21px]">{product.name}</h1>
+            <h1 className="min-w-0 flex-1 truncate pl-3 pr-2 text-[20px] font-semibold leading-[22px] text-[#111111] sm:text-[21px]">
+              {product.name}
+            </h1>
             <div className="flex items-center gap-[14px]">
               <button
                 type="button"
@@ -477,6 +557,8 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
               </div>
               <button
                 type="button"
+                onClick={() => setIsPromoModalOpen(true)}
+                aria-label="Ajouter un code promo"
                 className="inline-flex h-9 items-center gap-2 rounded-full bg-[#111111] px-4 text-white transition hover:bg-[#2c2c2c]"
               >
                 <span className="flex h-5 w-5 items-center justify-center">
@@ -485,6 +567,25 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 <span className="text-[13px] font-semibold leading-none">Code Promo</span>
               </button>
             </div>
+            {appliedPromo ? (
+              <div className="mt-3 space-y-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#BEE3F8] bg-[#E0F2FE]/80 px-3 py-1 text-[12px] font-semibold text-[#0B5ED7]">
+                  <span>Code&nbsp;: {appliedPromo.code}</span>
+                  <button
+                    type="button"
+                    onClick={handleRemovePromoCode}
+                    className="text-[#0B5ED7] transition hover:text-[#063970]"
+                    aria-label="Retirer le code promo"
+                  >
+                    &times;
+                  </button>
+                </div>
+                {promoBenefitText ? (
+                  <p className="text-[12px] font-medium leading-5 text-[#0F172A]">{promoBenefitText}</p>
+                ) : null}
+              </div>
+            ) : null}
+            {promoNotice ? <p className="mt-2 text-[12px] font-medium text-[#059669]">{promoNotice}</p> : null}
 
             <div className="mt-3 h-px w-full bg-[#ECEDEF]" />
 
@@ -529,7 +630,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
             ) : null}
 
             <a
-              href={product.whatsappLink}
+              href={whatsappLinkWithPromo}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-12 hidden h-12 items-center gap-2.5 rounded-full bg-[#26D367] px-5 text-white transition hover:bg-[#1fb358] lg:flex"
@@ -547,7 +648,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       <div className="fixed inset-x-0 bottom-0 z-30 flex justify-center bg-[#FFFFFFF2] pb-[calc(env(safe-area-inset-bottom,0)+16px)] pt-3 shadow-[0_-18px_28px_-16px_rgba(17,17,17,0.18)] backdrop-blur lg:hidden">
         <div className="w-full max-w-[540px] px-3">
           <a
-            href={product.whatsappLink}
+            href={whatsappLinkWithPromo}
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-12 items-center gap-2.5 rounded-full bg-[#26D367] px-5 text-white transition hover:bg-[#1fb358]"
@@ -561,9 +662,116 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           </a>
         </div>
       </div>
+      <PromoCodeModal
+        open={isPromoModalOpen}
+        code={promoInput}
+        error={promoError}
+        isSubmitting={isValidatingPromo}
+        onClose={handleClosePromoModal}
+        onApply={handleApplyPromoCode}
+        onCodeChange={handlePromoInputChange}
+      />
     </>
   );
 }
+
+type PromoCodeModalProps = {
+  open: boolean;
+  code: string;
+  error: string | null;
+  isSubmitting: boolean;
+  onClose: () => void;
+  onApply: () => void;
+  onCodeChange: (value: string) => void;
+};
+
+function PromoCodeModal({ open, code, error, isSubmitting, onClose, onApply, onCodeChange }: PromoCodeModalProps) {
+  if (!open) {
+    return null;
+  }
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onApply();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-3 pb-6 sm:items-center sm:pb-0">
+      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="promo-modal-title"
+        className="relative z-10 w-full max-w-md overflow-hidden rounded-[28px] bg-white p-6 shadow-2xl"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p id="promo-modal-title" className="text-lg font-semibold text-[#111111]">
+              Ajouter un code promo
+            </p>
+            <p className="mt-1 text-sm text-[#6B7280]">
+              Renseignez le code reçu par SMS, WhatsApp ou e-mail pour profiter de votre avantage.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer la fenêtre code promo"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#F3F4F6] text-[#4B5563] transition hover:bg-[#E5E7EB]"
+          >
+            &times;
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label
+              htmlFor="promo-code-input"
+              className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#7A7C80]"
+            >
+              Code
+            </label>
+            <input
+              id="promo-code-input"
+              name="promo-code"
+              type="text"
+              inputMode="text"
+              autoComplete="off"
+              spellCheck={false}
+              value={code}
+              onChange={event => onCodeChange(event.target.value)}
+              placeholder="AFRICA2024"
+              className="mt-2 h-12 w-full rounded-[16px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-[15px] font-semibold tracking-[0.12em] text-[#111111] outline-none transition focus:border-[#111111] focus:bg-white"
+              autoFocus
+            />
+          </div>
+          {error ? <p className="text-sm font-medium text-[#DC2626]">{error}</p> : null}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex h-12 w-full items-center justify-center rounded-full bg-[#111111] text-[15px] font-semibold uppercase tracking-[0.1em] text-white transition disabled:cursor-not-allowed disabled:bg-[#A0A3AB]"
+          >
+            {isSubmitting ? (
+              <span
+                className="h-5 w-5 animate-spin rounded-full border-2 border-white/80 border-t-transparent"
+                aria-hidden="true"
+              />
+            ) : (
+              'Appliquer'
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full text-center text-[13px] font-semibold text-[#6B7280] transition hover:text-[#111111]"
+          >
+            Plus tard
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function normalizeFirestoreProduct(id: string, data: DocumentData): FirestoreProduct | null {
   const payload = data as FirestoreProductPayload;
   const name = safeString(payload.name) ?? 'Produit AfricaPhone';
@@ -803,10 +1011,55 @@ function parsePriceLabel(label: string | undefined | null): number | null {
 
 function buildWhatsappLink({ name, priceLabel }: { name: string; priceLabel: string | null }) {
   const baseMessage = priceLabel
-    ? `Bonjour AfricaPhone, je suis interesse(e) par ${name} (${priceLabel}).`
-    : `Bonjour AfricaPhone, je suis interesse(e) par ${name}.`;
+    ? `Bonjour AfricaPhone, je vous contacte depuis votre site web et je suis intéressé(e) par ${name} (${priceLabel}).`
+    : `Bonjour AfricaPhone, je vous contacte depuis votre site web et je suis intéressé(e) par ${name}.`;
   const encoded = encodeURIComponent(baseMessage);
   return `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${encoded}`;
+}
+
+function appendPromoToWhatsappLink(baseLink: string, promo?: ValidatedPromo | null) {
+  if (!promo || !baseLink) {
+    return baseLink;
+  }
+  try {
+    const url = new URL(baseLink);
+    const current = url.searchParams.get('text') ?? '';
+    const lines = [];
+    if (current) {
+      lines.push(current);
+    }
+    lines.push(`Mon code promo est : ${promo.code}`);
+    const benefit = buildPromoBenefitSentence(promo);
+    if (benefit) {
+      lines.push(benefit);
+    }
+    url.searchParams.set('text', lines.join('\n'));
+    return url.toString();
+  } catch {
+    return baseLink;
+  }
+}
+
+function formatPromoValue(promo: ValidatedPromo) {
+  if (promo.type === 'percentage') {
+    return `${promo.value}%`;
+  }
+  return formatPrice(promo.value);
+}
+
+function buildPromoBenefitSentence(promo: ValidatedPromo) {
+  const valueLabel = formatPromoValue(promo);
+  return `Avec ce code promo, vous bénéficiez d'une réduction de ${valueLabel} sur tout article que vous achetez. Ce code promo ne peut être utilisé qu'une seule fois par vous.`;
+}
+
+function extractErrorMessage(error: unknown) {
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error && typeof (error as { message: unknown }).message === 'string') {
+    return (error as { message: string }).message;
+  }
+  return 'Impossible de valider ce code pour le moment. Veuillez réessayer.';
 }
 
 function WhatsAppGlyph({ className }: { className?: string }) {

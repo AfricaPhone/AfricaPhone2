@@ -236,16 +236,21 @@ const ProductDetailScreen: React.FC = () => {
     if (idx !== activeIndex) setActiveIndex(idx);
   };
 
+  const promoBenefitText = useMemo(() => (promoCode ? buildPromoBenefitText(promoCode) : null), [promoCode]);
+
   const handleWhatsAppPress = async () => {
     if (!product || !boutiqueInfo?.whatsappNumber) {
       Alert.alert('Erreur', "Le numéro de contact n'est pas disponible pour le moment.");
       return;
     }
     const phoneNumber = boutiqueInfo.whatsappNumber;
-    let message = `Bonjour, je suis intéressé(e) par le produit : ${product.title} (${formatPrice(product.price)}).`;
+    let message = `Bonjour AfricaPhone, je vous contacte depuis votre site web et je suis intéressé(e) par ${product.title} (${formatPrice(product.price)}).`;
 
     if (promoCode) {
       message += `\nMon code promo est : ${promoCode.code}`;
+      if (promoBenefitText) {
+        message += `\n${promoBenefitText}`;
+      }
     }
 
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
@@ -394,11 +399,14 @@ const ProductDetailScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
             {promoCode && (
-              <View style={styles.promoChip}>
-                <Text style={styles.promoChipText}>Code: {promoCode.code}</Text>
-                <TouchableOpacity onPress={() => setPromoCode(null)}>
-                  <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
-                </TouchableOpacity>
+              <View style={styles.promoInfo}>
+                <View style={styles.promoChip}>
+                  <Text style={styles.promoChipText}>Code: {promoCode.code}</Text>
+                  <TouchableOpacity onPress={() => setPromoCode(null)}>
+                    <Ionicons name="close-circle-outline" size={18} color="#007BFF" />
+                  </TouchableOpacity>
+                </View>
+                {promoBenefitText ? <Text style={styles.promoBenefitText}>{promoBenefitText}</Text> : null}
               </View>
             )}
           </View>
@@ -597,11 +605,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  promoInfo: {
+    marginTop: 12,
+    gap: 8,
+  },
   promoChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 12,
     paddingHorizontal: 10,
     paddingVertical: 6,
     backgroundColor: '#e0f2fe',
@@ -614,6 +625,12 @@ const styles = StyleSheet.create({
     color: '#007BFF',
     fontWeight: '600',
     fontSize: 12,
+  },
+  promoBenefitText: {
+    color: '#0f172a',
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: '500',
   },
   actionsSafe: {
     backgroundColor: '#fff',
@@ -648,3 +665,8 @@ const styles = StyleSheet.create({
 });
 
 export default ProductDetailScreen;
+
+const buildPromoBenefitText = (promo: ValidatedPromo) => {
+  const valueLabel = promo.type === 'percentage' ? `${promo.value}%` : formatPrice(promo.value);
+  return `Avec ce code promo, vous bénéficiez d'une réduction de ${valueLabel} sur tout article que vous achetez. Ce code promo ne peut être utilisé qu'une seule fois par vous.`;
+};

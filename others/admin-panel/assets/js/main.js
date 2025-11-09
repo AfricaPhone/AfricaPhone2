@@ -2979,7 +2979,13 @@ $('#search-promocodes').addEventListener('input', () => renderPromoCodeList());
 
 function renderPromoCodeList() {
   const term = ($('#search-promocodes').value || '').toLowerCase();
-  const arr = term ? allPromoCodes.filter(c => (c.code || '').toLowerCase().includes(term)) : allPromoCodes;
+  const arr = term
+    ? allPromoCodes.filter(c => {
+        const codeMatch = (c.code || '').toLowerCase().includes(term);
+        const partnerMatch = (c.assignedTo || '').toLowerCase().includes(term);
+        return codeMatch || partnerMatch;
+      })
+    : allPromoCodes;
 
   if (!arr.length) {
     $promoCodesContent.innerHTML = `<div class="center" style="padding:32px">Aucun code promo.</div>`;
@@ -2993,6 +2999,7 @@ function renderPromoCodeList() {
                 <th>Code</th>
                 <th>Type</th>
                 <th>Valeur</th>
+                <th>Partenaire</th>
                 <th>Statut</th>
                 <th style="width:180px;text-align:right">Actions</th>
             </tr>
@@ -3007,6 +3014,7 @@ function renderPromoCodeList() {
             <td style="font-weight:800"><span class="chip">${escapeHtml(c.code || 'Sans code')}</span></td>
             <td>${escapeHtml(c.type === 'percentage' ? 'Pourcentage' : 'Montant Fixe')}</td>
             <td><span class="badge success">${valText}</span></td>
+            <td>${escapeHtml(c.assignedTo || '—')}</td>
             <td>
                 <label class="toggle">
                     <span class="toggle-switch">
@@ -3077,6 +3085,11 @@ async function renderPromoCodeFormPage(id) {
                 <div class="hint">Ex: "10" pour 10% ou "5000" pour 5000 FCFA.</div>
             </div>
             <div class="field">
+                <label class="label" for="pc-partner">Partenaire attribu�</label>
+                <input id="pc-partner" class="input" type="text" value="${escapeAttr(code.assignedTo || '')}" placeholder="Orange Money, Canal+, etc." />
+                <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associ�e � ce code.</div>
+            </div>
+            <div class="field">
                 <label class="toggle">
                     <span class="toggle-switch">
                         <input id="pc-isActive" type="checkbox" ${code.isActive !== false ? 'checked' : ''}>
@@ -3114,6 +3127,7 @@ async function handlePromoCodeFormSubmit(e, id) {
     code: code,
     type: $('#pc-type').value,
     value: value,
+    assignedTo: $('#pc-partner').value.trim(),
     isActive: $('#pc-isActive').checked,
   };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
@@ -26,11 +26,9 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logoErrored, setLogoErrored] = useState(false);
-  const [shareError, setShareError] = useState<string | null>(null);
 
   useEffect(() => {
     setLogoErrored(false);
-    setShareError(null);
   }, [brandId]);
 
   useEffect(() => {
@@ -103,48 +101,6 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
     };
   }, [brand]);
 
-  const handleShare = useCallback(async () => {
-    if (!brand) {
-      return;
-    }
-    const shareUrl =
-      typeof window !== 'undefined' ? window.location.href : `https://africaphone.org/marques/${brand.id}`;
-    const shareTitle = `AfricaPhone | ${brand.name}`;
-    const shareText = `Découvrez la sélection ${brand.name} sur AfricaPhone.`;
-
-    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: shareUrl,
-        });
-        setShareError(null);
-        return;
-      } catch (err) {
-        const abortError = err instanceof Error && err.name === 'AbortError';
-        if (!abortError) {
-          console.error('BrandPage: native share failed', err);
-          setShareError("Le partage n'a pas pu être effectué.");
-        }
-      }
-    }
-
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        setShareError('Lien copié dans le presse-papiers.');
-        return;
-      } catch (err) {
-        console.error('BrandPage: clipboard copy failed', err);
-      }
-    }
-
-    if (typeof window !== 'undefined') {
-      window.open(`https://wa.me/22954151522?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`, '_blank');
-    }
-  }, [brand]);
-
   return (
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -159,7 +115,7 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
           </button>
 
           {loading ? (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-1 items-center gap-2">
               <div className="h-10 w-10 rounded-full bg-slate-200" />
               <div className="space-y-1">
                 <div className="h-4 w-24 rounded-full bg-slate-200" />
@@ -194,20 +150,7 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
           ) : (
             <span className="flex-1 text-sm font-semibold text-slate-700">Marque introuvable</span>
           )}
-
-          <button
-            type="button"
-            onClick={handleShare}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-orange-400 hover:text-orange-500"
-            disabled={!brand}
-          >
-            <ShareIcon className="h-4 w-4" />
-            Partager
-          </button>
         </div>
-        {shareError ? (
-          <p className="px-4 pb-2 text-center text-xs font-medium text-slate-500 sm:text-sm">{shareError}</p>
-        ) : null}
       </header>
 
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pb-16 pt-6 sm:px-4 lg:px-8">
@@ -272,27 +215,6 @@ function BackIcon({ className }: { className?: string }) {
         strokeLinejoin="round"
       />
       <path d="M11.25 6 5.25 12l6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ShareIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <path
-        d="M17.5 8.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM6.5 14.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM17.5 20.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8.43 11.72 15.57 7.03M8.43 12.28l7.14 4.69"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
     </svg>
   );
 }

@@ -16,6 +16,11 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   title: 'AfricaPhone | Accueil',
   description: 'Retrouvez le meilleur des smartphones, tablettes et accessoires sélectionnés par AfricaPhone.',
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({

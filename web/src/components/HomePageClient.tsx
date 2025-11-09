@@ -93,7 +93,7 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
   }, [router]);
 
   const handleShareClick = useCallback(async () => {
-    const shareUrl = 'https://africaphone.org';
+    const shareUrl = 'https://africaphone-org.web.app';
     const shareTitle = 'AfricaPhone';
     const shareText = 'Decouvrez la boutique AfricaPhone et nos offres mobiles.';
 
@@ -114,7 +114,7 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
     }
 
     if (typeof window !== 'undefined') {
-      window.alert('Partage indisponible sur votre appareil. Copiez le lien https://africaphone.org manuellement.');
+      window.alert('Partage indisponible sur votre appareil. Copiez le lien https://africaphone-org.web.app manuellement.');
     }
   }, []);
 
@@ -184,10 +184,10 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
         <button
           type="button"
           onClick={handleShareClick}
-          className="inline-flex shrink-0 items-center justify-center text-slate-600 transition hover:text-slate-900"
+          className="inline-flex shrink-0 items-center justify-center text-[#111111] transition hover:text-[#0f172a]"
           aria-label="Partager AfricaPhone"
         >
-          <ShareIcon className="h-5 w-5" />
+          <ShareIcon className="h-9 w-9" />
         </button>
 
         <div className="flex-[1_1_140px]">

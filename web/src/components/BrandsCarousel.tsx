@@ -111,9 +111,9 @@ export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouse
     if (loading) {
       return (
         <div className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1`}>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-0 pe-6">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div key={`brand-skeleton-${index}`} className="flex w-20 flex-col items-center gap-2">
+              <div key={`brand-skeleton-${index}`} className="flex w-20 min-w-[86px] shrink-0 flex-col items-center gap-2">
                 <div className="h-14 w-14 animate-pulse rounded-full bg-slate-200" />
                 <div className="h-3 w-12 animate-pulse rounded-full bg-slate-200" />
               </div>
@@ -141,16 +141,16 @@ export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouse
     }
 
     const items = filteredBrands.map(brand => (
-      <div key={brand.id} className="lg:flex lg:justify-center">
+      <div key={brand.id} className="min-w-[86px] shrink-0 lg:min-w-0 lg:flex lg:justify-center">
         <BrandLogoButton brand={brand} isActive={brand.id === activeBrandId} onSelect={handleSelect} />
       </div>
     ));
 
     return (
       <div
-        className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0`}
+        className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1 pe-6 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:pe-0`}
       >
-        <div className="flex items-center gap-4 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] lg:gap-6">
+        <div className="flex items-center gap-0 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] lg:gap-2">
           {items}
         </div>
       </div>

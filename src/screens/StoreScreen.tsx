@@ -11,11 +11,16 @@ import {
   ActivityIndicator,
   Alert,
   Pressable, // Ajouté pour le composant Section
+  FlatList,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useBoutique } from '../store/BoutiqueContext'; // Importer useBoutique
+import { useProducts } from '../store/ProductContext';
+import { Brand, RootStackParamList } from '../types';
 
 // --- Design Tokens ---
 const COLORS = {
@@ -64,9 +69,173 @@ const Section: React.FC<{
   );
 };
 
+type BrandPeekCarouselProps = {
+  brands: Brand[];
+  onBrandPress: (brandId: string) => void;
+};
+
+const BrandPeekCarousel: React.FC<BrandPeekCarouselProps> = ({ brands, onBrandPress }) => {
+  const { width } = useWindowDimensions();
+  const sidePadding = 16;
+  const spacing = 14;
+  const peekValue = Math.max(40, width * 0.22);
+  const cardWidth = Math.min(200, Math.max(150, width - sidePadding * 2 - peekValue));
+  const snapInterval = cardWidth + spacing;
+
+  const renderItem = React.useCallback(
+    ({ item }: { item: Brand }) => (
+      <View style={[brandCarouselStyles.itemWrapper, { width: cardWidth }]}>
+        <TouchableOpacity
+          style={brandCarouselStyles.card}
+          onPress={() => onBrandPress(item.id)}
+          activeOpacity={0.88}
+        >
+          <View style={brandCarouselStyles.logoRing}>
+            {item.logoUrl ? (
+              <Image source={{ uri: item.logoUrl }} style={brandCarouselStyles.logo} resizeMode="contain" />
+            ) : (
+              <Text style={brandCarouselStyles.logoFallback}>{item.name.slice(0, 2).toUpperCase()}</Text>
+            )}
+          </View>
+          <Text style={brandCarouselStyles.brandName} numberOfLines={1}>
+            {item.name}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    ),
+    [cardWidth, onBrandPress]
+  );
+
+  return (
+    <View style={brandCarouselStyles.container}>
+      <FlatList
+        horizontal
+        data={brands}
+        keyExtractor={item => item.id}
+        renderItem={renderItem}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={[
+          brandCarouselStyles.listContent,
+          { paddingLeft: sidePadding, paddingRight: Math.max(sidePadding, peekValue) },
+        ]}
+        ItemSeparatorComponent={() => <View style={{ width: spacing }} />}
+        decelerationRate="fast"
+        snapToAlignment="start"
+        snapToInterval={snapInterval}
+        bounces={false}
+        nestedScrollEnabled
+      />
+      <LinearGradient
+        pointerEvents="none"
+        colors={['rgba(255,255,255,0)', COLORS.background]}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={brandCarouselStyles.fadeOverlay}
+      />
+    </View>
+  );
+};
+
+const brandCarouselStyles = StyleSheet.create({
+  container: {
+    position: 'relative',
+    paddingBottom: 4,
+  },
+  listContent: {
+    paddingVertical: 8,
+  },
+  itemWrapper: {
+    height: 130,
+  },
+  card: {
+    flex: 1,
+    borderRadius: 24,
+    backgroundColor: COLORS.background,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+  },
+  logoRing: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#f8fafc',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    overflow: 'hidden',
+  },
+  logo: {
+    width: '70%',
+    height: '70%',
+  },
+  logoFallback: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  brandName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    maxWidth: '100%',
+    textAlign: 'center',
+  },
+  fadeOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    width: 60,
+  },
+});
+
 const StoreScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { boutiqueInfo: info, loading } = useBoutique(); // Utiliser le hook
+  const { brands, brandsLoading } = useProducts();
+
+  const displayedBrands = React.useMemo(() => brands.slice(0, 12), [brands]);
+  const brandPreviewText = React.useMemo(() => {
+    if (!displayedBrands.length) {
+      return null;
+    }
+    const names = displayedBrands
+      .slice(0, 4)
+      .map(brand => brand.name)
+      .filter(Boolean);
+    if (!names.length) {
+      return null;
+    }
+    if (names.length === 1) {
+      return names[0];
+    }
+    if (names.length === 2) {
+      return `${names[0]} et ${names[1]}`;
+    }
+    const last = names.pop();
+    return `${names.join(', ')} et ${last}`;
+  }, [displayedBrands]);
+  const shouldShowBrandSection = brandsLoading || displayedBrands.length > 0;
+
+  const handleBrandPress = React.useCallback(
+    (brandId: string) => {
+      if (!brandId) {
+        return;
+      }
+      navigation.navigate('Brand', { brandId });
+    },
+    [navigation]
+  );
 
   const handleOpenUrl = (url: string | undefined) => {
     if (!url) return;
@@ -155,6 +324,22 @@ const StoreScreen: React.FC = () => {
             <Text style={styles.actionButtonText}>Site Web</Text>
           </TouchableOpacity>
         </View>
+
+        {shouldShowBrandSection ? (
+          <View style={styles.brandSection}>
+            <Text style={styles.brandSectionTitle}>Marques de téléphones</Text>
+            {!brandsLoading && brandPreviewText ? (
+              <Text style={styles.brandSectionSubtitle}>{brandPreviewText} et plus encore.</Text>
+            ) : null}
+            {brandsLoading ? (
+              <ActivityIndicator size="small" color={COLORS.primary} style={styles.brandLoader} />
+            ) : (
+              <View style={styles.brandCarouselWrapper}>
+                <BrandPeekCarousel brands={displayedBrands} onBrandPress={handleBrandPress} />
+              </View>
+            )}
+          </View>
+        ) : null}
 
         {/* Section Description */}
         {info.description && (
@@ -310,6 +495,34 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     fontSize: 14,
     fontWeight: '600',
+  },
+  brandSection: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingVertical: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+    backgroundColor: COLORS.background,
+  },
+  brandSectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    paddingHorizontal: 16,
+  },
+  brandSectionSubtitle: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    paddingHorizontal: 16,
+    marginTop: 6,
+  },
+  brandCarouselWrapper: {
+    marginTop: 14,
+  },
+  brandLoader: {
+    paddingVertical: 24,
+    alignSelf: 'center',
   },
   // Styles pour les sections repliables
   section: {

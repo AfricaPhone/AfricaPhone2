@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useState, type SyntheticEvent } from 'react';
 import Link from 'next/link';
@@ -31,14 +31,13 @@ type BoutiquePageData = {
 
 const DEFAULT_PAGE_DATA: BoutiquePageData = {
   name: 'Africa PHONE',
-  coverImage:
-    'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1600&q=80',
+  coverImage: '',
   avatarImage: '/logo.png',
   address: 'Immeuble AfricaPhone, Rue 352, Ganhi - Cotonou, Benin',
-  contactDisplay: '+229 54 15 15 22',
-  contactTelHref: 'tel:+22954151522',
-  whatsappLink: 'https://wa.me/22954151522',
-  mapLink: 'https://www.google.com/maps/dir/?api=1&destination=Immeuble%20AfricaPhone%20Ganhi',
+  contactDisplay: '+229 0154151522',
+  contactTelHref: 'tel:+2290154151522',
+  whatsappLink: 'https://wa.me/2290154151522',
+  mapLink: 'https://goo.gl/maps/oMaa8b2oZ9cQmRBN9?g_st=am',
 };
 
 const safeString = (value: unknown): string | undefined => {
@@ -55,6 +54,10 @@ const ensurePhoneDisplay = (value: string): string => {
   const digits = digitsOnly(value);
   if (digits.length === 0) {
     return value;
+  }
+
+  if (digits.startsWith('229') && digits.length > 3) {
+    return `+229 ${digits.slice(3)}`;
   }
 
   if (digits.length >= 11) {
@@ -136,12 +139,17 @@ const buildPageData = (raw: BoutiqueInfoDocument | null | undefined): BoutiquePa
 };
 
 export default function NousTrouverPage() {
-  const [pageData, setPageData] = useState<BoutiquePageData>(DEFAULT_PAGE_DATA);
+  const [pageData, setPageData] = useState<BoutiquePageData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-  const handleCoverError = useCallback((event: SyntheticEvent<HTMLImageElement>) => {
-    event.currentTarget.onerror = null;
-    event.currentTarget.src = DEFAULT_PAGE_DATA.coverImage;
-  }, []);
+  const handleCoverError = useCallback(
+    (event: SyntheticEvent<HTMLImageElement>) => {
+      event.currentTarget.onerror = null;
+      setPageData((prev) => (prev ? { ...prev, coverImage: '' } : prev));
+    },
+    [],
+  );
 
   const handleAvatarError = useCallback((event: SyntheticEvent<HTMLImageElement>) => {
     event.currentTarget.onerror = null;
@@ -156,14 +164,27 @@ export default function NousTrouverPage() {
         const docRef = doc(db, 'config', 'boutiqueInfo');
         const snapshot = await getDoc(docRef);
         if (!snapshot.exists()) {
+          if (isMounted) {
+            setPageData(null);
+            setLoadError(true);
+          }
           return;
         }
         const data = snapshot.data() as BoutiqueInfoDocument;
         if (isMounted) {
           setPageData(buildPageData(data));
+          setLoadError(false);
         }
       } catch (error) {
         console.error('Unable to load boutiqueInfo document', error);
+        if (isMounted) {
+          setPageData(null);
+          setLoadError(true);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -174,19 +195,51 @@ export default function NousTrouverPage() {
     };
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white text-slate-900">
+        <div className="flex flex-col items-center gap-3">
+          <span
+            className="h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600"
+            aria-label="Chargement des informations"
+          />
+          <p className="text-sm text-slate-600">Chargement des informations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!pageData) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white text-slate-900">
+        <p className="px-6 text-center text-base text-slate-700">
+          {loadError
+            ? 'Impossible de charger les informations de la boutique pour le moment.'
+            : 'Les informations de la boutique ne sont pas disponibles pour le moment.'}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <main className="mx-auto flex w-full max-w-md flex-col pb-10">
         <section className="relative">
           <div className="relative flex w-full justify-center bg-slate-200">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={pageData.coverImage}
-              alt={`Vitrine de ${pageData.name}`}
-              className="h-auto w-auto max-w-full"
-              loading="eager"
-              onError={handleCoverError}
-            />
+            {pageData.coverImage ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={pageData.coverImage}
+                  alt={`Vitrine de ${pageData.name}`}
+                  className="h-auto w-auto max-w-full"
+                  loading="eager"
+                  onError={handleCoverError}
+                />
+              </>
+            ) : (
+              <div className="h-40 w-full" aria-hidden="true" />
+            )}
           </div>
           <div className="absolute left-4 -bottom-11">
             <div className="grid h-24 w-24 place-items-center rounded-full bg-white shadow-lg outline outline-[4px] outline-blue-600">
@@ -207,7 +260,7 @@ export default function NousTrouverPage() {
         <section className="px-4 pt-16">
           <h1 className="text-[26px] font-bold leading-tight text-slate-900">{pageData.name}</h1>
           <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
-            Ouvert tous les jours de 7h à 22h · 7J/7
+            Ouvert tous les jours de 7h Ã  22h Â· 7J/7
           </p>
         </section>
 
@@ -232,7 +285,7 @@ export default function NousTrouverPage() {
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
               <DirectionsIcon className="h-5 w-5" aria-hidden="true" />
-              Voir l&apos;itinéraire
+              Voir la localisation Google Maps
             </Link>
           </div>
         </section>

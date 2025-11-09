@@ -29,7 +29,7 @@
       "runtimeVersion": "1.2.1"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/icon.png",
       "bundler": "metro",
       "output": "single"
     },
