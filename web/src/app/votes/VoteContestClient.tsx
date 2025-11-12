@@ -20,6 +20,7 @@ import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import type { Candidate, Contest } from '@/types/pronostics';
 
 const VOTE_STATUS_KEY_PREFIX = 'contest_vote_status_v1';
+const SHOW_VOTE_BUTTON = false; // Toggle to true when the contest voting opens publicly.
 
 type StoredVoteInfo = {
   status: 'success';
@@ -621,10 +622,12 @@ function ContestHero({
             <TrophyIcon className="h-6 w-6 text-white" />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-white/70">
-              {contestEnded ? 'Concours clôturé' : 'Concours en cours'}
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
+              {contest?.title ?? 'Concours'}
             </span>
-            <h2 className="text-xl font-bold leading-tight">{contest?.title ?? 'Concours'}</h2>
+            <h2 className="text-2xl font-bold leading-tight text-white">
+              {contestEnded ? 'Concours clôturé' : "Phase d'inscription"}
+            </h2>
           </div>
         </div>
 
@@ -735,7 +738,7 @@ function CandidateList({
                   </span>
                   <span className="text-sm text-slate-500">{candidate.media}</span>
                 </div>
-                {!votingDisabled ? (
+                {SHOW_VOTE_BUTTON && !votingDisabled ? (
                   <button
                     type="button"
                     onClick={() => onVote(candidate)}
