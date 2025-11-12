@@ -13,7 +13,7 @@ import NextImage from 'next/image';
 import Link from 'next/link';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { ContestSubmissionSettings, ContestCandidateDraft, ContestCandidatePayload } from '@/types/contestSubmission';
-import { MAX_BIO_LENGTH, buildPhotoStoragePath, normalizePhoneNumber } from '@/utils/contestCandidate';
+import { MAX_BIO_LENGTH, buildPhotoStoragePath, getContestIdSlug, normalizePhoneNumber } from '@/utils/contestCandidate';
 import { sha256HexBrowser } from '@/utils/hashBrowser';
 import { clearContestDraft, loadContestDraft, saveContestDraft } from '@/utils/contestDraftStorage';
 import { storage } from '@/lib/firebaseClient';
@@ -54,6 +54,52 @@ const sanitizeContestId = (value: string, fallback: string) => {
 const formatPhonePreview = (value: string) => {
   const normalized = normalizePhoneNumber(value);
   return normalized ?? value;
+};
+
+const composeMediaBiographyText = (media: string, biography: string) => {
+  if (!media) {
+    return biography || '';
+  }
+  if (!biography) {
+    return media;
+  }
+  const normalizedMedia = media.trim();
+  const biographyTrimStart = biography.trimStart();
+  if (normalizedMedia && biographyTrimStart.toLowerCase().startsWith(normalizedMedia.toLowerCase())) {
+    return biography;
+  }
+  return `${media}\n${biography}`;
+};
+
+const deriveMediaAndBiography = (
+  value: string
+): Pick<ContestCandidateDraft, 'media' | 'biography'> => {
+  const sanitized = value.replace(/\r/g, '');
+  if (!sanitized) {
+    return { media: '', biography: '' };
+  }
+  const [firstLine = '', ...rest] = sanitized.split('\n');
+  const remainder = rest.join('\n');
+  if (remainder.trim().length > 0) {
+    return {
+      media: firstLine.trim(),
+      biography: remainder,
+    };
+  }
+  const trimmed = sanitized.trim();
+  if (!trimmed) {
+    return { media: '', biography: '' };
+  }
+  const punctuationIndex = trimmed.search(/[.!?]/);
+  const commaIndex = trimmed.indexOf(',');
+  const boundaryCandidates = [punctuationIndex, commaIndex].filter(index => index > 0);
+  const boundary =
+    boundaryCandidates.length > 0 ? Math.min(...boundaryCandidates) : Math.min(trimmed.length, 80);
+  const mediaCandidate = trimmed.slice(0, boundary).trim();
+  return {
+    media: mediaCandidate || trimmed.slice(0, 80),
+    biography: trimmed,
+  };
 };
 
 const waitForImage = (file: File): Promise<HTMLImageElement> =>
@@ -110,6 +156,9 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     ...emptyDraft,
     contestId: sanitizeContestId(initialSettings.contestId, 'f9NdI6f1lH7Z2ZxUzEFt'),
   }));
+  const [mediaBiographyText, setMediaBiographyText] = useState(() =>
+    composeMediaBiographyText('', '')
+  );
   const [photoState, setPhotoState] = useState<PhotoState>({ status: 'idle' });
   const [statusMessage, setStatusMessage] = useState<StatusMessage>({ type: null, message: null });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -126,6 +175,9 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
         ...savedDraft,
         contestId: sanitizeContestId(savedDraft.contestId || prev.contestId, prev.contestId),
       }));
+      setMediaBiographyText(
+        composeMediaBiographyText(savedDraft.media || '', savedDraft.biography || '')
+      );
       if (savedDraft.photoPath) {
         setPhotoState({
           status: 'uploaded',
@@ -142,23 +194,17 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
   }, []);
 
   const isContestOpen = initialSettings.isOpen;
-  const mediaBiographyValue = useMemo(() => {
-    if (formValues.media && formValues.biography) {
-      return `${formValues.media}\n${formValues.biography}`;
-    }
-    return formValues.media || formValues.biography || '';
-  }, [formValues.media, formValues.biography]);
 
   const handleMediaBiographyChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const { value } = event.target;
     if (value.length > MAX_BIO_LENGTH) {
       return;
     }
-    const [firstLine = '', ...rest] = value.split(/\r?\n/);
-    const biography = rest.join('\n').replace(/^\s+/, '');
+    setMediaBiographyText(value);
+    const { media, biography } = deriveMediaAndBiography(value);
     setFormValues(prev => ({
       ...prev,
-      media: firstLine.trim(),
+      media,
       biography,
     }));
   };
@@ -176,20 +222,11 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     if (!formValues.fullName.trim()) {
       nextErrors.fullName = 'Nom complet requis.';
     }
-    const trimmedMedia = formValues.media.trim();
-    const trimmedBiography = formValues.biography.trim();
-    const combinedLength = mediaBiographyValue.length;
-    if (combinedLength === 0) {
+    const combinedLength = mediaBiographyText.length;
+    if (mediaBiographyText.trim().length === 0) {
       nextErrors.biography = 'Média & biographie requis.';
-    } else {
-      if (!trimmedMedia) {
-        nextErrors.biography = 'Média ou organe requis.';
-      } else if (!trimmedBiography) {
-        nextErrors.biography = 'Biographie requise.';
-      }
-      if (combinedLength > MAX_BIO_LENGTH) {
-        nextErrors.biography = `Maximum ${MAX_BIO_LENGTH} caractères.`;
-      }
+    } else if (combinedLength > MAX_BIO_LENGTH) {
+      nextErrors.biography = `Maximum ${MAX_BIO_LENGTH} caractères.`;
     }
     const normalizedPhone = normalizePhoneNumber(formValues.phone);
     if (!normalizedPhone) {
@@ -225,6 +262,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       ...emptyDraft,
       contestId: prev.contestId,
     }));
+    setMediaBiographyText('');
     setPhotoState({ status: 'idle' });
     setStatusMessage({ type: 'success', message: 'Brouillon réinitialisé.' });
   };
@@ -255,12 +293,14 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     }
     const suffix = createRandomSuffix();
     const storagePath = buildPhotoStoragePath(contestId, phoneHash, suffix);
+    const contestIdSlug = getContestIdSlug(contestId);
     const storageRef = ref(storage, storagePath);
     await uploadBytes(storageRef, compressedBlob, {
       contentType: 'image/jpeg',
       customMetadata: {
         source: 'contest-form',
         contestId,
+        contestIdSlug,
         phoneHash,
       },
       cacheControl: 'public,max-age=86400',
@@ -353,6 +393,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
         ...emptyDraft,
         contestId: prev.contestId,
       }));
+      setMediaBiographyText('');
       setPhotoState({ status: 'idle' });
       formRef.current?.reset();
     } catch (error) {
@@ -367,7 +408,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
   const phonePreview = useMemo(() => formatPhonePreview(formValues.phone), [formValues.phone]);
 
   return (
-    <section className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <section className="bg-linear-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-10">
         <header className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -424,10 +465,10 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 {errors.fullName ? <span className="text-xs text-rose-300">{errors.fullName}</span> : null}
               </label>
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Média & biographie ({mediaBiographyValue.length}/{MAX_BIO_LENGTH})
+              Média & biographie ({mediaBiographyText.length}/{MAX_BIO_LENGTH})
               <textarea
                 name="mediaBiography"
-                value={mediaBiographyValue}
+                value={mediaBiographyText}
                 onChange={handleMediaBiographyChange}
                 className="min-h-[140px] rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
                 maxLength={MAX_BIO_LENGTH}

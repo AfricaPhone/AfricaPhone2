@@ -57,6 +57,8 @@ export const slugifyCandidate = (value: string, fallback = 'candidate'): string 
   return source || fallback;
 };
 
+export const getContestIdSlug = (contestId: string): string => slugifyCandidate(contestId, 'contest');
+
 export const limitText = (value: string, limit: number): string => {
   if (value.length <= limit) {
     return value;
@@ -67,7 +69,7 @@ export const limitText = (value: string, limit: number): string => {
 export const contestDraftStorageKey = 'contest_candidate_draft_v1';
 
 export const getPhotoStoragePrefix = (contestId: string, phoneHash: string): string => {
-  const safeContestId = slugifyCandidate(contestId, 'contest');
+  const safeContestId = getContestIdSlug(contestId);
   return `contest-submissions/${safeContestId}/${phoneHash.slice(0, 16)}`;
 };
 
