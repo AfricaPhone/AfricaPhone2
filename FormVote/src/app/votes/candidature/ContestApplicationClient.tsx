@@ -381,7 +381,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-full bg-amber-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
             >
-              Accéder au site public
+              Accéder au site AFRICA Phone.
             </Link>
           </div>
         </header>
@@ -477,7 +477,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             <div className="space-y-3 rounded-2xl bg-slate-900/60 p-4 text-sm text-white/80">
               <div className="flex items-center justify-between text-xs uppercase tracking-wide text-white/50">
                 <span>Brouillon local</span>
-                <span>{draftRestored ? 'Prêt' : 'Chargement...'}</span>
+                {!draftRestored ? <span>Chargement...</span> : null}
               </div>
               <div className="flex flex-wrap gap-3">
                 <button
