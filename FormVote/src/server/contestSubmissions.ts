@@ -1,7 +1,7 @@
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import type { ContestSubmissionSettings } from '@/types/contestSubmission';
 
-const DEFAULT_CONTEST_ID = 'press-stars-2025';
+const DEFAULT_CONTEST_ID = 'f9NdI6f1lH7Z2ZxUzEFt';
 const DEFAULT_PUBLIC_SITE = 'https://africaphone-contest-form.web.app/votes';
 
 const DEFAULT_SETTINGS: ContestSubmissionSettings = {

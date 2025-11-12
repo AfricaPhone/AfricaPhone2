@@ -108,7 +108,7 @@ const createRandomSuffix = () => {
 export default function ContestApplicationClient({ initialSettings }: Props) {
   const [formValues, setFormValues] = useState<ContestCandidateDraft>(() => ({
     ...emptyDraft,
-    contestId: sanitizeContestId(initialSettings.contestId, 'press-stars-2025'),
+    contestId: sanitizeContestId(initialSettings.contestId, 'f9NdI6f1lH7Z2ZxUzEFt'),
   }));
   const [photoState, setPhotoState] = useState<PhotoState>({ status: 'idle' });
   const [statusMessage, setStatusMessage] = useState<StatusMessage>({ type: null, message: null });

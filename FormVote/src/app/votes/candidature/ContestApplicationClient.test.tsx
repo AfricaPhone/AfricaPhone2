@@ -6,7 +6,7 @@ import type { ContestSubmissionSettings } from '@/types/contestSubmission';
 import { contestDraftStorageKey } from '@/utils/contestCandidate';
 
 const baseSettings: ContestSubmissionSettings = {
-  contestId: 'press-stars-2025',
+  contestId: 'f9NdI6f1lH7Z2ZxUzEFt',
   sitePublicUrl: 'https://example.com/votes',
   isOpen: true,
 };

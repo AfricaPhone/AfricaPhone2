@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     return errorResponse('La phase de candidatures est clôturée.', 409);
   }
 
-  const contestId = (payload.contestId || settings.contestId || 'press-stars-2025').trim();
+  const contestId = (payload.contestId || settings.contestId || 'f9NdI6f1lH7Z2ZxUzEFt').trim();
 
   if (!contestId) {
     return errorResponse("L'identifiant du concours est obligatoire.");
