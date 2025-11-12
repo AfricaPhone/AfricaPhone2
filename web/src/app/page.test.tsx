@@ -9,16 +9,17 @@ describe('TopBar search interaction', () => {
 
   it('submits current search term from the modal form', () => {
     const handleSubmit = jest.fn();
+    const handleClear = jest.fn();
 
-    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} />);
+    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} onClearSearch={handleClear} />);
 
     openModal();
 
     const input = screen.getByPlaceholderText(/produit ou une marque/i);
     fireEvent.change(input, { target: { value: 'Galaxy S24' } });
 
-    const submitButton = screen.getByRole('button', { name: /^rechercher$/i });
-    fireEvent.click(submitButton);
+    const form = screen.getByRole('search', { name: /catalogue/i });
+    fireEvent.submit(form);
 
     expect(handleSubmit).toHaveBeenCalledTimes(1);
     expect(handleSubmit).toHaveBeenCalledWith('Galaxy S24');
@@ -26,8 +27,9 @@ describe('TopBar search interaction', () => {
 
   it('trims whitespace before propagating the search term', () => {
     const handleSubmit = jest.fn();
+    const handleClear = jest.fn();
 
-    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} />);
+    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} onClearSearch={handleClear} />);
 
     openModal();
 
@@ -42,8 +44,9 @@ describe('TopBar search interaction', () => {
 
   it('submits immediately when a suggestion is selected', () => {
     const handleSubmit = jest.fn();
+    const handleClear = jest.fn();
 
-    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} />);
+    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} onClearSearch={handleClear} />);
 
     openModal();
 

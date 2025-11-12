@@ -1,0 +1,10 @@
+.next
+.swc
+node_modules
+.firebase
+.env.local
+.env.*
+!.env.local.example
+coverage
+dist
+tsconfig.tsbuildinfo

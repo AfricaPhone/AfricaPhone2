@@ -9,3 +9,23 @@ jest.mock('next/image', () => ({
     return React.createElement('img', props);
   },
 }));
+
+jest.mock('next/navigation', () => {
+  const push = jest.fn();
+  const replace = jest.fn();
+  const prefetch = jest.fn();
+
+  return {
+    __esModule: true,
+    useRouter: () => ({
+      push,
+      replace,
+      prefetch,
+      back: jest.fn(),
+      forward: jest.fn(),
+      refresh: jest.fn(),
+      pathname: '/',
+    }),
+    useSearchParams: () => new URLSearchParams(),
+  };
+});
