@@ -1,7 +1,6 @@
-'use client';
+﻿'use client';
 
 import {
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -15,7 +14,6 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { ContestSubmissionSettings, ContestCandidateDraft, ContestCandidatePayload } from '@/types/contestSubmission';
 import { MAX_BIO_LENGTH, buildPhotoStoragePath, getContestIdSlug, normalizePhoneNumber } from '@/utils/contestCandidate';
 import { sha256HexBrowser } from '@/utils/hashBrowser';
-import { clearContestDraft, loadContestDraft, saveContestDraft } from '@/utils/contestDraftStorage';
 import { storage } from '@/lib/firebaseClient';
 
 type Props = {
@@ -163,35 +161,17 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
   const [statusMessage, setStatusMessage] = useState<StatusMessage>({ type: null, message: null });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [draftRestored, setDraftRestored] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    const savedDraft = loadContestDraft();
-    if (savedDraft) {
-      setFormValues(prev => ({
-        ...prev,
-        ...savedDraft,
-        contestId: sanitizeContestId(savedDraft.contestId || prev.contestId, prev.contestId),
-      }));
-      setMediaBiographyText(
-        composeMediaBiographyText(savedDraft.media || '', savedDraft.biography || '')
-      );
-      if (savedDraft.photoPath) {
-        setPhotoState({
-          status: 'uploaded',
-          path: savedDraft.photoPath,
-          url: savedDraft.photoUrl,
-        });
-      }
-      setStatusMessage({
-        type: 'success',
-        message: 'Brouillon chargé automatiquement.',
-      });
+    if (statusMessage.type !== 'success' || !statusMessage.message) {
+      return;
     }
-    setDraftRestored(true);
-  }, []);
+    const timer = window.setTimeout(() => {
+      setStatusMessage({ type: null, message: null });
+    }, 4500);
+    return () => window.clearTimeout(timer);
+  }, [statusMessage]);
 
   const isContestOpen = initialSettings.isOpen;
 
@@ -224,16 +204,16 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     }
     const combinedLength = mediaBiographyText.length;
     if (mediaBiographyText.trim().length === 0) {
-      nextErrors.biography = 'Média & biographie requis.';
+      nextErrors.biography = 'Media/independant requis.';
     } else if (combinedLength > MAX_BIO_LENGTH) {
-      nextErrors.biography = `Maximum ${MAX_BIO_LENGTH} caractères.`;
+      nextErrors.biography = `Maximum ${MAX_BIO_LENGTH} caract├¿res.`;
     }
     const normalizedPhone = normalizePhoneNumber(formValues.phone);
     if (!normalizedPhone) {
-      nextErrors.phone = 'Numéro WhatsApp au format international requis.';
+      nextErrors.phone = 'Num├®ro WhatsApp au format international requis.';
     }
     if (!photoState.path) {
-      nextErrors.photo = 'Merci de téléverser votre photo.';
+      nextErrors.photo = 'Merci de t├®l├®verser votre photo.';
     }
     if (!sanitizeContestId(formValues.contestId, initialSettings.contestId)) {
       nextErrors.contestId = 'Identifiant du concours requis.';
@@ -241,45 +221,19 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     return nextErrors;
   };
 
-  const handleSaveDraft = useCallback(() => {
-    setIsSavingDraft(true);
-    const payload: ContestCandidateDraft = {
-      ...formValues,
-      photoPath: photoState.path,
-      photoUrl: photoState.url,
-    };
-    const saved = saveContestDraft(payload);
-    setStatusMessage({
-      type: saved ? 'success' : 'error',
-      message: saved ? 'Brouillon enregistré !' : 'Sauvegarde impossible sur cet appareil.',
-    });
-    setIsSavingDraft(false);
-  }, [formValues, photoState.path, photoState.url]);
-
-  const handleClearDraft = () => {
-    clearContestDraft();
-    setFormValues(prev => ({
-      ...emptyDraft,
-      contestId: prev.contestId,
-    }));
-    setMediaBiographyText('');
-    setPhotoState({ status: 'idle' });
-    setStatusMessage({ type: 'success', message: 'Brouillon réinitialisé.' });
-  };
-
   const uploadPhoto = async (file: File) => {
     if (!isContestOpen) {
-      throw new Error('La période de candidature est close.');
+      throw new Error('La p├®riode de candidature est close.');
     }
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      throw new Error('Formats acceptés : JPG, PNG ou WEBP.');
+      throw new Error('Formats accept├®s : JPG, PNG ou WEBP.');
     }
     if (file.size > MAX_UPLOAD_SIZE) {
-      throw new Error('Le fichier dépasse 8 Mo.');
+      throw new Error('Le fichier d├®passe 8 Mo.');
     }
     const normalizedPhone = normalizePhoneNumber(formValues.phone);
     if (!normalizedPhone) {
-      throw new Error('Renseignez un numéro WhatsApp valide avant le téléversement.');
+      throw new Error('Renseignez un num├®ro WhatsApp valide avant le t├®l├®versement.');
     }
     const contestId = sanitizeContestId(formValues.contestId, initialSettings.contestId);
     if (!contestId) {
@@ -289,7 +243,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     const phoneHash = await sha256HexBrowser(normalizedPhone);
     const compressedBlob = await compressImage(file);
     if (compressedBlob.size > 5 * 1024 * 1024) {
-      throw new Error('Le fichier compressé dépasse 5 Mo.');
+      throw new Error('Le fichier compress├® d├®passe 5 Mo.');
     }
     const suffix = createRandomSuffix();
     const storagePath = buildPhotoStoragePath(contestId, phoneHash, suffix);
@@ -314,7 +268,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     });
     setStatusMessage({
       type: 'success',
-      message: 'Photo téléversée avec succès.',
+      message: 'Photo t├®l├®vers├®e avec succ├¿s.',
     });
     setErrors(prev => {
       const next = { ...prev };
@@ -332,7 +286,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     try {
       await uploadPhoto(file);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Téléversement impossible.';
+      const message = error instanceof Error ? error.message : 'T├®l├®versement impossible.';
       setPhotoState({
         status: 'error',
         error: message,
@@ -351,22 +305,22 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     const validation = validateForm();
     setErrors(validation);
     if (Object.keys(validation).length > 0) {
-      setStatusMessage({ type: 'error', message: 'Merci de corriger les champs indiqués.' });
+      setStatusMessage({ type: 'error', message: 'Merci de corriger les champs indiqu├®s.' });
       return;
     }
     if (!photoState.path) {
-      setStatusMessage({ type: 'error', message: 'Téléversez votre photo avant la soumission.' });
+      setStatusMessage({ type: 'error', message: 'T├®l├®versez votre photo avant la soumission.' });
       return;
     }
     if (!isContestOpen) {
-      setStatusMessage({ type: 'error', message: 'La phase de candidatures est clôturée.' });
+      setStatusMessage({ type: 'error', message: 'La phase de candidatures est cl├┤tur├®e.' });
       return;
     }
     setIsSubmitting(true);
     try {
       const normalizedPhone = normalizePhoneNumber(formValues.phone);
       if (!normalizedPhone) {
-        throw new Error('Numéro WhatsApp invalide.');
+        throw new Error('Num├®ro WhatsApp invalide.');
       }
       const payload: ContestCandidatePayload = {
         contestId: sanitizeContestId(formValues.contestId, initialSettings.contestId),
@@ -387,7 +341,6 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       if (!response.ok) {
         throw new Error(data.message || 'Soumission impossible pour le moment.');
       }
-      clearContestDraft();
       setStatusMessage({ type: 'success', message: data.message });
       setFormValues(prev => ({
         ...emptyDraft,
@@ -422,7 +375,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-full bg-amber-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
             >
-              Accéder au site AFRICA Phone.
+              Acc├®der au site AFRICA Phone.
             </Link>
           </div>
         </header>
@@ -447,7 +400,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
           <input type="hidden" name="contestId" value={formValues.contestId} readOnly />
           {!isContestOpen ? (
             <div className="md:col-span-3 rounded-2xl border border-rose-400/40 bg-rose-500/10 p-4 text-sm font-semibold text-rose-100">
-              La phase de candidatures est clôturée.
+              La phase de candidatures est cl├┤tur├®e.
             </div>
           ) : null}
           <div className="space-y-6 md:col-span-2">
@@ -459,25 +412,25 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                   value={formValues.fullName}
                   onChange={handleInputChange}
                   className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                  placeholder="Nom Prénom"
+                  placeholder="Nom Pr├®nom"
                   required
                 />
                 {errors.fullName ? <span className="text-xs text-rose-300">{errors.fullName}</span> : null}
               </label>
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Média & biographie ({mediaBiographyText.length}/{MAX_BIO_LENGTH})
+              M├®dia & biographie ({mediaBiographyText.length}/{MAX_BIO_LENGTH})
               <textarea
                 name="mediaBiography"
                 value={mediaBiographyText}
                 onChange={handleMediaBiographyChange}
                 className="min-h-[140px] rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
                 maxLength={MAX_BIO_LENGTH}
-                placeholder="Commencez par votre média ou organe (ex : Radio XYZ), puis décrivez votre parcours."
+                placeholder="Commencez par votre m├®dia ou organe (ex : Radio XYZ), puis d├®crivez votre parcours."
               />
               {errors.biography ? <span className="text-xs text-rose-300">{errors.biography}</span> : null}
             </label>
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Téléphone WhatsApp (+229)
+              T├®l├®phone WhatsApp (+229)
               <input
                 type="tel"
                 name="phone"
@@ -487,7 +440,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 placeholder="+229XXXXXXXXX"
                 required
               />
-              <span className="text-xs text-white/60">Format international requis. Prévisualisation&nbsp;: {phonePreview}</span>
+              <span className="text-xs text-white/60">Format international requis. Pr├®visualisation&nbsp;: {phonePreview}</span>
               {errors.phone ? <span className="text-xs text-rose-300">{errors.phone}</span> : null}
             </label>
           </div>
@@ -499,29 +452,23 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             <label className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-10 text-center text-sm text-white/80 transition hover:border-white/60">
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={!isContestOpen} />
               <span className="rounded-full border border-white/20 px-4 py-1 text-xs uppercase tracking-wide text-white/70">
-                {photoState.status === 'uploading' ? 'Téléversement...' : 'Sélectionner un fichier'}
+                {photoState.status === 'uploading' ? 'T├®l├®versement...' : 'S├®lectionner un fichier'}
               </span>
               {photoState.url ? (
                 <NextImage
                   src={photoState.url}
-                  alt="Prévisualisation"
+                  alt="Pr├®visualisation"
                   width={128}
                   height={128}
                   className="h-32 w-32 rounded-full object-cover shadow-lg shadow-black/30"
                 />
               ) : (
-                <span>Glissez votre photo ou cliquez pour la sélectionner.</span>
+                <span>Glissez votre photo ou cliquez pour la s├®lectionner.</span>
               )}
               {photoState.error ? <span className="text-xs text-rose-300">{photoState.error}</span> : null}
               {errors.photo ? <span className="text-xs text-rose-300">{errors.photo}</span> : null}
             </label>
-            <div className="space-y-3 rounded-2xl bg-slate-900/60 p-4 text-sm text-white/80">
-              <div className="flex items-center justify-between text-xs uppercase tracking-wide text-white/50">
-                <span>Brouillon local</span>
-                {!draftRestored ? <span>Chargement...</span> : null}
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <button
+            <button
                   type="button"
                   onClick={handleSaveDraft}
                   className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-white/20"
@@ -543,7 +490,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
               disabled={!isContestOpen || isSubmitting}
               className="w-full rounded-full bg-emerald-400 px-6 py-4 text-sm font-semibold uppercase tracking-wide text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-emerald-400/40 disabled:text-white/60"
             >
-              {isContestOpen ? (isSubmitting ? 'Envoi en cours...' : 'Soumettre ma candidature') : 'Candidatures clôturées'}
+              {isContestOpen ? (isSubmitting ? 'Envoi en cours...' : 'Soumettre ma candidature') : 'Candidatures cl├┤tur├®es'}
             </button>
           </div>
         </form>
