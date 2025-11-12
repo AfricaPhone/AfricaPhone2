@@ -1,5 +1,6 @@
 import { getApps, initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 type Analytics = import('firebase/analytics').Analytics;
 
@@ -51,6 +52,7 @@ const firebaseConfig = resolveConfig();
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 
+export const firebaseApp = app;
 export const db = getFirestore(app);
 
 let analyticsPromise: Promise<Analytics | null> | null = null;
@@ -75,3 +77,4 @@ export const getAnalyticsClient = async (): Promise<Analytics | null> => {
 
   return analyticsPromise;
 };
+export const storage = getStorage(app);

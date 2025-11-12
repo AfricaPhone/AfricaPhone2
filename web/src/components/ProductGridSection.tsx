@@ -342,7 +342,7 @@ const SEGMENTS: Array<{
   label: string;
   icon: (props: { className?: string }) => JSX.Element;
 }> = [
-  { key: 'telephone', label: 'T\u00e9l\u00e9phones', icon: StarOutlineIcon },
+  { key: 'telephone', label: 'Populaires', icon: StarOutlineIcon },
   { key: 'tablette', label: 'Tablettes', icon: TabletIcon },
   { key: 'portable a touche', label: 'A touches', icon: KeypadIcon },
   { key: 'accessoire', label: 'Accessoires', icon: HeadsetIcon },
@@ -414,7 +414,7 @@ export default function ProductGridSection({
   const searchRangeEnd = useMemo(() => getSearchRangeEnd(trimmedSearchTerm), [trimmedSearchTerm]);
   const categoryFilterValue = activeSegment === 'telephone' ? null : activeSegment;
   const activeSegmentLabel = useMemo(
-    () => SEGMENTS.find(segment => segment.key === activeSegment)?.label ?? 'T?l?phones',
+    () => SEGMENTS.find(segment => segment.key === activeSegment)?.label ?? 'Populaires',
     [activeSegment]
   );
   const [products, setProducts] = useState<ProductCardData[]>(() =>

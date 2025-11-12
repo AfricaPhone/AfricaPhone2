@@ -782,6 +782,15 @@ function filteredProducts() {
   }
   const dir = sortBy.dir === 'asc' ? 1 : -1;
   arr.sort(function (a, b) {
+    if (['price', 'stock', 'ordreVedette'].includes(sortBy.key)) {
+      const na = Number(a[sortBy.key]);
+      const nb = Number(b[sortBy.key]);
+      const va = Number.isFinite(na) ? na : 0;
+      const vb = Number.isFinite(nb) ? nb : 0;
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase(), 'fr');
+    }
     const ka = (a[sortBy.key] ?? '').toString().toLowerCase();
     const kb = (b[sortBy.key] ?? '').toString().toLowerCase();
     if (ka < kb) return -1 * dir;
@@ -830,6 +839,7 @@ function renderProductList() {
 			</label>
 		  </div>
 		  <div class="muted">${escapeHtml(p.brand || '�')} � ${escapeHtml(p.category || '�')}</div>
+		  ${typeof p.ordreVedette === 'number' && p.ordreVedette > 0 ? '<div class="chip chip-primary" style="margin-top:6px">Top #' + escapeHtml(String(p.ordreVedette)) + '</div>' : ''}
 		  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
 			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : '�'}</div>
 			<div class="actions">
@@ -867,6 +877,7 @@ function renderProductList() {
 		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Cat�gorie ${sortIcon('category')}</th>
 		  <th style="width:140px">Prix</th>
 		  <th style="width:90px">Stock</th>
+		  <th style="width:110px" class="sortable ${sortBy.key === 'ordreVedette' ? 'sorted' : ''}" data-sort="ordreVedette">Top ${sortIcon('ordreVedette')}</th>
 		  <th style="width:180px;text-align:right">Actions</th>
 		</tr>
 	  </thead>
@@ -886,18 +897,25 @@ function renderProductList() {
 		  <input type="number" step="1" min="0" class="input" style="max-width:120px" value="${typeof p.price === 'number' ? p.price : ''}" placeholder="0" data-price-update />
 		</td>
 		<td>${typeof p.stock === 'number' ? p.stock : '�'}</td>
+		<td><input type="number" step="1" min="0" class="input" style="max-width:100px" value="${typeof p.ordreVedette === 'number' ? p.ordreVedette : ''}" placeholder="0" data-vedette-update /></td>
 		<td class="actions">
 		  <button class="btn btn-small" data-edit>�diter</button>
 		  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 		</td>`;
       const sel = tr.querySelector('[data-select]');
       const inp = tr.querySelector('[data-price-update]');
+      const vedetteInp = tr.querySelector('[data-vedette-update]');
       const btnEdit = tr.querySelector('[data-edit]');
       const btnDel = tr.querySelector('[data-del]');
       sel.addEventListener('change', updateBulkState);
       inp.addEventListener('change', function () {
         handlePriceUpdate(p.id, inp);
       });
+      if (vedetteInp) {
+        vedetteInp.addEventListener('change', function () {
+          handleVedetteUpdate(p.id, vedetteInp);
+        });
+      }
       btnEdit.addEventListener('click', function () {
         location.hash = '#/edit-product/' + p.id;
       });
@@ -982,6 +1000,30 @@ async function handlePriceUpdate(id, inputEl) {
   } catch (e) {
     console.error(e);
     toast('Erreur', 'Impossible de mettre � jour le prix', 'error');
+  } finally {
+    inputEl.disabled = false;
+  }
+}
+
+async function handleVedetteUpdate(id, inputEl) {
+  const parsed = parseInt(inputEl.value, 10);
+  const val = Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+  inputEl.value = val || '';
+  inputEl.disabled = true;
+  try {
+    await updateDoc(doc(db, 'products', id), { ordreVedette: val });
+    const product = allProducts.find(x => x.id === id);
+    if (product) {
+      product.ordreVedette = val;
+    }
+    toast(
+      'Ordre mis à jour',
+      val > 0 ? `Produit positionné #${val}` : 'Produit retiré du top',
+      'success'
+    );
+  } catch (e) {
+    console.error(e);
+    toast('Erreur', "Impossible de mettre à jour l'ordre vedette", 'error');
   } finally {
     inputEl.disabled = false;
   }
@@ -1145,15 +1187,19 @@ async function renderProductFormPage(id) {
 		  <input id="p-stock" class="input" type="number" min="0" step="1" value="${typeof p.stock === 'number' ? p.stock : ''}" />
 		</div>
 		<div class="field">
-		  <label class="label" for="p-images">Images</label>
-		  <input id="p-images-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" multiple />
-		  <div class="hint">S�lectionnez une ou plusieurs images. La premi�re sera l'image principale.</div>
-		  <div id="p-images-preview" class="image-preview-grid">
-			${existingImagesHtml}
-		  </div>
+		  <label class="label" for="p-vedette">Ordre top produits</label>
+		  <input id="p-vedette" class="input" type="number" min="0" step="1" value="${typeof p.ordreVedette === 'number' ? p.ordreVedette : ''}" />
+		  <div class="hint">1 apparaît en première position sur le site. Laissez 0 pour retirer le produit du top.</div>
 		</div>
 	  </div>
-	  
+	  <div class="field">
+		<label class="label" for="p-images">Images</label>
+		<input id="p-images-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+		<div class="hint">Sélectionnez une ou plusieurs images. La première sera l'image principale.</div>
+		<div id="p-images-preview" class="image-preview-grid">
+		  ${existingImagesHtml}
+		</div>
+	  </div>
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
 		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er le produit'}</button>
@@ -1271,6 +1317,9 @@ async function handleProductFormSubmit(e, id) {
     }
   });
 
+  const vedetteInput = parseInt($('#p-vedette').value, 10);
+  const normalizedVedette = Number.isFinite(vedetteInput) && vedetteInput > 0 ? vedetteInput : 0;
+
   try {
     let productId = id;
     const productData = {
@@ -1281,6 +1330,7 @@ async function handleProductFormSubmit(e, id) {
       stock: parseInt($('#p-stock').value, 10) || null,
       ram: parseInt($('#p-ram').value, 10) || null,
       rom: parseInt($('#p-rom').value, 10) || null,
+      ordreVedette: normalizedVedette,
       description: $('#p-desc').value.trim(),
       specifications: specifications,
       updatedAt: serverTimestamp(),

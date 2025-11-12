@@ -13,8 +13,12 @@
         ],
         "africaphone-org": [
           "africaphone-org"
+        ],
+        "contest-form": [
+          "africaphone-contest-form"
         ]
       }
     }
-  }
+  },
+  "etags": {}
 }

@@ -4,17 +4,21 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build",
+    "build": "next build && node scripts/postbuild-fix-turbopack.js",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
     "deploy:web": "npm --prefix .. run deploy:web",
+    "deploy:form": "firebase deploy --only hosting:contest-form",
     "lint:staged": "npx lint-staged",
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
     "@algolia/client-search": "^5.41.0",
+    "@google-cloud/storage": "^7.17.3",
     "firebase": "^12.4.0",
+    "firebase-admin": "^13.5.0",
+    "kkiapay": "^2.0.23",
     "next": "14.2.13",
     "react": "18.2.0",
     "react-dom": "18.2.0"
