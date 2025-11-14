@@ -20,6 +20,8 @@ Tests leverage `jest-expo` and `@testing-library/react-native`; prefer behavior-
 
 Follow Conventional Commits such as `feat: add product carousel` or `fix: handle checkout errors`. PRs should summarize scope, list linked issues, and attach screenshots or GIFs for UI changes. Confirm `npm run lint`, `npm run check:types`, and `npm test` succeed, and note any skipped checks with rationale.
 
+All agents must finish every change with a git commit (using a clear Conventional Commit message), even if the user did not explicitly request a commit during that conversation.
+
 ## Security & Configuration Tips
 
 Never commit secrets; use Expo or Firebase Secret Manager for sensitive config. Review `firestore.rules`, `storage.rules`, and `firebase.json` before deployments, and target Node 22 for Cloud Functions to stay aligned with the production runtime.
