@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CommunityPromotionRow from '@/components/CommunityPromotionRow';
 import ProductGridSection from '@/components/ProductGridSection';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 import SiteFooter from '@/components/SiteFooter';
 import { formatPrice } from '@/utils/formatPrice';
 import {
@@ -34,6 +35,7 @@ export default function HomePageClient() {
         <ProductGridSection enableStaticFallbacks={false} />
       </main>
       <SiteFooter />
+      <ScrollToTopButton />
     </div>
   );
 }
