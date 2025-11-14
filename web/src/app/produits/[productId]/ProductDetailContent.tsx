@@ -13,6 +13,7 @@ import { db, getAnalyticsClient } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
 const PRODUCTS_PHONE_NUMBER = '2290154151522';
+const WEBSITE_HOME_URL = process.env.NEXT_PUBLIC_WEB_HOME_URL ?? 'https://africaphone-org.web.app/';
 const DEFAULT_DELIVERY_NOTES = [
   'Retrait express en boutique AfricaPhone ou livraison sous 24 h sur Grand Cotonou.',
   'Verification complete avant expedition et emballage securise.',
@@ -283,6 +284,13 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
   const shareTitle = product?.name ?? 'AfricaPhone';
   const shareText = product?.tagline ?? product?.name ?? 'Decouvrez ce produit AfricaPhone';
+  const handleBack = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.href = WEBSITE_HOME_URL;
+      return;
+    }
+    router.push('/');
+  }, [router]);
 
   const handleShare = useCallback(async () => {
     if (!resolvedShareUrl) {
@@ -497,7 +505,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           <header className="flex h-[68px] items-center justify-between px-3 sm:h-[82px]">
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={handleBack}
               aria-label="Retour"
               className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border border-[#1111111a] text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-14 sm:w-14"
             >
