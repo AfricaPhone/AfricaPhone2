@@ -62,4 +62,5 @@ export type Candidate = {
   media: string;
   photoUrl: string;
   voteCount: number;
+  updatedAt?: Date | null;
 };

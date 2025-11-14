@@ -84,6 +84,7 @@ const mapContest = (snapshot: DocumentSnapshot<DocumentData>): Contest | null =>
 
 const mapCandidate = (snapshot: QueryDocumentSnapshot<DocumentData>, contestId: string): Candidate => {
   const data = snapshot.data();
+  const updatedAtValue = data.updatedAt ?? data.updated_at ?? data.modifiedAt;
   return {
     id: snapshot.id,
     contestId,
@@ -91,6 +92,7 @@ const mapCandidate = (snapshot: QueryDocumentSnapshot<DocumentData>, contestId: 
     media: typeof data.media === 'string' ? data.media : '',
     photoUrl: typeof data.photoUrl === 'string' ? data.photoUrl : '',
     voteCount: toNumber(data.voteCount ?? data.votes),
+    updatedAt: updatedAtValue ? toDate(updatedAtValue) : null,
   };
 };
 
@@ -118,12 +120,25 @@ export const subscribeToCandidates = (
   onError?: (error: Error) => void
 ): (() => void) => {
   const candidatesRef = collection(db, 'contests', contestId, 'candidates');
-  const candidatesQuery = query(candidatesRef, orderBy('voteCount', 'desc'));
+  const candidatesQuery = query(candidatesRef, orderBy('updatedAt', 'asc'));
 
   return onSnapshot(
     candidatesQuery,
     snapshot => {
-      const candidates = snapshot.docs.map(docSnap => mapCandidate(docSnap, contestId));
+      const baseCandidates = snapshot.docs.map(docSnap => mapCandidate(docSnap, contestId));
+      const hasVotes = baseCandidates.some(candidate => candidate.voteCount > 0);
+
+      const candidates = hasVotes
+        ? [...baseCandidates].sort((a, b) => {
+            if (b.voteCount !== a.voteCount) {
+              return b.voteCount - a.voteCount;
+            }
+            const aTime = a.updatedAt?.getTime() ?? 0;
+            const bTime = b.updatedAt?.getTime() ?? 0;
+            return aTime - bTime;
+          })
+        : baseCandidates;
+
       onData(candidates);
     },
     error => {
