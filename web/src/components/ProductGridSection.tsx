@@ -89,12 +89,31 @@ const safeString = (value: unknown): string | null => {
 };
 
 const buildStorageTagline = (rom: number | null, ram: number | null): string | null => {
-  const romLabel = rom ? `${rom} Go` : null;
-  const ramLabel = ram ? `${ram} Go RAM` : null;
+  const romLabel = typeof rom === 'number' && Number.isFinite(rom) ? `${rom}GB` : null;
+  const ramLabel = typeof ram === 'number' && Number.isFinite(ram) ? `${ram}RAM` : null;
   if (romLabel && ramLabel) {
     return `${romLabel} + ${ramLabel}`;
   }
   return romLabel ?? ramLabel ?? null;
+};
+
+const parseStorageTaglineFromText = (value?: string | null): string | null => {
+  const source = safeString(value);
+  if (!source) {
+    return null;
+  }
+  const digits = source.match(/\d+/g);
+  if (!digits || digits.length === 0) {
+    return null;
+  }
+  const rom = Number(digits[0]);
+  let ram: number | null = null;
+  if (/\bram\b/i.test(source) && digits.length > 1) {
+    ram = Number(digits[1]);
+  }
+  const romValue = Number.isFinite(rom) ? rom : null;
+  const ramValue = typeof ram === 'number' && Number.isFinite(ram) ? ram : null;
+  return buildStorageTagline(romValue, ramValue);
 };
 
 const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardData | null => {
@@ -387,7 +406,7 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
     safeString(product.highlight),
     [product.segment, product.storage].filter(Boolean).join(' / '),
   ].filter((value): value is string => Boolean(value));
-  const storageTagline = safeString(product.storage);
+  const storageTagline = parseStorageTaglineFromText(product.storage);
   const defaultTagline = taglineCandidates[0] ?? 'Produit selectionne par AfricaPhone';
   const tagline = !isAccessory && storageTagline ? storageTagline : defaultTagline;
 
@@ -918,7 +937,7 @@ function TopProductCard({ product }: { product: ProductCardData }) {
       <div className="flex flex-[0_0_40%] flex-col gap-1.5 px-2 pb-2 pt-2 text-left sm:px-3 sm:pb-3">
         <p className="truncate text-[11px] font-semibold text-slate-900 sm:text-xs">{product.name}</p>
         <p
-          className="text-[10px] text-slate-500"
+          className="text-[10px] font-semibold text-slate-800"
           style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 2 }}
         >
           {product.tagline}
@@ -994,7 +1013,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
         <div className="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3 text-left sm:px-5 sm:pb-5 sm:pt-4">
           <p className="text-base font-extrabold text-rose-600 sm:text-lg">{priceLabel}</p>
           <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
-          <p className="text-xs text-slate-500 sm:text-sm">{product.tagline}</p>
+          <p className="text-xs font-semibold text-slate-800 sm:text-sm">{product.tagline}</p>
           <div className="mt-auto">
             <span className="inline-flex max-w-fit items-center gap-2 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-orange-600 sm:text-sm">
               Voir details
