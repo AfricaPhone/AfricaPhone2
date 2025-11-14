@@ -88,6 +88,15 @@ const safeString = (value: unknown): string | null => {
   return null;
 };
 
+const buildStorageTagline = (rom: number | null, ram: number | null): string | null => {
+  const romLabel = rom ? `${rom} Go` : null;
+  const ramLabel = ram ? `${ram} Go RAM` : null;
+  if (romLabel && ramLabel) {
+    return `${romLabel} + ${ramLabel}`;
+  }
+  return romLabel ?? ramLabel ?? null;
+};
+
 const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardData | null => {
   const data = doc.data() as FirestoreProductPayload;
 
@@ -102,6 +111,23 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
       : [];
 
   const primaryImage = imageCandidates[0] ?? safeString(data.imageUrl) ?? null;
+
+  const rawCategory = safeString(data.category) ?? safeString(data.type);
+  const rawSegment = safeString(data.segment);
+  const rawTags = Array.isArray(data.tags) ? data.tags : [];
+  const categoryKey = inferSegmentKeyFromValue(rawCategory);
+  let segmentKey = inferSegmentKeyFromValue(rawSegment) ?? categoryKey;
+
+  if (!segmentKey) {
+    for (const tag of rawTags) {
+      const inferred = inferSegmentKeyFromValue(tag);
+      if (inferred) {
+        segmentKey = inferred;
+        break;
+      }
+    }
+  }
+  const isAccessory = categoryKey === 'accessoire' || segmentKey === 'accessoire';
 
   const taglineParts: string[] = [];
   const brand = safeString(data.brand);
@@ -122,12 +148,16 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
     taglineParts.push(storageDetails.join(' / '));
   }
 
+  const storageTagline = buildStorageTagline(rom, ram);
+
   if (taglineParts.length === 0) {
     const description = safeString(data.description);
     if (description) {
       taglineParts.push(description.length > 90 ? `${description.slice(0, 90)}...` : description);
     }
   }
+  const defaultTagline = taglineParts.join(' / ') || 'Produit selectionne par AfricaPhone';
+  const tagline = !isAccessory && storageTagline ? storageTagline : defaultTagline;
 
   const rawOrdreVedette =
     typeof data.ordreVedette === 'number'
@@ -138,28 +168,13 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
   const ordreVedette = Number.isFinite(rawOrdreVedette) ? rawOrdreVedette : 0;
 
   const badge = data.enPromotion === true ? 'Promo' : ordreVedette > 0 ? 'Vedette' : undefined;
-  const rawCategory = safeString(data.category) ?? safeString(data.type);
-  const rawSegment = safeString(data.segment);
-  const rawTags = Array.isArray(data.tags) ? data.tags : [];
-  const categoryKey = inferSegmentKeyFromValue(rawCategory);
-  let segmentKey = inferSegmentKeyFromValue(rawSegment) ?? categoryKey;
-
-  if (!segmentKey) {
-    for (const tag of rawTags) {
-      const inferred = inferSegmentKeyFromValue(tag);
-      if (inferred) {
-        segmentKey = inferred;
-        break;
-      }
-    }
-  }
 
   return {
     id: doc.id,
     name,
     price,
     image: primaryImage,
-    tagline: taglineParts.join(' / ') || 'Produit selectionne par AfricaPhone',
+    tagline,
     badge,
     ordreVedette,
     categoryKey: categoryKey ?? segmentKey ?? null,
@@ -186,6 +201,26 @@ const mapAlgoliaHitToProduct = (hit: AlgoliaHit): ProductCardData | null => {
 
   const primaryImage = imageCandidates[0] ?? safeString(hit.imageUrl) ?? null;
 
+  const rawCategory = safeString(hit.category) ?? safeString(hit.type);
+  const rawSegment = safeString(hit.segment);
+  const rawTags = Array.isArray(hit.tags) ? hit.tags : [];
+  const categoryKey = inferSegmentKeyFromValue(rawCategory);
+  let segmentKey = inferSegmentKeyFromValue(rawSegment) ?? categoryKey;
+
+  if (!segmentKey) {
+    for (const tag of rawTags) {
+      if (typeof tag !== 'string') {
+        continue;
+      }
+      const inferred = inferSegmentKeyFromValue(tag);
+      if (inferred) {
+        segmentKey = inferred;
+        break;
+      }
+    }
+  }
+  const isAccessory = categoryKey === 'accessoire' || segmentKey === 'accessoire';
+
   const taglineParts: string[] = [];
   const brand = safeString(hit.brand);
   if (brand) {
@@ -205,40 +240,26 @@ const mapAlgoliaHitToProduct = (hit: AlgoliaHit): ProductCardData | null => {
     taglineParts.push(storageDetails.join(' / '));
   }
 
+  const storageTagline = buildStorageTagline(rom, ram);
+
   if (taglineParts.length === 0) {
     const description = safeString(hit.description);
     if (description) {
       taglineParts.push(description.length > 90 ? `${description.slice(0, 90)}...` : description);
     }
   }
+  const defaultTagline = taglineParts.join(' / ') || 'Produit selectionne par AfricaPhone';
+  const tagline = !isAccessory && storageTagline ? storageTagline : defaultTagline;
 
   const rawOrdreVedette = toNumber(hit.ordreVedette) ?? 0;
   const badge = hit.enPromotion === true ? 'Promo' : rawOrdreVedette > 0 ? 'Vedette' : undefined;
-  const rawCategory = safeString(hit.category);
-  const rawSegment = safeString(hit.segment);
-  const rawTags = Array.isArray(hit.tags) ? hit.tags : [];
-  const categoryKey = inferSegmentKeyFromValue(rawCategory);
-  let segmentKey = inferSegmentKeyFromValue(rawSegment) ?? categoryKey;
-
-  if (!segmentKey) {
-    for (const tag of rawTags) {
-      if (typeof tag !== 'string') {
-        continue;
-      }
-      const inferred = inferSegmentKeyFromValue(tag);
-      if (inferred) {
-        segmentKey = inferred;
-        break;
-      }
-    }
-  }
 
   return {
     id,
     name,
     price,
     image: primaryImage,
-    tagline: taglineParts.join(' / ') || 'Produit selectionne par AfricaPhone',
+    tagline,
     badge,
     ordreVedette: rawOrdreVedette,
     categoryKey: categoryKey ?? segmentKey ?? null,
@@ -358,10 +379,17 @@ const productMatchesSegment = (product: ProductCardData, segment: SegmentKey): b
 const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
   const digitsOnly = product.price.replace(/\D+/g, '');
   const price = digitsOnly ? Number(digitsOnly) : null;
+  const categoryKey = inferSegmentKeyFromValue(product.category);
+  const summarySegmentKey = inferSegmentKeyFromValue(product.segment);
+  const isAccessory = categoryKey === 'accessoire' || summarySegmentKey === 'accessoire';
+
   const taglineCandidates = [
     safeString(product.highlight),
     [product.segment, product.storage].filter(Boolean).join(' / '),
   ].filter((value): value is string => Boolean(value));
+  const storageTagline = safeString(product.storage);
+  const defaultTagline = taglineCandidates[0] ?? 'Produit selectionne par AfricaPhone';
+  const tagline = !isAccessory && storageTagline ? storageTagline : defaultTagline;
 
   let badge: string | undefined;
   const category = product.category.toLowerCase();
@@ -369,15 +397,12 @@ const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
     badge = 'Promo';
   }
 
-  const categoryKey = inferSegmentKeyFromValue(product.category);
-  const summarySegmentKey = inferSegmentKeyFromValue(product.segment);
-
   return {
     id: product.id,
     name: product.name,
     price,
     image: safeString(product.image) ?? null,
-    tagline: taglineCandidates[0] ?? 'Produit selectionne par AfricaPhone',
+    tagline,
     badge,
     ordreVedette: 0,
     categoryKey: categoryKey ?? summarySegmentKey ?? null,
