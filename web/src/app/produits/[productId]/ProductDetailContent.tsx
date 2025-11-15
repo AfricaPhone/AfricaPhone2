@@ -502,16 +502,16 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       ) : null}
       <main className="flex w-full justify-center bg-[#FFFFFF] pb-[108px] lg:pb-12">
         <div className="flex min-h-screen w-full max-w-[540px] flex-col bg-[#FFFFFF] text-[#111111]">
-          <header className="flex h-[68px] items-center justify-between px-3 sm:h-[82px]">
+          <header className="flex h-[64px] items-center justify-between px-3 sm:h-[76px]">
             <button
               type="button"
               onClick={handleBack}
               aria-label="Retour"
-              className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border border-[#1111111a] text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-14 sm:w-14"
+              className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-full border border-[#1111111a] text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-[54px] sm:w-[54px]"
             >
               <ArrowLeftIcon className="h-5 w-5" />
             </button>
-            <h1 className="min-w-0 flex-1 truncate pl-3 pr-2 text-[20px] font-semibold leading-[22px] text-[#111111] sm:text-[21px]">
+            <h1 className="min-w-0 flex-1 truncate pl-3 pr-2 text-[19px] font-semibold leading-[21px] text-[#111111] sm:text-[20px]">
               {product.name}
             </h1>
             <div className="flex items-center gap-[14px]">
@@ -520,7 +520,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 onClick={toggleFavorite}
                 aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 aria-pressed={isFavorite}
-                className={`inline-flex h-[46px] w-[46px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[51px] sm:w-[51px] ${
+                className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${
                   isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
                 }`}
               >
@@ -530,14 +530,14 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 type="button"
                 onClick={handleShare}
                 aria-label="Partager"
-                className="inline-flex h-[50px] w-[50px] items-center justify-center rounded-full border border-[#111111] bg-white text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-[59px] sm:w-[59px]"
+                className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-full border border-[#111111] bg-white text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-[54px] sm:w-[54px]"
               >
                 <ShareIcon className="h-5 w-5" />
               </button>
             </div>
           </header>
 
-          <section className="relative flex h-[352px] w-full items-center justify-center overflow-hidden bg-[#F5F7FA] sm:h-[420px]">
+          <section className="relative flex h-[320px] w-full items-center justify-center overflow-hidden bg-[#F5F7FA] sm:h-[380px]">
             {activeImage ? (
               <Image
                 src={activeImage}
@@ -598,35 +598,37 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
             <div className="mt-3 h-px w-full bg-[#ECEDEF]" />
 
-            <div className="mt-3">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('specs')}
-                  className={`flex-1 py-2 text-center text-[16px] font-semibold ${
-                    activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
-                  }`}
-                >
-                  Specifications
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('description')}
-                  className={`flex-1 py-2 text-center text-[16px] font-semibold ${
-                    activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
-                  }`}
-                >
-                  Description
-                </button>
-              </div>
-              <div className="relative mt-2 h-[2px] w-full bg-[#ECEDEF]">
-                <span
-                  className="absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200"
-                  style={{
-                    left: activeTab === 'specs' ? '0' : 'calc(50% + 0.25rem)',
-                    width: 'calc(50% - 0.25rem)',
-                  }}
-                />
+            <div className="mt-3 flex w-full justify-center">
+              <div className="w-full max-w-[460px]">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('specs')}
+                    className={`flex-1 py-2 text-center text-[16px] font-semibold ${
+                      activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                    }`}
+                  >
+                    Specifications
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('description')}
+                    className={`flex-1 py-2 text-center text-[16px] font-semibold ${
+                      activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                    }`}
+                  >
+                    Description
+                  </button>
+                </div>
+                <div className="relative mt-2 h-[2px] w-full bg-[#ECEDEF]">
+                  <span
+                    className="absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200"
+                    style={{
+                      left: activeTab === 'specs' ? '0' : 'calc(50% + 0.25rem)',
+                      width: 'calc(50% - 0.25rem)',
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
