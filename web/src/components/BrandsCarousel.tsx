@@ -302,7 +302,7 @@ function ScrollArrowButton({ direction, onClick }: ScrollArrowButtonProps) {
       <button
         type="button"
         onClick={onClick}
-        aria-label={isNext ? 'Afficher les prochaines marques' : 'Afficher les marques précédentes'}
+        aria-label={isNext ? 'Afficher les prochaines marques' : 'Afficher les marques precedentes'}
         className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-700 shadow-lg transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${
           isNext ? 'right-2' : 'left-2'
         }`}
