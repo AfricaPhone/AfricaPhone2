@@ -604,7 +604,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                   <button
                     type="button"
                     onClick={() => setActiveTab('specs')}
-                    className={`flex-1 py-2 text-center text-[16px] font-semibold ${
+                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${
                       activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
                     }`}
                   >
@@ -613,7 +613,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                   <button
                     type="button"
                     onClick={() => setActiveTab('description')}
-                    className={`flex-1 py-2 text-center text-[16px] font-semibold ${
+                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${
                       activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
                     }`}
                   >
