@@ -944,24 +944,9 @@ function TopProductCard({ product }: { product: ProductCardData }) {
         </p>
         <div className="mt-auto space-y-1">
           <p className="text-[13px] font-extrabold text-rose-600 sm:text-sm">{priceLabel}</p>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-2.5 py-1 text-[10px] font-semibold text-white transition group-hover:bg-orange-600 sm:text-xs">
-            Voir details
-            <svg className="h-3 w-3" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M3.5 7H10.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M7.5 4L10.5 7L7.5 10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-2.5 py-1 text-[10px] font-semibold text-white transition group-hover:bg-[#1EBE5D] sm:text-xs">
+            <WhatsAppIcon className="h-3 w-3 text-white" />
+            Commandez
           </span>
         </div>
       </div>
@@ -1015,24 +1000,9 @@ function ProductCard({ product }: { product: ProductCardData }) {
           <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
           <p className="text-xs font-semibold text-slate-800 sm:text-sm">{product.tagline}</p>
           <div className="mt-auto">
-            <span className="inline-flex max-w-fit items-center gap-2 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-orange-600 sm:text-sm">
-              Voir details
-              <svg className="h-3.5 w-3.5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M3.5 7H10.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M7.5 4L10.5 7L7.5 10"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <span className="inline-flex max-w-fit items-center gap-2 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-[#1EBE5D] sm:text-sm">
+              <WhatsAppIcon className="h-3.5 w-3.5 text-white" />
+              Commandez
             </span>
           </div>
         </div>
@@ -1113,6 +1083,14 @@ function HeadsetIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12 .5A11.5 11.5 0 002.2 18.8L.5 23.5l4.8-1.7A11.5 11.5 0 1012 .5zm6.6 16.4c-.3.9-1.7 1.6-2.4 1.7-.6.1-1.3.1-2.1-.1a19 19 0 01-3.3-1.2 11.5 11.5 0 01-3.6-2.9 6.5 6.5 0 01-1.4-2.3c-.1-.6-.1-1.1.2-1.5.2-.4.5-.6.9-.9l.2-.1c.3-.2.5-.2.6 0l.4.6c.1.2.3.4.4.6.2.4.1.6 0 .8l-.2.3c-.1.1-.1.2 0 .3a7 7 0 001.8 2.2 7 7 0 002.5 1.4c.1 0 .2 0 .3-.1l.5-.6c.2-.2.4-.2.7-.1l.8.4.6.3c.1.1.2.1.3.2.1.2 0 .4 0 .6z" />
     </svg>
   );
 }
