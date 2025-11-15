@@ -30,6 +30,12 @@ export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouse
   const [brands, setBrands] = useState<BrandItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
+  const scrollContainerRef = useCallback((node: HTMLDivElement | null) => {
+    setScrollElement(node);
+  }, []);
   const router = useRouter();
 
   useEffect(() => {
@@ -107,17 +113,72 @@ export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouse
     [router]
   );
 
+  const updateArrowVisibility = useCallback(() => {
+    if (!scrollElement) {
+      setCanScrollPrev(false);
+      setCanScrollNext(false);
+      return;
+    }
+    const { scrollLeft, scrollWidth, clientWidth } = scrollElement;
+    setCanScrollPrev(scrollLeft > 4);
+    setCanScrollNext(scrollLeft + clientWidth < scrollWidth - 4);
+  }, [scrollElement]);
+
+  useEffect(() => {
+    if (!scrollElement) {
+      return;
+    }
+
+    updateArrowVisibility();
+
+    const handleScroll = () => {
+      updateArrowVisibility();
+    };
+
+    scrollElement.addEventListener('scroll', handleScroll, { passive: true });
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateArrowVisibility();
+    });
+    resizeObserver.observe(scrollElement);
+
+    return () => {
+      scrollElement.removeEventListener('scroll', handleScroll);
+      resizeObserver.disconnect();
+    };
+  }, [scrollElement, updateArrowVisibility]);
+
+  useEffect(() => {
+    updateArrowVisibility();
+  }, [brands, loading, segment, updateArrowVisibility]);
+
+  const scrollByAmount = useCallback(
+    (direction: 'prev' | 'next') => {
+      if (!scrollElement) {
+        return;
+      }
+      const amount = Math.max(scrollElement.clientWidth * 0.8, 200);
+      scrollElement.scrollBy({
+        left: direction === 'next' ? amount : -amount,
+        behavior: 'smooth',
+      });
+    },
+    [scrollElement]
+  );
+
   const content = useMemo(() => {
     if (loading) {
       return (
-        <div className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1`}>
-          <div className="flex items-center gap-0 pe-6">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={`brand-skeleton-${index}`} className="flex w-20 min-w-[86px] shrink-0 flex-col items-center gap-2">
-                <div className="h-14 w-14 animate-pulse rounded-full bg-slate-200" />
-                <div className="h-3 w-12 animate-pulse rounded-full bg-slate-200" />
-              </div>
-            ))}
+        <div className="relative">
+          <div ref={scrollContainerRef} className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1`}>
+            <div className="flex items-center gap-0 pe-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={`brand-skeleton-${index}`} className="flex w-20 min-w-[86px] shrink-0 flex-col items-center gap-2">
+                  <div className="h-14 w-14 animate-pulse rounded-full bg-slate-200" />
+                  <div className="h-3 w-12 animate-pulse rounded-full bg-slate-200" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );
@@ -147,15 +208,22 @@ export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouse
     ));
 
     return (
-      <div
-        className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1 pe-6 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:pe-0`}
-      >
-        <div className="flex items-center gap-0 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] lg:gap-2">
-          {items}
+      <div className="relative">
+        <div
+          ref={scrollContainerRef}
+          className={`${SCROLL_CLASSNAME} mb-2 mt-2 -mx-2 overflow-x-auto px-2 pb-1 pe-6 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:pe-0`}
+        >
+          <div className="flex items-center gap-0 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] lg:gap-2">{items}</div>
         </div>
+        {canScrollPrev ? (
+          <ScrollArrowButton direction="prev" onClick={() => scrollByAmount('prev')} />
+        ) : null}
+        {canScrollNext ? (
+          <ScrollArrowButton direction="next" onClick={() => scrollByAmount('next')} />
+        ) : null}
       </div>
     );
-  }, [activeBrandId, brands, error, handleSelect, loading, segment]);
+  }, [activeBrandId, brands, canScrollNext, canScrollPrev, error, handleSelect, loading, scrollByAmount, segment]);
 
   return (
     <>
@@ -215,5 +283,34 @@ function BrandLogoButton({ brand, isActive, onSelect }: BrandLogoButtonProps) {
       </span>
       <span className="w-20 truncate text-center">{brand.name}</span>
     </button>
+  );
+}
+
+type ScrollArrowButtonProps = {
+  direction: 'prev' | 'next';
+  onClick: () => void;
+};
+
+function ScrollArrowButton({ direction, onClick }: ScrollArrowButtonProps) {
+  const isNext = direction === 'next';
+  const alignmentClasses = isNext ? 'right-0 justify-end' : 'left-0 justify-start';
+  return (
+    <>
+      <div className={`pointer-events-none absolute inset-y-0 ${alignmentClasses} flex items-center`}>
+        <div className={`h-full w-8 ${isNext ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-white via-white to-transparent opacity-80`} />
+      </div>
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={isNext ? 'Afficher les prochaines marques' : 'Afficher les marques précédentes'}
+        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-700 shadow-lg transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${
+          isNext ? 'right-2' : 'left-2'
+        }`}
+      >
+        <svg className={`h-5 w-5 ${isNext ? '' : 'rotate-180'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+    </>
   );
 }
