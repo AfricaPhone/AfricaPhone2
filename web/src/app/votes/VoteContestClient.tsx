@@ -53,6 +53,9 @@ const deriveQuantityFromAmountInput = (value: string): number | null => {
   if (!Number.isFinite(parsed) || parsed <= 0) {
     return MIN_VOTE_QUANTITY;
   }
+  if (parsed % VOTE_UNIT_PRICE !== 0) {
+    return null;
+  }
   const computedQuantity = Math.floor(parsed / VOTE_UNIT_PRICE);
   if (computedQuantity <= 0) {
     return MIN_VOTE_QUANTITY;
