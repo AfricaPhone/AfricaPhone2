@@ -68,6 +68,7 @@ type AlgoliaHit = AlgoliaProductHit;
 const PRODUCTS_PHONE_NUMBER = '2290154151522';
 const INITIAL_PAGE_SIZE = 24;
 const LOAD_MORE_PAGE_SIZE = 34;
+const TOP_PRODUCTS_FETCH_LIMIT = 20;
 
 const toNumber = (value: unknown): number | null => {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -287,6 +288,43 @@ const normalizeText = (value: string): string =>
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
 
+const normalizePreferenceToken = (value: string): string => normalizeText(value).replace(/[^a-z0-9]/g, '');
+
+const PREFERRED_TOP_PRODUCT_NAMES = ['Redmi 15c', 'Redmi A5', 'Nokia 106', 'Tecno Pop 10', 'Villaon V25'] as const;
+
+const normalizedPreferredTopProductNames = PREFERRED_TOP_PRODUCT_NAMES.map(name => normalizePreferenceToken(name));
+
+const topProductPreferenceMap = normalizedPreferredTopProductNames.reduce<Map<string, number>>((map, name, index) => {
+  if (!map.has(name)) {
+    map.set(name, index);
+  }
+  return map;
+}, new Map<string, number>());
+
+const getPreferredRank = (product: ProductCardData): number => {
+  const normalized = normalizePreferenceToken(product.name);
+  const rank = topProductPreferenceMap.get(normalized);
+  return typeof rank === 'number' ? rank : Number.POSITIVE_INFINITY;
+};
+
+const prioritizeTopProducts = (items: ProductCardData[]): ProductCardData[] => {
+  if (topProductPreferenceMap.size === 0) {
+    return items;
+  }
+  return [...items].sort((a, b) => {
+    const preferenceDelta = getPreferredRank(a) - getPreferredRank(b);
+    if (preferenceDelta !== 0) {
+      return preferenceDelta;
+    }
+    const vedetteA = a.ordreVedette ?? 0;
+    const vedetteB = b.ordreVedette ?? 0;
+    if (vedetteA !== vedetteB) {
+      return vedetteB - vedetteA;
+    }
+    return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' });
+  });
+};
+
 const filterProductsBySearchTerm = (items: ProductCardData[], term: string): ProductCardData[] => {
   const trimmed = term.trim();
   if (trimmed.length === 0) {
@@ -353,6 +391,10 @@ const TOP_PRODUCTS_SCROLL_CLASSNAME = 'top-products-scroll';
 
 const productMatchesSegment = (product: ProductCardData, segment: SegmentKey): boolean => {
   return product.categoryKey === segment || product.segmentKey === segment;
+};
+
+const isAccessoryProduct = (product: ProductCardData): boolean => {
+  return product.segmentKey === 'accessoire' || product.categoryKey === 'accessoire';
 };
 
 const mapSummaryToProduct = (product: ProductSummary): ProductCardData => {
@@ -427,6 +469,8 @@ export default function ProductGridSection({
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [searchAttempt, setSearchAttempt] = useState(0);
+  const [topRankedProducts, setTopRankedProducts] = useState<ProductCardData[]>([]);
+  const [topProductsLoading, setTopProductsLoading] = useState(true);
   const brandFilterValue = selectedBrand?.filterValue?.trim()
     ? selectedBrand.filterValue.trim()
     : selectedBrand?.name?.trim()
@@ -653,6 +697,38 @@ export default function ProductGridSection({
     void loadProducts(null, 'replace');
   }, [loadProducts, trimmedSearchTerm]);
 
+  useEffect(() => {
+    let disposed = false;
+    const fetchTopRankedProducts = async () => {
+      setTopProductsLoading(true);
+      try {
+        const topSnapshot = await getDocs(
+          query(collection(db, 'products'), orderBy('ordreVedette', 'desc'), limit(TOP_PRODUCTS_FETCH_LIMIT))
+        );
+        if (disposed) {
+          return;
+        }
+        const mapped = topSnapshot.docs
+          .map(mapDocToProduct)
+          .filter((item): item is ProductCardData => item !== null);
+        setTopRankedProducts(dedupeProducts(mapped));
+      } catch (error) {
+        console.error('ProductGridSection: unable to load top-ranked products', error);
+        if (!disposed) {
+          setTopRankedProducts([]);
+        }
+      } finally {
+        if (!disposed) {
+          setTopProductsLoading(false);
+        }
+      }
+    };
+    void fetchTopRankedProducts();
+    return () => {
+      disposed = true;
+    };
+  }, []);
+
   const handleRetry = useCallback(() => {
     if (trimmedSearchTerm.length >= MIN_ALGOLIA_TERM_LENGTH) {
       setSearchAttempt(previous => previous + 1);
@@ -682,7 +758,14 @@ export default function ProductGridSection({
     return products.filter(product => productMatchesSegment(product, categoryFilterValue));
   }, [categoryFilterValue, products]);
 
-  const topProducts = useMemo(() => segmentFilteredProducts.slice(0, 8), [segmentFilteredProducts]);
+  const topProducts = useMemo(() => {
+    const curated = topRankedProducts.filter(
+      product => !isAccessoryProduct(product) && (product.ordreVedette ?? 0) > 0
+    );
+    const fallbackPool = segmentFilteredProducts.filter(product => !isAccessoryProduct(product));
+    const combined = dedupeProducts([...curated, ...fallbackPool]);
+    return prioritizeTopProducts(combined).slice(0, 8);
+  }, [segmentFilteredProducts, topRankedProducts]);
 
   const visibleProducts = useMemo(
     () => filterProductsBySearchTerm(segmentFilteredProducts, trimmedSearchTerm),
@@ -801,8 +884,8 @@ export default function ProductGridSection({
         </div>
       ) : null}
       {!selectedBrand ? <BrandsCarousel segment={activeSegment} activeBrandId={activeBrandId} /> : null}
-      {(loading && topProducts.length === 0) || topProducts.length > 0 ? (
-        <TopProductsRail products={topProducts} loading={loading} />
+      {topProductsLoading || topProducts.length > 0 ? (
+        <TopProductsRail products={topProducts} loading={topProductsLoading} />
       ) : null}
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
