@@ -20,7 +20,9 @@ import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import type { Candidate, Contest } from '@/types/pronostics';
 
 const VOTE_STATUS_KEY_PREFIX = 'contest_vote_status_v1';
-const SHOW_VOTE_BUTTON = false; // Toggle to true when the contest voting opens publicly.
+const SHOW_VOTE_BUTTON = true; // Toggle to true when the contest voting opens publicly.
+const MIN_VOTE_QUANTITY = 1;
+const MAX_VOTE_QUANTITY = 500;
 
 type StoredVoteInfo = {
   status: 'success';
@@ -28,6 +30,13 @@ type StoredVoteInfo = {
   candidateName?: string | null;
   transactionId?: string | null;
   timestamp: number;
+  votes?: number;
+  amount?: number;
+};
+
+type VoteDetails = {
+  voiceCount: number;
+  amount: number;
 };
 
 type PaymentStatus = 'success' | 'failed' | 'pending' | null;
@@ -80,9 +89,13 @@ export default function VoteContestClientPage() {
   const [lastTransactionId, setLastTransactionId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalCandidate, setModalCandidate] = useState<Candidate | null>(null);
+  const [modalVoteDetails, setModalVoteDetails] = useState<VoteDetails | null>(null);
+  const [voteSetupCandidate, setVoteSetupCandidate] = useState<Candidate | null>(null);
+  const [voteQuantity, setVoteQuantity] = useState(MIN_VOTE_QUANTITY);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const pendingCandidateRef = useRef<Candidate | null>(null);
+  const pendingVoiceCountRef = useRef<number>(MIN_VOTE_QUANTITY);
   const previousBodyOverflow = useRef<string | null>(null);
 
   const functionsInstance = useMemo(
@@ -246,6 +259,7 @@ export default function VoteContestClientPage() {
   const resetModal = () => {
     setIsModalOpen(false);
     setModalCandidate(null);
+    setModalVoteDetails(null);
     setPaymentStatus(null);
     setPaymentMessage(null);
     setLastTransactionId(null);
@@ -280,8 +294,15 @@ export default function VoteContestClientPage() {
         }
       }
 
+      const voiceCount = pendingVoiceCountRef.current ?? MIN_VOTE_QUANTITY;
+      const totalAmount = voiceCount * PAYMENT_CONFIG.VOTE_AMOUNT_XOF;
+      const targetName = candidate?.name ? ` pour ${candidate.name}` : '';
+
       setPaymentStatus('success');
-      setPaymentMessage('Votre vote a ete pris en compte.');
+      setPaymentMessage(
+        voiceCount > 1 ? `${voiceCount} voix ont ete attribuees${targetName}.` : `Une voix a ete attribuee${targetName}.`
+      );
+      setModalVoteDetails({ voiceCount, amount: totalAmount });
       setModalCandidate(candidate ?? null);
       setIsModalOpen(true);
       setHasVoted(true);
@@ -295,6 +316,8 @@ export default function VoteContestClientPage() {
             candidateName: candidate?.name ?? null,
             transactionId: txId ?? null,
             timestamp: Date.now(),
+            votes: voiceCount,
+            amount: totalAmount,
           };
           window.localStorage.setItem(contestVoteStorageKey, JSON.stringify(record));
           setStoredVote(record);
@@ -303,6 +326,7 @@ export default function VoteContestClientPage() {
         }
       }
 
+      pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
       pendingCandidateRef.current = null;
     },
     [contestVoteStorageKey, functionsInstance]
@@ -315,9 +339,12 @@ export default function VoteContestClientPage() {
       if (txId) {
         setLastTransactionId(txId);
       }
+      const voiceCount = pendingVoiceCountRef.current ?? MIN_VOTE_QUANTITY;
+      const totalAmount = voiceCount * PAYMENT_CONFIG.VOTE_AMOUNT_XOF;
       setPaymentStatus('failed');
       setPaymentMessage("Votre paiement n'a pas abouti.");
       setModalCandidate(candidate ?? null);
+      setModalVoteDetails({ voiceCount, amount: totalAmount });
       setIsModalOpen(true);
       setHasVoted(false);
       setIsPreparingPayment(false);
@@ -329,6 +356,7 @@ export default function VoteContestClientPage() {
         }
       }
       setStoredVote(null);
+      pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
       pendingCandidateRef.current = null;
     },
     [contestVoteStorageKey]
@@ -364,39 +392,25 @@ export default function VoteContestClientPage() {
     };
   }, [handlePaymentFailed, handlePaymentSuccess]);
 
-  const handleVote = useCallback(
-    async (candidate: Candidate) => {
-      if (isBusy) {
-        return;
-      }
-      if (hasVoted) {
-        setPaymentStatus('failed');
-        setPaymentMessage(
-          storedVote?.candidateName
-            ? `Vous avez deja vote pour ${storedVote.candidateName}.`
-            : 'Votre vote est deja enregistre.'
-        );
-        setModalCandidate(candidate);
-        setIsModalOpen(true);
-        return;
-      }
-      if (votingClosed) {
-        setPaymentStatus('failed');
-        setPaymentMessage('Les votes ne sont pas ouverts pour le moment.');
-        setModalCandidate(candidate);
-        setIsModalOpen(true);
-        return;
-      }
+  const startVotePayment = useCallback(
+    async (candidate: Candidate, voiceCount: number) => {
+      resetModal();
+      const safeVoiceCount = Math.min(MAX_VOTE_QUANTITY, Math.max(MIN_VOTE_QUANTITY, voiceCount));
+      const amount = safeVoiceCount * PAYMENT_CONFIG.VOTE_AMOUNT_XOF;
+
       if (!contestId || !contest) {
+        pendingCandidateRef.current = null;
+        pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
         setPaymentStatus('failed');
         setPaymentMessage('Concours introuvable. Veuillez reessayer.');
         setModalCandidate(candidate);
+        setModalVoteDetails({ voiceCount: safeVoiceCount, amount });
         setIsModalOpen(true);
         return;
       }
 
-      resetModal();
       pendingCandidateRef.current = candidate;
+      pendingVoiceCountRef.current = safeVoiceCount;
       setIsPreparingPayment(true);
 
       try {
@@ -409,7 +423,7 @@ export default function VoteContestClientPage() {
         const response = await createIntent({
           contestId,
           candidateId: candidate.id,
-          amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
+          amount,
         });
 
         const payload = response?.data ?? {};
@@ -430,7 +444,7 @@ export default function VoteContestClientPage() {
         }
 
         moduleInstance.openKkiapayWidget({
-          amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
+          amount,
           publicAPIKey: PAYMENT_CONFIG.KKIAPAY_PUBLIC_KEY,
           sandbox: PAYMENT_CONFIG.SANDBOX,
           theme: '#FF7A00',
@@ -442,17 +456,74 @@ export default function VoteContestClientPage() {
       } catch (error) {
         console.error('Vote payment start error', error);
         pendingCandidateRef.current = null;
+        pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
         setIsPreparingPayment(false);
         setPaymentStatus('failed');
         setPaymentMessage(
           error instanceof Error ? error.message : 'Impossible de lancer le module de paiement.'
         );
         setModalCandidate(candidate);
+        setModalVoteDetails({ voiceCount: safeVoiceCount, amount });
         setIsModalOpen(true);
       }
     },
-    [contest, contestId, functionsInstance, hasVoted, isBusy, storedVote, votingClosed]
+    [contest, contestId, functionsInstance]
   );
+
+  const handleVote = useCallback(
+    (candidate: Candidate) => {
+      if (isBusy) {
+        return;
+      }
+      if (votingClosed) {
+        setPaymentStatus('failed');
+        setPaymentMessage('Les votes ne sont pas ouverts pour le moment.');
+        setModalCandidate(candidate);
+        setModalVoteDetails(null);
+        setIsModalOpen(true);
+        return;
+      }
+      if (!contestId || !contest) {
+        setPaymentStatus('failed');
+        setPaymentMessage('Concours introuvable. Veuillez reessayer.');
+        setModalCandidate(candidate);
+        setModalVoteDetails(null);
+        setIsModalOpen(true);
+        return;
+      }
+
+      setVoteQuantity(MIN_VOTE_QUANTITY);
+      setVoteSetupCandidate(candidate);
+    },
+    [contest, contestId, isBusy, votingClosed]
+  );
+
+  const handleQuantityChange = useCallback((value: number) => {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      setVoteQuantity(MIN_VOTE_QUANTITY);
+      return;
+    }
+    const normalized = Math.trunc(value);
+    const safeVoiceCount = Math.min(MAX_VOTE_QUANTITY, Math.max(MIN_VOTE_QUANTITY, normalized));
+    setVoteQuantity(safeVoiceCount);
+  }, []);
+
+  const handleConfirmVote = useCallback(() => {
+    if (!voteSetupCandidate || isPreparingPayment) {
+      return;
+    }
+    const safeVoiceCount = Math.min(MAX_VOTE_QUANTITY, Math.max(MIN_VOTE_QUANTITY, voteQuantity));
+    resetModal();
+    setVoteSetupCandidate(null);
+    void startVotePayment(voteSetupCandidate, safeVoiceCount);
+  }, [isPreparingPayment, startVotePayment, voteSetupCandidate, voteQuantity]);
+
+  const handleVoteDialogClose = useCallback(() => {
+    if (isPreparingPayment) {
+      return;
+    }
+    setVoteSetupCandidate(null);
+  }, [isPreparingPayment]);
 
   return (
     <div className="min-h-screen bg-[#F6F7F9] text-[#111827]">
@@ -528,12 +599,24 @@ export default function VoteContestClientPage() {
         />
       </VoteSearchOverlay>
 
+      <VoteQuantityModal
+        open={Boolean(voteSetupCandidate)}
+        candidate={voteSetupCandidate}
+        quantity={voteQuantity}
+        onQuantityChange={handleQuantityChange}
+        onClose={handleVoteDialogClose}
+        onConfirm={handleConfirmVote}
+        unitPrice={PAYMENT_CONFIG.VOTE_AMOUNT_XOF}
+        isProcessing={isPreparingPayment}
+      />
+
       <VoteModal
         open={isModalOpen}
         status={paymentStatus}
         message={paymentMessage}
         transactionId={lastTransactionId}
         candidate={modalCandidate}
+        voteDetails={modalVoteDetails}
         onClose={resetModal}
       />
     </div>
@@ -608,7 +691,7 @@ function ContestHero({
       <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80"
-          alt="Public lors d’une cérémonie"
+          alt="Public lors dâ€™une cÃ©rÃ©monie"
           fill
           className="object-cover"
           priority={false}
@@ -626,14 +709,14 @@ function ContestHero({
               {contest?.title ?? 'Concours'}
             </span>
             <h2 className="text-2xl font-bold leading-tight text-white">
-              {contestEnded ? 'Concours clôturé' : "Phase d'inscription"}
+              {contestEnded ? 'Concours clÃ´turÃ©' : "Phase d'inscription"}
             </h2>
           </div>
         </div>
 
         {contestEnded ? (
           <p className="rounded-full bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white">
-            Concours clôturé
+            Concours clÃ´turÃ©
           </p>
         ) : timeLeft ? (
           <CountdownPills {...timeLeft} />
@@ -698,7 +781,7 @@ function CandidateList({
   }
 
   const votingDisabled = !contest || contestEnded;
-  const disableButtons = isBusy || hasVoted || votingDisabled;
+  const disableButtons = isBusy || votingDisabled;
   const votedCandidateId = storedVote?.candidateId ?? null;
 
   return (
@@ -827,6 +910,129 @@ function VoteSearchOverlay({
   );
 }
 
+type VoteQuantityModalProps = {
+  open: boolean;
+  candidate: Candidate | null;
+  quantity: number;
+  onQuantityChange: (value: number) => void;
+  onClose: () => void;
+  onConfirm: () => void;
+  unitPrice: number;
+  isProcessing: boolean;
+};
+
+function VoteQuantityModal({
+  open,
+  candidate,
+  quantity,
+  onQuantityChange,
+  onClose,
+  onConfirm,
+  unitPrice,
+  isProcessing,
+}: VoteQuantityModalProps) {
+  if (!open || !candidate) {
+    return null;
+  }
+
+  const totalAmount = quantity * unitPrice;
+  const disableDecrease = quantity <= MIN_VOTE_QUANTITY || isProcessing;
+  const disableIncrease = quantity >= MAX_VOTE_QUANTITY || isProcessing;
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = Number.parseInt(event.target.value, 10);
+    onQuantityChange(Number.isNaN(value) ? MIN_VOTE_QUANTITY : value);
+  };
+
+  const handleDecrease = () => {
+    if (disableDecrease) {
+      return;
+    }
+    onQuantityChange(quantity - 1);
+  };
+
+  const handleIncrease = () => {
+    if (disableIncrease) {
+      return;
+    }
+    onQuantityChange(quantity + 1);
+  };
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-4">
+      <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Fermer"
+          className="absolute right-4 top-4 text-slate-400 transition hover:text-slate-600 disabled:opacity-50"
+          disabled={isProcessing}
+        >
+          <CloseIcon className="h-5 w-5" />
+        </button>
+
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
+          <TrophyIcon className="h-7 w-7" />
+        </div>
+        <h3 className="mt-4 text-lg font-semibold text-slate-900">Choisissez vos voix</h3>
+        <p className="mt-1 text-xs text-slate-500">
+          Prix unitaire : {formatNumber(unitPrice)} F CFA (min {MIN_VOTE_QUANTITY}, max {MAX_VOTE_QUANTITY} voix).
+        </p>
+
+        <div className="mt-4 rounded-2xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
+          {candidate.name} ï¿½ï¿½ {candidate.media}
+        </div>
+
+        <div className="mt-5 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-3 py-2">
+          <button
+            type="button"
+            onClick={handleDecrease}
+            disabled={disableDecrease}
+            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg font-semibold text-slate-600 transition enabled:hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Retirer une voix"
+          >
+            âˆ’
+          </button>
+          <input
+            type="number"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            min={MIN_VOTE_QUANTITY}
+            max={MAX_VOTE_QUANTITY}
+            value={quantity}
+            onChange={handleChange}
+            disabled={isProcessing}
+            className="w-20 border-none bg-transparent text-center text-2xl font-semibold text-slate-900 focus:outline-none"
+            aria-label="Nombre de voix"
+          />
+          <button
+            type="button"
+            onClick={handleIncrease}
+            disabled={disableIncrease}
+            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Ajouter une voix"
+          >
+            +
+          </button>
+        </div>
+
+        <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+          Total : {formatNumber(totalAmount)} F CFA
+        </div>
+
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={isProcessing}
+          className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-orange-500 text-sm font-semibold text-white transition enabled:hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isProcessing ? 'Initialisation...' : `Payer ${formatNumber(totalAmount)} F CFA`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 type VoteModalProps = {
   open: boolean;
   status: PaymentStatus;
@@ -834,9 +1040,10 @@ type VoteModalProps = {
   transactionId: string | null;
   candidate: Candidate | null;
   onClose: () => void;
+  voteDetails: VoteDetails | null;
 };
 
-function VoteModal({ open, status, message, transactionId, candidate, onClose }: VoteModalProps) {
+function VoteModal({ open, status, message, transactionId, candidate, onClose, voteDetails }: VoteModalProps) {
   if (!open) {
     return null;
   }
@@ -864,21 +1071,35 @@ function VoteModal({ open, status, message, transactionId, candidate, onClose }:
           <TrophyIcon className="h-7 w-7" />
         </div>
         <h3 className="mt-4 text-lg font-semibold text-slate-900">
-          {isSuccess ? 'Vote enregistré !' : isFailure ? 'Paiement interrompu' : 'Information'}
+          {isSuccess ? 'Vote enregistrÃ© !' : isFailure ? 'Paiement interrompu' : 'Information'}
         </h3>
         <p className="mt-2 text-sm text-slate-600">
-          {message ?? (isSuccess ? 'Merci pour votre participation.' : 'Veuillez réessayer dans un instant.')}
+          {message ?? (isSuccess ? 'Merci pour votre participation.' : 'Veuillez rÃ©essayer dans un instant.')}
         </p>
 
         {candidate ? (
+
           <div className="mt-4 rounded-2xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
-            {candidate.name} · {candidate.media}
+
+            {candidate.name} ?? {candidate.media}
+
           </div>
+
+        ) : null}
+
+        {voteDetails ? (
+
+          <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+
+            {voteDetails.voiceCount} voix ?? {formatNumber(voteDetails.amount)} F CFA
+
+          </div>
+
         ) : null}
 
         {transactionId ? (
           <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-500">
-            Référence paiement : <span className="font-semibold text-slate-700">{transactionId}</span>
+            RÃ©fÃ©rence paiement : <span className="font-semibold text-slate-700">{transactionId}</span>
           </div>
         ) : null}
 
@@ -1096,3 +1317,5 @@ function SearchIcon(props: IconProps) {
     </svg>
   );
 }
+
+
