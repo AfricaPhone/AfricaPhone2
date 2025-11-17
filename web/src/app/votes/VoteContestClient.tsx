@@ -1081,7 +1081,11 @@ function VoteQuantityModal({
           <p className="text-xs text-slate-500">{candidate.media}</p>
         </div>
 
-        <div className="mt-5 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-3 py-2">
+        <div className="mt-5 flex flex-col gap-2 text-left">
+          <label className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Nombre de voix
+          </label>
+          <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-3 py-2">
           <button
             type="button"
             onClick={handleDecrease}
@@ -1112,6 +1116,7 @@ function VoteQuantityModal({
           >
             +
           </button>
+          </div>
         </div>
 
         <div className="mt-4 flex flex-col gap-2 text-left">
