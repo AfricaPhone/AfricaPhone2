@@ -1016,10 +1016,6 @@ function VoteQuantityModal({
           </button>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-          Total : {formatNumber(totalAmount)} F CFA
-        </div>
-
         <button
           type="button"
           onClick={onConfirm}
