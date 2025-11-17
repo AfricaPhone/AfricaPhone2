@@ -1,5 +1,5 @@
 # Repository Guidelines
-
+ALWAYS COMMIT WHEN U MAKE CHANGES, ALWAYS
 ## Project Structure & Module Organization
 
 The Expo/React Native app source lives in `src/`, split across feature folders such as `components/`, `screens/`, `store/`, and `services/`. Tests sit beside their units as `*.test.ts`/`*.test.tsx`, with navigation tests in `src/navigation/__tests__/`. Firebase Cloud Functions reside in `functions/src/` and compile to `functions/lib/`. Static images, fonts, and other assets belong in `assets/`, while Jest mocks stay under `__mocks__/`.
