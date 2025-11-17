@@ -20,7 +20,7 @@ import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import type { Candidate, Contest } from '@/types/pronostics';
 
 const VOTE_STATUS_KEY_PREFIX = 'contest_vote_status_v1';
-const SHOW_VOTE_BUTTON = false; // Toggle to true when the contest voting opens publicly.
+const SHOW_VOTE_BUTTON = true; // Voting is currently open to the public.
 
 type StoredVoteInfo = {
   status: 'success';
@@ -364,6 +364,15 @@ export default function VoteContestClientPage() {
     };
   }, [handlePaymentFailed, handlePaymentSuccess]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    loadKkiapay().catch(error => {
+      console.warn('Kkiapay preloading error', error);
+    });
+  }, []);
+
   const handleVote = useCallback(
     async (candidate: Candidate) => {
       if (isBusy) {
@@ -492,6 +501,8 @@ export default function VoteContestClientPage() {
           onActivate={openSearchOverlay}
         />
 
+        {isPreparingPayment ? <PaymentPreparingNotice /> : null}
+
         {!isSearchActive && (
           <CandidateList
             contest={contest}
@@ -503,6 +514,7 @@ export default function VoteContestClientPage() {
             searchQuery={searchQuery}
             onVote={handleVote}
             contestEnded={contestEnded}
+            isPreparingPayment={isPreparingPayment}
           />
         )}
       </main>
@@ -525,6 +537,7 @@ export default function VoteContestClientPage() {
           searchQuery={searchQuery}
           onVote={handleVote}
           contestEnded={contestEnded}
+          isPreparingPayment={isPreparingPayment}
         />
       </VoteSearchOverlay>
 
@@ -626,7 +639,7 @@ function ContestHero({
               {contest?.title ?? 'Concours'}
             </span>
             <h2 className="text-2xl font-bold leading-tight text-white">
-              {contestEnded ? 'Concours clôturé' : "Phase d'inscription"}
+              {contestEnded ? 'Concours clôturé' : 'Phase de vote'}
             </h2>
           </div>
         </div>
@@ -667,6 +680,7 @@ type CandidateListProps = {
   searchQuery: string;
   onVote: (candidate: Candidate) => void;
   contestEnded: boolean;
+  isPreparingPayment: boolean;
 };
 
 function CandidateList({
@@ -679,6 +693,7 @@ function CandidateList({
   searchQuery,
   onVote,
   contestEnded,
+  isPreparingPayment,
 }: CandidateListProps) {
   if (!isBusy && candidates.length === 0) {
     return (
@@ -700,6 +715,7 @@ function CandidateList({
   const votingDisabled = !contest || contestEnded;
   const disableButtons = isBusy || hasVoted || votingDisabled;
   const votedCandidateId = storedVote?.candidateId ?? null;
+  const voteButtonLabel = isPreparingPayment ? 'Préparation…' : 'Voter';
 
   return (
     <section className="flex flex-col gap-4">
@@ -745,7 +761,12 @@ function CandidateList({
                     disabled={disableButtons}
                     className="inline-flex items-center justify-center rounded-full bg-[#111827] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition enabled:hover:bg-[#0f172a] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Voter
+                    <span className="flex items-center gap-2">
+                      {isPreparingPayment ? (
+                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      ) : null}
+                      <span>{voteButtonLabel}</span>
+                    </span>
                   </button>
                 ) : null}
               </div>
@@ -1094,5 +1115,17 @@ function SearchIcon(props: IconProps) {
       <circle cx="9" cy="9" r="5" />
       <path d="m13.5 13.5 3 3" />
     </svg>
+  );
+}
+
+function PaymentPreparingNotice() {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-200">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+      <div className="flex flex-col text-left">
+        <span>Préparation du paiement sécurisé…</span>
+        <span className="text-xs font-normal text-slate-500">Merci de patienter pendant l’ouverture du module Kkiapay.</span>
+      </div>
+    </div>
   );
 }
