@@ -980,7 +980,7 @@ function VoteQuantityModal({
         </p>
 
         <div className="mt-4 rounded-2xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
-          {candidate.name} ï¿½ï¿½ {candidate.media}
+          {candidate.name} - {candidate.media}
         </div>
 
         <div className="mt-5 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-3 py-2">
@@ -991,7 +991,7 @@ function VoteQuantityModal({
             className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg font-semibold text-slate-600 transition enabled:hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Retirer une voix"
           >
-            âˆ’
+            -
           </button>
           <input
             type="number"
@@ -1071,35 +1071,27 @@ function VoteModal({ open, status, message, transactionId, candidate, onClose, v
           <TrophyIcon className="h-7 w-7" />
         </div>
         <h3 className="mt-4 text-lg font-semibold text-slate-900">
-          {isSuccess ? 'Vote enregistrÃ© !' : isFailure ? 'Paiement interrompu' : 'Information'}
+          {isSuccess ? 'Vote enregistre !' : isFailure ? 'Paiement interrompu' : 'Information'}
         </h3>
         <p className="mt-2 text-sm text-slate-600">
-          {message ?? (isSuccess ? 'Merci pour votre participation.' : 'Veuillez rÃ©essayer dans un instant.')}
+          {message ?? (isSuccess ? 'Merci pour votre participation.' : 'Veuillez reessayer dans un instant.')}
         </p>
 
         {candidate ? (
-
           <div className="mt-4 rounded-2xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
-
-            {candidate.name} ?? {candidate.media}
-
+            {candidate.name} - {candidate.media}
           </div>
-
         ) : null}
 
         {voteDetails ? (
-
           <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
-
-            {voteDetails.voiceCount} voix ?? {formatNumber(voteDetails.amount)} F CFA
-
+            {voteDetails.voiceCount} voix - {formatNumber(voteDetails.amount)} F CFA
           </div>
-
         ) : null}
 
         {transactionId ? (
           <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-500">
-            RÃ©fÃ©rence paiement : <span className="font-semibold text-slate-700">{transactionId}</span>
+            Reference paiement : <span className="font-semibold text-slate-700">{transactionId}</span>
           </div>
         ) : null}
 
