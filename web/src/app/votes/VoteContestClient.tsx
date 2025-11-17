@@ -988,7 +988,7 @@ function VoteQuantityModal({
             type="button"
             onClick={handleDecrease}
             disabled={disableDecrease}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg font-semibold text-slate-600 transition enabled:hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Retirer une voix"
           >
             -
