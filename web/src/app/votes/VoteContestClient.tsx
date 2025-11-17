@@ -72,9 +72,47 @@ const deriveQuantityFromAmountInput = (value: string): number | null => {
   return clampVoteQuantity(computedQuantity);
 };
 
-type StoredVoteInfo = {
-  status: 'success';
-  candidateId: string | null;
+const normalizeStoredVoteRecord = (value: unknown): StoredVoteRecord | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const candidateId = typeof (value as { candidateId?: unknown }).candidateId === 'string' ? ((value as { candidateId: string }).candidateId) : null;
+  if (!candidateId) {
+    return null;
+  }
+
+  const candidateNameValue = (value as { candidateName?: unknown }).candidateName;
+  const transactionIdValue = (value as { transactionId?: unknown }).transactionId;
+  const timestamp = typeof (value as { timestamp?: unknown }).timestamp === 'number' ? (value as { timestamp: number }).timestamp : Date.now();
+  const votes = typeof (value as { votes?: unknown }).votes === 'number' ? (value as { votes: number }).votes : undefined;
+  const amount = typeof (value as { amount?: unknown }).amount === 'number' ? (value as { amount: number }).amount : undefined;
+
+  return {
+    candidateId,
+    candidateName: typeof candidateNameValue === 'string' ? candidateNameValue : null,
+    transactionId: typeof transactionIdValue === 'string' ? transactionIdValue : null,
+    timestamp,
+    votes,
+    amount,
+  };
+};
+
+const normalizeStoredVoteList = (value: unknown): StoredVoteRecord[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map(normalizeStoredVoteRecord)
+      .filter((record): record is StoredVoteRecord => record !== null);
+  }
+  const single = normalizeStoredVoteRecord(value);
+  if (single) {
+    return [single];
+  }
+  return [];
+};
+
+type StoredVoteRecord = {
+  candidateId: string;
   candidateName?: string | null;
   transactionId?: string | null;
   timestamp: number;
@@ -130,8 +168,7 @@ export default function VoteContestClientPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isPreparingPayment, setIsPreparingPayment] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
-  const [storedVote, setStoredVote] = useState<StoredVoteInfo | null>(null);
+  const [storedVotes, setStoredVotes] = useState<StoredVoteRecord[]>([]);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(null);
   const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
   const [lastTransactionId, setLastTransactionId] = useState<string | null>(null);
@@ -156,6 +193,34 @@ export default function VoteContestClientPage() {
     () => (contestId ? `${VOTE_STATUS_KEY_PREFIX}_${contestId}` : null),
     [contestId]
   );
+
+  const persistStoredVotes = useCallback(
+    (records: StoredVoteRecord[]) => {
+      if (!contestVoteStorageKey || typeof window === 'undefined') {
+        return;
+      }
+      try {
+        window.localStorage.setItem(contestVoteStorageKey, JSON.stringify(records));
+      } catch (error) {
+        console.warn('VoteContestPage: unable to persist vote status', error);
+      }
+    },
+    [contestVoteStorageKey]
+  );
+
+  const appendVoteRecord = useCallback(
+    (record: StoredVoteRecord) => {
+      setStoredVotes(prev => {
+        const filtered = prev.filter(existing => existing.candidateId !== record.candidateId);
+        const updated = [...filtered, record];
+        persistStoredVotes(updated);
+        return updated;
+      });
+    },
+    [persistStoredVotes]
+  );
+
+  const hasVoted = storedVotes.length > 0;
 
   useEffect(() => {
     if (initialContestId) {
@@ -206,29 +271,20 @@ export default function VoteContestClientPage() {
       return;
     }
     if (!contestVoteStorageKey) {
-      setStoredVote(null);
-      setHasVoted(false);
+      setStoredVotes([]);
       return;
     }
     try {
       const raw = window.localStorage.getItem(contestVoteStorageKey);
       if (!raw) {
-        setStoredVote(null);
-        setHasVoted(false);
+        setStoredVotes([]);
         return;
       }
-      const parsed = JSON.parse(raw) as StoredVoteInfo | null;
-      if (parsed && parsed.status === 'success') {
-        setStoredVote(parsed);
-        setHasVoted(true);
-      } else {
-        setStoredVote(null);
-        setHasVoted(false);
-      }
+      const parsed = JSON.parse(raw);
+      setStoredVotes(normalizeStoredVoteList(parsed));
     } catch (error) {
       console.warn('VoteContestPage: unable to read stored vote status', error);
-      setStoredVote(null);
-      setHasVoted(false);
+      setStoredVotes([]);
     }
   }, [contestVoteStorageKey]);
 
@@ -354,31 +410,23 @@ export default function VoteContestClientPage() {
       setModalVoteDetails({ voiceCount, amount: totalAmount });
       setModalCandidate(candidate ?? null);
       setIsModalOpen(true);
-      setHasVoted(true);
       setIsPreparingPayment(false);
 
-      if (contestVoteStorageKey) {
-        try {
-          const record: StoredVoteInfo = {
-            status: 'success',
-            candidateId: candidate?.id ?? null,
-            candidateName: candidate?.name ?? null,
-            transactionId: txId ?? null,
-            timestamp: Date.now(),
-            votes: voiceCount,
-            amount: totalAmount,
-          };
-          window.localStorage.setItem(contestVoteStorageKey, JSON.stringify(record));
-          setStoredVote(record);
-        } catch (error) {
-          console.warn('VoteContestPage: unable to persist vote status', error);
-        }
+      if (candidate?.id) {
+        appendVoteRecord({
+          candidateId: candidate.id,
+          candidateName: candidate.name ?? null,
+          transactionId: txId ?? null,
+          timestamp: Date.now(),
+          votes: voiceCount,
+          amount: totalAmount,
+        });
       }
 
       pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
       pendingCandidateRef.current = null;
     },
-    [contestVoteStorageKey, functionsInstance]
+    [appendVoteRecord, functionsInstance]
   );
 
   const handlePaymentFailed = useCallback(
@@ -395,20 +443,11 @@ export default function VoteContestClientPage() {
       setModalCandidate(candidate ?? null);
       setModalVoteDetails({ voiceCount, amount: totalAmount });
       setIsModalOpen(true);
-      setHasVoted(false);
       setIsPreparingPayment(false);
-      if (contestVoteStorageKey) {
-        try {
-          window.localStorage.removeItem(contestVoteStorageKey);
-        } catch (error) {
-          console.warn('VoteContestPage: unable to clear vote status', error);
-        }
-      }
-      setStoredVote(null);
       pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
       pendingCandidateRef.current = null;
     },
-    [contestVoteStorageKey]
+    []
   );
 
   useEffect(() => {
@@ -630,7 +669,7 @@ export default function VoteContestClientPage() {
             totalParticipants={totalParticipants}
             isBusy={isBusy}
             hasVoted={hasVoted}
-            storedVote={storedVote}
+            storedVotes={storedVotes}
             errorMessage={contestError}
             contestEnded={contestEnded}
           />
@@ -650,7 +689,7 @@ export default function VoteContestClientPage() {
             totalVotes={totalVotes}
             isBusy={isBusy}
             hasVoted={hasVoted}
-            storedVote={storedVote}
+            storedVotes={storedVotes}
             searchQuery={searchQuery}
             onVote={handleVote}
             contestEnded={contestEnded}
@@ -672,7 +711,7 @@ export default function VoteContestClientPage() {
           totalVotes={totalVotes}
           isBusy={isBusy}
           hasVoted={hasVoted}
-          storedVote={storedVote}
+          storedVotes={storedVotes}
           searchQuery={searchQuery}
           onVote={handleVote}
           contestEnded={contestEnded}
@@ -712,7 +751,7 @@ type ContestHeroProps = {
   totalParticipants: number;
   isBusy: boolean;
   hasVoted: boolean;
-  storedVote: StoredVoteInfo | null;
+  storedVotes: StoredVoteRecord[];
   errorMessage: string | null;
   contestEnded: boolean;
 };
@@ -723,13 +762,44 @@ function ContestHero({
   totalParticipants,
   isBusy,
   hasVoted,
-  storedVote,
+  storedVotes,
   errorMessage,
   contestEnded,
 }: ContestHeroProps) {
   const [timeLeft, setTimeLeft] = useState<Countdown | null>(() =>
     contest ? calculateTimeLeft(contest.endDate) : null
   );
+
+  const voteThankYouMessage = useMemo(() => {
+    if (!hasVoted) {
+      return null;
+    }
+    const names = Array.from(
+      new Set(
+        storedVotes
+          .map(record => (record.candidateName ?? '').trim())
+          .filter(name => name.length > 0)
+      )
+    );
+
+    if (names.length === 0) {
+      return 'Merci pour votre vote ! Les resultats seront annonces a la cloture.';
+    }
+
+    const formatNames = (list: string[]) => {
+      if (list.length === 1) {
+        return list[0];
+      }
+      if (list.length === 2) {
+        return `${list[0]} et ${list[1]}`;
+      }
+      const last = list[list.length - 1];
+      return `${list.slice(0, -1).join(', ')} et ${last}`;
+    };
+
+    const prefix = names.length === 1 ? 'Merci pour votre vote' : 'Merci pour vos votes';
+    return `${prefix} pour ${formatNames(names)} ! Les resultats seront annonces a la cloture.`;
+  }, [hasVoted, storedVotes]);
 
   useEffect(() => {
     if (!contest) {
@@ -807,10 +877,9 @@ function ContestHero({
           null
         )}
 
-        {hasVoted ? (
+        {voteThankYouMessage ? (
           <p className="rounded-2xl bg-emerald-500/20 px-4 py-2 text-xs font-semibold text-emerald-100">
-            Merci pour votre vote
-            {storedVote?.candidateName ? ` pour ${storedVote.candidateName}` : ''} ! Les resultats seront annonces a la cloture.
+            {voteThankYouMessage}
           </p>
         ) : null}
 
@@ -829,7 +898,7 @@ type CandidateListProps = {
   totalVotes: number;
   isBusy: boolean;
   hasVoted: boolean;
-  storedVote: StoredVoteInfo | null;
+  storedVotes: StoredVoteRecord[];
   searchQuery: string;
   onVote: (candidate: Candidate) => void;
   contestEnded: boolean;
@@ -841,7 +910,7 @@ function CandidateList({
   totalVotes,
   isBusy,
   hasVoted,
-  storedVote,
+  storedVotes,
   searchQuery,
   onVote,
   contestEnded,
@@ -865,7 +934,9 @@ function CandidateList({
 
   const votingDisabled = !contest || contestEnded;
   const disableButtons = isBusy || votingDisabled;
-  const votedCandidateId = storedVote?.candidateId ?? null;
+  const votedCandidateIds = useMemo(() => {
+    return new Set(storedVotes.map(record => record.candidateId));
+  }, [storedVotes]);
 
   return (
     <section className="flex flex-col gap-4">
@@ -896,7 +967,7 @@ function CandidateList({
                 <div className="flex flex-1 flex-col">
                   <span className="text-base font-semibold text-slate-900">
                     {candidate.name}
-                    {votedCandidateId && candidate.id === votedCandidateId ? (
+                    {votedCandidateIds.has(candidate.id) ? (
                       <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-600">
                         Votre vote
                       </span>
