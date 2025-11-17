@@ -35,8 +35,11 @@ const deriveQuantityFromInput = (value: string): number | null => {
     return null;
   }
   const parsed = Number.parseInt(trimmed, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return MIN_VOTE_QUANTITY;
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+  if (parsed <= 0) {
+    return 0;
   }
   return clampVoteQuantity(parsed);
 };
@@ -50,15 +53,21 @@ const deriveQuantityFromAmountInput = (value: string): number | null => {
     return null;
   }
   const parsed = Number.parseInt(trimmed, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return MIN_VOTE_QUANTITY;
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+  if (parsed < 0) {
+    return 0;
+  }
+  if (parsed === 0) {
+    return 0;
   }
   if (parsed % VOTE_UNIT_PRICE !== 0) {
     return null;
   }
   const computedQuantity = Math.floor(parsed / VOTE_UNIT_PRICE);
   if (computedQuantity <= 0) {
-    return MIN_VOTE_QUANTITY;
+    return 0;
   }
   return clampVoteQuantity(computedQuantity);
 };
@@ -542,7 +551,7 @@ export default function VoteContestClientPage() {
   const handleQuantityInputChange = useCallback((value: string) => {
     setVoteQuantityInput(value);
     const quantity = deriveQuantityFromInput(value);
-    if (quantity) {
+    if (quantity !== null) {
       setVoteAmountInput(String(amountFromQuantity(quantity)));
     } else if (value.trim().length === 0) {
       setVoteAmountInput('');
@@ -551,8 +560,10 @@ export default function VoteContestClientPage() {
 
   const handleQuantityStep = useCallback((delta: number) => {
     setVoteQuantityInput(prev => {
-      const base = deriveQuantityFromInput(prev) ?? MIN_VOTE_QUANTITY;
-      const nextValue = clampVoteQuantity(base + delta);
+      const base = deriveQuantityFromInput(prev);
+      const resolvedBase = base === null ? MIN_VOTE_QUANTITY : base;
+      const rawNextValue = resolvedBase + delta;
+      const nextValue = rawNextValue <= 0 ? 0 : clampVoteQuantity(rawNextValue);
       const quantityString = String(nextValue);
       setVoteAmountInput(String(amountFromQuantity(nextValue)));
       return quantityString;
@@ -562,7 +573,7 @@ export default function VoteContestClientPage() {
   const handleAmountInputChange = useCallback((value: string) => {
     setVoteAmountInput(value);
     const quantity = deriveQuantityFromAmountInput(value);
-    if (quantity) {
+    if (quantity !== null) {
       setVoteQuantityInput(String(quantity));
     } else if (value.trim().length === 0) {
       setVoteQuantityInput('');
@@ -576,7 +587,7 @@ export default function VoteContestClientPage() {
     const quantityFromVoices = deriveQuantityFromInput(voteQuantityInput);
     const quantityFromAmountInput = deriveQuantityFromAmountInput(voteAmountInput);
     const resolvedQuantity = quantityFromVoices ?? quantityFromAmountInput;
-    if (!resolvedQuantity) {
+    if (resolvedQuantity === null || resolvedQuantity <= 0) {
       const fallback = MIN_VOTE_QUANTITY;
       setVoteQuantityInput(String(fallback));
       setVoteAmountInput(String(amountFromQuantity(fallback)));
@@ -1015,12 +1026,13 @@ function VoteQuantityModal({
 
   const quantityFromVoices = deriveQuantityFromInput(quantityValue);
   const quantityFromAmountField = deriveQuantityFromAmountInput(amountValue);
-  const effectiveQuantity = quantityFromVoices ?? quantityFromAmountField ?? null;
-  const totalAmount = effectiveQuantity ? amountFromQuantity(effectiveQuantity) : null;
-  const baseQuantity = effectiveQuantity ?? MIN_VOTE_QUANTITY;
-  const disableDecrease = isProcessing || baseQuantity <= MIN_VOTE_QUANTITY;
+  const effectiveQuantityRaw = quantityFromVoices ?? quantityFromAmountField ?? null;
+  const payableQuantity = effectiveQuantityRaw !== null && effectiveQuantityRaw > 0 ? effectiveQuantityRaw : null;
+  const totalAmount = payableQuantity !== null ? amountFromQuantity(payableQuantity) : null;
+  const baseQuantity = effectiveQuantityRaw ?? 0;
+  const disableDecrease = isProcessing || baseQuantity <= 0;
   const disableIncrease = isProcessing || baseQuantity >= MAX_VOTE_QUANTITY;
-  const confirmDisabled = isProcessing || !effectiveQuantity;
+  const confirmDisabled = isProcessing || payableQuantity === null;
 
   const handleQuantityChange = (event: ChangeEvent<HTMLInputElement>) => {
     onQuantityInputChange(event.target.value);
@@ -1064,8 +1076,9 @@ function VoteQuantityModal({
           Prix unitaire : {formatNumber(unitPrice)} F CFA (min {MIN_VOTE_QUANTITY} voix).
         </p>
 
-        <div className="mt-4 rounded-2xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
-          {candidate.name} - {candidate.media}
+        <div className="mt-4 rounded-2xl bg-slate-100 px-3 py-2">
+          <p className="text-base font-semibold text-slate-900">{candidate.name}</p>
+          <p className="text-xs text-slate-500">{candidate.media}</p>
         </div>
 
         <div className="mt-5 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-3 py-2">
@@ -1073,7 +1086,7 @@ function VoteQuantityModal({
             type="button"
             onClick={handleDecrease}
             disabled={disableDecrease}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg font-semibold text-slate-600 transition enabled:hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Retirer une voix"
           >
             -
@@ -1082,7 +1095,7 @@ function VoteQuantityModal({
             type="number"
             inputMode="numeric"
             pattern="[0-9]*"
-            min={MIN_VOTE_QUANTITY}
+            min={0}
             max={MAX_VOTE_QUANTITY}
             value={quantityValue}
             onChange={handleQuantityChange}
@@ -1109,17 +1122,13 @@ function VoteQuantityModal({
             type="number"
             inputMode="numeric"
             pattern="[0-9]*"
-            min={unitPrice}
+            min={0}
             value={amountValue}
             onChange={handleAmountChange}
             disabled={isProcessing}
             placeholder={`Multiple de ${formatNumber(unitPrice)}`}
             className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-center text-lg font-semibold text-slate-900 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100 disabled:cursor-not-allowed disabled:opacity-60"
           />
-        </div>
-
-        <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-          Total : {totalAmount ? formatNumber(totalAmount) : '--'} F CFA
         </div>
 
         <button
@@ -1130,7 +1139,7 @@ function VoteQuantityModal({
         >
           {isProcessing
             ? 'Initialisation...'
-            : totalAmount
+            : totalAmount !== null
               ? `Payer ${formatNumber(totalAmount)} F CFA`
               : 'Entrer un nombre valide'}
         </button>
