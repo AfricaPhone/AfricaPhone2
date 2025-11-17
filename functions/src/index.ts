@@ -589,6 +589,9 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
     const intent = intentSnap.data() as any;
     const contestId: string = intent.contestId;
     const candidateId: string = intent.candidateId;
+    const rawVoterKey: unknown = intent.voterKey;
+    const voterKey =
+      typeof rawVoterKey === 'string' && rawVoterKey.trim().length > 0 ? rawVoterKey.trim().slice(0, 200) : null;
 
     if (transactionId) {
       const paymentRef = db.collection('payments').doc(transactionId);
@@ -617,6 +620,36 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
     const contestRef = db.collection('contests').doc(contestId);
     const candidateRef = contestRef.collection('candidates').doc(candidateId);
     const voteRef = contestRef.collection('votes').doc(transactionId || `evt_${Date.now()}`);
+    let shouldIncrementParticipants = false;
+    let participantRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData> | null = null;
+
+    if (voterKey) {
+      participantRef = contestRef.collection('participants').doc(voterKey);
+      const participantSnap = await tx.get(participantRef);
+      if (!participantSnap.exists) {
+        shouldIncrementParticipants = true;
+        tx.set(
+          participantRef,
+          {
+            voterKey,
+            totalVotes: votesToAdd,
+            firstVoteAt: admin.firestore.FieldValue.serverTimestamp(),
+            lastVoteAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+      } else {
+        tx.set(
+          participantRef,
+          {
+            voterKey,
+            totalVotes: admin.firestore.FieldValue.increment(votesToAdd),
+            lastVoteAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+      }
+    }
 
     tx.set(
       voteRef,
@@ -626,6 +659,7 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
         candidateId,
         contestId,
         amount: effectiveAmount,
+        voterKey: voterKey || null,
         counted: true,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       },
@@ -636,6 +670,9 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
     tx.set(contestRef, { id: contestId }, { merge: true });
     tx.update(candidateRef, { voteCount: admin.firestore.FieldValue.increment(votesToAdd) });
     tx.update(contestRef, { totalVotes: admin.firestore.FieldValue.increment(votesToAdd) });
+    if (shouldIncrementParticipants) {
+      tx.update(contestRef, { totalParticipants: admin.firestore.FieldValue.increment(1) });
+    }
 
     tx.set(
       intentRef,
@@ -661,6 +698,9 @@ export const createVoteIntent = onCall(
     const contestId = String((request.data as any)?.contestId || '');
     const candidateId = String((request.data as any)?.candidateId || '');
     const amount = Number((request.data as any)?.amount || VOTE_UNIT_XOF);
+    const rawVoterKey = (request.data as any)?.voterKey;
+    const voterKey =
+      typeof rawVoterKey === 'string' && rawVoterKey.trim().length > 0 ? rawVoterKey.trim().slice(0, 200) : null;
 
     if (!contestId || !candidateId || !Number.isFinite(amount) || amount <= 0) {
       throw new HttpsError('invalid-argument', 'Invalid payload');
@@ -673,6 +713,7 @@ export const createVoteIntent = onCall(
       contestId,
       candidateId,
       amount,
+      voterKey: voterKey || null,
       status: 'pending',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });

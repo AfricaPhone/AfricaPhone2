@@ -20,12 +20,19 @@ import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import type { Candidate, Contest } from '@/types/pronostics';
 
 const VOTE_STATUS_KEY_PREFIX = 'contest_vote_status_v1';
+const VOTER_ID_STORAGE_KEY = 'contest_voter_identity';
 const SHOW_VOTE_BUTTON = true; // Voting is currently open to the public.
 const MIN_VOTE_QUANTITY = 1;
 const MAX_VOTE_QUANTITY = 10000;
 const clampVoteQuantity = (value: number) => Math.min(MAX_VOTE_QUANTITY, Math.max(MIN_VOTE_QUANTITY, value));
 const VOTE_UNIT_PRICE = PAYMENT_CONFIG.VOTE_AMOUNT_XOF;
 const amountFromQuantity = (quantity: number) => quantity * VOTE_UNIT_PRICE;
+const generateVoterIdentity = () => {
+  if (typeof globalThis !== 'undefined' && globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+  return `voter_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+};
 const deriveQuantityFromInput = (value: string): number | null => {
   if (typeof value !== 'string') {
     return null;
@@ -169,6 +176,7 @@ export default function VoteContestClientPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isPreparingPayment, setIsPreparingPayment] = useState(false);
   const [storedVotes, setStoredVotes] = useState<StoredVoteRecord[]>([]);
+  const [voterIdentity, setVoterIdentity] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(null);
   const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
   const [lastTransactionId, setLastTransactionId] = useState<string | null>(null);
@@ -289,6 +297,25 @@ export default function VoteContestClientPage() {
   }, [contestVoteStorageKey]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      const existing = window.localStorage.getItem(VOTER_ID_STORAGE_KEY);
+      if (existing && existing.trim().length > 0) {
+        setVoterIdentity(existing);
+        return;
+      }
+      const fresh = generateVoterIdentity();
+      window.localStorage.setItem(VOTER_ID_STORAGE_KEY, fresh);
+      setVoterIdentity(fresh);
+    } catch (error) {
+      console.warn('VoteContestPage: unable to initialize voter identity', error);
+      setVoterIdentity(prev => prev ?? generateVoterIdentity());
+    }
+  }, []);
+
+  useEffect(() => {
     if (typeof document === 'undefined') {
       return;
     }
@@ -307,6 +334,23 @@ export default function VoteContestClientPage() {
 
   const { contest, candidates, isLoading, error } = useContestData(contestId);
   const contestError = contestIdError ?? error ?? null;
+
+  const resolveVoterIdentity = useCallback(() => {
+    if (voterIdentity && voterIdentity.trim().length > 0) {
+      return voterIdentity;
+    }
+    if (typeof window === 'undefined') {
+      return voterIdentity;
+    }
+    const fresh = generateVoterIdentity();
+    try {
+      window.localStorage.setItem(VOTER_ID_STORAGE_KEY, fresh);
+    } catch (error) {
+      console.warn('VoteContestPage: unable to persist voter identity', error);
+    }
+    setVoterIdentity(fresh);
+    return fresh;
+  }, [voterIdentity]);
 
   const totalVotes = useMemo(() => {
     if (contest && contest.totalVotes > 0) {
@@ -506,6 +550,8 @@ export default function VoteContestClientPage() {
         return;
       }
 
+      const voterKey = resolveVoterIdentity();
+
       pendingCandidateRef.current = candidate;
       pendingVoiceCountRef.current = safeVoiceCount;
       setIsPreparingPayment(true);
@@ -513,7 +559,7 @@ export default function VoteContestClientPage() {
       try {
         const moduleInstance = await loadKkiapay();
         const createIntent = httpsCallable<
-          { contestId: string; candidateId: string; amount: number },
+          { contestId: string; candidateId: string; amount: number; voterKey?: string },
           { intentId?: string; intent_id?: string }
         >(functionsInstance, 'createVoteIntent');
 
@@ -521,6 +567,7 @@ export default function VoteContestClientPage() {
           contestId,
           candidateId: candidate.id,
           amount,
+          voterKey: voterKey ?? undefined,
         });
 
         const payload = response?.data ?? {};
@@ -564,7 +611,7 @@ export default function VoteContestClientPage() {
         setIsModalOpen(true);
       }
     },
-    [contest, contestId, functionsInstance]
+    [contest, contestId, functionsInstance, resolveVoterIdentity]
   );
 
   const handleVote = useCallback(
