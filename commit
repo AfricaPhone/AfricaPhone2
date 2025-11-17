@@ -143,7 +143,7 @@ Si tu veux forcer www vers la racine (ou l’inverse), configure la redirection 
 Une fois ces étapes terminées et la propagation terminée, https://africaphone.org (et www.africaphone.org si ajouté) pointeront sur ton site Firebase Hosting.
 
 
-
+Il faut aussi que le bouton "-" puisse passer le nombre de voix de à zéro. Lorsque le champs est à 1, il que cela soit possible avec ce bouton de passer aussi à 0 même si cela rend invalide le bouton payer
 
 
 
