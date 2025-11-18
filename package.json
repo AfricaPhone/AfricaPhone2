@@ -12,6 +12,7 @@
     "build:web": "powershell -NoProfile -Command \"Push-Location web; npm run build; Pop-Location\"",
     "build:web:expo": "expo export --platform web --output-dir web-build",
     "deploy:web": "npm run build:web && firebase deploy --project africaphone-vente --only hosting:africaphone-org",
+    "deploy:test": "npm run build:web && firebase deploy --project africaphone-vente --only hosting:africaphone-test",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
