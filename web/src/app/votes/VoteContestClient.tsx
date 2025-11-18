@@ -359,12 +359,7 @@ export default function VoteContestClientPage() {
     return candidates.reduce((sum, candidate) => sum + (candidate.voteCount ?? 0), 0);
   }, [contest, candidates]);
 
-  const totalParticipants = useMemo(() => {
-    if (contest && contest.totalParticipants > 0) {
-      return contest.totalParticipants;
-    }
-    return candidates.length;
-  }, [contest, candidates]);
+  const totalCandidates = useMemo(() => candidates.length, [candidates]);
 
   const filteredCandidates = useMemo(() => {
     const normalized = searchQuery.trim().toLowerCase();
@@ -722,7 +717,7 @@ export default function VoteContestClientPage() {
           <ContestHero
             contest={contest}
             totalVotes={totalVotes}
-            totalParticipants={totalParticipants}
+            candidateCount={totalCandidates}
             isBusy={isBusy}
             hasVoted={hasVoted}
             storedVotes={storedVotes}
@@ -808,7 +803,7 @@ export default function VoteContestClientPage() {
 type ContestHeroProps = {
   contest: Contest | null;
   totalVotes: number;
-  totalParticipants: number;
+  candidateCount: number;
   isBusy: boolean;
   hasVoted: boolean;
   storedVotes: StoredVoteRecord[];
@@ -819,7 +814,7 @@ type ContestHeroProps = {
 function ContestHero({
   contest,
   totalVotes,
-  totalParticipants,
+  candidateCount,
   isBusy,
   hasVoted,
   storedVotes,
@@ -945,7 +940,7 @@ function ContestHero({
 
         <div className="grid grid-cols-2 gap-3 text-center text-slate-900">
           <StatCard label="Votes" value={totalVotes} />
-          <StatCard label="Participants" value={totalParticipants} />
+          <StatCard label="Candidats" value={candidateCount} />
         </div>
       </div>
     </section>
