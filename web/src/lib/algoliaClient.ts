@@ -19,6 +19,7 @@ export const ALGOLIA_ATTRIBUTES_TO_RETRIEVE = [
   'tags',
   'category',
   'segment',
+  'type',
   'enPromotion',
 ] as const;
 
@@ -39,5 +40,6 @@ export type AlgoliaProductHit = {
   category?: unknown;
   segment?: unknown;
   tags?: unknown;
+  type?: unknown;
 };
 

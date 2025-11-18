@@ -1,16 +1,30 @@
 import type { Metadata } from 'next';
-import { Inter, Roboto_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import TopProgressBar from '@/components/TopProgressBar';
 
-const interSans = Inter({
+const interSans = localFont({
   variable: '--font-inter-sans',
-  subsets: ['latin'],
+  display: 'swap',
+  src: [
+    {
+      path: '../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
+      style: 'normal',
+      weight: '100 900',
+    },
+  ],
 });
 
-const robotoMono = Roboto_Mono({
+const robotoMono = localFont({
   variable: '--font-roboto-mono',
-  subsets: ['latin'],
+  display: 'swap',
+  src: [
+    {
+      path: '../../node_modules/@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2',
+      style: 'normal',
+      weight: '100 700',
+    },
+  ],
 });
 
 export const metadata: Metadata = {

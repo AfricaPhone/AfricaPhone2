@@ -14,6 +14,8 @@
     "check:types": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/roboto-mono": "^5.2.8",
     "@algolia/client-search": "^5.41.0",
     "@google-cloud/storage": "^7.17.3",
     "firebase": "^12.4.0",
