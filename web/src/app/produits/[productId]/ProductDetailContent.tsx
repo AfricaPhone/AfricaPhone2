@@ -1,22 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import type { DocumentData } from 'firebase/firestore';
+import { logEvent } from 'firebase/analytics';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import type { ProductDetail as StaticProductDetail } from '@/data/product-details';
 import { getProductDetail } from '@/data/product-details';
-import { db } from '@/lib/firebaseClient';
+import { db, getAnalyticsClient } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
-const FALLBACK_IMAGE_DATA_URL =
-  'data:image/svg+xml;charset=UTF-8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><rect width="320" height="240" fill="#e2e8f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="18">Image a venir</text></svg>`
-  );
-
 const PRODUCTS_PHONE_NUMBER = '2290154151522';
+const WEBSITE_HOME_URL = process.env.NEXT_PUBLIC_WEB_HOME_URL ?? 'https://africaphone-org.web.app/';
 const DEFAULT_DELIVERY_NOTES = [
   'Retrait express en boutique AfricaPhone ou livraison sous 24 h sur Grand Cotonou.',
   'Verification complete avant expedition et emballage securise.',
@@ -26,21 +23,17 @@ const DEFAULT_DELIVERY_NOTES = [
 const DEFAULT_SERVICES = [
   {
     title: 'Configuration offerte',
-    description:
-      'Mise en route complete, transfert de vos donnees et installation des applications essentielles.',
+    description: 'Mise en route complete, transfert de vos donnees et installation des applications essentielles.',
   },
   {
     title: 'Assistance locale',
-    description:
-      'Support AfricaCare 7j/7 avec prise en charge prioritaire en boutique ou a distance.',
+    description: 'Support AfricaCare 7j/7 avec prise en charge prioritaire en boutique ou a distance.',
   },
   {
     title: 'Accessoires adaptes',
-    description:
-      'Selection d accessoires recommandes par nos experts, disponibles en retrait ou livraison.',
+    description: 'Selection d accessoires recommandes par nos experts, disponibles en retrait ou livraison.',
   },
 ] as const;
-
 type FirestoreProductPayload = {
   name?: unknown;
   price?: unknown;
@@ -63,7 +56,7 @@ type FirestoreProduct = {
   name: string;
   price: number | null;
   oldPrice: number | null;
-  image: string;
+  image: string | null;
   gallery: string[];
   tagline: string;
   description: string | null;
@@ -91,14 +84,21 @@ type CombinedProduct = {
   rating?: number;
   reviews?: number;
   whatsappLink: string;
+  productUrl: string;
+};
+
+type ValidatedPromo = {
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: number;
 };
 
 type ProductDetailContentProps = {
   productId: string;
   initialProduct: StaticProductDetail | null;
 };
-
 export default function ProductDetailContent({ productId, initialProduct }: ProductDetailContentProps) {
+  const router = useRouter();
   const [product, setProduct] = useState<CombinedProduct | null>(() =>
     initialProduct ? combineProductData(null, initialProduct) : null
   );
@@ -125,7 +125,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
               setError(null);
             } else {
               setProduct(null);
-              setError("Ce produit n'est plus disponible.");
+              setError('Ce produit n est plus disponible.');
             }
           }
           return;
@@ -140,12 +140,13 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           setSelectedImage(0);
         }
       } catch (fetchError) {
+        console.error('ProductDetailContent: unable to load product', fetchError);
         const fallback = initialProduct ?? getProductDetail(productId) ?? null;
         if (isMounted) {
           if (fallback) {
             setProduct(combineProductData(null, fallback));
             setSelectedImage(0);
-            setError("Impossible de synchroniser les donnees en temps reel pour le moment.");
+            setError('Impossible de synchroniser les donnees en temps reel pour le moment.');
           } else {
             setProduct(null);
             setError('Impossible de charger ce produit.');
@@ -167,10 +168,227 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
   const activeImage = useMemo(() => {
     if (!product || product.gallery.length === 0) {
-      return FALLBACK_IMAGE_DATA_URL;
+      return null;
     }
-    return product.gallery[selectedImage] ?? product.gallery[0];
+    return product.gallery[selectedImage] ?? product.gallery[0] ?? null;
   }, [product, selectedImage]);
+
+  const [activeTab, setActiveTab] = useState<'specs' | 'description'>('specs');
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string>('');
+  const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<ValidatedPromo | null>(null);
+  const [promoNotice, setPromoNotice] = useState<string | null>(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!product) {
+      return;
+    }
+    if (activeTab === 'specs' && product.specs.length === 0) {
+      setActiveTab('description');
+    }
+  }, [activeTab, product]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShareUrl(window.location.href);
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    if (!shareMessage) {
+      return;
+    }
+    const timeout = setTimeout(() => setShareMessage(null), 2500);
+    return () => clearTimeout(timeout);
+  }, [shareMessage]);
+
+  useEffect(() => {
+    if (!promoNotice) {
+      return;
+    }
+    const timeout = setTimeout(() => setPromoNotice(null), 3500);
+    return () => clearTimeout(timeout);
+  }, [promoNotice]);
+
+  const whatsappLinkWithPromo = useMemo(() => {
+    if (!product) {
+      return '#';
+    }
+    return appendPromoToWhatsappLink(product.whatsappLink, appliedPromo);
+  }, [appliedPromo, product]);
+
+  const promoBenefitText = useMemo(
+    () => (appliedPromo ? buildPromoBenefitSentence(appliedPromo) : null),
+    [appliedPromo]
+  );
+
+  useEffect(() => {
+    if (!product) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const sendAnalytics = async () => {
+      const analytics = await getAnalyticsClient();
+      if (!analytics || cancelled) {
+        return;
+      }
+
+      try {
+        const eventParams: Record<string, unknown> = {
+          items: [
+            {
+              item_id: product.id,
+              item_name: product.name,
+              price: product.price ?? undefined,
+            },
+          ],
+        };
+        if (product.price !== null) {
+          eventParams.value = product.price;
+          eventParams.currency = 'XOF';
+        }
+        logEvent(analytics, 'view_item', eventParams);
+      } catch (eventError) {
+        console.error('ProductDetailContent: analytics event failed', eventError);
+      }
+    };
+
+    void sendAnalytics();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product]);
+
+  const toggleFavorite = useCallback(() => {
+    setIsFavorite(prev => !prev);
+    setShareMessage(isFavorite ? 'Retire des favoris' : 'Ajoute aux favoris');
+  }, [isFavorite]);
+
+  const resolvedShareUrl = useMemo(() => {
+    if (shareUrl) {
+      return shareUrl;
+    }
+    if (typeof window !== 'undefined') {
+      return window.location.href;
+    }
+    return '';
+  }, [shareUrl]);
+
+  const shareTitle = product?.name ?? 'AfricaPhone';
+  const shareText = product?.tagline ?? product?.name ?? 'Decouvrez ce produit AfricaPhone';
+  const handleBack = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.href = WEBSITE_HOME_URL;
+      return;
+    }
+    router.push('/');
+  }, [router]);
+
+  const handleShare = useCallback(async () => {
+    if (!resolvedShareUrl) {
+      setShareMessage('Lien indisponible pour le partage.');
+      return;
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: resolvedShareUrl,
+        });
+        setShareMessage('Lien partage avec succes.');
+        return;
+      } catch (err) {
+        const abortError = err instanceof Error && err.name === 'AbortError';
+        if (abortError) {
+          return;
+        }
+        console.error('ProductDetailContent: web share failed', err);
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(resolvedShareUrl);
+        setShareMessage('Lien copie dans le presse-papiers.');
+        return;
+      } catch (error) {
+        console.error('ProductDetailContent: clipboard copy failed', error);
+      }
+    }
+
+    setShareMessage(`Copiez ce lien : ${resolvedShareUrl}`);
+  }, [resolvedShareUrl, shareText, shareTitle]);
+
+  const handlePromoInputChange = useCallback(
+    (value: string) => {
+      setPromoInput(value.toUpperCase());
+      if (promoError) {
+        setPromoError(null);
+      }
+    },
+    [promoError]
+  );
+
+  const handleApplyPromoCode = useCallback(async () => {
+    const formatted = promoInput.trim().toUpperCase();
+    if (!formatted) {
+      setPromoError('Veuillez entrer un code promo.');
+      return;
+    }
+    setIsValidatingPromo(true);
+    setPromoError(null);
+    try {
+      const functions = getFunctions();
+      const validatePromo = httpsCallable<{ code: string }, ValidatedPromo>(functions, 'validatePromoCode');
+      const result = await validatePromo({ code: formatted });
+      const data = result.data;
+      setAppliedPromo(data);
+      setPromoNotice(`Le code "${data.code}" a été appliqué avec succès.`);
+      setPromoInput('');
+      setIsPromoModalOpen(false);
+    } catch (error) {
+      console.error('ProductDetailContent: promo validation failed', error);
+      setPromoError(extractErrorMessage(error));
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  }, [promoInput]);
+
+  const handleRemovePromoCode = useCallback(() => {
+    setAppliedPromo(null);
+    setPromoNotice(null);
+  }, []);
+
+  const handleClosePromoModal = useCallback(() => {
+    setIsPromoModalOpen(false);
+    setPromoError(null);
+  }, []);
+
+  const orderedSpecs = useMemo(() => {
+    if (!product) {
+      return [];
+    }
+    const specs = product.specs ?? [];
+    if (specs.length === 0) {
+      return [];
+    }
+    const normalizeLabel = (label: string) => label.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const capacityIndex = specs.findIndex(spec => normalizeLabel(spec.label).includes('capac'));
+    if (capacityIndex > 0) {
+      return [specs[capacityIndex], ...specs.filter((_, index) => index !== capacityIndex)];
+    }
+    return specs.slice();
+  }, [product]);
 
   if (loading && !product) {
     return (
@@ -200,172 +418,367 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     );
   }
 
-  return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-24 pt-12 text-slate-900 lg:px-8">
-      <nav className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm">
-        <Link href="/" className="transition hover:text-rose-500">
-          Accueil
-        </Link>
-        <span aria-hidden="true">/</span>
-        <Link href="/#catalogue" className="transition hover:text-rose-500">
-          Catalogue
-        </Link>
-        <span aria-hidden="true">/</span>
-        <span className="text-slate-700">{product.name}</span>
-      </nav>
-
-      <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-6">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-white shadow-[0_28px_48px_-22px_rgba(15,23,42,0.35)]">
-            <Image
-              src={activeImage}
-              alt={product.name}
-              fill
-              sizes="(max-width: 1024px) 90vw, 45vw"
-              className="object-cover"
-              priority
-            />
-            {product.badge ? (
-              <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-600 shadow">
-                {product.badge}
-              </span>
-            ) : null}
-          </div>
-          {product.gallery.length > 1 ? (
-            <div className="flex gap-3 overflow-x-auto pb-1">
-              {product.gallery.map((imageUrl, index) => (
-                <button
-                  key={`${imageUrl}-${index}`}
-                  type="button"
-                  onClick={() => setSelectedImage(index)}
-                  className={`relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 ${
-                    selectedImage === index ? 'border-rose-500' : 'border-transparent'
-                  }`}
-                >
-                  <Image
-                    src={imageUrl}
-                    alt={`${product.name} - vignette ${index + 1}`}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
-
-        <aside className="flex flex-col gap-6 rounded-3xl bg-white p-6 shadow-[0_32px_56px_-28px_rgba(15,23,42,0.35)] lg:p-8">
-          <div className="space-y-2">
-            <span className="inline-flex items-center rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-600">
-              Disponible
-            </span>
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">{product.name}</h1>
-            <p className="text-sm font-medium text-slate-500 sm:text-base">{product.tagline}</p>
-            <div className="flex items-baseline gap-3">
-              <p className="text-3xl font-extrabold text-rose-600 sm:text-4xl">{product.formattedPrice}</p>
-              {product.oldPriceLabel ? (
-                <span className="text-sm text-slate-400 line-through">{product.oldPriceLabel}</span>
-              ) : null}
-              {product.savingsLabel ? (
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-600">
-                  {product.savingsLabel}
-                </span>
-              ) : null}
-            </div>
-            <p className="text-sm text-slate-500">{product.description}</p>
-          </div>
-
-          {product.highlights.length > 0 ? (
-            <div className="space-y-3 rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Points forts</p>
-              <ul className="space-y-2">
-                {product.highlights.map(highlight => (
-                  <li key={highlight} className="flex items-start gap-3 text-sm text-slate-600">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 text-[10px] font-bold text-rose-600">
-                      ✓
-                    </span>
-                    <span>{highlight}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          <div className="space-y-4 rounded-2xl bg-slate-900 p-5 text-white shadow-[0_24px_44px_-24px_rgba(16,185,129,0.45)]">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">Conseiller AfricaPhone</p>
-              <p className="text-lg font-bold">Vous souhaitez reserver ce produit ?</p>
-              <p className="text-sm text-slate-200">
-                Ecrivez-nous sur WhatsApp pour verifier la disponibilite, reserver un stock en boutique ou demander un
-                paiement a distance.
-              </p>
-            </div>
-            <a
-              href={product.whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-3 rounded-full bg-emerald-500 px-5 py-3 font-semibold text-white transition hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+  const specsContent =
+    orderedSpecs.length > 0 ? (
+      <div className="space-y-3">
+        <div className="space-y-2">
+          {orderedSpecs.map((spec, index) => (
+            <div
+              key={`${spec.label}-${spec.value}`}
+              className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${
+                index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
+              }`}
             >
-              <WhatsAppIcon className="h-5 w-5" />
-              Discuter sur WhatsApp
-            </a>
-            <p className="text-xs text-slate-300">
-              Numero direct:{' '}
-              <a href="tel:+2290154151522" className="font-semibold text-white underline">
-                01 54 15 15 22
-              </a>
-            </p>
-          </div>
-
-          {product.specs.length > 0 ? (
-            <div className="space-y-4 rounded-2xl border border-slate-200 p-5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Caracteristiques</p>
-              <dl className="grid gap-3 sm:grid-cols-2">
-                {product.specs.map(spec => (
-                  <div key={`${spec.label}-${spec.value}`} className="rounded-xl bg-slate-50 p-3">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{spec.label}</dt>
-                    <dd className="text-sm font-semibold text-slate-700">{spec.value}</dd>
-                  </div>
-                ))}
-              </dl>
+              <span className="text-[#7A7C80]">{spec.label}</span>
+              <span className="max-w-[55%] text-right font-semibold">{spec.value}</span>
             </div>
-          ) : null}
-        </aside>
+          ))}
+        </div>
+        <div className="rounded-2xl border border-[#E6E9F0] bg-[#F7F9FC] px-4 py-3 text-[12px] text-[#48505C]">
+          <p className="font-semibold text-[#111111]">Livraison &amp; horaires</p>
+          <p>
+            Livraison partout au B&eacute;nin. Nous sommes ouverts tous les jours du Lundi au Dimanche.
+          </p>
+        </div>
       </div>
+    ) : (
+      <p className="text-[13px] text-[#7A7C80]">Specifications a venir.</p>
+    );
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <article className="space-y-4 rounded-3xl bg-white p-6 shadow-[0_28px_48px_-28px_rgba(15,23,42,0.3)] lg:p-8">
-          <h2 className="text-lg font-bold text-slate-900">Services inclus</h2>
-          <div className="space-y-3">
+  const descriptionContent = (
+    <div className="space-y-4 text-[13px] leading-relaxed text-[#4B5563]">
+      <p className="font-medium text-[#111111]">{product.description}</p>
+      {product.highlights.length ? (
+        <ul className="space-y-2">
+          {product.highlights.map(highlight => (
+            <li key={highlight} className="flex items-start gap-2">
+              <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#111111]" />
+              <span>{highlight}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {product.services.length ? (
+        <div className="space-y-1.5">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Services inclus</p>
+          <ul className="space-y-1.5">
             {product.services.map(service => (
-              <div key={service.title} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-900">{service.title}</p>
-                <p className="text-sm text-slate-500">{service.description}</p>
-              </div>
+              <li
+                key={service.title}
+                className="rounded-[14px] border border-[#F3F4F7] bg-[#FAFBFD] px-3 py-2 text-[13px] text-[#4B5563]"
+              >
+                <p className="font-semibold text-[#111111]">{service.title}</p>
+                <p>{service.description}</p>
+              </li>
             ))}
-          </div>
-        </article>
-
-        <article className="space-y-4 rounded-3xl bg-white p-6 shadow-[0_28px_48px_-28px_rgba(15,23,42,0.3)] lg:p-8">
-          <h2 className="text-lg font-bold text-slate-900">Livraison & suivi</h2>
-          <ul className="space-y-3">
+          </ul>
+        </div>
+      ) : null}
+      {product.deliveryNotes.length ? (
+        <div className="space-y-1.5">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Livraison &amp; suivi</p>
+          <ul className="space-y-1.5">
             {product.deliveryNotes.map(note => (
-              <li key={note} className="flex items-start gap-3 text-sm text-slate-600">
-                <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-700">
-                  ✓
-                </span>
+              <li key={note} className="flex items-start gap-2">
+                <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#111111]" />
                 <span>{note}</span>
               </li>
             ))}
           </ul>
-        </article>
-      </section>
-
-      {error ? (
-        <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">{error}</p>
+        </div>
       ) : null}
-    </main>
+    </div>
+  );
+
+  return (
+    <>
+      <span className="sr-only" aria-live="polite" role="status">
+        {shareMessage ?? ''}
+      </span>
+      {shareMessage ? (
+        <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#111111] px-4 py-2 text-sm font-semibold text-white shadow-xl shadow-slate-900/30">
+          {shareMessage}
+        </div>
+      ) : null}
+      <main className="flex w-full justify-center bg-[#FFFFFF] pb-[108px] lg:pb-12">
+        <div className="flex min-h-screen w-full max-w-[540px] flex-col bg-[#FFFFFF] text-[#111111]">
+          <header className="flex h-[64px] items-center justify-between px-3 sm:h-[76px]">
+            <button
+              type="button"
+              onClick={handleBack}
+              aria-label="Retour"
+              className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-full border border-[#1111111a] text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-[54px] sm:w-[54px]"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </button>
+            <h1 className="min-w-0 flex-1 truncate pl-3 pr-2 text-[19px] font-semibold leading-[21px] text-[#111111] sm:text-[20px]">
+              {product.name}
+            </h1>
+            <div className="flex items-center gap-[14px]">
+              <button
+                type="button"
+                onClick={toggleFavorite}
+                aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                aria-pressed={isFavorite}
+                className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${
+                  isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
+                }`}
+              >
+                <HeartIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleShare}
+                aria-label="Partager"
+                className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-full border border-[#111111] bg-white text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-[54px] sm:w-[54px]"
+              >
+                <ShareIcon className="h-5 w-5" />
+              </button>
+            </div>
+          </header>
+
+          <section className="relative flex h-[320px] w-full items-center justify-center overflow-hidden bg-[#F5F7FA] sm:h-[380px]">
+            {activeImage ? (
+              <Image
+                src={activeImage}
+                alt={product.name}
+                fill
+                sizes="540px"
+                className="object-contain"
+                priority
+              />
+            ) : (
+              <p className="px-6 text-center text-sm font-medium text-[#4B5563]">Image non disponible pour ce produit.</p>
+            )}
+          </section>
+
+          <div className="flex flex-1 flex-col px-3 pb-12">
+            <div className="mt-4 flex items-center justify-between">
+              <div>
+                <p className="text-[18px] font-semibold leading-[22px] tracking-[-0.2px] text-[#111111]">
+                  {product.formattedPrice}
+                </p>
+                {product.oldPriceLabel ? (
+                  <span className="mt-1 inline-block text-[11px] font-semibold text-[#929497] line-through decoration-[#929497] decoration-2">
+                    {product.oldPriceLabel}
+                  </span>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPromoModalOpen(true)}
+                aria-label="Ajouter un code promo"
+                className="inline-flex h-9 items-center gap-2 rounded-full bg-[#111111] px-4 text-white transition hover:bg-[#2c2c2c]"
+              >
+                <span className="flex h-5 w-5 items-center justify-center">
+                  <GiftIcon className="h-5 w-5 text-white" />
+                </span>
+                <span className="text-[13px] font-semibold leading-none">Code Promo</span>
+              </button>
+            </div>
+            {appliedPromo ? (
+              <div className="mt-3 space-y-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#BEE3F8] bg-[#E0F2FE]/80 px-3 py-1 text-[12px] font-semibold text-[#0B5ED7]">
+                  <span>Code&nbsp;: {appliedPromo.code}</span>
+                  <button
+                    type="button"
+                    onClick={handleRemovePromoCode}
+                    className="text-[#0B5ED7] transition hover:text-[#063970]"
+                    aria-label="Retirer le code promo"
+                  >
+                    &times;
+                  </button>
+                </div>
+                {promoBenefitText ? (
+                  <p className="text-[12px] font-medium leading-5 text-[#0F172A]">{promoBenefitText}</p>
+                ) : null}
+              </div>
+            ) : null}
+            {promoNotice ? <p className="mt-2 text-[12px] font-medium text-[#059669]">{promoNotice}</p> : null}
+
+            <div className="mt-3 h-px w-full bg-[#ECEDEF]" />
+
+            <div className="mt-3 flex w-full justify-center">
+              <div className="w-full max-w-[460px]">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('specs')}
+                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${
+                      activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                    }`}
+                  >
+                    Specifications
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('description')}
+                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${
+                      activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                    }`}
+                  >
+                    Description
+                  </button>
+                </div>
+                <div className="relative mt-2 h-[2px] w-full bg-[#ECEDEF]">
+                  <span
+                    className="absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200"
+                    style={{
+                      left: activeTab === 'specs' ? '0' : 'calc(50% + 0.25rem)',
+                      width: 'calc(50% - 0.25rem)',
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4">{activeTab === 'specs' ? specsContent : descriptionContent}</div>
+
+            {error ? (
+              <p className="mt-6 rounded-[24px] bg-[#FFF6E6] px-4 py-4 text-[14px] font-medium text-[#C05621]">
+                {error}
+              </p>
+            ) : null}
+
+            <a
+              href={whatsappLinkWithPromo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-12 hidden h-12 items-center gap-2.5 rounded-full bg-[#26D367] px-5 text-white transition hover:bg-[#1fb358] lg:flex"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+                <WhatsAppGlyph className="h-5 w-5 text-[#26D367]" />
+              </span>
+              <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
+                Commander via WhatsApp
+              </span>
+            </a>
+          </div>
+        </div>
+      </main>
+      <div className="fixed inset-x-0 bottom-0 z-30 flex justify-center bg-[#FFFFFFF2] pb-[calc(env(safe-area-inset-bottom,0)+16px)] pt-3 shadow-[0_-18px_28px_-16px_rgba(17,17,17,0.18)] backdrop-blur lg:hidden">
+        <div className="w-full max-w-[540px] px-3">
+          <a
+            href={whatsappLinkWithPromo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-12 items-center gap-2.5 rounded-full bg-[#26D367] px-5 text-white transition hover:bg-[#1fb358]"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+              <WhatsAppGlyph className="h-5 w-5 text-[#26D367]" />
+            </span>
+            <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
+              Commander via WhatsApp
+            </span>
+          </a>
+        </div>
+      </div>
+      <PromoCodeModal
+        open={isPromoModalOpen}
+        code={promoInput}
+        error={promoError}
+        isSubmitting={isValidatingPromo}
+        onClose={handleClosePromoModal}
+        onApply={handleApplyPromoCode}
+        onCodeChange={handlePromoInputChange}
+      />
+    </>
+  );
+}
+
+type PromoCodeModalProps = {
+  open: boolean;
+  code: string;
+  error: string | null;
+  isSubmitting: boolean;
+  onClose: () => void;
+  onApply: () => void;
+  onCodeChange: (value: string) => void;
+};
+
+function PromoCodeModal({ open, code, error, isSubmitting, onClose, onApply, onCodeChange }: PromoCodeModalProps) {
+  if (!open) {
+    return null;
+  }
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onApply();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-3 pb-6 sm:items-center sm:pb-0">
+      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="promo-modal-title"
+        className="relative z-10 w-full max-w-md overflow-hidden rounded-[28px] bg-white p-6 shadow-2xl"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p id="promo-modal-title" className="text-lg font-semibold text-[#111111]">
+              Ajouter un code promo
+            </p>
+            <p className="mt-1 text-sm text-[#6B7280]">
+              Renseignez le code reçu par SMS, WhatsApp ou e-mail pour profiter de votre avantage.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer la fenêtre code promo"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#F3F4F6] text-[#4B5563] transition hover:bg-[#E5E7EB]"
+          >
+            &times;
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label
+              htmlFor="promo-code-input"
+              className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#7A7C80]"
+            >
+              Code
+            </label>
+            <input
+              id="promo-code-input"
+              name="promo-code"
+              type="text"
+              inputMode="text"
+              autoComplete="off"
+                spellCheck={false}
+                value={code}
+                onChange={event => onCodeChange(event.target.value)}
+                className="mt-2 h-12 w-full rounded-[16px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-[15px] font-semibold tracking-[0.12em] text-[#111111] outline-none transition focus:border-[#111111] focus:bg-white"
+                autoFocus
+              />
+          </div>
+          {error ? <p className="text-sm font-medium text-[#DC2626]">{error}</p> : null}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex h-12 w-full items-center justify-center rounded-full bg-[#111111] text-[15px] font-semibold uppercase tracking-[0.1em] text-white transition disabled:cursor-not-allowed disabled:bg-[#A0A3AB]"
+          >
+            {isSubmitting ? (
+              <span
+                className="h-5 w-5 animate-spin rounded-full border-2 border-white/80 border-t-transparent"
+                aria-hidden="true"
+              />
+            ) : (
+              'Appliquer'
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full text-center text-[13px] font-semibold text-[#6B7280] transition hover:text-[#111111]"
+          >
+            Plus tard
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }
 
@@ -382,7 +795,11 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
           .map(url => url.trim())
       : [];
 
-  const primaryImage = imageCandidates[0] ?? safeString(payload.imageUrl) ?? FALLBACK_IMAGE_DATA_URL;
+  const primaryImageCandidate = imageCandidates[0] ?? safeString(payload.imageUrl) ?? null;
+  const gallery = dedupeArray([primaryImageCandidate, ...imageCandidates]).filter(
+    (image): image is string => typeof image === 'string' && image.trim().length > 0
+  );
+  const primaryImage = gallery[0] ?? null;
 
   const taglineParts: string[] = [];
   const brand = safeString(payload.brand);
@@ -414,7 +831,9 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
   const highlightSource: string[] = [];
   if (Array.isArray(payload.highlights)) {
     highlightSource.push(
-      ...(payload.highlights as unknown[]).filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      ...(payload.highlights as unknown[]).filter(
+        (item): item is string => typeof item === 'string' && item.trim().length > 0
+      )
     );
   } else if (typeof payload.highlight === 'string' && payload.highlight.trim().length > 0) {
     highlightSource.push(payload.highlight.trim());
@@ -424,11 +843,13 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
   if (brand) {
     specs.push({ label: 'Marque', value: brand });
   }
-  if (rom) {
-    specs.push({ label: 'Stockage', value: `${rom} Go` });
-  }
-  if (ram) {
-    specs.push({ label: 'Memoire vive', value: `${ram} Go` });
+  if (rom || ram) {
+    const romLabel = rom ? `${rom} Go ROM` : null;
+    const ramLabel = ram ? `${ram} Go RAM` : null;
+    specs.push({
+      label: 'Capacite',
+      value: [romLabel, ramLabel].filter(Boolean).join(' / '),
+    });
   }
   const ramBase = safeString(payload.ram_base);
   const ramExtension = safeString(payload.ram_extension);
@@ -445,9 +866,7 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
     price,
     oldPrice,
     image: primaryImage,
-    gallery: dedupeArray([primaryImage, ...imageCandidates]).filter(
-      image => typeof image === 'string' && image.trim().length > 0
-    ),
+    gallery,
     tagline: taglineParts.join(' / ') || 'Produit AfricaPhone',
     description: safeString(payload.description),
     brand: brand ?? null,
@@ -485,17 +904,14 @@ function combineProductData(
   const oldPriceLabel = oldPriceNumber ? formatPrice(oldPriceNumber) : undefined;
   const savingsLabel = staticProduct?.savings ?? undefined;
 
-  const highlights = dedupeArray([
-    ...(firestoreProduct?.highlights ?? []),
-    ...(staticProduct?.highlights ?? []),
-  ]);
+  const highlights = dedupeArray([...(firestoreProduct?.highlights ?? []), ...(staticProduct?.highlights ?? [])]);
 
   const specs = mergeSpecs(firestoreProduct?.specs ?? [], staticProduct?.specs ?? []);
 
   const services =
-    staticProduct?.services?.map(service => ({ ...service })) ?? Array.from(DEFAULT_SERVICES, service => ({ ...service }));
-  const deliveryNotes =
-    staticProduct?.deliveryNotes?.slice() ?? Array.from(DEFAULT_DELIVERY_NOTES);
+    staticProduct?.services?.map(service => ({ ...service })) ??
+    Array.from(DEFAULT_SERVICES, service => ({ ...service }));
+  const deliveryNotes = staticProduct?.deliveryNotes?.slice() ?? Array.from(DEFAULT_DELIVERY_NOTES);
 
   const tagline =
     firestoreProduct?.tagline ||
@@ -507,9 +923,11 @@ function combineProductData(
     staticProduct?.description ||
     'Produit selectionne par AfricaPhone avec verification boutique et assistance locale.';
 
+  const productUrl = buildProductUrl(resolvedId);
   const whatsappLink = buildWhatsappLink({
     name: firestoreProduct?.name ?? staticProduct?.name ?? 'Produit AfricaPhone',
     priceLabel: priceNumber ? formattedPrice : null,
+    productUrl,
   });
 
   return {
@@ -522,7 +940,7 @@ function combineProductData(
     savingsLabel,
     badge: firestoreProduct?.badge ?? staticProduct?.badge,
     description,
-    gallery: gallery.length > 0 ? gallery : [FALLBACK_IMAGE_DATA_URL],
+    gallery,
     highlights,
     specs,
     services,
@@ -530,6 +948,7 @@ function combineProductData(
     rating: staticProduct?.rating,
     reviews: staticProduct?.reviews,
     whatsappLink,
+    productUrl,
   };
 }
 
@@ -537,19 +956,31 @@ function mergeSpecs(
   primarySpecs: Array<{ label: string; value: string }>,
   fallbackSpecs: Array<{ label: string; value: string }> | undefined
 ) {
+  const normalizeKey = (label: string) => label.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
   const map = new Map<string, { label: string; value: string }>();
   for (const spec of fallbackSpecs ?? []) {
-    const key = spec.label.trim().toLowerCase();
+    const key = normalizeKey(spec.label);
     if (!map.has(key)) {
       map.set(key, { label: spec.label, value: spec.value });
     }
   }
   for (const spec of primarySpecs) {
-    const key = spec.label.trim().toLowerCase();
+    const key = normalizeKey(spec.label);
     map.set(key, { label: spec.label, value: spec.value });
   }
 
-  return Array.from(map.values());
+  const shouldHide = (key: string) =>
+    key === 'stockage' ||
+    key === 'stockageinterne' ||
+    key === 'rom' ||
+    key === 'ram' ||
+    key.startsWith('memoire') ||
+    key.endsWith('memoire') ||
+    key.includes('ram');
+
+  return Array.from(map.entries())
+    .filter(([key]) => !shouldHide(key))
+    .map(([, value]) => value);
 }
 
 function dedupeArray<T>(items: (T | null | undefined)[]): T[] {
@@ -591,28 +1022,152 @@ function parsePriceLabel(label: string | undefined | null): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function buildWhatsappLink({ name, priceLabel }: { name: string; priceLabel: string | null }) {
-  const baseMessage = priceLabel
-    ? `Bonjour AfricaPhone, je suis interesse(e) par ${name} (${priceLabel}).`
-    : `Bonjour AfricaPhone, je suis interesse(e) par ${name}.`;
-  const encoded = encodeURIComponent(baseMessage);
+function buildProductUrl(productId: string) {
+  return `https://africaphone-org.web.app/produits/${productId}`;
+}
+
+function buildWhatsappLink({
+  name,
+  priceLabel,
+  productUrl,
+}: {
+  name: string;
+  priceLabel: string | null;
+  productUrl: string;
+}) {
+  const intro = priceLabel
+    ? `Bonjour AfricaPhone, je vous contacte depuis votre site web et je suis intéressé(e) par ${name} (${priceLabel}).`
+    : `Bonjour AfricaPhone, je vous contacte depuis votre site web et je suis intéressé(e) par ${name}.`;
+  const message = `${intro}\nLien du produit : ${productUrl}`;
+  const encoded = encodeURIComponent(message);
   return `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${encoded}`;
 }
 
-function WhatsAppIcon({ className }: { className?: string }) {
+function appendPromoToWhatsappLink(baseLink: string, promo?: ValidatedPromo | null) {
+  if (!promo || !baseLink) {
+    return baseLink;
+  }
+  try {
+    const url = new URL(baseLink);
+    const current = url.searchParams.get('text') ?? '';
+    const lines = [];
+    if (current) {
+      lines.push(current);
+    }
+    lines.push(`Mon code promo est : ${promo.code}`);
+    const benefit = buildPromoBenefitSentence(promo);
+    if (benefit) {
+      lines.push(benefit);
+    }
+    url.searchParams.set('text', lines.join('\n'));
+    return url.toString();
+  } catch {
+    return baseLink;
+  }
+}
+
+function formatPromoValue(promo: ValidatedPromo) {
+  if (promo.type === 'percentage') {
+    return `${promo.value}%`;
+  }
+  return formatPrice(promo.value);
+}
+
+function buildPromoBenefitSentence(promo: ValidatedPromo) {
+  const valueLabel = formatPromoValue(promo);
+  return `Avec ce code promo, vous bénéficiez d'une réduction de ${valueLabel} sur tout article que vous achetez. Ce code promo ne peut être utilisé qu'une seule fois par vous.`;
+}
+
+function extractErrorMessage(error: unknown) {
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error && typeof (error as { message: unknown }).message === 'string') {
+    return (error as { message: string }).message;
+  }
+  return 'Impossible de valider ce code pour le moment. Veuillez réessayer.';
+}
+
+function WhatsAppGlyph({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
       <path
-        d="M12.04 2.75c-5.16 0-9.34 4.12-9.34 9.2 0 1.62.43 3.14 1.19 4.46L2 22l5.81-1.53a9.42 9.42 0 0 0 4.23 1.0c5.16 0 9.34-4.12 9.34-9.2s-4.18-9.52-9.34-9.52Z"
+        d="M12 2C6.46 2 2 6.22 2 11.56c0 1.77.5 3.43 1.36 4.86L2 22l5.39-1.39c1.45.8 3.09 1.23 4.61 1.23 5.54 0 10-4.22 10-9.56S17.54 2 12 2Z"
+        fill="currentColor"
+      />
+      <path
+        d="M16.04 14.59c-.2-.11-1.15-.62-1.33-.69-.18-.07-.31-.11-.44.11-.13.21-.5.69-.61.83-.11.13-.21.15-.4.06-.19-.1-.8-.3-1.51-.92-.56-.5-.93-1.09-1.04-1.28-.11-.19-.01-.3.09-.41.09-.09.21-.22.31-.33.1-.11.13-.18.19-.3.06-.12.02-.23-.02-.33-.05-.1-.37-.92-.5-1.26-.13-.32-.26-.28-.37-.29-.09-.01-.22-.01-.33-.01-.11 0-.3.04-.46.22-.16.18-.6.59-.6 1.43 0 .84.62 1.65.71 1.77.09.12 1.26 2 3.11 2.72.78.29 1.31.47 1.78.3.27-.11.86-.43.98-.85.11-.42.11-.77.08-.85-.04-.08-.16-.14-.34-.23Z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+}
+
+function GiftIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M20 8.75h-3.19c.38-.58.59-1.24.59-1.95A2.81 2.81 0 0 0 14.61 4c-1.26 0-2.36.79-2.61 2.06C11.75 4.79 10.65 4 9.39 4A2.81 2.81 0 0 0 6.6 6.8c0 .71.21 1.37.59 1.95H4a1.25 1.25 0 0 0-1.25 1.25v2c0 .69.56 1.25 1.25 1.25h.75v6.5A2.25 2.25 0 0 0 7 21.75h10a2.25 2.25 0 0 0 2.25-2.25v-6.5h.75A1.25 1.25 0 0 0 21.25 12v-2a1.25 1.25 0 0 0-1.25-1.25Zm-5.39-2.5c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25h-2.61c.26-1.52 1.16-2.5 2.61-2.5Zm-7.72 1.25c0-.69.56-1.25 1.25-1.25 1.45 0 2.35.98 2.61 2.5H8.14c-.69 0-1.25-.56-1.25-1.25ZM7.25 20.5a1.25 1.25 0 0 1-1.25-1.25v-6.5h5v7.75H7.25Zm11 0h-4.75v-7.75h5v6.5a1.25 1.25 0 0 1-1.25 1.25Zm2-9.25H4v-2h16v2Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function ArrowLeftIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className}>
+      <path
+        d="M11.25 4.5 6.75 10l4.5 5.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M6.75 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function HeartIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M12 20.25s-6.75-3.88-9-7.88c-1.32-2.41-.45-5.48 1.91-6.84 2.03-1.15 4.54-.52 6.09 1.22 1.55-1.74 4.06-2.37 6.09-1.22 2.36 1.36 3.23 4.43 1.91 6.84-2.25 4-9 7.88-9 7.88Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M17.5 8.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM6.5 14.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM17.5 20.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"
         stroke="currentColor"
         strokeWidth="1.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
-        d="M9.2 8.88c-.16-.36-.34-.37-.5-.38-.13-.01-.28-.01-.42-.01-.15 0-.4.05-.61.28-.21.23-.81.79-.81 1.92 0 1.13.83 2.23.95 2.39.12.16 1.62 2.58 4.0 3.51 1.98.71 2.38.57 2.81.54.43-.03 1.38-.56 1.58-1.1.2-.54.2-1 .14-1.1-.06-.1-.22-.16-.46-.28-.24-.12-1.38-.67-1.6-.75-.22-.08-.37-.12-.53.12-.16.24-.62.75-.76.9-.14.15-.28.17-.52.05-.24-.12-1.02-.37-1.95-1.17-.72-.63-1.2-1.4-1.34-1.64-.14-.24-.02-.37.1-.49.1-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.52-1.29-.74-1.77Z"
-        fill="currentColor"
+        d="M8.43 11.72 15.57 7.03"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.43 12.28 15.57 16.97"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
 }
+

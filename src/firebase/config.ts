@@ -1,10 +1,27 @@
-import { getFirestore } from '@react-native-firebase/firestore';
-import { getAuth } from '@react-native-firebase/auth';
+import { Platform } from 'react-native';
 
-// Avec un client de développement natif, Firebase est initialisé
-// automatiquement via google-services.json au démarrage de l'application.
-// Nous pouvons donc récupérer directement les instances de service.
-const db = getFirestore();
-const auth = getAuth();
+type FirebaseExports = {
+  db: unknown;
+  auth: unknown;
+};
+
+export function getFirebaseExports(platform: string): FirebaseExports {
+  return platform === 'web'
+    ? (require('./config.web') as FirebaseExports)
+    : (require('./config.native') as FirebaseExports);
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __firebasePlatformOverride: string | undefined;
+}
+
+const resolvePlatform = () => globalThis.__firebasePlatformOverride ?? Platform.OS;
+
+export function setFirebasePlatformOverride(platform?: string) {
+  globalThis.__firebasePlatformOverride = platform;
+}
+
+const { db, auth } = getFirebaseExports(resolvePlatform());
 
 export { db, auth };

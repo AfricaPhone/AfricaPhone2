@@ -1,5 +1,5 @@
 # Repository Guidelines
-
+ALWAYS COMMIT WHEN U MAKE CHANGES, ALWAYS
 ## Project Structure & Module Organization
 
 The Expo/React Native app source lives in `src/`, split across feature folders such as `components/`, `screens/`, `store/`, and `services/`. Tests sit beside their units as `*.test.ts`/`*.test.tsx`, with navigation tests in `src/navigation/__tests__/`. Firebase Cloud Functions reside in `functions/src/` and compile to `functions/lib/`. Static images, fonts, and other assets belong in `assets/`, while Jest mocks stay under `__mocks__/`.
@@ -19,6 +19,8 @@ Tests leverage `jest-expo` and `@testing-library/react-native`; prefer behavior-
 ## Commit & Pull Request Guidelines
 
 Follow Conventional Commits such as `feat: add product carousel` or `fix: handle checkout errors`. PRs should summarize scope, list linked issues, and attach screenshots or GIFs for UI changes. Confirm `npm run lint`, `npm run check:types`, and `npm test` succeed, and note any skipped checks with rationale.
+
+All agents must finish every change with a git commit (using a clear Conventional Commit message), even if the user did not explicitly request a commit during that conversation.
 
 ## Security & Configuration Tips
 

@@ -27,6 +27,7 @@ import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { useStore } from '../store/StoreContext';
 import { useContestData } from '../hooks/useContestData';
 import { fetchActiveContestId } from '../services/contestService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // Plus de persistance locale ici; le serveur compte les votes
 
 type PaymentResult = {
@@ -38,6 +39,13 @@ type PaymentResult = {
 };
 
 const formatNumber = (num: number) => new Intl.NumberFormat('fr-FR').format(num);
+const VOTER_ID_STORAGE_KEY = 'contest_voter_identity';
+const createVoterIdentity = () => {
+  if (typeof globalThis !== 'undefined' && globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+  return `voter_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+};
 
 const CandidateCard: React.FC<{
   item: Candidate;
@@ -109,6 +117,8 @@ const ContestScreen: React.FC = () => {
   const [lastTransactionId, setLastTransactionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<TextInput>(null);
+  const [voterIdentity, setVoterIdentity] = useState<string | null>(null);
+  const pendingIntentIdRef = useRef<string | null>(null);
 
   const route = useRoute<RouteProp<RootStackParamList, 'Contest'>>();
   const routeContestId = route.params?.contestId ?? null;
@@ -159,6 +169,49 @@ const ContestScreen: React.FC = () => {
     };
   }, [routeContestId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const loadIdentity = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(VOTER_ID_STORAGE_KEY);
+        if (!cancelled) {
+          if (stored && stored.trim().length > 0) {
+            setVoterIdentity(stored);
+            return;
+          }
+          const fresh = createVoterIdentity();
+          await AsyncStorage.setItem(VOTER_ID_STORAGE_KEY, fresh);
+          if (!cancelled) {
+            setVoterIdentity(fresh);
+          }
+        }
+      } catch (error) {
+        console.warn('ContestScreen: unable to initialize voter identity', error);
+        if (!cancelled) {
+          setVoterIdentity(prev => prev ?? createVoterIdentity());
+        }
+      }
+    };
+    loadIdentity();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const ensureVoterIdentity = useCallback(async () => {
+    if (voterIdentity && voterIdentity.trim().length > 0) {
+      return voterIdentity;
+    }
+    const fresh = createVoterIdentity();
+    try {
+      await AsyncStorage.setItem(VOTER_ID_STORAGE_KEY, fresh);
+    } catch (error) {
+      console.warn('ContestScreen: unable to persist voter identity', error);
+    }
+    setVoterIdentity(fresh);
+    return fresh;
+  }, [voterIdentity]);
+
   const { contest, candidates, isLoading, error } = useContestData(contestId);
 
   const isBusy = isLoading || isResolvingContestId || isPreparingPayment;
@@ -203,6 +256,7 @@ const ContestScreen: React.FC = () => {
           setModalVisible(true);
           setPendingCandidate(null);
           setHasVoted(false);
+          pendingIntentIdRef.current = null;
           return;
         }
 
@@ -212,9 +266,14 @@ const ContestScreen: React.FC = () => {
 
         try {
           const fn = httpsCallable(functionsInstance, 'verifyKkiapay');
-          await fn({ transactionId: txId });
+          await fn({
+            transactionId: txId,
+            partnerId: pendingIntentIdRef.current ?? undefined,
+          });
         } catch (e) {
           // Le webhook effectue la mise a jour definitive
+        } finally {
+          pendingIntentIdRef.current = null;
         }
 
         setSelectedCandidate(pendingCandidate ?? null);
@@ -229,6 +288,7 @@ const ContestScreen: React.FC = () => {
         setModalVisible(true);
         setPendingCandidate(null);
         setHasVoted(false);
+        pendingIntentIdRef.current = null;
       }
     });
 
@@ -243,6 +303,7 @@ const ContestScreen: React.FC = () => {
       setModalVisible(true);
       setPendingCandidate(null);
       setHasVoted(false);
+      pendingIntentIdRef.current = null;
     });
 
     const pendingUnsubscribe = addPendingListener(() => {
@@ -303,12 +364,15 @@ const ContestScreen: React.FC = () => {
       setIsPreparingPayment(true);
       setPendingCandidate(candidate);
 
+      const voterKey = await ensureVoterIdentity();
+
       try {
         const createIntent = httpsCallable(functionsInstance, 'createVoteIntent');
         const response = await createIntent({
           contestId: activeContestId,
           candidateId: candidate.id,
           amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
+          voterKey,
         });
 
         const payload = (response as { data?: unknown })?.data ?? null;
@@ -330,6 +394,8 @@ const ContestScreen: React.FC = () => {
           throw new Error('Intent de vote introuvable.');
         }
 
+        pendingIntentIdRef.current = intentIdCandidate;
+
         openKkiapayWidget({
           amount: PAYMENT_CONFIG.VOTE_AMOUNT_XOF,
           reason: `Vote pour ${candidate.name}`,
@@ -346,13 +412,14 @@ const ContestScreen: React.FC = () => {
         });
       } catch (error) {
         setPendingCandidate(null);
+        pendingIntentIdRef.current = null;
         const message = error instanceof Error ? error.message : 'Impossible de lancer le module de paiement.';
         Alert.alert('Paiement indisponible', message);
       } finally {
         setIsPreparingPayment(false);
       }
     },
-    [contest, contestId, functionsInstance, hasVoted, isBusy, openKkiapayWidget, user]
+    [contest, contestId, ensureVoterIdentity, functionsInstance, hasVoted, isBusy, openKkiapayWidget, user]
   );
 
   useFocusEffect(
