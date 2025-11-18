@@ -741,7 +741,6 @@ export default function VoteContestClientPage() {
             candidates={filteredCandidates}
             totalVotes={totalVotes}
             isBusy={isBusy}
-            hasVoted={hasVoted}
             storedVotes={storedVotes}
             searchQuery={searchQuery}
             onVote={handleVote}
@@ -764,7 +763,6 @@ export default function VoteContestClientPage() {
           candidates={filteredCandidates}
           totalVotes={totalVotes}
           isBusy={isBusy}
-          hasVoted={hasVoted}
           storedVotes={storedVotes}
           searchQuery={searchQuery}
           onVote={handleVote}
@@ -952,7 +950,6 @@ type CandidateListProps = {
   candidates: Candidate[];
   totalVotes: number;
   isBusy: boolean;
-  hasVoted: boolean;
   storedVotes: StoredVoteRecord[];
   searchQuery: string;
   onVote: (candidate: Candidate) => void;
@@ -965,14 +962,18 @@ function CandidateList({
   candidates,
   totalVotes,
   isBusy,
-  hasVoted,
   storedVotes,
   searchQuery,
   onVote,
   contestEnded,
   isPreparingPayment,
 }: CandidateListProps) {
-  if (!isBusy && candidates.length === 0) {
+  const votedCandidateIds = useMemo(() => {
+    return new Set(storedVotes.map(record => record.candidateId));
+  }, [storedVotes]);
+  const isEmptyState = !isBusy && candidates.length === 0;
+
+  if (isEmptyState) {
     return (
       <section className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 text-center">
         <h2 className="text-base font-semibold text-slate-700">
@@ -992,9 +993,6 @@ function CandidateList({
   const votingDisabled = !contest || contestEnded;
   const disableButtons = isBusy || votingDisabled;
   const voteButtonLabel = isPreparingPayment ? 'Préparation…' : 'Voter';
-  const votedCandidateIds = useMemo(() => {
-    return new Set(storedVotes.map(record => record.candidateId));
-  }, [storedVotes]);
 
   return (
     <section className="flex flex-col gap-4">

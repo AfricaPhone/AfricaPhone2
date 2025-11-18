@@ -223,7 +223,18 @@ export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouse
         ) : null}
       </div>
     );
-  }, [activeBrandId, brands, canScrollNext, canScrollPrev, error, handleSelect, loading, scrollByAmount, segment]);
+  }, [
+    activeBrandId,
+    brands,
+    canScrollNext,
+    canScrollPrev,
+    error,
+    handleSelect,
+    loading,
+    scrollByAmount,
+    scrollContainerRef,
+    segment,
+  ]);
 
   return (
     <>
