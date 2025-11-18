@@ -190,6 +190,7 @@ export default function VoteContestClientPage() {
   const [now, setNow] = useState(() => Date.now());
   const pendingCandidateRef = useRef<Candidate | null>(null);
   const pendingVoiceCountRef = useRef<number>(MIN_VOTE_QUANTITY);
+  const pendingIntentIdRef = useRef<string | null>(null);
   const previousBodyOverflow = useRef<string | null>(null);
 
   const functionsInstance = useMemo(
@@ -427,14 +428,23 @@ export default function VoteContestClientPage() {
         (data?.transactionId && String(data.transactionId)) ||
         (data?.flwRef && String(data.flwRef)) ||
         null;
+      const partnerId = pendingIntentIdRef.current;
 
       if (txId) {
         setLastTransactionId(txId);
         try {
-          const verify = httpsCallable<{ transactionId: string }, unknown>(functionsInstance, 'verifyKkiapay');
-          await verify({ transactionId: txId });
+          const verify = httpsCallable<{ transactionId: string; partnerId?: string }, unknown>(
+            functionsInstance,
+            'verifyKkiapay'
+          );
+          await verify({
+            transactionId: txId,
+            partnerId: partnerId ?? undefined,
+          });
         } catch {
           // La verification finale est assuree cote webhook.
+        } finally {
+          pendingIntentIdRef.current = null;
         }
       }
 
@@ -464,6 +474,7 @@ export default function VoteContestClientPage() {
 
       pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
       pendingCandidateRef.current = null;
+      pendingIntentIdRef.current = null;
     },
     [appendVoteRecord, functionsInstance]
   );
@@ -475,6 +486,7 @@ export default function VoteContestClientPage() {
       if (txId) {
         setLastTransactionId(txId);
       }
+      pendingIntentIdRef.current = null;
       const voiceCount = pendingVoiceCountRef.current ?? MIN_VOTE_QUANTITY;
       const totalAmount = voiceCount * PAYMENT_CONFIG.VOTE_AMOUNT_XOF;
       setPaymentStatus('failed');
@@ -537,6 +549,7 @@ export default function VoteContestClientPage() {
       if (!contestId || !contest) {
         pendingCandidateRef.current = null;
         pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
+        pendingIntentIdRef.current = null;
         setPaymentStatus('failed');
         setPaymentMessage('Concours introuvable. Veuillez reessayer.');
         setModalCandidate(candidate);
@@ -581,6 +594,7 @@ export default function VoteContestClientPage() {
         if (!intentId) {
           throw new Error('Intent de vote introuvable.');
         }
+        pendingIntentIdRef.current = intentId;
 
         moduleInstance.openKkiapayWidget({
           amount,
@@ -596,6 +610,7 @@ export default function VoteContestClientPage() {
         console.error('Vote payment start error', error);
         pendingCandidateRef.current = null;
         pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
+        pendingIntentIdRef.current = null;
         setIsPreparingPayment(false);
         setPaymentStatus('failed');
         setPaymentMessage(
