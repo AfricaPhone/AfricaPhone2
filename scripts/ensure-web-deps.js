@@ -9,7 +9,8 @@ const webDir = join(projectRoot, 'web');
 const nodeModulesDir = join(webDir, 'node_modules');
 const binDir = join(nodeModulesDir, '.bin');
 
-const nextBinNames = process.platform === 'win32' ? ['next.cmd', 'next.ps1', 'next'] : ['next'];
+const isWindows = process.platform === 'win32';
+const nextBinNames = isWindows ? ['next.cmd', 'next.ps1'] : ['next'];
 const hasNodeModules = existsSync(nodeModulesDir);
 const hasNextPackage = existsSync(join(nodeModulesDir, 'next', 'package.json'));
 const hasNextBinary =
