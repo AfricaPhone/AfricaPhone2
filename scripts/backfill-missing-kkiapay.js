@@ -169,4 +169,9 @@ async function main() {
   if (DRY_RUN) {
     console.log('DRY-RUN mode: no writes performed. Set DRY_RUN=false to apply.');
   }
-})();
+}
+
+main().catch(err => {
+  console.error('Backfill failed:', err);
+  process.exitCode = 1;
+});

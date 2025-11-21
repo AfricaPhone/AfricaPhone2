@@ -1,0 +1,24 @@
+{
+  "id": "f9NdI6f1lH7Z2ZxUzEFt",
+  "data": {
+    "status": "active",
+    "totalParticipants": 0,
+    "createdAt": {
+      "_seconds": 1762931553,
+      "_nanoseconds": 164000000
+    },
+    "id": "f9NdI6f1lH7Z2ZxUzEFt",
+    "description": "Un concours exclusivement dédié aux journalistes de la presse béninoise, visant à valoriser l’excellence, la rigueur et l’engagement dans le métier d’information.",
+    "promoCardSortOrder": 20,
+    "title": "CONCOURS DE VOTE",
+    "updatedAt": {
+      "_seconds": 1762962555,
+      "_nanoseconds": 301000000
+    },
+    "endDate": {
+      "_seconds": 1764630000,
+      "_nanoseconds": 770000000
+    },
+    "totalVotes": 1488
+  }
+}
