@@ -1,0 +1,41 @@
+[
+  {
+    "id": "8329543214881751",
+    "transactionId": "8329543214881751",
+    "amount": 2500,
+    "status": "success",
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "1dAcvBNyP92iOeMJFvcJ",
+    "partnerId": "gUKwH8U2ltS360RWKsEB",
+    "source": "callable",
+    "verifiedAt": "2025-11-21T12:29:18.258Z",
+    "createdAt": null,
+    "effectiveDate": "2025-11-21T12:29:18.258Z"
+  },
+  {
+    "id": "9091997654230492",
+    "transactionId": "9091997654230492",
+    "amount": 1000,
+    "status": "success",
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "1dAcvBNyP92iOeMJFvcJ",
+    "partnerId": "USDmsOvJMV9F150lBInt",
+    "source": "callable",
+    "verifiedAt": "2025-11-21T12:22:26.051Z",
+    "createdAt": null,
+    "effectiveDate": "2025-11-21T12:22:26.051Z"
+  },
+  {
+    "id": "9919970967246160",
+    "transactionId": "9919970967246160",
+    "amount": 100,
+    "status": "pending",
+    "contestId": null,
+    "candidateId": null,
+    "partnerId": "3nnoQJjoTB0UB4vfHvFV",
+    "source": "callable",
+    "verifiedAt": "2025-11-20T11:18:59.927Z",
+    "createdAt": null,
+    "effectiveDate": "2025-11-20T11:18:59.927Z"
+  }
+]
