@@ -162,13 +162,6 @@ def render_pdf(snapshot_path: Path, output_path: Path) -> None:
     leading=13,
     spaceAfter=2,
   )
-  note_style = ParagraphStyle(
-    "Note",
-    parent=styles["Normal"],
-    fontSize=9,
-    leading=12,
-    textColor="#444444",
-  )
 
   doc = SimpleDocTemplate(
     str(output_path),
@@ -189,12 +182,6 @@ def render_pdf(snapshot_path: Path, output_path: Path) -> None:
 
   story.append(build_table(snapshot, total_votes))
   story.append(Spacer(1, 8))
-  story.append(
-    Paragraph(
-      f"Source : {snapshot_path.name}. PDF aligne avec le style de la liste de votes Kkiapay manquants.",
-      note_style,
-    )
-  )
 
   doc.build(story)
 
