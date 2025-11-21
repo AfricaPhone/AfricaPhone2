@@ -1,0 +1,156 @@
+{
+  "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+  "cutoffLocalIso": "2025-11-21T23:00:00.000Z",
+  "timezone": "Africa/Porto-Novo",
+  "fetchedVotes": 620,
+  "missingTimestamp": 0,
+  "skippedAfterCutoff": 3,
+  "countedVotesAtCutoff": 2753,
+  "generatedAt": "2025-11-21T23:26:12.562Z",
+  "results": [
+    {
+      "candidateId": "6OBg0seoTFcTZ9pLe7kM",
+      "name": "FATONDJI Claude",
+      "votesAtCutoff": 752,
+      "currentVoteCount": 777
+    },
+    {
+      "candidateId": "5kfRrYH6W44Kmwt14ZMM",
+      "name": "Evrard Djissou",
+      "votesAtCutoff": 612,
+      "currentVoteCount": 612
+    },
+    {
+      "candidateId": "1dAcvBNyP92iOeMJFvcJ",
+      "name": "Romaric Hercule Odah",
+      "votesAtCutoff": 601,
+      "currentVoteCount": 604
+    },
+    {
+      "candidateId": "dTBSRcAIzSbvIYWDiXcL",
+      "name": "DJAHOTO Générose Olivéra",
+      "votesAtCutoff": 218,
+      "currentVoteCount": 218
+    },
+    {
+      "candidateId": "1S3JQ3vkdGbgsLgNhTTE",
+      "name": "Abidémi Fabrice ADETOKOUN",
+      "votesAtCutoff": 164,
+      "currentVoteCount": 164
+    },
+    {
+      "candidateId": "V4Yp04b0gzvcy3nUXW3a",
+      "name": "MASSEDE Mawouna Germain",
+      "votesAtCutoff": 94,
+      "currentVoteCount": 94
+    },
+    {
+      "candidateId": "bjoTtHpZVlme8X7VT3zc",
+      "name": "AROBATAN Emmanuel",
+      "votesAtCutoff": 84,
+      "currentVoteCount": 84
+    },
+    {
+      "candidateId": "qTyVM4EoESWnV6BRS7bo",
+      "name": "ZOMAKPE Jeannot Ulrich Armel",
+      "votesAtCutoff": 78,
+      "currentVoteCount": 78
+    },
+    {
+      "candidateId": "3krbHK1gSGCJIUPQN7u2",
+      "name": "FANOU HOUÉTCHÉNOUKPO Serge",
+      "votesAtCutoff": 38,
+      "currentVoteCount": 38
+    },
+    {
+      "candidateId": "GcIY4FbAVJ4Kq7aeTX3n",
+      "name": "M'TOAMA M'poli Ange",
+      "votesAtCutoff": 23,
+      "currentVoteCount": 23
+    },
+    {
+      "candidateId": "HOqz6ebxpGl44cRmkUQb",
+      "name": "TAMOU ZIME Séro David",
+      "votesAtCutoff": 17,
+      "currentVoteCount": 17
+    },
+    {
+      "candidateId": "eTS7KO02YY4FIyUxoD4u",
+      "name": "ADANI Modeste",
+      "votesAtCutoff": 12,
+      "currentVoteCount": 12
+    },
+    {
+      "candidateId": "oOmchpXZUVAZir7yTbO4",
+      "name": "Casimir FAVI",
+      "votesAtCutoff": 12,
+      "currentVoteCount": 16
+    },
+    {
+      "candidateId": "2tzV3YYPimT4k49V2H4i",
+      "name": "Toffohossou Sègon Davy Moïse",
+      "votesAtCutoff": 10,
+      "currentVoteCount": 10
+    },
+    {
+      "candidateId": "KloBDkllIFVxl0c4KmtE",
+      "name": "CADJA DODO ariace Josiane",
+      "votesAtCutoff": 7,
+      "currentVoteCount": 7
+    },
+    {
+      "candidateId": "K1ahblkF9zbN87Hbsf9n",
+      "name": "KANTCHEDE Tagnon Baudelaire",
+      "votesAtCutoff": 7,
+      "currentVoteCount": 7
+    },
+    {
+      "candidateId": "F8dKJv2ANe5lqB65KrqS",
+      "name": "GOHONOU Armel Corneille",
+      "votesAtCutoff": 6,
+      "currentVoteCount": 6
+    },
+    {
+      "candidateId": "xmzlWKpQ6vaBrWUBkIR5",
+      "name": "KATAKENON Aristide Pirus",
+      "votesAtCutoff": 5,
+      "currentVoteCount": 5
+    },
+    {
+      "candidateId": "GDieaZwnau0cFOoQ3K7Z",
+      "name": "Séverin Adéwalé",
+      "votesAtCutoff": 5,
+      "currentVoteCount": 5
+    },
+    {
+      "candidateId": "AthT1y4128lMOTkSFo5W",
+      "name": "MANDOU Kévin",
+      "votesAtCutoff": 3,
+      "currentVoteCount": 3
+    },
+    {
+      "candidateId": "UAwUk7YsrCjfMThBuCvN",
+      "name": "Jésugnon Brice ADJAGAN",
+      "votesAtCutoff": 2,
+      "currentVoteCount": 2
+    },
+    {
+      "candidateId": "ZPXDqsEqRHgESWS2uMz0",
+      "name": "DONKPEGAN MODESTE",
+      "votesAtCutoff": 1,
+      "currentVoteCount": 1
+    },
+    {
+      "candidateId": "1yOIWBm9fcF2tL0jv6xj",
+      "name": "GANDJO Towanou Christian",
+      "votesAtCutoff": 1,
+      "currentVoteCount": 1
+    },
+    {
+      "candidateId": "OtxjdYeI16SZHkxbnxAv",
+      "name": "GBOYOU Bonneo Florice",
+      "votesAtCutoff": 1,
+      "currentVoteCount": 1
+    }
+  ]
+}
