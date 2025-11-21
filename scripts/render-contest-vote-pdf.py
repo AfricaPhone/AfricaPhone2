@@ -52,25 +52,36 @@ def format_cutoff(snapshot: Dict[str, Any]) -> Dict[str, str]:
   }
 
 
-def build_table(snapshot: Dict[str, Any]) -> Table:
+def format_int(value: int) -> str:
+  return f"{value:,}".replace(",", " ")
+
+
+def format_percent(value: int, total: int) -> str:
+  if not total:
+    return "0 %"
+  pct = (float(value) / float(total)) * 100
+  return f"{pct:.2f}".replace(".", ",") + " %"
+
+
+def build_table(snapshot: Dict[str, Any], total_votes: int) -> Table:
   rows = snapshot.get("results", [])
-  header = ["#", "Candidate", "Votes @00h", "Current total", "Candidate ID"]
+  header = ["#", "Candidat", "Votes @00h", "% des votes"]
   data = [header]
 
   for index, row in enumerate(rows, start=1):
+    votes_at_cutoff = int(row.get("votesAtCutoff", 0) or 0)
     data.append(
       [
         str(index),
         row.get("name", "N/A"),
-        f"{row.get('votesAtCutoff', 0):,}".replace(",", " "),
-        "-" if row.get("currentVoteCount") is None else f"{row['currentVoteCount']:,}".replace(",", " "),
-        row.get("candidateId", "N/A"),
+        format_int(votes_at_cutoff),
+        format_percent(votes_at_cutoff, total_votes),
       ]
     )
 
   table = Table(
     data,
-    colWidths=[12 * mm, 68 * mm, 28 * mm, 32 * mm, 52 * mm],
+    colWidths=[12 * mm, 85 * mm, 32 * mm, 36 * mm],
     repeatRows=1,
   )
 
@@ -81,7 +92,6 @@ def build_table(snapshot: Dict[str, Any]) -> Table:
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
         ("ALIGN", (0, 0), (0, -1), "RIGHT"),
         ("ALIGN", (2, 0), (3, -1), "RIGHT"),
-        ("ALIGN", (4, 1), (4, -1), "LEFT"),
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
         ("FONTSIZE", (0, 0), (-1, -1), 9),
         ("BOTTOMPADDING", (0, 0), (-1, 0), 6),
@@ -97,6 +107,7 @@ def build_table(snapshot: Dict[str, Any]) -> Table:
 def render_pdf(snapshot_path: Path, output_path: Path) -> None:
   snapshot = load_snapshot(snapshot_path)
   cutoff_str = format_cutoff(snapshot)
+  total_votes = int(snapshot.get("countedVotesAtCutoff") or 0)
 
   styles = getSampleStyleSheet()
   title_style = ParagraphStyle(
@@ -131,28 +142,27 @@ def render_pdf(snapshot_path: Path, output_path: Path) -> None:
   )
 
   story = [
-    Paragraph("Contest votes @00h snapshot", title_style),
-    Paragraph(f"Contest ID: <b>{snapshot.get('contestId', 'N/A')}</b>", subtitle_style),
-    Paragraph(f"Cutoff: {cutoff_str['local']} | {cutoff_str['utc']}", subtitle_style),
+    Paragraph("Votes concours @00h", title_style),
+    Paragraph(f"ID du concours : <b>{snapshot.get('contestId', 'N/A')}</b>", subtitle_style),
+    Paragraph(f"Coupe : {cutoff_str['local']} | {cutoff_str['utc']}", subtitle_style),
     Paragraph(
-      f"Total votes @00h: {snapshot.get('countedVotesAtCutoff', 0):,}".replace(",", " "),
+      f"Total des votes à 00h : {format_int(total_votes)}",
       subtitle_style,
     ),
     Paragraph(
-      f"Fetched vote records: {snapshot.get('fetchedVotes', 0)} | "
-      f"Missing timestamp: {snapshot.get('missingTimestamp', 0)} | "
-      f"Skipped after cutoff: {snapshot.get('skippedAfterCutoff', 0)}",
+      f"Enregistrements de votes lus : {format_int(int(snapshot.get('fetchedVotes', 0) or 0))} | "
+      f"Horodatages manquants : {format_int(int(snapshot.get('missingTimestamp', 0) or 0))} | "
+      f"Votes après 00h exclus : {format_int(int(snapshot.get('skippedAfterCutoff', 0) or 0))}",
       subtitle_style,
     ),
-    Paragraph(f"Generated at: {snapshot.get('generatedAt', 'N/A')}", subtitle_style),
     Spacer(1, 8),
   ]
 
-  story.append(build_table(snapshot))
+  story.append(build_table(snapshot, total_votes))
   story.append(Spacer(1, 8))
   story.append(
     Paragraph(
-      f"Source: {snapshot_path.name}. This PDF is intended to mirror the missing-KkiaPay audit list style.",
+      f"Source : {snapshot_path.name}. PDF aligné avec le style de la liste de votes Kkiapay manquants.",
       note_style,
     )
   )
