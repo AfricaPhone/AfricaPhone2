@@ -1,0 +1,40 @@
+[
+  {
+    "id": "001",
+    "transactionId": "001",
+    "amount": 200,
+    "status": "pending",
+    "contestId": null,
+    "candidateId": null,
+    "partnerId": null,
+    "source": "webhook",
+    "event": "transaction.ping",
+    "verifiedAt": null,
+    "createdAt": null
+  },
+  {
+    "id": "9919970967246160",
+    "transactionId": "9919970967246160",
+    "amount": 100,
+    "status": "pending",
+    "contestId": null,
+    "candidateId": null,
+    "partnerId": "3nnoQJjoTB0UB4vfHvFV",
+    "source": "callable",
+    "verifiedAt": "2025-11-20T11:18:59.927Z",
+    "createdAt": null
+  },
+  {
+    "id": "test-tx-001",
+    "transactionId": "test-tx-001",
+    "amount": 100,
+    "status": "success",
+    "contestId": null,
+    "candidateId": null,
+    "partnerId": "PrxbmTJ1taH8y6L2wRHc",
+    "source": "webhook",
+    "event": "transaction.success",
+    "verifiedAt": null,
+    "createdAt": null
+  }
+]
