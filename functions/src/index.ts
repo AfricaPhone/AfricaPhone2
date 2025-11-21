@@ -618,6 +618,13 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
     const candidateRef = contestRef.collection('candidates').doc(candidateId);
     const voteRef = contestRef.collection('votes').doc(transactionId || `evt_${Date.now()}`);
 
+    const voteSnap = await tx.get(voteRef);
+    if (voteSnap.exists) {
+      // Already counted for this transaction; skip to avoid double increment.
+      logger.info('Vote already exists, skipping duplicate increment', { transactionId, partnerId, source });
+      return;
+    }
+
     tx.set(
       voteRef,
       {
