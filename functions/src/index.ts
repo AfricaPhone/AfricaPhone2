@@ -569,6 +569,64 @@ interface VoteSuccessOptions {
   source: 'webhook' | 'callable';
 }
 
+async function recordPaymentAndVote(options: {
+  transactionId: string;
+  partnerId: string;
+  amount?: number;
+  source: 'webhook' | 'callable';
+  event?: string;
+  verification?: unknown;
+  status?: 'pending' | 'success' | 'failed';
+}): Promise<void> {
+  const { transactionId, partnerId, amount, source, verification, status, event } = options;
+  if (!transactionId) return;
+  await db.runTransaction(async tx => {
+    const paymentRef = db.collection('payments').doc(transactionId);
+    const paymentSnap = await tx.get(paymentRef);
+
+    if (!paymentSnap.exists) {
+      tx.set(
+        paymentRef,
+        {
+          transactionId,
+          partnerId: partnerId || null,
+          amount: Number.isFinite(amount) ? amount : undefined,
+          status: status || 'pending',
+          source,
+          event: event || null,
+          verification: verification || null,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    } else {
+      tx.set(
+        paymentRef,
+        {
+          partnerId: partnerId || paymentSnap.get('partnerId') || null,
+          amount: Number.isFinite(amount) ? amount : paymentSnap.get('amount'),
+          status: status || paymentSnap.get('status') || 'pending',
+          source: source || paymentSnap.get('source') || null,
+          event: event || paymentSnap.get('event') || null,
+          verification: verification || paymentSnap.get('verification') || null,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    }
+  });
+
+  if (status === 'success') {
+    await handleSuccessfulVote({
+      transactionId,
+      partnerId,
+      amount,
+      source,
+    });
+  }
+}
+
 async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> {
   const { transactionId, partnerId, amount, source } = options;
   if (!partnerId) {
@@ -714,11 +772,13 @@ export const kkiapayWebhook = onRequest(
     const isPaymentSucces = body?.isPaymentSucces === true;
 
     let verifiedSuccess = false;
+    let verificationObj: any = null;
     try {
       if (transactionId) {
         const k = makeKkiapay();
-        const verif: any = await k.verify(transactionId).catch(() => null);
-        verifiedSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
+        verificationObj = await k.verify(transactionId).catch(() => null);
+        verifiedSuccess =
+          verificationObj?.status === 'SUCCESS' || verificationObj?.isPaymentSucces === true;
       }
     } catch (e) {
       logger.error('verify() error', e as any);
@@ -727,29 +787,18 @@ export const kkiapayWebhook = onRequest(
     const finalSuccess = isPaymentSucces || verifiedSuccess || event === 'transaction.success';
 
     if (transactionId) {
-      await db
-        .collection('payments')
-        .doc(transactionId)
-        .set(
-          {
-            transactionId,
-            partnerId: partnerId || null,
-            amount,
-            event,
-            status: finalSuccess ? 'success' : event === 'transaction.failed' ? 'failed' : 'pending',
-            source: 'webhook',
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          },
-          { merge: true }
-        );
-    }
-
-    if (finalSuccess) {
-      await handleSuccessfulVote({
+      await recordPaymentAndVote({
         transactionId,
         partnerId,
         amount: Number.isFinite(amount) ? amount : undefined,
         source: 'webhook',
+        event,
+        verification: verificationObj || body || null,
+        status: finalSuccess
+          ? 'success'
+          : event === 'transaction.failed'
+            ? 'failed'
+            : 'pending',
       });
     }
 
@@ -778,31 +827,14 @@ export const verifyKkiapay = onCall(
         ? amountFromRequest
         : undefined;
 
-    const updateData: Record<string, unknown> = {
+    await recordPaymentAndVote({
       transactionId: txId,
-      status: isSuccess ? 'success' : 'pending',
-      verification: verif || null,
+      partnerId,
+      amount,
       source: 'callable',
-      verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    if (partnerId) {
-      updateData.partnerId = partnerId;
-    }
-    if (typeof amount === 'number' && Number.isFinite(amount)) {
-      updateData.amount = amount;
-    }
-
-    await db.collection('payments').doc(txId).set(updateData, { merge: true });
-
-    if (isSuccess) {
-      await handleSuccessfulVote({
-        transactionId: txId,
-        partnerId,
-        amount,
-        source: 'callable',
-      });
-    }
+      verification: verif || null,
+      status: isSuccess ? 'success' : 'pending',
+    });
 
     return { ok: true, status: isSuccess ? 'success' : 'pending' };
   }
