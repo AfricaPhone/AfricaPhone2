@@ -183,16 +183,7 @@ def render_pdf(snapshot_path: Path, output_path: Path) -> None:
     Paragraph("Votes concours @00h", title_style),
     Paragraph(f"ID du concours : <b>{snapshot.get('contestId', 'N/A')}</b>", subtitle_style),
     Paragraph(f"Coupe : {cutoff_str['local']} | {cutoff_str['utc']}", subtitle_style),
-    Paragraph(
-      f"Total des votes à 00h : {format_int(total_votes)}",
-      subtitle_style,
-    ),
-    Paragraph(
-      f"Enregistrements de votes lus : {format_int(int(snapshot.get('fetchedVotes', 0) or 0))} | "
-      f"Horodatages manquants : {format_int(int(snapshot.get('missingTimestamp', 0) or 0))} | "
-      f"Votes après 00h exclus : {format_int(int(snapshot.get('skippedAfterCutoff', 0) or 0))}",
-      subtitle_style,
-    ),
+    Paragraph(f"Total des votes a 00h : {format_int(total_votes)}", subtitle_style),
     Spacer(1, 8),
   ]
 
@@ -200,7 +191,7 @@ def render_pdf(snapshot_path: Path, output_path: Path) -> None:
   story.append(Spacer(1, 8))
   story.append(
     Paragraph(
-      f"Source : {snapshot_path.name}. PDF aligné avec le style de la liste de votes Kkiapay manquants.",
+      f"Source : {snapshot_path.name}. PDF aligne avec le style de la liste de votes Kkiapay manquants.",
       note_style,
     )
   )
