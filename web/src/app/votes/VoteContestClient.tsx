@@ -182,6 +182,7 @@ export default function VoteContestClientPage() {
   const [now, setNow] = useState(() => Date.now());
   const pendingCandidateRef = useRef<Candidate | null>(null);
   const pendingVoiceCountRef = useRef<number>(MIN_VOTE_QUANTITY);
+  const pendingIntentIdRef = useRef<string | null>(null);
   const previousBodyOverflow = useRef<string | null>(null);
 
   const functionsInstance = useMemo(
@@ -392,8 +393,14 @@ export default function VoteContestClientPage() {
       if (txId) {
         setLastTransactionId(txId);
         try {
-          const verify = httpsCallable<{ transactionId: string }, unknown>(functionsInstance, 'verifyKkiapay');
-          await verify({ transactionId: txId });
+          const verify = httpsCallable<{ transactionId: string; partnerId?: string; amount?: number }, unknown>(
+            functionsInstance,
+            'verifyKkiapay'
+          );
+          const partnerId = pendingIntentIdRef.current ?? undefined;
+          const voiceCount = pendingVoiceCountRef.current ?? MIN_VOTE_QUANTITY;
+          const totalAmount = voiceCount * PAYMENT_CONFIG.VOTE_AMOUNT_XOF;
+          await verify({ transactionId: txId, partnerId, amount: totalAmount });
         } catch {
           // La verification finale est assuree cote webhook.
         }
@@ -425,6 +432,7 @@ export default function VoteContestClientPage() {
 
       pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
       pendingCandidateRef.current = null;
+      pendingIntentIdRef.current = null;
     },
     [appendVoteRecord, functionsInstance]
   );
@@ -446,6 +454,7 @@ export default function VoteContestClientPage() {
       setIsPreparingPayment(false);
       pendingVoiceCountRef.current = MIN_VOTE_QUANTITY;
       pendingCandidateRef.current = null;
+      pendingIntentIdRef.current = null;
     },
     []
   );
@@ -540,6 +549,7 @@ export default function VoteContestClientPage() {
           throw new Error('Intent de vote introuvable.');
         }
 
+        pendingIntentIdRef.current = intentId;
         moduleInstance.openKkiapayWidget({
           amount,
           publicAPIKey: PAYMENT_CONFIG.KKIAPAY_PUBLIC_KEY,
