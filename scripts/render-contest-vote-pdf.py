@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from zoneinfo import ZoneInfo
 
 from reportlab.lib import colors
@@ -29,6 +29,38 @@ def load_snapshot(path: Path) -> Dict[str, Any]:
   return data
 
 
+def _fallback_fixed_offset(tz_name: str) -> Optional[timezone]:
+  """Fallback for environments without tzdata (common on Windows sandboxes)."""
+  name = tz_name.strip().upper()
+  if name in {"AFRICA/PORTO-NOVO", "PORTO-NOVO"}:
+    return timezone(timedelta(hours=1))
+  if name.startswith("UTC"):
+    # Accept UTC+1, UTC+01:00, UTC-03 etc.
+    sign = 1
+    remainder = name[3:]
+    if remainder.startswith("+"):
+      sign = 1
+      remainder = remainder[1:]
+    elif remainder.startswith("-"):
+      sign = -1
+      remainder = remainder[1:]
+    try:
+      if ":" in remainder:
+        hours_str, minutes_str = remainder.split(":", 1)
+        hours = int(hours_str)
+        minutes = int(minutes_str)
+      elif remainder:
+        hours = int(remainder)
+        minutes = 0
+      else:
+        hours = 0
+        minutes = 0
+      return timezone(sign * timedelta(hours=hours, minutes=minutes))
+    except Exception:
+      return None
+  return None
+
+
 def format_cutoff(snapshot: Dict[str, Any]) -> Dict[str, str]:
   iso_raw = snapshot.get("cutoffLocalIso")
   if not iso_raw:
@@ -36,16 +68,22 @@ def format_cutoff(snapshot: Dict[str, Any]) -> Dict[str, str]:
 
   cutoff = datetime.fromisoformat(str(iso_raw).replace("Z", "+00:00"))
   tz_name = snapshot.get("timezone") or "UTC"
+
+  local_tz: Optional[timezone] = None
   try:
     local_tz = ZoneInfo(tz_name)
-    local_cutoff = cutoff.astimezone(local_tz)
   except Exception:
-    # Fallback to naive display if zoneinfo is unavailable or invalid.
+    local_tz = _fallback_fixed_offset(tz_name)
+
+  if local_tz:
+    local_cutoff = cutoff.astimezone(local_tz)
+    local_label = tz_name
+  else:
+    # Fallback to UTC display if we cannot resolve the timezone.
     local_cutoff = cutoff
-    local_tz = None
+    local_label = "UTC"
 
   utc_cutoff = cutoff.astimezone(timezone.utc)
-  local_label = tz_name if local_tz else "Local"
   return {
     "local": f"{local_cutoff.strftime('%Y-%m-%d %H:%M')} ({local_label})",
     "utc": f"{utc_cutoff.strftime('%Y-%m-%d %H:%M')} (UTC)",
