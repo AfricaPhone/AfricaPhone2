@@ -2,11 +2,11 @@
   "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
   "cutoffLocalIso": "2025-11-21T23:00:00.000Z",
   "timezone": "Africa/Porto-Novo",
-  "fetchedVotes": 620,
+  "fetchedVotes": 624,
   "missingTimestamp": 0,
-  "skippedAfterCutoff": 3,
-  "countedVotesAtCutoff": 2753,
-  "generatedAt": "2025-11-21T23:26:12.562Z",
+  "skippedAfterCutoff": 8,
+  "countedVotesAtCutoff": 2752,
+  "generatedAt": "2025-11-22T07:47:30.615Z",
   "results": [
     {
       "candidateId": "6OBg0seoTFcTZ9pLe7kM",
@@ -42,7 +42,7 @@
       "candidateId": "V4Yp04b0gzvcy3nUXW3a",
       "name": "MASSEDE Mawouna Germain",
       "votesAtCutoff": 94,
-      "currentVoteCount": 94
+      "currentVoteCount": 95
     },
     {
       "candidateId": "bjoTtHpZVlme8X7VT3zc",
@@ -84,7 +84,7 @@
       "candidateId": "oOmchpXZUVAZir7yTbO4",
       "name": "Casimir FAVI",
       "votesAtCutoff": 12,
-      "currentVoteCount": 16
+      "currentVoteCount": 236
     },
     {
       "candidateId": "2tzV3YYPimT4k49V2H4i",
@@ -137,12 +137,6 @@
     {
       "candidateId": "ZPXDqsEqRHgESWS2uMz0",
       "name": "DONKPEGAN MODESTE",
-      "votesAtCutoff": 1,
-      "currentVoteCount": 1
-    },
-    {
-      "candidateId": "1yOIWBm9fcF2tL0jv6xj",
-      "name": "GANDJO Towanou Christian",
       "votesAtCutoff": 1,
       "currentVoteCount": 1
     },
