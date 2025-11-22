@@ -9,8 +9,9 @@ describe('TopBar search interaction', () => {
 
   it('submits current search term from the modal form', () => {
     const handleSubmit = jest.fn();
+    const handleClear = jest.fn();
 
-    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} />);
+    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} onClearSearch={handleClear} />);
 
     openModal();
 
@@ -26,8 +27,9 @@ describe('TopBar search interaction', () => {
 
   it('trims whitespace before propagating the search term', () => {
     const handleSubmit = jest.fn();
+    const handleClear = jest.fn();
 
-    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} />);
+    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} onClearSearch={handleClear} />);
 
     openModal();
 
@@ -42,8 +44,9 @@ describe('TopBar search interaction', () => {
 
   it('submits immediately when a suggestion is selected', () => {
     const handleSubmit = jest.fn();
+    const handleClear = jest.fn();
 
-    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} />);
+    render(<TopBar searchQuery="" onSubmitSearch={handleSubmit} onClearSearch={handleClear} />);
 
     openModal();
 
