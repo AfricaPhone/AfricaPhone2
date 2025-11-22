@@ -883,7 +883,7 @@ function ContestHero({
               {contest?.title ?? 'Concours'}
             </span>
             <h2 className="text-2xl font-bold leading-tight text-white">
-              {contestEnded ? 'Concours clôturé' : "Phase d'inscription"}
+              {contestEnded ? 'Concours clôturé' : 'Phase de vote'}
             </h2>
           </div>
         </div>
