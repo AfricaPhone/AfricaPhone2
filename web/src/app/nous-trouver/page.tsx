@@ -40,6 +40,9 @@ const DEFAULT_PAGE_DATA: BoutiquePageData = {
   mapLink: 'https://goo.gl/maps/oMaa8b2oZ9cQmRBN9?g_st=am',
 };
 
+const DELIVERY_NOTE_REGEX = /\(?\s*Nous livrons partout au B\u00e9nin\.?\s*\)?/i;
+const DELIVERY_NOTE_TEXT = 'Nous livrons partout au B\u00e9nin.';
+
 const safeString = (value: unknown): string | undefined => {
   if (typeof value === 'string') {
     const trimmed = value.trim();
@@ -221,6 +224,11 @@ export default function NousTrouverPage() {
     );
   }
 
+  const deliveryNote = DELIVERY_NOTE_REGEX.test(pageData.address) ? DELIVERY_NOTE_TEXT : null;
+  const addressWithoutDeliveryNote = deliveryNote
+    ? pageData.address.replace(DELIVERY_NOTE_REGEX, '').trim()
+    : pageData.address;
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <main className="mx-auto flex w-full max-w-md flex-col pb-10">
@@ -262,6 +270,9 @@ export default function NousTrouverPage() {
           <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
             Ouvert tous les jours de 7h Ã  22h Â· 7J/7
           </p>
+          {deliveryNote ? (
+            <p className="mt-1 text-sm font-semibold uppercase tracking-wide text-blue-600">{deliveryNote}</p>
+          ) : null}
         </section>
 
         <section className="px-4 pt-6">
@@ -270,7 +281,7 @@ export default function NousTrouverPage() {
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-800">
                 Adresse de la boutique
               </p>
-              <p className="mt-2 text-base text-slate-900">{pageData.address}</p>
+              <p className="mt-2 text-base text-slate-900">{addressWithoutDeliveryNote}</p>
             </div>
             <p className="text-base text-slate-800">
               Appel &amp; WhatsApp :{' '}
