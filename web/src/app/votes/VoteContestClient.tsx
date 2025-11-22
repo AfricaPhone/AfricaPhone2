@@ -976,7 +976,7 @@ function CandidateList({
                     {candidate.name}
                     {votedCandidateIds.has(candidate.id) ? (
                       <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-600">
-                        Votre vote
+                        {formatNumber(candidate.voteCount)} voix accordées
                       </span>
                     ) : null}
                   </span>
