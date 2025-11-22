@@ -18,6 +18,7 @@ import { fetchActiveContestId } from '@/services/contestService';
 import { useContestData } from '@/hooks/useContestData';
 import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import type { Candidate, Contest } from '@/types/pronostics';
+import BrandsCarousel from '@/components/BrandsCarousel';
 
 const VOTE_STATUS_KEY_PREFIX = 'contest_vote_status_v1';
 const SHOW_VOTE_BUTTON = true; // Toggle to true when the contest voting opens publicly.
@@ -661,7 +662,7 @@ export default function VoteContestClientPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-screen-sm flex-col gap-5 px-4 pb-16 pt-5">
+      <main className="mx-auto flex w-full max-w-screen-sm flex-col gap-4 px-4 pb-16 pt-5">
         {!isSearchActive && (
           <ContestHero
             contest={contest}
@@ -674,6 +675,12 @@ export default function VoteContestClientPage() {
             contestEnded={contestEnded}
           />
         )}
+
+        {!isSearchActive ? (
+          <section className="rounded-3xl border border-slate-200 bg-white px-3 py-3 shadow-sm shadow-slate-200/50">
+            <BrandsCarousel />
+          </section>
+        ) : null}
 
         <CandidateSearchBar
           value={searchQuery}
@@ -852,7 +859,7 @@ function ContestHero({
         <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(17,24,39,0.82)_0%,rgba(17,24,39,0.55)_55%,rgba(17,24,39,0.1)_100%)]" />
       </div>
 
-      <div className="relative flex flex-col gap-5 p-6 text-white">
+      <div className="relative flex flex-col gap-4 p-5 text-white">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
             <TrophyIcon className="h-6 w-6 text-white" />
