@@ -890,7 +890,7 @@ function ContestHero({
           </p>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-2.5 text-center text-slate-900">
+        <div className="grid grid-cols-2 gap-2 text-center text-slate-900">
           <StatCard label="Votes" value={totalVotes} />
           <StatCard label="Participants" value={totalParticipants} />
         </div>
@@ -1471,13 +1471,13 @@ function CountdownPills({ days, hours, minutes, seconds }: CountdownPillsProps) 
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-2.5">
+    <div className="grid grid-cols-4 gap-2">
       {items.map(item => (
         <div
           key={item.label}
-          className="flex flex-col items-center justify-center gap-1 rounded-xl bg-white/15 px-2 py-2.5 text-center"
+          className="flex flex-col items-center justify-center gap-1 rounded-xl bg-white/15 px-2 py-2 text-center"
         >
-          <span className="text-base font-bold text-white">{String(item.value).padStart(2, '0')}</span>
+          <span className="text-sm font-bold text-white">{String(item.value).padStart(2, '0')}</span>
           <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">{item.label}</span>
         </div>
       ))}
@@ -1492,8 +1492,8 @@ type StatCardProps = {
 
 function StatCard({ label, value }: StatCardProps) {
   return (
-    <div className="rounded-2xl bg-white/90 px-3.5 py-4 text-center shadow-sm shadow-black/10 backdrop-blur">
-      <span className="block text-xl font-bold text-slate-900">{formatNumber(value)}</span>
+    <div className="rounded-2xl bg-white/90 px-3 py-3 text-center shadow-sm shadow-black/10 backdrop-blur">
+      <span className="block text-lg font-bold text-slate-900">{formatNumber(value)}</span>
       <span className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
     </div>
   );
