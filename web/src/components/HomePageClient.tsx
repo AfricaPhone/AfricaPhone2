@@ -179,7 +179,7 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
             className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
             <LocatorIcon className="h-4 w-4" />
-            Ou nous trouver
+            Où nous trouver ?
           </Link>
         </div>
       </div>
