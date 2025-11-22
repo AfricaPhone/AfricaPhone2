@@ -33,7 +33,7 @@ const DEFAULT_PAGE_DATA: BoutiquePageData = {
   name: 'Africa PHONE',
   coverImage: '',
   avatarImage: '/logo.png',
-  address: 'Immeuble AfricaPhone, Rue 352, Ganhi - Cotonou, Benin',
+  address: 'Immeuble AfricaPhone, Rue 352, Ganhi - Cotonou, Bénin',
   contactDisplay: '+229 0154151522',
   contactTelHref: 'tel:+2290154151522',
   whatsappLink: 'https://wa.me/2290154151522',
@@ -268,10 +268,10 @@ export default function NousTrouverPage() {
         <section className="px-4 pt-16">
           <h1 className="text-[26px] font-bold leading-tight text-slate-900">{pageData.name}</h1>
           <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
-            Ouvert tous les jours de 7h Ã  22h Â· 7J/7
+            Ouvert tous les jours de 7h à 22h · 7J/7
           </p>
           {deliveryNote ? (
-            <p className="mt-1 text-sm font-semibold uppercase tracking-wide text-blue-600">{deliveryNote}</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-blue-600">{deliveryNote}</p>
           ) : null}
         </section>
 
