@@ -295,7 +295,7 @@ export default function NousTrouverPage() {
               rel="noopener noreferrer"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
-              <MapPinIcon className="h-6 w-6" aria-hidden="true" />
+              <MapPinIcon className="h-7 w-7" aria-hidden="true" />
               Voir la localisation Google Maps
             </Link>
           </div>
