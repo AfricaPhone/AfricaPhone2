@@ -662,7 +662,7 @@ export default function VoteContestClientPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-screen-sm flex-col gap-4 px-4 pb-16 pt-5">
+      <main className="mx-auto flex w-full max-w-screen-sm flex-col gap-4 px-4 pb-16 pt-4">
         {!isSearchActive && (
           <ContestHero
             contest={contest}
@@ -859,16 +859,16 @@ function ContestHero({
         <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(17,24,39,0.82)_0%,rgba(17,24,39,0.55)_55%,rgba(17,24,39,0.1)_100%)]" />
       </div>
 
-      <div className="relative flex flex-col gap-4 p-5 text-white">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
+      <div className="relative flex flex-col gap-3.5 p-4 text-white">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
             <TrophyIcon className="h-6 w-6 text-white" />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
+            <span className="text-\[10px\] font-semibold uppercase tracking-wide text-white/70">
               {contest?.title ?? 'Concours'}
             </span>
-            <h2 className="text-2xl font-bold leading-tight text-white">
+            <h2 className="text-xl font-bold leading-tight text-white">
               {contestEnded ? 'Concours clÃ´turÃ©' : "Phase d'inscription"}
             </h2>
           </div>
@@ -961,7 +961,7 @@ function CandidateList({
               key={candidate.id}
               className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/40 transition hover:-translate-y-[1px] hover:shadow-lg"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <div className="relative h-14 w-14 overflow-hidden rounded-2xl bg-slate-100">
                   {candidate.photoUrl ? (
                     <Image src={candidate.photoUrl} alt={candidate.name} fill className="object-cover" />
