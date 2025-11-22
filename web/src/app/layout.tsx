@@ -1,7 +1,10 @@
+import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import { Inter, Roboto_Mono } from 'next/font/google';
 import './globals.css';
-import TopProgressBar from '@/components/TopProgressBar';
+
+// Render the progress bar only on the client to avoid hook issues during SSR.
+const TopProgressBar = dynamic(() => import('@/components/TopProgressBar'), { ssr: false });
 
 const interSans = Inter({
   variable: '--font-inter-sans',
