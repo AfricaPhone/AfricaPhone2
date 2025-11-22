@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 import { db } from '@/lib/firebaseClient';
 import ProductGridSection from '@/components/ProductGridSection';
 
@@ -179,8 +180,9 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
               Retour à la boutique
             </button>
           </div>
-        )}
+      )}
       </main>
+      <ScrollToTopButton />
     </div>
   );
 };
