@@ -295,7 +295,7 @@ export default function NousTrouverPage() {
               rel="noopener noreferrer"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
-              <MapPinIcon className="h-5 w-5" aria-hidden="true" />
+              <MapPinIcon className="h-6 w-6" aria-hidden="true" />
               Voir la localisation Google Maps
             </Link>
           </div>
@@ -310,17 +310,14 @@ function MapPinIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
         d="M12 21s7-5.25 7-11a7 7 0 1 0-14 0c0 5.75 7 11 7 11Z"
-        fill="currentColor"
-      />
-      <circle cx="12" cy="10" r="2.5" fill="white" />
-      <circle cx="12" cy="10" r="1.3" fill="currentColor" />
-      <path
-        d="M12 21s7-5.25 7-11a7 7 0 1 0-14 0c0 5.75 7 11 7 11Z"
-        stroke="currentColor"
+        fill="#EA4335"
+        stroke="#D93025"
         strokeWidth="1.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      <circle cx="12" cy="10" r="2.6" fill="#FCE8E6" />
+      <circle cx="12" cy="10" r="1.35" fill="#D93025" />
     </svg>
   );
 }
