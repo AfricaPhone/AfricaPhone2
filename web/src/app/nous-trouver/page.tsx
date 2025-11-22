@@ -295,7 +295,7 @@ export default function NousTrouverPage() {
               rel="noopener noreferrer"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
-              <DirectionsIcon className="h-5 w-5" aria-hidden="true" />
+              <MapPinIcon className="h-5 w-5" aria-hidden="true" />
               Voir la localisation Google Maps
             </Link>
           </div>
@@ -305,27 +305,19 @@ export default function NousTrouverPage() {
   );
 }
 
-function DirectionsIcon({ className }: { className?: string }) {
+function MapPinIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
-        d="m12.94 4.44 6.62 6.62a1 1 0 0 1 0 1.41l-6.62 6.62a1 1 0 0 1-1.41 0l-6.62-6.62a1 1 0 0 1 0-1.41l6.62-6.62a1 1 0 0 1 1.41 0Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M12 21s7-5.25 7-11a7 7 0 1 0-14 0c0 5.75 7 11 7 11Z"
+        fill="currentColor"
       />
+      <circle cx="12" cy="10" r="2.5" fill="white" />
+      <circle cx="12" cy="10" r="1.3" fill="currentColor" />
       <path
-        d="M13 7h2.5a.5.5 0 0 1 .5.5V10"
+        d="M12 21s7-5.25 7-11a7 7 0 1 0-14 0c0 5.75 7 11 7 11Z"
         stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M11 13h2l-2-2 2-2"
-        stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
