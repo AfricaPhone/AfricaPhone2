@@ -176,7 +176,7 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
         <div className="ml-auto">
           <Link
             href="/nous-trouver"
-            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
           >
             <MapPinIcon className="h-6 w-6 text-red-500" />
             Où nous trouver ?
