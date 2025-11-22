@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { allProducts, type ProductSummary } from '@/data/home';
@@ -885,6 +885,55 @@ export default function ProductGridSection({
 }
 
 function TopProductsRail({ products, loading }: { products: ProductCardData[]; loading: boolean }) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  const updateArrowVisibility = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) {
+      return;
+    }
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollPrev(scrollLeft > 4);
+    setCanScrollNext(scrollLeft + clientWidth < scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) {
+      return;
+    }
+
+    updateArrowVisibility();
+    const handleScroll = () => updateArrowVisibility();
+    const resizeObserver = new ResizeObserver(() => updateArrowVisibility());
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    resizeObserver.observe(el);
+
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
+      resizeObserver.disconnect();
+    };
+  }, [updateArrowVisibility]);
+
+  useEffect(() => {
+    updateArrowVisibility();
+  }, [products.length, updateArrowVisibility]);
+
+  const scrollByAmount = useCallback((direction: 'prev' | 'next') => {
+    const el = scrollRef.current;
+    if (!el) {
+      return;
+    }
+    const amount = Math.max(el.clientWidth * 0.8, 200);
+    el.scrollBy({
+      left: direction === 'next' ? amount : -amount,
+      behavior: 'smooth',
+    });
+  }, []);
+
   const showSkeleton = loading && products.length === 0;
   if (!showSkeleton && products.length === 0) {
     return null;
@@ -900,11 +949,48 @@ function TopProductsRail({ products, loading }: { products: ProductCardData[]; l
         <h3 className="text-lg font-bold text-slate-900">Top produits</h3>
       </div>
       <div className="relative overflow-hidden">
-        <div className={`${TOP_PRODUCTS_SCROLL_CLASSNAME} flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-x-contain px-1 pb-3 pe-8 sm:gap-3 sm:px-1.5 sm:pe-12 lg:gap-4 lg:px-2 lg:pe-16`}>
+        <div
+          ref={scrollRef}
+          className={`${TOP_PRODUCTS_SCROLL_CLASSNAME} flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-x-contain px-1 pb-3 pe-8 sm:gap-3 sm:px-1.5 sm:pe-12 lg:gap-4 lg:px-2 lg:pe-16`}
+        >
           {items}
         </div>
+        {canScrollPrev ? <TopProductsArrowButton direction="prev" onClick={() => scrollByAmount('prev')} /> : null}
+        {canScrollNext ? <TopProductsArrowButton direction="next" onClick={() => scrollByAmount('next')} /> : null}
       </div>
     </div>
+  );
+}
+
+type TopProductsArrowButtonProps = {
+  direction: 'prev' | 'next';
+  onClick: () => void;
+};
+
+function TopProductsArrowButton({ direction, onClick }: TopProductsArrowButtonProps) {
+  const isNext = direction === 'next';
+  const alignmentClasses = isNext ? 'right-0 justify-end' : 'left-0 justify-start';
+
+  return (
+    <>
+      <div className={`pointer-events-none absolute inset-y-0 ${alignmentClasses} flex items-center`}>
+        <div
+          className={`h-full w-8 ${isNext ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-white via-white to-transparent opacity-80`}
+        />
+      </div>
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={isNext ? 'Afficher les prochains produits' : 'Afficher les produits precedents'}
+        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-orange-500 bg-orange-500 text-white shadow-lg transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${
+          isNext ? 'right-2' : 'left-2'
+        }`}
+      >
+        <svg className={`h-5 w-5 ${isNext ? '' : 'rotate-180'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+    </>
   );
 }
 
