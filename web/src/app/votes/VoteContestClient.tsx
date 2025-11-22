@@ -652,17 +652,17 @@ export default function VoteContestClientPage() {
           <button
             type="button"
             onClick={handleBack}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
             aria-label="Retour"
           >
             <ChevronLeftIcon className="h-5 w-5" />
           </button>
-          <h1 className="text-center text-[18px] font-semibold">Concours de Vote</h1>
+          <h1 className="text-center text-\[16px\] font-semibold">Concours de Vote</h1>
           <div aria-hidden className="h-11 w-11" />
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-screen-sm flex-col gap-4 px-4 pb-16 pt-3.5">
+      <main className="mx-auto flex w-full max-w-screen-sm flex-col gap-3.5 px-4 pb-16 pt-3">
         {!isSearchActive && (
           <ContestHero
             contest={contest}
