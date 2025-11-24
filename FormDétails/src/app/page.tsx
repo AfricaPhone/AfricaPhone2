@@ -327,9 +327,6 @@ const ContestSummary = () => {
             <span className="tag-pill">Edition 2025</span>
           </div>
           <h1 className="hero-title">{mockContest.title}</h1>
-          <p className="hero-description">
-            {mockContest.summary} : du {startLabel} au {closingLabel}
-          </p>
           <div className="hero-footer">
             <span>Début : {startLabel}</span>
             <span>Fin : {closingLabel}</span>
