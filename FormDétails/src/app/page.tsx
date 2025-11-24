@@ -1,7 +1,8 @@
-﻿type ContestSnapshot = {
+type ContestSnapshot = {
   title: string;
   phase: string;
   summary: string;
+  startAt: string;
   closingAt: string;
   location: string;
   lastSync: string;
@@ -32,7 +33,8 @@ type CandidateDetails = {
 const mockContest: ContestSnapshot = {
   title: 'Concours AfricaPhone – Journaliste Tech 2025',
   phase: 'Votes en cours',
-  summary: 'Espace réservé aux candidats pour suivre les contributions reçues.',
+  summary: 'Période du concours',
+  startAt: '2025-01-05T08:00:00Z',
   closingAt: '2025-02-10T18:30:00Z',
   location: 'Abidjan & diffusion en ligne',
   lastSync: '2025-01-12T14:05:00Z',
@@ -229,7 +231,7 @@ const CandidatePanel = ({ candidate, ranking, totalCandidates }: CandidatePanelP
           <p style={{ marginTop: 6, color: '#1e293b', fontWeight: 500 }}>{candidate.highlight}</p>
         </div>
         <div className="badge">
-          Position #{ranking} / {totalCandidates}
+          Rang actuel : {ranking} / {totalCandidates}
         </div>
       </div>
 
@@ -253,7 +255,7 @@ const CandidatePanel = ({ candidate, ranking, totalCandidates }: CandidatePanelP
         </div>
       </div>
 
-      <h4 className="section-title">Contributions récentes</h4>
+      <h4 className="section-title">Liste des votants</h4>
       {candidate.voters.length === 0 ? (
         <div className="empty-state">Aucune contribution enregistrée pour le moment.</div>
       ) : (
@@ -263,7 +265,7 @@ const CandidatePanel = ({ candidate, ranking, totalCandidates }: CandidatePanelP
               <th>Supporter</th>
               <th>Voix</th>
               <th>Montant</th>
-              <th>Dernier vote</th>
+              <th>Date du vote</th>
               <th>Méthode</th>
             </tr>
           </thead>
@@ -312,6 +314,7 @@ const computeAggregates = () => {
 
 const ContestSummary = () => {
   const aggregates = computeAggregates();
+  const startLabel = formatDate(mockContest.startAt);
   const closingLabel = formatDate(mockContest.closingAt);
   const daysLeft = computeDaysLeft(mockContest.closingAt);
 
@@ -324,11 +327,13 @@ const ContestSummary = () => {
             <span className="tag-pill">Edition 2025</span>
           </div>
           <h1 className="hero-title">{mockContest.title}</h1>
-          <p className="hero-description">{mockContest.summary}</p>
+          <p className="hero-description">
+            {mockContest.summary} : du {startLabel} au {closingLabel}
+          </p>
           <div className="hero-footer">
-            <span>📍 {mockContest.location}</span>
-            <span>🗓️ Clôture : {closingLabel}</span>
-            <span>⏳ {daysLeft}</span>
+            <span>Début : {startLabel}</span>
+            <span>Fin : {closingLabel}</span>
+            <span>{daysLeft}</span>
           </div>
         </div>
 
@@ -344,16 +349,18 @@ const ContestSummary = () => {
 };
 
 export default function ContestDetailsPage() {
+  const sortedCandidates = [...mockCandidates].sort((a, b) => b.totalVotes - a.totalVotes);
+
   return (
     <main>
       <div className="page-shell">
         <ContestSummary />
-        {mockCandidates.map((candidate, index) => (
+        {sortedCandidates.map((candidate, index) => (
           <CandidatePanel
             key={candidate.id}
             candidate={candidate}
             ranking={index + 1}
-            totalCandidates={mockCandidates.length}
+            totalCandidates={sortedCandidates.length}
           />
         ))}
       </div>
