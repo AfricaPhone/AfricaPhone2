@@ -493,7 +493,7 @@
       const toggle = document.getElementById('themeToggle');
       const setLabel = () => {
         if (!toggle) return;
-        toggle.textContent = document.body.classList.contains('light') - 'Mode clair' : 'Mode sombre';
+        toggle.textContent = document.body.classList.contains('light') ? 'Mode clair' : 'Mode sombre';
       };
       if (toggle) {
         toggle.addEventListener('click', () => {
