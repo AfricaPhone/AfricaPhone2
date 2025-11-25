@@ -20,6 +20,7 @@
         <div class="top-actions">
           <span class="pill pill-primary">UI statique</span>
           <span class="pill pill-ghost">Transparence leads/ventes</span>
+          <button class="toggle" id="themeToggle" type="button">Mode sombre</button>
         </div>
       </header>
 
@@ -83,6 +84,63 @@
         </article>
       </section>
 
+      <section class="chart-grid">
+        <article class="card chart-card">
+          <div class="section-head">
+            <div>
+              <p class="label">Tendance ventes</p>
+              <p class="section-title">Courbe 7 jours</p>
+            </div>
+            <span class="pill pill-ghost">mock data</span>
+          </div>
+          <div class="sparkline">
+            <div class="spark-fill"></div>
+          </div>
+          <div class="legend">
+            <span class="dot dot-primary"></span>
+            <span class="muted">Ventes conclues</span>
+          </div>
+        </article>
+        <article class="card chart-card">
+          <div class="section-head">
+            <div>
+              <p class="label">Conversion leads</p>
+              <p class="section-title">Leads -> ventes</p>
+            </div>
+            <span class="pill pill-ghost">mock data</span>
+          </div>
+          <div class="bar-stack">
+            <div class="bar-stack-row">
+              <span class="muted">Web</span>
+              <div class="stack">
+                <span class="stack-part part-lead" style="width: 52%"></span>
+                <span class="stack-part part-win" style="width: 28%"></span>
+              </div>
+            </div>
+            <div class="bar-stack-row">
+              <span class="muted">App</span>
+              <div class="stack">
+                <span class="stack-part part-lead" style="width: 34%"></span>
+                <span class="stack-part part-win" style="width: 18%"></span>
+              </div>
+            </div>
+            <div class="bar-stack-row">
+              <span class="muted">WhatsApp</span>
+              <div class="stack">
+                <span class="stack-part part-lead" style="width: 22%"></span>
+                <span class="stack-part part-win" style="width: 9%"></span>
+              </div>
+            </div>
+          </div>
+          <div class="legend">
+            <span class="dot dot-lead"></span>
+            <span class="muted">Leads</span>
+            <span class="dot dot-win"></span>
+            <span class="muted">Ventes</span>
+          </div>
+        </article>
+      </section>
+
       <section class="card channel-card">
         <div class="channel-header">
           <p class="label">Repartition par canal</p>
@@ -118,6 +176,108 @@
               <div class="bar-fill bar-wa" style="width: 15%"></div>
             </div>
             <p class="channel-note">Code dans le message, saisi en back-office vente.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card payout-card">
+        <header class="section-head">
+          <div>
+            <p class="label">Commissions et reversements</p>
+            <p class="section-title">Paiements percus et en attente</p>
+          </div>
+          <div class="pill-group">
+            <span class="pill pill-primary">Total percu: 120 000 CFA</span>
+            <span class="pill pill-warning">En attente: 130 000 CFA</span>
+          </div>
+        </header>
+        <div class="payout-grid">
+          <div class="payout-summary">
+            <div class="summary-row">
+              <span class="muted">Dernier reversement</span>
+              <span>25 000 CFA - 15/11</span>
+            </div>
+            <div class="summary-row">
+              <span class="muted">Mode</span>
+              <span>Mobile money</span>
+            </div>
+            <div class="summary-row">
+              <span class="muted">Prochain versement estime</span>
+              <span class="pill pill-success">D-3</span>
+            </div>
+            <p class="muted small">Ces montants seront verifies cote app stock avant versement.</p>
+          </div>
+          <div class="table payout-table">
+            <div class="table-row table-head">
+              <span>Date</span>
+              <span>Montant</span>
+              <span>Mode</span>
+              <span>Statut</span>
+              <span>Reference</span>
+              <span>Actions</span>
+            </div>
+            <div class="table-row">
+              <span>15/11</span>
+              <span>25 000 CFA</span>
+              <span>Momo</span>
+              <span><span class="pill pill-success">percu</span></span>
+              <span>#REV-482</span>
+              <span class="pill pill-light">telecharger recu</span>
+            </div>
+            <div class="table-row">
+              <span>10/11</span>
+              <span>45 000 CFA</span>
+              <span>Virement</span>
+              <span><span class="pill pill-success">percu</span></span>
+              <span>#REV-461</span>
+              <span class="pill pill-light">telecharger recu</span>
+            </div>
+            <div class="table-row">
+              <span>En attente</span>
+              <span>130 000 CFA</span>
+              <span>A definir</span>
+              <span><span class="pill pill-warning">planifie</span></span>
+              <span>#REV-496</span>
+              <span class="pill pill-ghost">voir details</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card share-card">
+        <header class="section-head">
+          <div>
+            <p class="label">Liens a partager</p>
+            <p class="section-title">Web, App, WhatsApp</p>
+          </div>
+          <span class="pill pill-ghost">Code actif: JOYFUL-AP</span>
+        </header>
+        <div class="share-grid">
+          <div class="share-block">
+            <p class="muted">Lien Web</p>
+            <div class="share-field">
+              <span>https://africaphone.com/-code=JOYFUL-AP</span>
+              <button class="pill pill-light">Copier</button>
+            </div>
+          </div>
+          <div class="share-block">
+            <p class="muted">Lien App (deep link)</p>
+            <div class="share-field">
+              <span>myapp://home-code=JOYFUL-AP</span>
+              <button class="pill pill-light">Copier</button>
+            </div>
+          </div>
+          <div class="share-block">
+            <p class="muted">Lien WhatsApp</p>
+            <div class="share-field">
+              <span>https://wa.me/2290154151522-text=Code%20JOYFUL-AP</span>
+              <button class="pill pill-light">Copier</button>
+            </div>
+          </div>
+          <div class="share-block qr">
+            <p class="muted">QR preconfigure</p>
+            <div class="qr-box">QR</div>
+            <p class="muted small">A scanner pour ouvrir le site avec le code.</p>
           </div>
         </div>
       </section>
@@ -230,6 +390,14 @@
             </div>
           </div>
           <div class="event">
+            <div class="bullet success"></div>
+            <div>
+              <p class="event-title">Payout_sent</p>
+              <p class="event-meta">15/11 - Reversement - Momo</p>
+              <p class="event-note">Versement 25 000 CFA envoye avec recu telechargeable.</p>
+            </div>
+          </div>
+          <div class="event">
             <div class="bullet info"></div>
             <div>
               <p class="event-title">Order_created</p>
@@ -243,6 +411,48 @@
               <p class="event-title">Code_seen</p>
               <p class="event-meta">17/11 - INSPIRE-AP - WhatsApp</p>
               <p class="event-note">Message WA prerempli envoye, en attente de creation de commande.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card payout-info">
+        <header class="section-head">
+          <div>
+            <p class="label">Coordonnees financieres</p>
+            <p class="section-title">Reversement partenaire</p>
+          </div>
+          <span class="pill pill-ghost">A verifier</span>
+        </header>
+        <div class="payout-info-grid">
+          <div class="info-block">
+            <p class="label">Mobile money</p>
+            <div class="info-field">
+              <div>
+                <p class="section-title">+229 97 00 11 22</p>
+                <p class="muted small">Operateur: MTN - Derniere mise a jour: 10/11</p>
+              </div>
+              <button class="pill pill-light">Mettre a jour</button>
+            </div>
+          </div>
+          <div class="info-block">
+            <p class="label">Compte bancaire</p>
+            <div class="info-field">
+              <div>
+                <p class="section-title">IBAN XXXX XXXX 4421</p>
+                <p class="muted small">Banque: AFRIBANK - Statut: en verification</p>
+              </div>
+              <button class="pill pill-light">Mettre a jour</button>
+            </div>
+          </div>
+          <div class="info-block">
+            <p class="label">Justificatifs</p>
+            <div class="info-field">
+              <div>
+                <p class="section-title">CNI + RIB</p>
+                <p class="muted small">Necessaire pour debloquer les reversements</p>
+              </div>
+              <button class="pill pill-primary">Importer</button>
             </div>
           </div>
         </div>
@@ -278,5 +488,20 @@
         <p>Cette page est une maquette statique. Elle se branche ensuite sur l'API ventes/stock pour afficher les vrais chiffres.</p>
       </footer>
     </div>
+
+    <script>
+      const toggle = document.getElementById('themeToggle');
+      const setLabel = () => {
+        if (!toggle) return;
+        toggle.textContent = document.body.classList.contains('light') - 'Mode clair' : 'Mode sombre';
+      };
+      if (toggle) {
+        toggle.addEventListener('click', () => {
+          document.body.classList.toggle('light');
+          setLabel();
+        });
+        setLabel();
+      }
+    </script>
   </body>
 </html>
