@@ -3,24 +3,369 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard Partenaire - Codes promos | AfricaPhone</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <title>Dashboard Partenaire | AfricaPhone</title>
+    <!-- Police Inter pour un look moderne -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icônes Phosphor (légères et modernes) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+      :root {
+        /* Palette de couleurs - Dark Mode par défaut */
+        --bg-body: #0f1115;
+        --bg-card: #161b22;
+        --bg-card-hover: #1c2128;
+        --border-color: #30363d;
+        
+        --text-primary: #f0f6fc;
+        --text-secondary: #8b949e;
+        --text-tertiary: #6e7681;
+
+        --accent-primary: #58a6ff;
+        --accent-primary-dim: rgba(88, 166, 255, 0.15);
+        --accent-success: #2ea043;
+        --accent-success-dim: rgba(46, 160, 67, 0.15);
+        --accent-warning: #d29922;
+        --accent-warning-dim: rgba(210, 153, 34, 0.15);
+        --accent-danger: #f85149;
+        
+        --radius-sm: 6px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+        
+        --font-main: 'Inter', system-ui, sans-serif;
+      }
+
+      /* Light Mode Variables */
+      body.light {
+        --bg-body: #f6f8fa;
+        --bg-card: #ffffff;
+        --bg-card-hover: #f3f4f6;
+        --border-color: #d0d7de;
+        
+        --text-primary: #1f2328;
+        --text-secondary: #57606a;
+        --text-tertiary: #6e7781;
+
+        --accent-primary: #0969da;
+        --accent-primary-dim: rgba(9, 105, 218, 0.1);
+        --accent-success: #1a7f37;
+        --accent-success-dim: rgba(26, 127, 55, 0.1);
+        --accent-warning: #9a6700;
+        --accent-warning-dim: rgba(154, 103, 0, 0.1);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: var(--font-main);
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        line-height: 1.5;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Layout Principal */
+      .app-shell {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 24px;
+        display: grid;
+        gap: 24px;
+      }
+
+      /* Composant Carte Universel */
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .card:hover {
+        border-color: var(--accent-primary);
+        box-shadow: var(--shadow-md);
+      }
+
+      /* Typography Helpers */
+      .label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .muted { color: var(--text-secondary); font-size: 0.875rem; }
+      .small { font-size: 0.75rem; }
+      .section-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+
+      /* Pills & Badges */
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .pill-primary { background: var(--accent-primary-dim); color: var(--accent-primary); border: 1px solid rgba(88, 166, 255, 0.2); }
+      .pill-success { background: var(--accent-success-dim); color: var(--accent-success); border: 1px solid rgba(46, 160, 67, 0.2); }
+      .pill-warning { background: var(--accent-warning-dim); color: var(--accent-warning); border: 1px solid rgba(210, 153, 34, 0.2); }
+      .pill-ghost { background: rgba(110, 118, 129, 0.1); color: var(--text-secondary); }
+      .pill-light { background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
+      .pill-light:hover { background: var(--bg-card-hover); }
+
+      /* --- HEADER --- */
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        position: sticky;
+        top: 24px;
+        z-index: 100;
+        backdrop-filter: blur(12px);
+        background: rgba(22, 27, 34, 0.85); /* Semi-transparent */
+      }
+      body.light .topbar { background: rgba(255, 255, 255, 0.85); }
+
+      .brand { display: flex; align-items: center; gap: 16px; }
+      .logo { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #FF6B6B, #556270); } /* Placeholder gradient */
+      .brand .eyebrow { font-size: 0.8rem; color: var(--text-tertiary); font-weight: 500; }
+      .brand .title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+      
+      .top-actions { display: flex; gap: 12px; align-items: center; }
+      .toggle-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .toggle-btn:hover { background: var(--bg-card-hover); }
+
+      /* --- FILTERS --- */
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        align-items: flex-start;
+      }
+      .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+      .chip {
+        padding: 6px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 0.875rem;
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .chip:hover { border-color: var(--accent-primary); }
+      .chip-active {
+        background: var(--accent-primary);
+        color: white;
+        border-color: var(--accent-primary);
+      }
+      .filter-grid {
+        display: flex;
+        gap: 24px;
+        flex-grow: 1;
+        justify-content: flex-end;
+      }
+      .filter-grid > div { min-width: 140px; }
+      .field {
+        font-weight: 500;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 4px;
+      }
+
+      /* --- KPI GRID --- */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+      }
+      .kpi { display: flex; flex-direction: column; justify-content: space-between; height: 100%; position: relative; overflow: hidden; }
+      /* Petit accent décoratif en haut de la carte KPI */
+      .kpi::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+        background: linear-gradient(90deg, var(--accent-primary), transparent);
+        opacity: 0.5;
+      }
+      .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+      .kpi-value { font-size: 2.5rem; font-weight: 700; color: var(--text-primary); line-height: 1.1; margin-bottom: 8px; }
+      .kpi-note { font-size: 0.8rem; color: var(--text-tertiary); }
+
+      /* --- CHARTS --- */
+      .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+      }
+      .chart-card { min-height: 300px; display: flex; flex-direction: column; }
+      .section-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+      
+      /* Sparkline CSS Trick */
+      .sparkline {
+        flex-grow: 1;
+        width: 100%;
+        height: 100px;
+        display: flex;
+        align-items: flex-end;
+        position: relative;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 16px;
+        overflow: hidden;
+      }
+      .spark-fill {
+        width: 100%; height: 100%;
+        background: linear-gradient(180deg, var(--accent-primary-dim) 0%, transparent 80%);
+        mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" stroke="black" stroke-width="2" fill="none"/></svg>');
+        -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="black"/></svg>');
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        position: relative;
+      }
+      .spark-fill::after {
+        content: ''; position: absolute; top:0; left:0; right:0; bottom:0;
+        /* Draw the line */
+        background: transparent;
+      }
+
+      /* Stacked Bars */
+      .bar-stack { display: flex; flex-direction: column; gap: 16px; margin-top: auto; }
+      .bar-stack-row { display: flex; align-items: center; gap: 16px; font-size: 0.875rem; }
+      .bar-stack-row > span.muted { width: 80px; }
+      .stack { flex-grow: 1; height: 12px; background: var(--bg-card-hover); border-radius: 6px; overflow: hidden; display: flex; }
+      .stack-part { height: 100%; }
+      .part-lead { background: var(--text-secondary); opacity: 0.5; }
+      .part-win { background: var(--accent-success); }
+      
+      .legend { display: flex; gap: 16px; align-items: center; font-size: 0.8rem; margin-top: 16px; }
+      .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+      .dot-primary { background: var(--accent-primary); }
+      .dot-lead { background: var(--text-secondary); opacity: 0.5; }
+      .dot-win { background: var(--accent-success); }
+
+      /* --- CHANNELS --- */
+      .channel-grid { display: grid; gap: 24px; margin-top: 20px; }
+      .channel-top { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500; }
+      .bar { height: 8px; background: var(--bg-card-hover); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+      .bar-fill { height: 100%; border-radius: 4px; }
+      .bar-web { background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); }
+      .bar-app { background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); }
+      .bar-wa { background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); }
+      .channel-note { font-size: 0.8rem; color: var(--text-tertiary); font-style: italic; }
+
+      /* --- PAYOUT CARD --- */
+      .pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+      .payout-grid { display: grid; grid-template-columns: 280px 1fr; gap: 32px; margin-top: 24px; }
+      @media (max-width: 900px) { .payout-grid { grid-template-columns: 1fr; } }
+      
+      .payout-summary { background: var(--bg-body); padding: 20px; border-radius: var(--radius-md); border: 1px dashed var(--border-color); }
+      .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
+      
+      /* Tables */
+      .table { display: grid; gap: 8px; width: 100%; overflow-x: auto; }
+      .table-row {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        padding: 12px;
+        border-bottom: 1px solid var(--border-color);
+        align-items: center;
+        font-size: 0.9rem;
+        min-width: 600px;
+      }
+      .table-head { font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); }
+      .table-row:not(.table-head):hover { background: var(--bg-card-hover); border-radius: var(--radius-sm); }
+      
+      /* --- SHARE --- */
+      .share-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 20px; }
+      .share-block { background: var(--bg-body); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+      .share-field { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-top: 8px; font-family: monospace; font-size: 0.85rem; overflow: hidden; }
+      .share-field span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; color: var(--accent-primary); }
+      
+      /* --- TABLES GRID --- */
+      .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
+
+      /* --- TIMELINE --- */
+      .timeline-grid { display: flex; flex-direction: column; gap: 0; margin-top: 20px; }
+      .event { display: flex; gap: 16px; position: relative; padding-bottom: 24px; }
+      .event::before {
+        content: ''; position: absolute; top: 24px; left: 6px; bottom: 0; width: 2px; background: var(--border-color);
+      }
+      .event:last-child::before { display: none; }
+      .bullet { width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); flex-shrink: 0; z-index: 1; margin-top: 4px; }
+      .bullet.success { background: var(--accent-success); box-shadow: 0 0 0 3px var(--accent-success-dim); }
+      .bullet.info { background: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-primary-dim); }
+      .bullet.warning { background: var(--accent-warning); box-shadow: 0 0 0 3px var(--accent-warning-dim); }
+      .event-title { font-weight: 600; font-size: 0.95rem; }
+      .event-meta { font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 4px; }
+      .event-note { font-size: 0.85rem; color: var(--text-secondary); background: var(--bg-body); padding: 8px; border-radius: var(--radius-sm); margin-top: 4px; }
+
+      /* --- INFO GRID --- */
+      .payout-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 20px; }
+      .info-block { display: flex; flex-direction: column; gap: 8px; }
+      .info-field { display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg-body); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); flex-grow: 1; }
+
+      /* --- RULES --- */
+      .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+      .card.mini { padding: 20px; border-left: 4px solid var(--accent-primary); }
+
+      /* Footer */
+      .footnote { text-align: center; padding: 40px; color: var(--text-tertiary); font-size: 0.85rem; }
+
+      /* Mobile Adjustment */
+      @media (max-width: 768px) {
+        .topbar { position: relative; top: 0; margin-bottom: 20px; }
+        .filter-grid { flex-direction: column; gap: 12px; }
+        .table-row { grid-template-columns: 100px 1fr; gap: 8px; }
+        .table-head { display: none; } /* Simplified mobile table */
+      }
+    </style>
   </head>
   <body>
-    <div class="background"></div>
+    <!-- Background Abstract shapes -->
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none;">
+      <div style="position: absolute; top: -10%; right: -10%; width: 50%; height: 50%; background: radial-gradient(circle, var(--accent-primary-dim) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);"></div>
+      <div style="position: absolute; bottom: -10%; left: -10%; width: 60%; height: 60%; background: radial-gradient(circle, rgba(100,100,255,0.05) 0%, transparent 70%); border-radius: 50%; filter: blur(80px);"></div>
+    </div>
+
     <div class="app-shell">
       <header class="topbar card">
         <div class="brand">
-          <img src="../assets/icon.png" alt="Logo AfricaPhone" class="logo" />
+          <!-- Icon placeholder with Phosphor Icon -->
+          <div class="logo" style="display: grid; place-items: center; color: white; font-size: 24px;">
+            <i class="ph ph-lightning"></i>
+          </div>
           <div>
             <p class="eyebrow">Espace partenaire</p>
             <p class="title">Codes promos AfricaPhone</p>
           </div>
         </div>
         <div class="top-actions">
-          <span class="pill pill-primary">UI statique</span>
-          <span class="pill pill-ghost">Transparence leads/ventes</span>
-          <button class="toggle" id="themeToggle" type="button">Mode sombre</button>
+          <span class="pill pill-primary"><i class="ph ph-cube" style="margin-right:4px;"></i> UI v2.0</span>
+          <span class="pill pill-ghost"><i class="ph ph-eye" style="margin-right:4px;"></i> Transparence active</span>
+          <button class="toggle-btn" id="themeToggle" type="button">
+            <i class="ph ph-moon" style="margin-right:4px;"></i> Mode sombre
+          </button>
         </div>
       </header>
 
@@ -35,16 +380,16 @@
         </div>
         <div class="filter-grid">
           <div>
-            <p class="label">Periode</p>
-            <div class="field">7 derniers jours</div>
+            <p class="label">Période</p>
+            <div class="field">7 derniers jours <i class="ph ph-caret-down" style="float:right"></i></div>
           </div>
           <div>
             <p class="label">Canal</p>
-            <div class="field">Web - App - WhatsApp</div>
+            <div class="field">Tous canaux <i class="ph ph-caret-down" style="float:right"></i></div>
           </div>
           <div>
             <p class="label">Statut</p>
-            <div class="field">Leads actifs + ventes conclues</div>
+            <div class="field">Leads & Ventes <i class="ph ph-caret-down" style="float:right"></i></div>
           </div>
         </div>
       </section>
@@ -53,34 +398,34 @@
         <article class="card kpi">
           <div class="kpi-header">
             <p class="label">Ventes conclues</p>
-            <span class="pill pill-success">+6 validees</span>
+            <span class="pill pill-success">+6 validées</span>
           </div>
           <p class="kpi-value">18</p>
-          <p class="kpi-note">Paiements confirmes (commission eligible)</p>
+          <p class="kpi-note"><i class="ph ph-check-circle"></i> Paiements confirmés</p>
         </article>
         <article class="card kpi">
           <div class="kpi-header">
-            <p class="label">Leads a suivre</p>
+            <p class="label">Leads à suivre</p>
             <span class="pill pill-warning">12 en panier</span>
           </div>
           <p class="kpi-value">32</p>
-          <p class="kpi-note">Code vu/applique sans vente conclue</p>
+          <p class="kpi-note">Code vu sans achat</p>
         </article>
         <article class="card kpi">
           <div class="kpi-header">
-            <p class="label">Commission estimee</p>
-            <span class="pill pill-ghost">premiere vente bonus</span>
+            <p class="label">Commission estimée</p>
+            <span class="pill pill-ghost">Bonus inclus</span>
           </div>
-          <p class="kpi-value">250 000 CFA</p>
-          <p class="kpi-note">Sera versee a validation paiement</p>
+          <p class="kpi-value" style="color: var(--accent-primary);">250k <span style="font-size:1rem; font-weight:500">CFA</span></p>
+          <p class="kpi-note">Versée à validation</p>
         </article>
         <article class="card kpi">
           <div class="kpi-header">
             <p class="label">Remises clients</p>
-            <span class="pill pill-ghost">motivation acheteur</span>
+            <span class="pill pill-ghost">Motivation</span>
           </div>
-          <p class="kpi-value">145 000 CFA</p>
-          <p class="kpi-note">Reductions appliquees grace au code</p>
+          <p class="kpi-value">145k <span style="font-size:1rem; font-weight:500">CFA</span></p>
+          <p class="kpi-note">Économies générées</p>
         </article>
       </section>
 
@@ -94,38 +439,49 @@
             <span class="pill pill-ghost">mock data</span>
           </div>
           <div class="sparkline">
-            <div class="spark-fill"></div>
+            <!-- Simulated SVG line -->
+            <svg style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; overflow: visible;" preserveAspectRatio="none" viewBox="0 0 100 50">
+                <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="none" stroke="var(--accent-primary)" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5 L100,50 Z" fill="url(#grad1)" style="opacity: 0.3"></path>
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+            </svg>
           </div>
           <div class="legend">
             <span class="dot dot-primary"></span>
             <span class="muted">Ventes conclues</span>
           </div>
         </article>
+        
         <article class="card chart-card">
           <div class="section-head">
             <div>
               <p class="label">Conversion leads</p>
-              <p class="section-title">Leads -> ventes</p>
+              <p class="section-title">Leads → Ventes</p>
             </div>
-            <span class="pill pill-ghost">mock data</span>
+            <span class="pill pill-ghost">Par canal</span>
           </div>
           <div class="bar-stack">
             <div class="bar-stack-row">
-              <span class="muted">Web</span>
+              <span class="muted"><i class="ph ph-globe"></i> Web</span>
               <div class="stack">
                 <span class="stack-part part-lead" style="width: 52%"></span>
                 <span class="stack-part part-win" style="width: 28%"></span>
               </div>
             </div>
             <div class="bar-stack-row">
-              <span class="muted">App</span>
+              <span class="muted"><i class="ph ph-device-mobile"></i> App</span>
               <div class="stack">
                 <span class="stack-part part-lead" style="width: 34%"></span>
                 <span class="stack-part part-win" style="width: 18%"></span>
               </div>
             </div>
             <div class="bar-stack-row">
-              <span class="muted">WhatsApp</span>
+              <span class="muted"><i class="ph ph-whatsapp-logo"></i> WA</span>
               <div class="stack">
                 <span class="stack-part part-lead" style="width: 22%"></span>
                 <span class="stack-part part-win" style="width: 9%"></span>
@@ -142,9 +498,11 @@
       </section>
 
       <section class="card channel-card">
-        <div class="channel-header">
-          <p class="label">Repartition par canal</p>
-          <span class="pill pill-ghost">web - app - whatsapp</span>
+        <div class="channel-header" style="display:flex; justify-content:space-between; margin-bottom: 20px;">
+          <div>
+              <p class="label">Répartition par canal</p>
+              <p class="section-title">Performance relative</p>
+          </div>
         </div>
         <div class="channel-grid">
           <div class="channel">
@@ -155,7 +513,7 @@
             <div class="bar">
               <div class="bar-fill bar-web" style="width: 52%"></div>
             </div>
-            <p class="channel-note">Codes preremplis via URL, remise appliquee en ligne.</p>
+            <p class="channel-note">Codes préremplis via URL.</p>
           </div>
           <div class="channel">
             <div class="channel-top">
@@ -165,7 +523,7 @@
             <div class="bar">
               <div class="bar-fill bar-app" style="width: 33%"></div>
             </div>
-            <p class="channel-note">Deep links + stockage du code en entree appli.</p>
+            <p class="channel-note">Deep links + stockage du code.</p>
           </div>
           <div class="channel">
             <div class="channel-top">
@@ -175,7 +533,7 @@
             <div class="bar">
               <div class="bar-fill bar-wa" style="width: 15%"></div>
             </div>
-            <p class="channel-note">Code dans le message, saisi en back-office vente.</p>
+            <p class="channel-note">Saisie en back-office vente.</p>
           </div>
         </div>
       </section>
@@ -183,29 +541,31 @@
       <section class="card payout-card">
         <header class="section-head">
           <div>
-            <p class="label">Commissions et reversements</p>
-            <p class="section-title">Paiements percus et en attente</p>
+            <p class="label">Commissions</p>
+            <p class="section-title">Paiements perçus et en attente</p>
           </div>
           <div class="pill-group">
-            <span class="pill pill-primary">Total percu: 120 000 CFA</span>
-            <span class="pill pill-warning">En attente: 130 000 CFA</span>
+            <span class="pill pill-primary">Total: 120 000 CFA</span>
+            <span class="pill pill-warning">Attente: 130 000 CFA</span>
           </div>
         </header>
         <div class="payout-grid">
           <div class="payout-summary">
             <div class="summary-row">
               <span class="muted">Dernier reversement</span>
-              <span>25 000 CFA - 15/11</span>
+              <span style="font-weight:600">25 000 CFA</span>
             </div>
             <div class="summary-row">
-              <span class="muted">Mode</span>
-              <span>Mobile money</span>
+              <span class="muted">Date</span>
+              <span>15 Nov</span>
             </div>
             <div class="summary-row">
-              <span class="muted">Prochain versement estime</span>
-              <span class="pill pill-success">D-3</span>
+              <span class="muted">Prochain versement</span>
+              <span class="pill pill-success">J-3</span>
             </div>
-            <p class="muted small">Ces montants seront verifies cote app stock avant versement.</p>
+            <p class="muted small" style="margin-top:16px; border-top:1px solid var(--border-color); padding-top:8px;">
+                Vérification auto côté stock avant versement.
+            </p>
           </div>
           <div class="table payout-table">
             <div class="table-row table-head">
@@ -213,32 +573,32 @@
               <span>Montant</span>
               <span>Mode</span>
               <span>Statut</span>
-              <span>Reference</span>
+              <span>Ref</span>
               <span>Actions</span>
             </div>
             <div class="table-row">
               <span>15/11</span>
               <span>25 000 CFA</span>
               <span>Momo</span>
-              <span><span class="pill pill-success">percu</span></span>
-              <span>#REV-482</span>
-              <span class="pill pill-light">telecharger recu</span>
+              <span><span class="pill pill-success">perçu</span></span>
+              <span class="muted">#REV-482</span>
+              <span class="pill pill-light"><i class="ph ph-download-simple"></i></span>
             </div>
             <div class="table-row">
               <span>10/11</span>
               <span>45 000 CFA</span>
               <span>Virement</span>
-              <span><span class="pill pill-success">percu</span></span>
-              <span>#REV-461</span>
-              <span class="pill pill-light">telecharger recu</span>
+              <span><span class="pill pill-success">perçu</span></span>
+              <span class="muted">#REV-461</span>
+              <span class="pill pill-light"><i class="ph ph-download-simple"></i></span>
             </div>
             <div class="table-row">
               <span>En attente</span>
               <span>130 000 CFA</span>
-              <span>A definir</span>
-              <span><span class="pill pill-warning">planifie</span></span>
-              <span>#REV-496</span>
-              <span class="pill pill-ghost">voir details</span>
+              <span>--</span>
+              <span><span class="pill pill-warning">planifié</span></span>
+              <span class="muted">#REV-496</span>
+              <span class="pill pill-ghost">détails</span>
             </div>
           </div>
         </div>
@@ -247,37 +607,41 @@
       <section class="card share-card">
         <header class="section-head">
           <div>
-            <p class="label">Liens a partager</p>
-            <p class="section-title">Web, App, WhatsApp</p>
+            <p class="label">Liens à partager</p>
+            <p class="section-title">Outils de diffusion</p>
           </div>
           <span class="pill pill-ghost">Code actif: JOYFUL-AP</span>
         </header>
         <div class="share-grid">
           <div class="share-block">
-            <p class="muted">Lien Web</p>
+            <p class="muted"><i class="ph ph-globe"></i> Lien Web</p>
             <div class="share-field">
-              <span>https://africaphone.com/-code=JOYFUL-AP</span>
+              <span>africaphone.com/?code=JOYFUL-AP</span>
               <button class="pill pill-light">Copier</button>
             </div>
           </div>
           <div class="share-block">
-            <p class="muted">Lien App (deep link)</p>
+            <p class="muted"><i class="ph ph-device-mobile"></i> Lien App (Deep Link)</p>
             <div class="share-field">
-              <span>myapp://home-code=JOYFUL-AP</span>
+              <span>myapp://home?code=JOYFUL-AP</span>
               <button class="pill pill-light">Copier</button>
             </div>
           </div>
           <div class="share-block">
-            <p class="muted">Lien WhatsApp</p>
+            <p class="muted"><i class="ph ph-whatsapp-logo"></i> WhatsApp</p>
             <div class="share-field">
-              <span>https://wa.me/2290154151522-text=Code%20JOYFUL-AP</span>
+              <span>wa.me/229...?text=Code%20JOYFUL</span>
               <button class="pill pill-light">Copier</button>
             </div>
           </div>
-          <div class="share-block qr">
-            <p class="muted">QR preconfigure</p>
-            <div class="qr-box">QR</div>
-            <p class="muted small">A scanner pour ouvrir le site avec le code.</p>
+          <div class="share-block qr" style="display:flex; align-items:center; gap:16px;">
+            <div class="qr-box" style="width:60px; height:60px; background:white; border-radius:4px; display:grid; place-items:center;">
+                <i class="ph ph-qr-code" style="color:black; font-size:32px;"></i>
+            </div>
+            <div>
+                 <p class="muted small">Code QR</p>
+                 <span class="pill pill-light">Télécharger</span>
+            </div>
           </div>
         </div>
       </section>
@@ -286,43 +650,35 @@
         <article class="card table-card">
           <header class="section-head">
             <div>
-              <p class="label">Leads (code vu/applique)</p>
-              <p class="section-title">Sans vente conclue</p>
+              <p class="label">Leads Récents</p>
+              <p class="section-title">Code vu / appliqué</p>
             </div>
-            <span class="pill pill-warning">A relancer</span>
+            <span class="pill pill-warning">À relancer</span>
           </header>
           <div class="table">
             <div class="table-row table-head">
               <span>Date</span>
               <span>Client</span>
-              <span>Etape</span>
+              <span>Étape</span>
               <span>Produit</span>
               <span>Canal</span>
               <span>Code</span>
             </div>
             <div class="table-row">
               <span>18/11</span>
-              <span class="muted">+229 68-- 12</span>
-              <span><span class="pill pill-light">code applique</span></span>
+              <span class="muted">..68-12</span>
+              <span><span class="pill pill-light">appliqué</span></span>
               <span>Galaxy A35</span>
               <span>Web</span>
-              <span class="pill pill-ghost">JOYFUL-AP</span>
+              <span class="pill pill-ghost">JOYFUL</span>
             </div>
             <div class="table-row">
               <span>18/11</span>
-              <span class="muted">+229 51-- 88</span>
-              <span><span class="pill pill-light">panier cree</span></span>
+              <span class="muted">..51-88</span>
+              <span><span class="pill pill-light">panier</span></span>
               <span>iPhone 12</span>
               <span>App</span>
-              <span class="pill pill-ghost">JOYFUL-AP</span>
-            </div>
-            <div class="table-row">
-              <span>17/11</span>
-              <span class="muted">+229 90-- 45</span>
-              <span><span class="pill pill-light">clic whatsapp</span></span>
-              <span>Infinix Hot 40</span>
-              <span>WhatsApp</span>
-              <span class="pill pill-ghost">INSPIRE-AP</span>
+              <span class="pill pill-ghost">JOYFUL</span>
             </div>
           </div>
         </article>
@@ -333,7 +689,7 @@
               <p class="label">Conversions</p>
               <p class="section-title">Ventes conclues</p>
             </div>
-            <span class="pill pill-success">Commission eligible</span>
+            <span class="pill pill-success">Commissions</span>
           </header>
           <div class="table">
             <div class="table-row table-head">
@@ -341,32 +697,24 @@
               <span>Client</span>
               <span>Montant</span>
               <span>Remise</span>
-              <span>Commission</span>
+              <span>Com.</span>
               <span>Statut</span>
             </div>
             <div class="table-row">
               <span>19/11</span>
-              <span class="muted">+229 97-- 30</span>
-              <span>315 000 CFA</span>
-              <span class="pill pill-light">-15 000</span>
-              <span class="pill pill-primary">+25 000</span>
-              <span><span class="pill pill-success">payee</span></span>
+              <span class="muted">..97-30</span>
+              <span>315k</span>
+              <span class="pill pill-light">-15k</span>
+              <span class="pill pill-primary">+25k</span>
+              <span><i class="ph ph-check" style="color:var(--accent-success)"></i></span>
             </div>
             <div class="table-row">
               <span>18/11</span>
-              <span class="muted">+229 64-- 71</span>
-              <span>210 000 CFA</span>
-              <span class="pill pill-light">-10 000</span>
-              <span class="pill pill-primary">+15 000</span>
-              <span><span class="pill pill-success">payee</span></span>
-            </div>
-            <div class="table-row">
-              <span>17/11</span>
-              <span class="muted">+229 55-- 04</span>
-              <span>150 000 CFA</span>
-              <span class="pill pill-light">-7 500</span>
-              <span class="pill pill-primary">+10 000</span>
-              <span><span class="pill pill-warning">en attente</span></span>
+              <span class="muted">..64-71</span>
+              <span>210k</span>
+              <span class="pill pill-light">-10k</span>
+              <span class="pill pill-primary">+15k</span>
+              <span><i class="ph ph-check" style="color:var(--accent-success)"></i></span>
             </div>
           </div>
         </article>
@@ -376,17 +724,16 @@
         <header class="section-head">
           <div>
             <p class="label">Journal de transparence</p>
-            <p class="section-title">Evenements cles par code</p>
+            <p class="section-title">Événements en temps réel</p>
           </div>
-          <span class="pill pill-ghost">code_seen -> order_paid</span>
         </header>
         <div class="timeline-grid">
           <div class="event">
             <div class="bullet success"></div>
             <div>
-              <p class="event-title">Order_paid</p>
+              <p class="event-title">Order_paid <span class="pill pill-success" style="margin-left:8px;">Succès</span></p>
               <p class="event-meta">19/11 - JOYFUL-AP - Web</p>
-              <p class="event-note">Code applique au checkout, remise client validee, commission calculee.</p>
+              <p class="event-note">Code appliqué au checkout, remise client validée, commission calculée.</p>
             </div>
           </div>
           <div class="event">
@@ -394,7 +741,7 @@
             <div>
               <p class="event-title">Payout_sent</p>
               <p class="event-meta">15/11 - Reversement - Momo</p>
-              <p class="event-note">Versement 25 000 CFA envoye avec recu telechargeable.</p>
+              <p class="event-note">Versement 25 000 CFA envoyé avec reçu téléchargeable.</p>
             </div>
           </div>
           <div class="event">
@@ -402,105 +749,34 @@
             <div>
               <p class="event-title">Order_created</p>
               <p class="event-meta">18/11 - JOYFUL-AP - App</p>
-              <p class="event-note">Panier app ouvert via deep link avec code prerempli.</p>
-            </div>
-          </div>
-          <div class="event">
-            <div class="bullet warning"></div>
-            <div>
-              <p class="event-title">Code_seen</p>
-              <p class="event-meta">17/11 - INSPIRE-AP - WhatsApp</p>
-              <p class="event-note">Message WA prerempli envoye, en attente de creation de commande.</p>
+              <p class="event-note">Panier app ouvert via deep link avec code prérempli.</p>
             </div>
           </div>
         </div>
-      </section>
-
-      <section class="card payout-info">
-        <header class="section-head">
-          <div>
-            <p class="label">Coordonnees financieres</p>
-            <p class="section-title">Reversement partenaire</p>
-          </div>
-          <span class="pill pill-ghost">A verifier</span>
-        </header>
-        <div class="payout-info-grid">
-          <div class="info-block">
-            <p class="label">Mobile money</p>
-            <div class="info-field">
-              <div>
-                <p class="section-title">+229 97 00 11 22</p>
-                <p class="muted small">Operateur: MTN - Derniere mise a jour: 10/11</p>
-              </div>
-              <button class="pill pill-light">Mettre a jour</button>
-            </div>
-          </div>
-          <div class="info-block">
-            <p class="label">Compte bancaire</p>
-            <div class="info-field">
-              <div>
-                <p class="section-title">IBAN XXXX XXXX 4421</p>
-                <p class="muted small">Banque: AFRIBANK - Statut: en verification</p>
-              </div>
-              <button class="pill pill-light">Mettre a jour</button>
-            </div>
-          </div>
-          <div class="info-block">
-            <p class="label">Justificatifs</p>
-            <div class="info-field">
-              <div>
-                <p class="section-title">CNI + RIB</p>
-                <p class="muted small">Necessaire pour debloquer les reversements</p>
-              </div>
-              <button class="pill pill-primary">Importer</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="rules-grid">
-        <article class="card mini">
-          <p class="label">Bonus premiere vente</p>
-          <p class="section-title">Commission prioritaire</p>
-          <p class="muted">
-            La premiere vente validee par code genere automatiquement une commission bonifiee pour le partenaire.
-          </p>
-        </article>
-        <article class="card mini">
-          <p class="label">Avantage acheteur</p>
-          <p class="section-title">Remise immediate</p>
-          <p class="muted">
-            Le client obtient sa remise des l'application du code en ligne, ou le conseiller l'applique lors d'une
-            vente WhatsApp.
-          </p>
-        </article>
-        <article class="card mini">
-          <p class="label">Anti-perte du code</p>
-          <p class="section-title">Trace complete</p>
-          <p class="muted">
-            Code stocke des l'entree (URL/deep link/message), requis dans les commandes manuelles, journalise a chaque
-            etape.
-          </p>
-        </article>
       </section>
 
       <footer class="footnote">
-        <p>Cette page est une maquette statique. Elle se branche ensuite sur l'API ventes/stock pour afficher les vrais chiffres.</p>
+        <p>AfricaPhone Partner Dashboard &copy; 2025. UI statique connectée à l'API Ventes/Stock.</p>
       </footer>
     </div>
 
     <script>
       const toggle = document.getElementById('themeToggle');
-      const setLabel = () => {
-        if (!toggle) return;
-        toggle.textContent = document.body.classList.contains('light') ? 'Mode clair' : 'Mode sombre';
+      const icon = toggle.querySelector('i');
+      
+      const updateThemeUI = () => {
+        const isLight = document.body.classList.contains('light');
+        toggle.innerHTML = isLight 
+            ? '<i class="ph ph-moon" style="margin-right:4px;"></i> Mode sombre' 
+            : '<i class="ph ph-sun" style="margin-right:4px;"></i> Mode clair';
       };
+
       if (toggle) {
         toggle.addEventListener('click', () => {
           document.body.classList.toggle('light');
-          setLabel();
+          updateThemeUI();
         });
-        setLabel();
+        updateThemeUI();
       }
     </script>
   </body>
