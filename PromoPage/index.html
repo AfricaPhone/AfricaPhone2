@@ -714,13 +714,12 @@
 
     <script>
       const toggle = document.getElementById('themeToggle');
-      const icon = toggle.querySelector('i');
       
       const updateThemeUI = () => {
         const isLight = document.body.classList.contains('light');
-        toggle.innerHTML = isLight 
-            - '<i class="ph ph-moon" style="margin-right:4px;"></i> Mode sombre' 
-            : '<i class="ph ph-sun" style="margin-right:4px;"></i> Mode clair';
+        toggle.innerHTML = isLight
+          ? '<i class="ph ph-moon" style="margin-right:4px;"></i> Mode sombre'
+          : '<i class="ph ph-sun" style="margin-right:4px;"></i> Mode clair';
       };
 
       if (toggle) {
