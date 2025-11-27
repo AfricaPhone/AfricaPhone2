@@ -186,35 +186,6 @@ export const validatePromoV2 = onCall(async request => {
  * Confirme un achat associé à un code promo (vente conclue via WA/boutique/app).
  * Attendu: data { code, channel, ref, amount, items?, promoSessionId? }
  */
-export const confirmPromoPurchase = onCall(async request => {
-  const { code, channel, ref, amount, items, promoSessionId } = request.data as {
-    code?: string;
-    channel?: string;
-    ref?: string;
-    amount?: number;
-    items?: unknown;
-    promoSessionId?: string;
-  };
-
-  if (!code || typeof code !== 'string') {
-    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
-  }
-
-  const validated = await evaluatePromo({ code, channel, ref, cartValue: amount });
-
-  const purchase = {
-    ...validated,
-    purchaseAmount: typeof amount === 'number' ? amount : null,
-    items: items ?? null,
-    promoSessionId: promoSessionId || validated.promoSessionId,
-    status: 'recorded',
-  };
-
-  await logPromoEvent('promoPurchases', purchase);
-
-  return purchase;
-});
-
 const buildUrlWithParams = (base: string, params: Record<string, string | number | null | undefined>) => {
   const url = new URL(base);
   Object.entries(params).forEach(([key, value]) => {
