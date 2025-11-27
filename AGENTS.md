@@ -1,4 +1,5 @@
 # Repository Guidelines
+If i put read at the end of a sentence, that emans you should talk to me, but not edit anyfile of my porject, you can read the files to understand whatever you want but no edits. 
 ALWAYS COMMIT WHEN U MAKE CHANGES, ALWAYS
 ## Project Structure & Module Organization
 
