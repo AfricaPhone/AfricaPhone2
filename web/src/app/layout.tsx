@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
-import TopProgressBar from '@/components/TopProgressBar';
 
 const interSans = localFont({
   variable: '--font-inter-sans',
@@ -45,7 +44,6 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${interSans.variable} ${robotoMono.variable} antialiased bg-slate-50 text-slate-900`}>
-        <TopProgressBar />
         {children}
       </body>
     </html>

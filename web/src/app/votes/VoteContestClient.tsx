@@ -18,6 +18,7 @@ import { fetchActiveContestId } from '@/services/contestService';
 import { useContestData } from '@/hooks/useContestData';
 import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import type { Candidate, Contest } from '@/types/pronostics';
+import BrandsCarousel from '@/components/BrandsCarousel';
 
 const VOTE_STATUS_KEY_PREFIX = 'contest_vote_status_v1';
 const SHOW_VOTE_BUTTON = true; // Voting is currently open to the public.
@@ -670,17 +671,17 @@ export default function VoteContestClientPage() {
           <button
             type="button"
             onClick={handleBack}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
             aria-label="Retour"
           >
             <ChevronLeftIcon className="h-5 w-5" />
           </button>
-          <h1 className="text-center text-[18px] font-semibold">Concours de Vote</h1>
+          <h1 className="text-center text-\[16px\] font-semibold">Concours de Vote</h1>
           <div aria-hidden className="h-11 w-11" />
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-screen-sm flex-col gap-5 px-4 pb-16 pt-5">
+      <main className="mx-auto flex w-full max-w-screen-sm flex-col gap-3.5 px-4 pb-16 pt-3">
         {!isSearchActive && (
           <ContestHero
             contest={contest}
@@ -693,6 +694,12 @@ export default function VoteContestClientPage() {
             contestEnded={contestEnded}
           />
         )}
+
+        {!isSearchActive ? (
+          <section className="rounded-3xl border border-slate-200 bg-white px-3 py-3 shadow-sm shadow-slate-200/50">
+            <BrandsCarousel />
+          </section>
+        ) : null}
 
         <CandidateSearchBar
           value={searchQuery}
@@ -873,23 +880,23 @@ function ContestHero({
         <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(17,24,39,0.82)_0%,rgba(17,24,39,0.55)_55%,rgba(17,24,39,0.1)_100%)]" />
       </div>
 
-      <div className="relative flex flex-col gap-5 p-6 text-white">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
-            <TrophyIcon className="h-6 w-6 text-white" />
+      <div className="relative flex flex-col gap-3 p-3.5 text-white">
+        <div className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
+            <TrophyIcon className="h-5 w-5 text-white" />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">
               {contest?.title ?? 'Concours'}
             </span>
-            <h2 className="text-2xl font-bold leading-tight text-white">
+            <h2 className="text-lg font-bold leading-tight text-white">
               {contestEnded ? 'Concours clôturé' : 'Phase de vote'}
             </h2>
           </div>
         </div>
 
         {contestEnded ? (
-          <p className="rounded-full bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white">
+          <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
             Concours clÃ´turÃ©
           </p>
         ) : timeLeft ? (
@@ -899,12 +906,12 @@ function ContestHero({
         )}
 
         {voteThankYouMessage ? (
-          <p className="rounded-2xl bg-emerald-500/20 px-4 py-2 text-xs font-semibold text-emerald-100">
+          <p className="rounded-2xl bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-100">
             {voteThankYouMessage}
           </p>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-3 text-center text-slate-900">
+        <div className="grid grid-cols-2 gap-2 text-center text-slate-900">
           <StatCard label="Votes" value={totalVotes} />
           <StatCard label="Participants" value={totalParticipants} />
         </div>
@@ -977,7 +984,7 @@ function CandidateList({
               key={candidate.id}
               className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/40 transition hover:-translate-y-[1px] hover:shadow-lg"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <div className="relative h-14 w-14 overflow-hidden rounded-2xl bg-slate-100">
                   {candidate.photoUrl ? (
                     <Image src={candidate.photoUrl} alt={candidate.name} fill className="object-cover" />
@@ -992,7 +999,7 @@ function CandidateList({
                     {candidate.name}
                     {votedCandidateIds.has(candidate.id) ? (
                       <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-600">
-                        Votre vote
+                        {formatNumber(candidate.voteCount)} voix accordées
                       </span>
                     ) : null}
                   </span>
@@ -1492,13 +1499,13 @@ function CountdownPills({ days, hours, minutes, seconds }: CountdownPillsProps) 
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-4 gap-2">
       {items.map(item => (
         <div
           key={item.label}
-          className="flex flex-col items-center justify-center gap-1 rounded-xl bg-white/15 px-2 py-3 text-center"
+          className="flex flex-col items-center justify-center gap-1 rounded-xl bg-white/15 px-2 py-2 text-center"
         >
-          <span className="text-lg font-bold text-white">{String(item.value).padStart(2, '0')}</span>
+          <span className="text-sm font-bold text-white">{String(item.value).padStart(2, '0')}</span>
           <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">{item.label}</span>
         </div>
       ))}
@@ -1513,8 +1520,8 @@ type StatCardProps = {
 
 function StatCard({ label, value }: StatCardProps) {
   return (
-    <div className="rounded-2xl bg-white/90 px-4 py-5 text-center shadow-sm shadow-black/10 backdrop-blur">
-      <span className="block text-2xl font-bold text-slate-900">{formatNumber(value)}</span>
+    <div className="rounded-2xl bg-white/90 px-3 py-3 text-center shadow-sm shadow-black/10 backdrop-blur">
+      <span className="block text-lg font-bold text-slate-900">{formatNumber(value)}</span>
       <span className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
     </div>
   );

@@ -33,12 +33,15 @@ const DEFAULT_PAGE_DATA: BoutiquePageData = {
   name: 'Africa PHONE',
   coverImage: '',
   avatarImage: '/logo.png',
-  address: 'Immeuble AfricaPhone, Rue 352, Ganhi - Cotonou, Benin',
+  address: 'Immeuble AfricaPhone, Rue 352, Ganhi - Cotonou, Bénin',
   contactDisplay: '+229 0154151522',
   contactTelHref: 'tel:+2290154151522',
   whatsappLink: 'https://wa.me/2290154151522',
   mapLink: 'https://goo.gl/maps/oMaa8b2oZ9cQmRBN9?g_st=am',
 };
+
+const DELIVERY_NOTE_REGEX = /\(?\s*Nous livrons partout au B\u00e9nin\.?\s*\)?/i;
+const DELIVERY_NOTE_TEXT = 'Nous livrons partout au B\u00e9nin.';
 
 const safeString = (value: unknown): string | undefined => {
   if (typeof value === 'string') {
@@ -221,6 +224,11 @@ export default function NousTrouverPage() {
     );
   }
 
+  const deliveryNote = DELIVERY_NOTE_REGEX.test(pageData.address) ? DELIVERY_NOTE_TEXT : null;
+  const addressWithoutDeliveryNote = deliveryNote
+    ? pageData.address.replace(DELIVERY_NOTE_REGEX, '').trim()
+    : pageData.address;
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <main className="mx-auto flex w-full max-w-md flex-col pb-10">
@@ -260,8 +268,11 @@ export default function NousTrouverPage() {
         <section className="px-4 pt-16">
           <h1 className="text-[26px] font-bold leading-tight text-slate-900">{pageData.name}</h1>
           <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
-            Ouvert tous les jours de 7h Ã  22h Â· 7J/7
+            Ouvert tous les jours de 7h à 22h · 7J/7
           </p>
+          {deliveryNote ? (
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-blue-600">{deliveryNote}</p>
+          ) : null}
         </section>
 
         <section className="px-4 pt-6">
@@ -270,7 +281,7 @@ export default function NousTrouverPage() {
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-800">
                 Adresse de la boutique
               </p>
-              <p className="mt-2 text-base text-slate-900">{pageData.address}</p>
+              <p className="mt-2 text-base text-slate-900">{addressWithoutDeliveryNote}</p>
             </div>
             <p className="text-base text-slate-800">
               Appel &amp; WhatsApp :{' '}
@@ -284,7 +295,7 @@ export default function NousTrouverPage() {
               rel="noopener noreferrer"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
-              <DirectionsIcon className="h-5 w-5" aria-hidden="true" />
+              <MapPinIcon className="h-7 w-7" aria-hidden="true" />
               Voir la localisation Google Maps
             </Link>
           </div>
@@ -294,30 +305,19 @@ export default function NousTrouverPage() {
   );
 }
 
-function DirectionsIcon({ className }: { className?: string }) {
+function MapPinIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
-        d="m12.94 4.44 6.62 6.62a1 1 0 0 1 0 1.41l-6.62 6.62a1 1 0 0 1-1.41 0l-6.62-6.62a1 1 0 0 1 0-1.41l6.62-6.62a1 1 0 0 1 1.41 0Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
+        d="M12 21s7-5.25 7-11a7 7 0 1 0-14 0c0 5.75 7 11 7 11Z"
+        fill="#EA4335"
+        stroke="#D93025"
+        strokeWidth="1.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M13 7h2.5a.5.5 0 0 1 .5.5V10"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M11 13h2l-2-2 2-2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <circle cx="12" cy="10" r="2.6" fill="#FCE8E6" />
+      <circle cx="12" cy="10" r="1.35" fill="#D93025" />
     </svg>
   );
 }

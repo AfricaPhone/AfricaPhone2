@@ -1,0 +1,293 @@
+﻿:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #f4f6fb;
+  color: #111827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.08), transparent 55%),
+    radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.1), transparent 45%),
+    #f4f6fb;
+}
+
+a {
+  color: inherit;
+}
+
+main {
+  width: 100%;
+}
+
+.page-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 20px 96px;
+}
+
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #111827, #1f2937);
+  border-radius: 28px;
+  color: #f9fafb;
+  padding: 32px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+}
+
+.hero-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(125deg, rgba(14, 165, 233, 0.4), transparent 60%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  display: grid;
+  gap: 28px;
+  z-index: 1;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.tag-pill {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(249, 250, 251, 0.12);
+}
+
+.hero-title {
+  font-size: clamp(28px, 5vw, 40px);
+  margin: 0;
+}
+
+.hero-description {
+  margin: 6px 0 0;
+  color: rgba(249, 250, 251, 0.85);
+}
+
+.hero-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-size: 14px;
+  color: rgba(249, 250, 251, 0.75);
+}
+
+.stats-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
+}
+
+.stat-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+}
+
+.stat-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.stat-value {
+  margin-top: 6px;
+  font-size: 30px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.candidate-panel {
+  margin-top: 32px;
+  background: #fff;
+  border-radius: 26px;
+  padding: 28px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.candidate-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+}
+
+.candidate-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.candidate-meta {
+  flex: 1;
+  min-width: 220px;
+}
+
+.candidate-meta h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.candidate-meta p {
+  margin: 6px 0 0;
+  color: #475569;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.candidate-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.stat-highlight {
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 16px 18px;
+}
+
+.stat-highlight strong {
+  font-size: 20px;
+  display: block;
+  color: #0f172a;
+}
+
+.progress-track {
+  background: #e2e8f0;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6366f1, #ec4899);
+}
+
+.section-title {
+  margin: 34px 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.voter-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.voter-table thead {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.voter-table th,
+.voter-table td {
+  text-align: left;
+  padding: 14px 8px;
+}
+
+.voter-table tbody tr {
+  border-top: 1px solid #e2e8f0;
+}
+
+.voter-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.voter-location {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.amount-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.method-pill {
+  background: rgba(248, 250, 252, 1);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.empty-state {
+  padding: 24px;
+  text-align: center;
+  color: #94a3b8;
+  background: #f8fafc;
+  border-radius: 18px;
+  border: 1px dashed #cbd5f5;
+}
+
+@media (max-width: 640px) {
+  .hero-card {
+    padding: 24px;
+  }
+
+  .candidate-panel {
+    padding: 22px;
+  }
+
+  .voter-table th,
+  .voter-table td {
+    padding: 10px 4px;
+  }
+}

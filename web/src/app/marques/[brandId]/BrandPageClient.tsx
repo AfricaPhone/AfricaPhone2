@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 import { db } from '@/lib/firebaseClient';
 import ProductGridSection from '@/components/ProductGridSection';
 
@@ -107,7 +108,7 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 lg:px-8">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => router.push('/')}
             className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-orange-400 hover:text-orange-500"
           >
             <BackIcon className="h-4 w-4" />
@@ -179,8 +180,9 @@ const BrandPageClient: React.FC<BrandPageClientProps> = ({ brandId }) => {
               Retour à la boutique
             </button>
           </div>
-        )}
+      )}
       </main>
+      <ScrollToTopButton />
     </div>
   );
 };

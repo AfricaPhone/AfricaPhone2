@@ -176,10 +176,10 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
         <div className="ml-auto">
           <Link
             href="/nous-trouver"
-            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700"
           >
-            <LocatorIcon className="h-4 w-4" />
-            Ou nous trouver
+            <MapPinIcon className="h-6 w-6 text-red-500" />
+            Où nous trouver ?
           </Link>
         </div>
       </div>
@@ -615,23 +615,19 @@ function ShareIcon({ className }: { className?: string }) {
   );
 }
 
-function LocatorIcon({ className }: { className?: string }) {
+function MapPinIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
         d="M12 21s7-5.25 7-11a7 7 0 1 0-14 0c0 5.75 7 11 7 11Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
+        fill="#EA4335"
+        stroke="#D93025"
+        strokeWidth="1.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <circle cx="12" cy="10" r="2.6" fill="#FCE8E6" />
+      <circle cx="12" cy="10" r="1.35" fill="#D93025" />
     </svg>
   );
 }
