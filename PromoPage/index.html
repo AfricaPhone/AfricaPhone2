@@ -301,6 +301,14 @@
       .share-block { background: var(--bg-body); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
       .share-field { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-top: 8px; font-family: monospace; font-size: 0.85rem; overflow: hidden; }
       .share-field span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; color: var(--accent-primary); }
+      .share-config { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+      .share-config .input-group { display: flex; flex-direction: column; gap: 6px; }
+      .share-config label { font-size: 0.8rem; color: var(--text-secondary); }
+      .share-config input { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px; }
+      .share-actions { display: flex; gap: 12px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+      .btn-primary { background: var(--accent-primary); color: white; border: 1px solid var(--accent-primary); padding: 10px 14px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; }
+      .btn-primary:hover { filter: brightness(1.05); }
+      .status { font-size: 0.8rem; color: var(--text-tertiary); }
       
       /* --- TABLES GRID --- */
       .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
@@ -612,28 +620,50 @@
             <p class="label">Liens a partager</p>
             <p class="section-title">Outils de diffusion</p>
           </div>
-          <span class="pill pill-ghost">Code actif: JOYFUL-AP</span>
+          <span class="pill pill-ghost" id="activeCodeBadge">Code actif: JOYFUL-AP</span>
         </header>
+        <div class="share-config">
+          <div class="input-group">
+            <label for="codeInput">Code promo</label>
+            <input id="codeInput" placeholder="EX: JOYFUL-AP" value="JOYFUL-AP" />
+          </div>
+          <div class="input-group">
+            <label for="refInput">Ref partenaire (facultatif)</label>
+            <input id="refInput" placeholder="EX: PART-001" />
+          </div>
+          <div class="input-group">
+            <label for="campaignInput">Campagne</label>
+            <input id="campaignInput" placeholder="default" />
+          </div>
+          <div class="input-group">
+            <label for="subInput">Variation / bouton</label>
+            <input id="subInput" placeholder="cta1" />
+          </div>
+        </div>
+        <div class="share-actions">
+          <button class="btn-primary" id="generateLinksBtn" type="button">Générer les liens</button>
+          <span class="status" id="linkStatus">Prêt.</span>
+        </div>
         <div class="share-grid">
           <div class="share-block">
             <p class="muted"><i class="ph ph-globe"></i> Lien Web</p>
             <div class="share-field">
-              <span>africaphone.com/-code=JOYFUL-AP</span>
-              <button class="pill pill-light">Copier</button>
+              <span id="webLink">africaphone.com/?code=JOYFUL-AP</span>
+              <button class="pill pill-light" data-copy="webLink">Copier</button>
             </div>
           </div>
           <div class="share-block">
             <p class="muted"><i class="ph ph-device-mobile"></i> Lien App (Deep Link)</p>
             <div class="share-field">
-              <span>myapp://home-code=JOYFUL-AP</span>
-              <button class="pill pill-light">Copier</button>
+              <span id="appLink">africaphone://apply-promo?code=JOYFUL-AP</span>
+              <button class="pill pill-light" data-copy="appLink">Copier</button>
             </div>
           </div>
           <div class="share-block">
             <p class="muted"><i class="ph ph-whatsapp-logo"></i> WhatsApp</p>
             <div class="share-field">
-              <span>wa.me/229...-text=Code%20JOYFUL</span>
-              <button class="pill pill-light">Copier</button>
+              <span id="waLink">wa.me/229...text=Code</span>
+              <button class="pill pill-light" data-copy="waLink">Copier</button>
             </div>
           </div>
           <div class="share-block qr" style="display:flex; align-items:center; gap:16px;">
@@ -712,6 +742,8 @@
       </footer>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
     <script>
       const toggle = document.getElementById('themeToggle');
       
@@ -729,6 +761,136 @@
         });
         updateThemeUI();
       }
+
+      // --- Génération des liens promo dynamiques ---
+      const firebaseConfig = {
+        apiKey: 'AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M',
+        authDomain: 'africaphone-vente.firebaseapp.com',
+        projectId: 'africaphone-vente',
+        storageBucket: 'africaphone-vente.firebasestorage.app',
+        messagingSenderId: '203471818329',
+        appId: '1:203471818329:web:c2c77d48098c1a6a596b48',
+      };
+
+      const FALLBACK_TEMPLATES = {
+        webBaseUrl: 'https://africaphone-org.web.app/promo',
+        appScheme: 'africaphone://apply-promo',
+        appLinkDomain: 'https://africaphone-org.web.app/ul',
+        defaultCampaign: 'default',
+        defaultSub: 'cta1',
+        waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
+      };
+
+      const initFirebase = () => {
+        if (window.firebase?.apps?.length) return window.firebase.app();
+        return window.firebase?.initializeApp(firebaseConfig);
+      };
+
+      const buildUrl = (base, params) => {
+        try {
+          const url = new URL(base);
+          Object.entries(params).forEach(([k, v]) => {
+            if (v === null || v === undefined || v === '') return;
+            url.searchParams.set(k, String(v));
+          });
+          return url.toString();
+        } catch (e) {
+          return base;
+        }
+      };
+
+      const copyToClipboard = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const value = el.textContent || '';
+        navigator.clipboard?.writeText(value);
+      };
+
+      const updateLinkField = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      };
+
+      const setStatus = (text, isError = false) => {
+        const status = document.getElementById('linkStatus');
+        if (status) {
+          status.textContent = text;
+          status.style.color = isError ? 'var(--accent-danger)' : 'var(--text-tertiary)';
+        }
+      };
+
+      const generateLinks = async () => {
+        const code = (document.getElementById('codeInput')?.value || '').trim();
+        const ref = (document.getElementById('refInput')?.value || '').trim();
+        const campaign = (document.getElementById('campaignInput')?.value || '').trim();
+        const sub = (document.getElementById('subInput')?.value || '').trim();
+
+        if (!code) {
+          setStatus('Veuillez saisir un code promo.', true);
+          return;
+        }
+
+        const appInstance = initFirebase();
+        const baseParams = {
+          code,
+          ref,
+          campaign: campaign || FALLBACK_TEMPLATES.defaultCampaign,
+          sub: sub || FALLBACK_TEMPLATES.defaultSub,
+        };
+
+        const fallbackLinks = () => {
+          const webLink = buildUrl(FALLBACK_TEMPLATES.webBaseUrl, { ...baseParams, channel: 'web' });
+          const appLink = buildUrl(FALLBACK_TEMPLATES.appLinkDomain, { ...baseParams, channel: 'app' });
+          const appDeepLink = `${FALLBACK_TEMPLATES.appScheme}?${new URLSearchParams({
+            ...baseParams,
+            channel: 'app',
+          }).toString()}`;
+          const message = (FALLBACK_TEMPLATES.waMessageTemplate || '')
+            .replace('{code}', code)
+            .replace('{link}', webLink)
+            .replace('{ref}', ref || '');
+          const waLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+          return { webLink, appLink: appDeepLink, whatsappLink: waLink };
+        };
+
+        try {
+          setStatus('Génération en cours...');
+          if (!appInstance || !window.firebase?.functions) {
+            throw new Error('Firebase non initialisé, utilisation du fallback local.');
+          }
+          const functions = window.firebase.functions(appInstance);
+          const callable = functions.httpsCallable('generatePromoLinks');
+          const response = await callable({ code, ref, campaign, sub });
+          const data = response.data || {};
+
+          updateLinkField('webLink', data.webLink || '');
+          updateLinkField('appLink', data.appDeepLink || data.appLink || '');
+          updateLinkField('waLink', data.whatsappLink || '');
+          const badge = document.getElementById('activeCodeBadge');
+          if (badge) badge.textContent = `Code actif: ${code.toUpperCase()}`;
+          setStatus('Liens générés.');
+        } catch (error) {
+          console.error('Erreur generatePromoLinks, fallback local', error);
+          const localLinks = fallbackLinks();
+          updateLinkField('webLink', localLinks.webLink);
+          updateLinkField('appLink', localLinks.appLink);
+          updateLinkField('waLink', localLinks.whatsappLink);
+          const badge = document.getElementById('activeCodeBadge');
+          if (badge) badge.textContent = `Code actif: ${code.toUpperCase()} (fallback)`;
+          setStatus("Génération via fallback local.", true);
+        }
+      };
+
+      document.getElementById('generateLinksBtn')?.addEventListener('click', generateLinks);
+      document.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-copy');
+          if (target) copyToClipboard(target);
+        });
+      });
+
+      // Génère une première fois avec les valeurs par défaut
+      generateLinks();
     </script>
   </body>
 </html>

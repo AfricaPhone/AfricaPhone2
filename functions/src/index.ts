@@ -11,11 +11,292 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs-extra';
 import sharp = require('sharp');
+import { randomUUID } from 'crypto';
 
 // Initialise l'app Firebase Admin pour interagir avec Firestore.
 admin.initializeApp();
 const db = admin.firestore();
 const STORAGE_BUCKET = process.env.PRODUCT_IMAGES_BUCKET || 'africaphone-vente.firebasestorage.app';
+
+// --- Promo / Partenaires : Types et helpers ---
+type PriceBracket = {
+  min: number;
+  max?: number;
+  discountValue: number;
+  commissionValue: number;
+  label?: string;
+};
+
+type PromoRule = {
+  isActive: boolean;
+  allowedChannels?: string[];
+  startsAt?: admin.firestore.Timestamp;
+  endsAt?: admin.firestore.Timestamp;
+  priceBrackets?: PriceBracket[];
+  allowedPartners?: string[];
+  partnerRefRequired?: boolean;
+  code?: string;
+};
+
+type LinkTemplates = {
+  webBaseUrl: string;
+  appScheme: string;
+  appLinkDomain?: string;
+  defaultCampaign?: string;
+  defaultSub?: string;
+  whatsappNumber?: string;
+  waMessageTemplate?: string;
+};
+
+const DEFAULT_PRICE_BRACKETS: PriceBracket[] = [
+  { min: 0, max: 149_000, discountValue: 5_000, commissionValue: 8_000, label: '0-149k' },
+  { min: 149_000, max: 249_000, discountValue: 10_000, commissionValue: 15_000, label: '149k-249k' },
+  { min: 249_000, max: 399_000, discountValue: 15_000, commissionValue: 25_000, label: '249k-399k' },
+  { min: 399_000, max: undefined, discountValue: 20_000, commissionValue: 35_000, label: '400k+' },
+];
+
+const DEFAULT_LINK_TEMPLATES: LinkTemplates = {
+  webBaseUrl: 'https://africaphone-org.web.app/promo',
+  appScheme: 'africaphone://apply-promo',
+  appLinkDomain: 'https://africaphone-org.web.app/ul',
+  defaultCampaign: 'default',
+  defaultSub: 'cta1',
+};
+
+const normalizeChannel = (channel?: string) => {
+  const normalized = (channel || 'web').toLowerCase();
+  const allowed = ['web', 'app', 'wa', 'qr', 'bo'];
+  return allowed.includes(normalized) ? normalized : 'web';
+};
+
+const fetchPromoRule = async (code: string) => {
+  const normalizedCode = code.trim().toUpperCase();
+  const ruleSnap = await db.collection('promoRules').doc(normalizedCode).get();
+  if (!ruleSnap.exists) {
+    return null;
+  }
+  return { id: ruleSnap.id, ...(ruleSnap.data() as PromoRule) };
+};
+
+const isWithinDates = (rule: PromoRule) => {
+  const now = admin.firestore.Timestamp.now();
+  if (rule.startsAt && rule.startsAt.toMillis() > now.toMillis()) return false;
+  if (rule.endsAt && rule.endsAt.toMillis() < now.toMillis()) return false;
+  return true;
+};
+
+const pickPriceBracket = (brackets: PriceBracket[] | undefined, amount?: number) => {
+  const safeAmount = typeof amount === 'number' && amount > 0 ? amount : 0;
+  const list = brackets?.length ? brackets : DEFAULT_PRICE_BRACKETS;
+  return list.find(bracket => {
+    const minOk = safeAmount >= bracket.min;
+    const maxOk = typeof bracket.max === 'number' ? safeAmount <= bracket.max : true;
+    return minOk && maxOk;
+  });
+};
+
+const logPromoEvent = async (collection: string, data: Record<string, unknown>) => {
+  try {
+    await db.collection(collection).add({
+      ...data,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (error) {
+    logger.warn(`promo logging failed for ${collection}`, error);
+  }
+};
+
+const evaluatePromo = async (params: {
+  code: string;
+  channel?: string;
+  ref?: string;
+  cartValue?: number;
+}) => {
+  const { code, channel, ref, cartValue } = params;
+  const normalizedCode = code.trim().toUpperCase();
+  const normalizedChannel = normalizeChannel(channel);
+
+  const promoRule = await fetchPromoRule(normalizedCode);
+  if (!promoRule || !promoRule.isActive) {
+    throw new HttpsError('not-found', 'Ce code promo est invalide ou inactif.');
+  }
+
+  if (!isWithinDates(promoRule)) {
+    throw new HttpsError('failed-precondition', 'Ce code promo est expiré ou pas encore actif.');
+  }
+
+  if (promoRule.allowedChannels?.length && !promoRule.allowedChannels.includes(normalizedChannel)) {
+    throw new HttpsError('permission-denied', 'Ce code promo ne peut pas être utilisé sur ce canal.');
+  }
+
+  if (promoRule.partnerRefRequired && !ref) {
+    throw new HttpsError('failed-precondition', 'Un identifiant partenaire est requis pour ce code.');
+  }
+
+  if (promoRule.allowedPartners?.length && ref && !promoRule.allowedPartners.includes(ref)) {
+    throw new HttpsError('permission-denied', 'Ce code promo n’est pas autorisé pour ce partenaire.');
+  }
+
+  const bracket = pickPriceBracket(promoRule.priceBrackets, cartValue);
+  if (!bracket) {
+    throw new HttpsError('failed-precondition', 'Aucune tranche de prix applicable pour ce panier.');
+  }
+
+  const promoSessionId = randomUUID();
+
+  const payload = {
+    code: promoRule.code || normalizedCode,
+    ruleId: promoRule?.code || normalizedCode,
+    channel: normalizedChannel,
+    ref: ref || null,
+    discountType: 'fixed' as const,
+    discountValue: bracket.discountValue,
+    commissionValue: bracket.commissionValue,
+    priceBracket: { min: bracket.min, max: bracket.max ?? null, label: bracket.label ?? null },
+    cartValue: typeof cartValue === 'number' ? cartValue : null,
+    promoSessionId,
+  };
+
+  await logPromoEvent('promoValidationLogs', payload);
+
+  return payload;
+};
+
+/**
+ * Valide un code promo avec grille de remises/commissions et retourne un promoSessionId.
+ * Attendu: data { code, cartValue, channel, ref }
+ */
+export const validatePromoV2 = onCall(async request => {
+  const { code, channel, ref, cartValue } = request.data as {
+    code?: string;
+    channel?: string;
+    ref?: string;
+    cartValue?: number;
+  };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const result = await evaluatePromo({ code, channel, ref, cartValue });
+  return result;
+});
+
+/**
+ * Confirme un achat associé à un code promo (vente conclue via WA/boutique/app).
+ * Attendu: data { code, channel, ref, amount, items?, promoSessionId? }
+ */
+export const confirmPromoPurchase = onCall(async request => {
+  const { code, channel, ref, amount, items, promoSessionId } = request.data as {
+    code?: string;
+    channel?: string;
+    ref?: string;
+    amount?: number;
+    items?: unknown;
+    promoSessionId?: string;
+  };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const validated = await evaluatePromo({ code, channel, ref, cartValue: amount });
+
+  const purchase = {
+    ...validated,
+    purchaseAmount: typeof amount === 'number' ? amount : null,
+    items: items ?? null,
+    promoSessionId: promoSessionId || validated.promoSessionId,
+    status: 'recorded',
+  };
+
+  await logPromoEvent('promoPurchases', purchase);
+
+  return purchase;
+});
+
+const buildUrlWithParams = (base: string, params: Record<string, string | number | null | undefined>) => {
+  const url = new URL(base);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === null || value === undefined || value === '') return;
+    url.searchParams.set(key, String(value));
+  });
+  return url.toString();
+};
+
+/**
+ * Génère les liens à partager pour un partenaire/détenteur de code.
+ * Attendu: data { code, ref?, campaign?, sub?, channel? }
+ */
+export const generatePromoLinks = onCall(async request => {
+  const { code, ref, campaign, sub, channel } = request.data as {
+    code?: string;
+    ref?: string;
+    campaign?: string;
+    sub?: string;
+    channel?: string;
+  };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+  const normalizedChannel = normalizeChannel(channel);
+
+  const configSnap = await db.collection('config').doc('linkTemplates').get();
+  const configData = configSnap.exists ? (configSnap.data() as Partial<LinkTemplates>) : {};
+  const linkTemplates: LinkTemplates = { ...DEFAULT_LINK_TEMPLATES, ...configData };
+
+  const boutiqueSnap = await db.collection('config').doc('boutiqueInfo').get();
+  const boutiqueData = boutiqueSnap.exists ? boutiqueSnap.data() : {};
+  const whatsappNumber =
+    (boutiqueData?.whatsappNumber as string | undefined) ||
+    linkTemplates.whatsappNumber ||
+    (boutiqueData?.phoneNumber as string | undefined) ||
+    '';
+
+  const sharedParams = {
+    code: normalizedCode,
+    channel: normalizedChannel,
+    ref: ref ?? '',
+    campaign: campaign ?? linkTemplates.defaultCampaign ?? 'default',
+    sub: sub ?? linkTemplates.defaultSub ?? 'cta1',
+  };
+
+  const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+  const appLink = buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
+    ...sharedParams,
+    channel: 'app',
+  });
+  const appDeepLink = `${linkTemplates.appScheme}?${new URLSearchParams({
+    ...sharedParams,
+    channel: 'app',
+  }).toString()}`;
+
+  const waMessageTemplate =
+    linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
+  const message = waMessageTemplate
+    .replace('{code}', normalizedCode)
+    .replace('{link}', webLink)
+    .replace('{ref}', ref ?? '');
+
+  const waNumberNormalized = whatsappNumber ? whatsappNumber.replace(/\D+/g, '') : '';
+  const whatsappLink = `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
+
+  const payload = {
+    webLink,
+    appLink,
+    appDeepLink,
+    whatsappLink,
+    parameters: sharedParams,
+    ref: ref ?? null,
+  };
+
+  await logPromoEvent('promoLinkGenerations', payload);
+
+  return payload;
+});
 
 /**
  * NOUVELLE FONCTION "CALLABLE"
