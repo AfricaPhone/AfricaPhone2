@@ -169,6 +169,7 @@ const matchPredictionsCache = new Map();
 let allPromoCards = [];
 let contestPromoCard = null;
 let allPromoCodes = []; // AJOUT
+let allPromoRules = [];
 let allBrands = [];
 let allContests = [];
 const contestCandidates = new Map();
@@ -191,8 +192,25 @@ let PREDEFINED_SPECS = [
   'Syst�me',
 ];
 
+const DEFAULT_PRICE_BRACKETS = [
+  { min: 0, max: 149000, discountValue: 5000, commissionValue: 8000, label: '0-149k' },
+  { min: 149000, max: 249000, discountValue: 10000, commissionValue: 15000, label: '149k-249k' },
+  { min: 249000, max: 399000, discountValue: 15000, commissionValue: 25000, label: '249k-399k' },
+  { min: 399000, max: null, discountValue: 20000, commissionValue: 35000, label: '400k+' },
+];
+
 // --- Features / Flags ---
 let featuresConfig = { promoCardsEnabled: true };
+let linkTemplates = null;
+const FALLBACK_LINK_TEMPLATES = {
+  webBaseUrl: 'https://africaphone-org.web.app/promo',
+  appLinkDomain: 'https://africaphone-org.web.app/ul',
+  appScheme: 'africaphone://apply-promo',
+  defaultCampaign: 'default',
+  defaultSub: 'cta1',
+  waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
+  whatsappNumber: '',
+};
 
 async function ensureFeaturesLoaded() {
   try {
@@ -207,6 +225,60 @@ async function ensureFeaturesLoaded() {
   } catch (err) {
     console.error('Settings: unable to load features config', err);
     featuresConfig.promoCardsEnabled = true;
+  }
+}
+
+function applyLinkTemplatesToSettingsUI() {
+  const data = linkTemplates || FALLBACK_LINK_TEMPLATES;
+  $('#lt-webBaseUrl').value = data.webBaseUrl || '';
+  $('#lt-appLinkDomain').value = data.appLinkDomain || '';
+  $('#lt-appScheme').value = data.appScheme || '';
+  $('#lt-defaultCampaign').value = data.defaultCampaign || '';
+  $('#lt-defaultSub').value = data.defaultSub || '';
+  $('#lt-waMessageTemplate').value = data.waMessageTemplate || '';
+  $('#lt-waNumber').value = data.whatsappNumber || '';
+  const status = $('#lt-status');
+  if (status) status.textContent = 'Charg�.';
+}
+
+async function saveLinkTemplates() {
+  const btn = $('#save-link-templates');
+  setButtonLoading(btn, true);
+  const payload = {
+    webBaseUrl: $('#lt-webBaseUrl').value.trim(),
+    appLinkDomain: $('#lt-appLinkDomain').value.trim(),
+    appScheme: $('#lt-appScheme').value.trim(),
+    defaultCampaign: $('#lt-defaultCampaign').value.trim() || 'default',
+    defaultSub: $('#lt-defaultSub').value.trim() || 'cta1',
+    waMessageTemplate: $('#lt-waMessageTemplate').value.trim(),
+    whatsappNumber: $('#lt-waNumber').value.trim(),
+  };
+  try {
+    const ref = doc(db, 'config', 'linkTemplates');
+    await setDoc(ref, payload, { merge: true });
+    linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...payload };
+    applyLinkTemplatesToSettingsUI();
+    toast('Enregistr�', 'Templates de liens mis � jour', 'success');
+  } catch (err) {
+    console.error('Save link templates failed', err);
+    toast('Erreur', 'Impossible de sauvegarder les templates', 'error');
+  } finally {
+    setButtonLoading(btn, false);
+  }
+}
+
+async function ensureLinkTemplatesLoaded() {
+  try {
+    const ref = doc(db, 'config', 'linkTemplates');
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...(snap.data() || {}) };
+    } else {
+      linkTemplates = { ...FALLBACK_LINK_TEMPLATES };
+    }
+  } catch (err) {
+    console.error('Settings: unable to load link templates', err);
+    linkTemplates = { ...FALLBACK_LINK_TEMPLATES };
   }
 }
 
@@ -368,19 +440,22 @@ const $navProducts = $('#nav-products'),
   $navContests = $('#nav-contests'),
   $navSettings = $('#nav-settings'),
   $navPromoCards = $('#nav-promocards'),
-  $navPromoCodes = $('#nav-promocodes');
+  $navPromoCodes = $('#nav-promocodes'),
+  $navPromoRules = $('#nav-promorules');
 const $toolbarProducts = $('#toolbar-products'),
   $toolbarBrands = $('#toolbar-brands'),
   $toolbarMatches = $('#toolbar-matches'),
   $toolbarContests = $('#toolbar-contests'),
   $toolbarPromoCards = $('#toolbar-promocards'),
-  $toolbarPromoCodes = $('#toolbar-promocodes');
+  $toolbarPromoCodes = $('#toolbar-promocodes'),
+  $toolbarPromoRules = $('#toolbar-promorules');
 const $productsContent = $('#products-content'),
   $brandsContent = $('#brands-content'),
   $matchesContent = $('#matches-content'),
   $contestsContent = $('#contests-content'),
   $promoCardsContent = $('#promocards-content'),
-  $promoCodesContent = $('#promocodes-content');
+  $promoCodesContent = $('#promocodes-content'),
+  $promoRulesContent = $('#promorules-content');
 
 window.addEventListener('hashchange', handleRoute);
 window.addEventListener('hashchange', async function () {
@@ -390,6 +465,8 @@ window.addEventListener('hashchange', async function () {
     if (route === 'settings') {
       await ensureFeaturesLoaded();
       applyFeaturesToSettingsUI();
+      await ensureLinkTemplatesLoaded();
+      applyLinkTemplatesToSettingsUI();
     }
   } catch (e) {
     console.warn('Settings sync skipped', e);
@@ -410,6 +487,7 @@ async function handleRoute() {
   $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
   $navPromoCodes.classList.toggle('active', route.includes('promocode'));
+  $navPromoRules.classList.toggle('active', route.includes('promorule'));
   $navSettings.classList.toggle('active', route === 'settings');
 
   // Toolbars affichage
@@ -419,6 +497,7 @@ async function handleRoute() {
   $toolbarContests.classList.toggle('hide', !isContestRoute);
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
   $toolbarPromoCodes.classList.toggle('hide', !route.includes('promocode'));
+  $toolbarPromoRules.classList.toggle('hide', !route.includes('promorule'));
 
   // Pages
   $('#page-products').classList.toggle('hide', !route.includes('product'));
@@ -427,6 +506,7 @@ async function handleRoute() {
   $('#page-contests').classList.toggle('hide', !isContestRoute);
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
   $('#page-promocodes').classList.toggle('hide', !route.includes('promocode'));
+  $('#page-promorules').classList.toggle('hide', !route.includes('promorule'));
   $('#page-settings').classList.toggle('hide', route !== 'settings');
 
   if (route === 'products') {
@@ -510,6 +590,16 @@ async function handleRoute() {
   } else if (route === 'edit-promocode' && id) {
     setCrumb('�diter Code Promo');
     await renderPromoCodeFormPage(id);
+  } else if (route === 'promorules') {
+    setCrumb('R�gles Promo');
+    await ensurePromoRulesLoaded();
+    renderPromoRuleList();
+  } else if (route === 'new-promorule') {
+    setCrumb('Nouvelle r�gle');
+    renderPromoRuleFormPage();
+  } else if (route === 'edit-promorule' && id) {
+    setCrumb('�diter r�gle');
+    await renderPromoRuleFormPage(id);
   } else if (route === 'settings') {
     setCrumb('Param�tres');
   } else {
@@ -519,6 +609,11 @@ async function handleRoute() {
 
 async function initAfterLogin() {
   lucide.createIcons();
+  await ensureFeaturesLoaded();
+  applyFeaturesToSettingsUI();
+  await ensureLinkTemplatesLoaded();
+  applyLinkTemplatesToSettingsUI();
+  $('#save-link-templates')?.addEventListener('click', saveLinkTemplates);
   // Settings: bind promo cards toggle if present
   const promoToggle = document.getElementById('toggle-promocards');
   if (promoToggle) {
@@ -736,6 +831,16 @@ async function ensurePromoCodesLoaded() {
   const snap = await getDocs(q);
   allPromoCodes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+}
+
+async function ensurePromoRulesLoaded() {
+  if (allPromoRules.length > 0) return;
+  $promoRulesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  const q = query(collection(db, 'promoRules'));
+  const snap = await getDocs(q);
+  allPromoRules = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => {
+    return (a.code || a.id || '').localeCompare(b.code || b.id || '');
+  });
 }
 
 /* ============================ Products UI ============================ */
@@ -1066,6 +1171,9 @@ async function handleDelete(id, name, type) {
       allPromoCodes = allPromoCodes.filter(c => c.id !== id);
       renderPromoCodeList();
       $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+    } else if (type === 'promoRules') {
+      allPromoRules = allPromoRules.filter(r => r.id !== id);
+      renderPromoRuleList();
     }
     toast('Supprim�', '', 'success');
   } catch (e) {
@@ -3027,6 +3135,9 @@ async function handlePromoCardFormSubmit(e, id) {
 $('#add-promocode').addEventListener('click', () => (location.hash = '#/new-promocode'));
 $('#search-promocodes').addEventListener('input', () => renderPromoCodeList());
 
+$('#add-promorule').addEventListener('click', () => (location.hash = '#/new-promorule'));
+$('#search-promorules').addEventListener('input', () => renderPromoRuleList());
+
 function renderPromoCodeList() {
   const term = ($('#search-promocodes').value || '').toLowerCase();
   const arr = term
@@ -3195,6 +3306,259 @@ async function handlePromoCodeFormSubmit(e, id) {
       toast('Code cr��', data.code, 'success');
     }
     location.hash = '#/promocodes';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Promo Rules UI ============================ */
+function summarizeBrackets(brackets = []) {
+  if (!Array.isArray(brackets) || brackets.length === 0) return 'Aucune tranche';
+  return brackets
+    .slice(0, 3)
+    .map(b => {
+      const min = typeof b.min === 'number' ? b.min : 0;
+      const max = typeof b.max === 'number' ? b.max : null;
+      const discount = typeof b.discountValue === 'number' ? fmtXOF.format(b.discountValue) : '-';
+      const commission = typeof b.commissionValue === 'number' ? fmtXOF.format(b.commissionValue) : '-';
+      return `${min}-${max || '+'}: -${discount} / +${commission}`;
+    })
+    .join(' | ');
+}
+
+function renderPromoRuleList() {
+  const term = ($('#search-promorules').value || '').toLowerCase();
+  const arr = term
+    ? allPromoRules.filter(r => {
+        const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
+        const partnerMatch = (r.allowedPartners || []).join(',').toLowerCase().includes(term);
+        return codeMatch || partnerMatch;
+      })
+    : allPromoRules;
+
+  if (!arr.length) {
+    $promoRulesContent.innerHTML = `<div class="center" style="padding:32px">Aucune règle promo.</div>`;
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Actif</th>
+        <th>Canaux</th>
+        <th>Tranches</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-promorules"></tbody>`;
+  const tb = table.querySelector('#tbody-promorules');
+  arr.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = r.id;
+    const channels = (r.allowedChannels || []).join(', ') || 'tous';
+    const bracketsText = summarizeBrackets(r.priceBrackets || DEFAULT_PRICE_BRACKETS);
+    tr.innerHTML = `
+      <td style="font-weight:700">${escapeHtml(r.code || r.id || '')}</td>
+      <td>
+        <label class="toggle">
+          <span class="toggle-switch">
+            <input type="checkbox" data-active-toggle ${r.isActive !== false ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </span>
+        </label>
+      </td>
+      <td>${escapeHtml(channels)}</td>
+      <td>${escapeHtml(bracketsText)}</td>
+      <td class="actions">
+        <button class="btn btn-small" data-edit>�diter</button>
+        <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+      </td>`;
+    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promorule/${r.id}`);
+    tr.querySelector('[data-del]').onclick = () => handleDelete(r.id, r.code || r.id, 'promoRules');
+    tr.querySelector('[data-active-toggle]').onchange = e => handlePromoRuleStatusToggle(r.id, e.target.checked);
+    tb.appendChild(tr);
+  });
+  $promoRulesContent.innerHTML = '';
+  $promoRulesContent.appendChild(table);
+  lucide.createIcons();
+}
+
+async function handlePromoRuleStatusToggle(id, isActive) {
+  try {
+    await updateDoc(doc(db, 'promoRules', id), { isActive: isActive });
+    const rule = allPromoRules.find(r => r.id === id);
+    if (rule) rule.isActive = isActive;
+    toast('Statut mis � jour', `La r�gle est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
+  } catch (error) {
+    console.error('PromoRule status update failed', error);
+    toast('Erreur', 'Impossible de changer le statut.', 'error');
+    renderPromoRuleList();
+  }
+}
+
+async function renderPromoRuleFormPage(id) {
+  let rule = {};
+  if (id) {
+    rule =
+      allPromoRules.find(r => r.id === id) ||
+      (await getDoc(doc(db, 'promoRules', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!rule) {
+      $promoRulesContent.innerHTML = '<div class="center" style="padding:32px">R�gle introuvable.</div>';
+      return;
+    }
+  }
+
+  const priceBrackets = JSON.stringify(
+    rule.priceBrackets && rule.priceBrackets.length ? rule.priceBrackets : DEFAULT_PRICE_BRACKETS,
+    null,
+    2
+  );
+  const channels = (rule.allowedChannels || ['web', 'app', 'wa', 'qr', 'bo']).join(',');
+  const partners = (rule.allowedPartners || []).join(',');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+    <div class="form-head"><div class="form-title">${id ? '�diter R�gle' : 'Nouvelle R�gle Promo'}</div></div>
+    <form class="form-main" novalidate>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="pr-code">Code</label>
+          <input id="pr-code" class="input" type="text" value="${escapeAttr(rule.code || rule.id || '')}" ${
+    id ? 'disabled' : ''
+  } required />
+          <div class="hint">Utilise des lettres/chiffres, ex: JOYFUL-AP</div>
+        </div>
+        <div class="field">
+          <label class="label">Actif</label>
+          <label class="toggle">
+            <span class="toggle-switch">
+              <input id="pr-active" type="checkbox" ${rule.isActive !== false ? 'checked' : ''}>
+              <span class="toggle-slider"></span>
+            </span>
+            <span>Code utilisable</span>
+          </label>
+        </div>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="pr-channels">Canaux autoris�s</label>
+          <input id="pr-channels" class="input" type="text" value="${escapeAttr(channels)}" placeholder="web,app,wa,qr,bo" />
+          <div class="hint">S�pare par des virgules. Ex: web,app,wa</div>
+        </div>
+        <div class="field">
+          <label class="label" for="pr-partners">Partenaires autoris�s</label>
+          <input id="pr-partners" class="input" type="text" value="${escapeAttr(partners)}" placeholder="PART-001,PART-002" />
+          <div class="hint">Laisse vide pour tous les partenaires.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="toggle">
+          <span class="toggle-switch">
+            <input id="pr-partnerRequired" type="checkbox" ${rule.partnerRefRequired ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </span>
+          <span>Ref partenaire obligatoire</span>
+        </label>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="pr-start">D�but</label>
+          <input id="pr-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(rule.startsAt))}" />
+        </div>
+        <div class="field">
+          <label class="label" for="pr-end">Fin</label>
+          <input id="pr-end" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(rule.endsAt))}" />
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="pr-brackets">Tranches (JSON)</label>
+        <textarea id="pr-brackets" class="textarea" rows="8">${priceBrackets}</textarea>
+        <div class="hint">Chaque tranche: { min, max, discountValue, commissionValue, label }. Utilise null/omit pour max illimit�.</div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" data-cancel>Annuler</button>
+        <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er la r�gle'}</button>
+      </div>
+    </form>`;
+  $promoRulesContent.innerHTML = '';
+  $promoRulesContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promorules');
+  wrap.querySelector('form').onsubmit = e => handlePromoRuleFormSubmit(e, id, rule.code || rule.id);
+}
+
+async function handlePromoRuleFormSubmit(e, id, existingCode) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  const code = (existingCode || $('#pr-code').value || '').trim().toUpperCase();
+  if (!code) {
+    toast('Erreur', 'Le code est requis.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+
+  const channelsRaw = $('#pr-channels').value || '';
+  const allowedChannels = channelsRaw
+    .split(',')
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean);
+  const partnersRaw = $('#pr-partners').value || '';
+  const allowedPartners = partnersRaw
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  let priceBrackets = DEFAULT_PRICE_BRACKETS;
+  try {
+    const parsed = JSON.parse($('#pr-brackets').value || '[]');
+    if (Array.isArray(parsed) && parsed.length) {
+      priceBrackets = parsed;
+    }
+  } catch (err) {
+    console.warn('Price bracket parse failed, fallback to default', err);
+    priceBrackets = DEFAULT_PRICE_BRACKETS;
+  }
+
+  const startsAtVal = $('#pr-start').value;
+  const endsAtVal = $('#pr-end').value;
+  const payload = {
+    code,
+    isActive: $('#pr-active').checked,
+    allowedChannels: allowedChannels.length ? allowedChannels : ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: allowedPartners,
+    partnerRefRequired: $('#pr-partnerRequired').checked,
+    priceBrackets: priceBrackets,
+    startsAt: startsAtVal ? new Date(startsAtVal) : null,
+    endsAt: endsAtVal ? new Date(endsAtVal) : null,
+    updatedAt: serverTimestamp(),
+  };
+
+  try {
+    const docId = id || code;
+    const ref = doc(db, 'promoRules', docId);
+    if (!id) {
+      await setDoc(ref, { ...payload, createdAt: serverTimestamp() });
+      allPromoRules.unshift({ id: docId, ...payload });
+    } else {
+      await setDoc(ref, payload, { merge: true });
+      const idx = allPromoRules.findIndex(r => r.id === docId);
+      if (idx > -1) {
+        allPromoRules[idx] = { ...allPromoRules[idx], ...payload };
+      } else {
+        allPromoRules.unshift({ id: docId, ...payload });
+      }
+    }
+    allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
+    toast('Succ�s', id ? 'R�gle mise � jour' : 'R�gle cr��e', 'success');
+    location.hash = '#/promorules';
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');

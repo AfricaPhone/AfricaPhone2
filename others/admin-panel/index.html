@@ -74,6 +74,7 @@
             ><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a
           >
           <a data-route="#/promocodes" class="link-item"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
+          <a data-route="#/promorules" class="link-item"><i data-lucide="sliders-horizontal" class="icon"></i> R&egrave;gles Promo</a>
           <div class="section">G&eacute;n&eacute;ral</div>
           <a data-route="#/settings" class="link-item"><i data-lucide="settings" class="icon"></i> Param&egrave;tres</a>
         </nav>
@@ -103,6 +104,7 @@
           <a id="nav-contests" href="#/contests"><i data-lucide="trophy" class="icon"></i> Concours</a>
           <a id="nav-promocards" href="#/promocards"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
           <a id="nav-promocodes" href="#/promocodes"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
+          <a id="nav-promorules" href="#/promorules"><i data-lucide="sliders-horizontal" class="icon"></i> R&egrave;gles Promo</a>
           <div class="section">G&eacute;n&eacute;ral</div>
           <a id="nav-settings" href="#/settings"><i data-lucide="settings" class="icon"></i> Param&egrave;tres</a>
         </nav>
@@ -282,6 +284,17 @@
           </div>
         </div>
 
+        <div id="toolbar-promorules" class="toolbar hide">
+          <div class="filters">
+            <input id="search-promorules" class="input" type="search" placeholder="Rechercher une règle promo..." />
+          </div>
+          <div class="top-actions">
+            <button id="add-promorule" class="btn btn-primary btn-small">
+              <i data-lucide="plus" class="icon"></i> Nouvelle règle
+            </button>
+          </div>
+        </div>
+
         <section id="page-products" class="page hide" aria-labelledby="nav-products">
           <div id="products-content"></div>
         </section>
@@ -308,6 +321,10 @@
 
         <section id="page-promocodes" class="page hide" aria-labelledby="nav-promocodes">
           <div id="promocodes-content"></div>
+        </section>
+
+        <section id="page-promorules" class="page hide" aria-labelledby="nav-promorules">
+          <div id="promorules-content"></div>
         </section>
 
         <section id="page-settings" class="page hide" aria-labelledby="nav-settings">
@@ -344,6 +361,50 @@
                   <span>Afficher les cartes promo dans l'application</span>
                 </label>
                 <div class="hint">D&eacute;sactivez pour masquer les banni&egrave;res promotionnelles sur l'&eacute;cran d'accueil.</div>
+              </div>
+
+              <div class="field" style="margin-top:24px">
+                <label class="label">Templates de liens promo</label>
+                <div class="hint">Bases des liens web/app/WhatsApp partag&eacute;s aux partenaires. Placeholders : {code}, {ref}, {link}.</div>
+                <div class="twocol">
+                  <div class="field">
+                    <label class="label" for="lt-webBaseUrl">Lien web de base</label>
+                    <input id="lt-webBaseUrl" class="input" type="url" placeholder="https://exemple.com/promo" />
+                  </div>
+                  <div class="field">
+                    <label class="label" for="lt-appLinkDomain">Lien universel / app link</label>
+                    <input id="lt-appLinkDomain" class="input" type="url" placeholder="https://exemple.com/ul" />
+                  </div>
+                </div>
+                <div class="twocol">
+                  <div class="field">
+                    <label class="label" for="lt-appScheme">Sch&eacute;ma deep link app</label>
+                    <input id="lt-appScheme" class="input" type="text" placeholder="africaphone://apply-promo" />
+                  </div>
+                  <div class="field">
+                    <label class="label" for="lt-waNumber">Num&eacute;ro WhatsApp (optionnel)</label>
+                    <input id="lt-waNumber" class="input" type="text" placeholder="229XXXXXXXX" />
+                  </div>
+                </div>
+                <div class="twocol">
+                  <div class="field">
+                    <label class="label" for="lt-defaultCampaign">Campagne par d&eacute;faut</label>
+                    <input id="lt-defaultCampaign" class="input" type="text" placeholder="default" />
+                  </div>
+                  <div class="field">
+                    <label class="label" for="lt-defaultSub">Variation / bouton par d&eacute;faut</label>
+                    <input id="lt-defaultSub" class="input" type="text" placeholder="cta1" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label" for="lt-waMessageTemplate">Message WhatsApp</label>
+                  <textarea id="lt-waMessageTemplate" class="textarea" rows="3" placeholder="Profite du code {code} : {link} (ref {ref})"></textarea>
+                  <div class="hint">Utilise les placeholders {code}, {ref}, {link}.</div>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-primary" id="save-link-templates"><i data-lucide="save" class="icon"></i> Enregistrer</button>
+                  <span id="lt-status" class="hint"></span>
+                </div>
               </div>
             </div>
           </div>
