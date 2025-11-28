@@ -1,4 +1,4 @@
-﻿// Importe la configuration et les services Firebase depuis le fichier d�di�.
+// Importe la configuration et les services Firebase depuis le fichier d�di�.
 import { auth, db, storage } from './firebase-config.js';
 
 // Importe les fonctions sp�cifiques de Firebase Auth et Firestore.
@@ -198,6 +198,13 @@ const DEFAULT_PRICE_BRACKETS = [
   { min: 249000, max: 399000, discountValue: 15000, commissionValue: 25000, label: '249k-399k' },
   { min: 399000, max: null, discountValue: 20000, commissionValue: 35000, label: '400k+' },
 ];
+const CHANNEL_OPTIONS = [
+  { value: 'web', label: 'Web (site)' },
+  { value: 'app', label: 'App mobile' },
+  { value: 'wa', label: 'WhatsApp' },
+  { value: 'qr', label: 'QR code' },
+  { value: 'bo', label: 'Back-office' },
+];
 
 // --- Features / Flags ---
 let featuresConfig = { promoCardsEnabled: true };
@@ -213,6 +220,31 @@ const FALLBACK_LINK_TEMPLATES = {
 };
 
 /* ============================ Brackets Helpers ============================ */
+function renderChannelCheckboxes(targetId, selected = []) {
+  const container = document.getElementById(targetId);
+  if (!container) return;
+  const selectedSet = new Set((selected || []).map(s => String(s).toLowerCase()));
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(150px, 1fr))';
+  container.style.gap = '6px 12px';
+  container.innerHTML = CHANNEL_OPTIONS.map(
+    opt => `
+      <label class="checkbox channel-item" style="display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" value="${opt.value}" ${selectedSet.has(opt.value) ? 'checked' : ''}>
+        <span>${opt.label}</span>
+      </label>
+    `,
+  ).join('');
+}
+
+function readChannelCheckboxes(targetId) {
+  const container = document.getElementById(targetId);
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
+    .map(el => (el.value || '').trim().toLowerCase())
+    .filter(Boolean);
+}
+
 function buildBracketHeaderRow() {
   const head = document.createElement('div');
   head.className = 'bracket-head';
@@ -3320,7 +3352,11 @@ async function renderPromoCodeFormPage(id) {
     startsAt: null,
     endsAt: null,
   };
-  const channelsValue = (ruleData.allowedChannels || ['web', 'app', 'wa', 'qr', 'bo']).join(',');
+  const channelsSelected =
+    (ruleData.allowedChannels && ruleData.allowedChannels.length
+      ? ruleData.allowedChannels
+      : ['web', 'app', 'wa', 'qr', 'bo']
+    ).map(c => String(c).toLowerCase());
   const partnersValue = (ruleData.allowedPartners || []).join(',');
   const initialBrackets = ruleData.priceBrackets && ruleData.priceBrackets.length ? ruleData.priceBrackets : DEFAULT_PRICE_BRACKETS;
 
@@ -3368,9 +3404,9 @@ async function renderPromoCodeFormPage(id) {
             </div>
             <div class="twocol">
               <div class="field">
-                <label class="label" for="pc-channels">Canaux autoris?s</label>
-                <input id="pc-channels" class="input" type="text" value="${escapeAttr(channelsValue)}" placeholder="web,app,wa,qr,bo" />
-                <div class="hint">Ex: web,app,wa</div>
+                <label class="label">Canaux autoris?s</label>
+                <div id="pc-channels-group" class="channel-checks"></div>
+                <div class="hint">Coche les canaux o? ce code peut ?tre utilis?.</div>
               </div>
               <div class="field">
                 <label class="label" for="pc-partners">Partenaires autoris?s</label>
@@ -3416,6 +3452,7 @@ async function renderPromoCodeFormPage(id) {
   wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes');
   wrap.querySelector('form').onsubmit = e => handlePromoCodeFormSubmit(e, id || ruleId);
 
+  renderChannelCheckboxes('pc-channels-group', channelsSelected);
   renderBracketRows(initialBrackets);
   document.getElementById('add-bracket')?.addEventListener('click', () => {
     const container = document.getElementById('brackets-rows');
@@ -3450,11 +3487,7 @@ async function handlePromoCodeFormSubmit(e, id) {
     isActive: $('#pc-isActive').checked,
   };
 
-  const channelsRaw = $('#pc-channels').value || '';
-  const allowedChannels = channelsRaw
-    .split(',')
-    .map(s => s.trim().toLowerCase())
-    .filter(Boolean);
+  const allowedChannels = readChannelCheckboxes('pc-channels-group');
   const partnersRaw = $('#pc-partners').value || '';
   const allowedPartners = partnersRaw
     .split(',')
@@ -3622,7 +3655,11 @@ async function renderPromoRuleFormPage(id) {
     null,
     2
   );
-  const channels = (rule.allowedChannels || ['web', 'app', 'wa', 'qr', 'bo']).join(',');
+  const channelsSelected =
+    (rule.allowedChannels && rule.allowedChannels.length
+      ? rule.allowedChannels
+      : ['web', 'app', 'wa', 'qr', 'bo']
+    ).map(c => String(c).toLowerCase());
   const partners = (rule.allowedPartners || []).join(',');
 
   const wrap = document.createElement('div');
@@ -3651,12 +3688,12 @@ async function renderPromoRuleFormPage(id) {
       </div>
       <div class="twocol">
         <div class="field">
-          <label class="label" for="pr-channels">Canaux autoris�s</label>
-          <input id="pr-channels" class="input" type="text" value="${escapeAttr(channels)}" placeholder="web,app,wa,qr,bo" />
-          <div class="hint">S�pare par des virgules. Ex: web,app,wa</div>
+          <label class="label">Canaux autorises</label>
+          <div id="pr-channels-group" class="channel-checks"></div>
+          <div class="hint">Coche les canaux ou la regle peut s'appliquer.</div>
         </div>
         <div class="field">
-          <label class="label" for="pr-partners">Partenaires autoris�s</label>
+          <label class="label" for="pr-partners">Partenaires autorises</label>
           <input id="pr-partners" class="input" type="text" value="${escapeAttr(partners)}" placeholder="PART-001,PART-002" />
           <div class="hint">Laisse vide pour tous les partenaires.</div>
         </div>
@@ -3692,6 +3729,7 @@ async function renderPromoRuleFormPage(id) {
     </form>`;
   $promoRulesContent.innerHTML = '';
   $promoRulesContent.appendChild(wrap);
+  renderChannelCheckboxes('pr-channels-group', channelsSelected);
   wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promorules');
   wrap.querySelector('form').onsubmit = e => handlePromoRuleFormSubmit(e, id, rule.code || rule.id);
 }
@@ -3708,11 +3746,7 @@ async function handlePromoRuleFormSubmit(e, id, existingCode) {
     return;
   }
 
-  const channelsRaw = $('#pr-channels').value || '';
-  const allowedChannels = channelsRaw
-    .split(',')
-    .map(s => s.trim().toLowerCase())
-    .filter(Boolean);
+  const allowedChannels = readChannelCheckboxes('pr-channels-group');
   const partnersRaw = $('#pr-partners').value || '';
   const allowedPartners = partnersRaw
     .split(',')
