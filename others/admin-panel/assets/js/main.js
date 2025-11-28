@@ -1,5 +1,5 @@
 // Importe la configuration et les services Firebase depuis le fichier dï¿½diï¿½.
-import { auth, db, storage } from './firebase-config.js';
+import { auth, db, storage, analytics, logEvent } from './firebase-config.js';
 
 // Importe les fonctions spï¿½cifiques de Firebase Auth et Firestore.
 import {
@@ -53,6 +53,16 @@ function escapeHtml(s = '') {
 }
 function escapeAttr(s = '') {
   return escapeHtml(s).replace(/`/g, '&#96;');
+}
+
+function track(eventName, params = {}) {
+  try {
+    if (analytics && typeof logEvent === 'function') {
+      logEvent(analytics, eventName, params);
+    }
+  } catch (err) {
+    console.warn('Analytics log failed', err);
+  }
 }
 
 function setButtonLoading(button, isLoading) {
@@ -356,23 +366,24 @@ function applyLinkTemplatesToSettingsUI() {
 }
 
 async function saveLinkTemplates() {
-  const btn = $('#save-link-templates');
+  const btn = #save-link-templates;
   setButtonLoading(btn, true);
   const payload = {
-    webBaseUrl: $('#lt-webBaseUrl').value.trim(),
-    appLinkDomain: $('#lt-appLinkDomain').value.trim(),
-    appScheme: $('#lt-appScheme').value.trim(),
-    defaultCampaign: $('#lt-defaultCampaign').value.trim() || 'default',
-    defaultSub: $('#lt-defaultSub').value.trim() || 'cta1',
-    waMessageTemplate: $('#lt-waMessageTemplate').value.trim(),
-    whatsappNumber: $('#lt-waNumber').value.trim(),
+    webBaseUrl: #lt-webBaseUrl.value.trim(),
+    appLinkDomain: #lt-appLinkDomain.value.trim(),
+    appScheme: #lt-appScheme.value.trim(),
+    defaultCampaign: #lt-defaultCampaign.value.trim() || 'default',
+    defaultSub: #lt-defaultSub.value.trim() || 'cta1',
+    waMessageTemplate: #lt-waMessageTemplate.value.trim(),
+    whatsappNumber: #lt-waNumber.value.trim(),
   };
   try {
     const ref = doc(db, 'config', 'linkTemplates');
     await setDoc(ref, payload, { merge: true });
     linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...payload };
     applyLinkTemplatesToSettingsUI();
-    toast('Enregistrï¿½', 'Templates de liens mis ï¿½ jour', 'success');
+    track('link_templates_save', { hasWaNumber: Boolean(payload.whatsappNumber) });
+    toast('Enregistr?', 'Templates de liens mis ? jour', 'success');
   } catch (err) {
     console.error('Save link templates failed', err);
     toast('Erreur', 'Impossible de sauvegarder les templates', 'error');
@@ -589,6 +600,7 @@ async function handleRoute() {
   const route = parts[1] || 'products';
   const id = parts[2];
   const childId = parts[3];
+  track('page_view_admin', { route, id: id || null });
 
   const isContestRoute = route.includes('contest') || route.includes('candidate');
 
@@ -3539,6 +3551,7 @@ async function handlePromoCodeFormSubmit(e, id) {
     }
     allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
 
+    track('promo_code_save', { code: data.code, isEdit: Boolean(id), type: data.type, hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
     location.hash = '#/promocodes';
   } catch (err) {
     console.error(err);
@@ -3794,8 +3807,10 @@ async function handlePromoRuleFormSubmit(e, id, existingCode) {
       }
     }
     allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
-    toast('Succï¿½s', id ? 'Rï¿½gle mise ï¿½ jour' : 'Rï¿½gle crï¿½ï¿½e', 'success');
+    track('promo_rule_save', { code: code, isEdit: Boolean(id), hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
+    toast('Succ?s', id ? 'R?gle mise ? jour' : 'R?gle cr??e', 'success');
     location.hash = '#/promorules';
+  }
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');
