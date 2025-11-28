@@ -3268,7 +3268,7 @@ function renderPromoCodeList() {
                 <th>Type</th>
                 <th>Valeur</th>
                 <th>Partenaire</th>
-                <th>Statut / RÃ¨gle</th>
+                <th>Statut / Règle</th>
                 <th style="width:180px;text-align:right">Actions</th>
             </tr>
         </thead>
