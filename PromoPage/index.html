@@ -309,6 +309,10 @@
       .btn-primary { background: var(--accent-primary); color: white; border: 1px solid var(--accent-primary); padding: 10px 14px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; }
       .btn-primary:hover { filter: brightness(1.05); }
       .status { font-size: 0.8rem; color: var(--text-tertiary); }
+      .info-block { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin-top: 12px; }
+      .info-block h4 { margin-bottom: 8px; font-size: 0.95rem; }
+      .info-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+      .info-list li { font-size: 0.85rem; color: var(--text-secondary); }
       
       /* --- TABLES GRID --- */
       .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
@@ -644,6 +648,11 @@
           <button class="btn-primary" id="generateLinksBtn" type="button">Générer les liens</button>
           <span class="status" id="linkStatus">Prêt.</span>
         </div>
+        <div class="share-actions" style="margin-top:4px">
+          <input id="cartValueInput" class="input" type="number" min="0" step="1000" placeholder="Montant panier (optionnel)" style="flex:1; min-width:200px; padding:8px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" />
+          <button class="pill pill-light" id="validateCodeBtn" type="button">Valider le code</button>
+          <span class="status" id="validateStatus"></span>
+        </div>
         <div class="share-grid">
           <div class="share-block">
             <p class="muted"><i class="ph ph-globe"></i> Lien Web</p>
@@ -664,6 +673,17 @@
             <div class="share-field">
               <span id="waLink">wa.me/229...text=Code</span>
               <button class="pill pill-light" data-copy="waLink">Copier</button>
+            </div>
+          </div>
+          <div class="share-block">
+            <p class="muted"><i class="ph ph-sliders"></i> Règle promo (lecture)</p>
+            <div class="info-block">
+              <h4 id="ruleCode">Code: -</h4>
+              <ul class="info-list" id="ruleDetails">
+                <li>Canaux: —</li>
+                <li>Ref partenaire obligatoire: —</li>
+                <li>Tranches: —</li>
+              </ul>
             </div>
           </div>
           <div class="share-block qr" style="display:flex; align-items:center; gap:16px;">
@@ -811,6 +831,76 @@
         if (el) el.textContent = value;
       };
 
+      const updateRulePanel = data => {
+        const codeEl = document.getElementById('ruleCode');
+        const details = document.getElementById('ruleDetails');
+        if (!details) return;
+        if (codeEl) codeEl.textContent = `Code: ${data?.code || '-'}`;
+        const channels = (data?.allowedChannels || []).join(', ') || 'tous';
+        const partnerReq = data?.partnerRefRequired ? 'Oui' : 'Non';
+        const brackets = Array.isArray(data?.priceBrackets) && data.priceBrackets.length
+          ? data.priceBrackets
+              .slice(0, 3)
+              .map(b => {
+                const min = b.min ?? 0;
+                const max = typeof b.max === 'number' ? b.max : '+';
+                return `${min}-${max}: -${b.discountValue || 0} / +${b.commissionValue || 0}`;
+              })
+              .join(' | ')
+          : '—';
+        details.innerHTML = `
+          <li>Canaux: ${channels}</li>
+          <li>Ref partenaire obligatoire: ${partnerReq}</li>
+          <li>Tranches: ${brackets}</li>
+        `;
+      };
+
+      const fetchRule = async code => {
+        try {
+          const snap = await window.firebase.firestore().collection('promoRules').doc(code.trim().toUpperCase()).get();
+          if (snap.exists) {
+            const data = snap.data();
+            updateRulePanel({ code: data.code || snap.id, ...data });
+          } else {
+            updateRulePanel({ code: code.trim(), allowedChannels: [], partnerRefRequired: false, priceBrackets: [] });
+          }
+        } catch (error) {
+          console.warn('fetchRule error', error);
+          updateRulePanel({ code, allowedChannels: [], partnerRefRequired: false, priceBrackets: [] });
+        }
+      };
+
+      const validateCode = async () => {
+        const code = (document.getElementById('codeInput')?.value || '').trim();
+        const cartValueRaw = document.getElementById('cartValueInput')?.value;
+        const cartValue = cartValueRaw ? Number(cartValueRaw) : undefined;
+        if (!code) {
+          setStatus('Veuillez saisir un code promo.', true);
+          return;
+        }
+        const status = document.getElementById('validateStatus');
+        if (status) status.textContent = 'Validation...';
+        try {
+          const appInstance = initFirebase();
+          const functions = window.firebase.functions(appInstance);
+          const callable = functions.httpsCallable('validatePromoV2');
+          const response = await callable({ code, channel: 'web', cartValue });
+          const data = response.data || {};
+          const discount = data.discountValue ? `${data.discountValue} CFA` : '-';
+          const commission = data.commissionValue ? `${data.commissionValue} CFA` : '-';
+          if (status) status.textContent = `Valide. Remise: ${discount} / Commission: ${commission}`;
+          updateRulePanel({
+            code: data.code || code,
+            allowedChannels: [data.channel || 'web'],
+            partnerRefRequired: !!data.ref,
+            priceBrackets: data.priceBracket ? [data.priceBracket] : [],
+          });
+        } catch (error) {
+          console.error('validatePromoV2 error', error);
+          if (status) status.textContent = 'Code invalide ou indisponible.';
+        }
+      };
+
       const setStatus = (text, isError = false) => {
         const status = document.getElementById('linkStatus');
         if (status) {
@@ -869,6 +959,7 @@
           const badge = document.getElementById('activeCodeBadge');
           if (badge) badge.textContent = `Code actif: ${code.toUpperCase()}`;
           setStatus('Liens générés.');
+          fetchRule(code);
         } catch (error) {
           console.error('Erreur generatePromoLinks, fallback local', error);
           const localLinks = fallbackLinks();
@@ -878,10 +969,12 @@
           const badge = document.getElementById('activeCodeBadge');
           if (badge) badge.textContent = `Code actif: ${code.toUpperCase()} (fallback)`;
           setStatus("Génération via fallback local.", true);
+          fetchRule(code);
         }
       };
 
       document.getElementById('generateLinksBtn')?.addEventListener('click', generateLinks);
+      document.getElementById('validateCodeBtn')?.addEventListener('click', validateCode);
       document.querySelectorAll('[data-copy]').forEach(btn => {
         btn.addEventListener('click', () => {
           const target = btn.getAttribute('data-copy');
