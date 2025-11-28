@@ -3297,7 +3297,7 @@ function renderPromoCodeList() {
                 <div class="muted small">${escapeHtml(bracketsText)}</div>
             </td>
             <td class="actions">
-                <button class="btn btn-small" data-edit>Ã‰diter</button>
+                <button class="btn btn-small" data-edit>Éditer</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>`;
     tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocode/${c.id}`);
