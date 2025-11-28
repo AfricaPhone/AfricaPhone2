@@ -212,6 +212,65 @@ const FALLBACK_LINK_TEMPLATES = {
   whatsappNumber: '',
 };
 
+/* ============================ Brackets Helpers ============================ */
+function buildBracketRow(bracket = {}) {
+  const row = document.createElement('div');
+  row.className = 'bracket-row';
+  row.style.display = 'grid';
+  row.style.gridTemplateColumns = '1fr 1fr 1fr 1fr 1.2fr auto';
+  row.style.gap = '6px';
+  row.style.alignItems = 'center';
+  row.style.marginTop = '8px';
+
+  row.innerHTML = `
+    <input type="number" class="input bracket-min" placeholder="Min" min="0" step="1000" value="${bracket.min ?? ''}" />
+    <input type="number" class="input bracket-max" placeholder="Max (vide = +)" min="0" step="1000" value="${bracket.max ?? ''}" />
+    <input type="number" class="input bracket-discount" placeholder="Remise" min="0" step="500" value="${bracket.discountValue ?? ''}" />
+    <input type="number" class="input bracket-commission" placeholder="Commission" min="0" step="500" value="${bracket.commissionValue ?? ''}" />
+    <input type="text" class="input bracket-label" placeholder="Label" value="${escapeAttr(bracket.label || '')}" />
+    <button type="button" class="btn btn-icon btn-small" data-remove-bracket title="Supprimer">
+      <i data-lucide="x" class="icon"></i>
+    </button>
+  `;
+  row.querySelector('[data-remove-bracket]').onclick = () => row.remove();
+  return row;
+}
+
+function renderBracketRows(brackets) {
+  const container = document.getElementById('brackets-rows');
+  if (!container) return;
+  container.innerHTML = '';
+  const list = Array.isArray(brackets) && brackets.length ? brackets : DEFAULT_PRICE_BRACKETS;
+  list.forEach(b => container.appendChild(buildBracketRow(b)));
+  lucide.createIcons();
+}
+
+function readBracketRows() {
+  const container = document.getElementById('brackets-rows');
+  if (!container) return [];
+  const rows = Array.from(container.querySelectorAll('.bracket-row'));
+  const result = [];
+  rows.forEach(row => {
+    const min = Number(row.querySelector('.bracket-min')?.value || 0);
+    const maxRaw = row.querySelector('.bracket-max')?.value;
+    const max = maxRaw === '' || maxRaw === null || maxRaw === undefined ? null : Number(maxRaw);
+    const discountValue = Number(row.querySelector('.bracket-discount')?.value || 0);
+    const commissionValue = Number(row.querySelector('.bracket-commission')?.value || 0);
+    const label = (row.querySelector('.bracket-label')?.value || '').trim();
+    if (Number.isNaN(discountValue) || Number.isNaN(commissionValue)) {
+      return;
+    }
+    result.push({
+      min: Number.isNaN(min) ? 0 : min,
+      max: Number.isNaN(max) ? null : max,
+      discountValue,
+      commissionValue,
+      label: label || null,
+    });
+  });
+  return result;
+}
+
 async function ensureFeaturesLoaded() {
   try {
     const ref = doc(db, 'config', 'features');
@@ -3240,11 +3299,7 @@ async function renderPromoCodeFormPage(id) {
   };
   const channelsValue = (ruleData.allowedChannels || ['web', 'app', 'wa', 'qr', 'bo']).join(',');
   const partnersValue = (ruleData.allowedPartners || []).join(',');
-  const priceBracketsValue = JSON.stringify(
-    ruleData.priceBrackets && ruleData.priceBrackets.length ? ruleData.priceBrackets : DEFAULT_PRICE_BRACKETS,
-    null,
-    2
-  );
+  const initialBrackets = ruleData.priceBrackets && ruleData.priceBrackets.length ? ruleData.priceBrackets : DEFAULT_PRICE_BRACKETS;
 
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
@@ -3320,9 +3375,13 @@ async function renderPromoCodeFormPage(id) {
               </div>
             </div>
             <div class="field">
-              <label class="label" for="pc-brackets">Tranches (JSON)</label>
-              <textarea id="pc-brackets" class="textarea" rows="8">${priceBracketsValue}</textarea>
-              <div class="hint">[{ "min":0, "max":149000, "discountValue":5000, "commissionValue":8000, "label":"0-149k" }, ...]</div>
+              <label class="label">Tranches (remise / commission)</label>
+              <div id="brackets-rows" class="brackets-rows"></div>
+              <div class="top-actions" style="margin-top:8px; gap:8px;">
+                <button id="add-bracket" type="button" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Ajouter une tranche</button>
+                <button id="reset-brackets" type="button" class="btn btn-small"><i data-lucide="rotate-ccw" class="icon"></i> Valeurs par défaut</button>
+              </div>
+              <div class="hint">Ex: 0-149 000 => remise 5 000 / commission 8 000. Laissez Max vide pour une tranche ouverte.</div>
             </div>
             <div class="form-actions">
                 <button type="button" class="btn" data-cancel>Annuler</button>
@@ -3333,6 +3392,16 @@ async function renderPromoCodeFormPage(id) {
   $promoCodesContent.appendChild(wrap);
   wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes');
   wrap.querySelector('form').onsubmit = e => handlePromoCodeFormSubmit(e, id || ruleId);
+
+  renderBracketRows(initialBrackets);
+  document.getElementById('add-bracket')?.addEventListener('click', () => {
+    const container = document.getElementById('brackets-rows');
+    if (container) {
+      container.appendChild(buildBracketRow({ min: 0, max: null, discountValue: 0, commissionValue: 0, label: '' }));
+    }
+    lucide.createIcons();
+  });
+  document.getElementById('reset-brackets')?.addEventListener('click', () => renderBracketRows(DEFAULT_PRICE_BRACKETS));
 }
 
 
@@ -3369,14 +3438,8 @@ async function handlePromoCodeFormSubmit(e, id) {
     .map(s => s.trim())
     .filter(Boolean);
 
-  let priceBrackets = DEFAULT_PRICE_BRACKETS;
-  try {
-    const parsed = JSON.parse($('#pc-brackets').value || '[]');
-    if (Array.isArray(parsed) && parsed.length) {
-      priceBrackets = parsed;
-    }
-  } catch (err) {
-    console.warn('Price brackets parse failed, fallback to default', err);
+  let priceBrackets = readBracketRows();
+  if (!priceBrackets.length) {
     priceBrackets = DEFAULT_PRICE_BRACKETS;
   }
 
