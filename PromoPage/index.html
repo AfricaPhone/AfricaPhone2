@@ -764,6 +764,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>
       const toggle = document.getElementById('themeToggle');
       
@@ -792,18 +793,32 @@
         appId: '1:203471818329:web:c2c77d48098c1a6a596b48',
       };
 
-      const FALLBACK_TEMPLATES = {
-        webBaseUrl: 'https://africaphone-org.web.app/promo',
-        appScheme: 'africaphone://apply-promo',
-        appLinkDomain: 'https://africaphone-org.web.app/ul',
+      let linkTemplates = {
+        webBaseUrl: '',
+        appScheme: '',
+        appLinkDomain: '',
         defaultCampaign: 'default',
         defaultSub: 'cta1',
         waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
       };
 
+
       const initFirebase = () => {
         if (window.firebase?.apps?.length) return window.firebase.app();
         return window.firebase?.initializeApp(firebaseConfig);
+      };
+
+      const loadLinkTemplates = async () => {
+        try {
+          const appInstance = initFirebase();
+          const db = window.firebase.firestore(appInstance);
+          const snap = await db.collection('config').doc('linkTemplates').get();
+          if (snap.exists) {
+            linkTemplates = { ...linkTemplates, ...snap.data() };
+          }
+        } catch (e) {
+          console.warn('Impossible de charger les templates, fallback utilis?', e);
+        }
       };
 
       const buildUrl = (base, params) => {
