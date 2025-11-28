@@ -3363,7 +3363,7 @@ async function renderPromoCodeFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-        <div class="form-head"><div class="form-title">${id ? '?diter' : 'Nouveau'} Code Promo</div></div>
+        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouveau'} Code Promo</div></div>
         <form class="form-main" novalidate>
             <div class="twocol">
                 <div class="field">
@@ -3371,7 +3371,7 @@ async function renderPromoCodeFormPage(id) {
                     <input id="pc-code" class="input" type="text" value="${escapeAttr(code.code || '')}" ${id ? 'disabled' : ''} required placeholder="ex: BIENVENUE10" />
                 </div>
                 <div class="field">
-                    <label class="label" for="pc-type">Type de r?duction</label>
+                    <label class="label" for="pc-type">Type de réduction</label>
                     <select id="pc-type" class="select">
                         <option value="percentage" ${code.type === 'percentage' ? 'selected' : ''}>Pourcentage (%)</option>
                         <option value="fixed" ${code.type === 'fixed' ? 'selected' : ''}>Montant Fixe (FCFA)</option>
@@ -3379,7 +3379,7 @@ async function renderPromoCodeFormPage(id) {
                 </div>
             </div>
             <div class="field">
-                <label class="label" for="pc-value">Valeur de la r?duction</label>
+                <label class="label" for="pc-value">Valeur de la réduction</label>
                 <input id="pc-value" class="input" type="number" min="0" step="1" value="${code.value || ''}" required />
                 <div class="hint">Ex: "10" pour 10% ou "5000" pour 5000 FCFA.</div>
             </div>
@@ -3425,7 +3425,7 @@ async function renderPromoCodeFormPage(id) {
             </div>
             <div class="twocol">
               <div class="field">
-                <label class="label" for="pc-start">D?but</label>
+                <label class="label" for="pc-start">Début</label>
                 <input id="pc-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(ruleData.startsAt))}" />
               </div>
               <div class="field">
