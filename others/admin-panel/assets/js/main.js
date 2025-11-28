@@ -697,7 +697,7 @@ async function handleRoute() {
     setCrumb('Nouveau Code Promo');
     renderPromoCodeFormPage();
   } else if (route === 'edit-promocode' && id) {
-    setCrumb('ï¿½diter Code Promo');
+    setCrumb('Éditer Code Promo');
     await renderPromoCodeFormPage(id);
   } else if (route === 'settings') {
     setCrumb('Paramï¿½tres');
@@ -3386,7 +3386,7 @@ async function renderPromoCodeFormPage(id) {
             <div class="field">
                 <label class="label" for="pc-partner">Partenaire attribué</label>
                 <input id="pc-partner" class="input" type="text" value="${escapeAttr(code.assignedTo || '')}" placeholder="Orange Money, Canal+, etc." />
-                <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associ?e ? ce code.</div>
+                <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associée à ce code.</div>
             </div>
             <div class="field">
                 <label class="toggle">
@@ -3438,7 +3438,7 @@ async function renderPromoCodeFormPage(id) {
               <div id="brackets-rows" class="brackets-rows"></div>
               <div class="top-actions" style="margin-top:8px; gap:8px;">
                 <button id="add-bracket" type="button" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Ajouter une tranche</button>
-                <button id="reset-brackets" type="button" class="btn btn-small"><i data-lucide="rotate-ccw" class="icon"></i> Valeurs par dÃ©faut</button>
+                <button id="reset-brackets" type="button" class="btn btn-small"><i data-lucide="rotate-ccw" class="icon"></i> Valeurs par défaut</button>
               </div>
               <div class="hint">Ex: 0-149 000 => remise 5 000 / commission 8 000. Laissez Max vide pour une tranche ouverte.</div>
             </div>
