@@ -440,22 +440,20 @@ const $navProducts = $('#nav-products'),
   $navContests = $('#nav-contests'),
   $navSettings = $('#nav-settings'),
   $navPromoCards = $('#nav-promocards'),
-  $navPromoCodes = $('#nav-promocodes'),
-  $navPromoRules = $('#nav-promorules');
+  $navPromoCodes = $('#nav-promocodes');
 const $toolbarProducts = $('#toolbar-products'),
   $toolbarBrands = $('#toolbar-brands'),
   $toolbarMatches = $('#toolbar-matches'),
   $toolbarContests = $('#toolbar-contests'),
   $toolbarPromoCards = $('#toolbar-promocards'),
-  $toolbarPromoCodes = $('#toolbar-promocodes'),
-  $toolbarPromoRules = $('#toolbar-promorules');
+  $toolbarPromoCodes = $('#toolbar-promocodes');
 const $productsContent = $('#products-content'),
   $brandsContent = $('#brands-content'),
   $matchesContent = $('#matches-content'),
   $contestsContent = $('#contests-content'),
   $promoCardsContent = $('#promocards-content'),
   $promoCodesContent = $('#promocodes-content'),
-  $promoRulesContent = $('#promorules-content');
+  $promoRulesContent = document.getElementById('promorules-content');
 
 window.addEventListener('hashchange', handleRoute);
 window.addEventListener('hashchange', async function () {
@@ -487,7 +485,6 @@ async function handleRoute() {
   $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
   $navPromoCodes.classList.toggle('active', route.includes('promocode'));
-  $navPromoRules.classList.toggle('active', route.includes('promorule'));
   $navSettings.classList.toggle('active', route === 'settings');
 
   // Toolbars affichage
@@ -497,7 +494,6 @@ async function handleRoute() {
   $toolbarContests.classList.toggle('hide', !isContestRoute);
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
   $toolbarPromoCodes.classList.toggle('hide', !route.includes('promocode'));
-  $toolbarPromoRules.classList.toggle('hide', !route.includes('promorule'));
 
   // Pages
   $('#page-products').classList.toggle('hide', !route.includes('product'));
@@ -506,7 +502,6 @@ async function handleRoute() {
   $('#page-contests').classList.toggle('hide', !isContestRoute);
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
   $('#page-promocodes').classList.toggle('hide', !route.includes('promocode'));
-  $('#page-promorules').classList.toggle('hide', !route.includes('promorule'));
   $('#page-settings').classList.toggle('hide', route !== 'settings');
 
   if (route === 'products') {
@@ -590,16 +585,6 @@ async function handleRoute() {
   } else if (route === 'edit-promocode' && id) {
     setCrumb('�diter Code Promo');
     await renderPromoCodeFormPage(id);
-  } else if (route === 'promorules') {
-    setCrumb('R�gles Promo');
-    await ensurePromoRulesLoaded();
-    renderPromoRuleList();
-  } else if (route === 'new-promorule') {
-    setCrumb('Nouvelle r�gle');
-    renderPromoRuleFormPage();
-  } else if (route === 'edit-promorule' && id) {
-    setCrumb('�diter r�gle');
-    await renderPromoRuleFormPage(id);
   } else if (route === 'settings') {
     setCrumb('Param�tres');
   } else {
@@ -826,6 +811,7 @@ async function ensurePromoCardsLoaded(force = false) {
 }
 async function ensurePromoCodesLoaded() {
   if (allPromoCodes.length > 0) return;
+  await ensurePromoRulesLoaded().catch(err => console.warn('PromoRules preload skipped', err));
   $promoCodesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
   const q = query(collection(db, 'promoCodes'), orderBy('createdAt', 'desc'));
   const snap = await getDocs(q);
@@ -835,7 +821,10 @@ async function ensurePromoCodesLoaded() {
 
 async function ensurePromoRulesLoaded() {
   if (allPromoRules.length > 0) return;
-  $promoRulesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  const target = $promoRulesContent || $promoCodesContent;
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  }
   const q = query(collection(db, 'promoRules'));
   const snap = await getDocs(q);
   allPromoRules = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => {
@@ -1163,18 +1152,24 @@ async function handleDelete(id, name, type) {
       matchPredictionsCache.delete(id);
       renderMatchList();
       $('#kpi-matches').textContent = String(allMatches.length);
-    } else if (type === 'promoCards') {
-      allPromoCards = allPromoCards.filter(c => c.id !== id);
-      renderPromoCardList();
-      updatePromoCardsKpi();
-    } else if (type === 'promoCodes') {
-      allPromoCodes = allPromoCodes.filter(c => c.id !== id);
-      renderPromoCodeList();
-      $('#kpi-promocodes').textContent = String(allPromoCodes.length);
-    } else if (type === 'promoRules') {
-      allPromoRules = allPromoRules.filter(r => r.id !== id);
-      renderPromoRuleList();
+  } else if (type === 'promoCards') {
+    allPromoCards = allPromoCards.filter(c => c.id !== id);
+    renderPromoCardList();
+    updatePromoCardsKpi();
+  } else if (type === 'promoCodes') {
+    allPromoCodes = allPromoCodes.filter(c => c.id !== id);
+    renderPromoCodeList();
+    $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+    const codeValue = (name || id || '').toUpperCase();
+    if (codeValue) {
+      try {
+        await deleteDoc(doc(db, 'promoRules', codeValue));
+      } catch (err) {
+        console.warn('Unable to delete linked promoRule', err);
+      }
+      allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
     }
+  }
     toast('Supprim�', '', 'success');
   } catch (e) {
     console.error(e);
@@ -3135,10 +3130,8 @@ async function handlePromoCardFormSubmit(e, id) {
 $('#add-promocode').addEventListener('click', () => (location.hash = '#/new-promocode'));
 $('#search-promocodes').addEventListener('input', () => renderPromoCodeList());
 
-$('#add-promorule').addEventListener('click', () => (location.hash = '#/new-promorule'));
-$('#search-promorules').addEventListener('input', () => renderPromoRuleList());
-
 function renderPromoCodeList() {
+  ensurePromoRulesLoaded().catch(err => console.warn('PromoRules load skipped', err));
   const term = ($('#search-promocodes').value || '').toLowerCase();
   const arr = term
     ? allPromoCodes.filter(c => {
@@ -3161,7 +3154,7 @@ function renderPromoCodeList() {
                 <th>Type</th>
                 <th>Valeur</th>
                 <th>Partenaire</th>
-                <th>Statut</th>
+                <th>Statut / Règle</th>
                 <th style="width:180px;text-align:right">Actions</th>
             </tr>
         </thead>
@@ -3171,11 +3164,14 @@ function renderPromoCodeList() {
     const tr = document.createElement('tr');
     tr.dataset.id = c.id;
     const valText = c.type === 'percentage' ? `${c.value}%` : fmtXOF.format(c.value);
+    const rule = allPromoRules.find(r => (r.code || r.id || '').toLowerCase() === (c.code || '').toLowerCase());
+    const channels = rule?.allowedChannels?.join(', ') || 'tous';
+    const bracketsText = summarizeBrackets(rule?.priceBrackets || DEFAULT_PRICE_BRACKETS);
     tr.innerHTML = `
             <td style="font-weight:800"><span class="chip">${escapeHtml(c.code || 'Sans code')}</span></td>
             <td>${escapeHtml(c.type === 'percentage' ? 'Pourcentage' : 'Montant Fixe')}</td>
             <td><span class="badge success">${valText}</span></td>
-            <td>${escapeHtml(c.assignedTo || '—')}</td>
+            <td>${escapeHtml(c.assignedTo || '-')}</td>
             <td>
                 <label class="toggle">
                     <span class="toggle-switch">
@@ -3183,9 +3179,11 @@ function renderPromoCodeList() {
                         <span class="toggle-slider"></span>
                     </span>
                 </label>
+                <div class="muted small">${escapeHtml(channels)}</div>
+                <div class="muted small">${escapeHtml(bracketsText)}</div>
             </td>
             <td class="actions">
-                <button class="btn btn-small" data-edit>�diter</button>
+                <button class="btn btn-small" data-edit>Éditer</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>`;
     tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocode/${c.id}`);
@@ -3211,8 +3209,10 @@ async function handlePromoCodeStatusToggle(id, isActive) {
   }
 }
 
+
 async function renderPromoCodeFormPage(id) {
   let code = {};
+  let rule = null;
   if (id) {
     code =
       allPromoCodes.find(c => c.id === id) ||
@@ -3222,18 +3222,42 @@ async function renderPromoCodeFormPage(id) {
       return;
     }
   }
+  const ruleId = (code.code || code.id || id || '').toUpperCase();
+  if (ruleId) {
+    rule =
+      allPromoRules.find(r => (r.code || r.id || '').toUpperCase() === ruleId) ||
+      (await getDoc(doc(db, 'promoRules', ruleId)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+  }
+  const ruleData = rule || {
+    code: ruleId,
+    isActive: code.isActive !== false,
+    allowedChannels: ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: [],
+    partnerRefRequired: false,
+    priceBrackets: DEFAULT_PRICE_BRACKETS,
+    startsAt: null,
+    endsAt: null,
+  };
+  const channelsValue = (ruleData.allowedChannels || ['web', 'app', 'wa', 'qr', 'bo']).join(',');
+  const partnersValue = (ruleData.allowedPartners || []).join(',');
+  const priceBracketsValue = JSON.stringify(
+    ruleData.priceBrackets && ruleData.priceBrackets.length ? ruleData.priceBrackets : DEFAULT_PRICE_BRACKETS,
+    null,
+    2
+  );
+
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-        <div class="form-head"><div class="form-title">${id ? '�diter' : 'Nouveau'} Code Promo</div></div>
+        <div class="form-head"><div class="form-title">${id ? '?diter' : 'Nouveau'} Code Promo</div></div>
         <form class="form-main" novalidate>
             <div class="twocol">
                 <div class="field">
                     <label class="label" for="pc-code">Le Code</label>
-                    <input id="pc-code" class="input" type="text" value="${escapeAttr(code.code || '')}" required placeholder="ex: BIENVENUE10" />
+                    <input id="pc-code" class="input" type="text" value="${escapeAttr(code.code || '')}" ${id ? 'disabled' : ''} required placeholder="ex: BIENVENUE10" />
                 </div>
                 <div class="field">
-                    <label class="label" for="pc-type">Type de r�duction</label>
+                    <label class="label" for="pc-type">Type de r?duction</label>
                     <select id="pc-type" class="select">
                         <option value="percentage" ${code.type === 'percentage' ? 'selected' : ''}>Pourcentage (%)</option>
                         <option value="fixed" ${code.type === 'fixed' ? 'selected' : ''}>Montant Fixe (FCFA)</option>
@@ -3241,14 +3265,14 @@ async function renderPromoCodeFormPage(id) {
                 </div>
             </div>
             <div class="field">
-                <label class="label" for="pc-value">Valeur de la r�duction</label>
+                <label class="label" for="pc-value">Valeur de la r?duction</label>
                 <input id="pc-value" class="input" type="number" min="0" step="1" value="${code.value || ''}" required />
                 <div class="hint">Ex: "10" pour 10% ou "5000" pour 5000 FCFA.</div>
             </div>
             <div class="field">
-                <label class="label" for="pc-partner">Partenaire attribu�</label>
+                <label class="label" for="pc-partner">Partenaire attribu?</label>
                 <input id="pc-partner" class="input" type="text" value="${escapeAttr(code.assignedTo || '')}" placeholder="Orange Money, Canal+, etc." />
-                <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associ�e � ce code.</div>
+                <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associ?e ? ce code.</div>
             </div>
             <div class="field">
                 <label class="toggle">
@@ -3259,52 +3283,143 @@ async function renderPromoCodeFormPage(id) {
                     <span>Actif (utilisable dans l'application)</span>
                 </label>
             </div>
+            <div class="divider"></div>
+            <div class="field">
+              <label class="label">R?gle promo (validation)</label>
+              <div class="hint">Canaux autoris?s, partenaires et tranches de remise/commission</div>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pc-channels">Canaux autoris?s</label>
+                <input id="pc-channels" class="input" type="text" value="${escapeAttr(channelsValue)}" placeholder="web,app,wa,qr,bo" />
+                <div class="hint">Ex: web,app,wa</div>
+              </div>
+              <div class="field">
+                <label class="label" for="pc-partners">Partenaires autoris?s</label>
+                <input id="pc-partners" class="input" type="text" value="${escapeAttr(partnersValue)}" placeholder="PART-001,PART-002" />
+                <div class="hint">Laisse vide pour tous les partenaires.</div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="toggle">
+                <span class="toggle-switch">
+                  <input id="pc-partnerRequired" type="checkbox" ${ruleData.partnerRefRequired ? 'checked' : ''}>
+                  <span class="toggle-slider"></span>
+                </span>
+                <span>Ref partenaire obligatoire</span>
+              </label>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pc-start">D?but</label>
+                <input id="pc-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(ruleData.startsAt))}" />
+              </div>
+              <div class="field">
+                <label class="label" for="pc-end">Fin</label>
+                <input id="pc-end" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(ruleData.endsAt))}" />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="pc-brackets">Tranches (JSON)</label>
+              <textarea id="pc-brackets" class="textarea" rows="8">${priceBracketsValue}</textarea>
+              <div class="hint">[{ "min":0, "max":149000, "discountValue":5000, "commissionValue":8000, "label":"0-149k" }, ...]</div>
+            </div>
             <div class="form-actions">
                 <button type="button" class="btn" data-cancel>Annuler</button>
-                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er le code'}</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er le code'}</button>
             </div>
         </form>`;
   $promoCodesContent.innerHTML = '';
   $promoCodesContent.appendChild(wrap);
   wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes');
-  wrap.querySelector('form').onsubmit = e => handlePromoCodeFormSubmit(e, id);
+  wrap.querySelector('form').onsubmit = e => handlePromoCodeFormSubmit(e, id || ruleId);
 }
+
 
 async function handlePromoCodeFormSubmit(e, id) {
   e.preventDefault();
   const submitBtn = e.target.querySelector('button[type="submit"]');
   setButtonLoading(submitBtn, true);
 
-  const code = $('#pc-code').value.trim().toUpperCase();
+  const codeValue = ($('#pc-code').value || '').trim().toUpperCase();
   const value = parseFloat($('#pc-value').value);
 
-  if (!code || isNaN(value)) {
+  if (!codeValue || isNaN(value)) {
     toast('Erreur', 'Le code et la valeur sont requis.', 'error');
     setButtonLoading(submitBtn, false);
     return;
   }
 
   const data = {
-    code: code,
+    code: codeValue,
     type: $('#pc-type').value,
     value: value,
     assignedTo: $('#pc-partner').value.trim(),
     isActive: $('#pc-isActive').checked,
   };
 
+  const channelsRaw = $('#pc-channels').value || '';
+  const allowedChannels = channelsRaw
+    .split(',')
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean);
+  const partnersRaw = $('#pc-partners').value || '';
+  const allowedPartners = partnersRaw
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  let priceBrackets = DEFAULT_PRICE_BRACKETS;
   try {
+    const parsed = JSON.parse($('#pc-brackets').value || '[]');
+    if (Array.isArray(parsed) && parsed.length) {
+      priceBrackets = parsed;
+    }
+  } catch (err) {
+    console.warn('Price brackets parse failed, fallback to default', err);
+    priceBrackets = DEFAULT_PRICE_BRACKETS;
+  }
+
+  const startsAtVal = $('#pc-start').value;
+  const endsAtVal = $('#pc-end').value;
+  const rulePayload = {
+    code: codeValue,
+    isActive: $('#pc-isActive').checked,
+    allowedChannels: allowedChannels.length ? allowedChannels : ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: allowedPartners,
+    partnerRefRequired: $('#pc-partnerRequired').checked,
+    priceBrackets: priceBrackets,
+    startsAt: startsAtVal ? new Date(startsAtVal) : null,
+    endsAt: endsAtVal ? new Date(endsAtVal) : null,
+    updatedAt: serverTimestamp(),
+  };
+
+  try {
+    let promoCodeId = id;
     if (id) {
       await updateDoc(doc(db, 'promoCodes', id), data);
       const i = allPromoCodes.findIndex(c => c.id === id);
       if (i > -1) allPromoCodes[i] = { id, ...data };
-      toast('Code mis � jour', data.code, 'success');
+      toast('Code mis ? jour', data.code, 'success');
     } else {
       const finalData = { ...data, createdAt: serverTimestamp() };
       const refDoc = await addDoc(collection(db, 'promoCodes'), finalData);
-      allPromoCodes.unshift({ id: refDoc.id, ...finalData });
+      promoCodeId = refDoc.id;
+      allPromoCodes.unshift({ id: promoCodeId, ...finalData });
       $('#kpi-promocodes').textContent = String(allPromoCodes.length);
-      toast('Code cr��', data.code, 'success');
+      toast('Code cr??', data.code, 'success');
     }
+
+    const ruleRef = doc(db, 'promoRules', codeValue);
+    await setDoc(ruleRef, { ...rulePayload, createdAt: serverTimestamp() }, { merge: true });
+    const idx = allPromoRules.findIndex(r => (r.code || r.id || '').toUpperCase() === codeValue);
+    if (idx > -1) {
+      allPromoRules[idx] = { ...allPromoRules[idx], ...rulePayload, id: codeValue };
+    } else {
+      allPromoRules.unshift({ id: codeValue, ...rulePayload });
+    }
+    allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
+
     location.hash = '#/promocodes';
   } catch (err) {
     console.error(err);
@@ -3340,7 +3455,7 @@ function renderPromoRuleList() {
     : allPromoRules;
 
   if (!arr.length) {
-    $promoRulesContent.innerHTML = `<div class="center" style="padding:32px">Aucune règle promo.</div>`;
+    if ($promoRulesContent) $promoRulesContent.innerHTML = `<div class="center" style="padding:32px">Aucune règle promo.</div>`;
     return;
   }
 
@@ -3385,7 +3500,9 @@ function renderPromoRuleList() {
     tb.appendChild(tr);
   });
   $promoRulesContent.innerHTML = '';
-  $promoRulesContent.appendChild(table);
+  if ($promoRulesContent) {
+    $promoRulesContent.appendChild(table);
+  }
   lucide.createIcons();
 }
 
