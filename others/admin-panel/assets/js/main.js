@@ -213,6 +213,28 @@ const FALLBACK_LINK_TEMPLATES = {
 };
 
 /* ============================ Brackets Helpers ============================ */
+function buildBracketHeaderRow() {
+  const head = document.createElement('div');
+  head.className = 'bracket-head';
+  head.style.display = 'grid';
+  head.style.gridTemplateColumns = '1fr 1fr 1fr 1fr 1.2fr auto';
+  head.style.gap = '6px';
+  head.style.alignItems = 'center';
+  head.style.marginTop = '4px';
+  head.style.fontSize = '12px';
+  head.style.fontWeight = '600';
+  head.style.opacity = '0.85';
+  head.innerHTML = `
+    <div>Min</div>
+    <div>Max</div>
+    <div>Remise</div>
+    <div>Commission</div>
+    <div>Label</div>
+    <div></div>
+  `;
+  return head;
+}
+
 function buildBracketRow(bracket = {}) {
   const row = document.createElement('div');
   row.className = 'bracket-row';
@@ -240,6 +262,7 @@ function renderBracketRows(brackets) {
   const container = document.getElementById('brackets-rows');
   if (!container) return;
   container.innerHTML = '';
+  container.appendChild(buildBracketHeaderRow());
   const list = Array.isArray(brackets) && brackets.length ? brackets : DEFAULT_PRICE_BRACKETS;
   list.forEach(b => container.appendChild(buildBracketRow(b)));
   lucide.createIcons();
