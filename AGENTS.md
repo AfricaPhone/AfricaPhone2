@@ -1,28 +1,26 @@
+ALWAYS COMMIT WHEN YOU MAKE CHANGES, ALWAYS
+and when i tell you to implement a new feature or i give you an idea to never implement it directly you have resay it in detail and correctly to make sure you understand it correctly and alwyas ask me if it is okay to implement it, only if i give you TOP that you can implemnt it. and always talk to me in non technical terms.
+I have to explicitely tell you the word "top" before you can edit the code, if you dotn see that word do not edit anything. 
 # Repository Guidelines
-If i put read at the end of a sentence, that emans you should talk to me, but not edit anyfile of my porject, you can read the files to understand whatever you want but no edits. 
-ALWAYS COMMIT WHEN U MAKE CHANGES, ALWAYS
-## Project Structure & Module Organization
 
-The Expo/React Native app source lives in `src/`, split across feature folders such as `components/`, `screens/`, `store/`, and `services/`. Tests sit beside their units as `*.test.ts`/`*.test.tsx`, with navigation tests in `src/navigation/__tests__/`. Firebase Cloud Functions reside in `functions/src/` and compile to `functions/lib/`. Static images, fonts, and other assets belong in `assets/`, while Jest mocks stay under `__mocks__/`.
+## Project Structure & Module Organization
+The Flutter app code lives under `lib/`, with `core/` for shared services, `features/` for user-facing domains, and `shared/` for reusable UI. Keep entry points in `main.dart` and `test_main.dart`. Tests mirror production code in `test/` (for example `test/features/...`). Design handoffs sit in `design/`, while automation scripts stay in `tools/`. Platform wrappers live in `android/`, `ios/`, `web/`, and desktop folders; modify them only when platform configuration changes.
 
 ## Build, Test, and Development Commands
-
-Run `npm start` for the Expo dev server, then `npm run android`, `npm run ios`, or `npm run web` to target specific platforms. Validate code with `npm run lint`, auto-format via `npm run format`, and check types using `npm run check:types`. Execute unit tests and collect coverage with `npm test`. For backend tasks, `cd functions && npm run build` compiles functions, and `npm run serve` launches local emulators.
+- `flutter pub get` — refresh dependencies after editing `pubspec.yaml`.
+- `flutter run lib/main.dart` — launch the app locally; add `--flavor` or `--dart-define` as needed.
+- `flutter analyze` — enforce the analyzer rules from `analysis_options.yaml`; treat warnings as defects.
+- `flutter test -r expanded` — execute unit and widget suites under `test/`.
+- `python tools/check_purchases.py` — validate purchase data fixtures before committing updates there.
 
 ## Coding Style & Naming Conventions
-
-Code is TypeScript with 2-space indentation, semicolons, single quotes, width 120, and trailing commas; run `npm run format` before committing. Use PascalCase for components (e.g., `ProductGridCard.tsx`), camelCase for utilities, and prefix hooks with `use`. Shared types belong in `src/types.ts`. ESLint with Prettier integration enforces these rules; address warnings before merging.
+Follow Dart defaults: two-space indentation, trailing commas on multi-line widgets, and run `dart format lib/ test/` before submitting. Use UpperCamelCase for types, lowerCamelCase for members, and snake_case for files and directories. Prefer clear feature prefixes (for example `features/orders/...`). Keep null safety enabled and favor immutable widgets where practical.
 
 ## Testing Guidelines
-
-Tests leverage `jest-expo` and `@testing-library/react-native`; prefer behavior-focused assertions over implementation details. Name files `Component.test.tsx` or `hook.test.ts` and colocate them with the code under test. Run `npm test` locally before pushing and ensure new features include coverage updates or clear justification.
+Name test files `*_test.dart` and colocate them with the feature under test. Stub external services with fakes in `test/purchases` or create a new helper under `test/shared`. Target coverage for new code at least equal to the surrounding module, and add regression tests when fixing bugs. Document any skipped tests with a TODO and linked issue.
 
 ## Commit & Pull Request Guidelines
-
-Follow Conventional Commits such as `feat: add product carousel` or `fix: handle checkout errors`. PRs should summarize scope, list linked issues, and attach screenshots or GIFs for UI changes. Confirm `npm run lint`, `npm run check:types`, and `npm test` succeed, and note any skipped checks with rationale.
-
-All agents must finish every change with a git commit (using a clear Conventional Commit message), even if the user did not explicitly request a commit during that conversation.
+Recent history mixes placeholder messages with Conventional Commit examples; align on `type(scope): summary` (for example `fix(purchases): restore offline sync`). Keep commits small and analyzer-clean. Each PR should summarize the change, list manual test steps or command outputs (`flutter analyze`, `flutter test`), and link the relevant issue. Attach screenshots or recordings for UI work and flag configuration changes for review.
 
 ## Security & Configuration Tips
-
-Never commit secrets; use Expo or Firebase Secret Manager for sensitive config. Review `firestore.rules`, `storage.rules`, and `firebase.json` before deployments, and target Node 22 for Cloud Functions to stay aligned with the production runtime.
+Service credentials such as `firebase_options.dart` and `jangolo-serviceaccountkey.json` must be rotated through secrets management, not source control. When adding configuration, prefer `.env`-driven `--dart-define` flags and update `.gitignore` if sensitive files are generated. Review Firestore rules (`firestore.rules`) alongside model changes.
