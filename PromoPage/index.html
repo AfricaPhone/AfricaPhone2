@@ -674,6 +674,7 @@
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>
@@ -702,6 +703,7 @@
         storageBucket: 'africaphone-vente.firebasestorage.app',
         messagingSenderId: '203471818329',
         appId: '1:203471818329:web:c2c77d48098c1a6a596b48',
+        measurementId: 'G-EYL8YL86KB',
       };
 
       const urlParams = new URLSearchParams(window.location.search || '');
@@ -767,6 +769,16 @@
         if (window.firebase?.apps?.length) return window.firebase.app();
         return window.firebase?.initializeApp(firebaseConfig);
       };
+
+      const analytics = (() => {
+        try {
+          const appInstance = initFirebase();
+          return window.firebase?.analytics ? window.firebase.analytics(appInstance) : null;
+        } catch (err) {
+          console.warn('Analytics init failed', err);
+          return null;
+        }
+      })();
 
       const loadLinkTemplates = async () => {
         try {
