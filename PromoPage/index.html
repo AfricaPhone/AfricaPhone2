@@ -381,11 +381,7 @@
       <section class="card filters">
         <div class="filter-block">
           <p class="label">Codes suivis</p>
-          <div class="chip-row">
-            <span class="chip chip-active">JOYFUL-AP</span>
-            <span class="chip">INSPIRE-AP</span>
-            <span class="chip">FLASH-AP</span>
-          </div>
+          <div class="chip-row" id="codeChips"></div>
         </div>
         <div class="filter-grid">
           <div>
@@ -711,6 +707,7 @@
       const initialRef = (urlParams.get('partner') || urlParams.get('ref') || '').trim();
       const initialCampaign = (urlParams.get('campaign') || '').trim();
       const initialSub = (urlParams.get('sub') || '').trim();
+      const defaultCodes = ['JOYFUL-AP', 'INSPIRE-AP', 'FLASH-AP'];
 
       const FALLBACK_TEMPLATES = {
         webBaseUrl: 'https://africaphone.org/promo',
@@ -999,9 +996,29 @@
         if (data.rule) {
           updateRulePanel(data.rule);
         }
+        renderChips(data.code || initialCode);
         if (isFallback) {
           setStatus('Donnees locales affichees (fallback)', true);
         }
+      };
+      
+      const renderChips = activeCode => {
+        const container = document.getElementById('codeChips');
+        if (!container) return;
+        container.innerHTML = '';
+        const codes = [...new Set([activeCode || initialCode, ...defaultCodes])].slice(0, 5);
+        codes.forEach(code => {
+          const chip = document.createElement('span');
+          chip.className = `chip ${code.toUpperCase() === (activeCode || '').toUpperCase() ? 'chip-active' : ''}`;
+          chip.textContent = code.toUpperCase();
+          chip.addEventListener('click', async () => {
+            const codeInput = document.getElementById('codeInput');
+            if (codeInput) codeInput.value = code.toUpperCase();
+            await generateLinks();
+            await loadDashboard();
+          });
+          container.appendChild(chip);
+        });
       };
 
       const validateCode = async () => {
