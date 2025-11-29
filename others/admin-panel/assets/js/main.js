@@ -366,16 +366,23 @@ function applyLinkTemplatesToSettingsUI() {
 }
 
 async function saveLinkTemplates() {
-  const btn = #save-link-templates;
+  const btn = document.getElementById('save-link-templates');
   setButtonLoading(btn, true);
+  const webBaseUrl = document.getElementById('lt-webBaseUrl')?.value.trim() || '';
+  const appLinkDomain = document.getElementById('lt-appLinkDomain')?.value.trim() || '';
+  const appScheme = document.getElementById('lt-appScheme')?.value.trim() || '';
+  const defaultCampaign = document.getElementById('lt-defaultCampaign')?.value.trim() || 'default';
+  const defaultSub = document.getElementById('lt-defaultSub')?.value.trim() || 'cta1';
+  const waMessageTemplate = document.getElementById('lt-waMessageTemplate')?.value.trim() || '';
+  const whatsappNumber = document.getElementById('lt-waNumber')?.value.trim() || '';
   const payload = {
-    webBaseUrl: #lt-webBaseUrl.value.trim(),
-    appLinkDomain: #lt-appLinkDomain.value.trim(),
-    appScheme: #lt-appScheme.value.trim(),
-    defaultCampaign: #lt-defaultCampaign.value.trim() || 'default',
-    defaultSub: #lt-defaultSub.value.trim() || 'cta1',
-    waMessageTemplate: #lt-waMessageTemplate.value.trim(),
-    whatsappNumber: #lt-waNumber.value.trim(),
+    webBaseUrl,
+    appLinkDomain,
+    appScheme,
+    defaultCampaign,
+    defaultSub,
+    waMessageTemplate,
+    whatsappNumber,
   };
   try {
     const ref = doc(db, 'config', 'linkTemplates');
