@@ -1,4 +1,4 @@
-// Importe la configuration et les services Firebase depuis le fichier dï¿½diï¿½.
+// Importe la configuration et les services Firebase depuis le fichier d?di?.
 import {
   auth,
   db,
@@ -10,7 +10,7 @@ import {
   httpsCallable,
 } from './firebase-config.js';
 
-// Importe les fonctions spï¿½cifiques de Firebase Auth et Firestore.
+// Importe les fonctions sp?cifiques de Firebase Auth et Firestore.
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -51,7 +51,7 @@ window.addEventListener('unhandledrejection', event => {
   if (code === 'permission-denied' || /permission/i.test(message)) {
     event.preventDefault();
     console.error('[Admin Panel] Operation blocked by Firestore security rules.', error);
-    toast('Permissions insuffisantes', "Votre compte n'a pas accï¿½s ï¿½ cette ressource.", 'error');
+    toast('Permissions insuffisantes', "Votre compte n'a pas acc?s ? cette ressource.", 'error');
   }
 });
 
@@ -215,14 +215,14 @@ if (isLocalhost) {
 }
 const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
 let PREDEFINED_SPECS = [
-  'ï¿½cran',
+  '?cran',
   'Processeur',
   'Appareil Photo',
   'Batterie',
-  'Connectivitï¿½',
+  'Connectivit?',
   'Dimensions',
   'Poids',
-  'Systï¿½me',
+  'Syst?me',
 ];
 
 const DEFAULT_PRICE_BRACKETS = [
@@ -506,30 +506,30 @@ onAuthStateChanged(auth, async function (user) {
   const logged = !!user;
 
   if (logged) {
-    // Vï¿½rifie si l'utilisateur est un administrateur
+    // V?rifie si l'utilisateur est un administrateur
     try {
-      const tokenResult = await user.getIdTokenResult(true); // Force la mise ï¿½ jour du jeton
+      const tokenResult = await user.getIdTokenResult(true); // Force la mise ? jour du jeton
       if (tokenResult.claims.admin) {
         // L'utilisateur est un administrateur
-        console.log(`[Admin Panel] Connexion d'un admin rï¿½ussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
+        console.log(`[Admin Panel] Connexion d'un admin r?ussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
         $login.classList.add('hide');
         $app.classList.remove('hide');
         $app.setAttribute('aria-hidden', 'false');
         initAfterLogin();
       } else {
-        // L'utilisateur n'est pas un administrateur, le dï¿½connecte
+        // L'utilisateur n'est pas un administrateur, le d?connecte
         await signOut(auth);
-        toast('Accï¿½s refusï¿½', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
+        toast('Acc?s refus?', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
         // Redirige pour nettoyer l'interface
         location.reload();
       }
     } catch (err) {
-      console.error('Erreur lors de la vï¿½rification des revendications:', err);
+      console.error('Erreur lors de la v?rification des revendications:', err);
       await signOut(auth);
       location.reload();
     }
   } else {
-    // L'utilisateur n'est pas connectï¿½
+    // L'utilisateur n'est pas connect?
     $login.classList.remove('hide');
     $app.classList.add('hide');
     $app.setAttribute('aria-hidden', 'true');
@@ -689,7 +689,7 @@ async function handleRoute() {
     setCrumb('Nouveau produit');
     renderProductFormPage();
   } else if (route === 'edit-product' && id) {
-    setCrumb('ï¿½diter produit');
+    setCrumb('?diter produit');
     await renderProductFormPage(id);
   } else if (route === 'brands') {
     setCrumb('Marques');
@@ -699,7 +699,7 @@ async function handleRoute() {
     setCrumb('Nouvelle marque');
     renderBrandFormPage();
   } else if (route === 'edit-brand' && id) {
-    setCrumb('ï¿½diter marque');
+    setCrumb('?diter marque');
     await renderBrandFormPage(id);
   } else if (route === 'matches') {
     setCrumb('Matchs');
@@ -709,7 +709,7 @@ async function handleRoute() {
     setCrumb('Nouveau match');
     renderMatchFormPage();
   } else if (route === 'edit-match' && id) {
-    setCrumb('ï¿½diter match');
+    setCrumb('?diter match');
     await renderMatchFormPage(id);
   } else if (route === 'match-predictions' && id) {
     await ensureMatchesLoaded();
@@ -723,14 +723,14 @@ async function handleRoute() {
     await ensureContestsLoaded();
     renderContestFormPage();
   } else if (route === 'edit-contest' && id) {
-    setCrumb('ï¿½diter concours');
+    setCrumb('?diter concours');
     await ensureContestsLoaded();
     await renderContestFormPage(id);
   } else if (route === 'new-candidate') {
     await ensureContestsLoaded();
     const contestId = id || selectedContestId || allContests[0]?.id || '';
     if (!contestId) {
-      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -740,7 +740,7 @@ async function handleRoute() {
   } else if (route === 'edit-candidate' && id && childId) {
     await ensureContestsLoaded();
     await setSelectedContest(id, { force: true, skipRender: true });
-    setCrumb('ï¿½diter candidat');
+    setCrumb('?diter candidat');
     await renderCandidateFormPage(id, childId);
   } else if (route === 'promocards') {
     setCrumb('Cartes Promo');
@@ -787,7 +787,7 @@ async function handleRoute() {
     await setPromoTab('rules');
     await renderPromoRuleFormPage(id);
   } else if (route === 'settings') {
-    setCrumb('Paramï¿½tres');
+    setCrumb('Param?tres');
   } else {
     location.hash = '#/products';
   }
@@ -838,7 +838,7 @@ async function initAfterLogin() {
   };
   $('#quick-add-candidate').onclick = function () {
     if (!allContests.length) {
-      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -879,7 +879,7 @@ async function initAfterLogin() {
   $('#add-candidate')?.addEventListener('click', () => {
     const targetId = selectedContestId || allContests[0]?.id || '';
     if (!targetId) {
-      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -1191,15 +1191,15 @@ function renderProductList() {
 			<div style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</div>
 			<label class="chip" style="user-select:none">
 			  <input type="checkbox" data-select id="sel-${p.id}" />
-			  Sï¿½lection
+			  S?lection
 			</label>
 		  </div>
-		  <div class="muted">${escapeHtml(p.brand || 'ï¿½')} ï¿½ ${escapeHtml(p.category || 'ï¿½')}</div>
+		  <div class="muted">${escapeHtml(p.brand || '?')} ? ${escapeHtml(p.category || '?')}</div>
 		  ${typeof p.ordreVedette === 'number' && p.ordreVedette > 0 ? '<div class="chip chip-primary" style="margin-top:6px">Top #' + escapeHtml(String(p.ordreVedette)) + '</div>' : ''}
 		  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : 'ï¿½'}</div>
+			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : '?'}</div>
 			<div class="actions">
-			  <button class="btn btn-small" data-edit>ï¿½diter</button>
+			  <button class="btn btn-small" data-edit>?diter</button>
 			  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 			</div>
 		  </div>
@@ -1230,7 +1230,7 @@ function renderProductList() {
 		  <th style="width:60px">Image</th>
 		  <th class="sortable ${sortBy.key === 'name' ? 'sorted' : ''}" data-sort="name">Nom ${sortIcon('name')}</th>
 		  <th class="sortable ${sortBy.key === 'brand' ? 'sorted' : ''}" data-sort="brand">Marque ${sortIcon('brand')}</th>
-		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Catï¿½gorie ${sortIcon('category')}</th>
+		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Cat?gorie ${sortIcon('category')}</th>
 		  <th style="width:140px">Prix</th>
 		  <th style="width:90px">Stock</th>
 		  <th style="width:110px" class="sortable ${sortBy.key === 'ordreVedette' ? 'sorted' : ''}" data-sort="ordreVedette">Top ${sortIcon('ordreVedette')}</th>
@@ -1247,15 +1247,15 @@ function renderProductList() {
 		<td><input type="checkbox" data-select /></td>
 		<td>${mainImage ? '<img class="img" src="' + escapeAttr(mainImage) + '" alt="' + escapeAttr(p.name || 'Image produit') + '" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
 		<td style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</td>
-		<td>${escapeHtml(p.brand || 'ï¿½')}</td>
-		<td><span class="chip">${escapeHtml(p.category || 'ï¿½')}</span></td>
+		<td>${escapeHtml(p.brand || '?')}</td>
+		<td><span class="chip">${escapeHtml(p.category || '?')}</span></td>
 		<td>
 		  <input type="number" step="1" min="0" class="input" style="max-width:120px" value="${typeof p.price === 'number' ? p.price : ''}" placeholder="0" data-price-update />
 		</td>
-		<td>${typeof p.stock === 'number' ? p.stock : 'ï¿½'}</td>
+		<td>${typeof p.stock === 'number' ? p.stock : '?'}</td>
 		<td><input type="number" step="1" min="0" class="input" style="max-width:100px" value="${typeof p.ordreVedette === 'number' ? p.ordreVedette : ''}" placeholder="0" data-vedette-update /></td>
 		<td class="actions">
-		  <button class="btn btn-small" data-edit>ï¿½diter</button>
+		  <button class="btn btn-small" data-edit>?diter</button>
 		  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 		</td>`;
       const sel = tr.querySelector('[data-select]');
@@ -1309,11 +1309,11 @@ $('#bulk-delete').addEventListener('click', async function () {
     });
   if (!ids.length) return;
   const ok = await openModal({
-    title: 'Supprimer la sï¿½lection',
+    title: 'Supprimer la s?lection',
     body:
-      'ï¿½tes-vous sï¿½r de vouloir supprimer <strong>' +
+      '?tes-vous s?r de vouloir supprimer <strong>' +
       ids.length +
-      '</strong> ï¿½lï¿½ment(s) ? Cette action est irrï¿½versible.',
+      '</strong> ?l?ment(s) ? Cette action est irr?versible.',
     okText: 'Supprimer',
     cancelText: 'Annuler',
     danger: true,
@@ -1333,7 +1333,7 @@ $('#bulk-delete').addEventListener('click', async function () {
       fail++;
     }
   }
-  toast('Suppression terminï¿½e', done + ' succï¿½s, ' + fail + ' ï¿½chec(s)', fail ? 'error' : 'success');
+  toast('Suppression termin?e', done + ' succ?s, ' + fail + ' ?chec(s)', fail ? 'error' : 'success');
   renderProductList();
   $('#kpi-products').textContent = String(allProducts.length);
 });
@@ -1352,10 +1352,10 @@ async function handlePriceUpdate(id, inputEl) {
       return x.id === id;
     });
     if (p) p.price = val;
-    toast('Prix mis ï¿½ jour', fmtXOF.format(val), 'success');
+    toast('Prix mis ? jour', fmtXOF.format(val), 'success');
   } catch (e) {
     console.error(e);
-    toast('Erreur', 'Impossible de mettre ï¿½ jour le prix', 'error');
+    toast('Erreur', 'Impossible de mettre ? jour le prix', 'error');
   } finally {
     inputEl.disabled = false;
   }
@@ -1395,7 +1395,7 @@ async function handleDelete(id, name, type) {
   });
   if (!ok) return;
   try {
-    // --- Dï¿½BUT DU PATCH : Rafraï¿½chir le jeton avant l'action privilï¿½giï¿½e ---
+    // --- D?BUT DU PATCH : Rafra?chir le jeton avant l'action privil?gi?e ---
     if (auth.currentUser) {
       await auth.currentUser.getIdToken(true);
     }
@@ -1438,7 +1438,7 @@ async function handleDelete(id, name, type) {
     allPromoPayouts = allPromoPayouts.filter(p => p.id !== id);
     renderPromoPayoutList();
   }
-    toast('Supprimï¿½', '', 'success');
+    toast('Supprim?', '', 'success');
   } catch (e) {
     console.error(e);
     toast('Erreur', 'Suppression impossible', 'error');
@@ -1450,7 +1450,7 @@ function addSpecRow(container, spec = { key: '', value: '' }) {
   const row = document.createElement('div');
   row.className = 'spec-row';
   row.innerHTML = `
-		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caractï¿½ristique (ex: ï¿½cran)" value="${escapeAttr(spec.key)}">
+		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caract?ristique (ex: ?cran)" value="${escapeAttr(spec.key)}">
 		<input type="text" class="input spec-value" placeholder="Valeur (ex: 6.1 Pouces OLED)" value="${escapeAttr(spec.value)}">
 		<button type="button" class="btn btn-icon btn-danger" data-remove-spec><i data-lucide="trash-2" class="icon"></i></button>
 	`;
@@ -1487,7 +1487,7 @@ async function renderProductFormPage(id) {
     .map(
       (url, index) => `
 	<div class="image-preview-item" data-url="${escapeAttr(url)}">
-		<img src="${escapeAttr(url)}" alt="Aperï¿½u ${index + 1}">
+		<img src="${escapeAttr(url)}" alt="Aper?u ${index + 1}">
 		<button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
 			<i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
 		</button>
@@ -1500,8 +1500,8 @@ async function renderProductFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
 	<div class="form-head">
-	  <div class="form-title">${id ? 'ï¿½diter' : 'Nouveau'} produit</div>
-	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Crï¿½ation'}</div>
+	  <div class="form-title">${id ? '?diter' : 'Nouveau'} produit</div>
+	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Cr?ation'}</div>
 	</div>
 	<form class="form-main" novalidate>
 	  <div class="twocol">
@@ -1518,9 +1518,9 @@ async function renderProductFormPage(id) {
 	  </div>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="p-category">Catï¿½gorie</label>
+		  <label class="label" for="p-category">Cat?gorie</label>
 		  <select id="p-category" class="select">
-			<option value="">ï¿½ Sï¿½lectionner ï¿½</option>
+			<option value="">? s?lectionner</option>
 			${categoryOptions}
 		  </select>
 		</div>
@@ -1546,10 +1546,10 @@ async function renderProductFormPage(id) {
 	  </div>
 
 	  <div class="field">
-		<label class="label">Spï¿½cifications techniques</label>
+		<label class="label">Sp?cifications techniques</label>
 		<div id="p-specs-container" class="specs-container">
 		</div>
-		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une spï¿½cification</button>
+		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une sp?cification</button>
 	  </div>
 	  
 	  <div class="twocol">
@@ -1573,7 +1573,7 @@ async function renderProductFormPage(id) {
 	  </div>
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
-		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er le produit'}</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er le produit'}</button>
 	  </div>
 	</form>`;
   $productsContent.innerHTML = '';
@@ -1617,7 +1617,7 @@ async function renderProductFormPage(id) {
         .map(
           (url, index) => `
         <div class="image-preview-item" data-url="${escapeAttr(url)}">
-                <img src="${escapeAttr(url)}" alt="Aperï¿½u ${index + 1}">
+                <img src="${escapeAttr(url)}" alt="Aper?u ${index + 1}">
                 <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
                         <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
                 </button>
@@ -1626,7 +1626,7 @@ async function renderProductFormPage(id) {
         )
         .join('');
       btn.closest('.image-preview-item').remove();
-      toast('Image supprimï¿½e du produit', 'Le fichier reste sur le serveur.', 'success');
+      toast('Image supprim?e du produit', 'Le fichier reste sur le serveur.', 'success');
     } catch (err) {
       console.error(err);
       toast('Erreur', "Impossible de supprimer l'image du produit", 'error');
@@ -1732,7 +1732,7 @@ async function handleProductFormSubmit(e, id) {
       }
     }
 
-    toast('Succï¿½s', `Produit ${id ? 'mis ï¿½ jour' : 'crï¿½ï¿½'} avec succï¿½s.`, 'success');
+    toast('Succ?s', `Produit ${id ? 'mis ? jour' : 'cr??'} avec succ?s.`, 'success');
     allProducts = [];
     await ensureProductsLoaded();
     location.hash = '#/products';
@@ -1750,7 +1750,7 @@ const getSelectedContest = () => allContests.find(contest => contest.id === sele
 const CONTEST_STATUS_LABELS = {
   draft: 'Brouillon',
   active: 'Actif',
-  ended: 'Terminï¿½',
+  ended: 'Termin?',
 };
 
 const formatContestStatus = status =>
@@ -1770,11 +1770,11 @@ const toInputDateValue = value => {
 
 const toDisplayDate = value => {
   if (!value) {
-    return 'ï¿½';
+    return '?';
   }
   const dt = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(dt.getTime())) {
-    return 'ï¿½';
+    return '?';
   }
   return fmtDate(dt);
 };
@@ -1792,7 +1792,7 @@ const updateContestFilterOptions = () => {
     )
     .join('');
   select.innerHTML = allContests.length
-    ? `<option value="">Sï¿½lectionner un concours</option>${options}`
+    ? `<option value="">S?lectionner un concours</option>${options}`
     : '<option value="">Aucun concours disponible</option>';
   if (currentValue && select.value !== currentValue) {
     select.value = currentValue;
@@ -1802,14 +1802,14 @@ const updateContestFilterOptions = () => {
 const updateKpiContests = () => {
   const el = $('#kpi-contests');
   if (el) {
-    el.textContent = allContests.length ? String(allContests.length) : 'ï¿½';
+    el.textContent = allContests.length ? String(allContests.length) : '?';
   }
 };
 
 const updateKpiCandidates = count => {
   const el = $('#kpi-candidates');
   if (el) {
-    el.textContent = typeof count === 'number' && count >= 0 ? String(count) : 'ï¿½';
+    el.textContent = typeof count === 'number' && count >= 0 ? String(count) : '?';
   }
 };
 
@@ -1933,7 +1933,7 @@ function renderContestsOverview() {
     $contestsContent.innerHTML = `
       <div class="empty-state">
         <p>Aucun concours disponible.</p>
-        <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Crï¿½er un concours</button>
+        <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Cr?er un concours</button>
       </div>`;
     $contestsContent.querySelector('[data-create-first-contest]')?.addEventListener('click', () => {
       location.hash = '#/new-contest';
@@ -1954,7 +1954,7 @@ function renderContestsOverview() {
   const contest = getSelectedContest();
   if (!contest) {
     updateKpiCandidates(0);
-    $contestsContent.innerHTML = `<div class="empty-state"><p>Sï¿½lectionnez un concours pour voir ses candidats.</p></div>`;
+    $contestsContent.innerHTML = `<div class="empty-state"><p>S?lectionnez un concours pour voir ses candidats.</p></div>`;
     lucide.createIcons();
     return;
   }
@@ -1983,7 +1983,7 @@ function renderContestsOverview() {
           <td class="muted">${escapeHtml(candidate.id)}</td>
           <td class="strong">${Number(candidate.voteCount || 0).toLocaleString('fr-FR')}</td>
           <td class="actions">
-            <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> ï¿½diter</button>
+            <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> ?diter</button>
             <button class="btn btn-danger btn-small" type="button" data-delete-candidate="${escapeAttr(candidate.id)}"><i data-lucide="trash-2" class="icon"></i></button>
           </td>
         </tr>`
@@ -2008,7 +2008,7 @@ function renderContestsOverview() {
             </tbody>
           </table>
         </div>`
-    : `<div class="empty-state"><p>${searchTerm ? 'Aucun candidat ne correspond ï¿½ cette recherche.' : 'Aucun candidat nï¿½est encore enregistrï¿½ pour ce concours.'}</p></div>`;
+    : `<div class="empty-state"><p>${searchTerm ? 'Aucun candidat ne correspond ? cette recherche.' : 'Aucun candidat n?est encore enregistr? pour ce concours.'}</p></div>`;
 
   $contestsContent.innerHTML = `
     <div class="contest-layout">
@@ -2021,7 +2021,7 @@ function renderContestsOverview() {
           <div class="actions">
             <span class="badge status-${escapeAttr(contest.status)}">${formatContestStatus(contest.status)}</span>
             <button class="btn btn-icon btn-small" type="button" data-delete-current-contest title="Supprimer"><i data-lucide="trash-2" class="icon"></i></button>
-            <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> ï¿½diter</button>
+            <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> ?diter</button>
           </div>
         </div>
         <div class="card-body">
@@ -2110,7 +2110,7 @@ async function handleCandidateDeletion(contestId, candidateId, label) {
       contestId,
       list.filter(candidate => candidate.id !== candidateId)
     );
-    toast('Candidat supprimï¿½', label, 'success');
+    toast('Candidat supprim?', label, 'success');
     if (contestId === selectedContestId) {
       updateKpiCandidates((contestCandidates.get(contestId) || []).length);
       renderContestsOverview();
@@ -2204,7 +2204,7 @@ async function renderContestFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
     <div class="form-head">
-      <div class="form-title">${isEdition ? 'ï¿½diter' : 'Nouveau'} concours</div>
+      <div class="form-title">${isEdition ? '?diter' : 'Nouveau'} concours</div>
       ${isEdition ? `<div class="kpi">ID : ${escapeHtml(contest.id)}</div>` : ''}
     </div>
     <form class="form-main" novalidate>
@@ -2214,7 +2214,7 @@ async function renderContestFormPage(id) {
       </div>
       <div class="field">
         <label class="label" for="contest-description">Description</label>
-        <textarea id="contest-description" class="textarea" rows="4" placeholder="Dï¿½tails du concours">${escapeHtml(defaults.description)}</textarea>
+        <textarea id="contest-description" class="textarea" rows="4" placeholder="D?tails du concours">${escapeHtml(defaults.description)}</textarea>
       </div>
       <div class="twocol">
         <div class="field">
@@ -2222,7 +2222,7 @@ async function renderContestFormPage(id) {
           <select id="contest-status" class="select">
             <option value="draft" ${defaults.status === 'draft' ? 'selected' : ''}>Brouillon</option>
             <option value="active" ${defaults.status === 'active' ? 'selected' : ''}>Actif</option>
-            <option value="ended" ${defaults.status === 'ended' ? 'selected' : ''}>Terminï¿½</option>
+            <option value="ended" ${defaults.status === 'ended' ? 'selected' : ''}>Termin?</option>
           </select>
         </div>
         <div class="field">
@@ -2242,7 +2242,7 @@ async function renderContestFormPage(id) {
       </div>
       <div class="form-actions">
         <button type="button" class="btn" data-cancel>Annuler</button>
-        <button type="submit" class="btn btn-primary">${isEdition ? 'Enregistrer' : 'Crï¿½er le concours'}</button>
+        <button type="submit" class="btn btn-primary">${isEdition ? 'Enregistrer' : 'Cr?er le concours'}</button>
       </div>
     </form>`;
 
@@ -2306,7 +2306,7 @@ async function handleContestFormSubmit(e, contestId) {
         }
         allContests[index] = merged;
       }
-      toast('Concours mis ï¿½ jour', title, 'success');
+      toast('Concours mis ? jour', title, 'success');
       await ensureContestsLoaded(true);
       await setSelectedContest(contestId, { force: true });
     } else {
@@ -2318,7 +2318,7 @@ async function handleContestFormSubmit(e, contestId) {
       };
       const ref = await addDoc(collection(db, 'contests'), createdPayload);
       await updateDoc(ref, { id: ref.id });
-      toast('Concours crï¿½ï¿½', title, 'success');
+      toast('Concours cr??', title, 'success');
       await ensureContestsLoaded(true);
       await setSelectedContest(ref.id, { force: true });
     }
@@ -2334,7 +2334,7 @@ async function handleContestFormSubmit(e, contestId) {
 async function renderCandidateFormPage(contestId, candidateId) {
   if (!contestId) {
     $contestsContent.innerHTML =
-      '<div class="empty-state"><p>Sï¿½lectionnez un concours avant dï¿½ajouter un candidat.</p></div>';
+      "<div class=\"empty-state\"><p>Sélectionnez un concours avant d'ajouter un candidat.</p></div>";
     return;
   }
   const contest = allContests.find(item => item.id === contestId) || null;
@@ -2369,7 +2369,7 @@ async function renderCandidateFormPage(contestId, candidateId) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
     <div class="form-head">
-      <div class="form-title">${candidateId ? 'ï¿½diter' : 'Nouveau'} candidat</div>
+      <div class="form-title">${candidateId ? '?diter' : 'Nouveau'} candidat</div>
       <div class="muted">Concours : ${escapeHtml((getSelectedContest() || {}).title || contestId)}</div>
     </div>
     <form class="form-main" novalidate>
@@ -2378,13 +2378,13 @@ async function renderCandidateFormPage(contestId, candidateId) {
         <input id="candidate-name" class="input" type="text" value="${escapeAttr(defaults.name)}" required />
       </div>
       <div class="field">
-        <label class="label" for="candidate-media">Mï¿½dia / Organisation</label>
-        <input id="candidate-media" class="input" type="text" value="${escapeAttr(defaults.media)}" placeholder="Chaï¿½ne, journal..." />
+        <label class="label" for="candidate-media">M?dia / Organisation</label>
+        <input id="candidate-media" class="input" type="text" value="${escapeAttr(defaults.media)}" placeholder="Cha?ne, journal..." />
       </div>
       <div class="field">
         <label class="label" for="candidate-photo">Photo (URL)</label>
         <input id="candidate-photo" class="input" type="url" value="${escapeAttr(defaults.photoUrl)}" placeholder="https://" />
-        <div class="hint">Utilisez une URL publique ou importez l'image depuis un stockage dï¿½jï¿½ autorisï¿½.</div>
+        <div class="hint">Utilisez une URL publique ou importez l'image depuis un stockage d?j? autoris?.</div>
       </div>
       <div class="field">
         <label class="label" for="candidate-votes">Votes initiaux</label>
@@ -2436,7 +2436,7 @@ async function handleCandidateFormSubmit(e, contestId, candidateId) {
         list[index] = { ...list[index], ...base };
       }
       contestCandidates.set(contestId, list);
-      toast('Candidat mis ï¿½ jour', name, 'success');
+      toast('Candidat mis ? jour', name, 'success');
     } else {
       const ref = await addDoc(collection(db, 'contests', contestId, 'candidates'), {
         ...base,
@@ -2446,14 +2446,14 @@ async function handleCandidateFormSubmit(e, contestId, candidateId) {
       await updateDoc(ref, { id: ref.id });
       const list = contestCandidates.get(contestId) || [];
       contestCandidates.set(contestId, [{ id: ref.id, contestId, ...base }, ...list]);
-      toast('Candidat ajoutï¿½', name, 'success');
+      toast('Candidat ajout?', name, 'success');
     }
 
     await setSelectedContest(contestId, { force: true });
     location.hash = '#/contests';
   } catch (error) {
     console.error(error);
-    toast('Erreur', 'Impossible dï¿½enregistrer le candidat.', 'error');
+    toast('Erreur', 'Impossible d?enregistrer le candidat.', 'error');
   } finally {
     setButtonLoading(submitBtn, false);
   }
@@ -2494,7 +2494,7 @@ function renderBrandList() {
             <td style="font-weight:800">${escapeHtml(brand.name || 'Sans nom')}</td>
             <td><span class="badge">${brand.sortOrder || 'N/A'}</span></td>
             <td class="actions">
-                <button class="btn btn-small" data-edit>ï¿½diter</button>
+                <button class="btn btn-small" data-edit>?diter</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>
         `;
@@ -2522,7 +2522,7 @@ async function renderBrandFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-        <div class="form-head"><div class="form-title">${id ? 'ï¿½diter' : 'Nouvelle'} marque</div></div>
+        <div class="form-head"><div class="form-title">${id ? '?diter' : 'Nouvelle'} marque</div></div>
         <form class="form-main" novalidate>
             <div class="twocol">
                 <div class="field">
@@ -2540,7 +2540,7 @@ async function renderBrandFormPage(id) {
             </div>
             <div class="form-actions">
                 <button type="button" class="btn" data-cancel>Annuler</button>
-                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la marque'}</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la marque'}</button>
             </div>
         </form>
     `;
@@ -2572,12 +2572,12 @@ async function handleBrandFormSubmit(e, id) {
       await updateDoc(doc(db, 'brands', id), data);
       const i = allBrands.findIndex(b => b.id === id);
       if (i > -1) allBrands[i] = { id, ...data };
-      toast('Marque mise ï¿½ jour', name, 'success');
+      toast('Marque mise ? jour', name, 'success');
     } else {
       const refDoc = await addDoc(collection(db, 'brands'), data);
       allBrands.push({ id: refDoc.id, ...data });
       $('#kpi-brands').textContent = String(allBrands.length);
-      toast('Marque crï¿½ï¿½e', name, 'success');
+      toast('Marque cr??e', name, 'success');
     }
     allBrands.sort((a, b) => a.sortOrder - b.sortOrder);
     location.hash = '#/brands';
@@ -2619,7 +2619,7 @@ function renderMatchList() {
 	<thead>
 	  <tr>
 		<th>Affiche</th>
-		<th>Compï¿½tition</th>
+		<th>Comp?tition</th>
 		<th>Date</th>
 		<th style="width:180px;text-align:right">Actions</th>
 	  </tr>
@@ -2636,13 +2636,13 @@ function renderMatchList() {
     const tr = document.createElement('tr');
     tr.dataset.id = m.id;
   tr.innerHTML = `
-	  <td style="font-weight:800">${escapeHtml(m.teamA || 'ï¿½quipe A')} vs ${escapeHtml(m.teamB || 'ï¿½quipe B')}</td>
-	  <td>${escapeHtml(m.competition || 'ï¿½')}</td>
-	  <td>${date ? fmtDate(date) : 'ï¿½'}</td>
+	  <td style="font-weight:800">${escapeHtml(m.teamA || '?quipe A')} vs ${escapeHtml(m.teamB || '?quipe B')}</td>
+	  <td>${escapeHtml(m.competition || '?')}</td>
+	  <td>${date ? fmtDate(date) : '?'}</td>
 	  <td class="actions">
-		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || 'ï¿½ jouer'}</span>
+		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || '? jouer'}</span>
 		<button class="btn btn-small" data-view>Pronostics</button>
-		<button class="btn btn-small" data-edit>ï¿½diter</button>
+		<button class="btn btn-small" data-edit>?diter</button>
 		<button class="btn btn-danger btn-small" data-del>Supprimer</button>
 	  </td>`;
     tr.querySelector('[data-view]').addEventListener('click', function () {
@@ -2754,9 +2754,9 @@ async function renderMatchPredictionsPage(matchId) {
 
   setCrumb(
     'Pronostics \u00b7 ' +
-      (match.teamA || 'ï¿½quipe A') +
+      (match.teamA || '?quipe A') +
       ' vs ' +
-      (match.teamB || 'ï¿½quipe B')
+      (match.teamB || '?quipe B')
   );
 
   const container = document.createElement('div');
@@ -2764,7 +2764,7 @@ async function renderMatchPredictionsPage(matchId) {
   container.innerHTML = `
     <div class="card match-summary">
       <div class="summary-info">
-        <div class="match-title">${escapeHtml(match.teamA || 'ï¿½quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || 'ï¿½quipe B')}</div>
+        <div class="match-title">${escapeHtml(match.teamA || '?quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || '?quipe B')}</div>
         <div class="match-meta">
           ${match.competition ? `<span class="chip">${escapeHtml(match.competition)}</span>` : ''}
           <span class="muted">${matchDate ? fmtDate(matchDate) : 'Date &agrave; confirmer'}</span>
@@ -2863,7 +2863,7 @@ async function renderMatchPredictionsPage(matchId) {
           statusPieces.push('<span class="chip chip-info">Mis en avant</span>');
         }
         const scoreLabel =
-          item.scoreA === null || item.scoreB === null ? 'ï¿½' : `${item.scoreA} - ${item.scoreB}`;
+          item.scoreA === null || item.scoreB === null ? '?' : `${item.scoreA} - ${item.scoreB}`;
         const contactBits = [];
         if (item.contactName) {
           contactBits.push(escapeHtml(item.contactName));
@@ -2872,7 +2872,7 @@ async function renderMatchPredictionsPage(matchId) {
           contactBits.push('<span class="muted">' + escapeHtml(item.contactPhone) + '</span>');
         }
         const userIdLabel = item.userId ? '<div class="muted">ID: ' + escapeHtml(item.userId) + '</div>' : '';
-        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : 'ï¿½';
+        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : '?';
         return `
           <tr class="${item.isWinner ? 'winner-row' : ''}">
             <td>
@@ -2880,7 +2880,7 @@ async function renderMatchPredictionsPage(matchId) {
               ${userIdLabel}
             </td>
             <td class="pred-score">${scoreLabel}</td>
-            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">ï¿½</span>'}</td>
+            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">?</span>'}</td>
             <td class="pred-status">${statusPieces.join(' ')}</td>
             <td>${createdLabel}</td>
           </tr>`;
@@ -2912,7 +2912,7 @@ async function renderMatchPredictionsPage(matchId) {
       state.items = data;
       applyFilters();
       if (force) {
-        toast('Pronostics mis ï¿½ jour', '', 'success');
+        toast('Pronostics mis ? jour', '', 'success');
       }
     } catch (error) {
       console.error('Match predictions load failed', error);
@@ -2969,12 +2969,12 @@ async function renderMatchFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
 	<div class="form-head">
-	  <div class="form-title">${id ? 'ï¿½diter' : 'Nouveau'} match</div>
+	  <div class="form-title">${id ? '?diter' : 'Nouveau'} match</div>
 	</div>
 	<form class="form-main" novalidate>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="m-competition">Compï¿½tition</label>
+		  <label class="label" for="m-competition">Comp?tition</label>
 		  <input id="m-competition" class="input" type="text" value="${escapeAttr(m.competition || '')}" />
 		</div>
 		<div class="field">
@@ -2985,11 +2985,11 @@ async function renderMatchFormPage(id) {
 	  </div>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="m-teamA">ï¿½quipe A</label>
+		  <label class="label" for="m-teamA">?quipe A</label>
 		  <input id="m-teamA" class="input" type="text" value="${escapeAttr(m.teamA || '')}" required />
 		</div>
 		<div class="field">
-		  <label class="label" for="m-teamB">ï¿½quipe B</label>
+		  <label class="label" for="m-teamB">?quipe B</label>
 		  <input id="m-teamB" class="input" type="text" value="${escapeAttr(m.teamB || '')}" required />
 		</div>
 	  </div>
@@ -3015,7 +3015,7 @@ async function renderMatchFormPage(id) {
 	  </div>
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
-		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er le match'}</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er le match'}</button>
 	  </div>
 	</form>`;
   $matchesContent.innerHTML = '';
@@ -3070,12 +3070,12 @@ async function handleMatchFormSubmit(e, id) {
         return x.id === id;
       });
       if (m) Object.assign(m, data);
-      toast('Match mis ï¿½ jour', teamA + ' vs ' + teamB, 'success');
+      toast('Match mis ? jour', teamA + ' vs ' + teamB, 'success');
       location.hash = '#/matches';
     } else {
       const refDoc = await addDoc(collection(db, 'matches'), data);
       allMatches.unshift({ id: refDoc.id, ...data });
-      toast('Match crï¿½ï¿½', teamA + ' vs ' + teamB, 'success');
+      toast('Match cr??', teamA + ' vs ' + teamB, 'success');
       location.hash = '#/matches';
       $('#kpi-matches').textContent = String(allMatches.length);
     }
@@ -3229,9 +3229,9 @@ async function handlePromoCardStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoCards', id), { isActive: isActive });
     const card = allPromoCards.find(c => c.id === id);
     if (card) card.isActive = isActive;
-    toast('Statut mis ï¿½ jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
+    toast('Statut mis ? jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
   } catch (error) {
-    console.error('Erreur de mise ï¿½ jour du statut:', error);
+    console.error('Erreur de mise ? jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
     renderPromoCardList();
   }
@@ -3300,7 +3300,7 @@ async function renderPromoCardFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-		<div class="form-head"><div class="form-title">${id ? 'ï¿½diter' : 'Nouvelle'} Carte Promo</div></div>
+		<div class="form-head"><div class="form-title">${id ? '?diter' : 'Nouvelle'} Carte Promo</div></div>
 		<form class="form-main" novalidate>
 			<div class="twocol">
 				<div class="field">
@@ -3318,7 +3318,7 @@ async function renderPromoCardFormPage(id) {
 					<input id="pc-cta" class="input" type="text" value="${escapeAttr(card.cta || '')}" />
 				</div>
 				<div class="field">
-					<label class="label" for="pc-screen">ï¿½cran de destination</label>
+					<label class="label" for="pc-screen">?cran de destination</label>
 					<input id="pc-screen" class="input" type="text" value="${escapeAttr(card.screen || '')}" placeholder="Ex: MatchList, Store..." />
 				</div>
 			</div>
@@ -3343,7 +3343,7 @@ async function renderPromoCardFormPage(id) {
 			</div>
 			<div class="form-actions">
 				<button type="button" class="btn" data-cancel>Annuler</button>
-				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la carte'}</button>
+				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la carte'}</button>
 			</div>
 		</form>`;
   $promoCardsContent.innerHTML = '';
@@ -3377,12 +3377,12 @@ async function handlePromoCardFormSubmit(e, id) {
       await updateDoc(doc(db, 'promoCards', id), data);
       const i = allPromoCards.findIndex(c => c.id === id);
       if (i > -1) allPromoCards[i] = { id, ...data };
-      toast('Carte mise ï¿½ jour', data.title, 'success');
+      toast('Carte mise ? jour', data.title, 'success');
     } else {
       const refDoc = await addDoc(collection(db, 'promoCards'), data);
       allPromoCards.push({ id: refDoc.id, ...data });
       updatePromoCardsKpi();
-      toast('Carte crï¿½ï¿½e', data.title, 'success');
+      toast('Carte cr??e', data.title, 'success');
     }
     allPromoCards.sort((a, b) => a.sortOrder - b.sortOrder);
     location.hash = '#/promocards';
@@ -3700,9 +3700,9 @@ async function handlePromoCodeStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoCodes', id), { isActive: isActive });
     const code = allPromoCodes.find(c => c.id === id);
     if (code) code.isActive = isActive;
-    toast('Statut mis ï¿½ jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
+    toast('Statut mis ? jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
   } catch (error) {
-    console.error('Erreur de mise ï¿½ jour du statut:', error);
+    console.error('Erreur de mise ? jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
     renderPromoCodeList();
   }
@@ -3997,7 +3997,7 @@ function renderPromoRuleList() {
       <td>${escapeHtml(channels)}</td>
       <td>${escapeHtml(bracketsText)}</td>
       <td class="actions">
-        <button class="btn btn-small" data-edit>ï¿½diter</button>
+        <button class="btn btn-small" data-edit>?diter</button>
         <button class="btn btn-danger btn-small" data-del>Supprimer</button>
       </td>`;
     tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promorule/${r.id}`);
@@ -4017,7 +4017,7 @@ async function handlePromoRuleStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoRules', id), { isActive: isActive });
     const rule = allPromoRules.find(r => r.id === id);
     if (rule) rule.isActive = isActive;
-    toast('Statut mis ï¿½ jour', `La rï¿½gle est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
+    toast('Statut mis ? jour', `La r?gle est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
   } catch (error) {
     console.error('PromoRule status update failed', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
@@ -4032,7 +4032,7 @@ async function renderPromoRuleFormPage(id) {
       allPromoRules.find(r => r.id === id) ||
       (await getDoc(doc(db, 'promoRules', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
     if (!rule) {
-      $promoRulesContent.innerHTML = '<div class="center" style="padding:32px">Rï¿½gle introuvable.</div>';
+      $promoRulesContent.innerHTML = '<div class="center" style="padding:32px">R?gle introuvable.</div>';
       return;
     }
   }
@@ -4048,7 +4048,7 @@ async function renderPromoRuleFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-    <div class="form-head"><div class="form-title">${id ? 'ï¿½diter Rï¿½gle' : 'Nouvelle Rï¿½gle Promo'}</div></div>
+    <div class="form-head"><div class="form-title">${id ? '?diter R?gle' : 'Nouvelle R?gle Promo'}</div></div>
     <form class="form-main" novalidate>
       <div class="twocol">
         <div class="field">
@@ -4092,7 +4092,7 @@ async function renderPromoRuleFormPage(id) {
       </div>
       <div class="twocol">
         <div class="field">
-          <label class="label" for="pr-start">Dï¿½but</label>
+          <label class="label" for="pr-start">D?but</label>
           <input id="pr-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(rule.startsAt))}" />
         </div>
         <div class="field">
@@ -4111,7 +4111,7 @@ async function renderPromoRuleFormPage(id) {
       </div>
       <div class="form-actions">
         <button type="button" class="btn" data-cancel>Annuler</button>
-        <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la rï¿½gle'}</button>
+        <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la r?gle'}</button>
       </div>
     </form>`;
   $promoRulesContent.innerHTML = '';
