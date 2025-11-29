@@ -76,17 +76,6 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
-    // Règles promo (validation) pour les codes
-    match /promoRules/{ruleId} {
-      allow read: if isAdmin();
-      allow create, update, delete: if isAdmin();
-    }
-
-    // Versements promo (dashboard partenaire)
-    match /promoPayouts/{payoutId} {
-      allow read, write: if isAdmin();
-    }
-
     match /matches/{matchId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
@@ -94,9 +83,9 @@ service cloud.firestore {
 
     match /predictions/{predictionId} {
       allow read: if isAdmin() || matchesOwner(resource.data) || isPublicWinner(resource.data);
-      allow create: if isAdmin() || matchesOwner(request.resource.data);
-      allow update, delete: if isAdmin() || matchesOwner(resource.data);
-    }
+     allow create: if isAdmin() || matchesOwner(request.resource.data);
+     allow update, delete: if isAdmin() || matchesOwner(resource.data);
+   }
 
     match /contests/{contestId} {
       allow read: if true;
