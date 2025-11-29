@@ -3864,6 +3864,7 @@ async function handlePromoCodeFormSubmit(e, id) {
 
     track('promo_code_save', { code: data.code, isEdit: Boolean(id), type: data.type, hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
     location.hash = '#/promocodes';
+    return;
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');
@@ -4121,6 +4122,7 @@ async function handlePromoRuleFormSubmit(e, id, existingCode) {
     track('promo_rule_save', { code: code, isEdit: Boolean(id), hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
     toast('Succ?s', id ? 'R?gle mise ? jour' : 'R?gle cr??e', 'success');
     location.hash = '#/promorules';
+    return;
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');
