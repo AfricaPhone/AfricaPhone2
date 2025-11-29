@@ -4037,11 +4037,7 @@ async function renderPromoRuleFormPage(id) {
     }
   }
 
-  const priceBrackets = JSON.stringify(
-    rule.priceBrackets && rule.priceBrackets.length ? rule.priceBrackets : DEFAULT_PRICE_BRACKETS,
-    null,
-    2
-  );
+  const initialBrackets = rule.priceBrackets && rule.priceBrackets.length ? rule.priceBrackets : DEFAULT_PRICE_BRACKETS;
   const channelsSelected =
     (rule.allowedChannels && rule.allowedChannels.length
       ? rule.allowedChannels
@@ -4105,9 +4101,13 @@ async function renderPromoRuleFormPage(id) {
         </div>
       </div>
       <div class="field">
-        <label class="label" for="pr-brackets">Tranches (JSON)</label>
-        <textarea id="pr-brackets" class="textarea" rows="8">${priceBrackets}</textarea>
-        <div class="hint">Chaque tranche: { min, max, discountValue, commissionValue, label }. Utilise null/omit pour max illimitï¿½.</div>
+        <label class="label">Tranches (visuel)</label>
+        <div id="pr-brackets-rows" class="brackets-rows"></div>
+        <div class="top-actions" style="margin-top:8px; gap:8px;">
+          <button id="pr-add-bracket" type="button" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Ajouter une tranche</button>
+          <button id="pr-reset-brackets" type="button" class="btn btn-small"><i data-lucide="rotate-ccw" class="icon"></i> Valeurs par défaut</button>
+        </div>
+        <div class="hint">Chaque tranche: { min, max, discountValue, commissionValue, label }. Laisse Max vide pour une tranche ouverte.</div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn" data-cancel>Annuler</button>
@@ -4117,6 +4117,15 @@ async function renderPromoRuleFormPage(id) {
   $promoRulesContent.innerHTML = '';
   $promoRulesContent.appendChild(wrap);
   renderChannelCheckboxes('pr-channels-group', channelsSelected);
+  renderBracketRows(initialBrackets);
+  document.getElementById('pr-add-bracket')?.addEventListener('click', () => {
+    const container = document.getElementById('pr-brackets-rows');
+    if (container) {
+      container.appendChild(buildBracketRow({ min: 0, max: null, discountValue: 0, commissionValue: 0, label: '' }));
+    }
+    lucide.createIcons();
+  });
+  document.getElementById('pr-reset-brackets')?.addEventListener('click', () => renderBracketRows(DEFAULT_PRICE_BRACKETS));
   wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes/rules');
   wrap.querySelector('form').onsubmit = e => handlePromoRuleFormSubmit(e, id, rule.code || rule.id);
 }
@@ -4140,14 +4149,8 @@ async function handlePromoRuleFormSubmit(e, id, existingCode) {
     .map(s => s.trim())
     .filter(Boolean);
 
-  let priceBrackets = DEFAULT_PRICE_BRACKETS;
-  try {
-    const parsed = JSON.parse($('#pr-brackets').value || '[]');
-    if (Array.isArray(parsed) && parsed.length) {
-      priceBrackets = parsed;
-    }
-  } catch (err) {
-    console.warn('Price bracket parse failed, fallback to default', err);
+  let priceBrackets = readBracketRows();
+  if (!priceBrackets.length) {
     priceBrackets = DEFAULT_PRICE_BRACKETS;
   }
 
