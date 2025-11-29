@@ -203,6 +203,7 @@ let sortBy = { key: 'name', dir: 'asc' };
 let promoCodePartnerFilter = '';
 let promoPayoutSearchTerm = '';
 let functionsInstance = functions;
+let promoTab = 'codes';
 const isLocalhost = ['localhost', '127.0.0.1'].includes(location.hostname);
 if (isLocalhost) {
   try {
@@ -376,27 +377,45 @@ async function ensureFeaturesLoaded() {
 
 function applyLinkTemplatesToSettingsUI() {
   const data = linkTemplates || FALLBACK_LINK_TEMPLATES;
-  $('#lt-webBaseUrl').value = data.webBaseUrl || '';
-  $('#lt-appLinkDomain').value = data.appLinkDomain || '';
-  $('#lt-appScheme').value = data.appScheme || '';
-  $('#lt-defaultCampaign').value = data.defaultCampaign || '';
-  $('#lt-defaultSub').value = data.defaultSub || '';
-  $('#lt-waMessageTemplate').value = data.waMessageTemplate || '';
-  $('#lt-waNumber').value = data.whatsappNumber || '';
-  const status = $('#lt-status');
-  if (status) status.textContent = 'Chargï¿½.';
+  const setInputsValue = (ids = [], value = '') => {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = value || '';
+    });
+  };
+  const setStatus = (ids = [], text) => {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    });
+  };
+  setInputsValue(['lt-webBaseUrl', 'tab-lt-webBaseUrl'], data.webBaseUrl || '');
+  setInputsValue(['lt-appLinkDomain', 'tab-lt-appLinkDomain'], data.appLinkDomain || '');
+  setInputsValue(['lt-appScheme', 'tab-lt-appScheme'], data.appScheme || '');
+  setInputsValue(['lt-defaultCampaign', 'tab-lt-defaultCampaign'], data.defaultCampaign || '');
+  setInputsValue(['lt-defaultSub', 'tab-lt-defaultSub'], data.defaultSub || '');
+  setInputsValue(['lt-waMessageTemplate', 'tab-lt-waMessageTemplate'], data.waMessageTemplate || '');
+  setInputsValue(['lt-waNumber', 'tab-lt-waNumber'], data.whatsappNumber || '');
+  setStatus(['lt-status', 'tab-lt-status'], 'Chargé.');
 }
 
 async function saveLinkTemplates() {
-  const btn = document.getElementById('save-link-templates');
+  const btn = document.getElementById('save-link-templates') || document.getElementById('tab-save-link-templates');
   setButtonLoading(btn, true);
-  const webBaseUrl = document.getElementById('lt-webBaseUrl')?.value.trim() || '';
-  const appLinkDomain = document.getElementById('lt-appLinkDomain')?.value.trim() || '';
-  const appScheme = document.getElementById('lt-appScheme')?.value.trim() || '';
-  const defaultCampaign = document.getElementById('lt-defaultCampaign')?.value.trim() || 'default';
-  const defaultSub = document.getElementById('lt-defaultSub')?.value.trim() || 'cta1';
-  const waMessageTemplate = document.getElementById('lt-waMessageTemplate')?.value.trim() || '';
-  const whatsappNumber = document.getElementById('lt-waNumber')?.value.trim() || '';
+  const readVal = ids => {
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el && typeof el.value === 'string') return el.value.trim();
+    }
+    return '';
+  };
+  const webBaseUrl = readVal(['lt-webBaseUrl', 'tab-lt-webBaseUrl']);
+  const appLinkDomain = readVal(['lt-appLinkDomain', 'tab-lt-appLinkDomain']);
+  const appScheme = readVal(['lt-appScheme', 'tab-lt-appScheme']);
+  const defaultCampaign = readVal(['lt-defaultCampaign', 'tab-lt-defaultCampaign']) || 'default';
+  const defaultSub = readVal(['lt-defaultSub', 'tab-lt-defaultSub']) || 'cta1';
+  const waMessageTemplate = readVal(['lt-waMessageTemplate', 'tab-lt-waMessageTemplate']);
+  const whatsappNumber = readVal(['lt-waNumber', 'tab-lt-waNumber']);
   const payload = {
     webBaseUrl,
     appLinkDomain,
@@ -594,17 +613,13 @@ const $navProducts = $('#nav-products'),
   $navContests = $('#nav-contests'),
   $navSettings = $('#nav-settings'),
   $navPromoCards = $('#nav-promocards'),
-  $navPromoCodes = $('#nav-promocodes'),
-  $navPromoRules = $('#nav-promorules'),
-  $navPromoPayouts = $('#nav-promopayouts');
+  $navPromoCodes = $('#nav-promocodes');
 const $toolbarProducts = $('#toolbar-products'),
   $toolbarBrands = $('#toolbar-brands'),
   $toolbarMatches = $('#toolbar-matches'),
   $toolbarContests = $('#toolbar-contests'),
   $toolbarPromoCards = $('#toolbar-promocards'),
-  $toolbarPromoCodes = $('#toolbar-promocodes'),
-  $toolbarPromoRules = $('#toolbar-promorules'),
-  $toolbarPromoPayouts = $('#toolbar-promopayouts');
+  $toolbarPromoCodes = $('#toolbar-promocodes');
 const $productsContent = $('#products-content'),
   $brandsContent = $('#brands-content'),
   $matchesContent = $('#matches-content'),
@@ -612,7 +627,8 @@ const $productsContent = $('#products-content'),
   $promoCardsContent = $('#promocards-content'),
   $promoCodesContent = $('#promocodes-content'),
   $promoRulesContent = document.getElementById('promorules-content'),
-  $promoPayoutsContent = document.getElementById('promopayouts-content');
+  $promoPayoutsContent = document.getElementById('promopayouts-content'),
+  $promoTemplatesContent = document.getElementById('promo-templates-content');
 
 window.addEventListener('hashchange', handleRoute);
 window.addEventListener('hashchange', async function () {
@@ -637,6 +653,7 @@ async function handleRoute() {
   track('page_view_admin', { route, id: id || null });
 
   const isContestRoute = route.includes('contest') || route.includes('candidate');
+  const isPromoRoute = route.includes('promocode') || route.includes('promorule') || route.includes('promopayout');
 
   // Nav active
   $navProducts.classList.toggle('active', route.includes('product'));
@@ -644,9 +661,7 @@ async function handleRoute() {
   $navMatches.classList.toggle('active', route.includes('match'));
   $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
-  $navPromoCodes.classList.toggle('active', route.includes('promocode'));
-  $navPromoPayouts.classList.toggle('active', route.includes('promopayout'));
-  $navPromoRules.classList.toggle('active', route.includes('promorule'));
+  $navPromoCodes.classList.toggle('active', isPromoRoute);
   $navSettings.classList.toggle('active', route === 'settings');
 
   // Toolbars affichage
@@ -655,9 +670,7 @@ async function handleRoute() {
   $toolbarMatches.classList.toggle('hide', !route.includes('match'));
   $toolbarContests.classList.toggle('hide', !isContestRoute);
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
-  $toolbarPromoCodes.classList.toggle('hide', !route.includes('promocode'));
-  $toolbarPromoPayouts.classList.toggle('hide', !route.includes('promopayout'));
-  $toolbarPromoRules.classList.toggle('hide', !route.includes('promorule'));
+  $toolbarPromoCodes.classList.toggle('hide', !isPromoRoute);
 
   // Pages
   $('#page-products').classList.toggle('hide', !route.includes('product'));
@@ -665,9 +678,7 @@ async function handleRoute() {
   $('#page-matches').classList.toggle('hide', !route.includes('match'));
   $('#page-contests').classList.toggle('hide', !isContestRoute);
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
-  $('#page-promocodes').classList.toggle('hide', !route.includes('promocode'));
-  $('#page-promopayouts').classList.toggle('hide', !route.includes('promopayout'));
-  $('#page-promorules').classList.toggle('hide', !route.includes('promorule'));
+  $('#page-promocodes').classList.toggle('hide', !isPromoRoute);
   $('#page-settings').classList.toggle('hide', route !== 'settings');
 
   if (route === 'products') {
@@ -739,37 +750,41 @@ async function handleRoute() {
     setCrumb('Nouvelle Carte Promo');
     renderPromoCardFormPage();
   } else if (route === 'edit-promocard' && id) {
-    setCrumb('ï¿½diter Carte Promo');
+    setCrumb('Éditer Carte Promo');
     await renderPromoCardFormPage(id);
   } else if (route === 'promocodes') {
     setCrumb('Codes Promo');
-    await ensurePromoCodesLoaded();
-    renderPromoCodeList();
+    const tabFromHash = id && ['codes', 'rules', 'payouts', 'templates'].includes(id) ? id : 'codes';
+    await setPromoTab(tabFromHash);
   } else if (route === 'new-promocode') {
     setCrumb('Nouveau Code Promo');
+    await setPromoTab('codes');
     renderPromoCodeFormPage();
   } else if (route === 'edit-promocode' && id) {
     setCrumb('Éditer Code Promo');
+    await setPromoTab('codes');
     await renderPromoCodeFormPage(id);
   } else if (route === 'promopayouts') {
     setCrumb('Versements Promo');
-    await ensurePromoPayoutsLoaded();
-    renderPromoPayoutList();
+    await setPromoTab('payouts');
   } else if (route === 'new-promopayout') {
     setCrumb('Nouveau versement');
+    await setPromoTab('payouts');
     renderPromoPayoutFormPage();
   } else if (route === 'edit-promopayout' && id) {
     setCrumb('Éditer versement');
+    await setPromoTab('payouts');
     await renderPromoPayoutFormPage(id);
   } else if (route === 'promorules') {
     setCrumb('Règles Promo');
-    await ensurePromoRulesLoaded();
-    renderPromoRuleList();
+    await setPromoTab('rules');
   } else if (route === 'new-promorule') {
     setCrumb('Nouvelle Règle Promo');
+    await setPromoTab('rules');
     renderPromoRuleFormPage();
   } else if (route === 'edit-promorule' && id) {
     setCrumb('Éditer Règle Promo');
+    await setPromoTab('rules');
     await renderPromoRuleFormPage(id);
   } else if (route === 'settings') {
     setCrumb('Paramï¿½tres');
@@ -785,6 +800,7 @@ async function initAfterLogin() {
   await ensureLinkTemplatesLoaded();
   applyLinkTemplatesToSettingsUI();
   $('#save-link-templates')?.addEventListener('click', saveLinkTemplates);
+  document.getElementById('tab-save-link-templates')?.addEventListener('click', saveLinkTemplates);
   // Settings: bind promo cards toggle if present
   const promoToggle = document.getElementById('toggle-promocards');
   if (promoToggle) {
@@ -1034,6 +1050,41 @@ async function ensurePromoPayoutsLoaded(force = false) {
       $promoPayoutsContent.innerHTML =
         '<div class="center" style="padding:32px">Erreur de chargement des versements.</div>';
     }
+  }
+}
+
+async function setPromoTab(tab = 'codes') {
+  const allowed = ['codes', 'rules', 'payouts', 'templates'];
+  const nextTab = allowed.includes(tab) ? tab : 'codes';
+  promoTab = nextTab;
+  document.querySelectorAll('.promo-tab-btn').forEach(btn => {
+    const isActive = btn.dataset.tab === nextTab;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+  const sections = {
+    codes: $promoCodesContent,
+    rules: $promoRulesContent,
+    payouts: $promoPayoutsContent,
+    templates: $promoTemplatesContent,
+  };
+  Object.entries(sections).forEach(([key, el]) => {
+    if (el) {
+      el.classList.toggle('hide', key !== nextTab);
+    }
+  });
+  if (nextTab === 'codes') {
+    await ensurePromoCodesLoaded();
+    renderPromoCodeList();
+  } else if (nextTab === 'rules') {
+    await ensurePromoRulesLoaded();
+    renderPromoRuleList();
+  } else if (nextTab === 'payouts') {
+    await ensurePromoPayoutsLoaded();
+    renderPromoPayoutList();
+  } else if (nextTab === 'templates') {
+    await ensureLinkTemplatesLoaded();
+    applyLinkTemplatesToSettingsUI();
   }
 }
 
@@ -3468,7 +3519,7 @@ async function renderPromoPayoutFormPage(id) {
     $promoPayoutsContent.innerHTML = '';
     $promoPayoutsContent.appendChild(wrap);
   }
-  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promopayouts');
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes/payouts');
   wrap.querySelector('form').onsubmit = e => handlePromoPayoutFormSubmit(e, id, payout);
 }
 
@@ -3517,7 +3568,7 @@ async function handlePromoPayoutFormSubmit(e, id, existing = {}) {
       toast('Versement enregistré', code, 'success');
     }
     renderPromoPayoutList();
-    location.hash = '#/promopayouts';
+    location.hash = '#/promocodes/payouts';
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');
@@ -3536,9 +3587,14 @@ $('#filter-promocode-partner')?.addEventListener('input', e => {
 $('#add-promorule')?.addEventListener('click', () => (location.hash = '#/new-promorule'));
 $('#search-promorules')?.addEventListener('input', () => renderPromoRuleList());
 $('#add-promopayout')?.addEventListener('click', () => (location.hash = '#/new-promopayout'));
-$('#search-promopayouts')?.addEventListener('input', e => {
-  promoPayoutSearchTerm = e.target.value || '';
-  renderPromoPayoutList();
+document.querySelectorAll('.promo-tab-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const tab = btn.dataset.tab || 'codes';
+    await setPromoTab(tab);
+    const base = '#/promocodes';
+    const hash = tab === 'codes' ? base : `${base}/${tab}`;
+    location.hash = hash;
+  });
 });
 
 function renderPromoCodeList() {
@@ -3889,7 +3945,7 @@ function summarizeBrackets(brackets = []) {
 }
 
 function renderPromoRuleList() {
-  const term = ($('#search-promorules').value || '').toLowerCase();
+  const term = (document.getElementById('search-promorules')?.value || '').toLowerCase();
   const arr = term
     ? allPromoRules.filter(r => {
         const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
@@ -4055,7 +4111,7 @@ async function renderPromoRuleFormPage(id) {
   $promoRulesContent.innerHTML = '';
   $promoRulesContent.appendChild(wrap);
   renderChannelCheckboxes('pr-channels-group', channelsSelected);
-  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promorules');
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes/rules');
   wrap.querySelector('form').onsubmit = e => handlePromoRuleFormSubmit(e, id, rule.code || rule.id);
 }
 
@@ -4121,7 +4177,7 @@ async function handlePromoRuleFormSubmit(e, id, existingCode) {
     allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
     track('promo_rule_save', { code: code, isEdit: Boolean(id), hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
     toast('Succ?s', id ? 'R?gle mise ? jour' : 'R?gle cr??e', 'success');
-    location.hash = '#/promorules';
+    location.hash = '#/promocodes/rules';
     return;
   } catch (err) {
     console.error(err);

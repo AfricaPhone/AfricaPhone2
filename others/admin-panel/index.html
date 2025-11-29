@@ -74,8 +74,6 @@
             ><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a
           >
           <a data-route="#/promocodes" class="link-item"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
-          <a data-route="#/promorules" class="link-item"><i data-lucide="shield-check" class="icon"></i> Règles Promo</a>
-          <a data-route="#/promopayouts" class="link-item"><i data-lucide="wallet" class="icon"></i> Versements Promo</a>
           <div class="section">G&eacute;n&eacute;ral</div>
           <a data-route="#/settings" class="link-item"><i data-lucide="settings" class="icon"></i> Param&egrave;tres</a>
         </nav>
@@ -105,8 +103,6 @@
           <a id="nav-contests" href="#/contests"><i data-lucide="trophy" class="icon"></i> Concours</a>
           <a id="nav-promocards" href="#/promocards"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
           <a id="nav-promocodes" href="#/promocodes"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
-          <a id="nav-promorules" href="#/promorules"><i data-lucide="shield-check" class="icon"></i> Règles Promo</a>
-          <a id="nav-promopayouts" href="#/promopayouts"><i data-lucide="wallet" class="icon"></i> Versements Promo</a>
           <div class="section">G&eacute;n&eacute;ral</div>
           <a id="nav-settings" href="#/settings"><i data-lucide="settings" class="icon"></i> Param&egrave;tres</a>
         </nav>
@@ -280,32 +276,24 @@
             <input id="search-promocodes" class="input" type="search" placeholder="Rechercher un code promo..." />
             <input id="filter-promocode-partner" class="input" type="search" placeholder="Ref partenaire (filtre)..." />
           </div>
-          <div class="top-actions">
-            <button id="add-promocode" class="btn btn-primary btn-small">
-              <i data-lucide="plus" class="icon"></i> Nouveau code
-            </button>
-          </div>
-        </div>
-
-        <div id="toolbar-promorules" class="toolbar hide">
-          <div class="filters">
-            <input id="search-promorules" class="input" type="search" placeholder="Rechercher une règle promo..." />
-          </div>
-          <div class="top-actions">
-            <button id="add-promorule" class="btn btn-primary btn-small">
-              <i data-lucide="plus" class="icon"></i> Nouvelle règle
-            </button>
-          </div>
-        </div>
-
-        <div id="toolbar-promopayouts" class="toolbar hide">
-          <div class="filters">
-            <input id="search-promopayouts" class="input" type="search" placeholder="Rechercher un versement (code, statut)..." />
-          </div>
-          <div class="top-actions">
-            <button id="add-promopayout" class="btn btn-primary btn-small">
-              <i data-lucide="plus" class="icon"></i> Nouveau versement
-            </button>
+          <div class="top-actions" style="gap:8px;flex-wrap:wrap">
+            <div class="view-toggle" role="tablist" aria-label="Onglets Codes Promo">
+              <button class="btn btn-small promo-tab-btn active" data-tab="codes"><i data-lucide="ticket" class="icon"></i> Codes</button>
+              <button class="btn btn-small promo-tab-btn" data-tab="rules"><i data-lucide="shield-check" class="icon"></i> Règles</button>
+              <button class="btn btn-small promo-tab-btn" data-tab="payouts"><i data-lucide="wallet" class="icon"></i> Versements</button>
+              <button class="btn btn-small promo-tab-btn" data-tab="templates"><i data-lucide="link" class="icon"></i> Templates</button>
+            </div>
+            <div class="top-actions" style="gap:8px">
+              <button id="add-promocode" class="btn btn-primary btn-small">
+                <i data-lucide="plus" class="icon"></i> Nouveau code
+              </button>
+              <button id="add-promorule" class="btn btn-outline btn-small">
+                <i data-lucide="plus" class="icon"></i> Nouvelle règle
+              </button>
+              <button id="add-promopayout" class="btn btn-outline btn-small">
+                <i data-lucide="plus" class="icon"></i> Nouveau versement
+              </button>
+            </div>
           </div>
         </div>
 
@@ -335,14 +323,55 @@
 
         <section id="page-promocodes" class="page hide" aria-labelledby="nav-promocodes">
           <div id="promocodes-content"></div>
-        </section>
-
-        <section id="page-promorules" class="page hide" aria-labelledby="nav-promorules">
-          <div id="promorules-content"></div>
-        </section>
-
-        <section id="page-promopayouts" class="page hide" aria-labelledby="nav-promopayouts">
-          <div id="promopayouts-content"></div>
+          <div id="promorules-content" class="hide"></div>
+          <div id="promopayouts-content" class="hide"></div>
+          <div id="promo-templates-content" class="hide">
+            <div class="form-wrap">
+              <div class="form-head"><div class="form-title">Templates de liens promo</div></div>
+              <div class="form-main">
+                <div class="hint">Bases des liens web/app/WhatsApp partagés aux partenaires. Placeholders : {code}, {ref}, {link}.</div>
+                <div class="twocol">
+                  <div class="field">
+                    <label class="label" for="tab-lt-webBaseUrl">Lien web de base</label>
+                    <input id="tab-lt-webBaseUrl" class="input" type="url" placeholder="https://exemple.com/promo" />
+                  </div>
+                  <div class="field">
+                    <label class="label" for="tab-lt-appLinkDomain">Lien universel / app link</label>
+                    <input id="tab-lt-appLinkDomain" class="input" type="url" placeholder="https://exemple.com/ul" />
+                  </div>
+                </div>
+                <div class="twocol">
+                  <div class="field">
+                    <label class="label" for="tab-lt-appScheme">Schéma deep link app</label>
+                    <input id="tab-lt-appScheme" class="input" type="text" placeholder="africaphone://apply-promo" />
+                  </div>
+                  <div class="field">
+                    <label class="label" for="tab-lt-waNumber">Numéro WhatsApp (optionnel)</label>
+                    <input id="tab-lt-waNumber" class="input" type="text" placeholder="229XXXXXXXX" />
+                  </div>
+                </div>
+                <div class="twocol">
+                  <div class="field">
+                    <label class="label" for="tab-lt-defaultCampaign">Campagne par défaut</label>
+                    <input id="tab-lt-defaultCampaign" class="input" type="text" placeholder="default" />
+                  </div>
+                  <div class="field">
+                    <label class="label" for="tab-lt-defaultSub">Variation / bouton par défaut</label>
+                    <input id="tab-lt-defaultSub" class="input" type="text" placeholder="cta1" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label" for="tab-lt-waMessageTemplate">Message WhatsApp</label>
+                  <textarea id="tab-lt-waMessageTemplate" class="textarea" rows="3" placeholder="Profite du code {code} : {link} (ref {ref})"></textarea>
+                  <div class="hint">Utilise les placeholders {code}, {ref}, {link}.</div>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-primary" id="tab-save-link-templates"><i data-lucide="save" class="icon"></i> Enregistrer</button>
+                  <span id="tab-lt-status" class="hint"></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section id="page-settings" class="page hide" aria-labelledby="nav-settings">
