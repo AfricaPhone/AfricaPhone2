@@ -1,5 +1,5 @@
 // Importe la configuration et les services Firebase depuis le fichier dï¿½diï¿½.
-import { auth, db, storage, analytics, logEvent } from './firebase-config.js';
+import { auth, db, storage, analytics, logEvent, functions, httpsCallable } from './firebase-config.js';
 
 // Importe les fonctions spï¿½cifiques de Firebase Auth et Firestore.
 import {
@@ -180,6 +180,7 @@ let allPromoCards = [];
 let contestPromoCard = null;
 let allPromoCodes = []; // AJOUT
 let allPromoRules = [];
+let allPromoPayouts = [];
 let allBrands = [];
 let allContests = [];
 const contestCandidates = new Map();
@@ -190,6 +191,8 @@ let productSearchTerm = '';
 let productCategoryFilter = '';
 let viewMode = 'table'; // 'table' | 'cards'
 let sortBy = { key: 'name', dir: 'asc' };
+let promoCodePartnerFilter = '';
+let promoPayoutSearchTerm = '';
 const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
 let PREDEFINED_SPECS = [
   'ï¿½cran',
@@ -572,20 +575,25 @@ const $navProducts = $('#nav-products'),
   $navContests = $('#nav-contests'),
   $navSettings = $('#nav-settings'),
   $navPromoCards = $('#nav-promocards'),
-  $navPromoCodes = $('#nav-promocodes');
+  $navPromoCodes = $('#nav-promocodes'),
+  $navPromoRules = $('#nav-promorules'),
+  $navPromoPayouts = $('#nav-promopayouts');
 const $toolbarProducts = $('#toolbar-products'),
   $toolbarBrands = $('#toolbar-brands'),
   $toolbarMatches = $('#toolbar-matches'),
   $toolbarContests = $('#toolbar-contests'),
   $toolbarPromoCards = $('#toolbar-promocards'),
-  $toolbarPromoCodes = $('#toolbar-promocodes');
+  $toolbarPromoCodes = $('#toolbar-promocodes'),
+  $toolbarPromoRules = $('#toolbar-promorules'),
+  $toolbarPromoPayouts = $('#toolbar-promopayouts');
 const $productsContent = $('#products-content'),
   $brandsContent = $('#brands-content'),
   $matchesContent = $('#matches-content'),
   $contestsContent = $('#contests-content'),
   $promoCardsContent = $('#promocards-content'),
   $promoCodesContent = $('#promocodes-content'),
-  $promoRulesContent = document.getElementById('promorules-content');
+  $promoRulesContent = document.getElementById('promorules-content'),
+  $promoPayoutsContent = document.getElementById('promopayouts-content');
 
 window.addEventListener('hashchange', handleRoute);
 window.addEventListener('hashchange', async function () {
@@ -618,6 +626,8 @@ async function handleRoute() {
   $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
   $navPromoCodes.classList.toggle('active', route.includes('promocode'));
+  $navPromoPayouts.classList.toggle('active', route.includes('promopayout'));
+  $navPromoRules.classList.toggle('active', route.includes('promorule'));
   $navSettings.classList.toggle('active', route === 'settings');
 
   // Toolbars affichage
@@ -627,6 +637,8 @@ async function handleRoute() {
   $toolbarContests.classList.toggle('hide', !isContestRoute);
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
   $toolbarPromoCodes.classList.toggle('hide', !route.includes('promocode'));
+  $toolbarPromoPayouts.classList.toggle('hide', !route.includes('promopayout'));
+  $toolbarPromoRules.classList.toggle('hide', !route.includes('promorule'));
 
   // Pages
   $('#page-products').classList.toggle('hide', !route.includes('product'));
@@ -635,6 +647,8 @@ async function handleRoute() {
   $('#page-contests').classList.toggle('hide', !isContestRoute);
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
   $('#page-promocodes').classList.toggle('hide', !route.includes('promocode'));
+  $('#page-promopayouts').classList.toggle('hide', !route.includes('promopayout'));
+  $('#page-promorules').classList.toggle('hide', !route.includes('promorule'));
   $('#page-settings').classList.toggle('hide', route !== 'settings');
 
   if (route === 'products') {
@@ -718,6 +732,26 @@ async function handleRoute() {
   } else if (route === 'edit-promocode' && id) {
     setCrumb('Éditer Code Promo');
     await renderPromoCodeFormPage(id);
+  } else if (route === 'promopayouts') {
+    setCrumb('Versements Promo');
+    await ensurePromoPayoutsLoaded();
+    renderPromoPayoutList();
+  } else if (route === 'new-promopayout') {
+    setCrumb('Nouveau versement');
+    renderPromoPayoutFormPage();
+  } else if (route === 'edit-promopayout' && id) {
+    setCrumb('Éditer versement');
+    await renderPromoPayoutFormPage(id);
+  } else if (route === 'promorules') {
+    setCrumb('Règles Promo');
+    await ensurePromoRulesLoaded();
+    renderPromoRuleList();
+  } else if (route === 'new-promorule') {
+    setCrumb('Nouvelle Règle Promo');
+    renderPromoRuleFormPage();
+  } else if (route === 'edit-promorule' && id) {
+    setCrumb('Éditer Règle Promo');
+    await renderPromoRuleFormPage(id);
   } else if (route === 'settings') {
     setCrumb('Paramï¿½tres');
   } else {
@@ -963,6 +997,25 @@ async function ensurePromoRulesLoaded() {
   allPromoRules = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => {
     return (a.code || a.id || '').localeCompare(b.code || b.id || '');
   });
+}
+
+async function ensurePromoPayoutsLoaded(force = false) {
+  if (!force && allPromoPayouts.length > 0) return;
+  if ($promoPayoutsContent) {
+    $promoPayoutsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  }
+  try {
+    const q = query(collection(db, 'promoPayouts'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    allPromoPayouts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (err) {
+    console.error('PromoPayouts load failed', err);
+    allPromoPayouts = [];
+    if ($promoPayoutsContent) {
+      $promoPayoutsContent.innerHTML =
+        '<div class="center" style="padding:32px">Erreur de chargement des versements.</div>';
+    }
+  }
 }
 
 /* ============================ Products UI ============================ */
@@ -1302,6 +1355,12 @@ async function handleDelete(id, name, type) {
       }
       allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
     }
+  } else if (type === 'promoRules') {
+    allPromoRules = allPromoRules.filter(r => r.id !== id);
+    renderPromoRuleList();
+  } else if (type === 'promoPayouts') {
+    allPromoPayouts = allPromoPayouts.filter(p => p.id !== id);
+    renderPromoPayoutList();
   }
     toast('Supprimï¿½', '', 'success');
   } catch (e) {
@@ -3259,20 +3318,225 @@ async function handlePromoCardFormSubmit(e, id) {
   }
 }
 
+/* ============================ Promo Payouts UI ============================ */
+function renderPromoPayoutList() {
+  if (!$promoPayoutsContent) return;
+  const term = (promoPayoutSearchTerm || '').toLowerCase();
+  const arr = term
+    ? allPromoPayouts.filter(p =>
+        `${p.code || ''} ${p.status || ''} ${p.mode || ''}`.toLowerCase().includes(term.toLowerCase()),
+      )
+    : allPromoPayouts;
+  if (!arr.length) {
+    $promoPayoutsContent.innerHTML = '<div class="center" style="padding:32px">Aucun versement.</div>';
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Montant</th>
+                <th>Statut</th>
+                <th>Mode</th>
+                <th>Date</th>
+                <th style="width:180px;text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-promopayouts"></tbody>`;
+  const tb = table.querySelector('#tbody-promopayouts');
+  arr.forEach(p => {
+    const createdAt =
+      p.createdAt && typeof p.createdAt.toDate === 'function'
+        ? p.createdAt.toDate()
+        : p.createdAt
+          ? new Date(p.createdAt)
+          : null;
+    const dateText = createdAt && !Number.isNaN(createdAt.valueOf()) ? fmtDate(createdAt) : '-';
+    const status = (p.status || 'pending').toLowerCase();
+    const statusLabel = status === 'paid' ? 'Payé' : status === 'cancelled' ? 'Annulé' : 'En attente';
+    const statusClass = status === 'paid' ? 'success' : status === 'cancelled' ? 'danger' : 'warning';
+    const tr = document.createElement('tr');
+    tr.dataset.id = p.id;
+    tr.innerHTML = `
+            <td style="font-weight:800"><span class="chip">${escapeHtml(p.code || '')}</span></td>
+            <td>${fmtXOF.format(p.amount || 0)}</td>
+            <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+            <td>${escapeHtml(p.mode || '-')}</td>
+            <td>${escapeHtml(dateText)}</td>
+            <td class="actions">
+                <button class="btn btn-small" data-edit>Éditer</button>
+                <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+            </td>`;
+    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promopayout/${p.id}`);
+    tr.querySelector('[data-del]').onclick = () => handleDelete(p.id, p.code, 'promoPayouts');
+    tb.appendChild(tr);
+  });
+  $promoPayoutsContent.innerHTML = '';
+  $promoPayoutsContent.appendChild(table);
+  lucide.createIcons();
+}
+
+async function renderPromoPayoutFormPage(id) {
+  let payout = {};
+  if (id) {
+    payout =
+      allPromoPayouts.find(p => p.id === id) ||
+      (await getDoc(doc(db, 'promoPayouts', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!payout) {
+      if ($promoPayoutsContent) {
+        $promoPayoutsContent.innerHTML = '<div class="center" style="padding:32px">Versement introuvable.</div>';
+      }
+      return;
+    }
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouveau'} versement</div></div>
+        <form class="form-main" novalidate>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pp-code">Code</label>
+                <input id="pp-code" class="input" type="text" value="${escapeAttr(payout.code || '')}" required placeholder="EX: JOYFUL-AP" />
+                <div class="hint">Code promo concerné.</div>
+              </div>
+              <div class="field">
+                <label class="label" for="pp-amount">Montant</label>
+                <input id="pp-amount" class="input" type="number" min="0" step="1000" value="${payout.amount ?? ''}" required />
+                <div class="hint">Montant versé (FCFA).</div>
+              </div>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pp-mode">Mode</label>
+                <select id="pp-mode" class="select">
+                  <option value="momo" ${payout.mode === 'momo' ? 'selected' : ''}>Mobile Money</option>
+                  <option value="virement" ${payout.mode === 'virement' ? 'selected' : ''}>Virement bancaire</option>
+                  <option value="cash" ${payout.mode === 'cash' ? 'selected' : ''}>Cash</option>
+                  <option value="autre" ${payout.mode === 'autre' ? 'selected' : ''}>Autre</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="pp-status">Statut</label>
+                <select id="pp-status" class="select">
+                  <option value="paid" ${payout.status === 'paid' ? 'selected' : ''}>Payé</option>
+                  <option value="pending" ${!payout.status || payout.status === 'pending' ? 'selected' : ''}>En attente</option>
+                  <option value="cancelled" ${payout.status === 'cancelled' ? 'selected' : ''}>Annulé</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="pp-date">Date</label>
+              <input id="pp-date" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(payout.createdAt))}" />
+            </div>
+            <div class="field">
+              <label class="label" for="pp-ref">Référence paiement</label>
+              <input id="pp-ref" class="input" type="text" value="${escapeAttr(payout.ref || '')}" placeholder="TxID, ref bancaire..." />
+            </div>
+            <div class="field">
+              <label class="label" for="pp-note">Note (optionnel)</label>
+              <textarea id="pp-note" class="textarea" rows="3" placeholder="Détail ou commentaire">${escapeHtml(payout.note || '')}</textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" data-cancel>Annuler</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Enregistrer le versement'}</button>
+            </div>
+        </form>`;
+  if ($promoPayoutsContent) {
+    $promoPayoutsContent.innerHTML = '';
+    $promoPayoutsContent.appendChild(wrap);
+  }
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promopayouts');
+  wrap.querySelector('form').onsubmit = e => handlePromoPayoutFormSubmit(e, id, payout);
+}
+
+async function handlePromoPayoutFormSubmit(e, id, existing = {}) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+  const code = ($('#pp-code').value || '').trim().toUpperCase();
+  const amount = Number($('#pp-amount').value);
+  const mode = $('#pp-mode').value || 'momo';
+  const status = $('#pp-status').value || 'pending';
+  const note = ($('#pp-note').value || '').trim();
+  const ref = ($('#pp-ref').value || '').trim();
+  const dateVal = $('#pp-date').value;
+  if (!code || Number.isNaN(amount)) {
+    toast('Erreur', 'Code et montant requis.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+  const payload = {
+    code,
+    amount,
+    mode,
+    status,
+    note: note || null,
+    ref: ref || null,
+  };
+  if (dateVal) {
+    payload.createdAt = new Date(dateVal);
+  } else if (!id) {
+    payload.createdAt = serverTimestamp();
+  }
+  try {
+    if (id) {
+      await updateDoc(doc(db, 'promoPayouts', id), payload);
+      const i = allPromoPayouts.findIndex(p => p.id === id);
+      if (i > -1) {
+        allPromoPayouts[i] = { ...allPromoPayouts[i], ...payload };
+      }
+      toast('Versement mis à jour', code, 'success');
+    } else {
+      const refDoc = await addDoc(collection(db, 'promoPayouts'), payload);
+      const fresh = await getDoc(refDoc);
+      const saved = fresh.exists() ? { id: refDoc.id, ...fresh.data() } : { id: refDoc.id, ...payload };
+      allPromoPayouts.unshift(saved);
+      toast('Versement enregistré', code, 'success');
+    }
+    renderPromoPayoutList();
+    location.hash = '#/promopayouts';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
 /* ============================ Promo Codes UI (AJOUT) ============================ */
 $('#add-promocode').addEventListener('click', () => (location.hash = '#/new-promocode'));
 $('#search-promocodes').addEventListener('input', () => renderPromoCodeList());
+$('#filter-promocode-partner')?.addEventListener('input', e => {
+  promoCodePartnerFilter = (e.target.value || '').toLowerCase();
+  renderPromoCodeList();
+});
+$('#add-promorule')?.addEventListener('click', () => (location.hash = '#/new-promorule'));
+$('#search-promorules')?.addEventListener('input', () => renderPromoRuleList());
+$('#add-promopayout')?.addEventListener('click', () => (location.hash = '#/new-promopayout'));
+$('#search-promopayouts')?.addEventListener('input', e => {
+  promoPayoutSearchTerm = e.target.value || '';
+  renderPromoPayoutList();
+});
 
 function renderPromoCodeList() {
   ensurePromoRulesLoaded().catch(err => console.warn('PromoRules load skipped', err));
   const term = ($('#search-promocodes').value || '').toLowerCase();
-  const arr = term
-    ? allPromoCodes.filter(c => {
-        const codeMatch = (c.code || '').toLowerCase().includes(term);
-        const partnerMatch = (c.assignedTo || '').toLowerCase().includes(term);
-        return codeMatch || partnerMatch;
-      })
-    : allPromoCodes;
+  const partnerFilter = promoCodePartnerFilter || '';
+  let arr = allPromoCodes.slice();
+  if (term) {
+    arr = arr.filter(c => {
+      const codeMatch = (c.code || '').toLowerCase().includes(term);
+      const partnerMatch = (c.assignedTo || '').toLowerCase().includes(term);
+      return codeMatch || partnerMatch;
+    });
+  }
+  if (partnerFilter) {
+    arr = arr.filter(c => (c.assignedTo || '').toLowerCase().includes(partnerFilter));
+  }
 
   if (!arr.length) {
     $promoCodesContent.innerHTML = `<div class="center" style="padding:32px">Aucun code promo.</div>`;
@@ -3288,7 +3552,7 @@ function renderPromoCodeList() {
                 <th>Valeur</th>
                 <th>Partenaire</th>
                 <th>Statut / Règle</th>
-                <th style="width:180px;text-align:right">Actions</th>
+                <th style="width:220px;text-align:right">Actions</th>
             </tr>
         </thead>
         <tbody id="tbody-promocodes"></tbody>`;
@@ -3316,9 +3580,11 @@ function renderPromoCodeList() {
                 <div class="muted small">${escapeHtml(bracketsText)}</div>
             </td>
             <td class="actions">
+                <button class="btn btn-outline btn-small" data-preview>Tester liens</button>
                 <button class="btn btn-small" data-edit>Éditer</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>`;
+    tr.querySelector('[data-preview]').onclick = () => previewPromoLinks(c.code, c.assignedTo);
     tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocode/${c.id}`);
     tr.querySelector('[data-del]').onclick = () => handleDelete(c.id, c.code, 'promoCodes');
     tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCodeStatusToggle(c.id, e.target.checked);
@@ -3327,6 +3593,25 @@ function renderPromoCodeList() {
   $promoCodesContent.innerHTML = '';
   $promoCodesContent.appendChild(table);
   lucide.createIcons();
+}
+
+async function previewPromoLinks(code, ref) {
+  const normalized = (code || '').trim();
+  if (!normalized) return;
+  try {
+    const callable = httpsCallable(functions, 'generatePromoLinks');
+    const res = await callable({ code: normalized, ref });
+    const data = res.data || {};
+    const body = `
+      <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
+      <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
+      <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
+    `;
+    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
+  } catch (error) {
+    console.error('Preview promo links failed', error);
+    toast('Erreur', 'Impossible de générer les liens.', 'error');
+  }
 }
 
 async function handlePromoCodeStatusToggle(id, isActive) {
@@ -3817,7 +4102,6 @@ async function handlePromoRuleFormSubmit(e, id, existingCode) {
     track('promo_rule_save', { code: code, isEdit: Boolean(id), hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
     toast('Succ?s', id ? 'R?gle mise ? jour' : 'R?gle cr??e', 'success');
     location.hash = '#/promorules';
-  }
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');

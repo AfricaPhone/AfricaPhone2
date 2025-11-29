@@ -3,6 +3,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.15.0/firebas
 import { getAuth } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
 import { getStorage } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-functions.js';
 import { getAnalytics, logEvent as firebaseLogEvent } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-analytics.js';
 
 // Vos informations de configuration Firebase.
@@ -22,5 +23,7 @@ const analytics = getAnalytics(appFB);
 export const auth = getAuth(appFB);
 export const db = getFirestore(appFB);
 export const storage = getStorage(appFB);
+export const functions = getFunctions(appFB);
 export { analytics };
 export const logEvent = (...args) => firebaseLogEvent(analytics, ...args);
+export { httpsCallable };
