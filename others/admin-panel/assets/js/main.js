@@ -1,5 +1,14 @@
 // Importe la configuration et les services Firebase depuis le fichier dï¿½diï¿½.
-import { auth, db, storage, analytics, logEvent, functions, httpsCallable } from './firebase-config.js';
+import {
+  auth,
+  db,
+  storage,
+  analytics,
+  logEvent,
+  functions,
+  connectFunctionsEmulator,
+  httpsCallable,
+} from './firebase-config.js';
 
 // Importe les fonctions spï¿½cifiques de Firebase Auth et Firestore.
 import {
@@ -193,6 +202,16 @@ let viewMode = 'table'; // 'table' | 'cards'
 let sortBy = { key: 'name', dir: 'asc' };
 let promoCodePartnerFilter = '';
 let promoPayoutSearchTerm = '';
+let functionsInstance = functions;
+const isLocalhost = ['localhost', '127.0.0.1'].includes(location.hostname);
+if (isLocalhost) {
+  try {
+    connectFunctionsEmulator(functionsInstance, 'localhost', 5001);
+    console.info('[Admin] Functions emulator connected (localhost:5001)');
+  } catch (err) {
+    console.warn('[Admin] Functions emulator connection failed', err);
+  }
+}
 const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
 let PREDEFINED_SPECS = [
   'ï¿½cran',
@@ -3599,7 +3618,7 @@ async function previewPromoLinks(code, ref) {
   const normalized = (code || '').trim();
   if (!normalized) return;
   try {
-    const callable = httpsCallable(functions, 'generatePromoLinks');
+    const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
     const res = await callable({ code: normalized, ref });
     const data = res.data || {};
     const body = `
