@@ -799,8 +799,9 @@ async function initAfterLogin() {
   applyFeaturesToSettingsUI();
   await ensureLinkTemplatesLoaded();
   applyLinkTemplatesToSettingsUI();
-  $('#save-link-templates')?.addEventListener('click', saveLinkTemplates);
-  document.getElementById('tab-save-link-templates')?.addEventListener('click', saveLinkTemplates);
+  document.querySelectorAll('#save-link-templates, #tab-save-link-templates').forEach(btn => {
+    btn.addEventListener('click', saveLinkTemplates);
+  });
   // Settings: bind promo cards toggle if present
   const promoToggle = document.getElementById('toggle-promocards');
   if (promoToggle) {
