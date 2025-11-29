@@ -12,6 +12,7 @@ import * as os from 'os';
 import * as fs from 'fs-extra';
 import sharp = require('sharp');
 import { randomUUID } from 'crypto';
+import { URL } from 'url';
 
 // Initialise l'app Firebase Admin pour interagir avec Firestore.
 admin.initializeApp();
@@ -67,6 +68,13 @@ const normalizeChannel = (channel?: string) => {
   const normalized = (channel || 'web').toLowerCase();
   const allowed = ['web', 'app', 'wa', 'qr', 'bo'];
   return allowed.includes(normalized) ? normalized : 'web';
+};
+
+const dayKeyUtc = (date = new Date()) => {
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 };
 
 const clampRangeDays = (value?: number) => {
@@ -278,6 +286,278 @@ export const generatePromoLinks = onCall(async request => {
   await logPromoEvent('promoLinkGenerations', payload);
 
   return payload;
+});
+
+type PromoMetricDelta = {
+  code: string;
+  channel: string;
+  ref?: string | null;
+  visitDelta?: number;
+  waContactDelta?: number;
+  sale?: {
+    amount?: number;
+    discountValue?: number;
+    commissionValue?: number;
+  };
+};
+
+const incrementPromoMetrics = async (delta: PromoMetricDelta) => {
+  const code = delta.code.trim().toUpperCase();
+  const channel = normalizeChannel(delta.channel);
+  const ref = typeof delta.ref === 'string' && delta.ref.trim().length > 0 ? delta.ref.trim() : null;
+  const visitDelta = Number.isFinite(delta.visitDelta) ? Number(delta.visitDelta) : 0;
+  const waContactDelta =
+    Number.isFinite(delta.waContactDelta) && channel === 'wa' ? Number(delta.waContactDelta) : 0;
+  const saleCount = delta.sale ? 1 : 0;
+  const saleAmount = delta.sale?.amount ?? 0;
+  const saleDiscount = delta.sale?.discountValue ?? 0;
+  const saleCommission = delta.sale?.commissionValue ?? 0;
+
+  const dateKey = dayKeyUtc();
+  const baseRef = db.collection('promoMetrics').doc(code).collection('daily').doc(dateKey);
+  const partnerRef = ref
+    ? db.collection('promoMetrics').doc(code).collection('partners').doc(ref).collection('daily').doc(dateKey)
+    : null;
+
+  const buildUpdate = () => {
+    const update: Record<string, admin.firestore.FieldValue | string | number | null> = {
+      code,
+      date: dateKey,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    if (visitDelta) {
+      update[`visits.${channel}`] = admin.firestore.FieldValue.increment(visitDelta);
+      update['visits.total'] = admin.firestore.FieldValue.increment(visitDelta);
+    }
+    if (waContactDelta) {
+      update['contacts.wa'] = admin.firestore.FieldValue.increment(waContactDelta);
+      update['contacts.total'] = admin.firestore.FieldValue.increment(waContactDelta);
+    }
+    if (saleCount) {
+      update['sales.count'] = admin.firestore.FieldValue.increment(saleCount);
+      update['sales.amount'] = admin.firestore.FieldValue.increment(saleAmount);
+      update['sales.discount'] = admin.firestore.FieldValue.increment(saleDiscount);
+      update['sales.commission'] = admin.firestore.FieldValue.increment(saleCommission);
+    }
+    return update;
+  };
+
+  await Promise.all([
+    baseRef.set(buildUpdate(), { merge: true }),
+    partnerRef ? partnerRef.set(buildUpdate(), { merge: true }) : Promise.resolve(),
+  ]);
+};
+
+/**
+ * Redirection trackée d'un lien promo.
+ * Incrémente les visites (et contacts WA si canal = wa) puis redirige vers la destination finale.
+ */
+export const trackPromoLink = onRequest(async (req, res) => {
+  try {
+    const code = (req.query.code as string | undefined)?.trim();
+    const channel = normalizeChannel((req.query.channel as string | undefined) || 'web');
+    const ref = (req.query.ref as string | undefined)?.trim() || null;
+    const campaign = (req.query.campaign as string | undefined)?.trim();
+    const sub = (req.query.sub as string | undefined)?.trim();
+
+    if (!code) {
+      res.status(400).send('code requis');
+      return;
+    }
+
+    const configSnap = await db.collection('config').doc('linkTemplates').get();
+    const configData = configSnap.exists ? (configSnap.data() as Partial<LinkTemplates>) : {};
+    const linkTemplates: LinkTemplates = { ...DEFAULT_LINK_TEMPLATES, ...configData };
+
+    const boutiqueSnap = await db.collection('config').doc('boutiqueInfo').get();
+    const boutiqueData = boutiqueSnap.exists ? boutiqueSnap.data() : {};
+    const whatsappNumber =
+      (boutiqueData?.whatsappNumber as string | undefined) ||
+      linkTemplates.whatsappNumber ||
+      (boutiqueData?.phoneNumber as string | undefined) ||
+      '';
+
+    const sharedParams = {
+      code: code.toUpperCase(),
+      ref: ref || '',
+      campaign: campaign || linkTemplates.defaultCampaign || 'default',
+      sub: sub || linkTemplates.defaultSub || 'cta1',
+    };
+
+    const target =
+      channel === 'wa'
+        ? (() => {
+            const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+            const messageTemplate =
+              linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
+            const message = messageTemplate
+              .replace('{code}', sharedParams.code)
+              .replace('{link}', webLink)
+              .replace('{ref}', sharedParams.ref);
+            const waNumberNormalized = whatsappNumber ? whatsappNumber.replace(/\D+/g, '') : '';
+            return `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
+          })()
+        : channel === 'app'
+          ? buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
+              ...sharedParams,
+              channel: 'app',
+            })
+          : buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+
+    await incrementPromoMetrics({
+      code,
+      channel,
+      ref,
+      visitDelta: 1,
+      waContactDelta: channel === 'wa' ? 1 : 0,
+    });
+
+    res.redirect(302, target);
+  } catch (err) {
+    logger.error('trackPromoLink failed', err);
+    res.status(500).send('Erreur suivi promo');
+  }
+});
+
+/**
+ * Enregistre une vente conclue liée à un code promo (WA/boutique/app).
+ * Attendu: data { code, channel, ref?, amount?, discountValue?, commissionValue? }
+ */
+export const recordPromoSale = onCall(async request => {
+  const { code, channel, ref, amount, discountValue, commissionValue } = request.data as {
+    code?: string;
+    channel?: string;
+    ref?: string;
+    amount?: number;
+    discountValue?: number;
+    commissionValue?: number;
+  };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+  const normalizedChannel = normalizeChannel(channel);
+  const partnerRef = typeof ref === 'string' && ref.trim().length > 0 ? ref.trim() : null;
+
+  const rule = await fetchPromoRule(normalizedCode);
+  if (!rule || !rule.isActive || !isWithinDates(rule)) {
+    throw new HttpsError('not-found', 'Code promo introuvable ou inactif.');
+  }
+  if (rule.allowedChannels?.length && !rule.allowedChannels.includes(normalizedChannel)) {
+    throw new HttpsError('permission-denied', 'Ce code promo ne peut pas être utilisé sur ce canal.');
+  }
+  if (rule.partnerRefRequired && !partnerRef) {
+    throw new HttpsError('failed-precondition', 'Un identifiant partenaire est requis pour ce code.');
+  }
+  if (rule.allowedPartners?.length && partnerRef && !rule.allowedPartners.includes(partnerRef)) {
+    throw new HttpsError('permission-denied', 'Ce code promo n’est pas autorisé pour ce partenaire.');
+  }
+
+  await incrementPromoMetrics({
+    code: normalizedCode,
+    channel: normalizedChannel,
+    ref: partnerRef,
+    sale: {
+      amount: Number.isFinite(amount) ? Number(amount) : 0,
+      discountValue: Number.isFinite(discountValue) ? Number(discountValue) : 0,
+      commissionValue: Number.isFinite(commissionValue) ? Number(commissionValue) : 0,
+    },
+  });
+
+  await logPromoEvent('promoSalesLogs', {
+    code: normalizedCode,
+    channel: normalizedChannel,
+    ref: partnerRef,
+    amount: Number.isFinite(amount) ? Number(amount) : 0,
+    discountValue: Number.isFinite(discountValue) ? Number(discountValue) : 0,
+    commissionValue: Number.isFinite(commissionValue) ? Number(commissionValue) : 0,
+  });
+
+  return { ok: true };
+});
+
+/**
+ * Récupère les métriques agrégées (visites, contacts, ventes) pour un code/ref.
+ * Attendu: data { code, ref?, rangeDays? }
+ */
+export const getPromoMetrics = onCall(async request => {
+  const { code, ref, rangeDays } = request.data as { code?: string; ref?: string; rangeDays?: number };
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+  const partnerRef = typeof ref === 'string' && ref.trim().length > 0 ? ref.trim() : null;
+  const effectiveRange = clampRangeDays(rangeDays);
+  const since = new Date(Date.now() - effectiveRange * 24 * 60 * 60 * 1000);
+  const sinceKey = dayKeyUtc(since);
+
+  const baseCollection = partnerRef
+    ? db.collection('promoMetrics').doc(normalizedCode).collection('partners').doc(partnerRef).collection('daily')
+    : db.collection('promoMetrics').doc(normalizedCode).collection('daily');
+
+  const snap = await baseCollection.where('date', '>=', sinceKey).orderBy('date', 'asc').limit(200).get();
+
+  type MetricDoc = {
+    date: string;
+    visits?: Record<string, number>;
+    contacts?: Record<string, number>;
+    sales?: { count?: number; amount?: number; discount?: number; commission?: number };
+  };
+
+  const docs: MetricDoc[] = snap.docs.map(doc => ({ date: doc.get('date') as string, ...(doc.data() as any) }));
+
+  const totals = docs.reduce(
+    (acc, doc) => {
+      const visits = doc.visits || {};
+      const contacts = doc.contacts || {};
+      const sales = doc.sales || {};
+      acc.visits.web += Number(visits.web || 0);
+      acc.visits.app += Number(visits.app || 0);
+      acc.visits.wa += Number(visits.wa || 0);
+      acc.visits.total += Number(visits.total || 0);
+      acc.contacts.wa += Number(contacts.wa || 0);
+      acc.contacts.total += Number(contacts.total || 0);
+      acc.sales.count += Number(sales.count || 0);
+      acc.sales.amount += Number(sales.amount || 0);
+      acc.sales.discount += Number(sales.discount || 0);
+      acc.sales.commission += Number(sales.commission || 0);
+      return acc;
+    },
+    {
+      visits: { web: 0, app: 0, wa: 0, total: 0 },
+      contacts: { wa: 0, total: 0 },
+      sales: { count: 0, amount: 0, discount: 0, commission: 0 },
+    }
+  );
+
+  return {
+    code: normalizedCode,
+    ref: partnerRef,
+    rangeDays: effectiveRange,
+    totals,
+    series: docs.map(doc => ({
+      date: doc.date,
+      visits: {
+        web: Number(doc.visits?.web || 0),
+        app: Number(doc.visits?.app || 0),
+        wa: Number(doc.visits?.wa || 0),
+        total: Number(doc.visits?.total || 0),
+      },
+      contacts: {
+        wa: Number(doc.contacts?.wa || 0),
+        total: Number(doc.contacts?.total || 0),
+      },
+      sales: {
+        count: Number(doc.sales?.count || 0),
+        amount: Number(doc.sales?.amount || 0),
+        discount: Number(doc.sales?.discount || 0),
+        commission: Number(doc.sales?.commission || 0),
+      },
+    })),
+  };
 });
 
 type DashboardChannel = { id: string; label: string; count: number; commission: number; discount: number };
