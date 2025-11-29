@@ -1074,6 +1074,11 @@ async function setPromoTab(tab = 'codes') {
       el.classList.toggle('hide', key !== nextTab);
     }
   });
+  // Filters: show search/partner only on codes tab
+  const promoFilters = [document.getElementById('search-promocodes'), document.getElementById('filter-promocode-partner')];
+  promoFilters.forEach(el => {
+    if (el) el.classList.toggle('hide', nextTab !== 'codes');
+  });
   if (nextTab === 'codes') {
     await ensurePromoCodesLoaded();
     renderPromoCodeList();
