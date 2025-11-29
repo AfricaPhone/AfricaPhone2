@@ -407,33 +407,33 @@
         <article class="card kpi">
           <div class="kpi-header">
             <p class="label">Ventes conclues</p>
-            <span class="pill pill-success">+6 validees</span>
+            <span class="pill pill-success" id="kpi-sales-delta">+0 valides</span>
           </div>
-          <p class="kpi-value">18</p>
-          <p class="kpi-note"><i class="ph ph-check-circle"></i> Paiements confirmes</p>
+          <p class="kpi-value" id="kpi-sales">-</p>
+          <p class="kpi-note" id="kpi-sales-note"><i class="ph ph-check-circle"></i> Paiements confirmes</p>
         </article>
         <article class="card kpi">
           <div class="kpi-header">
             <p class="label">Leads a suivre</p>
-            <span class="pill pill-warning">12 en panier</span>
+            <span class="pill pill-warning" id="kpi-leads-delta">0 en panier</span>
           </div>
-          <p class="kpi-value">32</p>
-          <p class="kpi-note">Code vu sans achat</p>
+          <p class="kpi-value" id="kpi-leads">-</p>
+          <p class="kpi-note" id="kpi-leads-note">Code vu sans achat</p>
         </article>
         <article class="card kpi">
           <div class="kpi-header">
             <p class="label">Commission estimee</p>
-            <span class="pill pill-ghost">Bonus inclus</span>
+            <span class="pill pill-ghost" id="kpi-commission-delta">Bonus inclus</span>
           </div>
-          <p class="kpi-value" style="color: var(--accent-primary);">250k <span style="font-size:1rem; font-weight:500">CFA</span></p>
-          <p class="kpi-note">Versee a validation</p>
+          <p class="kpi-value" id="kpi-commission" style="color: var(--accent-primary);">-</p>
+          <p class="kpi-note" id="kpi-commission-note">Versee a validation</p>
         </article>
         <article class="card kpi">
           <div class="kpi-header">
             <p class="label">Remises clients</p>
             <span class="pill pill-ghost">Motivation</span>
           </div>
-          <p class="kpi-value">145k <span style="font-size:1rem; font-weight:500">CFA</span></p>
+          <p class="kpi-value" id="kpi-discount">-</p>
           <p class="kpi-note">Economies generees</p>
         </article>
       </section>
@@ -518,38 +518,7 @@
               <p class="section-title">Performance relative</p>
           </div>
         </div>
-        <div class="channel-grid">
-          <div class="channel">
-            <div class="channel-top">
-              <span>Web</span>
-              <span class="pill pill-light">10 ventes</span>
-            </div>
-            <div class="bar">
-              <div class="bar-fill bar-web" style="width: 52%"></div>
-            </div>
-            <p class="channel-note">Codes preremplis via URL.</p>
-          </div>
-          <div class="channel">
-            <div class="channel-top">
-              <span>App</span>
-              <span class="pill pill-light">6 ventes</span>
-            </div>
-            <div class="bar">
-              <div class="bar-fill bar-app" style="width: 33%"></div>
-            </div>
-            <p class="channel-note">Deep links + stockage du code.</p>
-          </div>
-          <div class="channel">
-            <div class="channel-top">
-              <span>WhatsApp</span>
-              <span class="pill pill-light">2 ventes</span>
-            </div>
-            <div class="bar">
-              <div class="bar-fill bar-wa" style="width: 15%"></div>
-            </div>
-            <p class="channel-note">Saisie en back-office vente.</p>
-          </div>
-        </div>
+        <div class="channel-grid" id="channel-grid"></div>
       </section>
 
       <section class="card payout-card">
@@ -559,29 +528,29 @@
             <p class="section-title">Paiements percus et en attente</p>
           </div>
           <div class="pill-group">
-            <span class="pill pill-primary">Total: 120 000 CFA</span>
-            <span class="pill pill-warning">Attente: 130 000 CFA</span>
+            <span class="pill pill-primary" id="payout-total">Total: -</span>
+            <span class="pill pill-warning" id="payout-pending">Attente: -</span>
           </div>
         </header>
         <div class="payout-grid">
           <div class="payout-summary">
             <div class="summary-row">
               <span class="muted">Dernier reversement</span>
-              <span style="font-weight:600">25 000 CFA</span>
+              <span style="font-weight:600" id="payout-last-amount">-</span>
             </div>
             <div class="summary-row">
               <span class="muted">Date</span>
-              <span>15 Nov</span>
+              <span id="payout-last-date">-</span>
             </div>
             <div class="summary-row">
               <span class="muted">Prochain versement</span>
-              <span class="pill pill-success">J-3</span>
+              <span class="pill pill-success" id="payout-next">-</span>
             </div>
             <p class="muted small" style="margin-top:16px; border-top:1px solid var(--border-color); padding-top:8px;">
                 Verification auto cote stock avant versement.
             </p>
           </div>
-          <div class="table payout-table">
+          <div class="table payout-table" id="payout-table">
             <div class="table-row table-head">
               <span>Date</span>
               <span>Montant</span>
@@ -590,30 +559,7 @@
               <span>Ref</span>
               <span>Actions</span>
             </div>
-            <div class="table-row">
-              <span>15/11</span>
-              <span>25 000 CFA</span>
-              <span>Momo</span>
-              <span><span class="pill pill-success">percu</span></span>
-              <span class="muted">#REV-482</span>
-              <span class="pill pill-light"><i class="ph ph-download-simple"></i></span>
-            </div>
-            <div class="table-row">
-              <span>10/11</span>
-              <span>45 000 CFA</span>
-              <span>Virement</span>
-              <span><span class="pill pill-success">percu</span></span>
-              <span class="muted">#REV-461</span>
-              <span class="pill pill-light"><i class="ph ph-download-simple"></i></span>
-            </div>
-            <div class="table-row">
-              <span>En attente</span>
-              <span>130 000 CFA</span>
-              <span>--</span>
-              <span><span class="pill pill-warning">planifie</span></span>
-              <span class="muted">#REV-496</span>
-              <span class="pill pill-ghost">details</span>
-            </div>
+            <div id="payout-table-body"></div>
           </div>
         </div>
       </section>
@@ -717,42 +663,7 @@
               <span>Remise accordee</span>
               <span>Commission</span>
             </div>
-            <div class="table-row">
-              <span>19/11</span>
-              <span class="muted">..97-30</span>
-              <span>Galaxy A35</span>
-              <span>1</span>
-              <span>315k</span>
-              <span class="pill pill-light">-15k</span>
-              <span class="pill pill-primary">+25k</span>
-            </div>
-            <div class="table-row">
-              <span>18/11</span>
-              <span class="muted">..64-71</span>
-              <span>iPhone 12</span>
-              <span>1</span>
-              <span>210k</span>
-              <span class="pill pill-light">-10k</span>
-              <span class="pill pill-primary">+15k</span>
-            </div>
-            <div class="table-row">
-              <span>18/11</span>
-              <span class="muted">..68-12</span>
-              <span>Galaxy A35</span>
-              <span>1</span>
-              <span>-</span>
-              <span class="pill pill-light">applique</span>
-              <span class="pill pill-ghost">-</span>
-            </div>
-            <div class="table-row">
-              <span>18/11</span>
-              <span class="muted">..51-88</span>
-              <span>iPhone 12</span>
-              <span>1</span>
-              <span>-</span>
-              <span class="pill pill-light">panier</span>
-              <span class="pill pill-ghost">-</span>
-            </div>
+            <div id="sales-table-body"></div>
           </div>
         </article>
       </section>
@@ -767,7 +678,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>
       const toggle = document.getElementById('themeToggle');
-      
+
       const updateThemeUI = () => {
         const isLight = document.body.classList.contains('light');
         toggle.innerHTML = isLight
@@ -783,7 +694,7 @@
         updateThemeUI();
       }
 
-      // --- Génération des liens promo dynamiques ---
+      // --- Generation des liens + dashboard partenaire ---
       const firebaseConfig = {
         apiKey: 'AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M',
         authDomain: 'africaphone-vente.firebaseapp.com',
@@ -793,15 +704,64 @@
         appId: '1:203471818329:web:c2c77d48098c1a6a596b48',
       };
 
-      let linkTemplates = {
-        webBaseUrl: '',
-        appScheme: '',
-        appLinkDomain: '',
+      const urlParams = new URLSearchParams(window.location.search || '');
+      const initialCode = (urlParams.get('code') || 'JOYFUL-AP').trim();
+      const initialRef = (urlParams.get('partner') || urlParams.get('ref') || '').trim();
+      const initialCampaign = (urlParams.get('campaign') || '').trim();
+      const initialSub = (urlParams.get('sub') || '').trim();
+
+      const FALLBACK_TEMPLATES = {
+        webBaseUrl: 'https://africaphone.org/promo',
+        appScheme: 'africaphone://apply-promo',
+        appLinkDomain: 'https://africaphone.org/ul',
         defaultCampaign: 'default',
         defaultSub: 'cta1',
         waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
       };
 
+      const FALLBACK_DASHBOARD = {
+        code: initialCode,
+        partnerId: initialRef || null,
+        kpis: { sales: 18, leads: 32, commission: 250000, discount: 145000, avgCart: 0 },
+        channels: [
+          { id: 'web', label: 'WEB', count: 10, commission: 120000, discount: 60000 },
+          { id: 'app', label: 'APP', count: 6, commission: 90000, discount: 50000 },
+          { id: 'wa', label: 'WA', count: 2, commission: 40000, discount: 35000 },
+        ],
+        payouts: {
+          lastAmount: 25000,
+          lastDate: '2025-11-15T00:00:00.000Z',
+          pendingAmount: 130000,
+          history: [
+            { amount: 25000, date: '2025-11-15T00:00:00.000Z', mode: 'Momo', status: 'percu', ref: '#REV-482' },
+            { amount: 45000, date: '2025-11-10T00:00:00.000Z', mode: 'Virement', status: 'percu', ref: '#REV-461' },
+            { amount: 130000, date: null, mode: '--', status: 'planifie', ref: '#REV-496' },
+          ],
+        },
+        table: [
+          {
+            id: 'row-1',
+            createdAt: '2025-11-19T00:00:00.000Z',
+            channel: 'web',
+            ref: 'partner',
+            cartValue: 315000,
+            discountValue: 15000,
+            commissionValue: 25000,
+          },
+          {
+            id: 'row-2',
+            createdAt: '2025-11-18T00:00:00.000Z',
+            channel: 'app',
+            ref: 'partner',
+            cartValue: 210000,
+            discountValue: 10000,
+            commissionValue: 15000,
+          },
+        ],
+        rule: { allowedChannels: [], partnerRefRequired: false, priceBrackets: [] },
+      };
+
+      let linkTemplates = { ...FALLBACK_TEMPLATES };
 
       const initFirebase = () => {
         if (window.firebase?.apps?.length) return window.firebase.app();
@@ -817,7 +777,7 @@
             linkTemplates = { ...linkTemplates, ...snap.data() };
           }
         } catch (e) {
-          console.warn('Impossible de charger les templates, fallback utilis?', e);
+          console.warn('Impossible de charger les templates, fallback utilise', e);
         }
       };
 
@@ -834,7 +794,7 @@
         }
       };
 
-      const copyToClipboard = (id) => {
+      const copyToClipboard = id => {
         const el = document.getElementById(id);
         if (!el) return;
         const value = el.textContent || '';
@@ -846,6 +806,20 @@
         if (el) el.textContent = value;
       };
 
+      const formatCfa = value => {
+        if (typeof value !== 'number' || Number.isNaN(value)) return '-';
+        return `${Math.round(value).toLocaleString('fr-FR')} CFA`;
+      };
+
+      const formatDate = iso => {
+        if (!iso) return '-';
+        try {
+          return new Date(iso).toLocaleDateString('fr-FR');
+        } catch (e) {
+          return '-';
+        }
+      };
+
       const updateRulePanel = data => {
         const codeEl = document.getElementById('ruleCode');
         const details = document.getElementById('ruleDetails');
@@ -853,16 +827,17 @@
         if (codeEl) codeEl.textContent = `Code: ${data?.code || '-'}`;
         const channels = (data?.allowedChannels || []).join(', ') || 'tous';
         const partnerReq = data?.partnerRefRequired ? 'Oui' : 'Non';
-        const brackets = Array.isArray(data?.priceBrackets) && data.priceBrackets.length
-          ? data.priceBrackets
-              .slice(0, 3)
-              .map(b => {
-                const min = b.min ?? 0;
-                const max = typeof b.max === 'number' ? b.max : '+';
-                return `${min}-${max}: -${b.discountValue || 0} / +${b.commissionValue || 0}`;
-              })
-              .join(' | ')
-          : '—';
+        const brackets =
+          Array.isArray(data?.priceBrackets) && data.priceBrackets.length
+            ? data.priceBrackets
+                .slice(0, 3)
+                .map(b => {
+                  const min = b.min ?? 0;
+                  const max = typeof b.max === 'number' ? b.max : '+';
+                  return `${min}-${max}: -${b.discountValue || 0} / +${b.commissionValue || 0}`;
+                })
+                .join(' | ')
+            : '--';
         details.innerHTML = `
           <li>Canaux: ${channels}</li>
           <li>Ref partenaire obligatoire: ${partnerReq}</li>
@@ -885,6 +860,138 @@
         }
       };
 
+      const setStatus = (text, isError = false) => {
+        const status = document.getElementById('linkStatus');
+        if (status) {
+          status.textContent = text;
+          status.style.color = isError ? 'var(--accent-danger)' : 'var(--text-tertiary)';
+        }
+      };
+
+      const renderChannels = channels => {
+        const container = document.getElementById('channel-grid');
+        if (!container) return;
+        container.innerHTML = '';
+        const list = Array.isArray(channels) ? channels : [];
+        if (!list.length) {
+          container.innerHTML = '<p class="muted">Aucune donnee canal.</p>';
+          return;
+        }
+        const total = list.reduce((sum, item) => sum + (item.count || 0), 0) || 1;
+        list.forEach(item => {
+          const pct = Math.round(((item.count || 0) / total) * 100);
+          const block = document.createElement('div');
+          block.className = 'channel';
+          block.innerHTML = `
+            <div class="channel-top">
+              <span>${item.label || item.id || 'Canal'}</span>
+              <span class="pill pill-light">${item.count || 0} ventes</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill bar-web" style="width:${pct}%; background:linear-gradient(90deg,#4facfe 0%,#00f2fe 100%);"></div>
+            </div>
+            <p class="channel-note">Commission: ${formatCfa(item.commission || 0)}</p>
+          `;
+          container.appendChild(block);
+        });
+      };
+
+      const renderPayouts = payouts => {
+        const totalEl = document.getElementById('payout-total');
+        const pendingEl = document.getElementById('payout-pending');
+        const lastAmountEl = document.getElementById('payout-last-amount');
+        const lastDateEl = document.getElementById('payout-last-date');
+        const nextEl = document.getElementById('payout-next');
+        const tableBody = document.getElementById('payout-table-body');
+
+        const history = payouts?.history || [];
+        const lastAmount = payouts?.lastAmount ?? 0;
+        const pending = payouts?.pendingAmount ?? 0;
+        const totalPaid = history.reduce((s, p) => s + (p.amount || 0), 0);
+
+        if (totalEl) totalEl.textContent = `Total: ${formatCfa(totalPaid)}`;
+        if (pendingEl) pendingEl.textContent = `Attente: ${formatCfa(pending)}`;
+        if (lastAmountEl) lastAmountEl.textContent = formatCfa(lastAmount);
+        if (lastDateEl) lastDateEl.textContent = formatDate(payouts?.lastDate);
+        if (nextEl) nextEl.textContent = pending > 0 ? 'A programmer' : 'OK';
+        if (tableBody) {
+          tableBody.innerHTML = '';
+          if (!history.length) {
+            const row = document.createElement('div');
+            row.className = 'table-row';
+            row.innerHTML = '<span class="muted">Aucun paiement</span>';
+            tableBody.appendChild(row);
+          } else {
+            history.forEach(item => {
+              const row = document.createElement('div');
+              row.className = 'table-row';
+              row.innerHTML = `
+                <span>${formatDate(item.date)}</span>
+                <span>${formatCfa(item.amount)}</span>
+                <span>${item.mode || '--'}</span>
+                <span><span class="pill ${item.status === 'percu' ? 'pill-success' : 'pill-warning'}">${item.status || '--'}</span></span>
+                <span class="muted">${item.ref || '--'}</span>
+                <span class="pill pill-light"><i class="ph ph-download-simple"></i></span>
+              `;
+              tableBody.appendChild(row);
+            });
+          }
+        }
+      };
+
+      const renderTable = rows => {
+        const body = document.getElementById('sales-table-body');
+        if (!body) return;
+        body.innerHTML = '';
+        const list = Array.isArray(rows) && rows.length ? rows : FALLBACK_DASHBOARD.table;
+        list.forEach(row => {
+          const item = document.createElement('div');
+          item.className = 'table-row';
+          item.innerHTML = `
+            <span>${formatDate(row.createdAt)}</span>
+            <span class="muted">${row.ref ? row.ref : '--'}</span>
+            <span>${(row.channel || 'web').toUpperCase()}</span>
+            <span>1</span>
+            <span>${row.cartValue ? `${Math.round(row.cartValue / 1000)}k` : '-'}</span>
+            <span class="pill pill-light">${row.discountValue ? `-${Math.round(row.discountValue / 1000)}k` : '-'}</span>
+            <span class="pill pill-primary">${row.commissionValue ? `+${Math.round(row.commissionValue / 1000)}k` : '-'}</span>
+          `;
+          body.appendChild(item);
+        });
+      };
+
+      const renderKpis = payload => {
+        const kpis = payload?.kpis || {};
+        const sales = document.getElementById('kpi-sales');
+        const salesNote = document.getElementById('kpi-sales-note');
+        const leads = document.getElementById('kpi-leads');
+        const commission = document.getElementById('kpi-commission');
+        const discount = document.getElementById('kpi-discount');
+        const leadsNote = document.getElementById('kpi-leads-note');
+        const commissionNote = document.getElementById('kpi-commission-note');
+        if (sales) sales.textContent = kpis.sales ?? '-';
+        if (salesNote) salesNote.textContent = `${kpis.sales || 0} paiements confirmes`;
+        if (leads) leads.textContent = kpis.leads ?? '-';
+        if (leadsNote) leadsNote.textContent = `${kpis.leads || 0} validations recentes`;
+        if (commission) commission.textContent = formatCfa(kpis.commission);
+        if (commissionNote) commissionNote.textContent = `Remises accordeess: ${formatCfa(kpis.discount)}`;
+        if (discount) discount.textContent = formatCfa(kpis.discount);
+      };
+
+      const renderDashboard = (payload, isFallback = false) => {
+        const data = payload || FALLBACK_DASHBOARD;
+        renderKpis(data);
+        renderChannels(data.channels);
+        renderPayouts(data.payouts);
+        renderTable(data.table);
+        if (data.rule) {
+          updateRulePanel(data.rule);
+        }
+        if (isFallback) {
+          setStatus('Donnees locales affichees (fallback)', true);
+        }
+      };
+
       const validateCode = async () => {
         const code = (document.getElementById('codeInput')?.value || '').trim();
         const cartValueRaw = document.getElementById('cartValueInput')?.value;
@@ -901,9 +1008,9 @@
           const callable = functions.httpsCallable('validatePromoV2');
           const response = await callable({ code, channel: 'web', cartValue });
           const data = response.data || {};
-          const discount = data.discountValue ? `${data.discountValue} CFA` : '-';
-          const commission = data.commissionValue ? `${data.commissionValue} CFA` : '-';
-          if (status) status.textContent = `Valide. Remise: ${discount} / Commission: ${commission}`;
+          const discountValue = data.discountValue ? `${data.discountValue} CFA` : '-';
+          const commissionValue = data.commissionValue ? `${data.commissionValue} CFA` : '-';
+          if (status) status.textContent = `Valide. Remise: ${discountValue} / Commission: ${commissionValue}`;
           updateRulePanel({
             code: data.code || code,
             allowedChannels: [data.channel || 'web'],
@@ -913,14 +1020,6 @@
         } catch (error) {
           console.error('validatePromoV2 error', error);
           if (status) status.textContent = 'Code invalide ou indisponible.';
-        }
-      };
-
-      const setStatus = (text, isError = false) => {
-        const status = document.getElementById('linkStatus');
-        if (status) {
-          status.textContent = text;
-          status.style.color = isError ? 'var(--accent-danger)' : 'var(--text-tertiary)';
         }
       };
 
@@ -935,22 +1034,22 @@
           return;
         }
 
-        const appInstance = initFirebase();
+        const templates = { ...FALLBACK_TEMPLATES, ...linkTemplates };
         const baseParams = {
           code,
           ref,
-          campaign: campaign || FALLBACK_TEMPLATES.defaultCampaign,
-          sub: sub || FALLBACK_TEMPLATES.defaultSub,
+          campaign: campaign || templates.defaultCampaign,
+          sub: sub || templates.defaultSub,
         };
 
         const fallbackLinks = () => {
-          const webLink = buildUrl(FALLBACK_TEMPLATES.webBaseUrl, { ...baseParams, channel: 'web' });
-          const appLink = buildUrl(FALLBACK_TEMPLATES.appLinkDomain, { ...baseParams, channel: 'app' });
-          const appDeepLink = `${FALLBACK_TEMPLATES.appScheme}?${new URLSearchParams({
+          const webLink = buildUrl(templates.webBaseUrl, { ...baseParams, channel: 'web' });
+          const appLink = buildUrl(templates.appLinkDomain, { ...baseParams, channel: 'app' });
+          const appDeepLink = `${templates.appScheme}?${new URLSearchParams({
             ...baseParams,
             channel: 'app',
           }).toString()}`;
-          const message = (FALLBACK_TEMPLATES.waMessageTemplate || '')
+          const message = (templates.waMessageTemplate || '')
             .replace('{code}', code)
             .replace('{link}', webLink)
             .replace('{ref}', ref || '');
@@ -959,9 +1058,10 @@
         };
 
         try {
-          setStatus('Génération en cours...');
+          setStatus('Generation en cours...');
+          const appInstance = initFirebase();
           if (!appInstance || !window.firebase?.functions) {
-            throw new Error('Firebase non initialisé, utilisation du fallback local.');
+            throw new Error('Firebase non initialise, utilisation du fallback local.');
           }
           const functions = window.firebase.functions(appInstance);
           const callable = functions.httpsCallable('generatePromoLinks');
@@ -973,8 +1073,7 @@
           updateLinkField('waLink', data.whatsappLink || '');
           const badge = document.getElementById('activeCodeBadge');
           if (badge) badge.textContent = `Code actif: ${code.toUpperCase()}`;
-          setStatus('Liens générés.');
-          fetchRule(code);
+          setStatus('Liens generes.');
         } catch (error) {
           console.error('Erreur generatePromoLinks, fallback local', error);
           const localLinks = fallbackLinks();
@@ -983,12 +1082,49 @@
           updateLinkField('waLink', localLinks.whatsappLink);
           const badge = document.getElementById('activeCodeBadge');
           if (badge) badge.textContent = `Code actif: ${code.toUpperCase()} (fallback)`;
-          setStatus("Génération via fallback local.", true);
-          fetchRule(code);
+          setStatus('Generation via fallback local.', true);
         }
       };
 
-      document.getElementById('generateLinksBtn')?.addEventListener('click', generateLinks);
+      const loadDashboard = async () => {
+        const code = (document.getElementById('codeInput')?.value || '').trim();
+        const partner = (document.getElementById('refInput')?.value || '').trim();
+        if (!code) {
+          renderDashboard(FALLBACK_DASHBOARD, true);
+          return;
+        }
+        setStatus('Chargement des stats...');
+        try {
+          const appInstance = initFirebase();
+          if (!appInstance || !window.firebase?.functions) {
+            throw new Error('Firebase non initialise');
+          }
+          const functions = window.firebase.functions(appInstance);
+          const callable = functions.httpsCallable('getPartnerDashboard');
+          const response = await callable({ code, partnerId: partner });
+          renderDashboard(response.data || FALLBACK_DASHBOARD);
+          setStatus('Stats synchronisees');
+        } catch (error) {
+          console.warn('getPartnerDashboard fallback', error);
+          renderDashboard(FALLBACK_DASHBOARD, true);
+        }
+      };
+
+      const preloadForm = () => {
+        const codeInput = document.getElementById('codeInput');
+        const refInput = document.getElementById('refInput');
+        const campaignInput = document.getElementById('campaignInput');
+        const subInput = document.getElementById('subInput');
+        if (codeInput) codeInput.value = initialCode;
+        if (refInput) refInput.value = initialRef;
+        if (campaignInput && initialCampaign) campaignInput.value = initialCampaign;
+        if (subInput && initialSub) subInput.value = initialSub;
+      };
+
+      document.getElementById('generateLinksBtn')?.addEventListener('click', async () => {
+        await generateLinks();
+        await loadDashboard();
+      });
       document.getElementById('validateCodeBtn')?.addEventListener('click', validateCode);
       document.querySelectorAll('[data-copy]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -997,8 +1133,15 @@
         });
       });
 
-      // Génère une première fois avec les valeurs par défaut
-      generateLinks();
+      (async () => {
+        preloadForm();
+        renderDashboard(FALLBACK_DASHBOARD, true);
+        await loadLinkTemplates();
+        await generateLinks();
+        await loadDashboard();
+        fetchRule(initialCode);
+      })();
     </script>
+
   </body>
 </html>

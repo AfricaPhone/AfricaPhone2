@@ -69,6 +69,17 @@ const normalizeChannel = (channel?: string) => {
   return allowed.includes(normalized) ? normalized : 'web';
 };
 
+const clampRangeDays = (value?: number) => {
+  const fallback = 30;
+  if (!value || Number.isNaN(value)) return fallback;
+  return Math.min(180, Math.max(7, Math.floor(value)));
+};
+
+const serializeDate = (ts?: admin.firestore.Timestamp) => {
+  if (!ts?.toDate) return null;
+  return ts.toDate().toISOString();
+};
+
 const fetchPromoRule = async (code: string) => {
   const normalizedCode = code.trim().toUpperCase();
   const ruleSnap = await db.collection('promoRules').doc(normalizedCode).get();
@@ -267,6 +278,181 @@ export const generatePromoLinks = onCall(async request => {
   await logPromoEvent('promoLinkGenerations', payload);
 
   return payload;
+});
+
+type DashboardChannel = { id: string; label: string; count: number; commission: number; discount: number };
+type DashboardRow = {
+  id: string;
+  createdAt: string | null;
+  channel: string;
+  ref: string | null;
+  cartValue: number | null;
+  discountValue: number | null;
+  commissionValue: number | null;
+};
+type DashboardPayout = { amount: number; date: string | null; mode?: string | null; status?: string | null; ref?: string | null };
+
+const hydratePromoDashboardFromLogs = (logs: Array<Record<string, any>>) => {
+  const channels: Record<string, DashboardChannel> = {};
+  let totalCommission = 0;
+  let totalDiscount = 0;
+  let totalCart = 0;
+  let cartCount = 0;
+
+  logs.forEach(log => {
+    const channel = normalizeChannel(log?.channel);
+    const commission = typeof log?.commissionValue === 'number' ? log.commissionValue : 0;
+    const discount = typeof log?.discountValue === 'number' ? log.discountValue : 0;
+    const cartValue = typeof log?.cartValue === 'number' ? log.cartValue : null;
+
+    totalCommission += commission;
+    totalDiscount += discount;
+    if (cartValue !== null) {
+      totalCart += cartValue;
+      cartCount += 1;
+    }
+
+    if (!channels[channel]) {
+      channels[channel] = { id: channel, label: channel.toUpperCase(), count: 0, commission: 0, discount: 0 };
+    }
+    channels[channel].count += 1;
+    channels[channel].commission += commission;
+    channels[channel].discount += discount;
+  });
+
+  const rows: DashboardRow[] = logs.slice(0, 8).map((log, idx) => ({
+    id: log?.promoSessionId || log?.id || `row-${idx}`,
+    createdAt: serializeDate(log?.createdAt) || null,
+    channel: normalizeChannel(log?.channel),
+    ref: typeof log?.ref === 'string' ? log.ref : log?.partnerId ?? null,
+    cartValue: typeof log?.cartValue === 'number' ? log.cartValue : null,
+    discountValue: typeof log?.discountValue === 'number' ? log.discountValue : null,
+    commissionValue: typeof log?.commissionValue === 'number' ? log.commissionValue : null,
+  }));
+
+  const sortedChannels = Object.values(channels).sort((a, b) => b.count - a.count);
+  const avgCart = cartCount > 0 ? Math.round(totalCart / cartCount) : 0;
+  const saleLogs = logs.filter(log => typeof log?.commissionValue === 'number' && log.commissionValue > 0);
+
+  return {
+    leadsCount: logs.length,
+    salesCount: saleLogs.length || logs.length,
+    totalCommission,
+    totalDiscount,
+    avgCart,
+    channels: sortedChannels,
+    rows,
+  };
+};
+
+export const getPartnerDashboard = onCall(async request => {
+  const { code, partnerId, ref, rangeDays } = request.data as {
+    code?: string;
+    partnerId?: string;
+    ref?: string;
+    rangeDays?: number;
+  };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+  const partnerRef = typeof partnerId === 'string' && partnerId.trim().length > 0 ? partnerId.trim() : ref?.trim() || null;
+  const effectiveRange = clampRangeDays(rangeDays);
+  const sinceTs = admin.firestore.Timestamp.fromDate(new Date(Date.now() - effectiveRange * 24 * 60 * 60 * 1000));
+
+  const rule = await fetchPromoRule(normalizedCode);
+  if (!rule || !rule.isActive || !isWithinDates(rule)) {
+    throw new HttpsError('not-found', 'Code promo introuvable ou inactif.');
+  }
+
+  let validationLogs: Array<Record<string, any>> = [];
+  try {
+    const snap = await db
+      .collection('promoValidationLogs')
+      .where('code', '==', normalizedCode)
+      .where('createdAt', '>=', sinceTs)
+      .orderBy('createdAt', 'desc')
+      .limit(200)
+      .get();
+    validationLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    logger.warn('promoValidationLogs query fallback (index missing?)', error);
+    try {
+      const snap = await db.collection('promoValidationLogs').where('code', '==', normalizedCode).limit(200).get();
+      validationLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (err) {
+      logger.error('promoValidationLogs unavailable', err);
+    }
+  }
+
+  if (partnerRef) {
+    validationLogs = validationLogs.filter(
+      log => (log?.ref && log.ref === partnerRef) || (log?.partnerId && log.partnerId === partnerRef)
+    );
+  }
+
+  const payouts: DashboardPayout[] = [];
+  try {
+    const payoutSnap = await db
+      .collection('promoPayouts')
+      .where('code', '==', normalizedCode)
+      .orderBy('createdAt', 'desc')
+      .limit(5)
+      .get();
+    payoutSnap.forEach(doc => {
+      const data = doc.data() as any;
+      payouts.push({
+        amount: typeof data?.amount === 'number' ? data.amount : 0,
+        date: serializeDate(data?.createdAt),
+        mode: data?.mode ?? null,
+        status: data?.status ?? null,
+        ref: doc.id,
+      });
+    });
+  } catch (error) {
+    logger.info('promoPayouts collection non disponible ou sans index', error);
+  }
+
+  const payoutPaid = payouts.reduce((sum, p) => sum + (Number.isFinite(p.amount) ? p.amount : 0), 0);
+  const {
+    leadsCount,
+    salesCount,
+    totalCommission,
+    totalDiscount,
+    avgCart,
+    channels,
+    rows,
+  } = hydratePromoDashboardFromLogs(validationLogs);
+
+  return {
+    code: normalizedCode,
+    partnerId: partnerRef,
+    rangeDays: effectiveRange,
+    rule: {
+      code: rule.code || normalizedCode,
+      allowedChannels: rule.allowedChannels || [],
+      partnerRefRequired: !!rule.partnerRefRequired,
+      priceBrackets: rule.priceBrackets || [],
+    },
+    kpis: {
+      sales: salesCount,
+      leads: leadsCount,
+      commission: Math.max(0, Math.round(totalCommission)),
+      discount: Math.max(0, Math.round(totalDiscount)),
+      avgCart: Math.max(0, avgCart),
+    },
+    channels,
+    payouts: {
+      lastAmount: payouts[0]?.amount ?? 0,
+      lastDate: payouts[0]?.date ?? null,
+      pendingAmount: Math.max(0, Math.round(totalCommission - payoutPaid)),
+      history: payouts,
+    },
+    table: rows,
+    samples: validationLogs.length,
+  };
 });
 
 /**
