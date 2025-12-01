@@ -879,7 +879,7 @@ function ContestHero({
             href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex self-end items-center justify-center rounded-full bg-amber-400 px-3.5 py-2 text-[12px] font-semibold uppercase tracking-wide text-[#111827] transition hover:bg-amber-300 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2 sm:self-auto sm:px-4"
+            className="inline-flex self-end items-center justify-center rounded-full bg-amber-400 px-3.5 py-2 text-[12px] font-bold uppercase tracking-wide text-[#111827] transition hover:bg-amber-300 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2 sm:self-auto sm:px-4"
           >
             Accéder à l'application
           </a>
