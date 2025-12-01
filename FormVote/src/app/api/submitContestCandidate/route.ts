@@ -40,13 +40,13 @@ export async function POST(request: NextRequest) {
     payload = await request.json();
   } catch (error) {
     console.error('submitContestCandidate: invalid JSON', error);
-    return errorResponse('Requête invalide.', 400);
+    return errorResponse('RequÃªte invalide.', 400);
   }
 
   const settings = await fetchContestSubmissionSettings();
 
   if (!settings.isOpen) {
-    return errorResponse('La phase de candidatures est clôturée.', 409);
+    return errorResponse('La phase de candidatures est clÃ´turÃ©e.', 409);
   }
 
   const contestId = (payload.contestId || settings.contestId || 'press-stars-2025').trim();
@@ -57,12 +57,12 @@ export async function POST(request: NextRequest) {
 
   const fullName = (payload.fullName || '').trim();
   if (fullName.length < 3) {
-    return errorResponse('Merci de saisir votre nom complet (minimum 3 caractères).');
+    return errorResponse('Merci de saisir votre nom complet (minimum 3 caractÃ¨res).');
   }
 
   const media = (payload.media || '').trim();
   if (media.length < 2) {
-    return errorResponse('Merci de pr�ciser quelques titres de vos chansons.');
+    return errorResponse('Merci de préciser quelques titres de vos chansons.');
   }
 
   const biography = (payload.biography || '').trim();
@@ -70,12 +70,12 @@ export async function POST(request: NextRequest) {
     return errorResponse('Une biographie courte est requise.');
   }
   if (biography.length > MAX_BIO_LENGTH) {
-    return errorResponse(`La biographie ne doit pas dépasser ${MAX_BIO_LENGTH} caractères.`);
+    return errorResponse(`La biographie ne doit pas dÃ©passer ${MAX_BIO_LENGTH} caractÃ¨res.`);
   }
 
   const phoneNormalized = normalizePhoneNumber(payload.phone || '');
   if (!phoneNormalized) {
-    return errorResponse('Le numéro WhatsApp doit être au format international (+229...).');
+    return errorResponse('Le numÃ©ro WhatsApp doit Ãªtre au format international (+229...).');
   }
 
   const emailNormalized = normalizeEmail(payload.email || undefined);
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
   const phoneHash = sha256HexNode(phoneNormalized);
   const emailHash = emailNormalized ? sha256HexNode(emailNormalized) : null;
   if (!isPhotoPathValid(contestId, phoneHash, payload.photoPath)) {
-    return errorResponse('La photo téléversée est invalide ou manquante.');
+    return errorResponse('La photo tÃ©lÃ©versÃ©e est invalide ou manquante.');
   }
 
   const photoPath = payload.photoPath!;
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     const bucketFile = adminBucket.file(photoPath);
     const [exists] = await bucketFile.exists();
     if (!exists) {
-      return errorResponse('La photo n’a pas été trouvée, merci de la téléverser à nouveau.');
+      return errorResponse('La photo n'a pas Ã©tÃ© trouvÃ©e, merci de la tÃ©lÃ©verser Ã  nouveau.');
     }
 
     const [metadata] = await bucketFile.getMetadata();
@@ -108,12 +108,12 @@ export async function POST(request: NextRequest) {
 
     const photoContentType = metadata.contentType || '';
     if (!photoContentType.startsWith('image/')) {
-      return errorResponse('Le fichier photo doit être une image.');
+      return errorResponse('Le fichier photo doit Ãªtre une image.');
     }
 
     const fileSize = Number(metadata.size || 0);
     if (!Number.isFinite(fileSize) || fileSize > 5 * 1024 * 1024) {
-      return errorResponse('Le fichier photo dépasse la limite autorisée (5 Mo).');
+      return errorResponse('Le fichier photo dÃ©passe la limite autorisÃ©e (5 Mo).');
     }
 
     const candidatesRef = adminDb.collection('contests').doc(contestId).collection('candidates');
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
     });
 
     const responseBody: ContestCandidateResponse = {
-      message: 'Votre candidature a été enregistrée avec succès.',
+      message: 'Votre candidature a Ã©tÃ© enregistrÃ©e avec succÃ¨s.',
       candidateId: candidateRef.id,
       contestId,
     };
@@ -204,10 +204,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'PHONE_EXISTS') {
-        return errorResponse('Un profil est déjà associé à ce numéro WhatsApp.', 409);
+        return errorResponse('Un profil est dÃ©jÃ  associÃ© Ã  ce numÃ©ro WhatsApp.', 409);
       }
       if (error.message === 'EMAIL_EXISTS') {
-        return errorResponse('Cette adresse e-mail est déjà liée à un autre candidat.', 409);
+        return errorResponse('Cette adresse e-mail est dÃ©jÃ  liÃ©e Ã  un autre candidat.', 409);
       }
     }
     console.error('submitContestCandidate: unexpected error', error);
