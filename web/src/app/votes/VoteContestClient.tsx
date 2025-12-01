@@ -652,7 +652,7 @@ export default function VoteContestClientPage() {
           <button
             type="button"
             onClick={handleBack}
-            className="flex h-10 items-center justify-start rounded-full px-3 text-[13px] font-semibold text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
+            className="flex h-10 items-center justify-start rounded-full px-3 text-[13px] font-bold text-[#2563EB] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
             aria-label="Retour"
           >
             Retour
