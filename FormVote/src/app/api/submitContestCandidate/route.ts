@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
   const media = (payload.media || '').trim();
   if (media.length < 2) {
-    return errorResponse('Merci de préciser votre média ou organe.');
+    return errorResponse('Merci de pr�ciser quelques titres de vos chansons.');
   }
 
   const biography = (payload.biography || '').trim();
