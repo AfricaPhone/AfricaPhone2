@@ -349,10 +349,10 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-10">
         <header className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3">
-              <NextImage src="/logo.png" alt="AfricaPhone" width={120} height={40} className="h-10 w-auto" />
-              <p className="text-sm font-semibold uppercase tracking-wide text-white/70">Formulaire de candidature presse</p>
-            </div>
+          <div className="flex items-center gap-3">
+            <NextImage src="/logo.png" alt="AfricaPhone" width={120} height={40} className="h-10 w-auto" />
+            <p className="text-sm font-semibold uppercase tracking-wide text-white/70">Formulaire de candidature artistes chanteurs</p>
+          </div>
             <Link
               href={contestLink}
               target="_blank"
