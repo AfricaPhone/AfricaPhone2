@@ -405,7 +405,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 {errors.fullName ? <span className="text-xs text-rose-300">{errors.fullName}</span> : null}
               </label>
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Média ou organe
+              Musique Moderne/Traditionnelle/Modern & Traditionnelle
               <input
                 type="text"
                 name="media"
