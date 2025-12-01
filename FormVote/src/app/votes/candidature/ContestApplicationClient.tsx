@@ -412,7 +412,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 value={formValues.media}
                 onChange={handleInputChange}
                 className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                placeholder="Radio XYZ, TV5 Monde..."
+                placeholder="Inscrire la réponse correspondante ici"
                 required
               />
               {errors.media ? <span className="text-xs text-rose-300">{errors.media}</span> : null}
