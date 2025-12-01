@@ -860,19 +860,32 @@ function ContestHero({
       </div>
 
       <div className="relative flex flex-col gap-3 p-3.5 text-white">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
-            <TrophyIcon className="h-5 w-5 text-white" />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
+              <TrophyIcon className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">
+                {contest?.title ?? 'Concours'}
+              </span>
+              <h2 className="text-lg font-bold leading-tight text-white">
+                {contestEnded ? 'Concours clôturé' : "Phase d'inscription"}
+              </h2>
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-\[10px\] font-semibold uppercase tracking-wide text-white/70">
-              {contest?.title ?? 'Concours'}
-            </span>
-            <h2 className="text-lg font-bold leading-tight text-white">
-              {contestEnded ? 'Concours clÃ´turÃ©' : "Phase d'inscription"}
-            </h2>
-          </div>
+
+          <a
+            href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center rounded-full bg-amber-400 px-4 py-2 text-[12px] font-semibold uppercase tracking-wide text-[#111827] transition hover:bg-amber-300 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
+          >
+            Accéder à notre application
+          </a>
         </div>
+
+
 
         {contestEnded ? (
           <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
