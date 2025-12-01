@@ -648,14 +648,14 @@ export default function VoteContestClientPage() {
   return (
     <div className="min-h-screen bg-[#F6F7F9] text-[#111827]">
       <header className="sticky top-0 z-50 border-b border-[#E7E9ED] bg-white">
-        <div className="mx-auto grid h-14 w-full max-w-screen-sm grid-cols-[44px_1fr_44px] items-center px-4">
+        <div className="mx-auto grid h-14 w-full max-w-screen-sm grid-cols-[80px_1fr_44px] items-center px-4">
           <button
             type="button"
             onClick={handleBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
+            className="flex h-10 items-center justify-start rounded-full px-3 text-[13px] font-semibold text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
             aria-label="Retour"
           >
-            <ChevronLeftIcon className="h-5 w-5" />
+            Retour
           </button>
           <h1 className="text-center text-\[16px\] font-semibold">Concours de Vote</h1>
           <div aria-hidden className="h-11 w-11" />
@@ -1420,14 +1420,6 @@ function TrophyIcon(props: IconProps) {
       <path d="M7 4h10v5a5 5 0 01-5 5 5 5 0 01-5-5z" />
       <path d="M18 4h3v2a5 5 0 01-5 5" />
       <path d="M6 4H3v2a5 5 0 005 5" />
-    </svg>
-  );
-}
-
-function ChevronLeftIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M15 18l-6-6 6-6" />
     </svg>
   );
 }
