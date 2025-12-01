@@ -363,7 +363,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             </Link>
           </div>
           <p className="mt-4 text-base text-white/80">
-            Merci de renseigner les informations ci-dessous pour proposer votre profil journalistique.
+            Merci de renseigner les informations ci-dessous pour présenter votre profil artistique.
           </p>
         </header>
 
