@@ -19,6 +19,7 @@ import { useContestData } from '@/hooks/useContestData';
 import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import type { Candidate, Contest } from '@/types/pronostics';
 import BrandsCarousel from '@/components/BrandsCarousel';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 
 const VOTE_STATUS_KEY_PREFIX = 'contest_vote_status_v1';
 const SHOW_VOTE_BUTTON = true; // Toggle to true when the contest voting opens publicly.
@@ -748,6 +749,7 @@ export default function VoteContestClientPage() {
         voteDetails={modalVoteDetails}
         onClose={resetModal}
       />
+      <ScrollToTopButton />
     </div>
   );
 }
