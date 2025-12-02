@@ -16,6 +16,7 @@
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "check:types": "tsc --noEmit",
+    "export:payments": "node scripts/exportPayments.js",
     "test": "jest"
   },
   "dependencies": {
@@ -36,6 +37,7 @@
     "@react-navigation/native-stack": "^7.3.26",
     "@react-navigation/stack": "^7.4.8",
     "algoliasearch": "^5.35.0",
+    "exceljs": "^4.4.0",
     "expo": "~54.0.0",
     "expo-asset": "~12.0.9",
     "expo-build-properties": "~1.0.9",
