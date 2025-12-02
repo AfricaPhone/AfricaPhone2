@@ -1,0 +1,45 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 797 >>
+stream
+BT
+/F1 12 Tf
+1 0 0 1 50 780 Tm (Votes KKiaPay non comptabilises \(en attente\)) Tj
+1 0 0 1 50 762 Tm (Candidat : Abidémi Fabrice ADETOKOUN) Tj
+1 0 0 1 50 744 Tm (ContestId : f9NdI6f1lH7Z2ZxUzEFt) Tj
+1 0 0 1 50 726 Tm (Intent status : pending) Tj
+1 0 0 1 50 708 Tm (Total transactions : 3) Tj
+1 0 0 1 50 690 Tm (Total montants : 5600 XOF \(~56 votes\)) Tj
+1 0 0 1 50 672 Tm () Tj
+1 0 0 1 50 654 Tm (Transactions :) Tj
+1 0 0 1 50 636 Tm (1. Tx 7615896676456862 | 2025-12-01T22:52:21.867Z | 500 XOF => 5 votes | partner oa2LLHAyAbCIKPRkFhe1) Tj
+1 0 0 1 50 618 Tm (2. Tx 5704761422325555 | 2025-12-01T09:49:17.137Z | 5000 XOF => 50 votes | partner wxR4MheyYSnZ92xPCkoQ) Tj
+1 0 0 1 50 600 Tm (3. Tx 3371485932166394 | 2025-11-24T15:25:50.596Z | 100 XOF => 1 votes | partner AQ0KabKYZvzl375i1HuP) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001089 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1159
+%%EOF
