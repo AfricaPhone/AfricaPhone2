@@ -9,65 +9,53 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 4 0 obj
-<< /Length 3466 >>
+<< /Length 2566 >>
 stream
 BT
-/F1 12 Tf
+/F1 11 Tf
 1 0 0 1 40 760 Tm (Votes KKiaPay non comptabilises \(pending\)) Tj
-1 0 0 1 40 748 Tm () Tj
-1 0 0 1 40 736 Tm (Candidat : Abidémi Fabrice ADETOKOUN) Tj
-1 0 0 1 40 724 Tm (ContestId : f9NdI6f1lH7Z2ZxUzEFt) Tj
-1 0 0 1 40 712 Tm (Intent status : pending) Tj
-1 0 0 1 40 700 Tm (Total transactions : 3) Tj
-1 0 0 1 40 688 Tm (Total montants : 5600 XOF \(~56 votes\)) Tj
-1 0 0 1 40 676 Tm (Transactions :) Tj
-1 0 0 1 40 664 Tm (  1. Tx 7615896676456862 | 2025-12-01T22:52:21.867Z | 500 XOF => 5 votes | partner oa2LLHAyAbCIKPRkFhe1) Tj
-1 0 0 1 40 652 Tm (  2. Tx 5704761422325555 | 2025-12-01T09:49:17.137Z | 5000 XOF => 50 votes | partner wxR4MheyYSnZ92xPCkoQ) Tj
-1 0 0 1 40 640 Tm (  3. Tx 3371485932166394 | 2025-11-24T15:25:50.596Z | 100 XOF => 1 votes | partner AQ0KabKYZvzl375i1HuP) Tj
-1 0 0 1 40 628 Tm () Tj
-1 0 0 1 40 616 Tm (Candidat : AROBATAN Emmanuel) Tj
-1 0 0 1 40 604 Tm (ContestId : f9NdI6f1lH7Z2ZxUzEFt) Tj
-1 0 0 1 40 592 Tm (Intent status : pending) Tj
-1 0 0 1 40 580 Tm (Total transactions : 2) Tj
-1 0 0 1 40 568 Tm (Total montants : 1500 XOF \(~15 votes\)) Tj
-1 0 0 1 40 556 Tm (Transactions :) Tj
-1 0 0 1 40 544 Tm (  1. Tx 4582376491463300 | 2025-12-01T18:56:12.623Z | 500 XOF => 5 votes | partner c0j8zNUAec3i0Y4Jpps3) Tj
-1 0 0 1 40 532 Tm (  2. Tx 8259530824453862 | 2025-11-28T18:06:14.596Z | 1000 XOF => 10 votes | partner IRCktb8pJNPgzrGG5O30) Tj
-1 0 0 1 40 520 Tm () Tj
-1 0 0 1 40 508 Tm (Candidat : Evrard Djissou) Tj
-1 0 0 1 40 496 Tm (ContestId : f9NdI6f1lH7Z2ZxUzEFt) Tj
-1 0 0 1 40 484 Tm (Intent status : pending) Tj
-1 0 0 1 40 472 Tm (Total transactions : 3) Tj
-1 0 0 1 40 460 Tm (Total montants : 1700 XOF \(~17 votes\)) Tj
-1 0 0 1 40 448 Tm (Transactions :) Tj
-1 0 0 1 40 436 Tm (  1. Tx 7802621514691109 | 2025-11-22T20:28:11.593Z | 500 XOF => 5 votes | partner fjdQCPzRGj2VDGPnAkZg) Tj
-1 0 0 1 40 424 Tm (  2. Tx 952061276788069 | 2025-11-21T18:50:08.436Z | 100 XOF => 1 votes | partner fGb7vrU6Soz4jMYuda8G) Tj
-1 0 0 1 40 412 Tm (  3. Tx 5663589706507501 | 2025-11-21T18:45:01.569Z | 1100 XOF => 11 votes | partner rXOk2YUgySL0RGCTSXtf) Tj
-1 0 0 1 40 400 Tm () Tj
-1 0 0 1 40 388 Tm (Candidat : Séverin Adéwalé) Tj
-1 0 0 1 40 376 Tm (ContestId : f9NdI6f1lH7Z2ZxUzEFt) Tj
-1 0 0 1 40 364 Tm (Intent status : pending) Tj
-1 0 0 1 40 352 Tm (Total transactions : 1) Tj
-1 0 0 1 40 340 Tm (Total montants : 100 XOF \(~1 votes\)) Tj
-1 0 0 1 40 328 Tm (Transactions :) Tj
-1 0 0 1 40 316 Tm (  1. Tx 1383419026079392 | 2025-11-22T13:34:51.820Z | 100 XOF => 1 votes | partner Awvc4ppAqvkW7J7pQUdc) Tj
-1 0 0 1 40 304 Tm () Tj
-1 0 0 1 40 292 Tm (Candidat : MASSEDE Mawouna Germain) Tj
-1 0 0 1 40 280 Tm (ContestId : f9NdI6f1lH7Z2ZxUzEFt) Tj
-1 0 0 1 40 268 Tm (Intent status : pending) Tj
-1 0 0 1 40 256 Tm (Total transactions : 1) Tj
-1 0 0 1 40 244 Tm (Total montants : 500 XOF \(~5 votes\)) Tj
-1 0 0 1 40 232 Tm (Transactions :) Tj
-1 0 0 1 40 220 Tm (  1. Tx 6421982101399304 | 2025-11-21T18:40:15.098Z | 500 XOF => 5 votes | partner mXdCTzIMeHm7Btf7DLSX) Tj
-1 0 0 1 40 208 Tm () Tj
-1 0 0 1 40 196 Tm (Candidat : Casimir FAVI) Tj
-1 0 0 1 40 184 Tm (ContestId : f9NdI6f1lH7Z2ZxUzEFt) Tj
-1 0 0 1 40 172 Tm (Intent status : pending) Tj
-1 0 0 1 40 160 Tm (Total transactions : 1) Tj
-1 0 0 1 40 148 Tm (Total montants : 100 XOF \(~1 votes\)) Tj
-1 0 0 1 40 136 Tm (Transactions :) Tj
-1 0 0 1 40 124 Tm (  1. Tx 4664967260339286 | 2025-11-21T18:01:39.690Z | 100 XOF => 1 votes | partner gcdExkPaG1Ta7C4mXGKf) Tj
-1 0 0 1 40 112 Tm () Tj
+1 0 0 1 40 746 Tm () Tj
+1 0 0 1 40 732 Tm (Candidat : Abidémi Fabrice ADETOKOUN) Tj
+1 0 0 1 40 718 Tm (Transactions : 3 | Total : 5600 XOF \(~56 votes\)) Tj
+1 0 0 1 40 704 Tm (Date                    Montant     Votes   ) Tj
+1 0 0 1 40 690 Tm (----------------------- ----------- ------- ) Tj
+1 0 0 1 40 676 Tm (2025-12-01T22:52:21.867Z500 XOF     5       ) Tj
+1 0 0 1 40 662 Tm (2025-12-01T09:49:17.137Z5000 XOF    50      ) Tj
+1 0 0 1 40 648 Tm (2025-11-24T15:25:50.596Z100 XOF     1       ) Tj
+1 0 0 1 40 634 Tm () Tj
+1 0 0 1 40 620 Tm (Candidat : AROBATAN Emmanuel) Tj
+1 0 0 1 40 606 Tm (Transactions : 2 | Total : 1500 XOF \(~15 votes\)) Tj
+1 0 0 1 40 592 Tm (Date                    Montant     Votes   ) Tj
+1 0 0 1 40 578 Tm (----------------------- ----------- ------- ) Tj
+1 0 0 1 40 564 Tm (2025-12-01T18:56:12.623Z500 XOF     5       ) Tj
+1 0 0 1 40 550 Tm (2025-11-28T18:06:14.596Z1000 XOF    10      ) Tj
+1 0 0 1 40 536 Tm () Tj
+1 0 0 1 40 522 Tm (Candidat : Evrard Djissou) Tj
+1 0 0 1 40 508 Tm (Transactions : 3 | Total : 1700 XOF \(~17 votes\)) Tj
+1 0 0 1 40 494 Tm (Date                    Montant     Votes   ) Tj
+1 0 0 1 40 480 Tm (----------------------- ----------- ------- ) Tj
+1 0 0 1 40 466 Tm (2025-11-22T20:28:11.593Z500 XOF     5       ) Tj
+1 0 0 1 40 452 Tm (2025-11-21T18:50:08.436Z100 XOF     1       ) Tj
+1 0 0 1 40 438 Tm (2025-11-21T18:45:01.569Z1100 XOF    11      ) Tj
+1 0 0 1 40 424 Tm () Tj
+1 0 0 1 40 410 Tm (Candidat : Séverin Adéwalé) Tj
+1 0 0 1 40 396 Tm (Transactions : 1 | Total : 100 XOF \(~1 votes\)) Tj
+1 0 0 1 40 382 Tm (Date                    Montant     Votes   ) Tj
+1 0 0 1 40 368 Tm (----------------------- ----------- ------- ) Tj
+1 0 0 1 40 354 Tm (2025-11-22T13:34:51.820Z100 XOF     1       ) Tj
+1 0 0 1 40 340 Tm () Tj
+1 0 0 1 40 326 Tm (Candidat : MASSEDE Mawouna Germain) Tj
+1 0 0 1 40 312 Tm (Transactions : 1 | Total : 500 XOF \(~5 votes\)) Tj
+1 0 0 1 40 298 Tm (Date                    Montant     Votes   ) Tj
+1 0 0 1 40 284 Tm (----------------------- ----------- ------- ) Tj
+1 0 0 1 40 270 Tm (2025-11-21T18:40:15.098Z500 XOF     5       ) Tj
+1 0 0 1 40 256 Tm () Tj
+1 0 0 1 40 242 Tm (Candidat : Casimir FAVI) Tj
+1 0 0 1 40 228 Tm (Transactions : 1 | Total : 100 XOF \(~1 votes\)) Tj
+1 0 0 1 40 214 Tm (Date                    Montant     Votes   ) Tj
+1 0 0 1 40 200 Tm (----------------------- ----------- ------- ) Tj
+1 0 0 1 40 186 Tm (2025-11-21T18:01:39.690Z100 XOF     1       ) Tj
+1 0 0 1 40 172 Tm () Tj
 ET
 endstream
 endobj
@@ -81,9 +69,9 @@ xref
 0000000058 00000 n 
 0000000115 00000 n 
 0000000185 00000 n 
-0000003703 00000 n 
+0000002803 00000 n 
 trailer
 << /Size 6 /Root 1 0 R >>
 startxref
-3829
+2929
 %%EOF
