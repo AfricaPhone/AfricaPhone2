@@ -3,133 +3,156 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Kids [5 0 R] /Count 1 >>
+<< /Type /Pages /Kids [5 0 R 7 0 R] /Count 2 >>
 endobj
 3 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 4 0 obj
-<< /Length 3599 >>
+<< /Length 3526 >>
 stream
 q
 0.5 w
-40 676 m 540 676 l S
-40 660 m 540 660 l S
-40 644 m 540 644 l S
-40 628 m 540 628 l S
-40 548 m 540 548 l S
-40 532 m 540 532 l S
-40 516 m 540 516 l S
-40 436 m 540 436 l S
-40 420 m 540 420 l S
-40 404 m 540 404 l S
-40 388 m 540 388 l S
-40 308 m 540 308 l S
-40 292 m 540 292 l S
-40 212 m 540 212 l S
-40 196 m 540 196 l S
-40 116 m 540 116 l S
-40 100 m 540 100 l S
+60 644 m 540 644 l S
+60 628 m 540 628 l S
+60 612 m 540 612 l S
+60 596 m 540 596 l S
+60 568 m 540 568 l S
+60 508 m 540 508 l S
+60 492 m 540 492 l S
+60 476 m 540 476 l S
+60 448 m 540 448 l S
+60 388 m 540 388 l S
+60 372 m 540 372 l S
+60 356 m 540 356 l S
+60 340 m 540 340 l S
+60 312 m 540 312 l S
+60 252 m 540 252 l S
+60 236 m 540 236 l S
+60 208 m 540 208 l S
+60 148 m 540 148 l S
+60 132 m 540 132 l S
+60 104 m 540 104 l S
 Q
 BT
 /F1 10 Tf
-1 0 0 1 40 760 Tm (Votes KKiaPay non comptabilises \(pending\)) Tj
-1 0 0 1 40 728 Tm (Candidat : Abidémi Fabrice ADETOKOUN) Tj
-1 0 0 1 40 712 Tm (Transactions : 3 | Total : 5600 XOF \(~56 votes\)) Tj
-1 0 0 1 40 680 Tm (Nom du votant) Tj
-1 0 0 1 260 680 Tm (Date) Tj
-1 0 0 1 400 680 Tm (Montant) Tj
-1 0 0 1 480 680 Tm (Votes) Tj
-1 0 0 1 40 664 Tm (OLATOUNDJI TCHACON) Tj
-1 0 0 1 260 664 Tm (2025-12-01T22:52:21.867Z) Tj
-1 0 0 1 400 664 Tm (500 XOF) Tj
-1 0 0 1 480 664 Tm (5) Tj
-1 0 0 1 40 648 Tm (EDJIYATO Bolarinwa Gérard) Tj
-1 0 0 1 260 648 Tm (2025-12-01T09:49:17.137Z) Tj
-1 0 0 1 400 648 Tm (5000 XOF) Tj
-1 0 0 1 480 648 Tm (50) Tj
-1 0 0 1 40 632 Tm (Thierry HOUANVEMEDE) Tj
-1 0 0 1 260 632 Tm (2025-11-24T15:25:50.596Z) Tj
-1 0 0 1 400 632 Tm (100 XOF) Tj
-1 0 0 1 480 632 Tm (1) Tj
-1 0 0 1 40 600 Tm (Candidat : AROBATAN Emmanuel) Tj
-1 0 0 1 40 584 Tm (Transactions : 2 | Total : 1500 XOF \(~15 votes\)) Tj
-1 0 0 1 40 552 Tm (Nom du votant) Tj
-1 0 0 1 260 552 Tm (Date) Tj
-1 0 0 1 400 552 Tm (Montant) Tj
-1 0 0 1 480 552 Tm (Votes) Tj
-1 0 0 1 40 536 Tm (OGOUDIRAN Charles) Tj
-1 0 0 1 260 536 Tm (2025-12-01T18:56:12.623Z) Tj
-1 0 0 1 400 536 Tm (500 XOF) Tj
-1 0 0 1 480 536 Tm (5) Tj
-1 0 0 1 40 520 Tm (marius Fakeye) Tj
-1 0 0 1 260 520 Tm (2025-11-28T18:06:14.596Z) Tj
-1 0 0 1 400 520 Tm (1000 XOF) Tj
-1 0 0 1 480 520 Tm (10) Tj
-1 0 0 1 40 488 Tm (Candidat : Evrard Djissou) Tj
-1 0 0 1 40 472 Tm (Transactions : 3 | Total : 1700 XOF \(~17 votes\)) Tj
-1 0 0 1 40 440 Tm (Nom du votant) Tj
-1 0 0 1 260 440 Tm (Date) Tj
-1 0 0 1 400 440 Tm (Montant) Tj
-1 0 0 1 480 440 Tm (Votes) Tj
-1 0 0 1 40 424 Tm (Josias HOUNSOU) Tj
-1 0 0 1 260 424 Tm (2025-11-22T20:28:11.593Z) Tj
-1 0 0 1 400 424 Tm (500 XOF) Tj
-1 0 0 1 480 424 Tm (5) Tj
-1 0 0 1 40 408 Tm (JASMINE AGOHOUMBO) Tj
-1 0 0 1 260 408 Tm (2025-11-21T18:50:08.436Z) Tj
-1 0 0 1 400 408 Tm (100 XOF) Tj
-1 0 0 1 480 408 Tm (1) Tj
-1 0 0 1 40 392 Tm (Carine ALigbonon) Tj
-1 0 0 1 260 392 Tm (2025-11-21T18:45:01.569Z) Tj
-1 0 0 1 400 392 Tm (1100 XOF) Tj
-1 0 0 1 480 392 Tm (11) Tj
-1 0 0 1 40 360 Tm (Candidat : Séverin Adéwalé) Tj
-1 0 0 1 40 344 Tm (Transactions : 1 | Total : 100 XOF \(~1 votes\)) Tj
-1 0 0 1 40 312 Tm (Nom du votant) Tj
-1 0 0 1 260 312 Tm (Date) Tj
-1 0 0 1 400 312 Tm (Montant) Tj
-1 0 0 1 480 312 Tm (Votes) Tj
-1 0 0 1 40 296 Tm (TCHEDEME Patricia) Tj
-1 0 0 1 260 296 Tm (2025-11-22T13:34:51.820Z) Tj
-1 0 0 1 400 296 Tm (100 XOF) Tj
-1 0 0 1 480 296 Tm (1) Tj
-1 0 0 1 40 264 Tm (Candidat : MASSEDE Mawouna Germain) Tj
-1 0 0 1 40 248 Tm (Transactions : 1 | Total : 500 XOF \(~5 votes\)) Tj
-1 0 0 1 40 216 Tm (Nom du votant) Tj
-1 0 0 1 260 216 Tm (Date) Tj
-1 0 0 1 400 216 Tm (Montant) Tj
-1 0 0 1 480 216 Tm (Votes) Tj
-1 0 0 1 40 200 Tm (Nourath AFFO) Tj
-1 0 0 1 260 200 Tm (2025-11-21T18:40:15.098Z) Tj
-1 0 0 1 400 200 Tm (500 XOF) Tj
-1 0 0 1 480 200 Tm (5) Tj
-1 0 0 1 40 168 Tm (Candidat : Casimir FAVI) Tj
-1 0 0 1 40 152 Tm (Transactions : 1 | Total : 100 XOF \(~1 votes\)) Tj
-1 0 0 1 40 120 Tm (Nom du votant) Tj
-1 0 0 1 260 120 Tm (Date) Tj
-1 0 0 1 400 120 Tm (Montant) Tj
-1 0 0 1 480 120 Tm (Votes) Tj
-1 0 0 1 40 104 Tm (DjotolE FIOGBE) Tj
-1 0 0 1 260 104 Tm (2025-11-21T18:01:39.690Z) Tj
-1 0 0 1 400 104 Tm (100 XOF) Tj
-1 0 0 1 480 104 Tm (1) Tj
+1 0 0 1 60 760 Tm (Votes KKiaPay non comptabilises \(pending\)) Tj
+1 0 0 1 60 744 Tm (Source : export KKiaPay \(transactions SUCCESS\).) Tj
+1 0 0 1 60 728 Tm (Ces montants sont deja encaisses chez KKiaPay mais pas encore refleches dans les compteurs de votes AfricaPhone.) Tj
+1 0 0 1 60 696 Tm (Candidat : Abidémi Fabrice ADETOKOUN) Tj
+1 0 0 1 60 680 Tm (Transactions : 3 | Total : 5600 XOF \(~56 votes\)) Tj
+1 0 0 1 60 648 Tm (Nom du votant) Tj
+1 0 0 1 270 648 Tm (Date) Tj
+1 0 0 1 410 648 Tm (Montant) Tj
+1 0 0 1 500 648 Tm (Votes) Tj
+1 0 0 1 60 632 Tm (OLATOUNDJI TCHACON) Tj
+1 0 0 1 270 632 Tm (2025-12-01T22:52:21.867Z) Tj
+1 0 0 1 410 632 Tm (500 XOF) Tj
+1 0 0 1 500 632 Tm (5) Tj
+1 0 0 1 60 616 Tm (EDJIYATO Bolarinwa Gérard) Tj
+1 0 0 1 270 616 Tm (2025-12-01T09:49:17.137Z) Tj
+1 0 0 1 410 616 Tm (5000 XOF) Tj
+1 0 0 1 500 616 Tm (50) Tj
+1 0 0 1 60 600 Tm (Thierry HOUANVEMEDE) Tj
+1 0 0 1 270 600 Tm (2025-11-24T15:25:50.596Z) Tj
+1 0 0 1 410 600 Tm (100 XOF) Tj
+1 0 0 1 500 600 Tm (1) Tj
+1 0 0 1 60 560 Tm (Candidat : AROBATAN Emmanuel) Tj
+1 0 0 1 60 544 Tm (Transactions : 2 | Total : 1500 XOF \(~15 votes\)) Tj
+1 0 0 1 60 512 Tm (Nom du votant) Tj
+1 0 0 1 270 512 Tm (Date) Tj
+1 0 0 1 410 512 Tm (Montant) Tj
+1 0 0 1 500 512 Tm (Votes) Tj
+1 0 0 1 60 496 Tm (OGOUDIRAN Charles) Tj
+1 0 0 1 270 496 Tm (2025-12-01T18:56:12.623Z) Tj
+1 0 0 1 410 496 Tm (500 XOF) Tj
+1 0 0 1 500 496 Tm (5) Tj
+1 0 0 1 60 480 Tm (marius Fakeye) Tj
+1 0 0 1 270 480 Tm (2025-11-28T18:06:14.596Z) Tj
+1 0 0 1 410 480 Tm (1000 XOF) Tj
+1 0 0 1 500 480 Tm (10) Tj
+1 0 0 1 60 440 Tm (Candidat : Evrard Djissou) Tj
+1 0 0 1 60 424 Tm (Transactions : 3 | Total : 1700 XOF \(~17 votes\)) Tj
+1 0 0 1 60 392 Tm (Nom du votant) Tj
+1 0 0 1 270 392 Tm (Date) Tj
+1 0 0 1 410 392 Tm (Montant) Tj
+1 0 0 1 500 392 Tm (Votes) Tj
+1 0 0 1 60 376 Tm (Josias HOUNSOU) Tj
+1 0 0 1 270 376 Tm (2025-11-22T20:28:11.593Z) Tj
+1 0 0 1 410 376 Tm (500 XOF) Tj
+1 0 0 1 500 376 Tm (5) Tj
+1 0 0 1 60 360 Tm (JASMINE AGOHOUMBO) Tj
+1 0 0 1 270 360 Tm (2025-11-21T18:50:08.436Z) Tj
+1 0 0 1 410 360 Tm (100 XOF) Tj
+1 0 0 1 500 360 Tm (1) Tj
+1 0 0 1 60 344 Tm (Carine ALigbonon) Tj
+1 0 0 1 270 344 Tm (2025-11-21T18:45:01.569Z) Tj
+1 0 0 1 410 344 Tm (1100 XOF) Tj
+1 0 0 1 500 344 Tm (11) Tj
+1 0 0 1 60 304 Tm (Candidat : Séverin Adéwalé) Tj
+1 0 0 1 60 288 Tm (Transactions : 1 | Total : 100 XOF \(~1 votes\)) Tj
+1 0 0 1 60 256 Tm (Nom du votant) Tj
+1 0 0 1 270 256 Tm (Date) Tj
+1 0 0 1 410 256 Tm (Montant) Tj
+1 0 0 1 500 256 Tm (Votes) Tj
+1 0 0 1 60 240 Tm (TCHEDEME Patricia) Tj
+1 0 0 1 270 240 Tm (2025-11-22T13:34:51.820Z) Tj
+1 0 0 1 410 240 Tm (100 XOF) Tj
+1 0 0 1 500 240 Tm (1) Tj
+1 0 0 1 60 200 Tm (Candidat : MASSEDE Mawouna Germain) Tj
+1 0 0 1 60 184 Tm (Transactions : 1 | Total : 500 XOF \(~5 votes\)) Tj
+1 0 0 1 60 152 Tm (Nom du votant) Tj
+1 0 0 1 270 152 Tm (Date) Tj
+1 0 0 1 410 152 Tm (Montant) Tj
+1 0 0 1 500 152 Tm (Votes) Tj
+1 0 0 1 60 136 Tm (Nourath AFFO) Tj
+1 0 0 1 270 136 Tm (2025-11-21T18:40:15.098Z) Tj
+1 0 0 1 410 136 Tm (500 XOF) Tj
+1 0 0 1 500 136 Tm (5) Tj
+1 0 0 1 60 96 Tm (Candidat : Casimir FAVI) Tj
 ET
 endstream
 endobj
 5 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 3 0 R >> >> >>
 endobj
+6 0 obj
+<< /Length 411 >>
+stream
+q
+0.5 w
+60 724 m 540 724 l S
+60 708 m 540 708 l S
+Q
+BT
+/F1 10 Tf
+1 0 0 1 60 760 Tm (Transactions : 1 | Total : 100 XOF \(~1 votes\)) Tj
+1 0 0 1 60 728 Tm (Nom du votant) Tj
+1 0 0 1 270 728 Tm (Date) Tj
+1 0 0 1 410 728 Tm (Montant) Tj
+1 0 0 1 500 728 Tm (Votes) Tj
+1 0 0 1 60 712 Tm (DjotolE FIOGBE) Tj
+1 0 0 1 270 712 Tm (2025-11-21T18:01:39.690Z) Tj
+1 0 0 1 410 712 Tm (100 XOF) Tj
+1 0 0 1 500 712 Tm (1) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 6 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
 xref
-0 6
+0 8
 0000000000 65535 f 
 0000000009 00000 n 
 0000000058 00000 n 
-0000000115 00000 n 
-0000000185 00000 n 
-0000003836 00000 n 
+0000000121 00000 n 
+0000000191 00000 n 
+0000003769 00000 n 
+0000003895 00000 n 
+0000004357 00000 n 
 trailer
-<< /Size 6 /Root 1 0 R >>
+<< /Size 8 /Root 1 0 R >>
 startxref
-3962
+4483
 %%EOF
