@@ -11,7 +11,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs-extra';
 import sharp = require('sharp');
-import { randomUUID } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import { URL } from 'url';
 
 // Initialise l'app Firebase Admin pour interagir avec Firestore.
@@ -63,6 +63,10 @@ const DEFAULT_LINK_TEMPLATES: LinkTemplates = {
   defaultCampaign: 'default',
   defaultSub: 'cta1',
 };
+
+// Secrets pour envoyer un événement GA4 côté serveur (Measurement Protocol).
+const GA4_MEASUREMENT_ID = defineSecret('GA4_MEASUREMENT_ID');
+const GA4_API_SECRET = defineSecret('GA4_API_SECRET');
 
 const normalizeChannel = (channel?: string) => {
   const normalized = (channel || 'web').toLowerCase();
@@ -122,6 +126,79 @@ const logPromoEvent = async (collection: string, data: Record<string, unknown>) 
     });
   } catch (error) {
     logger.warn(`promo logging failed for ${collection}`, error);
+  }
+};
+
+const buildGaClientId = (req: any, code: string, ref: string | null) => {
+  const sid = typeof req?.query?.sid === 'string' && req.query.sid.trim().length > 0 ? req.query.sid.trim() : null;
+  if (sid) return sid;
+
+  const ip =
+    (typeof req?.ip === 'string' && req.ip) ||
+    (typeof req?.headers?.['x-forwarded-for'] === 'string' && req.headers['x-forwarded-for']) ||
+    '';
+  const ua = (req?.get?.('user-agent') as string) || (req?.headers?.['user-agent'] as string) || '';
+
+  const hash = createHash('sha256')
+    .update([code, ref || '', ua, ip].join('|'))
+    .digest('hex');
+  return hash.slice(0, 32);
+};
+
+const sendGa4ClickEvent = async (params: {
+  req: any;
+  code: string;
+  channel: string;
+  ref: string | null;
+  campaign?: string | null;
+  sub?: string | null;
+  target: string;
+}) => {
+  const measurementId = GA4_MEASUREMENT_ID.value();
+  const apiSecret = GA4_API_SECRET.value();
+  if (!measurementId || !apiSecret) return;
+
+  const { req, code, channel, ref, campaign, sub, target } = params;
+  const clientId = buildGaClientId(req, code, ref);
+  const eventId =
+    (typeof req?.query?.eid === 'string' && req.query.eid.trim().length > 0 ? req.query.eid.trim() : randomUUID()).slice(
+      0,
+      64
+    );
+  const sessionId = Math.floor(Date.now() / 1000);
+
+  try {
+    await fetch(
+      `https://www.google-analytics.com/mp/collect?measurement_id=${encodeURIComponent(
+        measurementId
+      )}&api_secret=${encodeURIComponent(apiSecret)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: clientId,
+          user_id: ref || undefined,
+          events: [
+            {
+              name: 'promo_link_click',
+              params: {
+                code,
+                channel,
+                ref: ref || '(none)',
+                campaign: campaign || 'default',
+                sub: sub || 'cta1',
+                target,
+                session_id: sessionId,
+                engagement_time_msec: 1,
+                event_id: eventId,
+              },
+            },
+          ],
+        }),
+      }
+    );
+  } catch (error) {
+    logger.warn('ga4 promo link tracking failed', error);
   }
 };
 
@@ -352,7 +429,7 @@ const incrementPromoMetrics = async (delta: PromoMetricDelta) => {
  * Redirection trackée d'un lien promo.
  * Incrémente les visites (et contacts WA si canal = wa) puis redirige vers la destination finale.
  */
-export const trackPromoLink = onRequest(async (req, res) => {
+export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_SECRET] }, async (req, res) => {
   try {
     const code = (req.query.code as string | undefined)?.trim();
     const channel = normalizeChannel((req.query.channel as string | undefined) || 'web');
@@ -377,8 +454,10 @@ export const trackPromoLink = onRequest(async (req, res) => {
       (boutiqueData?.phoneNumber as string | undefined) ||
       '';
 
+    const normalizedCode = code.toUpperCase();
+
     const sharedParams = {
-      code: code.toUpperCase(),
+      code: normalizedCode,
       ref: ref || '',
       campaign: campaign || linkTemplates.defaultCampaign || 'default',
       sub: sub || linkTemplates.defaultSub || 'cta1',
@@ -404,8 +483,18 @@ export const trackPromoLink = onRequest(async (req, res) => {
             })
           : buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
 
+    await sendGa4ClickEvent({
+      req,
+      code: normalizedCode,
+      channel,
+      ref,
+      campaign: sharedParams.campaign,
+      sub: sharedParams.sub,
+      target,
+    });
+
     await incrementPromoMetrics({
-      code,
+      code: normalizedCode,
       channel,
       ref,
       visitDelta: 1,
