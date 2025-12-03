@@ -1,25 +1,26 @@
-# GA4 secrets for Cloud Functions
+# Secrets GA4 pour Cloud Functions
 
-The Cloud Functions code uses GA4 Measurement Protocol secrets declared with `defineSecret('GA4_MEASUREMENT_ID')` and `defineSecret('GA4_API_SECRET')` in `functions/src/index.ts`. Set them in Google Secret Manager through the Firebase CLI.
+Les fonctions utilisent les secrets GA4 déclarés via `defineSecret('GA4_MEASUREMENT_ID')` et `defineSecret('GA4_API_SECRET')` dans `functions/src/index.ts`. Voici comment récupérer les valeurs dans la console GA4 puis les injecter via Firebase CLI.
 
-Prereqs (Node 20 runtime as per `functions/package.json`):
-- Firebase CLI installed and logged in (`firebase login`)
-- Default project is `africaphone-vente` from `.firebaserc` (override with `--project <id>` if needed)
+## 1) Récupérer les valeurs dans la console GA4
+1. Dans Firebase console, ouvre Analytics puis clique sur l’icône engrenage **Admin** (colonne gauche, en bas).
+2. Dans la colonne **Propriété**, clique sur **Flux de données**.
+3. Sélectionne le flux **Web** du site (pas le flux Android).
+4. En haut à droite de la fiche du flux Web, copie l’**Identifiant de mesure** au format `G-XXXXXXX` (c’est `GA4_MEASUREMENT_ID`).
+5. Dans la même fiche, descends jusqu’à **Secrets de l’API Measurement Protocol**. Clique sur **Créer** (ou ouvre un secret existant) et copie la valeur affichée (c’est `GA4_API_SECRET`).
 
-Create or update the secrets (non-interactive):
+## 2) Définir les secrets dans Firebase (projet `africaphone-vente`, Node 20)
+Pré-requis : Firebase CLI connectée (`firebase login`).
 ```bash
 firebase functions:secrets:set GA4_MEASUREMENT_ID --project africaphone-vente --data "G-XXXXXXX"
-firebase functions:secrets:set GA4_API_SECRET --project africaphone-vente --data "YOUR_API_SECRET"
+firebase functions:secrets:set GA4_API_SECRET --project africaphone-vente --data "VOTRE_API_SECRET"
 ```
+(Supprime `--data` si tu préfères saisir la valeur au prompt.)
 
-If you prefer the prompt, drop `--data` to type the value interactively. Once both secrets exist, redeploy the functions that consume them so the bindings are active (example for the GA4 click tracker):
+## 3) Vérifier et redéployer les fonctions qui consomment les secrets
 ```bash
+firebase functions:secrets:list --project africaphone-vente
 cd functions
 npm run build
 firebase deploy --only functions:trackPromoLink --project africaphone-vente
-```
-
-To inspect secret metadata without printing values:
-```bash
-firebase functions:secrets:list --project africaphone-vente
 ```
