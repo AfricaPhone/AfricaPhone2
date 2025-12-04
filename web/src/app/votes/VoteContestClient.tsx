@@ -351,9 +351,15 @@ export default function VoteContestClientPage() {
     }
     return contest.endDate.getTime() <= now;
   }, [contest, now]);
+  const contestNotStarted = useMemo(() => {
+    if (!contest?.voteOpensAt) {
+      return false;
+    }
+    return contest.voteOpensAt.getTime() > now;
+  }, [contest, now]);
 
   const isBusy = isLoading || resolvingContestId || isPreparingPayment;
-  const votingClosed = !contest || contestEnded;
+  const votingClosed = !contest || contestEnded || contestNotStarted;
 
   const handleBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {
@@ -674,6 +680,7 @@ export default function VoteContestClientPage() {
             storedVotes={storedVotes}
             errorMessage={contestError}
             contestEnded={contestEnded}
+            contestNotStarted={contestNotStarted}
           />
         )}
 
@@ -701,6 +708,7 @@ export default function VoteContestClientPage() {
             searchQuery={searchQuery}
             onVote={handleVote}
             contestEnded={contestEnded}
+            contestNotStarted={contestNotStarted}
           />
         )}
       </main>
@@ -723,6 +731,7 @@ export default function VoteContestClientPage() {
           searchQuery={searchQuery}
           onVote={handleVote}
           contestEnded={contestEnded}
+          contestNotStarted={contestNotStarted}
         />
       </VoteSearchOverlay>
 
@@ -763,6 +772,7 @@ type ContestHeroProps = {
   storedVotes: StoredVoteRecord[];
   errorMessage: string | null;
   contestEnded: boolean;
+  contestNotStarted: boolean;
 };
 
 function ContestHero({
@@ -774,9 +784,20 @@ function ContestHero({
   storedVotes,
   errorMessage,
   contestEnded,
+  contestNotStarted,
 }: ContestHeroProps) {
+  const targetDate = useMemo(() => {
+    if (!contest) {
+      return null;
+    }
+    if (contestNotStarted && contest.voteOpensAt) {
+      return contest.voteOpensAt;
+    }
+    return contest.endDate;
+  }, [contest, contestNotStarted]);
+
   const [timeLeft, setTimeLeft] = useState<Countdown | null>(() =>
-    contest ? calculateTimeLeft(contest.endDate) : null
+    targetDate ? calculateTimeLeft(targetDate) : null
   );
 
   const voteThankYouMessage = useMemo(() => {
@@ -811,21 +832,17 @@ function ContestHero({
   }, [hasVoted, storedVotes]);
 
   useEffect(() => {
-    if (!contest) {
-      setTimeLeft(null);
-      return;
-    }
-    if (contestEnded) {
+    if (!targetDate || contestEnded) {
       setTimeLeft(null);
       return;
     }
     const update = () => {
-      setTimeLeft(calculateTimeLeft(contest.endDate));
+      setTimeLeft(calculateTimeLeft(targetDate));
     };
     update();
     const timer = window.setInterval(update, 1000);
     return () => window.clearInterval(timer);
-  }, [contest, contestEnded]);
+  }, [targetDate, contestEnded]);
 
   if (errorMessage) {
     return (
@@ -872,7 +889,11 @@ function ContestHero({
                 {contest?.title ?? 'Concours'}
               </span>
               <h2 className="text-lg font-bold leading-tight text-white">
-                {contestEnded ? 'Concours clôturé' : "Phase d'inscription"}
+                {contestEnded
+                  ? 'Concours clôturé'
+                  : contestNotStarted
+                    ? "Phase d'inscription"
+                    : 'Votes en cours'}
               </h2>
             </div>
           </div>
@@ -891,12 +912,17 @@ function ContestHero({
 
         {contestEnded ? (
           <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-            Concours clÃ´turÃ©
+            Concours cl?tur?
           </p>
-        ) : timeLeft ? (
-          <CountdownPills {...timeLeft} />
         ) : (
-          null
+          <div className="flex flex-col gap-2">
+            {contestNotStarted && contest?.voteOpensAt ? (
+              <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+                Votes ouverts le {contest.voteOpensAt.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
+              </p>
+            ) : null}
+            {timeLeft ? <CountdownPills {...timeLeft} /> : null}
+          </div>
         )}
 
         {voteThankYouMessage ? (
@@ -924,6 +950,7 @@ type CandidateListProps = {
   searchQuery: string;
   onVote: (candidate: Candidate) => void;
   contestEnded: boolean;
+  contestNotStarted: boolean;
 };
 
 function CandidateList({
@@ -936,6 +963,7 @@ function CandidateList({
   searchQuery,
   onVote,
   contestEnded,
+  contestNotStarted,
 }: CandidateListProps) {
   if (!isBusy && candidates.length === 0) {
     return (
@@ -954,7 +982,7 @@ function CandidateList({
     );
   }
 
-  const votingDisabled = !contest || contestEnded;
+  const votingDisabled = !contest || contestEnded || contestNotStarted;
   const disableButtons = isBusy || votingDisabled;
   const votedCandidateIds = useMemo(() => {
     return new Set(storedVotes.map(record => record.candidateId));

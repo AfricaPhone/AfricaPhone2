@@ -38,6 +38,8 @@ type PaymentResult = {
 };
 
 const formatNumber = (num: number) => new Intl.NumberFormat('fr-FR').format(num);
+const formatDateTime = (date: Date) =>
+  new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 
 const CandidateCard: React.FC<{
   item: Candidate;
@@ -108,6 +110,7 @@ const ContestScreen: React.FC = () => {
   const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
   const [lastTransactionId, setLastTransactionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [now, setNow] = useState(() => Date.now());
   const searchInputRef = useRef<TextInput>(null);
 
   const route = useRoute<RouteProp<RootStackParamList, 'Contest'>>();
@@ -161,6 +164,11 @@ const ContestScreen: React.FC = () => {
 
   const { contest, candidates, isLoading, error } = useContestData(contestId);
 
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const isBusy = isLoading || isResolvingContestId || isPreparingPayment;
 
   const filteredCandidates = useMemo(() => {
@@ -191,6 +199,13 @@ const ContestScreen: React.FC = () => {
     }
     return Array.isArray(candidates) ? candidates.length : 0;
   }, [contest, candidates]);
+
+  const voteNotOpened = useMemo(() => {
+    if (!contest?.voteOpensAt) {
+      return false;
+    }
+    return contest.voteOpensAt.getTime() > now;
+  }, [contest, now]);
 
   useEffect(() => {
     const successUnsubscribe = addSuccessListener(async (data?: PaymentResult) => {
@@ -286,6 +301,10 @@ const ContestScreen: React.FC = () => {
       }
 
       const activeContestId = contest?.id || contestId;
+      if (voteNotOpened && contest?.voteOpensAt) {
+        Alert.alert('Votes non ouverts', `Les votes ouvrent le ${formatDateTime(contest.voteOpensAt)}.`);
+        return;
+      }
       if (!activeContestId || !contest || contest.status !== 'active') {
         Alert.alert('Concours indisponible', 'Les votes ne sont pas ouverts pour le moment.');
         return;
@@ -383,7 +402,16 @@ const ContestScreen: React.FC = () => {
           <>
             <Text style={styles.contestTitle}>{contest.title}</Text>
             {contest.description ? <Text style={styles.contestDescription}>{contest.description}</Text> : null}
-            <ContestCountdown endDate={contest.endDate} />
+            {voteNotOpened && contest.voteOpensAt ? (
+              <Text style={styles.voteLockedText}>
+                Votes ouverts le {formatDateTime(contest.voteOpensAt)}
+              </Text>
+            ) : null}
+            {contest.endDate ? (
+              <ContestCountdown
+                endDate={voteNotOpened && contest.voteOpensAt ? contest.voteOpensAt : contest.endDate}
+              />
+            ) : null}
             {hasVoted ? <Text style={styles.voteThanks}>Merci pour votre vote !</Text> : null}
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
@@ -448,7 +476,12 @@ const ContestScreen: React.FC = () => {
         data={filteredCandidates}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <CandidateCard item={item} totalVotes={totalVotes} onVote={handleVotePressPay} disabled={hasVoted} />
+          <CandidateCard
+            item={item}
+            totalVotes={totalVotes}
+            onVote={handleVotePressPay}
+            disabled={hasVoted || voteNotOpened}
+          />
         )}
         ListHeaderComponent={!isSearchActive ? renderListHeader : null}
         ListEmptyComponent={
@@ -523,6 +556,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     lineHeight: 20,
+  },
+  voteLockedText: {
+    marginTop: 8,
+    fontSize: 13,
+    color: '#ef4444',
+    fontWeight: '600',
+    textAlign: 'center',
   },
   voteThanks: {
     marginTop: 12,

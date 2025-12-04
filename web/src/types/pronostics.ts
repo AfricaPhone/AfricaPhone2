@@ -50,6 +50,7 @@ export type Contest = {
   title: string;
   description: string;
   endDate: Date;
+  voteOpensAt?: Date | null;
   status: 'active' | 'ended';
   totalParticipants: number;
   totalVotes: number;
