@@ -136,7 +136,7 @@ function AppCtaButton() {
         href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
         target="_blank"
         rel="noreferrer"
-        className="inline-flex w-full items-center justify-center rounded-[16px] bg-[#111827] px-4 py-3 text-[13px] font-bold uppercase tracking-wide text-white shadow-md shadow-slate-900/15 transition hover:-translate-y-[1px] hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:w-auto sm:px-5"
+        className="inline-flex w-full items-center justify-center rounded-[16px] bg-amber-400 px-4 py-3 text-[13px] font-bold uppercase tracking-wide text-[#111827] shadow-md shadow-slate-900/15 transition hover:-translate-y-[1px] hover:bg-amber-300 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:w-auto sm:px-5"
       >
         Accéder à l’application
       </Link>
