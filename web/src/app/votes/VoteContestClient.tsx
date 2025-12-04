@@ -662,6 +662,19 @@ export default function VoteContestClientPage() {
             className="flex h-10 items-center justify-start rounded-full px-3 text-[13px] font-bold text-[#2563EB] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
             aria-label="Retour"
           >
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              className="mr-1.5 h-4 w-4"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12.5 4.5 6 10l6.5 5.5" />
+            </svg>
             Retour
           </button>
           <h1 className="text-center text-\[16px\] font-semibold">Concours de Vote</h1>
