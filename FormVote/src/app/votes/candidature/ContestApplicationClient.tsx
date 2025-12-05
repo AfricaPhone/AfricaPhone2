@@ -425,7 +425,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 onChange={handleInputChange}
                 className="min-h-[140px] rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
                 maxLength={MAX_BIO_LENGTH}
-                placeholder="En 3 ou 4 phrases, pr?sentez votre parcours musical et votre univers."
+                placeholder="En 3 ou 4 phrases, présentez votre parcours musical et votre univers."
               />
               {errors.biography ? <span className="text-xs text-rose-300">{errors.biography}</span> : null}
             </label>
@@ -463,7 +463,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             <div>
               <h2 className="text-lg font-semibold text-white">Photo officielle</h2>
               <p className="text-sm text-white/70">
-                JPG/PNG 5 Mo max. ?clairage uniforme et cadrage poitrine ou portrait serr? recommand?s.
+                JPG/PNG 5 Mo max. Éclairage uniforme et cadrage poitrine ou portrait serré recommandés.
               </p>
             </div>
             <label className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-10 text-center text-sm text-white/80 transition hover:border-white/60">
