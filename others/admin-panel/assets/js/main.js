@@ -1,7 +1,7 @@
-﻿// Importe la configuration et les services Firebase depuis le fichier d�di�.
-import { auth, db, storage } from './firebase-config.js';
+// Importe la configuration et les services Firebase depuis le fichier dï¿½diï¿½.
+import { auth, db, storage, analytics, logEvent } from './firebase-config.js';
 
-// Importe les fonctions sp�cifiques de Firebase Auth et Firestore.
+// Importe les fonctions spï¿½cifiques de Firebase Auth et Firestore.
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -42,7 +42,7 @@ window.addEventListener('unhandledrejection', event => {
   if (code === 'permission-denied' || /permission/i.test(message)) {
     event.preventDefault();
     console.error('[Admin Panel] Operation blocked by Firestore security rules.', error);
-    toast('Permissions insuffisantes', "Votre compte n'a pas acc�s � cette ressource.", 'error');
+    toast('Permissions insuffisantes', "Votre compte n'a pas accï¿½s ï¿½ cette ressource.", 'error');
   }
 });
 
@@ -53,6 +53,16 @@ function escapeHtml(s = '') {
 }
 function escapeAttr(s = '') {
   return escapeHtml(s).replace(/`/g, '&#96;');
+}
+
+function track(eventName, params = {}) {
+  try {
+    if (analytics && typeof logEvent === 'function') {
+      logEvent(analytics, eventName, params);
+    }
+  } catch (err) {
+    console.warn('Analytics log failed', err);
+  }
 }
 
 function setButtonLoading(button, isLoading) {
@@ -169,6 +179,7 @@ const matchPredictionsCache = new Map();
 let allPromoCards = [];
 let contestPromoCard = null;
 let allPromoCodes = []; // AJOUT
+let allPromoRules = [];
 let allBrands = [];
 let allContests = [];
 const contestCandidates = new Map();
@@ -181,18 +192,149 @@ let viewMode = 'table'; // 'table' | 'cards'
 let sortBy = { key: 'name', dir: 'asc' };
 const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
 let PREDEFINED_SPECS = [
-  '�cran',
+  'ï¿½cran',
   'Processeur',
   'Appareil Photo',
   'Batterie',
-  'Connectivit�',
+  'Connectivitï¿½',
   'Dimensions',
   'Poids',
-  'Syst�me',
+  'Systï¿½me',
+];
+
+const DEFAULT_PRICE_BRACKETS = [
+  { min: 0, max: 149000, discountValue: 5000, commissionValue: 8000, label: '0-149k' },
+  { min: 149000, max: 249000, discountValue: 10000, commissionValue: 15000, label: '149k-249k' },
+  { min: 249000, max: 399000, discountValue: 15000, commissionValue: 25000, label: '249k-399k' },
+  { min: 399000, max: null, discountValue: 20000, commissionValue: 35000, label: '400k+' },
+];
+const CHANNEL_OPTIONS = [
+  { value: 'web', label: 'Web (site)' },
+  { value: 'app', label: 'App mobile' },
+  { value: 'wa', label: 'WhatsApp' },
+  { value: 'qr', label: 'QR code' },
+  { value: 'bo', label: 'Back-office' },
 ];
 
 // --- Features / Flags ---
 let featuresConfig = { promoCardsEnabled: true };
+let linkTemplates = null;
+const FALLBACK_LINK_TEMPLATES = {
+  webBaseUrl: 'https://africaphone-org.web.app/promo',
+  appLinkDomain: 'https://africaphone-org.web.app/ul',
+  appScheme: 'africaphone://apply-promo',
+  defaultCampaign: 'default',
+  defaultSub: 'cta1',
+  waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
+  whatsappNumber: '',
+};
+
+/* ============================ Brackets Helpers ============================ */
+function renderChannelCheckboxes(targetId, selected = []) {
+  const container = document.getElementById(targetId);
+  if (!container) return;
+  const selectedSet = new Set((selected || []).map(s => String(s).toLowerCase()));
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(150px, 1fr))';
+  container.style.gap = '6px 12px';
+  container.innerHTML = CHANNEL_OPTIONS.map(
+    opt => `
+      <label class="checkbox channel-item" style="display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" value="${opt.value}" ${selectedSet.has(opt.value) ? 'checked' : ''}>
+        <span>${opt.label}</span>
+      </label>
+    `,
+  ).join('');
+}
+
+function readChannelCheckboxes(targetId) {
+  const container = document.getElementById(targetId);
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
+    .map(el => (el.value || '').trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function buildBracketHeaderRow() {
+  const head = document.createElement('div');
+  head.className = 'bracket-head';
+  head.style.display = 'grid';
+  head.style.gridTemplateColumns = '1fr 1fr 1fr 1fr 1.2fr auto';
+  head.style.gap = '6px';
+  head.style.alignItems = 'center';
+  head.style.marginTop = '4px';
+  head.style.fontSize = '12px';
+  head.style.fontWeight = '600';
+  head.style.opacity = '0.85';
+  head.innerHTML = `
+    <div>Min</div>
+    <div>Max</div>
+    <div>Remise</div>
+    <div>Commission</div>
+    <div>Label</div>
+    <div></div>
+  `;
+  return head;
+}
+
+function buildBracketRow(bracket = {}) {
+  const row = document.createElement('div');
+  row.className = 'bracket-row';
+  row.style.display = 'grid';
+  row.style.gridTemplateColumns = '1fr 1fr 1fr 1fr 1.2fr auto';
+  row.style.gap = '6px';
+  row.style.alignItems = 'center';
+  row.style.marginTop = '8px';
+
+  row.innerHTML = `
+    <input type="number" class="input bracket-min" placeholder="Min" min="0" step="1000" value="${bracket.min ?? ''}" />
+    <input type="number" class="input bracket-max" placeholder="Max (vide = +)" min="0" step="1000" value="${bracket.max ?? ''}" />
+    <input type="number" class="input bracket-discount" placeholder="Remise" min="0" step="500" value="${bracket.discountValue ?? ''}" />
+    <input type="number" class="input bracket-commission" placeholder="Commission" min="0" step="500" value="${bracket.commissionValue ?? ''}" />
+    <input type="text" class="input bracket-label" placeholder="Label" value="${escapeAttr(bracket.label || '')}" />
+    <button type="button" class="btn btn-icon btn-small" data-remove-bracket title="Supprimer">
+      <i data-lucide="x" class="icon"></i>
+    </button>
+  `;
+  row.querySelector('[data-remove-bracket]').onclick = () => row.remove();
+  return row;
+}
+
+function renderBracketRows(brackets) {
+  const container = document.getElementById('brackets-rows');
+  if (!container) return;
+  container.innerHTML = '';
+  container.appendChild(buildBracketHeaderRow());
+  const list = Array.isArray(brackets) && brackets.length ? brackets : DEFAULT_PRICE_BRACKETS;
+  list.forEach(b => container.appendChild(buildBracketRow(b)));
+  lucide.createIcons();
+}
+
+function readBracketRows() {
+  const container = document.getElementById('brackets-rows');
+  if (!container) return [];
+  const rows = Array.from(container.querySelectorAll('.bracket-row'));
+  const result = [];
+  rows.forEach(row => {
+    const min = Number(row.querySelector('.bracket-min')?.value || 0);
+    const maxRaw = row.querySelector('.bracket-max')?.value;
+    const max = maxRaw === '' || maxRaw === null || maxRaw === undefined ? null : Number(maxRaw);
+    const discountValue = Number(row.querySelector('.bracket-discount')?.value || 0);
+    const commissionValue = Number(row.querySelector('.bracket-commission')?.value || 0);
+    const label = (row.querySelector('.bracket-label')?.value || '').trim();
+    if (Number.isNaN(discountValue) || Number.isNaN(commissionValue)) {
+      return;
+    }
+    result.push({
+      min: Number.isNaN(min) ? 0 : min,
+      max: Number.isNaN(max) ? null : max,
+      discountValue,
+      commissionValue,
+      label: label || null,
+    });
+  });
+  return result;
+}
 
 async function ensureFeaturesLoaded() {
   try {
@@ -207,6 +349,61 @@ async function ensureFeaturesLoaded() {
   } catch (err) {
     console.error('Settings: unable to load features config', err);
     featuresConfig.promoCardsEnabled = true;
+  }
+}
+
+function applyLinkTemplatesToSettingsUI() {
+  const data = linkTemplates || FALLBACK_LINK_TEMPLATES;
+  $('#lt-webBaseUrl').value = data.webBaseUrl || '';
+  $('#lt-appLinkDomain').value = data.appLinkDomain || '';
+  $('#lt-appScheme').value = data.appScheme || '';
+  $('#lt-defaultCampaign').value = data.defaultCampaign || '';
+  $('#lt-defaultSub').value = data.defaultSub || '';
+  $('#lt-waMessageTemplate').value = data.waMessageTemplate || '';
+  $('#lt-waNumber').value = data.whatsappNumber || '';
+  const status = $('#lt-status');
+  if (status) status.textContent = 'Chargï¿½.';
+}
+
+async function saveLinkTemplates() {
+  const btn = #save-link-templates;
+  setButtonLoading(btn, true);
+  const payload = {
+    webBaseUrl: #lt-webBaseUrl.value.trim(),
+    appLinkDomain: #lt-appLinkDomain.value.trim(),
+    appScheme: #lt-appScheme.value.trim(),
+    defaultCampaign: #lt-defaultCampaign.value.trim() || 'default',
+    defaultSub: #lt-defaultSub.value.trim() || 'cta1',
+    waMessageTemplate: #lt-waMessageTemplate.value.trim(),
+    whatsappNumber: #lt-waNumber.value.trim(),
+  };
+  try {
+    const ref = doc(db, 'config', 'linkTemplates');
+    await setDoc(ref, payload, { merge: true });
+    linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...payload };
+    applyLinkTemplatesToSettingsUI();
+    track('link_templates_save', { hasWaNumber: Boolean(payload.whatsappNumber) });
+    toast('Enregistr?', 'Templates de liens mis ? jour', 'success');
+  } catch (err) {
+    console.error('Save link templates failed', err);
+    toast('Erreur', 'Impossible de sauvegarder les templates', 'error');
+  } finally {
+    setButtonLoading(btn, false);
+  }
+}
+
+async function ensureLinkTemplatesLoaded() {
+  try {
+    const ref = doc(db, 'config', 'linkTemplates');
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...(snap.data() || {}) };
+    } else {
+      linkTemplates = { ...FALLBACK_LINK_TEMPLATES };
+    }
+  } catch (err) {
+    console.error('Settings: unable to load link templates', err);
+    linkTemplates = { ...FALLBACK_LINK_TEMPLATES };
   }
 }
 
@@ -261,30 +458,30 @@ onAuthStateChanged(auth, async function (user) {
   const logged = !!user;
 
   if (logged) {
-    // V�rifie si l'utilisateur est un administrateur
+    // Vï¿½rifie si l'utilisateur est un administrateur
     try {
-      const tokenResult = await user.getIdTokenResult(true); // Force la mise � jour du jeton
+      const tokenResult = await user.getIdTokenResult(true); // Force la mise ï¿½ jour du jeton
       if (tokenResult.claims.admin) {
         // L'utilisateur est un administrateur
-        console.log(`[Admin Panel] Connexion d'un admin r�ussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
+        console.log(`[Admin Panel] Connexion d'un admin rï¿½ussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
         $login.classList.add('hide');
         $app.classList.remove('hide');
         $app.setAttribute('aria-hidden', 'false');
         initAfterLogin();
       } else {
-        // L'utilisateur n'est pas un administrateur, le d�connecte
+        // L'utilisateur n'est pas un administrateur, le dï¿½connecte
         await signOut(auth);
-        toast('Acc�s refus�', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
+        toast('Accï¿½s refusï¿½', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
         // Redirige pour nettoyer l'interface
         location.reload();
       }
     } catch (err) {
-      console.error('Erreur lors de la v�rification des revendications:', err);
+      console.error('Erreur lors de la vï¿½rification des revendications:', err);
       await signOut(auth);
       location.reload();
     }
   } else {
-    // L'utilisateur n'est pas connect�
+    // L'utilisateur n'est pas connectï¿½
     $login.classList.remove('hide');
     $app.classList.add('hide');
     $app.setAttribute('aria-hidden', 'true');
@@ -380,7 +577,8 @@ const $productsContent = $('#products-content'),
   $matchesContent = $('#matches-content'),
   $contestsContent = $('#contests-content'),
   $promoCardsContent = $('#promocards-content'),
-  $promoCodesContent = $('#promocodes-content');
+  $promoCodesContent = $('#promocodes-content'),
+  $promoRulesContent = document.getElementById('promorules-content');
 
 window.addEventListener('hashchange', handleRoute);
 window.addEventListener('hashchange', async function () {
@@ -390,6 +588,8 @@ window.addEventListener('hashchange', async function () {
     if (route === 'settings') {
       await ensureFeaturesLoaded();
       applyFeaturesToSettingsUI();
+      await ensureLinkTemplatesLoaded();
+      applyLinkTemplatesToSettingsUI();
     }
   } catch (e) {
     console.warn('Settings sync skipped', e);
@@ -400,6 +600,7 @@ async function handleRoute() {
   const route = parts[1] || 'products';
   const id = parts[2];
   const childId = parts[3];
+  track('page_view_admin', { route, id: id || null });
 
   const isContestRoute = route.includes('contest') || route.includes('candidate');
 
@@ -437,7 +638,7 @@ async function handleRoute() {
     setCrumb('Nouveau produit');
     renderProductFormPage();
   } else if (route === 'edit-product' && id) {
-    setCrumb('�diter produit');
+    setCrumb('ï¿½diter produit');
     await renderProductFormPage(id);
   } else if (route === 'brands') {
     setCrumb('Marques');
@@ -447,7 +648,7 @@ async function handleRoute() {
     setCrumb('Nouvelle marque');
     renderBrandFormPage();
   } else if (route === 'edit-brand' && id) {
-    setCrumb('�diter marque');
+    setCrumb('ï¿½diter marque');
     await renderBrandFormPage(id);
   } else if (route === 'matches') {
     setCrumb('Matchs');
@@ -457,7 +658,7 @@ async function handleRoute() {
     setCrumb('Nouveau match');
     renderMatchFormPage();
   } else if (route === 'edit-match' && id) {
-    setCrumb('�diter match');
+    setCrumb('ï¿½diter match');
     await renderMatchFormPage(id);
   } else if (route === 'match-predictions' && id) {
     await ensureMatchesLoaded();
@@ -471,14 +672,14 @@ async function handleRoute() {
     await ensureContestsLoaded();
     renderContestFormPage();
   } else if (route === 'edit-contest' && id) {
-    setCrumb('�diter concours');
+    setCrumb('ï¿½diter concours');
     await ensureContestsLoaded();
     await renderContestFormPage(id);
   } else if (route === 'new-candidate') {
     await ensureContestsLoaded();
     const contestId = id || selectedContestId || allContests[0]?.id || '';
     if (!contestId) {
-      toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
+      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -488,7 +689,7 @@ async function handleRoute() {
   } else if (route === 'edit-candidate' && id && childId) {
     await ensureContestsLoaded();
     await setSelectedContest(id, { force: true, skipRender: true });
-    setCrumb('�diter candidat');
+    setCrumb('ï¿½diter candidat');
     await renderCandidateFormPage(id, childId);
   } else if (route === 'promocards') {
     setCrumb('Cartes Promo');
@@ -498,7 +699,7 @@ async function handleRoute() {
     setCrumb('Nouvelle Carte Promo');
     renderPromoCardFormPage();
   } else if (route === 'edit-promocard' && id) {
-    setCrumb('�diter Carte Promo');
+    setCrumb('ï¿½diter Carte Promo');
     await renderPromoCardFormPage(id);
   } else if (route === 'promocodes') {
     setCrumb('Codes Promo');
@@ -508,10 +709,10 @@ async function handleRoute() {
     setCrumb('Nouveau Code Promo');
     renderPromoCodeFormPage();
   } else if (route === 'edit-promocode' && id) {
-    setCrumb('�diter Code Promo');
+    setCrumb('Éditer Code Promo');
     await renderPromoCodeFormPage(id);
   } else if (route === 'settings') {
-    setCrumb('Param�tres');
+    setCrumb('Paramï¿½tres');
   } else {
     location.hash = '#/products';
   }
@@ -519,6 +720,11 @@ async function handleRoute() {
 
 async function initAfterLogin() {
   lucide.createIcons();
+  await ensureFeaturesLoaded();
+  applyFeaturesToSettingsUI();
+  await ensureLinkTemplatesLoaded();
+  applyLinkTemplatesToSettingsUI();
+  $('#save-link-templates')?.addEventListener('click', saveLinkTemplates);
   // Settings: bind promo cards toggle if present
   const promoToggle = document.getElementById('toggle-promocards');
   if (promoToggle) {
@@ -530,11 +736,11 @@ async function initAfterLogin() {
         const ref = doc(db, 'config', 'features');
         await setDoc(ref, { promoCardsEnabled: next }, { merge: true });
         featuresConfig.promoCardsEnabled = next;
-        toast('Paramètre enregistré', next ? 'Cartes promo activées' : 'Cartes promo désactivées', 'success');
+        toast('ParamÃ¨tre enregistrÃ©', next ? 'Cartes promo activÃ©es' : 'Cartes promo dÃ©sactivÃ©es', 'success');
       } catch (err) {
         console.error('Settings: unable to update promo cards flag', err);
         input.checked = !next;
-        toast('Erreur', 'Impossible de mettre à jour le paramètre', 'error');
+        toast('Erreur', 'Impossible de mettre Ã  jour le paramÃ¨tre', 'error');
       } finally {
         input.disabled = false;
       }
@@ -555,7 +761,7 @@ async function initAfterLogin() {
   };
   $('#quick-add-candidate').onclick = function () {
     if (!allContests.length) {
-      toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
+      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -596,7 +802,7 @@ async function initAfterLogin() {
   $('#add-candidate')?.addEventListener('click', () => {
     const targetId = selectedContestId || allContests[0]?.id || '';
     if (!targetId) {
-      toast('Info', 'Cr�ez un concours avant d�ajouter un candidat.', 'info');
+      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -731,11 +937,25 @@ async function ensurePromoCardsLoaded(force = false) {
 }
 async function ensurePromoCodesLoaded() {
   if (allPromoCodes.length > 0) return;
+  await ensurePromoRulesLoaded().catch(err => console.warn('PromoRules preload skipped', err));
   $promoCodesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
   const q = query(collection(db, 'promoCodes'), orderBy('createdAt', 'desc'));
   const snap = await getDocs(q);
   allPromoCodes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+}
+
+async function ensurePromoRulesLoaded() {
+  if (allPromoRules.length > 0) return;
+  const target = $promoRulesContent || $promoCodesContent;
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  }
+  const q = query(collection(db, 'promoRules'));
+  const snap = await getDocs(q);
+  allPromoRules = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => {
+    return (a.code || a.id || '').localeCompare(b.code || b.id || '');
+  });
 }
 
 /* ============================ Products UI ============================ */
@@ -835,15 +1055,15 @@ function renderProductList() {
 			<div style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</div>
 			<label class="chip" style="user-select:none">
 			  <input type="checkbox" data-select id="sel-${p.id}" />
-			  S�lection
+			  Sï¿½lection
 			</label>
 		  </div>
-		  <div class="muted">${escapeHtml(p.brand || '�')} � ${escapeHtml(p.category || '�')}</div>
+		  <div class="muted">${escapeHtml(p.brand || 'ï¿½')} ï¿½ ${escapeHtml(p.category || 'ï¿½')}</div>
 		  ${typeof p.ordreVedette === 'number' && p.ordreVedette > 0 ? '<div class="chip chip-primary" style="margin-top:6px">Top #' + escapeHtml(String(p.ordreVedette)) + '</div>' : ''}
 		  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : '�'}</div>
+			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : 'ï¿½'}</div>
 			<div class="actions">
-			  <button class="btn btn-small" data-edit>�diter</button>
+			  <button class="btn btn-small" data-edit>ï¿½diter</button>
 			  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 			</div>
 		  </div>
@@ -874,7 +1094,7 @@ function renderProductList() {
 		  <th style="width:60px">Image</th>
 		  <th class="sortable ${sortBy.key === 'name' ? 'sorted' : ''}" data-sort="name">Nom ${sortIcon('name')}</th>
 		  <th class="sortable ${sortBy.key === 'brand' ? 'sorted' : ''}" data-sort="brand">Marque ${sortIcon('brand')}</th>
-		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Cat�gorie ${sortIcon('category')}</th>
+		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Catï¿½gorie ${sortIcon('category')}</th>
 		  <th style="width:140px">Prix</th>
 		  <th style="width:90px">Stock</th>
 		  <th style="width:110px" class="sortable ${sortBy.key === 'ordreVedette' ? 'sorted' : ''}" data-sort="ordreVedette">Top ${sortIcon('ordreVedette')}</th>
@@ -891,15 +1111,15 @@ function renderProductList() {
 		<td><input type="checkbox" data-select /></td>
 		<td>${mainImage ? '<img class="img" src="' + escapeAttr(mainImage) + '" alt="' + escapeAttr(p.name || 'Image produit') + '" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
 		<td style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</td>
-		<td>${escapeHtml(p.brand || '�')}</td>
-		<td><span class="chip">${escapeHtml(p.category || '�')}</span></td>
+		<td>${escapeHtml(p.brand || 'ï¿½')}</td>
+		<td><span class="chip">${escapeHtml(p.category || 'ï¿½')}</span></td>
 		<td>
 		  <input type="number" step="1" min="0" class="input" style="max-width:120px" value="${typeof p.price === 'number' ? p.price : ''}" placeholder="0" data-price-update />
 		</td>
-		<td>${typeof p.stock === 'number' ? p.stock : '�'}</td>
+		<td>${typeof p.stock === 'number' ? p.stock : 'ï¿½'}</td>
 		<td><input type="number" step="1" min="0" class="input" style="max-width:100px" value="${typeof p.ordreVedette === 'number' ? p.ordreVedette : ''}" placeholder="0" data-vedette-update /></td>
 		<td class="actions">
-		  <button class="btn btn-small" data-edit>�diter</button>
+		  <button class="btn btn-small" data-edit>ï¿½diter</button>
 		  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 		</td>`;
       const sel = tr.querySelector('[data-select]');
@@ -953,11 +1173,11 @@ $('#bulk-delete').addEventListener('click', async function () {
     });
   if (!ids.length) return;
   const ok = await openModal({
-    title: 'Supprimer la s�lection',
+    title: 'Supprimer la sï¿½lection',
     body:
-      '�tes-vous s�r de vouloir supprimer <strong>' +
+      'ï¿½tes-vous sï¿½r de vouloir supprimer <strong>' +
       ids.length +
-      '</strong> �l�ment(s) ? Cette action est irr�versible.',
+      '</strong> ï¿½lï¿½ment(s) ? Cette action est irrï¿½versible.',
     okText: 'Supprimer',
     cancelText: 'Annuler',
     danger: true,
@@ -977,7 +1197,7 @@ $('#bulk-delete').addEventListener('click', async function () {
       fail++;
     }
   }
-  toast('Suppression termin�e', done + ' succ�s, ' + fail + ' �chec(s)', fail ? 'error' : 'success');
+  toast('Suppression terminï¿½e', done + ' succï¿½s, ' + fail + ' ï¿½chec(s)', fail ? 'error' : 'success');
   renderProductList();
   $('#kpi-products').textContent = String(allProducts.length);
 });
@@ -996,10 +1216,10 @@ async function handlePriceUpdate(id, inputEl) {
       return x.id === id;
     });
     if (p) p.price = val;
-    toast('Prix mis � jour', fmtXOF.format(val), 'success');
+    toast('Prix mis ï¿½ jour', fmtXOF.format(val), 'success');
   } catch (e) {
     console.error(e);
-    toast('Erreur', 'Impossible de mettre � jour le prix', 'error');
+    toast('Erreur', 'Impossible de mettre ï¿½ jour le prix', 'error');
   } finally {
     inputEl.disabled = false;
   }
@@ -1017,13 +1237,13 @@ async function handleVedetteUpdate(id, inputEl) {
       product.ordreVedette = val;
     }
     toast(
-      'Ordre mis à jour',
-      val > 0 ? `Produit positionné #${val}` : 'Produit retiré du top',
+      'Ordre mis Ã  jour',
+      val > 0 ? `Produit positionnÃ© #${val}` : 'Produit retirÃ© du top',
       'success'
     );
   } catch (e) {
     console.error(e);
-    toast('Erreur', "Impossible de mettre à jour l'ordre vedette", 'error');
+    toast('Erreur', "Impossible de mettre Ã  jour l'ordre vedette", 'error');
   } finally {
     inputEl.disabled = false;
   }
@@ -1039,7 +1259,7 @@ async function handleDelete(id, name, type) {
   });
   if (!ok) return;
   try {
-    // --- D�BUT DU PATCH : Rafra�chir le jeton avant l'action privil�gi�e ---
+    // --- Dï¿½BUT DU PATCH : Rafraï¿½chir le jeton avant l'action privilï¿½giï¿½e ---
     if (auth.currentUser) {
       await auth.currentUser.getIdToken(true);
     }
@@ -1058,16 +1278,25 @@ async function handleDelete(id, name, type) {
       matchPredictionsCache.delete(id);
       renderMatchList();
       $('#kpi-matches').textContent = String(allMatches.length);
-    } else if (type === 'promoCards') {
-      allPromoCards = allPromoCards.filter(c => c.id !== id);
-      renderPromoCardList();
-      updatePromoCardsKpi();
-    } else if (type === 'promoCodes') {
-      allPromoCodes = allPromoCodes.filter(c => c.id !== id);
-      renderPromoCodeList();
-      $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+  } else if (type === 'promoCards') {
+    allPromoCards = allPromoCards.filter(c => c.id !== id);
+    renderPromoCardList();
+    updatePromoCardsKpi();
+  } else if (type === 'promoCodes') {
+    allPromoCodes = allPromoCodes.filter(c => c.id !== id);
+    renderPromoCodeList();
+    $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+    const codeValue = (name || id || '').toUpperCase();
+    if (codeValue) {
+      try {
+        await deleteDoc(doc(db, 'promoRules', codeValue));
+      } catch (err) {
+        console.warn('Unable to delete linked promoRule', err);
+      }
+      allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
     }
-    toast('Supprim�', '', 'success');
+  }
+    toast('Supprimï¿½', '', 'success');
   } catch (e) {
     console.error(e);
     toast('Erreur', 'Suppression impossible', 'error');
@@ -1079,7 +1308,7 @@ function addSpecRow(container, spec = { key: '', value: '' }) {
   const row = document.createElement('div');
   row.className = 'spec-row';
   row.innerHTML = `
-		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caract�ristique (ex: �cran)" value="${escapeAttr(spec.key)}">
+		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caractï¿½ristique (ex: ï¿½cran)" value="${escapeAttr(spec.key)}">
 		<input type="text" class="input spec-value" placeholder="Valeur (ex: 6.1 Pouces OLED)" value="${escapeAttr(spec.value)}">
 		<button type="button" class="btn btn-icon btn-danger" data-remove-spec><i data-lucide="trash-2" class="icon"></i></button>
 	`;
@@ -1116,7 +1345,7 @@ async function renderProductFormPage(id) {
     .map(
       (url, index) => `
 	<div class="image-preview-item" data-url="${escapeAttr(url)}">
-		<img src="${escapeAttr(url)}" alt="Aper�u ${index + 1}">
+		<img src="${escapeAttr(url)}" alt="Aperï¿½u ${index + 1}">
 		<button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
 			<i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
 		</button>
@@ -1129,8 +1358,8 @@ async function renderProductFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
 	<div class="form-head">
-	  <div class="form-title">${id ? '�diter' : 'Nouveau'} produit</div>
-	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Cr�ation'}</div>
+	  <div class="form-title">${id ? 'ï¿½diter' : 'Nouveau'} produit</div>
+	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Crï¿½ation'}</div>
 	</div>
 	<form class="form-main" novalidate>
 	  <div class="twocol">
@@ -1147,9 +1376,9 @@ async function renderProductFormPage(id) {
 	  </div>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="p-category">Cat�gorie</label>
+		  <label class="label" for="p-category">Catï¿½gorie</label>
 		  <select id="p-category" class="select">
-			<option value="">� S�lectionner �</option>
+			<option value="">ï¿½ Sï¿½lectionner ï¿½</option>
 			${categoryOptions}
 		  </select>
 		</div>
@@ -1175,10 +1404,10 @@ async function renderProductFormPage(id) {
 	  </div>
 
 	  <div class="field">
-		<label class="label">Sp�cifications techniques</label>
+		<label class="label">Spï¿½cifications techniques</label>
 		<div id="p-specs-container" class="specs-container">
 		</div>
-		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une sp�cification</button>
+		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une spï¿½cification</button>
 	  </div>
 	  
 	  <div class="twocol">
@@ -1189,20 +1418,20 @@ async function renderProductFormPage(id) {
 		<div class="field">
 		  <label class="label" for="p-vedette">Ordre top produits</label>
 		  <input id="p-vedette" class="input" type="number" min="0" step="1" value="${typeof p.ordreVedette === 'number' ? p.ordreVedette : ''}" />
-		  <div class="hint">1 apparaît en première position sur le site. Laissez 0 pour retirer le produit du top.</div>
+		  <div class="hint">1 apparaÃ®t en premiÃ¨re position sur le site. Laissez 0 pour retirer le produit du top.</div>
 		</div>
 	  </div>
 	  <div class="field">
 		<label class="label" for="p-images">Images</label>
 		<input id="p-images-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" multiple />
-		<div class="hint">Sélectionnez une ou plusieurs images. La première sera l'image principale.</div>
+		<div class="hint">SÃ©lectionnez une ou plusieurs images. La premiÃ¨re sera l'image principale.</div>
 		<div id="p-images-preview" class="image-preview-grid">
 		  ${existingImagesHtml}
 		</div>
 	  </div>
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
-		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er le produit'}</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er le produit'}</button>
 	  </div>
 	</form>`;
   $productsContent.innerHTML = '';
@@ -1246,7 +1475,7 @@ async function renderProductFormPage(id) {
         .map(
           (url, index) => `
         <div class="image-preview-item" data-url="${escapeAttr(url)}">
-                <img src="${escapeAttr(url)}" alt="Aper�u ${index + 1}">
+                <img src="${escapeAttr(url)}" alt="Aperï¿½u ${index + 1}">
                 <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
                         <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
                 </button>
@@ -1255,7 +1484,7 @@ async function renderProductFormPage(id) {
         )
         .join('');
       btn.closest('.image-preview-item').remove();
-      toast('Image supprim�e du produit', 'Le fichier reste sur le serveur.', 'success');
+      toast('Image supprimï¿½e du produit', 'Le fichier reste sur le serveur.', 'success');
     } catch (err) {
       console.error(err);
       toast('Erreur', "Impossible de supprimer l'image du produit", 'error');
@@ -1361,7 +1590,7 @@ async function handleProductFormSubmit(e, id) {
       }
     }
 
-    toast('Succ�s', `Produit ${id ? 'mis � jour' : 'cr��'} avec succ�s.`, 'success');
+    toast('Succï¿½s', `Produit ${id ? 'mis ï¿½ jour' : 'crï¿½ï¿½'} avec succï¿½s.`, 'success');
     allProducts = [];
     await ensureProductsLoaded();
     location.hash = '#/products';
@@ -1379,7 +1608,7 @@ const getSelectedContest = () => allContests.find(contest => contest.id === sele
 const CONTEST_STATUS_LABELS = {
   draft: 'Brouillon',
   active: 'Actif',
-  ended: 'Termin�',
+  ended: 'Terminï¿½',
 };
 
 const formatContestStatus = status =>
@@ -1399,11 +1628,11 @@ const toInputDateValue = value => {
 
 const toDisplayDate = value => {
   if (!value) {
-    return '�';
+    return 'ï¿½';
   }
   const dt = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(dt.getTime())) {
-    return '�';
+    return 'ï¿½';
   }
   return fmtDate(dt);
 };
@@ -1421,7 +1650,7 @@ const updateContestFilterOptions = () => {
     )
     .join('');
   select.innerHTML = allContests.length
-    ? `<option value="">S�lectionner un concours</option>${options}`
+    ? `<option value="">Sï¿½lectionner un concours</option>${options}`
     : '<option value="">Aucun concours disponible</option>';
   if (currentValue && select.value !== currentValue) {
     select.value = currentValue;
@@ -1431,14 +1660,14 @@ const updateContestFilterOptions = () => {
 const updateKpiContests = () => {
   const el = $('#kpi-contests');
   if (el) {
-    el.textContent = allContests.length ? String(allContests.length) : '�';
+    el.textContent = allContests.length ? String(allContests.length) : 'ï¿½';
   }
 };
 
 const updateKpiCandidates = count => {
   const el = $('#kpi-candidates');
   if (el) {
-    el.textContent = typeof count === 'number' && count >= 0 ? String(count) : '�';
+    el.textContent = typeof count === 'number' && count >= 0 ? String(count) : 'ï¿½';
   }
 };
 
@@ -1562,7 +1791,7 @@ function renderContestsOverview() {
     $contestsContent.innerHTML = `
       <div class="empty-state">
         <p>Aucun concours disponible.</p>
-        <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Cr�er un concours</button>
+        <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Crï¿½er un concours</button>
       </div>`;
     $contestsContent.querySelector('[data-create-first-contest]')?.addEventListener('click', () => {
       location.hash = '#/new-contest';
@@ -1583,7 +1812,7 @@ function renderContestsOverview() {
   const contest = getSelectedContest();
   if (!contest) {
     updateKpiCandidates(0);
-    $contestsContent.innerHTML = `<div class="empty-state"><p>S�lectionnez un concours pour voir ses candidats.</p></div>`;
+    $contestsContent.innerHTML = `<div class="empty-state"><p>Sï¿½lectionnez un concours pour voir ses candidats.</p></div>`;
     lucide.createIcons();
     return;
   }
@@ -1612,7 +1841,7 @@ function renderContestsOverview() {
           <td class="muted">${escapeHtml(candidate.id)}</td>
           <td class="strong">${Number(candidate.voteCount || 0).toLocaleString('fr-FR')}</td>
           <td class="actions">
-            <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> �diter</button>
+            <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> ï¿½diter</button>
             <button class="btn btn-danger btn-small" type="button" data-delete-candidate="${escapeAttr(candidate.id)}"><i data-lucide="trash-2" class="icon"></i></button>
           </td>
         </tr>`
@@ -1637,7 +1866,7 @@ function renderContestsOverview() {
             </tbody>
           </table>
         </div>`
-    : `<div class="empty-state"><p>${searchTerm ? 'Aucun candidat ne correspond � cette recherche.' : 'Aucun candidat n�est encore enregistr� pour ce concours.'}</p></div>`;
+    : `<div class="empty-state"><p>${searchTerm ? 'Aucun candidat ne correspond ï¿½ cette recherche.' : 'Aucun candidat nï¿½est encore enregistrï¿½ pour ce concours.'}</p></div>`;
 
   $contestsContent.innerHTML = `
     <div class="contest-layout">
@@ -1650,7 +1879,7 @@ function renderContestsOverview() {
           <div class="actions">
             <span class="badge status-${escapeAttr(contest.status)}">${formatContestStatus(contest.status)}</span>
             <button class="btn btn-icon btn-small" type="button" data-delete-current-contest title="Supprimer"><i data-lucide="trash-2" class="icon"></i></button>
-            <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> �diter</button>
+            <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> ï¿½diter</button>
           </div>
         </div>
         <div class="card-body">
@@ -1739,7 +1968,7 @@ async function handleCandidateDeletion(contestId, candidateId, label) {
       contestId,
       list.filter(candidate => candidate.id !== candidateId)
     );
-    toast('Candidat supprim�', label, 'success');
+    toast('Candidat supprimï¿½', label, 'success');
     if (contestId === selectedContestId) {
       updateKpiCandidates((contestCandidates.get(contestId) || []).length);
       renderContestsOverview();
@@ -1833,7 +2062,7 @@ async function renderContestFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
     <div class="form-head">
-      <div class="form-title">${isEdition ? '�diter' : 'Nouveau'} concours</div>
+      <div class="form-title">${isEdition ? 'ï¿½diter' : 'Nouveau'} concours</div>
       ${isEdition ? `<div class="kpi">ID : ${escapeHtml(contest.id)}</div>` : ''}
     </div>
     <form class="form-main" novalidate>
@@ -1843,7 +2072,7 @@ async function renderContestFormPage(id) {
       </div>
       <div class="field">
         <label class="label" for="contest-description">Description</label>
-        <textarea id="contest-description" class="textarea" rows="4" placeholder="D�tails du concours">${escapeHtml(defaults.description)}</textarea>
+        <textarea id="contest-description" class="textarea" rows="4" placeholder="Dï¿½tails du concours">${escapeHtml(defaults.description)}</textarea>
       </div>
       <div class="twocol">
         <div class="field">
@@ -1851,7 +2080,7 @@ async function renderContestFormPage(id) {
           <select id="contest-status" class="select">
             <option value="draft" ${defaults.status === 'draft' ? 'selected' : ''}>Brouillon</option>
             <option value="active" ${defaults.status === 'active' ? 'selected' : ''}>Actif</option>
-            <option value="ended" ${defaults.status === 'ended' ? 'selected' : ''}>Termin�</option>
+            <option value="ended" ${defaults.status === 'ended' ? 'selected' : ''}>Terminï¿½</option>
           </select>
         </div>
         <div class="field">
@@ -1871,7 +2100,7 @@ async function renderContestFormPage(id) {
       </div>
       <div class="form-actions">
         <button type="button" class="btn" data-cancel>Annuler</button>
-        <button type="submit" class="btn btn-primary">${isEdition ? 'Enregistrer' : 'Cr�er le concours'}</button>
+        <button type="submit" class="btn btn-primary">${isEdition ? 'Enregistrer' : 'Crï¿½er le concours'}</button>
       </div>
     </form>`;
 
@@ -1935,7 +2164,7 @@ async function handleContestFormSubmit(e, contestId) {
         }
         allContests[index] = merged;
       }
-      toast('Concours mis � jour', title, 'success');
+      toast('Concours mis ï¿½ jour', title, 'success');
       await ensureContestsLoaded(true);
       await setSelectedContest(contestId, { force: true });
     } else {
@@ -1947,7 +2176,7 @@ async function handleContestFormSubmit(e, contestId) {
       };
       const ref = await addDoc(collection(db, 'contests'), createdPayload);
       await updateDoc(ref, { id: ref.id });
-      toast('Concours cr��', title, 'success');
+      toast('Concours crï¿½ï¿½', title, 'success');
       await ensureContestsLoaded(true);
       await setSelectedContest(ref.id, { force: true });
     }
@@ -1963,7 +2192,7 @@ async function handleContestFormSubmit(e, contestId) {
 async function renderCandidateFormPage(contestId, candidateId) {
   if (!contestId) {
     $contestsContent.innerHTML =
-      '<div class="empty-state"><p>S�lectionnez un concours avant d�ajouter un candidat.</p></div>';
+      '<div class="empty-state"><p>Sï¿½lectionnez un concours avant dï¿½ajouter un candidat.</p></div>';
     return;
   }
   const contest = allContests.find(item => item.id === contestId) || null;
@@ -1998,7 +2227,7 @@ async function renderCandidateFormPage(contestId, candidateId) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
     <div class="form-head">
-      <div class="form-title">${candidateId ? '�diter' : 'Nouveau'} candidat</div>
+      <div class="form-title">${candidateId ? 'ï¿½diter' : 'Nouveau'} candidat</div>
       <div class="muted">Concours : ${escapeHtml((getSelectedContest() || {}).title || contestId)}</div>
     </div>
     <form class="form-main" novalidate>
@@ -2007,13 +2236,13 @@ async function renderCandidateFormPage(contestId, candidateId) {
         <input id="candidate-name" class="input" type="text" value="${escapeAttr(defaults.name)}" required />
       </div>
       <div class="field">
-        <label class="label" for="candidate-media">M�dia / Organisation</label>
-        <input id="candidate-media" class="input" type="text" value="${escapeAttr(defaults.media)}" placeholder="Cha�ne, journal..." />
+        <label class="label" for="candidate-media">Mï¿½dia / Organisation</label>
+        <input id="candidate-media" class="input" type="text" value="${escapeAttr(defaults.media)}" placeholder="Chaï¿½ne, journal..." />
       </div>
       <div class="field">
         <label class="label" for="candidate-photo">Photo (URL)</label>
         <input id="candidate-photo" class="input" type="url" value="${escapeAttr(defaults.photoUrl)}" placeholder="https://" />
-        <div class="hint">Utilisez une URL publique ou importez l'image depuis un stockage d�j� autoris�.</div>
+        <div class="hint">Utilisez une URL publique ou importez l'image depuis un stockage dï¿½jï¿½ autorisï¿½.</div>
       </div>
       <div class="field">
         <label class="label" for="candidate-votes">Votes initiaux</label>
@@ -2065,7 +2294,7 @@ async function handleCandidateFormSubmit(e, contestId, candidateId) {
         list[index] = { ...list[index], ...base };
       }
       contestCandidates.set(contestId, list);
-      toast('Candidat mis � jour', name, 'success');
+      toast('Candidat mis ï¿½ jour', name, 'success');
     } else {
       const ref = await addDoc(collection(db, 'contests', contestId, 'candidates'), {
         ...base,
@@ -2075,14 +2304,14 @@ async function handleCandidateFormSubmit(e, contestId, candidateId) {
       await updateDoc(ref, { id: ref.id });
       const list = contestCandidates.get(contestId) || [];
       contestCandidates.set(contestId, [{ id: ref.id, contestId, ...base }, ...list]);
-      toast('Candidat ajout�', name, 'success');
+      toast('Candidat ajoutï¿½', name, 'success');
     }
 
     await setSelectedContest(contestId, { force: true });
     location.hash = '#/contests';
   } catch (error) {
     console.error(error);
-    toast('Erreur', 'Impossible d�enregistrer le candidat.', 'error');
+    toast('Erreur', 'Impossible dï¿½enregistrer le candidat.', 'error');
   } finally {
     setButtonLoading(submitBtn, false);
   }
@@ -2123,7 +2352,7 @@ function renderBrandList() {
             <td style="font-weight:800">${escapeHtml(brand.name || 'Sans nom')}</td>
             <td><span class="badge">${brand.sortOrder || 'N/A'}</span></td>
             <td class="actions">
-                <button class="btn btn-small" data-edit>�diter</button>
+                <button class="btn btn-small" data-edit>ï¿½diter</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>
         `;
@@ -2151,7 +2380,7 @@ async function renderBrandFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-        <div class="form-head"><div class="form-title">${id ? '�diter' : 'Nouvelle'} marque</div></div>
+        <div class="form-head"><div class="form-title">${id ? 'ï¿½diter' : 'Nouvelle'} marque</div></div>
         <form class="form-main" novalidate>
             <div class="twocol">
                 <div class="field">
@@ -2169,7 +2398,7 @@ async function renderBrandFormPage(id) {
             </div>
             <div class="form-actions">
                 <button type="button" class="btn" data-cancel>Annuler</button>
-                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er la marque'}</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la marque'}</button>
             </div>
         </form>
     `;
@@ -2201,12 +2430,12 @@ async function handleBrandFormSubmit(e, id) {
       await updateDoc(doc(db, 'brands', id), data);
       const i = allBrands.findIndex(b => b.id === id);
       if (i > -1) allBrands[i] = { id, ...data };
-      toast('Marque mise � jour', name, 'success');
+      toast('Marque mise ï¿½ jour', name, 'success');
     } else {
       const refDoc = await addDoc(collection(db, 'brands'), data);
       allBrands.push({ id: refDoc.id, ...data });
       $('#kpi-brands').textContent = String(allBrands.length);
-      toast('Marque cr��e', name, 'success');
+      toast('Marque crï¿½ï¿½e', name, 'success');
     }
     allBrands.sort((a, b) => a.sortOrder - b.sortOrder);
     location.hash = '#/brands';
@@ -2248,7 +2477,7 @@ function renderMatchList() {
 	<thead>
 	  <tr>
 		<th>Affiche</th>
-		<th>Comp�tition</th>
+		<th>Compï¿½tition</th>
 		<th>Date</th>
 		<th style="width:180px;text-align:right">Actions</th>
 	  </tr>
@@ -2265,13 +2494,13 @@ function renderMatchList() {
     const tr = document.createElement('tr');
     tr.dataset.id = m.id;
   tr.innerHTML = `
-	  <td style="font-weight:800">${escapeHtml(m.teamA || '�quipe A')} vs ${escapeHtml(m.teamB || '�quipe B')}</td>
-	  <td>${escapeHtml(m.competition || '�')}</td>
-	  <td>${date ? fmtDate(date) : '�'}</td>
+	  <td style="font-weight:800">${escapeHtml(m.teamA || 'ï¿½quipe A')} vs ${escapeHtml(m.teamB || 'ï¿½quipe B')}</td>
+	  <td>${escapeHtml(m.competition || 'ï¿½')}</td>
+	  <td>${date ? fmtDate(date) : 'ï¿½'}</td>
 	  <td class="actions">
-		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || '� jouer'}</span>
+		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || 'ï¿½ jouer'}</span>
 		<button class="btn btn-small" data-view>Pronostics</button>
-		<button class="btn btn-small" data-edit>�diter</button>
+		<button class="btn btn-small" data-edit>ï¿½diter</button>
 		<button class="btn btn-danger btn-small" data-del>Supprimer</button>
 	  </td>`;
     tr.querySelector('[data-view]').addEventListener('click', function () {
@@ -2383,9 +2612,9 @@ async function renderMatchPredictionsPage(matchId) {
 
   setCrumb(
     'Pronostics \u00b7 ' +
-      (match.teamA || '�quipe A') +
+      (match.teamA || 'ï¿½quipe A') +
       ' vs ' +
-      (match.teamB || '�quipe B')
+      (match.teamB || 'ï¿½quipe B')
   );
 
   const container = document.createElement('div');
@@ -2393,7 +2622,7 @@ async function renderMatchPredictionsPage(matchId) {
   container.innerHTML = `
     <div class="card match-summary">
       <div class="summary-info">
-        <div class="match-title">${escapeHtml(match.teamA || '�quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || '�quipe B')}</div>
+        <div class="match-title">${escapeHtml(match.teamA || 'ï¿½quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || 'ï¿½quipe B')}</div>
         <div class="match-meta">
           ${match.competition ? `<span class="chip">${escapeHtml(match.competition)}</span>` : ''}
           <span class="muted">${matchDate ? fmtDate(matchDate) : 'Date &agrave; confirmer'}</span>
@@ -2492,7 +2721,7 @@ async function renderMatchPredictionsPage(matchId) {
           statusPieces.push('<span class="chip chip-info">Mis en avant</span>');
         }
         const scoreLabel =
-          item.scoreA === null || item.scoreB === null ? '�' : `${item.scoreA} - ${item.scoreB}`;
+          item.scoreA === null || item.scoreB === null ? 'ï¿½' : `${item.scoreA} - ${item.scoreB}`;
         const contactBits = [];
         if (item.contactName) {
           contactBits.push(escapeHtml(item.contactName));
@@ -2501,7 +2730,7 @@ async function renderMatchPredictionsPage(matchId) {
           contactBits.push('<span class="muted">' + escapeHtml(item.contactPhone) + '</span>');
         }
         const userIdLabel = item.userId ? '<div class="muted">ID: ' + escapeHtml(item.userId) + '</div>' : '';
-        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : '�';
+        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : 'ï¿½';
         return `
           <tr class="${item.isWinner ? 'winner-row' : ''}">
             <td>
@@ -2509,7 +2738,7 @@ async function renderMatchPredictionsPage(matchId) {
               ${userIdLabel}
             </td>
             <td class="pred-score">${scoreLabel}</td>
-            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">�</span>'}</td>
+            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">ï¿½</span>'}</td>
             <td class="pred-status">${statusPieces.join(' ')}</td>
             <td>${createdLabel}</td>
           </tr>`;
@@ -2541,7 +2770,7 @@ async function renderMatchPredictionsPage(matchId) {
       state.items = data;
       applyFilters();
       if (force) {
-        toast('Pronostics mis � jour', '', 'success');
+        toast('Pronostics mis ï¿½ jour', '', 'success');
       }
     } catch (error) {
       console.error('Match predictions load failed', error);
@@ -2598,12 +2827,12 @@ async function renderMatchFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
 	<div class="form-head">
-	  <div class="form-title">${id ? '�diter' : 'Nouveau'} match</div>
+	  <div class="form-title">${id ? 'ï¿½diter' : 'Nouveau'} match</div>
 	</div>
 	<form class="form-main" novalidate>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="m-competition">Comp�tition</label>
+		  <label class="label" for="m-competition">Compï¿½tition</label>
 		  <input id="m-competition" class="input" type="text" value="${escapeAttr(m.competition || '')}" />
 		</div>
 		<div class="field">
@@ -2614,11 +2843,11 @@ async function renderMatchFormPage(id) {
 	  </div>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="m-teamA">�quipe A</label>
+		  <label class="label" for="m-teamA">ï¿½quipe A</label>
 		  <input id="m-teamA" class="input" type="text" value="${escapeAttr(m.teamA || '')}" required />
 		</div>
 		<div class="field">
-		  <label class="label" for="m-teamB">�quipe B</label>
+		  <label class="label" for="m-teamB">ï¿½quipe B</label>
 		  <input id="m-teamB" class="input" type="text" value="${escapeAttr(m.teamB || '')}" required />
 		</div>
 	  </div>
@@ -2644,7 +2873,7 @@ async function renderMatchFormPage(id) {
 	  </div>
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
-		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er le match'}</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er le match'}</button>
 	  </div>
 	</form>`;
   $matchesContent.innerHTML = '';
@@ -2699,12 +2928,12 @@ async function handleMatchFormSubmit(e, id) {
         return x.id === id;
       });
       if (m) Object.assign(m, data);
-      toast('Match mis � jour', teamA + ' vs ' + teamB, 'success');
+      toast('Match mis ï¿½ jour', teamA + ' vs ' + teamB, 'success');
       location.hash = '#/matches';
     } else {
       const refDoc = await addDoc(collection(db, 'matches'), data);
       allMatches.unshift({ id: refDoc.id, ...data });
-      toast('Match cr��', teamA + ' vs ' + teamB, 'success');
+      toast('Match crï¿½ï¿½', teamA + ' vs ' + teamB, 'success');
       location.hash = '#/matches';
       $('#kpi-matches').textContent = String(allMatches.length);
     }
@@ -2858,9 +3087,9 @@ async function handlePromoCardStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoCards', id), { isActive: isActive });
     const card = allPromoCards.find(c => c.id === id);
     if (card) card.isActive = isActive;
-    toast('Statut mis � jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
+    toast('Statut mis ï¿½ jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
   } catch (error) {
-    console.error('Erreur de mise � jour du statut:', error);
+    console.error('Erreur de mise ï¿½ jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
     renderPromoCardList();
   }
@@ -2929,7 +3158,7 @@ async function renderPromoCardFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-		<div class="form-head"><div class="form-title">${id ? '�diter' : 'Nouvelle'} Carte Promo</div></div>
+		<div class="form-head"><div class="form-title">${id ? 'ï¿½diter' : 'Nouvelle'} Carte Promo</div></div>
 		<form class="form-main" novalidate>
 			<div class="twocol">
 				<div class="field">
@@ -2947,7 +3176,7 @@ async function renderPromoCardFormPage(id) {
 					<input id="pc-cta" class="input" type="text" value="${escapeAttr(card.cta || '')}" />
 				</div>
 				<div class="field">
-					<label class="label" for="pc-screen">�cran de destination</label>
+					<label class="label" for="pc-screen">ï¿½cran de destination</label>
 					<input id="pc-screen" class="input" type="text" value="${escapeAttr(card.screen || '')}" placeholder="Ex: MatchList, Store..." />
 				</div>
 			</div>
@@ -2972,7 +3201,7 @@ async function renderPromoCardFormPage(id) {
 			</div>
 			<div class="form-actions">
 				<button type="button" class="btn" data-cancel>Annuler</button>
-				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er la carte'}</button>
+				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la carte'}</button>
 			</div>
 		</form>`;
   $promoCardsContent.innerHTML = '';
@@ -3006,12 +3235,12 @@ async function handlePromoCardFormSubmit(e, id) {
       await updateDoc(doc(db, 'promoCards', id), data);
       const i = allPromoCards.findIndex(c => c.id === id);
       if (i > -1) allPromoCards[i] = { id, ...data };
-      toast('Carte mise � jour', data.title, 'success');
+      toast('Carte mise ï¿½ jour', data.title, 'success');
     } else {
       const refDoc = await addDoc(collection(db, 'promoCards'), data);
       allPromoCards.push({ id: refDoc.id, ...data });
       updatePromoCardsKpi();
-      toast('Carte cr��e', data.title, 'success');
+      toast('Carte crï¿½ï¿½e', data.title, 'success');
     }
     allPromoCards.sort((a, b) => a.sortOrder - b.sortOrder);
     location.hash = '#/promocards';
@@ -3028,6 +3257,7 @@ $('#add-promocode').addEventListener('click', () => (location.hash = '#/new-prom
 $('#search-promocodes').addEventListener('input', () => renderPromoCodeList());
 
 function renderPromoCodeList() {
+  ensurePromoRulesLoaded().catch(err => console.warn('PromoRules load skipped', err));
   const term = ($('#search-promocodes').value || '').toLowerCase();
   const arr = term
     ? allPromoCodes.filter(c => {
@@ -3050,7 +3280,7 @@ function renderPromoCodeList() {
                 <th>Type</th>
                 <th>Valeur</th>
                 <th>Partenaire</th>
-                <th>Statut</th>
+                <th>Statut / Règle</th>
                 <th style="width:180px;text-align:right">Actions</th>
             </tr>
         </thead>
@@ -3060,11 +3290,14 @@ function renderPromoCodeList() {
     const tr = document.createElement('tr');
     tr.dataset.id = c.id;
     const valText = c.type === 'percentage' ? `${c.value}%` : fmtXOF.format(c.value);
+    const rule = allPromoRules.find(r => (r.code || r.id || '').toLowerCase() === (c.code || '').toLowerCase());
+    const channels = rule?.allowedChannels?.join(', ') || 'tous';
+    const bracketsText = summarizeBrackets(rule?.priceBrackets || DEFAULT_PRICE_BRACKETS);
     tr.innerHTML = `
             <td style="font-weight:800"><span class="chip">${escapeHtml(c.code || 'Sans code')}</span></td>
             <td>${escapeHtml(c.type === 'percentage' ? 'Pourcentage' : 'Montant Fixe')}</td>
             <td><span class="badge success">${valText}</span></td>
-            <td>${escapeHtml(c.assignedTo || '—')}</td>
+            <td>${escapeHtml(c.assignedTo || '-')}</td>
             <td>
                 <label class="toggle">
                     <span class="toggle-switch">
@@ -3072,9 +3305,11 @@ function renderPromoCodeList() {
                         <span class="toggle-slider"></span>
                     </span>
                 </label>
+                <div class="muted small">${escapeHtml(channels)}</div>
+                <div class="muted small">${escapeHtml(bracketsText)}</div>
             </td>
             <td class="actions">
-                <button class="btn btn-small" data-edit>�diter</button>
+                <button class="btn btn-small" data-edit>Éditer</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>`;
     tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocode/${c.id}`);
@@ -3092,16 +3327,18 @@ async function handlePromoCodeStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoCodes', id), { isActive: isActive });
     const code = allPromoCodes.find(c => c.id === id);
     if (code) code.isActive = isActive;
-    toast('Statut mis � jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
+    toast('Statut mis ï¿½ jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
   } catch (error) {
-    console.error('Erreur de mise � jour du statut:', error);
+    console.error('Erreur de mise ï¿½ jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
     renderPromoCodeList();
   }
 }
 
+
 async function renderPromoCodeFormPage(id) {
   let code = {};
+  let rule = null;
   if (id) {
     code =
       allPromoCodes.find(c => c.id === id) ||
@@ -3111,18 +3348,42 @@ async function renderPromoCodeFormPage(id) {
       return;
     }
   }
+  const ruleId = (code.code || code.id || id || '').toUpperCase();
+  if (ruleId) {
+    rule =
+      allPromoRules.find(r => (r.code || r.id || '').toUpperCase() === ruleId) ||
+      (await getDoc(doc(db, 'promoRules', ruleId)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+  }
+  const ruleData = rule || {
+    code: ruleId,
+    isActive: code.isActive !== false,
+    allowedChannels: ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: [],
+    partnerRefRequired: false,
+    priceBrackets: DEFAULT_PRICE_BRACKETS,
+    startsAt: null,
+    endsAt: null,
+  };
+  const channelsSelected =
+    (ruleData.allowedChannels && ruleData.allowedChannels.length
+      ? ruleData.allowedChannels
+      : ['web', 'app', 'wa', 'qr', 'bo']
+    ).map(c => String(c).toLowerCase());
+  const partnersValue = (ruleData.allowedPartners || []).join(',');
+  const initialBrackets = ruleData.priceBrackets && ruleData.priceBrackets.length ? ruleData.priceBrackets : DEFAULT_PRICE_BRACKETS;
+
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-        <div class="form-head"><div class="form-title">${id ? '�diter' : 'Nouveau'} Code Promo</div></div>
+        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouveau'} Code Promo</div></div>
         <form class="form-main" novalidate>
             <div class="twocol">
                 <div class="field">
                     <label class="label" for="pc-code">Le Code</label>
-                    <input id="pc-code" class="input" type="text" value="${escapeAttr(code.code || '')}" required placeholder="ex: BIENVENUE10" />
+                    <input id="pc-code" class="input" type="text" value="${escapeAttr(code.code || '')}" ${id ? 'disabled' : ''} required placeholder="ex: BIENVENUE10" />
                 </div>
                 <div class="field">
-                    <label class="label" for="pc-type">Type de r�duction</label>
+                    <label class="label" for="pc-type">Type de réduction</label>
                     <select id="pc-type" class="select">
                         <option value="percentage" ${code.type === 'percentage' ? 'selected' : ''}>Pourcentage (%)</option>
                         <option value="fixed" ${code.type === 'fixed' ? 'selected' : ''}>Montant Fixe (FCFA)</option>
@@ -3130,14 +3391,14 @@ async function renderPromoCodeFormPage(id) {
                 </div>
             </div>
             <div class="field">
-                <label class="label" for="pc-value">Valeur de la r�duction</label>
+                <label class="label" for="pc-value">Valeur de la réduction</label>
                 <input id="pc-value" class="input" type="number" min="0" step="1" value="${code.value || ''}" required />
                 <div class="hint">Ex: "10" pour 10% ou "5000" pour 5000 FCFA.</div>
             </div>
             <div class="field">
-                <label class="label" for="pc-partner">Partenaire attribu�</label>
+                <label class="label" for="pc-partner">Partenaire attribué</label>
                 <input id="pc-partner" class="input" type="text" value="${escapeAttr(code.assignedTo || '')}" placeholder="Orange Money, Canal+, etc." />
-                <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associ�e � ce code.</div>
+                <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associée à ce code.</div>
             </div>
             <div class="field">
                 <label class="toggle">
@@ -3148,53 +3409,408 @@ async function renderPromoCodeFormPage(id) {
                     <span>Actif (utilisable dans l'application)</span>
                 </label>
             </div>
+            <div class="divider"></div>
+            <div class="field">
+              <label class="label">Règle promo (validation)</label>
+              <div class="hint">Canaux autorisés, partenaires et tranches de remise/commission</div>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label">Canaux autorisés</label>
+                <div id="pc-channels-group" class="channel-checks"></div>
+                <div class="hint">Coche les canaux où ce code peut être utilisé.</div>
+              </div>
+              <div class="field">
+                <label class="label" for="pc-partners">Partenaires autorisés</label>
+                <input id="pc-partners" class="input" type="text" value="${escapeAttr(partnersValue)}" placeholder="PART-001,PART-002" />
+                <div class="hint">Laisse vide pour tous les partenaires.</div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="toggle">
+                <span class="toggle-switch">
+                  <input id="pc-partnerRequired" type="checkbox" ${ruleData.partnerRefRequired ? 'checked' : ''}>
+                  <span class="toggle-slider"></span>
+                </span>
+                <span>Ref partenaire obligatoire</span>
+              </label>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pc-start">Début</label>
+                <input id="pc-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(ruleData.startsAt))}" />
+              </div>
+              <div class="field">
+                <label class="label" for="pc-end">Fin</label>
+                <input id="pc-end" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(ruleData.endsAt))}" />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Tranches (remise / commission)</label>
+              <div id="brackets-rows" class="brackets-rows"></div>
+              <div class="top-actions" style="margin-top:8px; gap:8px;">
+                <button id="add-bracket" type="button" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Ajouter une tranche</button>
+                <button id="reset-brackets" type="button" class="btn btn-small"><i data-lucide="rotate-ccw" class="icon"></i> Valeurs par défaut</button>
+              </div>
+              <div class="hint">Ex: 0-149 000 => remise 5 000 / commission 8 000. Laissez Max vide pour une tranche ouverte.</div>
+            </div>
             <div class="form-actions">
                 <button type="button" class="btn" data-cancel>Annuler</button>
-                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr�er le code'}</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer le code'}</button>
             </div>
         </form>`;
   $promoCodesContent.innerHTML = '';
   $promoCodesContent.appendChild(wrap);
   wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes');
-  wrap.querySelector('form').onsubmit = e => handlePromoCodeFormSubmit(e, id);
+  wrap.querySelector('form').onsubmit = e => handlePromoCodeFormSubmit(e, id || ruleId);
+
+  renderChannelCheckboxes('pc-channels-group', channelsSelected);
+  renderBracketRows(initialBrackets);
+  document.getElementById('add-bracket')?.addEventListener('click', () => {
+    const container = document.getElementById('brackets-rows');
+    if (container) {
+      container.appendChild(buildBracketRow({ min: 0, max: null, discountValue: 0, commissionValue: 0, label: '' }));
+    }
+    lucide.createIcons();
+  });
+  document.getElementById('reset-brackets')?.addEventListener('click', () => renderBracketRows(DEFAULT_PRICE_BRACKETS));
 }
+
 
 async function handlePromoCodeFormSubmit(e, id) {
   e.preventDefault();
   const submitBtn = e.target.querySelector('button[type="submit"]');
   setButtonLoading(submitBtn, true);
 
-  const code = $('#pc-code').value.trim().toUpperCase();
+  const codeValue = ($('#pc-code').value || '').trim().toUpperCase();
   const value = parseFloat($('#pc-value').value);
 
-  if (!code || isNaN(value)) {
+  if (!codeValue || isNaN(value)) {
     toast('Erreur', 'Le code et la valeur sont requis.', 'error');
     setButtonLoading(submitBtn, false);
     return;
   }
 
   const data = {
-    code: code,
+    code: codeValue,
     type: $('#pc-type').value,
     value: value,
     assignedTo: $('#pc-partner').value.trim(),
     isActive: $('#pc-isActive').checked,
   };
 
+  const allowedChannels = readChannelCheckboxes('pc-channels-group');
+  const partnersRaw = $('#pc-partners').value || '';
+  const allowedPartners = partnersRaw
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  let priceBrackets = readBracketRows();
+  if (!priceBrackets.length) {
+    priceBrackets = DEFAULT_PRICE_BRACKETS;
+  }
+
+  const startsAtVal = $('#pc-start').value;
+  const endsAtVal = $('#pc-end').value;
+  const rulePayload = {
+    code: codeValue,
+    isActive: $('#pc-isActive').checked,
+    allowedChannels: allowedChannels.length ? allowedChannels : ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: allowedPartners,
+    partnerRefRequired: $('#pc-partnerRequired').checked,
+    priceBrackets: priceBrackets,
+    startsAt: startsAtVal ? new Date(startsAtVal) : null,
+    endsAt: endsAtVal ? new Date(endsAtVal) : null,
+    updatedAt: serverTimestamp(),
+  };
+
   try {
+    let promoCodeId = id;
     if (id) {
       await updateDoc(doc(db, 'promoCodes', id), data);
       const i = allPromoCodes.findIndex(c => c.id === id);
       if (i > -1) allPromoCodes[i] = { id, ...data };
-      toast('Code mis � jour', data.code, 'success');
+      toast('Code mis ? jour', data.code, 'success');
     } else {
       const finalData = { ...data, createdAt: serverTimestamp() };
       const refDoc = await addDoc(collection(db, 'promoCodes'), finalData);
-      allPromoCodes.unshift({ id: refDoc.id, ...finalData });
+      promoCodeId = refDoc.id;
+      allPromoCodes.unshift({ id: promoCodeId, ...finalData });
       $('#kpi-promocodes').textContent = String(allPromoCodes.length);
-      toast('Code cr��', data.code, 'success');
+      toast('Code cr??', data.code, 'success');
     }
+
+    const ruleRef = doc(db, 'promoRules', codeValue);
+    await setDoc(ruleRef, { ...rulePayload, createdAt: serverTimestamp() }, { merge: true });
+    const idx = allPromoRules.findIndex(r => (r.code || r.id || '').toUpperCase() === codeValue);
+    if (idx > -1) {
+      allPromoRules[idx] = { ...allPromoRules[idx], ...rulePayload, id: codeValue };
+    } else {
+      allPromoRules.unshift({ id: codeValue, ...rulePayload });
+    }
+    allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
+
+    track('promo_code_save', { code: data.code, isEdit: Boolean(id), type: data.type, hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
     location.hash = '#/promocodes';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Promo Rules UI ============================ */
+function summarizeBrackets(brackets = []) {
+  if (!Array.isArray(brackets) || brackets.length === 0) return 'Aucune tranche';
+  return brackets
+    .slice(0, 3)
+    .map(b => {
+      const min = typeof b.min === 'number' ? b.min : 0;
+      const max = typeof b.max === 'number' ? b.max : null;
+      const discount = typeof b.discountValue === 'number' ? fmtXOF.format(b.discountValue) : '-';
+      const commission = typeof b.commissionValue === 'number' ? fmtXOF.format(b.commissionValue) : '-';
+      return `${min}-${max || '+'}: -${discount} / +${commission}`;
+    })
+    .join(' | ');
+}
+
+function renderPromoRuleList() {
+  const term = ($('#search-promorules').value || '').toLowerCase();
+  const arr = term
+    ? allPromoRules.filter(r => {
+        const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
+        const partnerMatch = (r.allowedPartners || []).join(',').toLowerCase().includes(term);
+        return codeMatch || partnerMatch;
+      })
+    : allPromoRules;
+
+  if (!arr.length) {
+    if ($promoRulesContent) $promoRulesContent.innerHTML = `<div class="center" style="padding:32px">Aucune rÃ¨gle promo.</div>`;
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Actif</th>
+        <th>Canaux</th>
+        <th>Tranches</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-promorules"></tbody>`;
+  const tb = table.querySelector('#tbody-promorules');
+  arr.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = r.id;
+    const channels = (r.allowedChannels || []).join(', ') || 'tous';
+    const bracketsText = summarizeBrackets(r.priceBrackets || DEFAULT_PRICE_BRACKETS);
+    tr.innerHTML = `
+      <td style="font-weight:700">${escapeHtml(r.code || r.id || '')}</td>
+      <td>
+        <label class="toggle">
+          <span class="toggle-switch">
+            <input type="checkbox" data-active-toggle ${r.isActive !== false ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </span>
+        </label>
+      </td>
+      <td>${escapeHtml(channels)}</td>
+      <td>${escapeHtml(bracketsText)}</td>
+      <td class="actions">
+        <button class="btn btn-small" data-edit>ï¿½diter</button>
+        <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+      </td>`;
+    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promorule/${r.id}`);
+    tr.querySelector('[data-del]').onclick = () => handleDelete(r.id, r.code || r.id, 'promoRules');
+    tr.querySelector('[data-active-toggle]').onchange = e => handlePromoRuleStatusToggle(r.id, e.target.checked);
+    tb.appendChild(tr);
+  });
+  $promoRulesContent.innerHTML = '';
+  if ($promoRulesContent) {
+    $promoRulesContent.appendChild(table);
+  }
+  lucide.createIcons();
+}
+
+async function handlePromoRuleStatusToggle(id, isActive) {
+  try {
+    await updateDoc(doc(db, 'promoRules', id), { isActive: isActive });
+    const rule = allPromoRules.find(r => r.id === id);
+    if (rule) rule.isActive = isActive;
+    toast('Statut mis ï¿½ jour', `La rï¿½gle est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
+  } catch (error) {
+    console.error('PromoRule status update failed', error);
+    toast('Erreur', 'Impossible de changer le statut.', 'error');
+    renderPromoRuleList();
+  }
+}
+
+async function renderPromoRuleFormPage(id) {
+  let rule = {};
+  if (id) {
+    rule =
+      allPromoRules.find(r => r.id === id) ||
+      (await getDoc(doc(db, 'promoRules', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!rule) {
+      $promoRulesContent.innerHTML = '<div class="center" style="padding:32px">Rï¿½gle introuvable.</div>';
+      return;
+    }
+  }
+
+  const priceBrackets = JSON.stringify(
+    rule.priceBrackets && rule.priceBrackets.length ? rule.priceBrackets : DEFAULT_PRICE_BRACKETS,
+    null,
+    2
+  );
+  const channelsSelected =
+    (rule.allowedChannels && rule.allowedChannels.length
+      ? rule.allowedChannels
+      : ['web', 'app', 'wa', 'qr', 'bo']
+    ).map(c => String(c).toLowerCase());
+  const partners = (rule.allowedPartners || []).join(',');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+    <div class="form-head"><div class="form-title">${id ? 'ï¿½diter Rï¿½gle' : 'Nouvelle Rï¿½gle Promo'}</div></div>
+    <form class="form-main" novalidate>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="pr-code">Code</label>
+          <input id="pr-code" class="input" type="text" value="${escapeAttr(rule.code || rule.id || '')}" ${
+    id ? 'disabled' : ''
+  } required />
+          <div class="hint">Utilise des lettres/chiffres, ex: JOYFUL-AP</div>
+        </div>
+        <div class="field">
+          <label class="label">Actif</label>
+          <label class="toggle">
+            <span class="toggle-switch">
+              <input id="pr-active" type="checkbox" ${rule.isActive !== false ? 'checked' : ''}>
+              <span class="toggle-slider"></span>
+            </span>
+            <span>Code utilisable</span>
+          </label>
+        </div>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label">Canaux autorises</label>
+          <div id="pr-channels-group" class="channel-checks"></div>
+          <div class="hint">Coche les canaux ou la regle peut s'appliquer.</div>
+        </div>
+        <div class="field">
+          <label class="label" for="pr-partners">Partenaires autorises</label>
+          <input id="pr-partners" class="input" type="text" value="${escapeAttr(partners)}" placeholder="PART-001,PART-002" />
+          <div class="hint">Laisse vide pour tous les partenaires.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="toggle">
+          <span class="toggle-switch">
+            <input id="pr-partnerRequired" type="checkbox" ${rule.partnerRefRequired ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </span>
+          <span>Ref partenaire obligatoire</span>
+        </label>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="pr-start">Dï¿½but</label>
+          <input id="pr-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(rule.startsAt))}" />
+        </div>
+        <div class="field">
+          <label class="label" for="pr-end">Fin</label>
+          <input id="pr-end" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(rule.endsAt))}" />
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="pr-brackets">Tranches (JSON)</label>
+        <textarea id="pr-brackets" class="textarea" rows="8">${priceBrackets}</textarea>
+        <div class="hint">Chaque tranche: { min, max, discountValue, commissionValue, label }. Utilise null/omit pour max illimitï¿½.</div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" data-cancel>Annuler</button>
+        <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la rï¿½gle'}</button>
+      </div>
+    </form>`;
+  $promoRulesContent.innerHTML = '';
+  $promoRulesContent.appendChild(wrap);
+  renderChannelCheckboxes('pr-channels-group', channelsSelected);
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promorules');
+  wrap.querySelector('form').onsubmit = e => handlePromoRuleFormSubmit(e, id, rule.code || rule.id);
+}
+
+async function handlePromoRuleFormSubmit(e, id, existingCode) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  const code = (existingCode || $('#pr-code').value || '').trim().toUpperCase();
+  if (!code) {
+    toast('Erreur', 'Le code est requis.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+
+  const allowedChannels = readChannelCheckboxes('pr-channels-group');
+  const partnersRaw = $('#pr-partners').value || '';
+  const allowedPartners = partnersRaw
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  let priceBrackets = DEFAULT_PRICE_BRACKETS;
+  try {
+    const parsed = JSON.parse($('#pr-brackets').value || '[]');
+    if (Array.isArray(parsed) && parsed.length) {
+      priceBrackets = parsed;
+    }
+  } catch (err) {
+    console.warn('Price bracket parse failed, fallback to default', err);
+    priceBrackets = DEFAULT_PRICE_BRACKETS;
+  }
+
+  const startsAtVal = $('#pr-start').value;
+  const endsAtVal = $('#pr-end').value;
+  const payload = {
+    code,
+    isActive: $('#pr-active').checked,
+    allowedChannels: allowedChannels.length ? allowedChannels : ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: allowedPartners,
+    partnerRefRequired: $('#pr-partnerRequired').checked,
+    priceBrackets: priceBrackets,
+    startsAt: startsAtVal ? new Date(startsAtVal) : null,
+    endsAt: endsAtVal ? new Date(endsAtVal) : null,
+    updatedAt: serverTimestamp(),
+  };
+
+  try {
+    const docId = id || code;
+    const ref = doc(db, 'promoRules', docId);
+    if (!id) {
+      await setDoc(ref, { ...payload, createdAt: serverTimestamp() });
+      allPromoRules.unshift({ id: docId, ...payload });
+    } else {
+      await setDoc(ref, payload, { merge: true });
+      const idx = allPromoRules.findIndex(r => r.id === docId);
+      if (idx > -1) {
+        allPromoRules[idx] = { ...allPromoRules[idx], ...payload };
+      } else {
+        allPromoRules.unshift({ id: docId, ...payload });
+      }
+    }
+    allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
+    track('promo_rule_save', { code: code, isEdit: Boolean(id), hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
+    toast('Succ?s', id ? 'R?gle mise ? jour' : 'R?gle cr??e', 'success');
+    location.hash = '#/promorules';
+  }
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');

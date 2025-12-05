@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Partenaire | AfricaPhone</title>
+    <!-- Police Inter pour un look moderne -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2-family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icones Phosphor (legeres et modernes) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+      :root {
+        /* Palette de couleurs - Dark Mode par defaut */
+        --bg-body: #0f1115;
+        --bg-card: #161b22;
+        --bg-card-hover: #1c2128;
+        --border-color: #30363d;
+        
+        --text-primary: #f0f6fc;
+        --text-secondary: #8b949e;
+        --text-tertiary: #6e7681;
+
+        --accent-primary: #58a6ff;
+        --accent-primary-dim: rgba(88, 166, 255, 0.15);
+        --accent-success: #2ea043;
+        --accent-success-dim: rgba(46, 160, 67, 0.15);
+        --accent-warning: #d29922;
+        --accent-warning-dim: rgba(210, 153, 34, 0.15);
+        --accent-danger: #f85149;
+        
+        --radius-sm: 6px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+        
+        --font-main: 'Inter', system-ui, sans-serif;
+      }
+
+      /* Light Mode Variables */
+      body.light {
+        --bg-body: #f6f8fa;
+        --bg-card: #ffffff;
+        --bg-card-hover: #f3f4f6;
+        --border-color: #d0d7de;
+        
+        --text-primary: #1f2328;
+        --text-secondary: #57606a;
+        --text-tertiary: #6e7781;
+
+        --accent-primary: #0969da;
+        --accent-primary-dim: rgba(9, 105, 218, 0.1);
+        --accent-success: #1a7f37;
+        --accent-success-dim: rgba(26, 127, 55, 0.1);
+        --accent-warning: #9a6700;
+        --accent-warning-dim: rgba(154, 103, 0, 0.1);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: var(--font-main);
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        line-height: 1.5;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Layout Principal */
+      .app-shell {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 24px;
+        display: grid;
+        gap: 24px;
+      }
+
+      /* Composant Carte Universel */
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .card:hover {
+        border-color: var(--accent-primary);
+        box-shadow: var(--shadow-md);
+      }
+
+      /* Typography Helpers */
+      .label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .muted { color: var(--text-secondary); font-size: 0.875rem; }
+      .small { font-size: 0.75rem; }
+      .section-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+
+      /* Pills & Badges */
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .pill-primary { background: var(--accent-primary-dim); color: var(--accent-primary); border: 1px solid rgba(88, 166, 255, 0.2); }
+      .pill-success { background: var(--accent-success-dim); color: var(--accent-success); border: 1px solid rgba(46, 160, 67, 0.2); }
+      .pill-warning { background: var(--accent-warning-dim); color: var(--accent-warning); border: 1px solid rgba(210, 153, 34, 0.2); }
+      .pill-ghost { background: rgba(110, 118, 129, 0.1); color: var(--text-secondary); }
+      .pill-light { background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
+      .pill-light:hover { background: var(--bg-card-hover); }
+
+      /* --- HEADER --- */
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        position: sticky;
+        top: 24px;
+        z-index: 100;
+        backdrop-filter: blur(12px);
+        background: rgba(22, 27, 34, 0.85); /* Semi-transparent */
+      }
+      body.light .topbar { background: rgba(255, 255, 255, 0.85); }
+
+      .brand { display: flex; align-items: center; gap: 16px; }
+      .logo { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #FF6B6B, #556270); } /* Placeholder gradient */
+      .brand .eyebrow { font-size: 0.8rem; color: var(--text-tertiary); font-weight: 500; }
+      .brand .title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+      
+      .top-actions { display: flex; gap: 12px; align-items: center; }
+      .toggle-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .toggle-btn:hover { background: var(--bg-card-hover); }
+
+      /* --- FILTERS --- */
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        align-items: flex-start;
+      }
+      .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+      .chip {
+        padding: 6px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 0.875rem;
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .chip:hover { border-color: var(--accent-primary); }
+      .chip-active {
+        background: var(--accent-primary);
+        color: white;
+        border-color: var(--accent-primary);
+      }
+      .filter-grid {
+        display: flex;
+        gap: 24px;
+        flex-grow: 1;
+        justify-content: flex-end;
+      }
+      .filter-grid > div { min-width: 140px; }
+      .field {
+        font-weight: 500;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 4px;
+      }
+
+      /* --- KPI GRID --- */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+      }
+      .kpi { display: flex; flex-direction: column; justify-content: space-between; height: 100%; position: relative; overflow: hidden; }
+      /* Petit accent decoratif en haut de la carte KPI */
+      .kpi::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+        background: linear-gradient(90deg, var(--accent-primary), transparent);
+        opacity: 0.5;
+      }
+      .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+      .kpi-value { font-size: 2.5rem; font-weight: 700; color: var(--text-primary); line-height: 1.1; margin-bottom: 8px; }
+      .kpi-note { font-size: 0.8rem; color: var(--text-tertiary); }
+
+      /* --- CHARTS --- */
+      .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+      }
+      .chart-card { min-height: 300px; display: flex; flex-direction: column; }
+      .section-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+      
+      /* Sparkline CSS Trick */
+      .sparkline {
+        flex-grow: 1;
+        width: 100%;
+        height: 100px;
+        display: flex;
+        align-items: flex-end;
+        position: relative;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 16px;
+        overflow: hidden;
+      }
+      .spark-fill {
+        width: 100%; height: 100%;
+        background: linear-gradient(180deg, var(--accent-primary-dim) 0%, transparent 80%);
+        mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" stroke="black" stroke-width="2" fill="none"/></svg>');
+        -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="black"/></svg>');
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        position: relative;
+      }
+      .spark-fill::after {
+        content: ''; position: absolute; top:0; left:0; right:0; bottom:0;
+        /* Draw the line */
+        background: transparent;
+      }
+
+      /* Stacked Bars */
+      .bar-stack { display: flex; flex-direction: column; gap: 16px; margin-top: auto; }
+      .bar-stack-row { display: flex; align-items: center; gap: 16px; font-size: 0.875rem; }
+      .bar-stack-row > span.muted { width: 80px; }
+      .stack { flex-grow: 1; height: 12px; background: var(--bg-card-hover); border-radius: 6px; overflow: hidden; display: flex; }
+      .stack-part { height: 100%; }
+      .part-lead { background: var(--text-secondary); opacity: 0.5; }
+      .part-win { background: var(--accent-success); }
+      
+      .legend { display: flex; gap: 16px; align-items: center; font-size: 0.8rem; margin-top: 16px; }
+      .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+      .dot-primary { background: var(--accent-primary); }
+      .dot-lead { background: var(--text-secondary); opacity: 0.5; }
+      .dot-win { background: var(--accent-success); }
+
+      /* --- CHANNELS --- */
+      .channel-grid { display: grid; gap: 24px; margin-top: 20px; }
+      .channel-top { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500; }
+      .bar { height: 8px; background: var(--bg-card-hover); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+      .bar-fill { height: 100%; border-radius: 4px; }
+      .bar-web { background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); }
+      .bar-app { background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); }
+      .bar-wa { background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); }
+      .channel-note { font-size: 0.8rem; color: var(--text-tertiary); font-style: italic; }
+
+      /* --- PAYOUT CARD --- */
+      .pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+      .payout-grid { display: grid; grid-template-columns: 280px 1fr; gap: 32px; margin-top: 24px; }
+      @media (max-width: 900px) { .payout-grid { grid-template-columns: 1fr; } }
+      
+      .payout-summary { background: var(--bg-body); padding: 20px; border-radius: var(--radius-md); border: 1px dashed var(--border-color); }
+      .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
+      
+      /* Tables */
+      .table { display: grid; gap: 8px; width: 100%; overflow-x: auto; }
+      .table-row {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        padding: 12px;
+        border-bottom: 1px solid var(--border-color);
+        align-items: center;
+        font-size: 0.9rem;
+        min-width: 600px;
+      }
+      .table-head { font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); }
+      .table-row:not(.table-head):hover { background: var(--bg-card-hover); border-radius: var(--radius-sm); }
+      
+      /* --- SHARE --- */
+      .share-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 20px; }
+      .share-block { background: var(--bg-body); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+      .share-field { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-top: 8px; font-family: monospace; font-size: 0.85rem; overflow: hidden; }
+      .share-field span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; color: var(--accent-primary); }
+      .share-config { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+      .share-config .input-group { display: flex; flex-direction: column; gap: 6px; }
+      .share-config label { font-size: 0.8rem; color: var(--text-secondary); }
+      .share-config input { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px; }
+      .share-actions { display: flex; gap: 12px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+      .btn-primary { background: var(--accent-primary); color: white; border: 1px solid var(--accent-primary); padding: 10px 14px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; }
+      .btn-primary:hover { filter: brightness(1.05); }
+      .status { font-size: 0.8rem; color: var(--text-tertiary); }
+      .info-block { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin-top: 12px; }
+      .info-block h4 { margin-bottom: 8px; font-size: 0.95rem; }
+      .info-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+      .info-list li { font-size: 0.85rem; color: var(--text-secondary); }
+      
+      /* --- TABLES GRID --- */
+      .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
+
+      /* --- TIMELINE --- */
+      .timeline-grid { display: flex; flex-direction: column; gap: 0; margin-top: 20px; }
+      .event { display: flex; gap: 16px; position: relative; padding-bottom: 24px; }
+      .event::before {
+        content: ''; position: absolute; top: 24px; left: 6px; bottom: 0; width: 2px; background: var(--border-color);
+      }
+      .event:last-child::before { display: none; }
+      .bullet { width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); flex-shrink: 0; z-index: 1; margin-top: 4px; }
+      .bullet.success { background: var(--accent-success); box-shadow: 0 0 0 3px var(--accent-success-dim); }
+      .bullet.info { background: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-primary-dim); }
+      .bullet.warning { background: var(--accent-warning); box-shadow: 0 0 0 3px var(--accent-warning-dim); }
+      .event-title { font-weight: 600; font-size: 0.95rem; }
+      .event-meta { font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 4px; }
+      .event-note { font-size: 0.85rem; color: var(--text-secondary); background: var(--bg-body); padding: 8px; border-radius: var(--radius-sm); margin-top: 4px; }
+
+      /* --- INFO GRID --- */
+      .payout-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 20px; }
+      .info-block { display: flex; flex-direction: column; gap: 8px; }
+      .info-field { display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg-body); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); flex-grow: 1; }
+
+      /* --- RULES --- */
+      .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+      .card.mini { padding: 20px; border-left: 4px solid var(--accent-primary); }
+
+      /* Footer */
+      .footnote { text-align: center; padding: 40px; color: var(--text-tertiary); font-size: 0.85rem; }
+
+      /* Mobile Adjustment */
+      @media (max-width: 768px) {
+        .topbar { position: relative; top: 0; margin-bottom: 20px; }
+        .filter-grid { flex-direction: column; gap: 12px; }
+        .table-row { grid-template-columns: 100px 1fr; gap: 8px; }
+        .table-head { display: none; } /* Simplified mobile table */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background Abstract shapes -->
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none;">
+      <div style="position: absolute; top: -10%; right: -10%; width: 50%; height: 50%; background: radial-gradient(circle, var(--accent-primary-dim) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);"></div>
+      <div style="position: absolute; bottom: -10%; left: -10%; width: 60%; height: 60%; background: radial-gradient(circle, rgba(100,100,255,0.05) 0%, transparent 70%); border-radius: 50%; filter: blur(80px);"></div>
+    </div>
+
+    <div class="app-shell">
+      <header class="topbar card">
+        <div class="brand">
+          <img src="../assets/icon.png" alt="AfricaPhone" class="logo" />
+          <div>
+            <p class="eyebrow">Espace partenaire</p>
+            <p class="title">Codes promos AfricaPhone</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <span class="pill pill-primary"><i class="ph ph-cube" style="margin-right:4px;"></i> UI v2.0</span>
+          <span class="pill pill-ghost"><i class="ph ph-eye" style="margin-right:4px;"></i> Transparence active</span>
+          <button class="toggle-btn" id="themeToggle" type="button">
+            <i class="ph ph-moon" style="margin-right:4px;"></i> Mode sombre
+          </button>
+        </div>
+      </header>
+
+      <section class="card filters">
+        <div class="filter-block">
+          <p class="label">Codes suivis</p>
+          <div class="chip-row">
+            <span class="chip chip-active">JOYFUL-AP</span>
+            <span class="chip">INSPIRE-AP</span>
+            <span class="chip">FLASH-AP</span>
+          </div>
+        </div>
+        <div class="filter-grid">
+          <div>
+            <p class="label">Periode</p>
+            <div class="field">7 derniers jours <i class="ph ph-caret-down" style="float:right"></i></div>
+          </div>
+          <div>
+            <p class="label">Canal</p>
+            <div class="field">Tous canaux <i class="ph ph-caret-down" style="float:right"></i></div>
+          </div>
+          <div>
+            <p class="label">Statut</p>
+            <div class="field">Leads & Ventes <i class="ph ph-caret-down" style="float:right"></i></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="card kpi">
+          <div class="kpi-header">
+            <p class="label">Ventes conclues</p>
+            <span class="pill pill-success">+6 validees</span>
+          </div>
+          <p class="kpi-value">18</p>
+          <p class="kpi-note"><i class="ph ph-check-circle"></i> Paiements confirmes</p>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-header">
+            <p class="label">Leads a suivre</p>
+            <span class="pill pill-warning">12 en panier</span>
+          </div>
+          <p class="kpi-value">32</p>
+          <p class="kpi-note">Code vu sans achat</p>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-header">
+            <p class="label">Commission estimee</p>
+            <span class="pill pill-ghost">Bonus inclus</span>
+          </div>
+          <p class="kpi-value" style="color: var(--accent-primary);">250k <span style="font-size:1rem; font-weight:500">CFA</span></p>
+          <p class="kpi-note">Versee a validation</p>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-header">
+            <p class="label">Remises clients</p>
+            <span class="pill pill-ghost">Motivation</span>
+          </div>
+          <p class="kpi-value">145k <span style="font-size:1rem; font-weight:500">CFA</span></p>
+          <p class="kpi-note">Economies generees</p>
+        </article>
+      </section>
+
+      <section class="chart-grid">
+        <article class="card chart-card">
+          <div class="section-head">
+            <div>
+              <p class="label">Tendance ventes</p>
+              <p class="section-title">Courbe 7 jours</p>
+            </div>
+            <span class="pill pill-ghost">mock data</span>
+          </div>
+          <div class="sparkline">
+            <!-- Simulated SVG line -->
+            <svg style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; overflow: visible;" preserveAspectRatio="none" viewBox="0 0 100 50">
+                <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="none" stroke="var(--accent-primary)" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5 L100,50 Z" fill="url(#grad1)" style="opacity: 0.3"></path>
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+            </svg>
+          </div>
+          <div class="legend">
+            <span class="dot dot-primary"></span>
+            <span class="muted">Ventes conclues</span>
+          </div>
+        </article>
+        
+        <article class="card chart-card">
+          <div class="section-head">
+            <div>
+              <p class="label">Conversion leads</p>
+              <p class="section-title">Visites -> Contacts -> Achats</p>
+            </div>
+            <div class="pill pill-ghost">
+              <span>Visites 1 200</span>
+              <span style="margin: 0 6px;">-</span>
+              <span>Contacts WA 320</span>
+              <span style="margin: 0 6px;">-</span>
+              <span>Achats 86</span>
+            </div>
+          </div>
+          <div class="bar-stack">
+            <div class="bar-stack-row">
+              <span class="muted"><i class="ph ph-globe"></i> Web</span>
+              <div class="stack">
+                <span class="stack-part part-visit" style="width: 60%"></span>
+                <span class="stack-part part-contact" style="width: 18%"></span>
+                <span class="stack-part part-win" style="width: 12%"></span>
+              </div>
+              <span class="muted small">Visites 800 - Contacts 180 - Achats 48</span>
+            </div>
+            <div class="bar-stack-row">
+              <span class="muted"><i class="ph ph-whatsapp-logo"></i> WA</span>
+              <div class="stack">
+                <span class="stack-part part-visit" style="width: 24%"></span>
+                <span class="stack-part part-contact" style="width: 10%"></span>
+                <span class="stack-part part-win" style="width: 6%"></span>
+              </div>
+              <span class="muted small">Visites 240 - Contacts 90 - Achats 38</span>
+            </div>
+          </div>
+          <div class="legend">
+            <span class="dot dot-visit"></span>
+            <span class="muted">Visites</span>
+            <span class="dot dot-contact"></span>
+            <span class="muted">Contacts</span>
+            <span class="dot dot-win"></span>
+            <span class="muted">Achats</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="card channel-card">
+        <div class="channel-header" style="display:flex; justify-content:space-between; margin-bottom: 20px;">
+          <div>
+              <p class="label">Repartition par canal</p>
+              <p class="section-title">Performance relative</p>
+          </div>
+        </div>
+        <div class="channel-grid">
+          <div class="channel">
+            <div class="channel-top">
+              <span>Web</span>
+              <span class="pill pill-light">10 ventes</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill bar-web" style="width: 52%"></div>
+            </div>
+            <p class="channel-note">Codes preremplis via URL.</p>
+          </div>
+          <div class="channel">
+            <div class="channel-top">
+              <span>App</span>
+              <span class="pill pill-light">6 ventes</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill bar-app" style="width: 33%"></div>
+            </div>
+            <p class="channel-note">Deep links + stockage du code.</p>
+          </div>
+          <div class="channel">
+            <div class="channel-top">
+              <span>WhatsApp</span>
+              <span class="pill pill-light">2 ventes</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill bar-wa" style="width: 15%"></div>
+            </div>
+            <p class="channel-note">Saisie en back-office vente.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card payout-card">
+        <header class="section-head">
+          <div>
+            <p class="label">Commissions</p>
+            <p class="section-title">Paiements percus et en attente</p>
+          </div>
+          <div class="pill-group">
+            <span class="pill pill-primary">Total: 120 000 CFA</span>
+            <span class="pill pill-warning">Attente: 130 000 CFA</span>
+          </div>
+        </header>
+        <div class="payout-grid">
+          <div class="payout-summary">
+            <div class="summary-row">
+              <span class="muted">Dernier reversement</span>
+              <span style="font-weight:600">25 000 CFA</span>
+            </div>
+            <div class="summary-row">
+              <span class="muted">Date</span>
+              <span>15 Nov</span>
+            </div>
+            <div class="summary-row">
+              <span class="muted">Prochain versement</span>
+              <span class="pill pill-success">J-3</span>
+            </div>
+            <p class="muted small" style="margin-top:16px; border-top:1px solid var(--border-color); padding-top:8px;">
+                Verification auto cote stock avant versement.
+            </p>
+          </div>
+          <div class="table payout-table">
+            <div class="table-row table-head">
+              <span>Date</span>
+              <span>Montant</span>
+              <span>Mode</span>
+              <span>Statut</span>
+              <span>Ref</span>
+              <span>Actions</span>
+            </div>
+            <div class="table-row">
+              <span>15/11</span>
+              <span>25 000 CFA</span>
+              <span>Momo</span>
+              <span><span class="pill pill-success">percu</span></span>
+              <span class="muted">#REV-482</span>
+              <span class="pill pill-light"><i class="ph ph-download-simple"></i></span>
+            </div>
+            <div class="table-row">
+              <span>10/11</span>
+              <span>45 000 CFA</span>
+              <span>Virement</span>
+              <span><span class="pill pill-success">percu</span></span>
+              <span class="muted">#REV-461</span>
+              <span class="pill pill-light"><i class="ph ph-download-simple"></i></span>
+            </div>
+            <div class="table-row">
+              <span>En attente</span>
+              <span>130 000 CFA</span>
+              <span>--</span>
+              <span><span class="pill pill-warning">planifie</span></span>
+              <span class="muted">#REV-496</span>
+              <span class="pill pill-ghost">details</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card share-card">
+        <header class="section-head">
+          <div>
+            <p class="label">Liens a partager</p>
+            <p class="section-title">Outils de diffusion</p>
+          </div>
+          <span class="pill pill-ghost" id="activeCodeBadge">Code actif: JOYFUL-AP</span>
+        </header>
+        <div class="share-config">
+          <div class="input-group">
+            <label for="codeInput">Code promo</label>
+            <input id="codeInput" placeholder="EX: JOYFUL-AP" value="JOYFUL-AP" />
+          </div>
+          <div class="input-group">
+            <label for="refInput">Ref partenaire (facultatif)</label>
+            <input id="refInput" placeholder="EX: PART-001" />
+          </div>
+          <div class="input-group">
+            <label for="campaignInput">Campagne</label>
+            <input id="campaignInput" placeholder="default" />
+          </div>
+          <div class="input-group">
+            <label for="subInput">Variation / bouton</label>
+            <input id="subInput" placeholder="cta1" />
+          </div>
+        </div>
+        <div class="share-actions">
+          <button class="btn-primary" id="generateLinksBtn" type="button">Générer les liens</button>
+          <span class="status" id="linkStatus">Prêt.</span>
+        </div>
+        <div class="share-actions" style="margin-top:4px">
+          <input id="cartValueInput" class="input" type="number" min="0" step="1000" placeholder="Montant panier (optionnel)" style="flex:1; min-width:200px; padding:8px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" />
+          <button class="pill pill-light" id="validateCodeBtn" type="button">Valider le code</button>
+          <span class="status" id="validateStatus"></span>
+        </div>
+        <div class="share-grid">
+          <div class="share-block">
+            <p class="muted"><i class="ph ph-globe"></i> Lien Web</p>
+            <div class="share-field">
+              <span id="webLink">africaphone.com/?code=JOYFUL-AP</span>
+              <button class="pill pill-light" data-copy="webLink">Copier</button>
+            </div>
+          </div>
+          <div class="share-block">
+            <p class="muted"><i class="ph ph-device-mobile"></i> Lien App (Deep Link)</p>
+            <div class="share-field">
+              <span id="appLink">africaphone://apply-promo?code=JOYFUL-AP</span>
+              <button class="pill pill-light" data-copy="appLink">Copier</button>
+            </div>
+          </div>
+          <div class="share-block">
+            <p class="muted"><i class="ph ph-whatsapp-logo"></i> WhatsApp</p>
+            <div class="share-field">
+              <span id="waLink">wa.me/229...text=Code</span>
+              <button class="pill pill-light" data-copy="waLink">Copier</button>
+            </div>
+          </div>
+          <div class="share-block">
+            <p class="muted"><i class="ph ph-sliders"></i> Règle promo (lecture)</p>
+            <div class="info-block">
+              <h4 id="ruleCode">Code: -</h4>
+              <ul class="info-list" id="ruleDetails">
+                <li>Canaux: —</li>
+                <li>Ref partenaire obligatoire: —</li>
+                <li>Tranches: —</li>
+              </ul>
+            </div>
+          </div>
+          <div class="share-block qr" style="display:flex; align-items:center; gap:16px;">
+            <div class="qr-box" style="width:60px; height:60px; background:white; border-radius:4px; display:grid; place-items:center;">
+                <i class="ph ph-qr-code" style="color:black; font-size:32px;"></i>
+            </div>
+            <div>
+                 <p class="muted small">Code QR</p>
+                 <span class="pill pill-light">Telecharger</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tables-grid">
+        <article class="card table-card">
+          <header class="section-head">
+            <div>
+              <p class="label">Tableau ventes / leads</p>
+              <p class="section-title">Suivi unique</p>
+            </div>
+            <span class="pill pill-ghost">Code: JOYFUL</span>
+          </header>
+          <div class="table">
+            <div class="table-row table-head">
+              <span>Date</span>
+              <span>Client</span>
+              <span>Produit</span>
+              <span>Quantite</span>
+              <span>Montant</span>
+              <span>Remise accordee</span>
+              <span>Commission</span>
+            </div>
+            <div class="table-row">
+              <span>19/11</span>
+              <span class="muted">..97-30</span>
+              <span>Galaxy A35</span>
+              <span>1</span>
+              <span>315k</span>
+              <span class="pill pill-light">-15k</span>
+              <span class="pill pill-primary">+25k</span>
+            </div>
+            <div class="table-row">
+              <span>18/11</span>
+              <span class="muted">..64-71</span>
+              <span>iPhone 12</span>
+              <span>1</span>
+              <span>210k</span>
+              <span class="pill pill-light">-10k</span>
+              <span class="pill pill-primary">+15k</span>
+            </div>
+            <div class="table-row">
+              <span>18/11</span>
+              <span class="muted">..68-12</span>
+              <span>Galaxy A35</span>
+              <span>1</span>
+              <span>-</span>
+              <span class="pill pill-light">applique</span>
+              <span class="pill pill-ghost">-</span>
+            </div>
+            <div class="table-row">
+              <span>18/11</span>
+              <span class="muted">..51-88</span>
+              <span>iPhone 12</span>
+              <span>1</span>
+              <span>-</span>
+              <span class="pill pill-light">panier</span>
+              <span class="pill pill-ghost">-</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="footnote">
+        <p>AfricaPhone Partner Dashboard &copy; 2025. UI statique connectee a l'API Ventes/Stock.</p>
+      </footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+      const toggle = document.getElementById('themeToggle');
+      
+      const updateThemeUI = () => {
+        const isLight = document.body.classList.contains('light');
+        toggle.innerHTML = isLight
+          ? '<i class="ph ph-moon" style="margin-right:4px;"></i> Mode sombre'
+          : '<i class="ph ph-sun" style="margin-right:4px;"></i> Mode clair';
+      };
+
+      if (toggle) {
+        toggle.addEventListener('click', () => {
+          document.body.classList.toggle('light');
+          updateThemeUI();
+        });
+        updateThemeUI();
+      }
+
+      // --- Génération des liens promo dynamiques ---
+      const firebaseConfig = {
+        apiKey: 'AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M',
+        authDomain: 'africaphone-vente.firebaseapp.com',
+        projectId: 'africaphone-vente',
+        storageBucket: 'africaphone-vente.firebasestorage.app',
+        messagingSenderId: '203471818329',
+        appId: '1:203471818329:web:c2c77d48098c1a6a596b48',
+      };
+
+      let linkTemplates = {
+        webBaseUrl: '',
+        appScheme: '',
+        appLinkDomain: '',
+        defaultCampaign: 'default',
+        defaultSub: 'cta1',
+        waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
+      };
+
+
+      const initFirebase = () => {
+        if (window.firebase?.apps?.length) return window.firebase.app();
+        return window.firebase?.initializeApp(firebaseConfig);
+      };
+
+      const loadLinkTemplates = async () => {
+        try {
+          const appInstance = initFirebase();
+          const db = window.firebase.firestore(appInstance);
+          const snap = await db.collection('config').doc('linkTemplates').get();
+          if (snap.exists) {
+            linkTemplates = { ...linkTemplates, ...snap.data() };
+          }
+        } catch (e) {
+          console.warn('Impossible de charger les templates, fallback utilis?', e);
+        }
+      };
+
+      const buildUrl = (base, params) => {
+        try {
+          const url = new URL(base);
+          Object.entries(params).forEach(([k, v]) => {
+            if (v === null || v === undefined || v === '') return;
+            url.searchParams.set(k, String(v));
+          });
+          return url.toString();
+        } catch (e) {
+          return base;
+        }
+      };
+
+      const copyToClipboard = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const value = el.textContent || '';
+        navigator.clipboard?.writeText(value);
+      };
+
+      const updateLinkField = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      };
+
+      const updateRulePanel = data => {
+        const codeEl = document.getElementById('ruleCode');
+        const details = document.getElementById('ruleDetails');
+        if (!details) return;
+        if (codeEl) codeEl.textContent = `Code: ${data?.code || '-'}`;
+        const channels = (data?.allowedChannels || []).join(', ') || 'tous';
+        const partnerReq = data?.partnerRefRequired ? 'Oui' : 'Non';
+        const brackets = Array.isArray(data?.priceBrackets) && data.priceBrackets.length
+          ? data.priceBrackets
+              .slice(0, 3)
+              .map(b => {
+                const min = b.min ?? 0;
+                const max = typeof b.max === 'number' ? b.max : '+';
+                return `${min}-${max}: -${b.discountValue || 0} / +${b.commissionValue || 0}`;
+              })
+              .join(' | ')
+          : '—';
+        details.innerHTML = `
+          <li>Canaux: ${channels}</li>
+          <li>Ref partenaire obligatoire: ${partnerReq}</li>
+          <li>Tranches: ${brackets}</li>
+        `;
+      };
+
+      const fetchRule = async code => {
+        try {
+          const snap = await window.firebase.firestore().collection('promoRules').doc(code.trim().toUpperCase()).get();
+          if (snap.exists) {
+            const data = snap.data();
+            updateRulePanel({ code: data.code || snap.id, ...data });
+          } else {
+            updateRulePanel({ code: code.trim(), allowedChannels: [], partnerRefRequired: false, priceBrackets: [] });
+          }
+        } catch (error) {
+          console.warn('fetchRule error', error);
+          updateRulePanel({ code, allowedChannels: [], partnerRefRequired: false, priceBrackets: [] });
+        }
+      };
+
+      const validateCode = async () => {
+        const code = (document.getElementById('codeInput')?.value || '').trim();
+        const cartValueRaw = document.getElementById('cartValueInput')?.value;
+        const cartValue = cartValueRaw ? Number(cartValueRaw) : undefined;
+        if (!code) {
+          setStatus('Veuillez saisir un code promo.', true);
+          return;
+        }
+        const status = document.getElementById('validateStatus');
+        if (status) status.textContent = 'Validation...';
+        try {
+          const appInstance = initFirebase();
+          const functions = window.firebase.functions(appInstance);
+          const callable = functions.httpsCallable('validatePromoV2');
+          const response = await callable({ code, channel: 'web', cartValue });
+          const data = response.data || {};
+          const discount = data.discountValue ? `${data.discountValue} CFA` : '-';
+          const commission = data.commissionValue ? `${data.commissionValue} CFA` : '-';
+          if (status) status.textContent = `Valide. Remise: ${discount} / Commission: ${commission}`;
+          updateRulePanel({
+            code: data.code || code,
+            allowedChannels: [data.channel || 'web'],
+            partnerRefRequired: !!data.ref,
+            priceBrackets: data.priceBracket ? [data.priceBracket] : [],
+          });
+        } catch (error) {
+          console.error('validatePromoV2 error', error);
+          if (status) status.textContent = 'Code invalide ou indisponible.';
+        }
+      };
+
+      const setStatus = (text, isError = false) => {
+        const status = document.getElementById('linkStatus');
+        if (status) {
+          status.textContent = text;
+          status.style.color = isError ? 'var(--accent-danger)' : 'var(--text-tertiary)';
+        }
+      };
+
+      const generateLinks = async () => {
+        const code = (document.getElementById('codeInput')?.value || '').trim();
+        const ref = (document.getElementById('refInput')?.value || '').trim();
+        const campaign = (document.getElementById('campaignInput')?.value || '').trim();
+        const sub = (document.getElementById('subInput')?.value || '').trim();
+
+        if (!code) {
+          setStatus('Veuillez saisir un code promo.', true);
+          return;
+        }
+
+        const appInstance = initFirebase();
+        const baseParams = {
+          code,
+          ref,
+          campaign: campaign || FALLBACK_TEMPLATES.defaultCampaign,
+          sub: sub || FALLBACK_TEMPLATES.defaultSub,
+        };
+
+        const fallbackLinks = () => {
+          const webLink = buildUrl(FALLBACK_TEMPLATES.webBaseUrl, { ...baseParams, channel: 'web' });
+          const appLink = buildUrl(FALLBACK_TEMPLATES.appLinkDomain, { ...baseParams, channel: 'app' });
+          const appDeepLink = `${FALLBACK_TEMPLATES.appScheme}?${new URLSearchParams({
+            ...baseParams,
+            channel: 'app',
+          }).toString()}`;
+          const message = (FALLBACK_TEMPLATES.waMessageTemplate || '')
+            .replace('{code}', code)
+            .replace('{link}', webLink)
+            .replace('{ref}', ref || '');
+          const waLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+          return { webLink, appLink: appDeepLink, whatsappLink: waLink };
+        };
+
+        try {
+          setStatus('Génération en cours...');
+          if (!appInstance || !window.firebase?.functions) {
+            throw new Error('Firebase non initialisé, utilisation du fallback local.');
+          }
+          const functions = window.firebase.functions(appInstance);
+          const callable = functions.httpsCallable('generatePromoLinks');
+          const response = await callable({ code, ref, campaign, sub });
+          const data = response.data || {};
+
+          updateLinkField('webLink', data.webLink || '');
+          updateLinkField('appLink', data.appDeepLink || data.appLink || '');
+          updateLinkField('waLink', data.whatsappLink || '');
+          const badge = document.getElementById('activeCodeBadge');
+          if (badge) badge.textContent = `Code actif: ${code.toUpperCase()}`;
+          setStatus('Liens générés.');
+          fetchRule(code);
+        } catch (error) {
+          console.error('Erreur generatePromoLinks, fallback local', error);
+          const localLinks = fallbackLinks();
+          updateLinkField('webLink', localLinks.webLink);
+          updateLinkField('appLink', localLinks.appLink);
+          updateLinkField('waLink', localLinks.whatsappLink);
+          const badge = document.getElementById('activeCodeBadge');
+          if (badge) badge.textContent = `Code actif: ${code.toUpperCase()} (fallback)`;
+          setStatus("Génération via fallback local.", true);
+          fetchRule(code);
+        }
+      };
+
+      document.getElementById('generateLinksBtn')?.addEventListener('click', generateLinks);
+      document.getElementById('validateCodeBtn')?.addEventListener('click', validateCode);
+      document.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-copy');
+          if (target) copyToClipboard(target);
+        });
+      });
+
+      // Génère une première fois avec les valeurs par défaut
+      generateLinks();
+    </script>
+  </body>
+</html>

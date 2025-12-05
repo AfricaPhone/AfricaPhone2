@@ -45,6 +45,9 @@ type ValidatedPromo = {
   code: string;
   type: 'percentage' | 'fixed';
   value: number;
+  commissionValue?: number;
+  priceBracket?: { min: number; max?: number | null; label?: string | null };
+  promoSessionId?: string;
 };
 
 type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetail'>;
@@ -292,13 +295,52 @@ const ProductDetailScreen: React.FC = () => {
     }
     setIsApplyingPromo(true);
     try {
-      const validateFn = httpsCallable(functions, 'validatePromoCode');
-      const result = await validateFn({ code: code.trim() });
-      const data = result.data as ValidatedPromo;
+      const normalizePromo = (raw: any): ValidatedPromo => {
+        if (raw && typeof raw === 'object') {
+          const discountValue = typeof raw.discountValue === 'number' ? raw.discountValue : undefined;
+          const discountType = raw.discountType === 'percentage' ? 'percentage' : 'fixed';
+          if (discountValue !== undefined) {
+            return {
+              code: (raw.code as string) ?? code.trim().toUpperCase(),
+              type: discountType,
+              value: discountValue,
+              commissionValue: typeof raw.commissionValue === 'number' ? raw.commissionValue : undefined,
+              priceBracket: raw.priceBracket as ValidatedPromo['priceBracket'],
+              promoSessionId: typeof raw.promoSessionId === 'string' ? raw.promoSessionId : undefined,
+            };
+          }
+          if (typeof raw.value === 'number' && (raw.type === 'percentage' || raw.type === 'fixed')) {
+            return {
+              code: (raw.code as string) ?? code.trim().toUpperCase(),
+              type: raw.type,
+              value: raw.value,
+            };
+          }
+        }
+        throw new Error("Réponse de validation invalide.");
+      };
 
-      setPromoCode(data);
+      let validated: ValidatedPromo | null = null;
+
+      try {
+        const validateV2 = httpsCallable(functions, 'validatePromoV2');
+        const resultV2 = await validateV2({
+          code: code.trim(),
+          channel: 'app',
+          cartValue: product?.price,
+        });
+        validated = normalizePromo(resultV2.data);
+      } catch (error) {
+        // Fallback sur l'ancienne fonction si la nouvelle n'est pas disponible
+        console.warn('validatePromoV2 indisponible, tentative du fallback validatePromoCode', error);
+        const validateFn = httpsCallable(functions, 'validatePromoCode');
+        const resultLegacy = await validateFn({ code: code.trim() });
+        validated = normalizePromo(resultLegacy.data);
+      }
+
+      setPromoCode(validated);
       setIsPromoModalVisible(false);
-      Alert.alert('Succès', `Le code "${data.code}" a été appliqué !`);
+      Alert.alert('Succès', `Le code "${validated.code}" a été appliqué !`);
     } catch (error: unknown) {
       console.error('Erreur de validation du code promo: ', error);
       const message = error instanceof Error ? error.message : 'Une erreur est survenue.';
