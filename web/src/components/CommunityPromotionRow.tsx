@@ -162,8 +162,8 @@ function AppCtaButton() {
             Nouveau
           </span>
         </div>
-        <h3 className="text-[12px] font-bold leading-tight text-white">
-          Téléchargez l&apos;app
+        <h3 className="text-[11px] font-bold leading-tight text-white">
+          Télécharger l&apos;app AfricaPhone
         </h3>
 
         {/* Google Play badge */}

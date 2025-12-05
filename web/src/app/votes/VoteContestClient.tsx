@@ -757,11 +757,8 @@ export default function VoteContestClientPage() {
                 <span className="text-[10px] font-medium text-white/60">v2.0</span>
               </div>
               <h3 className="text-sm font-bold leading-tight text-white">
-                Téléchargez AfricaPhone
+                Télécharger l'app AfricaPhone
               </h3>
-              <p className="text-[11px] leading-snug text-white/70">
-                Votez, pronostiquez et gagnez des prix depuis l'app mobile
-              </p>
 
               {/* Google Play badge */}
               <div className="mt-1 flex items-center gap-2">
