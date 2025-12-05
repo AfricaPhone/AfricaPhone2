@@ -46,7 +46,7 @@ export default function CommunityPromotionRow() {
 
   return (
     <section aria-label="Jeux & concours AfricaPhone" className="-mx-[0.2rem] px-[0.2rem] sm:mx-0 sm:px-0">
-      <div className="flex snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-4 sm:overflow-visible">
+      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:items-stretch sm:gap-4 sm:overflow-visible">
         {SHOW_PRONOSTICS_CARD ? <PronosticsPromoCard /> : null}
         <VoteContestPromoCard imageUrl={voteImageUrl} />
         <AppCtaButton />
@@ -96,7 +96,7 @@ type VoteContestPromoCardProps = {
 
 function VoteContestPromoCard({ imageUrl }: VoteContestPromoCardProps) {
   return (
-    <article className="flex w-full flex-shrink-0 snap-center sm:w-full sm:min-w-0 sm:max-w-none">
+    <article className="w-[75vw] flex-shrink-0 snap-start sm:w-full">
       <Link
         href="/votes"
         className="group relative block h-[100px] w-full overflow-hidden rounded-[16px] shadow-md shadow-slate-900/15 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[118px]"
@@ -135,7 +135,7 @@ function AppCtaButton() {
       href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
       target="_blank"
       rel="noreferrer"
-      className="group relative flex w-full flex-shrink-0 snap-center overflow-hidden rounded-[16px] border border-slate-200 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] p-3 shadow-md shadow-slate-900/15 transition-all hover:shadow-lg hover:shadow-blue-500/15 sm:w-auto sm:min-w-[280px]"
+      className="group relative flex h-[100px] w-[75vw] flex-shrink-0 snap-start overflow-hidden rounded-[16px] border border-slate-200 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] p-3 shadow-md shadow-slate-900/15 transition-all hover:shadow-lg hover:shadow-blue-500/15 sm:h-[118px] sm:w-full"
     >
       {/* Decorative elements */}
       <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-orange-500/20 to-amber-500/10 blur-xl" />
