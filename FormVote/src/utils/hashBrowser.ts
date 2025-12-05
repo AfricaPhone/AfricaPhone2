@@ -1,14 +1,7 @@
-const textEncoder = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null;
+import { sha256 } from '@noble/hashes/sha256';
+import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils';
 
-const fallbackHash = (value: string): string => {
-  // FNV-1a fallback when Web Crypto is unavailable.
-  let hash = 2166136261;
-  for (let i = 0; i < value.length; i += 1) {
-    hash ^= value.charCodeAt(i);
-    hash = (hash * 16777619) >>> 0;
-  }
-  return hash.toString(16).padStart(8, '0');
-};
+const textEncoder = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null;
 
 export const sha256HexBrowser = async (value: string): Promise<string> => {
   if (typeof crypto !== 'undefined' && crypto.subtle && textEncoder) {
@@ -18,5 +11,5 @@ export const sha256HexBrowser = async (value: string): Promise<string> => {
       .map(byte => byte.toString(16).padStart(2, '0'))
       .join('');
   }
-  return fallbackHash(value);
+  return bytesToHex(sha256(utf8ToBytes(value)));
 };

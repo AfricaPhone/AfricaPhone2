@@ -1,7 +1,16 @@
-// Importe la configuration et les services Firebase depuis le fichier dï¿½diï¿½.
-import { auth, db, storage, analytics, logEvent } from './firebase-config.js';
+// Importe la configuration et les services Firebase depuis le fichier d?di?.
+import {
+  auth,
+  db,
+  storage,
+  analytics,
+  logEvent,
+  functions,
+  connectFunctionsEmulator,
+  httpsCallable,
+} from './firebase-config.js';
 
-// Importe les fonctions spï¿½cifiques de Firebase Auth et Firestore.
+// Importe les fonctions sp?cifiques de Firebase Auth et Firestore.
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -42,7 +51,7 @@ window.addEventListener('unhandledrejection', event => {
   if (code === 'permission-denied' || /permission/i.test(message)) {
     event.preventDefault();
     console.error('[Admin Panel] Operation blocked by Firestore security rules.', error);
-    toast('Permissions insuffisantes', "Votre compte n'a pas accï¿½s ï¿½ cette ressource.", 'error');
+    toast('Permissions insuffisantes', "Votre compte n'a pas acc?s ? cette ressource.", 'error');
   }
 });
 
@@ -180,6 +189,7 @@ let allPromoCards = [];
 let contestPromoCard = null;
 let allPromoCodes = []; // AJOUT
 let allPromoRules = [];
+let allPromoPayouts = [];
 let allBrands = [];
 let allContests = [];
 const contestCandidates = new Map();
@@ -190,16 +200,29 @@ let productSearchTerm = '';
 let productCategoryFilter = '';
 let viewMode = 'table'; // 'table' | 'cards'
 let sortBy = { key: 'name', dir: 'asc' };
+let promoCodePartnerFilter = '';
+let promoPayoutSearchTerm = '';
+let functionsInstance = functions;
+let promoTab = 'codes';
+const isLocalhost = ['localhost', '127.0.0.1'].includes(location.hostname);
+if (isLocalhost) {
+  try {
+    connectFunctionsEmulator(functionsInstance, 'localhost', 5001);
+    console.info('[Admin] Functions emulator connected (localhost:5001)');
+  } catch (err) {
+    console.warn('[Admin] Functions emulator connection failed', err);
+  }
+}
 const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
 let PREDEFINED_SPECS = [
-  'ï¿½cran',
+  '?cran',
   'Processeur',
   'Appareil Photo',
   'Batterie',
-  'Connectivitï¿½',
+  'Connectivit?',
   'Dimensions',
   'Poids',
-  'Systï¿½me',
+  'Syst?me',
 ];
 
 const DEFAULT_PRICE_BRACKETS = [
@@ -354,28 +377,53 @@ async function ensureFeaturesLoaded() {
 
 function applyLinkTemplatesToSettingsUI() {
   const data = linkTemplates || FALLBACK_LINK_TEMPLATES;
-  $('#lt-webBaseUrl').value = data.webBaseUrl || '';
-  $('#lt-appLinkDomain').value = data.appLinkDomain || '';
-  $('#lt-appScheme').value = data.appScheme || '';
-  $('#lt-defaultCampaign').value = data.defaultCampaign || '';
-  $('#lt-defaultSub').value = data.defaultSub || '';
-  $('#lt-waMessageTemplate').value = data.waMessageTemplate || '';
-  $('#lt-waNumber').value = data.whatsappNumber || '';
-  const status = $('#lt-status');
-  if (status) status.textContent = 'Chargï¿½.';
+  const setInputsValue = (ids = [], value = '') => {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = value || '';
+    });
+  };
+  const setStatus = (ids = [], text) => {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    });
+  };
+  setInputsValue(['lt-webBaseUrl', 'tab-lt-webBaseUrl'], data.webBaseUrl || '');
+  setInputsValue(['lt-appLinkDomain', 'tab-lt-appLinkDomain'], data.appLinkDomain || '');
+  setInputsValue(['lt-appScheme', 'tab-lt-appScheme'], data.appScheme || '');
+  setInputsValue(['lt-defaultCampaign', 'tab-lt-defaultCampaign'], data.defaultCampaign || '');
+  setInputsValue(['lt-defaultSub', 'tab-lt-defaultSub'], data.defaultSub || '');
+  setInputsValue(['lt-waMessageTemplate', 'tab-lt-waMessageTemplate'], data.waMessageTemplate || '');
+  setInputsValue(['lt-waNumber', 'tab-lt-waNumber'], data.whatsappNumber || '');
+  setStatus(['lt-status', 'tab-lt-status'], 'Chargé.');
 }
 
 async function saveLinkTemplates() {
-  const btn = #save-link-templates;
+  const btn = document.getElementById('save-link-templates') || document.getElementById('tab-save-link-templates');
   setButtonLoading(btn, true);
+  const readVal = ids => {
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el && typeof el.value === 'string') return el.value.trim();
+    }
+    return '';
+  };
+  const webBaseUrl = readVal(['lt-webBaseUrl', 'tab-lt-webBaseUrl']);
+  const appLinkDomain = readVal(['lt-appLinkDomain', 'tab-lt-appLinkDomain']);
+  const appScheme = readVal(['lt-appScheme', 'tab-lt-appScheme']);
+  const defaultCampaign = readVal(['lt-defaultCampaign', 'tab-lt-defaultCampaign']) || 'default';
+  const defaultSub = readVal(['lt-defaultSub', 'tab-lt-defaultSub']) || 'cta1';
+  const waMessageTemplate = readVal(['lt-waMessageTemplate', 'tab-lt-waMessageTemplate']);
+  const whatsappNumber = readVal(['lt-waNumber', 'tab-lt-waNumber']);
   const payload = {
-    webBaseUrl: #lt-webBaseUrl.value.trim(),
-    appLinkDomain: #lt-appLinkDomain.value.trim(),
-    appScheme: #lt-appScheme.value.trim(),
-    defaultCampaign: #lt-defaultCampaign.value.trim() || 'default',
-    defaultSub: #lt-defaultSub.value.trim() || 'cta1',
-    waMessageTemplate: #lt-waMessageTemplate.value.trim(),
-    whatsappNumber: #lt-waNumber.value.trim(),
+    webBaseUrl,
+    appLinkDomain,
+    appScheme,
+    defaultCampaign,
+    defaultSub,
+    waMessageTemplate,
+    whatsappNumber,
   };
   try {
     const ref = doc(db, 'config', 'linkTemplates');
@@ -458,30 +506,30 @@ onAuthStateChanged(auth, async function (user) {
   const logged = !!user;
 
   if (logged) {
-    // Vï¿½rifie si l'utilisateur est un administrateur
+    // V?rifie si l'utilisateur est un administrateur
     try {
-      const tokenResult = await user.getIdTokenResult(true); // Force la mise ï¿½ jour du jeton
+      const tokenResult = await user.getIdTokenResult(true); // Force la mise ? jour du jeton
       if (tokenResult.claims.admin) {
         // L'utilisateur est un administrateur
-        console.log(`[Admin Panel] Connexion d'un admin rï¿½ussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
+        console.log(`[Admin Panel] Connexion d'un admin r?ussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
         $login.classList.add('hide');
         $app.classList.remove('hide');
         $app.setAttribute('aria-hidden', 'false');
         initAfterLogin();
       } else {
-        // L'utilisateur n'est pas un administrateur, le dï¿½connecte
+        // L'utilisateur n'est pas un administrateur, le d?connecte
         await signOut(auth);
-        toast('Accï¿½s refusï¿½', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
+        toast('Acc?s refus?', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
         // Redirige pour nettoyer l'interface
         location.reload();
       }
     } catch (err) {
-      console.error('Erreur lors de la vï¿½rification des revendications:', err);
+      console.error('Erreur lors de la v?rification des revendications:', err);
       await signOut(auth);
       location.reload();
     }
   } else {
-    // L'utilisateur n'est pas connectï¿½
+    // L'utilisateur n'est pas connect?
     $login.classList.remove('hide');
     $app.classList.add('hide');
     $app.setAttribute('aria-hidden', 'true');
@@ -578,7 +626,9 @@ const $productsContent = $('#products-content'),
   $contestsContent = $('#contests-content'),
   $promoCardsContent = $('#promocards-content'),
   $promoCodesContent = $('#promocodes-content'),
-  $promoRulesContent = document.getElementById('promorules-content');
+  $promoRulesContent = document.getElementById('promorules-content'),
+  $promoPayoutsContent = document.getElementById('promopayouts-content'),
+  $promoTemplatesContent = document.getElementById('promo-templates-content');
 
 window.addEventListener('hashchange', handleRoute);
 window.addEventListener('hashchange', async function () {
@@ -603,6 +653,7 @@ async function handleRoute() {
   track('page_view_admin', { route, id: id || null });
 
   const isContestRoute = route.includes('contest') || route.includes('candidate');
+  const isPromoRoute = route.includes('promocode') || route.includes('promorule') || route.includes('promopayout');
 
   // Nav active
   $navProducts.classList.toggle('active', route.includes('product'));
@@ -610,7 +661,7 @@ async function handleRoute() {
   $navMatches.classList.toggle('active', route.includes('match'));
   $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
-  $navPromoCodes.classList.toggle('active', route.includes('promocode'));
+  $navPromoCodes.classList.toggle('active', isPromoRoute);
   $navSettings.classList.toggle('active', route === 'settings');
 
   // Toolbars affichage
@@ -619,7 +670,7 @@ async function handleRoute() {
   $toolbarMatches.classList.toggle('hide', !route.includes('match'));
   $toolbarContests.classList.toggle('hide', !isContestRoute);
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
-  $toolbarPromoCodes.classList.toggle('hide', !route.includes('promocode'));
+  $toolbarPromoCodes.classList.toggle('hide', !isPromoRoute);
 
   // Pages
   $('#page-products').classList.toggle('hide', !route.includes('product'));
@@ -627,7 +678,7 @@ async function handleRoute() {
   $('#page-matches').classList.toggle('hide', !route.includes('match'));
   $('#page-contests').classList.toggle('hide', !isContestRoute);
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
-  $('#page-promocodes').classList.toggle('hide', !route.includes('promocode'));
+  $('#page-promocodes').classList.toggle('hide', !isPromoRoute);
   $('#page-settings').classList.toggle('hide', route !== 'settings');
 
   if (route === 'products') {
@@ -638,7 +689,7 @@ async function handleRoute() {
     setCrumb('Nouveau produit');
     renderProductFormPage();
   } else if (route === 'edit-product' && id) {
-    setCrumb('ï¿½diter produit');
+    setCrumb('?diter produit');
     await renderProductFormPage(id);
   } else if (route === 'brands') {
     setCrumb('Marques');
@@ -648,7 +699,7 @@ async function handleRoute() {
     setCrumb('Nouvelle marque');
     renderBrandFormPage();
   } else if (route === 'edit-brand' && id) {
-    setCrumb('ï¿½diter marque');
+    setCrumb('?diter marque');
     await renderBrandFormPage(id);
   } else if (route === 'matches') {
     setCrumb('Matchs');
@@ -658,7 +709,7 @@ async function handleRoute() {
     setCrumb('Nouveau match');
     renderMatchFormPage();
   } else if (route === 'edit-match' && id) {
-    setCrumb('ï¿½diter match');
+    setCrumb('?diter match');
     await renderMatchFormPage(id);
   } else if (route === 'match-predictions' && id) {
     await ensureMatchesLoaded();
@@ -672,14 +723,14 @@ async function handleRoute() {
     await ensureContestsLoaded();
     renderContestFormPage();
   } else if (route === 'edit-contest' && id) {
-    setCrumb('ï¿½diter concours');
+    setCrumb('?diter concours');
     await ensureContestsLoaded();
     await renderContestFormPage(id);
   } else if (route === 'new-candidate') {
     await ensureContestsLoaded();
     const contestId = id || selectedContestId || allContests[0]?.id || '';
     if (!contestId) {
-      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -689,7 +740,7 @@ async function handleRoute() {
   } else if (route === 'edit-candidate' && id && childId) {
     await ensureContestsLoaded();
     await setSelectedContest(id, { force: true, skipRender: true });
-    setCrumb('ï¿½diter candidat');
+    setCrumb('?diter candidat');
     await renderCandidateFormPage(id, childId);
   } else if (route === 'promocards') {
     setCrumb('Cartes Promo');
@@ -699,20 +750,44 @@ async function handleRoute() {
     setCrumb('Nouvelle Carte Promo');
     renderPromoCardFormPage();
   } else if (route === 'edit-promocard' && id) {
-    setCrumb('ï¿½diter Carte Promo');
+    setCrumb('Éditer Carte Promo');
     await renderPromoCardFormPage(id);
   } else if (route === 'promocodes') {
     setCrumb('Codes Promo');
-    await ensurePromoCodesLoaded();
-    renderPromoCodeList();
+    const tabFromHash = id && ['codes', 'rules', 'payouts', 'templates'].includes(id) ? id : 'codes';
+    await setPromoTab(tabFromHash);
   } else if (route === 'new-promocode') {
     setCrumb('Nouveau Code Promo');
+    await setPromoTab('codes');
     renderPromoCodeFormPage();
   } else if (route === 'edit-promocode' && id) {
     setCrumb('Éditer Code Promo');
+    await setPromoTab('codes');
     await renderPromoCodeFormPage(id);
+  } else if (route === 'promopayouts') {
+    setCrumb('Versements Promo');
+    await setPromoTab('payouts');
+  } else if (route === 'new-promopayout') {
+    setCrumb('Nouveau versement');
+    await setPromoTab('payouts');
+    renderPromoPayoutFormPage();
+  } else if (route === 'edit-promopayout' && id) {
+    setCrumb('Éditer versement');
+    await setPromoTab('payouts');
+    await renderPromoPayoutFormPage(id);
+  } else if (route === 'promorules') {
+    setCrumb('Règles Promo');
+    await setPromoTab('rules');
+  } else if (route === 'new-promorule') {
+    setCrumb('Nouvelle Règle Promo');
+    await setPromoTab('rules');
+    renderPromoRuleFormPage();
+  } else if (route === 'edit-promorule' && id) {
+    setCrumb('Éditer Règle Promo');
+    await setPromoTab('rules');
+    await renderPromoRuleFormPage(id);
   } else if (route === 'settings') {
-    setCrumb('Paramï¿½tres');
+    setCrumb('Param?tres');
   } else {
     location.hash = '#/products';
   }
@@ -724,7 +799,9 @@ async function initAfterLogin() {
   applyFeaturesToSettingsUI();
   await ensureLinkTemplatesLoaded();
   applyLinkTemplatesToSettingsUI();
-  $('#save-link-templates')?.addEventListener('click', saveLinkTemplates);
+  document.querySelectorAll('#save-link-templates, #tab-save-link-templates').forEach(btn => {
+    btn.addEventListener('click', saveLinkTemplates);
+  });
   // Settings: bind promo cards toggle if present
   const promoToggle = document.getElementById('toggle-promocards');
   if (promoToggle) {
@@ -761,7 +838,7 @@ async function initAfterLogin() {
   };
   $('#quick-add-candidate').onclick = function () {
     if (!allContests.length) {
-      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -802,7 +879,7 @@ async function initAfterLogin() {
   $('#add-candidate')?.addEventListener('click', () => {
     const targetId = selectedContestId || allContests[0]?.id || '';
     if (!targetId) {
-      toast('Info', 'Crï¿½ez un concours avant dï¿½ajouter un candidat.', 'info');
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
       location.hash = '#/new-contest';
       return;
     }
@@ -958,6 +1035,65 @@ async function ensurePromoRulesLoaded() {
   });
 }
 
+async function ensurePromoPayoutsLoaded(force = false) {
+  if (!force && allPromoPayouts.length > 0) return;
+  if ($promoPayoutsContent) {
+    $promoPayoutsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  }
+  try {
+    const q = query(collection(db, 'promoPayouts'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    allPromoPayouts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (err) {
+    console.error('PromoPayouts load failed', err);
+    allPromoPayouts = [];
+    if ($promoPayoutsContent) {
+      $promoPayoutsContent.innerHTML =
+        '<div class="center" style="padding:32px">Erreur de chargement des versements.</div>';
+    }
+  }
+}
+
+async function setPromoTab(tab = 'codes') {
+  const allowed = ['codes', 'rules', 'payouts', 'templates'];
+  const nextTab = allowed.includes(tab) ? tab : 'codes';
+  promoTab = nextTab;
+  document.querySelectorAll('.promo-tab-btn').forEach(btn => {
+    const isActive = btn.dataset.tab === nextTab;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+  const sections = {
+    codes: $promoCodesContent,
+    rules: $promoRulesContent,
+    payouts: $promoPayoutsContent,
+    templates: $promoTemplatesContent,
+  };
+  Object.entries(sections).forEach(([key, el]) => {
+    if (el) {
+      el.classList.toggle('hide', key !== nextTab);
+    }
+  });
+  // Filters: show search/partner only on codes tab
+  const promoFilters = [document.getElementById('search-promocodes'), document.getElementById('filter-promocode-partner')];
+  promoFilters.forEach(el => {
+    if (el) el.classList.toggle('hide', nextTab !== 'codes');
+  });
+  if (nextTab === 'codes') {
+    await ensurePromoCodesLoaded();
+    renderPromoCodeList();
+  } else if (nextTab === 'rules') {
+    await ensurePromoRulesLoaded();
+    renderPromoRuleList();
+  } else if (nextTab === 'payouts') {
+    await ensurePromoPayoutsLoaded();
+    renderPromoPayoutList();
+  } else if (nextTab === 'templates') {
+    await ensureLinkTemplatesLoaded();
+    applyLinkTemplatesToSettingsUI();
+  }
+}
+
 /* ============================ Products UI ============================ */
 $('#search-products').addEventListener('input', function (e) {
   productSearchTerm = (e.target.value || '').toLowerCase();
@@ -1055,15 +1191,15 @@ function renderProductList() {
 			<div style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</div>
 			<label class="chip" style="user-select:none">
 			  <input type="checkbox" data-select id="sel-${p.id}" />
-			  Sï¿½lection
+			  S?lection
 			</label>
 		  </div>
-		  <div class="muted">${escapeHtml(p.brand || 'ï¿½')} ï¿½ ${escapeHtml(p.category || 'ï¿½')}</div>
+		  <div class="muted">${escapeHtml(p.brand || '?')} ? ${escapeHtml(p.category || '?')}</div>
 		  ${typeof p.ordreVedette === 'number' && p.ordreVedette > 0 ? '<div class="chip chip-primary" style="margin-top:6px">Top #' + escapeHtml(String(p.ordreVedette)) + '</div>' : ''}
 		  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : 'ï¿½'}</div>
+			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : '?'}</div>
 			<div class="actions">
-			  <button class="btn btn-small" data-edit>ï¿½diter</button>
+			  <button class="btn btn-small" data-edit>?diter</button>
 			  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 			</div>
 		  </div>
@@ -1094,7 +1230,7 @@ function renderProductList() {
 		  <th style="width:60px">Image</th>
 		  <th class="sortable ${sortBy.key === 'name' ? 'sorted' : ''}" data-sort="name">Nom ${sortIcon('name')}</th>
 		  <th class="sortable ${sortBy.key === 'brand' ? 'sorted' : ''}" data-sort="brand">Marque ${sortIcon('brand')}</th>
-		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Catï¿½gorie ${sortIcon('category')}</th>
+		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Cat?gorie ${sortIcon('category')}</th>
 		  <th style="width:140px">Prix</th>
 		  <th style="width:90px">Stock</th>
 		  <th style="width:110px" class="sortable ${sortBy.key === 'ordreVedette' ? 'sorted' : ''}" data-sort="ordreVedette">Top ${sortIcon('ordreVedette')}</th>
@@ -1111,15 +1247,15 @@ function renderProductList() {
 		<td><input type="checkbox" data-select /></td>
 		<td>${mainImage ? '<img class="img" src="' + escapeAttr(mainImage) + '" alt="' + escapeAttr(p.name || 'Image produit') + '" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
 		<td style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</td>
-		<td>${escapeHtml(p.brand || 'ï¿½')}</td>
-		<td><span class="chip">${escapeHtml(p.category || 'ï¿½')}</span></td>
+		<td>${escapeHtml(p.brand || '?')}</td>
+		<td><span class="chip">${escapeHtml(p.category || '?')}</span></td>
 		<td>
 		  <input type="number" step="1" min="0" class="input" style="max-width:120px" value="${typeof p.price === 'number' ? p.price : ''}" placeholder="0" data-price-update />
 		</td>
-		<td>${typeof p.stock === 'number' ? p.stock : 'ï¿½'}</td>
+		<td>${typeof p.stock === 'number' ? p.stock : '?'}</td>
 		<td><input type="number" step="1" min="0" class="input" style="max-width:100px" value="${typeof p.ordreVedette === 'number' ? p.ordreVedette : ''}" placeholder="0" data-vedette-update /></td>
 		<td class="actions">
-		  <button class="btn btn-small" data-edit>ï¿½diter</button>
+		  <button class="btn btn-small" data-edit>?diter</button>
 		  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
 		</td>`;
       const sel = tr.querySelector('[data-select]');
@@ -1173,11 +1309,11 @@ $('#bulk-delete').addEventListener('click', async function () {
     });
   if (!ids.length) return;
   const ok = await openModal({
-    title: 'Supprimer la sï¿½lection',
+    title: 'Supprimer la s?lection',
     body:
-      'ï¿½tes-vous sï¿½r de vouloir supprimer <strong>' +
+      '?tes-vous s?r de vouloir supprimer <strong>' +
       ids.length +
-      '</strong> ï¿½lï¿½ment(s) ? Cette action est irrï¿½versible.',
+      '</strong> ?l?ment(s) ? Cette action est irr?versible.',
     okText: 'Supprimer',
     cancelText: 'Annuler',
     danger: true,
@@ -1197,7 +1333,7 @@ $('#bulk-delete').addEventListener('click', async function () {
       fail++;
     }
   }
-  toast('Suppression terminï¿½e', done + ' succï¿½s, ' + fail + ' ï¿½chec(s)', fail ? 'error' : 'success');
+  toast('Suppression termin?e', done + ' succ?s, ' + fail + ' ?chec(s)', fail ? 'error' : 'success');
   renderProductList();
   $('#kpi-products').textContent = String(allProducts.length);
 });
@@ -1216,10 +1352,10 @@ async function handlePriceUpdate(id, inputEl) {
       return x.id === id;
     });
     if (p) p.price = val;
-    toast('Prix mis ï¿½ jour', fmtXOF.format(val), 'success');
+    toast('Prix mis ? jour', fmtXOF.format(val), 'success');
   } catch (e) {
     console.error(e);
-    toast('Erreur', 'Impossible de mettre ï¿½ jour le prix', 'error');
+    toast('Erreur', 'Impossible de mettre ? jour le prix', 'error');
   } finally {
     inputEl.disabled = false;
   }
@@ -1259,7 +1395,7 @@ async function handleDelete(id, name, type) {
   });
   if (!ok) return;
   try {
-    // --- Dï¿½BUT DU PATCH : Rafraï¿½chir le jeton avant l'action privilï¿½giï¿½e ---
+    // --- D?BUT DU PATCH : Rafra?chir le jeton avant l'action privil?gi?e ---
     if (auth.currentUser) {
       await auth.currentUser.getIdToken(true);
     }
@@ -1295,8 +1431,14 @@ async function handleDelete(id, name, type) {
       }
       allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
     }
+  } else if (type === 'promoRules') {
+    allPromoRules = allPromoRules.filter(r => r.id !== id);
+    renderPromoRuleList();
+  } else if (type === 'promoPayouts') {
+    allPromoPayouts = allPromoPayouts.filter(p => p.id !== id);
+    renderPromoPayoutList();
   }
-    toast('Supprimï¿½', '', 'success');
+    toast('Supprim?', '', 'success');
   } catch (e) {
     console.error(e);
     toast('Erreur', 'Suppression impossible', 'error');
@@ -1308,7 +1450,7 @@ function addSpecRow(container, spec = { key: '', value: '' }) {
   const row = document.createElement('div');
   row.className = 'spec-row';
   row.innerHTML = `
-		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caractï¿½ristique (ex: ï¿½cran)" value="${escapeAttr(spec.key)}">
+		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caract?ristique (ex: ?cran)" value="${escapeAttr(spec.key)}">
 		<input type="text" class="input spec-value" placeholder="Valeur (ex: 6.1 Pouces OLED)" value="${escapeAttr(spec.value)}">
 		<button type="button" class="btn btn-icon btn-danger" data-remove-spec><i data-lucide="trash-2" class="icon"></i></button>
 	`;
@@ -1345,7 +1487,7 @@ async function renderProductFormPage(id) {
     .map(
       (url, index) => `
 	<div class="image-preview-item" data-url="${escapeAttr(url)}">
-		<img src="${escapeAttr(url)}" alt="Aperï¿½u ${index + 1}">
+		<img src="${escapeAttr(url)}" alt="Aper?u ${index + 1}">
 		<button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
 			<i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
 		</button>
@@ -1358,8 +1500,8 @@ async function renderProductFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
 	<div class="form-head">
-	  <div class="form-title">${id ? 'ï¿½diter' : 'Nouveau'} produit</div>
-	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Crï¿½ation'}</div>
+	  <div class="form-title">${id ? '?diter' : 'Nouveau'} produit</div>
+	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Cr?ation'}</div>
 	</div>
 	<form class="form-main" novalidate>
 	  <div class="twocol">
@@ -1376,9 +1518,9 @@ async function renderProductFormPage(id) {
 	  </div>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="p-category">Catï¿½gorie</label>
+		  <label class="label" for="p-category">Cat?gorie</label>
 		  <select id="p-category" class="select">
-			<option value="">ï¿½ Sï¿½lectionner ï¿½</option>
+			<option value="">? s?lectionner</option>
 			${categoryOptions}
 		  </select>
 		</div>
@@ -1404,10 +1546,10 @@ async function renderProductFormPage(id) {
 	  </div>
 
 	  <div class="field">
-		<label class="label">Spï¿½cifications techniques</label>
+		<label class="label">Sp?cifications techniques</label>
 		<div id="p-specs-container" class="specs-container">
 		</div>
-		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une spï¿½cification</button>
+		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une sp?cification</button>
 	  </div>
 	  
 	  <div class="twocol">
@@ -1431,7 +1573,7 @@ async function renderProductFormPage(id) {
 	  </div>
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
-		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er le produit'}</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er le produit'}</button>
 	  </div>
 	</form>`;
   $productsContent.innerHTML = '';
@@ -1475,7 +1617,7 @@ async function renderProductFormPage(id) {
         .map(
           (url, index) => `
         <div class="image-preview-item" data-url="${escapeAttr(url)}">
-                <img src="${escapeAttr(url)}" alt="Aperï¿½u ${index + 1}">
+                <img src="${escapeAttr(url)}" alt="Aper?u ${index + 1}">
                 <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
                         <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
                 </button>
@@ -1484,7 +1626,7 @@ async function renderProductFormPage(id) {
         )
         .join('');
       btn.closest('.image-preview-item').remove();
-      toast('Image supprimï¿½e du produit', 'Le fichier reste sur le serveur.', 'success');
+      toast('Image supprim?e du produit', 'Le fichier reste sur le serveur.', 'success');
     } catch (err) {
       console.error(err);
       toast('Erreur', "Impossible de supprimer l'image du produit", 'error');
@@ -1590,7 +1732,7 @@ async function handleProductFormSubmit(e, id) {
       }
     }
 
-    toast('Succï¿½s', `Produit ${id ? 'mis ï¿½ jour' : 'crï¿½ï¿½'} avec succï¿½s.`, 'success');
+    toast('Succ?s', `Produit ${id ? 'mis ? jour' : 'cr??'} avec succ?s.`, 'success');
     allProducts = [];
     await ensureProductsLoaded();
     location.hash = '#/products';
@@ -1608,7 +1750,7 @@ const getSelectedContest = () => allContests.find(contest => contest.id === sele
 const CONTEST_STATUS_LABELS = {
   draft: 'Brouillon',
   active: 'Actif',
-  ended: 'Terminï¿½',
+  ended: 'Termin?',
 };
 
 const formatContestStatus = status =>
@@ -1628,11 +1770,11 @@ const toInputDateValue = value => {
 
 const toDisplayDate = value => {
   if (!value) {
-    return 'ï¿½';
+    return '?';
   }
   const dt = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(dt.getTime())) {
-    return 'ï¿½';
+    return '?';
   }
   return fmtDate(dt);
 };
@@ -1650,7 +1792,7 @@ const updateContestFilterOptions = () => {
     )
     .join('');
   select.innerHTML = allContests.length
-    ? `<option value="">Sï¿½lectionner un concours</option>${options}`
+    ? `<option value="">S?lectionner un concours</option>${options}`
     : '<option value="">Aucun concours disponible</option>';
   if (currentValue && select.value !== currentValue) {
     select.value = currentValue;
@@ -1660,14 +1802,14 @@ const updateContestFilterOptions = () => {
 const updateKpiContests = () => {
   const el = $('#kpi-contests');
   if (el) {
-    el.textContent = allContests.length ? String(allContests.length) : 'ï¿½';
+    el.textContent = allContests.length ? String(allContests.length) : '?';
   }
 };
 
 const updateKpiCandidates = count => {
   const el = $('#kpi-candidates');
   if (el) {
-    el.textContent = typeof count === 'number' && count >= 0 ? String(count) : 'ï¿½';
+    el.textContent = typeof count === 'number' && count >= 0 ? String(count) : '?';
   }
 };
 
@@ -1791,7 +1933,7 @@ function renderContestsOverview() {
     $contestsContent.innerHTML = `
       <div class="empty-state">
         <p>Aucun concours disponible.</p>
-        <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Crï¿½er un concours</button>
+        <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Cr?er un concours</button>
       </div>`;
     $contestsContent.querySelector('[data-create-first-contest]')?.addEventListener('click', () => {
       location.hash = '#/new-contest';
@@ -1812,7 +1954,7 @@ function renderContestsOverview() {
   const contest = getSelectedContest();
   if (!contest) {
     updateKpiCandidates(0);
-    $contestsContent.innerHTML = `<div class="empty-state"><p>Sï¿½lectionnez un concours pour voir ses candidats.</p></div>`;
+    $contestsContent.innerHTML = `<div class="empty-state"><p>S?lectionnez un concours pour voir ses candidats.</p></div>`;
     lucide.createIcons();
     return;
   }
@@ -1841,7 +1983,7 @@ function renderContestsOverview() {
           <td class="muted">${escapeHtml(candidate.id)}</td>
           <td class="strong">${Number(candidate.voteCount || 0).toLocaleString('fr-FR')}</td>
           <td class="actions">
-            <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> ï¿½diter</button>
+            <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> ?diter</button>
             <button class="btn btn-danger btn-small" type="button" data-delete-candidate="${escapeAttr(candidate.id)}"><i data-lucide="trash-2" class="icon"></i></button>
           </td>
         </tr>`
@@ -1866,7 +2008,7 @@ function renderContestsOverview() {
             </tbody>
           </table>
         </div>`
-    : `<div class="empty-state"><p>${searchTerm ? 'Aucun candidat ne correspond ï¿½ cette recherche.' : 'Aucun candidat nï¿½est encore enregistrï¿½ pour ce concours.'}</p></div>`;
+    : `<div class="empty-state"><p>${searchTerm ? 'Aucun candidat ne correspond ? cette recherche.' : 'Aucun candidat n?est encore enregistr? pour ce concours.'}</p></div>`;
 
   $contestsContent.innerHTML = `
     <div class="contest-layout">
@@ -1879,7 +2021,7 @@ function renderContestsOverview() {
           <div class="actions">
             <span class="badge status-${escapeAttr(contest.status)}">${formatContestStatus(contest.status)}</span>
             <button class="btn btn-icon btn-small" type="button" data-delete-current-contest title="Supprimer"><i data-lucide="trash-2" class="icon"></i></button>
-            <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> ï¿½diter</button>
+            <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> ?diter</button>
           </div>
         </div>
         <div class="card-body">
@@ -1968,7 +2110,7 @@ async function handleCandidateDeletion(contestId, candidateId, label) {
       contestId,
       list.filter(candidate => candidate.id !== candidateId)
     );
-    toast('Candidat supprimï¿½', label, 'success');
+    toast('Candidat supprim?', label, 'success');
     if (contestId === selectedContestId) {
       updateKpiCandidates((contestCandidates.get(contestId) || []).length);
       renderContestsOverview();
@@ -2062,7 +2204,7 @@ async function renderContestFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
     <div class="form-head">
-      <div class="form-title">${isEdition ? 'ï¿½diter' : 'Nouveau'} concours</div>
+      <div class="form-title">${isEdition ? '?diter' : 'Nouveau'} concours</div>
       ${isEdition ? `<div class="kpi">ID : ${escapeHtml(contest.id)}</div>` : ''}
     </div>
     <form class="form-main" novalidate>
@@ -2072,7 +2214,7 @@ async function renderContestFormPage(id) {
       </div>
       <div class="field">
         <label class="label" for="contest-description">Description</label>
-        <textarea id="contest-description" class="textarea" rows="4" placeholder="Dï¿½tails du concours">${escapeHtml(defaults.description)}</textarea>
+        <textarea id="contest-description" class="textarea" rows="4" placeholder="D?tails du concours">${escapeHtml(defaults.description)}</textarea>
       </div>
       <div class="twocol">
         <div class="field">
@@ -2080,7 +2222,7 @@ async function renderContestFormPage(id) {
           <select id="contest-status" class="select">
             <option value="draft" ${defaults.status === 'draft' ? 'selected' : ''}>Brouillon</option>
             <option value="active" ${defaults.status === 'active' ? 'selected' : ''}>Actif</option>
-            <option value="ended" ${defaults.status === 'ended' ? 'selected' : ''}>Terminï¿½</option>
+            <option value="ended" ${defaults.status === 'ended' ? 'selected' : ''}>Termin?</option>
           </select>
         </div>
         <div class="field">
@@ -2100,7 +2242,7 @@ async function renderContestFormPage(id) {
       </div>
       <div class="form-actions">
         <button type="button" class="btn" data-cancel>Annuler</button>
-        <button type="submit" class="btn btn-primary">${isEdition ? 'Enregistrer' : 'Crï¿½er le concours'}</button>
+        <button type="submit" class="btn btn-primary">${isEdition ? 'Enregistrer' : 'Cr?er le concours'}</button>
       </div>
     </form>`;
 
@@ -2164,7 +2306,7 @@ async function handleContestFormSubmit(e, contestId) {
         }
         allContests[index] = merged;
       }
-      toast('Concours mis ï¿½ jour', title, 'success');
+      toast('Concours mis ? jour', title, 'success');
       await ensureContestsLoaded(true);
       await setSelectedContest(contestId, { force: true });
     } else {
@@ -2176,7 +2318,7 @@ async function handleContestFormSubmit(e, contestId) {
       };
       const ref = await addDoc(collection(db, 'contests'), createdPayload);
       await updateDoc(ref, { id: ref.id });
-      toast('Concours crï¿½ï¿½', title, 'success');
+      toast('Concours cr??', title, 'success');
       await ensureContestsLoaded(true);
       await setSelectedContest(ref.id, { force: true });
     }
@@ -2192,7 +2334,7 @@ async function handleContestFormSubmit(e, contestId) {
 async function renderCandidateFormPage(contestId, candidateId) {
   if (!contestId) {
     $contestsContent.innerHTML =
-      '<div class="empty-state"><p>Sï¿½lectionnez un concours avant dï¿½ajouter un candidat.</p></div>';
+      "<div class=\"empty-state\"><p>Sélectionnez un concours avant d'ajouter un candidat.</p></div>";
     return;
   }
   const contest = allContests.find(item => item.id === contestId) || null;
@@ -2227,7 +2369,7 @@ async function renderCandidateFormPage(contestId, candidateId) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
     <div class="form-head">
-      <div class="form-title">${candidateId ? 'ï¿½diter' : 'Nouveau'} candidat</div>
+      <div class="form-title">${candidateId ? '?diter' : 'Nouveau'} candidat</div>
       <div class="muted">Concours : ${escapeHtml((getSelectedContest() || {}).title || contestId)}</div>
     </div>
     <form class="form-main" novalidate>
@@ -2236,13 +2378,13 @@ async function renderCandidateFormPage(contestId, candidateId) {
         <input id="candidate-name" class="input" type="text" value="${escapeAttr(defaults.name)}" required />
       </div>
       <div class="field">
-        <label class="label" for="candidate-media">Mï¿½dia / Organisation</label>
-        <input id="candidate-media" class="input" type="text" value="${escapeAttr(defaults.media)}" placeholder="Chaï¿½ne, journal..." />
+        <label class="label" for="candidate-media">M?dia / Organisation</label>
+        <input id="candidate-media" class="input" type="text" value="${escapeAttr(defaults.media)}" placeholder="Cha?ne, journal..." />
       </div>
       <div class="field">
         <label class="label" for="candidate-photo">Photo (URL)</label>
         <input id="candidate-photo" class="input" type="url" value="${escapeAttr(defaults.photoUrl)}" placeholder="https://" />
-        <div class="hint">Utilisez une URL publique ou importez l'image depuis un stockage dï¿½jï¿½ autorisï¿½.</div>
+        <div class="hint">Utilisez une URL publique ou importez l'image depuis un stockage d?j? autoris?.</div>
       </div>
       <div class="field">
         <label class="label" for="candidate-votes">Votes initiaux</label>
@@ -2294,7 +2436,7 @@ async function handleCandidateFormSubmit(e, contestId, candidateId) {
         list[index] = { ...list[index], ...base };
       }
       contestCandidates.set(contestId, list);
-      toast('Candidat mis ï¿½ jour', name, 'success');
+      toast('Candidat mis ? jour', name, 'success');
     } else {
       const ref = await addDoc(collection(db, 'contests', contestId, 'candidates'), {
         ...base,
@@ -2304,14 +2446,14 @@ async function handleCandidateFormSubmit(e, contestId, candidateId) {
       await updateDoc(ref, { id: ref.id });
       const list = contestCandidates.get(contestId) || [];
       contestCandidates.set(contestId, [{ id: ref.id, contestId, ...base }, ...list]);
-      toast('Candidat ajoutï¿½', name, 'success');
+      toast('Candidat ajout?', name, 'success');
     }
 
     await setSelectedContest(contestId, { force: true });
     location.hash = '#/contests';
   } catch (error) {
     console.error(error);
-    toast('Erreur', 'Impossible dï¿½enregistrer le candidat.', 'error');
+    toast('Erreur', 'Impossible d?enregistrer le candidat.', 'error');
   } finally {
     setButtonLoading(submitBtn, false);
   }
@@ -2352,7 +2494,7 @@ function renderBrandList() {
             <td style="font-weight:800">${escapeHtml(brand.name || 'Sans nom')}</td>
             <td><span class="badge">${brand.sortOrder || 'N/A'}</span></td>
             <td class="actions">
-                <button class="btn btn-small" data-edit>ï¿½diter</button>
+                <button class="btn btn-small" data-edit>?diter</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>
         `;
@@ -2380,7 +2522,7 @@ async function renderBrandFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-        <div class="form-head"><div class="form-title">${id ? 'ï¿½diter' : 'Nouvelle'} marque</div></div>
+        <div class="form-head"><div class="form-title">${id ? '?diter' : 'Nouvelle'} marque</div></div>
         <form class="form-main" novalidate>
             <div class="twocol">
                 <div class="field">
@@ -2398,7 +2540,7 @@ async function renderBrandFormPage(id) {
             </div>
             <div class="form-actions">
                 <button type="button" class="btn" data-cancel>Annuler</button>
-                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la marque'}</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la marque'}</button>
             </div>
         </form>
     `;
@@ -2430,12 +2572,12 @@ async function handleBrandFormSubmit(e, id) {
       await updateDoc(doc(db, 'brands', id), data);
       const i = allBrands.findIndex(b => b.id === id);
       if (i > -1) allBrands[i] = { id, ...data };
-      toast('Marque mise ï¿½ jour', name, 'success');
+      toast('Marque mise ? jour', name, 'success');
     } else {
       const refDoc = await addDoc(collection(db, 'brands'), data);
       allBrands.push({ id: refDoc.id, ...data });
       $('#kpi-brands').textContent = String(allBrands.length);
-      toast('Marque crï¿½ï¿½e', name, 'success');
+      toast('Marque cr??e', name, 'success');
     }
     allBrands.sort((a, b) => a.sortOrder - b.sortOrder);
     location.hash = '#/brands';
@@ -2477,7 +2619,7 @@ function renderMatchList() {
 	<thead>
 	  <tr>
 		<th>Affiche</th>
-		<th>Compï¿½tition</th>
+		<th>Comp?tition</th>
 		<th>Date</th>
 		<th style="width:180px;text-align:right">Actions</th>
 	  </tr>
@@ -2494,13 +2636,13 @@ function renderMatchList() {
     const tr = document.createElement('tr');
     tr.dataset.id = m.id;
   tr.innerHTML = `
-	  <td style="font-weight:800">${escapeHtml(m.teamA || 'ï¿½quipe A')} vs ${escapeHtml(m.teamB || 'ï¿½quipe B')}</td>
-	  <td>${escapeHtml(m.competition || 'ï¿½')}</td>
-	  <td>${date ? fmtDate(date) : 'ï¿½'}</td>
+	  <td style="font-weight:800">${escapeHtml(m.teamA || '?quipe A')} vs ${escapeHtml(m.teamB || '?quipe B')}</td>
+	  <td>${escapeHtml(m.competition || '?')}</td>
+	  <td>${date ? fmtDate(date) : '?'}</td>
 	  <td class="actions">
-		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || 'ï¿½ jouer'}</span>
+		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || '? jouer'}</span>
 		<button class="btn btn-small" data-view>Pronostics</button>
-		<button class="btn btn-small" data-edit>ï¿½diter</button>
+		<button class="btn btn-small" data-edit>?diter</button>
 		<button class="btn btn-danger btn-small" data-del>Supprimer</button>
 	  </td>`;
     tr.querySelector('[data-view]').addEventListener('click', function () {
@@ -2612,9 +2754,9 @@ async function renderMatchPredictionsPage(matchId) {
 
   setCrumb(
     'Pronostics \u00b7 ' +
-      (match.teamA || 'ï¿½quipe A') +
+      (match.teamA || '?quipe A') +
       ' vs ' +
-      (match.teamB || 'ï¿½quipe B')
+      (match.teamB || '?quipe B')
   );
 
   const container = document.createElement('div');
@@ -2622,7 +2764,7 @@ async function renderMatchPredictionsPage(matchId) {
   container.innerHTML = `
     <div class="card match-summary">
       <div class="summary-info">
-        <div class="match-title">${escapeHtml(match.teamA || 'ï¿½quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || 'ï¿½quipe B')}</div>
+        <div class="match-title">${escapeHtml(match.teamA || '?quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || '?quipe B')}</div>
         <div class="match-meta">
           ${match.competition ? `<span class="chip">${escapeHtml(match.competition)}</span>` : ''}
           <span class="muted">${matchDate ? fmtDate(matchDate) : 'Date &agrave; confirmer'}</span>
@@ -2721,7 +2863,7 @@ async function renderMatchPredictionsPage(matchId) {
           statusPieces.push('<span class="chip chip-info">Mis en avant</span>');
         }
         const scoreLabel =
-          item.scoreA === null || item.scoreB === null ? 'ï¿½' : `${item.scoreA} - ${item.scoreB}`;
+          item.scoreA === null || item.scoreB === null ? '?' : `${item.scoreA} - ${item.scoreB}`;
         const contactBits = [];
         if (item.contactName) {
           contactBits.push(escapeHtml(item.contactName));
@@ -2730,7 +2872,7 @@ async function renderMatchPredictionsPage(matchId) {
           contactBits.push('<span class="muted">' + escapeHtml(item.contactPhone) + '</span>');
         }
         const userIdLabel = item.userId ? '<div class="muted">ID: ' + escapeHtml(item.userId) + '</div>' : '';
-        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : 'ï¿½';
+        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : '?';
         return `
           <tr class="${item.isWinner ? 'winner-row' : ''}">
             <td>
@@ -2738,7 +2880,7 @@ async function renderMatchPredictionsPage(matchId) {
               ${userIdLabel}
             </td>
             <td class="pred-score">${scoreLabel}</td>
-            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">ï¿½</span>'}</td>
+            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">?</span>'}</td>
             <td class="pred-status">${statusPieces.join(' ')}</td>
             <td>${createdLabel}</td>
           </tr>`;
@@ -2770,7 +2912,7 @@ async function renderMatchPredictionsPage(matchId) {
       state.items = data;
       applyFilters();
       if (force) {
-        toast('Pronostics mis ï¿½ jour', '', 'success');
+        toast('Pronostics mis ? jour', '', 'success');
       }
     } catch (error) {
       console.error('Match predictions load failed', error);
@@ -2827,12 +2969,12 @@ async function renderMatchFormPage(id) {
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
 	<div class="form-head">
-	  <div class="form-title">${id ? 'ï¿½diter' : 'Nouveau'} match</div>
+	  <div class="form-title">${id ? '?diter' : 'Nouveau'} match</div>
 	</div>
 	<form class="form-main" novalidate>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="m-competition">Compï¿½tition</label>
+		  <label class="label" for="m-competition">Comp?tition</label>
 		  <input id="m-competition" class="input" type="text" value="${escapeAttr(m.competition || '')}" />
 		</div>
 		<div class="field">
@@ -2843,11 +2985,11 @@ async function renderMatchFormPage(id) {
 	  </div>
 	  <div class="twocol">
 		<div class="field">
-		  <label class="label" for="m-teamA">ï¿½quipe A</label>
+		  <label class="label" for="m-teamA">?quipe A</label>
 		  <input id="m-teamA" class="input" type="text" value="${escapeAttr(m.teamA || '')}" required />
 		</div>
 		<div class="field">
-		  <label class="label" for="m-teamB">ï¿½quipe B</label>
+		  <label class="label" for="m-teamB">?quipe B</label>
 		  <input id="m-teamB" class="input" type="text" value="${escapeAttr(m.teamB || '')}" required />
 		</div>
 	  </div>
@@ -2873,7 +3015,7 @@ async function renderMatchFormPage(id) {
 	  </div>
 	  <div class="form-actions">
 		<button type="button" class="btn" data-cancel>Annuler</button>
-		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er le match'}</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er le match'}</button>
 	  </div>
 	</form>`;
   $matchesContent.innerHTML = '';
@@ -2928,12 +3070,12 @@ async function handleMatchFormSubmit(e, id) {
         return x.id === id;
       });
       if (m) Object.assign(m, data);
-      toast('Match mis ï¿½ jour', teamA + ' vs ' + teamB, 'success');
+      toast('Match mis ? jour', teamA + ' vs ' + teamB, 'success');
       location.hash = '#/matches';
     } else {
       const refDoc = await addDoc(collection(db, 'matches'), data);
       allMatches.unshift({ id: refDoc.id, ...data });
-      toast('Match crï¿½ï¿½', teamA + ' vs ' + teamB, 'success');
+      toast('Match cr??', teamA + ' vs ' + teamB, 'success');
       location.hash = '#/matches';
       $('#kpi-matches').textContent = String(allMatches.length);
     }
@@ -3087,9 +3229,9 @@ async function handlePromoCardStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoCards', id), { isActive: isActive });
     const card = allPromoCards.find(c => c.id === id);
     if (card) card.isActive = isActive;
-    toast('Statut mis ï¿½ jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
+    toast('Statut mis ? jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
   } catch (error) {
-    console.error('Erreur de mise ï¿½ jour du statut:', error);
+    console.error('Erreur de mise ? jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
     renderPromoCardList();
   }
@@ -3158,7 +3300,7 @@ async function renderPromoCardFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-		<div class="form-head"><div class="form-title">${id ? 'ï¿½diter' : 'Nouvelle'} Carte Promo</div></div>
+		<div class="form-head"><div class="form-title">${id ? '?diter' : 'Nouvelle'} Carte Promo</div></div>
 		<form class="form-main" novalidate>
 			<div class="twocol">
 				<div class="field">
@@ -3176,7 +3318,7 @@ async function renderPromoCardFormPage(id) {
 					<input id="pc-cta" class="input" type="text" value="${escapeAttr(card.cta || '')}" />
 				</div>
 				<div class="field">
-					<label class="label" for="pc-screen">ï¿½cran de destination</label>
+					<label class="label" for="pc-screen">?cran de destination</label>
 					<input id="pc-screen" class="input" type="text" value="${escapeAttr(card.screen || '')}" placeholder="Ex: MatchList, Store..." />
 				</div>
 			</div>
@@ -3201,7 +3343,7 @@ async function renderPromoCardFormPage(id) {
 			</div>
 			<div class="form-actions">
 				<button type="button" class="btn" data-cancel>Annuler</button>
-				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la carte'}</button>
+				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la carte'}</button>
 			</div>
 		</form>`;
   $promoCardsContent.innerHTML = '';
@@ -3235,12 +3377,12 @@ async function handlePromoCardFormSubmit(e, id) {
       await updateDoc(doc(db, 'promoCards', id), data);
       const i = allPromoCards.findIndex(c => c.id === id);
       if (i > -1) allPromoCards[i] = { id, ...data };
-      toast('Carte mise ï¿½ jour', data.title, 'success');
+      toast('Carte mise ? jour', data.title, 'success');
     } else {
       const refDoc = await addDoc(collection(db, 'promoCards'), data);
       allPromoCards.push({ id: refDoc.id, ...data });
       updatePromoCardsKpi();
-      toast('Carte crï¿½ï¿½e', data.title, 'success');
+      toast('Carte cr??e', data.title, 'success');
     }
     allPromoCards.sort((a, b) => a.sortOrder - b.sortOrder);
     location.hash = '#/promocards';
@@ -3252,20 +3394,230 @@ async function handlePromoCardFormSubmit(e, id) {
   }
 }
 
+/* ============================ Promo Payouts UI ============================ */
+function renderPromoPayoutList() {
+  if (!$promoPayoutsContent) return;
+  const term = (promoPayoutSearchTerm || '').toLowerCase();
+  const arr = term
+    ? allPromoPayouts.filter(p =>
+        `${p.code || ''} ${p.status || ''} ${p.mode || ''}`.toLowerCase().includes(term.toLowerCase()),
+      )
+    : allPromoPayouts;
+  if (!arr.length) {
+    $promoPayoutsContent.innerHTML = '<div class="center" style="padding:32px">Aucun versement.</div>';
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Montant</th>
+                <th>Statut</th>
+                <th>Mode</th>
+                <th>Date</th>
+                <th style="width:180px;text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-promopayouts"></tbody>`;
+  const tb = table.querySelector('#tbody-promopayouts');
+  arr.forEach(p => {
+    const createdAt =
+      p.createdAt && typeof p.createdAt.toDate === 'function'
+        ? p.createdAt.toDate()
+        : p.createdAt
+          ? new Date(p.createdAt)
+          : null;
+    const dateText = createdAt && !Number.isNaN(createdAt.valueOf()) ? fmtDate(createdAt) : '-';
+    const status = (p.status || 'pending').toLowerCase();
+    const statusLabel = status === 'paid' ? 'Payé' : status === 'cancelled' ? 'Annulé' : 'En attente';
+    const statusClass = status === 'paid' ? 'success' : status === 'cancelled' ? 'danger' : 'warning';
+    const tr = document.createElement('tr');
+    tr.dataset.id = p.id;
+    tr.innerHTML = `
+            <td style="font-weight:800"><span class="chip">${escapeHtml(p.code || '')}</span></td>
+            <td>${fmtXOF.format(p.amount || 0)}</td>
+            <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+            <td>${escapeHtml(p.mode || '-')}</td>
+            <td>${escapeHtml(dateText)}</td>
+            <td class="actions">
+                <button class="btn btn-small" data-edit>Éditer</button>
+                <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+            </td>`;
+    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promopayout/${p.id}`);
+    tr.querySelector('[data-del]').onclick = () => handleDelete(p.id, p.code, 'promoPayouts');
+    tb.appendChild(tr);
+  });
+  $promoPayoutsContent.innerHTML = '';
+  $promoPayoutsContent.appendChild(table);
+  lucide.createIcons();
+}
+
+async function renderPromoPayoutFormPage(id) {
+  let payout = {};
+  if (id) {
+    payout =
+      allPromoPayouts.find(p => p.id === id) ||
+      (await getDoc(doc(db, 'promoPayouts', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!payout) {
+      if ($promoPayoutsContent) {
+        $promoPayoutsContent.innerHTML = '<div class="center" style="padding:32px">Versement introuvable.</div>';
+      }
+      return;
+    }
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouveau'} versement</div></div>
+        <form class="form-main" novalidate>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pp-code">Code</label>
+                <input id="pp-code" class="input" type="text" value="${escapeAttr(payout.code || '')}" required placeholder="EX: JOYFUL-AP" />
+                <div class="hint">Code promo concerné.</div>
+              </div>
+              <div class="field">
+                <label class="label" for="pp-amount">Montant</label>
+                <input id="pp-amount" class="input" type="number" min="0" step="1000" value="${payout.amount ?? ''}" required />
+                <div class="hint">Montant versé (FCFA).</div>
+              </div>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pp-mode">Mode</label>
+                <select id="pp-mode" class="select">
+                  <option value="momo" ${payout.mode === 'momo' ? 'selected' : ''}>Mobile Money</option>
+                  <option value="virement" ${payout.mode === 'virement' ? 'selected' : ''}>Virement bancaire</option>
+                  <option value="cash" ${payout.mode === 'cash' ? 'selected' : ''}>Cash</option>
+                  <option value="autre" ${payout.mode === 'autre' ? 'selected' : ''}>Autre</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="pp-status">Statut</label>
+                <select id="pp-status" class="select">
+                  <option value="paid" ${payout.status === 'paid' ? 'selected' : ''}>Payé</option>
+                  <option value="pending" ${!payout.status || payout.status === 'pending' ? 'selected' : ''}>En attente</option>
+                  <option value="cancelled" ${payout.status === 'cancelled' ? 'selected' : ''}>Annulé</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="pp-date">Date</label>
+              <input id="pp-date" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(payout.createdAt))}" />
+            </div>
+            <div class="field">
+              <label class="label" for="pp-ref">Référence paiement</label>
+              <input id="pp-ref" class="input" type="text" value="${escapeAttr(payout.ref || '')}" placeholder="TxID, ref bancaire..." />
+            </div>
+            <div class="field">
+              <label class="label" for="pp-note">Note (optionnel)</label>
+              <textarea id="pp-note" class="textarea" rows="3" placeholder="Détail ou commentaire">${escapeHtml(payout.note || '')}</textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" data-cancel>Annuler</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Enregistrer le versement'}</button>
+            </div>
+        </form>`;
+  if ($promoPayoutsContent) {
+    $promoPayoutsContent.innerHTML = '';
+    $promoPayoutsContent.appendChild(wrap);
+  }
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes/payouts');
+  wrap.querySelector('form').onsubmit = e => handlePromoPayoutFormSubmit(e, id, payout);
+}
+
+async function handlePromoPayoutFormSubmit(e, id, existing = {}) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+  const code = ($('#pp-code').value || '').trim().toUpperCase();
+  const amount = Number($('#pp-amount').value);
+  const mode = $('#pp-mode').value || 'momo';
+  const status = $('#pp-status').value || 'pending';
+  const note = ($('#pp-note').value || '').trim();
+  const ref = ($('#pp-ref').value || '').trim();
+  const dateVal = $('#pp-date').value;
+  if (!code || Number.isNaN(amount)) {
+    toast('Erreur', 'Code et montant requis.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+  const payload = {
+    code,
+    amount,
+    mode,
+    status,
+    note: note || null,
+    ref: ref || null,
+  };
+  if (dateVal) {
+    payload.createdAt = new Date(dateVal);
+  } else if (!id) {
+    payload.createdAt = serverTimestamp();
+  }
+  try {
+    if (id) {
+      await updateDoc(doc(db, 'promoPayouts', id), payload);
+      const i = allPromoPayouts.findIndex(p => p.id === id);
+      if (i > -1) {
+        allPromoPayouts[i] = { ...allPromoPayouts[i], ...payload };
+      }
+      toast('Versement mis à jour', code, 'success');
+    } else {
+      const refDoc = await addDoc(collection(db, 'promoPayouts'), payload);
+      const fresh = await getDoc(refDoc);
+      const saved = fresh.exists() ? { id: refDoc.id, ...fresh.data() } : { id: refDoc.id, ...payload };
+      allPromoPayouts.unshift(saved);
+      toast('Versement enregistré', code, 'success');
+    }
+    renderPromoPayoutList();
+    location.hash = '#/promocodes/payouts';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
 /* ============================ Promo Codes UI (AJOUT) ============================ */
 $('#add-promocode').addEventListener('click', () => (location.hash = '#/new-promocode'));
 $('#search-promocodes').addEventListener('input', () => renderPromoCodeList());
+$('#filter-promocode-partner')?.addEventListener('input', e => {
+  promoCodePartnerFilter = (e.target.value || '').toLowerCase();
+  renderPromoCodeList();
+});
+$('#add-promorule')?.addEventListener('click', () => (location.hash = '#/new-promorule'));
+$('#search-promorules')?.addEventListener('input', () => renderPromoRuleList());
+$('#add-promopayout')?.addEventListener('click', () => (location.hash = '#/new-promopayout'));
+document.querySelectorAll('.promo-tab-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const tab = btn.dataset.tab || 'codes';
+    await setPromoTab(tab);
+    const base = '#/promocodes';
+    const hash = tab === 'codes' ? base : `${base}/${tab}`;
+    location.hash = hash;
+  });
+});
 
 function renderPromoCodeList() {
   ensurePromoRulesLoaded().catch(err => console.warn('PromoRules load skipped', err));
   const term = ($('#search-promocodes').value || '').toLowerCase();
-  const arr = term
-    ? allPromoCodes.filter(c => {
-        const codeMatch = (c.code || '').toLowerCase().includes(term);
-        const partnerMatch = (c.assignedTo || '').toLowerCase().includes(term);
-        return codeMatch || partnerMatch;
-      })
-    : allPromoCodes;
+  const partnerFilter = promoCodePartnerFilter || '';
+  let arr = allPromoCodes.slice();
+  if (term) {
+    arr = arr.filter(c => {
+      const codeMatch = (c.code || '').toLowerCase().includes(term);
+      const partnerMatch = (c.assignedTo || '').toLowerCase().includes(term);
+      return codeMatch || partnerMatch;
+    });
+  }
+  if (partnerFilter) {
+    arr = arr.filter(c => (c.assignedTo || '').toLowerCase().includes(partnerFilter));
+  }
 
   if (!arr.length) {
     $promoCodesContent.innerHTML = `<div class="center" style="padding:32px">Aucun code promo.</div>`;
@@ -3281,7 +3633,7 @@ function renderPromoCodeList() {
                 <th>Valeur</th>
                 <th>Partenaire</th>
                 <th>Statut / Règle</th>
-                <th style="width:180px;text-align:right">Actions</th>
+                <th style="width:220px;text-align:right">Actions</th>
             </tr>
         </thead>
         <tbody id="tbody-promocodes"></tbody>`;
@@ -3309,9 +3661,11 @@ function renderPromoCodeList() {
                 <div class="muted small">${escapeHtml(bracketsText)}</div>
             </td>
             <td class="actions">
+                <button class="btn btn-outline btn-small" data-preview>Tester liens</button>
                 <button class="btn btn-small" data-edit>Éditer</button>
                 <button class="btn btn-danger btn-small" data-del>Supprimer</button>
             </td>`;
+    tr.querySelector('[data-preview]').onclick = () => previewPromoLinks(c.code, c.assignedTo);
     tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocode/${c.id}`);
     tr.querySelector('[data-del]').onclick = () => handleDelete(c.id, c.code, 'promoCodes');
     tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCodeStatusToggle(c.id, e.target.checked);
@@ -3322,14 +3676,33 @@ function renderPromoCodeList() {
   lucide.createIcons();
 }
 
+async function previewPromoLinks(code, ref) {
+  const normalized = (code || '').trim();
+  if (!normalized) return;
+  try {
+    const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
+    const res = await callable({ code: normalized, ref });
+    const data = res.data || {};
+    const body = `
+      <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
+      <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
+      <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
+    `;
+    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
+  } catch (error) {
+    console.error('Preview promo links failed', error);
+    toast('Erreur', 'Impossible de générer les liens.', 'error');
+  }
+}
+
 async function handlePromoCodeStatusToggle(id, isActive) {
   try {
     await updateDoc(doc(db, 'promoCodes', id), { isActive: isActive });
     const code = allPromoCodes.find(c => c.id === id);
     if (code) code.isActive = isActive;
-    toast('Statut mis ï¿½ jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
+    toast('Statut mis ? jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
   } catch (error) {
-    console.error('Erreur de mise ï¿½ jour du statut:', error);
+    console.error('Erreur de mise ? jour du statut:', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
     renderPromoCodeList();
   }
@@ -3553,6 +3926,7 @@ async function handlePromoCodeFormSubmit(e, id) {
 
     track('promo_code_save', { code: data.code, isEdit: Boolean(id), type: data.type, hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
     location.hash = '#/promocodes';
+    return;
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');
@@ -3577,7 +3951,7 @@ function summarizeBrackets(brackets = []) {
 }
 
 function renderPromoRuleList() {
-  const term = ($('#search-promorules').value || '').toLowerCase();
+  const term = (document.getElementById('search-promorules')?.value || '').toLowerCase();
   const arr = term
     ? allPromoRules.filter(r => {
         const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
@@ -3623,7 +3997,7 @@ function renderPromoRuleList() {
       <td>${escapeHtml(channels)}</td>
       <td>${escapeHtml(bracketsText)}</td>
       <td class="actions">
-        <button class="btn btn-small" data-edit>ï¿½diter</button>
+        <button class="btn btn-small" data-edit>?diter</button>
         <button class="btn btn-danger btn-small" data-del>Supprimer</button>
       </td>`;
     tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promorule/${r.id}`);
@@ -3643,7 +4017,7 @@ async function handlePromoRuleStatusToggle(id, isActive) {
     await updateDoc(doc(db, 'promoRules', id), { isActive: isActive });
     const rule = allPromoRules.find(r => r.id === id);
     if (rule) rule.isActive = isActive;
-    toast('Statut mis ï¿½ jour', `La rï¿½gle est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
+    toast('Statut mis ? jour', `La r?gle est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
   } catch (error) {
     console.error('PromoRule status update failed', error);
     toast('Erreur', 'Impossible de changer le statut.', 'error');
@@ -3658,16 +4032,12 @@ async function renderPromoRuleFormPage(id) {
       allPromoRules.find(r => r.id === id) ||
       (await getDoc(doc(db, 'promoRules', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
     if (!rule) {
-      $promoRulesContent.innerHTML = '<div class="center" style="padding:32px">Rï¿½gle introuvable.</div>';
+      $promoRulesContent.innerHTML = '<div class="center" style="padding:32px">R?gle introuvable.</div>';
       return;
     }
   }
 
-  const priceBrackets = JSON.stringify(
-    rule.priceBrackets && rule.priceBrackets.length ? rule.priceBrackets : DEFAULT_PRICE_BRACKETS,
-    null,
-    2
-  );
+  const initialBrackets = rule.priceBrackets && rule.priceBrackets.length ? rule.priceBrackets : DEFAULT_PRICE_BRACKETS;
   const channelsSelected =
     (rule.allowedChannels && rule.allowedChannels.length
       ? rule.allowedChannels
@@ -3678,7 +4048,7 @@ async function renderPromoRuleFormPage(id) {
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
   wrap.innerHTML = `
-    <div class="form-head"><div class="form-title">${id ? 'ï¿½diter Rï¿½gle' : 'Nouvelle Rï¿½gle Promo'}</div></div>
+    <div class="form-head"><div class="form-title">${id ? '?diter R?gle' : 'Nouvelle R?gle Promo'}</div></div>
     <form class="form-main" novalidate>
       <div class="twocol">
         <div class="field">
@@ -3722,7 +4092,7 @@ async function renderPromoRuleFormPage(id) {
       </div>
       <div class="twocol">
         <div class="field">
-          <label class="label" for="pr-start">Dï¿½but</label>
+          <label class="label" for="pr-start">D?but</label>
           <input id="pr-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(rule.startsAt))}" />
         </div>
         <div class="field">
@@ -3731,19 +4101,32 @@ async function renderPromoRuleFormPage(id) {
         </div>
       </div>
       <div class="field">
-        <label class="label" for="pr-brackets">Tranches (JSON)</label>
-        <textarea id="pr-brackets" class="textarea" rows="8">${priceBrackets}</textarea>
-        <div class="hint">Chaque tranche: { min, max, discountValue, commissionValue, label }. Utilise null/omit pour max illimitï¿½.</div>
+        <label class="label">Tranches (visuel)</label>
+        <div id="pr-brackets-rows" class="brackets-rows"></div>
+        <div class="top-actions" style="margin-top:8px; gap:8px;">
+          <button id="pr-add-bracket" type="button" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Ajouter une tranche</button>
+          <button id="pr-reset-brackets" type="button" class="btn btn-small"><i data-lucide="rotate-ccw" class="icon"></i> Valeurs par défaut</button>
+        </div>
+        <div class="hint">Chaque tranche: { min, max, discountValue, commissionValue, label }. Laisse Max vide pour une tranche ouverte.</div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn" data-cancel>Annuler</button>
-        <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Crï¿½er la rï¿½gle'}</button>
+        <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la r?gle'}</button>
       </div>
     </form>`;
   $promoRulesContent.innerHTML = '';
   $promoRulesContent.appendChild(wrap);
   renderChannelCheckboxes('pr-channels-group', channelsSelected);
-  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promorules');
+  renderBracketRows(initialBrackets);
+  document.getElementById('pr-add-bracket')?.addEventListener('click', () => {
+    const container = document.getElementById('pr-brackets-rows');
+    if (container) {
+      container.appendChild(buildBracketRow({ min: 0, max: null, discountValue: 0, commissionValue: 0, label: '' }));
+    }
+    lucide.createIcons();
+  });
+  document.getElementById('pr-reset-brackets')?.addEventListener('click', () => renderBracketRows(DEFAULT_PRICE_BRACKETS));
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes/rules');
   wrap.querySelector('form').onsubmit = e => handlePromoRuleFormSubmit(e, id, rule.code || rule.id);
 }
 
@@ -3766,14 +4149,8 @@ async function handlePromoRuleFormSubmit(e, id, existingCode) {
     .map(s => s.trim())
     .filter(Boolean);
 
-  let priceBrackets = DEFAULT_PRICE_BRACKETS;
-  try {
-    const parsed = JSON.parse($('#pr-brackets').value || '[]');
-    if (Array.isArray(parsed) && parsed.length) {
-      priceBrackets = parsed;
-    }
-  } catch (err) {
-    console.warn('Price bracket parse failed, fallback to default', err);
+  let priceBrackets = readBracketRows();
+  if (!priceBrackets.length) {
     priceBrackets = DEFAULT_PRICE_BRACKETS;
   }
 
@@ -3809,8 +4186,8 @@ async function handlePromoRuleFormSubmit(e, id, existingCode) {
     allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
     track('promo_rule_save', { code: code, isEdit: Boolean(id), hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
     toast('Succ?s', id ? 'R?gle mise ? jour' : 'R?gle cr??e', 'success');
-    location.hash = '#/promorules';
-  }
+    location.hash = '#/promocodes/rules';
+    return;
   } catch (err) {
     console.error(err);
     toast('Erreur', 'Enregistrement impossible', 'error');

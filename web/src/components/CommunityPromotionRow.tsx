@@ -46,9 +46,10 @@ export default function CommunityPromotionRow() {
 
   return (
     <section aria-label="Jeux & concours AfricaPhone" className="-mx-[0.2rem] px-[0.2rem] sm:mx-0 sm:px-0">
-      <div className="flex snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible">
+      <div className="flex snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-4 sm:overflow-visible">
         {SHOW_PRONOSTICS_CARD ? <PronosticsPromoCard /> : null}
         <VoteContestPromoCard imageUrl={voteImageUrl} />
+        <AppCtaButton />
       </div>
     </section>
   );
@@ -125,5 +126,20 @@ function VoteContestPromoCard({ imageUrl }: VoteContestPromoCardProps) {
         </div>
       </Link>
     </article>
+  );
+}
+
+function AppCtaButton() {
+  return (
+    <div className="flex w-full flex-shrink-0 snap-center sm:w-auto sm:justify-end">
+      <Link
+        href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex w-full items-center justify-center rounded-[16px] bg-amber-400 px-4 py-3 text-[13px] font-bold uppercase tracking-wide text-[#111827] shadow-md shadow-slate-900/15 transition hover:-translate-y-[1px] hover:bg-amber-300 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:w-auto sm:px-5"
+      >
+        Accéder à l’application
+      </Link>
+    </div>
   );
 }

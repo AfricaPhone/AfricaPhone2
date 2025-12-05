@@ -1,7 +1,14 @@
 export type ContestSubmissionSettings = {
   contestId: string;
   sitePublicUrl: string;
-  isOpen: boolean;
+  isOpen: boolean; // équivalent à isSubmissionOpen pour compatibilité
+  isSubmissionOpen?: boolean;
+  isVotingOpen?: boolean;
+  phase?: 'submission' | 'voting' | 'closed';
+  submissionOpenAt?: string;
+  submissionCloseAt?: string;
+  votingOpenAt?: string;
+  votingCloseAt?: string;
   updatedAt?: string;
   updatedBy?: string;
 };

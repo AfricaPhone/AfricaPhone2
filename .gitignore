@@ -49,6 +49,13 @@ android/
 ios/
 # Secrets
 africaphone-vente-firebase-adminsdk-fbsvc-1fcd2f6858.json
+africaphone-vente-firebase-adminsdk-fbsvc-fb10b566a3.json
 
 # Firebase local state
 .firebase/
+
+# Local artifacts to ignore
+commit
+firebase-debug.log
+Firebase.xlsx
+candidates.xlsx

@@ -16,7 +16,7 @@ service firebase.storage {
         resource == null &&
         request.resource.size < 5 * 1024 * 1024 &&
         request.resource.contentType.matches('image/(jpeg|jpg|png|webp)') &&
-        fileName.matches('^[a-f0-9]{16}\\.jpg$') &&
+        fileName.matches('^[a-f0-9]{16}(?:-[a-z0-9]{1,12})?\\.(jpg|jpeg|png|webp)$') &&
         request.resource.metadata.source == 'contest-form' &&
         request.resource.metadata.contestId == contestId &&
         request.resource.metadata.phoneHash.matches('^[a-f0-9]{32,64}$');
