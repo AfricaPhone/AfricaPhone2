@@ -117,6 +117,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -333,6 +334,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       }));
       setPhotoState({ status: 'idle' });
       formRef.current?.reset();
+      setShowSuccessModal(true);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Soumission impossible.';
       setStatusMessage({ type: 'error', message });
@@ -518,6 +520,38 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
           </div>
         </form>
       </div>
+      {showSuccessModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/95 p-6 text-center shadow-2xl shadow-black/30">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-white">Candidature enregistrée</h3>
+            <p className="mt-2 text-sm text-white/70">
+              Votre dossier est enregistré. Consultez la page publique pour voir les candidats ou fermez pour déposer une autre candidature.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <a
+                href={contestLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-sm font-semibold uppercase tracking-wide text-slate-900 transition hover:bg-amber-300"
+              >
+                Voir la page publique
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowSuccessModal(false)}
+                className="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:border-white/60 hover:bg-white/10"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
