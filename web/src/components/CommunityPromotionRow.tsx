@@ -131,15 +131,54 @@ function VoteContestPromoCard({ imageUrl }: VoteContestPromoCardProps) {
 
 function AppCtaButton() {
   return (
-    <div className="flex w-full flex-shrink-0 snap-center sm:w-auto sm:justify-end">
-      <Link
-        href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex w-full items-center justify-center rounded-[16px] bg-amber-400 px-4 py-3 text-[13px] font-bold uppercase tracking-wide text-[#111827] shadow-md shadow-slate-900/15 transition hover:-translate-y-[1px] hover:bg-amber-300 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:w-auto sm:px-5"
-      >
-        Accéder à l’application
-      </Link>
-    </div>
+    <a
+      href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
+      target="_blank"
+      rel="noreferrer"
+      className="group relative flex w-full flex-shrink-0 snap-center overflow-hidden rounded-[16px] border border-slate-200 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] p-3 shadow-md shadow-slate-900/15 transition-all hover:shadow-lg hover:shadow-blue-500/15 sm:w-auto sm:min-w-[280px]"
+    >
+      {/* Decorative elements */}
+      <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-orange-500/20 to-amber-500/10 blur-xl" />
+      <div className="absolute -bottom-3 -left-3 h-16 w-16 rounded-full bg-gradient-to-tr from-blue-500/20 to-cyan-500/10 blur-lg" />
+
+      {/* Phone mockup */}
+      <div className="relative mr-3 flex h-14 w-9 flex-shrink-0 items-center justify-center">
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-b from-slate-700 to-slate-800 shadow-lg">
+          <div className="absolute inset-[2px] rounded-[6px] bg-gradient-to-b from-slate-900 to-black">
+            <div className="absolute left-1/2 top-0.5 h-0.5 w-3 -translate-x-1/2 rounded-full bg-slate-700" />
+            <div className="absolute inset-0.5 top-2 rounded-md bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 opacity-90" />
+          </div>
+        </div>
+        {/* Notification badge */}
+        <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white shadow-lg animate-pulse">
+          1
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="relative flex flex-1 flex-col justify-center gap-1">
+        <div className="flex items-center gap-1">
+          <span className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white">
+            Nouveau
+          </span>
+        </div>
+        <h3 className="text-[12px] font-bold leading-tight text-white">
+          Téléchargez l&apos;app
+        </h3>
+
+        {/* Google Play badge */}
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 rounded-md bg-white/10 px-2 py-1 backdrop-blur-sm transition-all group-hover:bg-white/20">
+            <svg viewBox="0 0 24 24" className="h-3 w-3 text-white" fill="currentColor">
+              <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z" />
+            </svg>
+            <span className="text-[9px] font-bold text-white">Google Play</span>
+          </div>
+          <svg className="h-3 w-3 text-white/50 transition-all group-hover:translate-x-0.5 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </a>
   );
 }
