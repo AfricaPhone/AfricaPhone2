@@ -143,7 +143,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     setDraftRestored(true);
   }, []);
 
-  const isContestOpen = initialSettings.isOpen;
+  const isContestOpen = initialSettings.isSubmissionOpen ?? initialSettings.isOpen;
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;

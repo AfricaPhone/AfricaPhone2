@@ -44,8 +44,9 @@ export async function POST(request: NextRequest) {
   }
 
   const settings = await fetchContestSubmissionSettings();
+  const isSubmissionOpen = settings.isSubmissionOpen ?? settings.isOpen;
 
-  if (!settings.isOpen) {
+  if (!isSubmissionOpen) {
     return errorResponse('La phase de candidatures est clÃƒÂ´turÃƒÂ©e.', 409);
   }
 
