@@ -40,7 +40,7 @@ service cloud.firestore {
         request.resource.data.phoneHash is string &&
         request.resource.data.phoneHash.matches('^[a-f0-9]{32,64}$') &&
         request.resource.data.photoPath is string &&
-        request.resource.data.photoPath.matches('^contest-submissions/[a-z0-9-]+/[a-f0-9]{16}\\.jpg$') &&
+        request.resource.data.photoPath.matches('^contest-submissions/[a-z0-9-]+/[a-f0-9]{16}(?:-[a-z0-9]{1,12})?\\.(jpg|jpeg|png|webp)$') &&
         request.resource.data.photoUrl is string &&
         request.resource.data.photoUrl.matches('^https://firebasestorage.googleapis.com/.*') &&
         request.resource.data.status == 'published' &&

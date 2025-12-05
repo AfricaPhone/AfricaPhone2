@@ -65,17 +65,25 @@ export const limitText = (value: string, limit: number): string => {
 };
 
 export const contestDraftStorageKey = 'contest_candidate_draft_v1';
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'] as const;
 
 export const getPhotoStoragePrefix = (contestId: string, phoneHash: string): string => {
   const safeContestId = slugifyCandidate(contestId, 'contest');
   return `contest-submissions/${safeContestId}/${phoneHash.slice(0, 16)}`;
 };
 
-export const buildPhotoStoragePath = (contestId: string, phoneHash: string, suffix?: string): string => {
+export const buildPhotoStoragePath = (
+  contestId: string,
+  phoneHash: string,
+  suffix?: string,
+  extension: (typeof ALLOWED_EXTENSIONS)[number] = 'jpg'
+): string => {
   const prefix = getPhotoStoragePrefix(contestId, phoneHash);
   const normalizedSuffix = suffix ? suffix.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) : '';
   const formattedSuffix = normalizedSuffix ? `-${normalizedSuffix}` : '';
-  return `${prefix}${formattedSuffix}.jpg`;
+  const normalizedExt = extension.toLowerCase();
+  const safeExt = ALLOWED_EXTENSIONS.includes(normalizedExt as any) ? normalizedExt : 'jpg';
+  return `${prefix}${formattedSuffix}.${safeExt}`;
 };
 
 export const isPhotoPathValid = (contestId: string, phoneHash: string, photoPath?: string | null): boolean => {
@@ -83,9 +91,17 @@ export const isPhotoPathValid = (contestId: string, phoneHash: string, photoPath
     return false;
   }
   const prefix = getPhotoStoragePrefix(contestId, phoneHash);
-  if (!photoPath.startsWith(prefix) || !photoPath.endsWith('.jpg')) {
+  if (!photoPath.startsWith(prefix)) {
     return false;
   }
-  const remainder = photoPath.slice(prefix.length, -4);
+  const extMatch = photoPath.match(/\.([a-z0-9]+)$/i);
+  if (!extMatch) {
+    return false;
+  }
+  const ext = extMatch[1].toLowerCase();
+  if (!ALLOWED_EXTENSIONS.includes(ext as any)) {
+    return false;
+  }
+  const remainder = photoPath.slice(prefix.length, -(ext.length + 1));
   return remainder === '' || /^-[a-z0-9]{1,12}$/.test(remainder);
 };
