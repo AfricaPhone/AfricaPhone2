@@ -913,78 +913,64 @@ function ContestHero({
       </div>
 
       <div className="relative flex flex-col gap-3 p-3.5 text-white">
-<<<<<<< HEAD
-  <div className="flex items-center gap-2">
-    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
-      <TrophyIcon className="h-5 w-5 text-white" />
-    </div>
-    <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">
-        {contest?.title ?? 'Concours'}
-      </span>
-      <h2 className="text-lg font-bold leading-tight text-white">
-        {contestEnded ? 'Concours clôturé' : 'Phase de vote'}
-      </h2>
-=======
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
-            <TrophyIcon className="h-5 w-5 text-white" />
+          <div className="flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
+              <TrophyIcon className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">
+                {contest?.title ?? 'Concours'}
+              </span>
+              <h2 className="text-lg font-bold leading-tight text-white">
+                {contestEnded
+                  ? 'Concours clôturé'
+                  : contestNotStarted
+                    ? "Phase d'inscription"
+                    : 'Votes en cours'}
+              </h2>
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">
-              {contest?.title ?? 'Concours'}
-            </span>
-            <h2 className="text-lg font-bold leading-tight text-white">
-              {contestEnded
-                ? 'Concours clôturé'
-                : contestNotStarted
-                  ? "Phase d'inscription"
-                  : 'Votes en cours'}
-            </h2>
-          </div>
->>>>>>> feature/promo-transparency-ui
+
+          <a
+            href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex self-end items-center justify-center rounded-full bg-amber-400 px-3.5 py-2 text-[12px] font-bold uppercase tracking-wide text-[#111827] transition hover:bg-amber-300 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2 sm:self-auto sm:px-4"
+          >
+            Accéder à l'application
+          </a>
         </div>
 
-        <a
-          href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex self-end items-center justify-center rounded-full bg-amber-400 px-3.5 py-2 text-[12px] font-bold uppercase tracking-wide text-[#111827] transition hover:bg-amber-300 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2 sm:self-auto sm:px-4"
-        >
-          Accéder à l'application
-        </a>
-      </div>
 
 
+        {contestEnded ? (
+          <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+            Concours cl?tur?
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {contestNotStarted && contest?.voteOpensAt ? (
+              <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+                Votes ouverts le {contest.voteOpensAt.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
+              </p>
+            ) : null}
+            {timeLeft ? <CountdownPills {...timeLeft} /> : null}
+          </div>
+        )}
 
-      {contestEnded ? (
-        <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-          Concours cl?tur?
-        </p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {contestNotStarted && contest?.voteOpensAt ? (
-            <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-              Votes ouverts le {contest.voteOpensAt.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
-            </p>
-          ) : null}
-          {timeLeft ? <CountdownPills {...timeLeft} /> : null}
+        {voteThankYouMessage ? (
+          <p className="rounded-2xl bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-100">
+            {voteThankYouMessage}
+          </p>
+        ) : null}
+
+        <div className="grid grid-cols-2 gap-2 text-center text-slate-900">
+          <StatCard label="Votes" value={totalVotes} />
+          <StatCard label="Participants" value={totalParticipants} />
         </div>
-      )}
-
-      {voteThankYouMessage ? (
-        <p className="rounded-2xl bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-100">
-          {voteThankYouMessage}
-        </p>
-      ) : null}
-
-      <div className="grid grid-cols-2 gap-2 text-center text-slate-900">
-        <StatCard label="Votes" value={totalVotes} />
-        <StatCard label="Participants" value={totalParticipants} />
       </div>
-    </div>
-  </section>
+    </section>
   );
 }
 
@@ -997,11 +983,8 @@ type CandidateListProps = {
   searchQuery: string;
   onVote: (candidate: Candidate) => void;
   contestEnded: boolean;
-<<<<<<< HEAD
   isPreparingPayment: boolean;
-=======
   contestNotStarted: boolean;
->>>>>>> feature/promo-transparency-ui
 };
 
 function CandidateList({
@@ -1013,11 +996,8 @@ function CandidateList({
   searchQuery,
   onVote,
   contestEnded,
-<<<<<<< HEAD
   isPreparingPayment,
-=======
   contestNotStarted,
->>>>>>> feature/promo-transparency-ui
 }: CandidateListProps) {
   const votedCandidateIds = useMemo(() => {
     return new Set(storedVotes.map(record => record.candidateId));
