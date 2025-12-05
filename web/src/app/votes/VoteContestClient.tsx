@@ -722,6 +722,66 @@ export default function VoteContestClientPage() {
           </section>
         ) : null}
 
+        {/* App Download Banner */}
+        {!isSearchActive ? (
+          <a
+            href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
+            target="_blank"
+            rel="noreferrer"
+            className="group relative flex overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] p-4 shadow-lg shadow-slate-300/30 transition-all hover:shadow-xl hover:shadow-blue-500/20"
+          >
+            {/* Decorative elements */}
+            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br from-orange-500/20 to-amber-500/10 blur-2xl" />
+            <div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-gradient-to-tr from-blue-500/20 to-cyan-500/10 blur-xl" />
+
+            {/* Phone mockup */}
+            <div className="relative mr-4 flex h-20 w-12 flex-shrink-0 items-center justify-center">
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-slate-700 to-slate-800 shadow-lg">
+                <div className="absolute inset-[2px] rounded-[10px] bg-gradient-to-b from-slate-900 to-black">
+                  <div className="absolute left-1/2 top-1 h-1 w-4 -translate-x-1/2 rounded-full bg-slate-700" />
+                  <div className="absolute inset-1 top-3 rounded-lg bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 opacity-90" />
+                </div>
+              </div>
+              {/* Notification badge */}
+              <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-lg animate-pulse">
+                1
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="relative flex flex-1 flex-col justify-center gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <span className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
+                  Nouveau
+                </span>
+                <span className="text-[10px] font-medium text-white/60">v2.0</span>
+              </div>
+              <h3 className="text-sm font-bold leading-tight text-white">
+                Téléchargez AfricaPhone
+              </h3>
+              <p className="text-[11px] leading-snug text-white/70">
+                Votez, pronostiquez et gagnez des prix depuis l'app mobile
+              </p>
+
+              {/* Google Play badge */}
+              <div className="mt-1 flex items-center gap-2">
+                <div className="flex items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1.5 backdrop-blur-sm transition-all group-hover:bg-white/20">
+                  <svg viewBox="0 0 24 24" className="h-4 w-4 text-white" fill="currentColor">
+                    <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z" />
+                  </svg>
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-medium uppercase tracking-wide text-white/70">Télécharger sur</span>
+                    <span className="text-[11px] font-bold text-white">Google Play</span>
+                  </div>
+                </div>
+                <svg className="h-4 w-4 text-white/50 transition-all group-hover:translate-x-1 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </a>
+        ) : null}
+
         <CandidateSearchBar
           value={searchQuery}
           onChange={setSearchQuery}
@@ -931,15 +991,6 @@ function ContestHero({
               </h2>
             </div>
           </div>
-
-          <a
-            href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex self-end items-center justify-center rounded-full bg-amber-400 px-3.5 py-2 text-[12px] font-bold uppercase tracking-wide text-[#111827] transition hover:bg-amber-300 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2 sm:self-auto sm:px-4"
-          >
-            Accéder à l'application
-          </a>
         </div>
 
 
