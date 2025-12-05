@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
     });
 
     const responseBody: ContestCandidateResponse = {
-      message: 'Votre candidature a ÃƒÂ©tÃƒÂ© enregistrÃƒÂ©e avec succÃƒÂ¨s.',
+      message: 'Votre candidature a ete enregistree avec succes.',
       candidateId: candidateRef.id,
       contestId,
     };
@@ -214,3 +214,5 @@ export async function POST(request: NextRequest) {
     return errorResponse('Impossible de traiter votre candidature pour le moment.', 500);
   }
 }
+
+
