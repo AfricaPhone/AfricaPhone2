@@ -11,7 +11,8 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs-extra';
 import sharp = require('sharp');
-import { randomUUID } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
+import { URL } from 'url';
 
 // Initialise l'app Firebase Admin pour interagir avec Firestore.
 admin.initializeApp();
@@ -63,10 +64,32 @@ const DEFAULT_LINK_TEMPLATES: LinkTemplates = {
   defaultSub: 'cta1',
 };
 
+// Secrets pour envoyer un événement GA4 côté serveur (Measurement Protocol).
+const GA4_MEASUREMENT_ID = defineSecret('GA4_MEASUREMENT_ID');
+const GA4_API_SECRET = defineSecret('GA4_API_SECRET');
+
 const normalizeChannel = (channel?: string) => {
   const normalized = (channel || 'web').toLowerCase();
   const allowed = ['web', 'app', 'wa', 'qr', 'bo'];
   return allowed.includes(normalized) ? normalized : 'web';
+};
+
+const dayKeyUtc = (date = new Date()) => {
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const clampRangeDays = (value?: number) => {
+  const fallback = 30;
+  if (!value || Number.isNaN(value)) return fallback;
+  return Math.min(180, Math.max(7, Math.floor(value)));
+};
+
+const serializeDate = (ts?: admin.firestore.Timestamp) => {
+  if (!ts?.toDate) return null;
+  return ts.toDate().toISOString();
 };
 
 const fetchPromoRule = async (code: string) => {
@@ -103,6 +126,79 @@ const logPromoEvent = async (collection: string, data: Record<string, unknown>) 
     });
   } catch (error) {
     logger.warn(`promo logging failed for ${collection}`, error);
+  }
+};
+
+const buildGaClientId = (req: any, code: string, ref: string | null) => {
+  const sid = typeof req?.query?.sid === 'string' && req.query.sid.trim().length > 0 ? req.query.sid.trim() : null;
+  if (sid) return sid;
+
+  const ip =
+    (typeof req?.ip === 'string' && req.ip) ||
+    (typeof req?.headers?.['x-forwarded-for'] === 'string' && req.headers['x-forwarded-for']) ||
+    '';
+  const ua = (req?.get?.('user-agent') as string) || (req?.headers?.['user-agent'] as string) || '';
+
+  const hash = createHash('sha256')
+    .update([code, ref || '', ua, ip].join('|'))
+    .digest('hex');
+  return hash.slice(0, 32);
+};
+
+const sendGa4ClickEvent = async (params: {
+  req: any;
+  code: string;
+  channel: string;
+  ref: string | null;
+  campaign?: string | null;
+  sub?: string | null;
+  target: string;
+}) => {
+  const measurementId = GA4_MEASUREMENT_ID.value();
+  const apiSecret = GA4_API_SECRET.value();
+  if (!measurementId || !apiSecret) return;
+
+  const { req, code, channel, ref, campaign, sub, target } = params;
+  const clientId = buildGaClientId(req, code, ref);
+  const eventId =
+    (typeof req?.query?.eid === 'string' && req.query.eid.trim().length > 0 ? req.query.eid.trim() : randomUUID()).slice(
+      0,
+      64
+    );
+  const sessionId = Math.floor(Date.now() / 1000);
+
+  try {
+    await fetch(
+      `https://www.google-analytics.com/mp/collect?measurement_id=${encodeURIComponent(
+        measurementId
+      )}&api_secret=${encodeURIComponent(apiSecret)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: clientId,
+          user_id: ref || undefined,
+          events: [
+            {
+              name: 'promo_link_click',
+              params: {
+                code,
+                channel,
+                ref: ref || '(none)',
+                campaign: campaign || 'default',
+                sub: sub || 'cta1',
+                target,
+                session_id: sessionId,
+                engagement_time_msec: 1,
+                event_id: eventId,
+              },
+            },
+          ],
+        }),
+      }
+    );
+  } catch (error) {
+    logger.warn('ga4 promo link tracking failed', error);
   }
 };
 
@@ -267,6 +363,465 @@ export const generatePromoLinks = onCall(async request => {
   await logPromoEvent('promoLinkGenerations', payload);
 
   return payload;
+});
+
+type PromoMetricDelta = {
+  code: string;
+  channel: string;
+  ref?: string | null;
+  visitDelta?: number;
+  waContactDelta?: number;
+  sale?: {
+    amount?: number;
+    discountValue?: number;
+    commissionValue?: number;
+  };
+};
+
+const incrementPromoMetrics = async (delta: PromoMetricDelta) => {
+  const code = delta.code.trim().toUpperCase();
+  const channel = normalizeChannel(delta.channel);
+  const ref = typeof delta.ref === 'string' && delta.ref.trim().length > 0 ? delta.ref.trim() : null;
+  const visitDelta = Number.isFinite(delta.visitDelta) ? Number(delta.visitDelta) : 0;
+  const waContactDelta =
+    Number.isFinite(delta.waContactDelta) && channel === 'wa' ? Number(delta.waContactDelta) : 0;
+  const saleCount = delta.sale ? 1 : 0;
+  const saleAmount = delta.sale?.amount ?? 0;
+  const saleDiscount = delta.sale?.discountValue ?? 0;
+  const saleCommission = delta.sale?.commissionValue ?? 0;
+
+  const dateKey = dayKeyUtc();
+  const baseRef = db.collection('promoMetrics').doc(code).collection('daily').doc(dateKey);
+  const partnerRef = ref
+    ? db.collection('promoMetrics').doc(code).collection('partners').doc(ref).collection('daily').doc(dateKey)
+    : null;
+
+  const buildUpdate = () => {
+    const update: Record<string, admin.firestore.FieldValue | string | number | null> = {
+      code,
+      date: dateKey,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    if (visitDelta) {
+      update[`visits.${channel}`] = admin.firestore.FieldValue.increment(visitDelta);
+      update['visits.total'] = admin.firestore.FieldValue.increment(visitDelta);
+    }
+    if (waContactDelta) {
+      update['contacts.wa'] = admin.firestore.FieldValue.increment(waContactDelta);
+      update['contacts.total'] = admin.firestore.FieldValue.increment(waContactDelta);
+    }
+    if (saleCount) {
+      update['sales.count'] = admin.firestore.FieldValue.increment(saleCount);
+      update['sales.amount'] = admin.firestore.FieldValue.increment(saleAmount);
+      update['sales.discount'] = admin.firestore.FieldValue.increment(saleDiscount);
+      update['sales.commission'] = admin.firestore.FieldValue.increment(saleCommission);
+    }
+    return update;
+  };
+
+  await Promise.all([
+    baseRef.set(buildUpdate(), { merge: true }),
+    partnerRef ? partnerRef.set(buildUpdate(), { merge: true }) : Promise.resolve(),
+  ]);
+};
+
+/**
+ * Redirection trackée d'un lien promo.
+ * Incrémente les visites (et contacts WA si canal = wa) puis redirige vers la destination finale.
+ */
+export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_SECRET] }, async (req, res) => {
+  try {
+    const code = (req.query.code as string | undefined)?.trim();
+    const channel = normalizeChannel((req.query.channel as string | undefined) || 'web');
+    const ref = (req.query.ref as string | undefined)?.trim() || null;
+    const campaign = (req.query.campaign as string | undefined)?.trim();
+    const sub = (req.query.sub as string | undefined)?.trim();
+
+    if (!code) {
+      res.status(400).send('code requis');
+      return;
+    }
+
+    const configSnap = await db.collection('config').doc('linkTemplates').get();
+    const configData = configSnap.exists ? (configSnap.data() as Partial<LinkTemplates>) : {};
+    const linkTemplates: LinkTemplates = { ...DEFAULT_LINK_TEMPLATES, ...configData };
+
+    const boutiqueSnap = await db.collection('config').doc('boutiqueInfo').get();
+    const boutiqueData = boutiqueSnap.exists ? boutiqueSnap.data() : {};
+    const whatsappNumber =
+      (boutiqueData?.whatsappNumber as string | undefined) ||
+      linkTemplates.whatsappNumber ||
+      (boutiqueData?.phoneNumber as string | undefined) ||
+      '';
+
+    const normalizedCode = code.toUpperCase();
+
+    const sharedParams = {
+      code: normalizedCode,
+      ref: ref || '',
+      campaign: campaign || linkTemplates.defaultCampaign || 'default',
+      sub: sub || linkTemplates.defaultSub || 'cta1',
+    };
+
+    const target =
+      channel === 'wa'
+        ? (() => {
+            const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+            const messageTemplate =
+              linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
+            const message = messageTemplate
+              .replace('{code}', sharedParams.code)
+              .replace('{link}', webLink)
+              .replace('{ref}', sharedParams.ref);
+            const waNumberNormalized = whatsappNumber ? whatsappNumber.replace(/\D+/g, '') : '';
+            return `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
+          })()
+        : channel === 'app'
+          ? buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
+              ...sharedParams,
+              channel: 'app',
+            })
+          : buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+
+    await sendGa4ClickEvent({
+      req,
+      code: normalizedCode,
+      channel,
+      ref,
+      campaign: sharedParams.campaign,
+      sub: sharedParams.sub,
+      target,
+    });
+
+    await incrementPromoMetrics({
+      code: normalizedCode,
+      channel,
+      ref,
+      visitDelta: 1,
+      waContactDelta: channel === 'wa' ? 1 : 0,
+    });
+
+    res.redirect(302, target);
+  } catch (err) {
+    logger.error('trackPromoLink failed', err);
+    res.status(500).send('Erreur suivi promo');
+  }
+});
+
+/**
+ * Enregistre une vente conclue liée à un code promo (WA/boutique/app).
+ * Attendu: data { code, channel, ref?, amount?, discountValue?, commissionValue? }
+ */
+export const recordPromoSale = onCall(async request => {
+  const { code, channel, ref, amount, discountValue, commissionValue } = request.data as {
+    code?: string;
+    channel?: string;
+    ref?: string;
+    amount?: number;
+    discountValue?: number;
+    commissionValue?: number;
+  };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+  const normalizedChannel = normalizeChannel(channel);
+  const partnerRef = typeof ref === 'string' && ref.trim().length > 0 ? ref.trim() : null;
+
+  const rule = await fetchPromoRule(normalizedCode);
+  if (!rule || !rule.isActive || !isWithinDates(rule)) {
+    throw new HttpsError('not-found', 'Code promo introuvable ou inactif.');
+  }
+  if (rule.allowedChannels?.length && !rule.allowedChannels.includes(normalizedChannel)) {
+    throw new HttpsError('permission-denied', 'Ce code promo ne peut pas être utilisé sur ce canal.');
+  }
+  if (rule.partnerRefRequired && !partnerRef) {
+    throw new HttpsError('failed-precondition', 'Un identifiant partenaire est requis pour ce code.');
+  }
+  if (rule.allowedPartners?.length && partnerRef && !rule.allowedPartners.includes(partnerRef)) {
+    throw new HttpsError('permission-denied', 'Ce code promo n’est pas autorisé pour ce partenaire.');
+  }
+
+  await incrementPromoMetrics({
+    code: normalizedCode,
+    channel: normalizedChannel,
+    ref: partnerRef,
+    sale: {
+      amount: Number.isFinite(amount) ? Number(amount) : 0,
+      discountValue: Number.isFinite(discountValue) ? Number(discountValue) : 0,
+      commissionValue: Number.isFinite(commissionValue) ? Number(commissionValue) : 0,
+    },
+  });
+
+  await logPromoEvent('promoSalesLogs', {
+    code: normalizedCode,
+    channel: normalizedChannel,
+    ref: partnerRef,
+    amount: Number.isFinite(amount) ? Number(amount) : 0,
+    discountValue: Number.isFinite(discountValue) ? Number(discountValue) : 0,
+    commissionValue: Number.isFinite(commissionValue) ? Number(commissionValue) : 0,
+  });
+
+  return { ok: true };
+});
+
+/**
+ * Récupère les métriques agrégées (visites, contacts, ventes) pour un code/ref.
+ * Attendu: data { code, ref?, rangeDays? }
+ */
+export const getPromoMetrics = onCall(async request => {
+  const { code, ref, rangeDays } = request.data as { code?: string; ref?: string; rangeDays?: number };
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+  const partnerRef = typeof ref === 'string' && ref.trim().length > 0 ? ref.trim() : null;
+  const effectiveRange = clampRangeDays(rangeDays);
+  const since = new Date(Date.now() - effectiveRange * 24 * 60 * 60 * 1000);
+  const sinceKey = dayKeyUtc(since);
+
+  const baseCollection = partnerRef
+    ? db.collection('promoMetrics').doc(normalizedCode).collection('partners').doc(partnerRef).collection('daily')
+    : db.collection('promoMetrics').doc(normalizedCode).collection('daily');
+
+  const snap = await baseCollection.where('date', '>=', sinceKey).orderBy('date', 'asc').limit(200).get();
+
+  type MetricDoc = {
+    date: string;
+    visits?: Record<string, number>;
+    contacts?: Record<string, number>;
+    sales?: { count?: number; amount?: number; discount?: number; commission?: number };
+  };
+
+  const docs: MetricDoc[] = snap.docs.map(doc => ({ date: doc.get('date') as string, ...(doc.data() as any) }));
+
+  const totals = docs.reduce(
+    (acc, doc) => {
+      const visits = doc.visits || {};
+      const contacts = doc.contacts || {};
+      const sales = doc.sales || {};
+      acc.visits.web += Number(visits.web || 0);
+      acc.visits.app += Number(visits.app || 0);
+      acc.visits.wa += Number(visits.wa || 0);
+      acc.visits.total += Number(visits.total || 0);
+      acc.contacts.wa += Number(contacts.wa || 0);
+      acc.contacts.total += Number(contacts.total || 0);
+      acc.sales.count += Number(sales.count || 0);
+      acc.sales.amount += Number(sales.amount || 0);
+      acc.sales.discount += Number(sales.discount || 0);
+      acc.sales.commission += Number(sales.commission || 0);
+      return acc;
+    },
+    {
+      visits: { web: 0, app: 0, wa: 0, total: 0 },
+      contacts: { wa: 0, total: 0 },
+      sales: { count: 0, amount: 0, discount: 0, commission: 0 },
+    }
+  );
+
+  return {
+    code: normalizedCode,
+    ref: partnerRef,
+    rangeDays: effectiveRange,
+    totals,
+    series: docs.map(doc => ({
+      date: doc.date,
+      visits: {
+        web: Number(doc.visits?.web || 0),
+        app: Number(doc.visits?.app || 0),
+        wa: Number(doc.visits?.wa || 0),
+        total: Number(doc.visits?.total || 0),
+      },
+      contacts: {
+        wa: Number(doc.contacts?.wa || 0),
+        total: Number(doc.contacts?.total || 0),
+      },
+      sales: {
+        count: Number(doc.sales?.count || 0),
+        amount: Number(doc.sales?.amount || 0),
+        discount: Number(doc.sales?.discount || 0),
+        commission: Number(doc.sales?.commission || 0),
+      },
+    })),
+  };
+});
+
+type DashboardChannel = { id: string; label: string; count: number; commission: number; discount: number };
+type DashboardRow = {
+  id: string;
+  createdAt: string | null;
+  channel: string;
+  ref: string | null;
+  cartValue: number | null;
+  discountValue: number | null;
+  commissionValue: number | null;
+};
+type DashboardPayout = { amount: number; date: string | null; mode?: string | null; status?: string | null; ref?: string | null };
+
+const hydratePromoDashboardFromLogs = (logs: Array<Record<string, any>>) => {
+  const channels: Record<string, DashboardChannel> = {};
+  let totalCommission = 0;
+  let totalDiscount = 0;
+  let totalCart = 0;
+  let cartCount = 0;
+
+  logs.forEach(log => {
+    const channel = normalizeChannel(log?.channel);
+    const commission = typeof log?.commissionValue === 'number' ? log.commissionValue : 0;
+    const discount = typeof log?.discountValue === 'number' ? log.discountValue : 0;
+    const cartValue = typeof log?.cartValue === 'number' ? log.cartValue : null;
+
+    totalCommission += commission;
+    totalDiscount += discount;
+    if (cartValue !== null) {
+      totalCart += cartValue;
+      cartCount += 1;
+    }
+
+    if (!channels[channel]) {
+      channels[channel] = { id: channel, label: channel.toUpperCase(), count: 0, commission: 0, discount: 0 };
+    }
+    channels[channel].count += 1;
+    channels[channel].commission += commission;
+    channels[channel].discount += discount;
+  });
+
+  const rows: DashboardRow[] = logs.slice(0, 8).map((log, idx) => ({
+    id: log?.promoSessionId || log?.id || `row-${idx}`,
+    createdAt: serializeDate(log?.createdAt) || null,
+    channel: normalizeChannel(log?.channel),
+    ref: typeof log?.ref === 'string' ? log.ref : log?.partnerId ?? null,
+    cartValue: typeof log?.cartValue === 'number' ? log.cartValue : null,
+    discountValue: typeof log?.discountValue === 'number' ? log.discountValue : null,
+    commissionValue: typeof log?.commissionValue === 'number' ? log.commissionValue : null,
+  }));
+
+  const sortedChannels = Object.values(channels).sort((a, b) => b.count - a.count);
+  const avgCart = cartCount > 0 ? Math.round(totalCart / cartCount) : 0;
+  const saleLogs = logs.filter(log => typeof log?.commissionValue === 'number' && log.commissionValue > 0);
+
+  return {
+    leadsCount: logs.length,
+    salesCount: saleLogs.length || logs.length,
+    totalCommission,
+    totalDiscount,
+    avgCart,
+    channels: sortedChannels,
+    rows,
+  };
+};
+
+export const getPartnerDashboard = onCall(async request => {
+  const { code, partnerId, ref, rangeDays } = request.data as {
+    code?: string;
+    partnerId?: string;
+    ref?: string;
+    rangeDays?: number;
+  };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Le code promo est requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+  const partnerRef = typeof partnerId === 'string' && partnerId.trim().length > 0 ? partnerId.trim() : ref?.trim() || null;
+  const effectiveRange = clampRangeDays(rangeDays);
+  const sinceTs = admin.firestore.Timestamp.fromDate(new Date(Date.now() - effectiveRange * 24 * 60 * 60 * 1000));
+
+  const rule = await fetchPromoRule(normalizedCode);
+  if (!rule || !rule.isActive || !isWithinDates(rule)) {
+    throw new HttpsError('not-found', 'Code promo introuvable ou inactif.');
+  }
+
+  let validationLogs: Array<Record<string, any>> = [];
+  try {
+    const snap = await db
+      .collection('promoValidationLogs')
+      .where('code', '==', normalizedCode)
+      .where('createdAt', '>=', sinceTs)
+      .orderBy('createdAt', 'desc')
+      .limit(200)
+      .get();
+    validationLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    logger.warn('promoValidationLogs query fallback (index missing?)', error);
+    try {
+      const snap = await db.collection('promoValidationLogs').where('code', '==', normalizedCode).limit(200).get();
+      validationLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (err) {
+      logger.error('promoValidationLogs unavailable', err);
+    }
+  }
+
+  if (partnerRef) {
+    validationLogs = validationLogs.filter(
+      log => (log?.ref && log.ref === partnerRef) || (log?.partnerId && log.partnerId === partnerRef)
+    );
+  }
+
+  const payouts: DashboardPayout[] = [];
+  try {
+    const payoutSnap = await db
+      .collection('promoPayouts')
+      .where('code', '==', normalizedCode)
+      .orderBy('createdAt', 'desc')
+      .limit(5)
+      .get();
+    payoutSnap.forEach(doc => {
+      const data = doc.data() as any;
+      payouts.push({
+        amount: typeof data?.amount === 'number' ? data.amount : 0,
+        date: serializeDate(data?.createdAt),
+        mode: data?.mode ?? null,
+        status: data?.status ?? null,
+        ref: doc.id,
+      });
+    });
+  } catch (error) {
+    logger.info('promoPayouts collection non disponible ou sans index', error);
+  }
+
+  const payoutPaid = payouts.reduce((sum, p) => sum + (Number.isFinite(p.amount) ? p.amount : 0), 0);
+  const {
+    leadsCount,
+    salesCount,
+    totalCommission,
+    totalDiscount,
+    avgCart,
+    channels,
+    rows,
+  } = hydratePromoDashboardFromLogs(validationLogs);
+
+  return {
+    code: normalizedCode,
+    partnerId: partnerRef,
+    rangeDays: effectiveRange,
+    rule: {
+      code: rule.code || normalizedCode,
+      allowedChannels: rule.allowedChannels || [],
+      partnerRefRequired: !!rule.partnerRefRequired,
+      priceBrackets: rule.priceBrackets || [],
+    },
+    kpis: {
+      sales: salesCount,
+      leads: leadsCount,
+      commission: Math.max(0, Math.round(totalCommission)),
+      discount: Math.max(0, Math.round(totalDiscount)),
+      avgCart: Math.max(0, avgCart),
+    },
+    channels,
+    payouts: {
+      lastAmount: payouts[0]?.amount ?? 0,
+      lastDate: payouts[0]?.date ?? null,
+      pendingAmount: Math.max(0, Math.round(totalCommission - payoutPaid)),
+      history: payouts,
+    },
+    table: rows,
+    samples: validationLogs.length,
+  };
 });
 
 /**

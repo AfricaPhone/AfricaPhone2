@@ -19,6 +19,7 @@ import { useContestData } from '@/hooks/useContestData';
 import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import type { Candidate, Contest } from '@/types/pronostics';
 import BrandsCarousel from '@/components/BrandsCarousel';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 
 const VOTE_STATUS_KEY_PREFIX = 'contest_vote_status_v1';
 const SHOW_VOTE_BUTTON = true; // Toggle to true when the contest voting opens publicly.
@@ -350,9 +351,15 @@ export default function VoteContestClientPage() {
     }
     return contest.endDate.getTime() <= now;
   }, [contest, now]);
+  const contestNotStarted = useMemo(() => {
+    if (!contest?.voteOpensAt) {
+      return false;
+    }
+    return contest.voteOpensAt.getTime() > now;
+  }, [contest, now]);
 
   const isBusy = isLoading || resolvingContestId || isPreparingPayment;
-  const votingClosed = !contest || contestEnded;
+  const votingClosed = !contest || contestEnded || contestNotStarted;
 
   const handleBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {
@@ -648,14 +655,27 @@ export default function VoteContestClientPage() {
   return (
     <div className="min-h-screen bg-[#F6F7F9] text-[#111827]">
       <header className="sticky top-0 z-50 border-b border-[#E7E9ED] bg-white">
-        <div className="mx-auto grid h-14 w-full max-w-screen-sm grid-cols-[44px_1fr_44px] items-center px-4">
+        <div className="mx-auto grid h-14 w-full max-w-screen-sm grid-cols-[80px_1fr_44px] items-center px-4">
           <button
             type="button"
             onClick={handleBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
+            className="flex h-10 items-center justify-start rounded-full px-3 text-[13px] font-bold text-[#2563EB] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2"
             aria-label="Retour"
           >
-            <ChevronLeftIcon className="h-5 w-5" />
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              className="mr-1.5 h-4 w-4"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12.5 4.5 6 10l6.5 5.5" />
+            </svg>
+            Retour
           </button>
           <h1 className="text-center text-\[16px\] font-semibold">Concours de Vote</h1>
           <div aria-hidden className="h-11 w-11" />
@@ -673,6 +693,7 @@ export default function VoteContestClientPage() {
             storedVotes={storedVotes}
             errorMessage={contestError}
             contestEnded={contestEnded}
+            contestNotStarted={contestNotStarted}
           />
         )}
 
@@ -700,6 +721,7 @@ export default function VoteContestClientPage() {
             searchQuery={searchQuery}
             onVote={handleVote}
             contestEnded={contestEnded}
+            contestNotStarted={contestNotStarted}
           />
         )}
       </main>
@@ -722,6 +744,7 @@ export default function VoteContestClientPage() {
           searchQuery={searchQuery}
           onVote={handleVote}
           contestEnded={contestEnded}
+          contestNotStarted={contestNotStarted}
         />
       </VoteSearchOverlay>
 
@@ -748,6 +771,7 @@ export default function VoteContestClientPage() {
         voteDetails={modalVoteDetails}
         onClose={resetModal}
       />
+      <ScrollToTopButton />
     </div>
   );
 }
@@ -761,6 +785,7 @@ type ContestHeroProps = {
   storedVotes: StoredVoteRecord[];
   errorMessage: string | null;
   contestEnded: boolean;
+  contestNotStarted: boolean;
 };
 
 function ContestHero({
@@ -772,9 +797,20 @@ function ContestHero({
   storedVotes,
   errorMessage,
   contestEnded,
+  contestNotStarted,
 }: ContestHeroProps) {
+  const targetDate = useMemo(() => {
+    if (!contest) {
+      return null;
+    }
+    if (contestNotStarted && contest.voteOpensAt) {
+      return contest.voteOpensAt;
+    }
+    return contest.endDate;
+  }, [contest, contestNotStarted]);
+
   const [timeLeft, setTimeLeft] = useState<Countdown | null>(() =>
-    contest ? calculateTimeLeft(contest.endDate) : null
+    targetDate ? calculateTimeLeft(targetDate) : null
   );
 
   const voteThankYouMessage = useMemo(() => {
@@ -809,21 +845,17 @@ function ContestHero({
   }, [hasVoted, storedVotes]);
 
   useEffect(() => {
-    if (!contest) {
-      setTimeLeft(null);
-      return;
-    }
-    if (contestEnded) {
+    if (!targetDate || contestEnded) {
       setTimeLeft(null);
       return;
     }
     const update = () => {
-      setTimeLeft(calculateTimeLeft(contest.endDate));
+      setTimeLeft(calculateTimeLeft(targetDate));
     };
     update();
     const timer = window.setInterval(update, 1000);
     return () => window.clearInterval(timer);
-  }, [contest, contestEnded]);
+  }, [targetDate, contestEnded]);
 
   if (errorMessage) {
     return (
@@ -860,28 +892,50 @@ function ContestHero({
       </div>
 
       <div className="relative flex flex-col gap-3 p-3.5 text-white">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
-            <TrophyIcon className="h-5 w-5 text-white" />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
+              <TrophyIcon className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">
+                {contest?.title ?? 'Concours'}
+              </span>
+              <h2 className="text-lg font-bold leading-tight text-white">
+                {contestEnded
+                  ? 'Concours clôturé'
+                  : contestNotStarted
+                    ? "Phase d'inscription"
+                    : 'Votes en cours'}
+              </h2>
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-\[10px\] font-semibold uppercase tracking-wide text-white/70">
-              {contest?.title ?? 'Concours'}
-            </span>
-            <h2 className="text-lg font-bold leading-tight text-white">
-              {contestEnded ? 'Concours clÃ´turÃ©' : "Phase d'inscription"}
-            </h2>
-          </div>
+
+          <a
+            href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex self-end items-center justify-center rounded-full bg-amber-400 px-3.5 py-2 text-[12px] font-bold uppercase tracking-wide text-[#111827] transition hover:bg-amber-300 focus-visible:outline-2 focus-visible:outline-[#2563EB] focus-visible:outline-offset-2 sm:self-auto sm:px-4"
+          >
+            Accéder à l'application
+          </a>
         </div>
+
+
 
         {contestEnded ? (
           <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-            Concours clÃ´turÃ©
+            Concours cl?tur?
           </p>
-        ) : timeLeft ? (
-          <CountdownPills {...timeLeft} />
         ) : (
-          null
+          <div className="flex flex-col gap-2">
+            {contestNotStarted && contest?.voteOpensAt ? (
+              <p className="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+                Votes ouverts le {contest.voteOpensAt.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
+              </p>
+            ) : null}
+            {timeLeft ? <CountdownPills {...timeLeft} /> : null}
+          </div>
         )}
 
         {voteThankYouMessage ? (
@@ -909,6 +963,7 @@ type CandidateListProps = {
   searchQuery: string;
   onVote: (candidate: Candidate) => void;
   contestEnded: boolean;
+  contestNotStarted: boolean;
 };
 
 function CandidateList({
@@ -921,6 +976,7 @@ function CandidateList({
   searchQuery,
   onVote,
   contestEnded,
+  contestNotStarted,
 }: CandidateListProps) {
   if (!isBusy && candidates.length === 0) {
     return (
@@ -939,7 +995,7 @@ function CandidateList({
     );
   }
 
-  const votingDisabled = !contest || contestEnded;
+  const votingDisabled = !contest || contestEnded || contestNotStarted;
   const disableButtons = isBusy || votingDisabled;
   const votedCandidateIds = useMemo(() => {
     return new Set(storedVotes.map(record => record.candidateId));
@@ -1420,14 +1476,6 @@ function TrophyIcon(props: IconProps) {
       <path d="M7 4h10v5a5 5 0 01-5 5 5 5 0 01-5-5z" />
       <path d="M18 4h3v2a5 5 0 01-5 5" />
       <path d="M6 4H3v2a5 5 0 005 5" />
-    </svg>
-  );
-}
-
-function ChevronLeftIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M15 18l-6-6 6-6" />
     </svg>
   );
 }

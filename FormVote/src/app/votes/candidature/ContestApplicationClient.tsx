@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
   useCallback,
@@ -109,7 +109,7 @@ const createRandomSuffix = () => {
 export default function ContestApplicationClient({ initialSettings }: Props) {
   const [formValues, setFormValues] = useState<ContestCandidateDraft>(() => ({
     ...emptyDraft,
-    contestId: sanitizeContestId(initialSettings.contestId, 'press-stars-2025'),
+    contestId: sanitizeContestId(initialSettings.contestId, 'talents-chanteurs-2025'),
   }));
   const [photoState, setPhotoState] = useState<PhotoState>({ status: 'idle' });
   const [statusMessage, setStatusMessage] = useState<StatusMessage>({ type: null, message: null });
@@ -158,7 +158,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       nextErrors.fullName = 'Nom complet requis.';
     }
     if (!formValues.media.trim()) {
-      nextErrors.media = 'Média ou organe requis.';
+      nextErrors.media = 'Type de musique requis.';
     }
     if (formValues.biography.trim().length === 0) {
       nextErrors.biography = 'Biographie requise.';
@@ -349,10 +349,10 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-10">
         <header className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3">
-              <NextImage src="/logo.png" alt="AfricaPhone" width={120} height={40} className="h-10 w-auto" />
-              <p className="text-sm font-semibold uppercase tracking-wide text-white/70">Formulaire de candidature presse</p>
-            </div>
+          <div className="flex items-center gap-3">
+            <NextImage src="/logo.png" alt="AfricaPhone" width={120} height={40} className="h-10 w-auto" />
+            <p className="text-sm font-semibold uppercase tracking-wide text-white/70">Formulaire de candidature artistes chanteurs</p>
+          </div>
             <Link
               href={contestLink}
               target="_blank"
@@ -363,7 +363,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             </Link>
           </div>
           <p className="mt-4 text-base text-white/80">
-            Merci de renseigner les informations ci-dessous pour proposer votre profil journalistique.
+            Merci de renseigner les informations ci-dessous pour présenter votre profil artistique.
           </p>
         </header>
 
@@ -405,14 +405,14 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 {errors.fullName ? <span className="text-xs text-rose-300">{errors.fullName}</span> : null}
               </label>
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Média ou organe
+              Type de musique (Moderne/Traditionnelle/Modern & Traditionnelle)
               <input
                 type="text"
                 name="media"
                 value={formValues.media}
                 onChange={handleInputChange}
                 className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                placeholder="Radio XYZ, TV5 Monde..."
+                placeholder="Inscrire la réponse correspondante ici"
                 required
               />
               {errors.media ? <span className="text-xs text-rose-300">{errors.media}</span> : null}
@@ -425,7 +425,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
                 onChange={handleInputChange}
                 className="min-h-[140px] rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
                 maxLength={MAX_BIO_LENGTH}
-                placeholder="En 3 ou 4 phrases, présentez votre parcours..."
+                placeholder="En 3 ou 4 phrases, pr?sentez votre parcours musical et votre univers."
               />
               {errors.biography ? <span className="text-xs text-rose-300">{errors.biography}</span> : null}
             </label>
@@ -463,7 +463,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
             <div>
               <h2 className="text-lg font-semibold text-white">Photo officielle</h2>
               <p className="text-sm text-white/70">
-                JPG/PNG 5 Mo max. Éclairage uniforme et cadrage poitrine ou portrait serré recommandés.
+                JPG/PNG 5 Mo max. ?clairage uniforme et cadrage poitrine ou portrait serr? recommand?s.
               </p>
             </div>
             <label className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-10 text-center text-sm text-white/80 transition hover:border-white/60">

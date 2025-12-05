@@ -543,9 +543,42 @@ main {
   gap: 10px;
   margin-bottom: 12px;
 }
+.promo-toolbar {
+  position: sticky;
+  top: calc(var(--header-h) + 8px);
+  z-index: 12;
+  background: var(--bg);
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-1);
+}
 .view-toggle {
   display: flex;
   gap: 6px;
+}
+.promo-tabs {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  padding: 6px;
+  border-radius: 12px;
+}
+.promo-tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-2);
+  transition: 0.2s ease;
+}
+.promo-tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-600);
+  box-shadow: 0 6px 14px rgba(28, 100, 242, 0.15);
+}
+.promo-tab-btn:not(.active):hover {
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--ink-1);
 }
 .filters {
   display: flex;

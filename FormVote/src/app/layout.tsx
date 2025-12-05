@@ -15,9 +15,9 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AfricaPhone | Concours Presse Stars',
+  title: 'AfricaPhone | Concours Talents Chanteurs',
   description:
-    'Formulaire officiel de candidature AfricaPhone. Les dossiers sont transmis de facon securisee vers Firestore et Firebase Storage.',
+    'Formulaire officiel de candidature artistes chanteurs AfricaPhone. Les dossiers sont transmis de façon sécurisée vers notre base AFRICA Phone. Merci de procéder à son remplissement',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -68,6 +68,8 @@ const mapContest = (snapshot: ContestSnapshot): Contest | null => {
     return null;
   }
 
+  const voteOpensAtValue = (data as any).voteOpensAt ?? (data as any).vote_opens_at ?? (data as any).voteOpensAt;
+  const voteOpensAt = voteOpensAtValue ? toDate(voteOpensAtValue) : null;
   const statusValue = data.status === 'ended' ? 'ended' : DEFAULT_STATUS;
 
   return {
@@ -75,6 +77,7 @@ const mapContest = (snapshot: ContestSnapshot): Contest | null => {
     title: typeof data.title === 'string' ? data.title : 'Concours',
     description: typeof data.description === 'string' ? data.description : '',
     endDate: toDate(data.endDate ?? data.endsAt ?? data.end_time),
+    voteOpensAt,
     status: statusValue,
     totalParticipants: toNumber(data.totalParticipants ?? data.participantCount ?? data.totalCandidates),
     totalVotes: toNumber(data.totalVotes ?? data.voteCount),
