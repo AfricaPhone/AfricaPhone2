@@ -28,7 +28,7 @@ export type ContestCandidatePayload = {
   contestId: string;
   fullName: string;
   media: string;
-  biography: string;
+  biography?: string;
   phone: string;
   email?: string;
   photoPath: string;

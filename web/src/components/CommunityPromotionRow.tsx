@@ -141,21 +141,7 @@ function AppCtaButton() {
       <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-orange-500/20 to-amber-500/10 blur-xl" />
       <div className="absolute -bottom-3 -left-3 h-16 w-16 rounded-full bg-gradient-to-tr from-blue-500/20 to-cyan-500/10 blur-lg" />
 
-      {/* Phone mockup */}
-      <div className="relative mr-3 flex h-14 w-9 flex-shrink-0 items-center justify-center">
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-b from-slate-700 to-slate-800 shadow-lg">
-          <div className="absolute inset-[2px] rounded-[6px] bg-gradient-to-b from-slate-900 to-black">
-            <div className="absolute left-1/2 top-0.5 h-0.5 w-3 -translate-x-1/2 rounded-full bg-slate-700" />
-            <div className="absolute inset-0.5 top-2 rounded-md bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 opacity-90" />
-          </div>
-        </div>
-        {/* Notification badge */}
-        <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white shadow-lg animate-pulse">
-          1
-        </div>
-      </div>
-
-      {/* Content */}
+      {/* Content - now on the left */}
       <div className="relative flex flex-1 flex-col justify-center gap-1">
         <div className="flex items-center gap-1">
           <span className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white">
@@ -177,6 +163,20 @@ function AppCtaButton() {
           <svg className="h-3 w-3 text-white/50 transition-all group-hover:translate-x-0.5 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
+        </div>
+      </div>
+
+      {/* Phone mockup - now on the right */}
+      <div className="relative ml-3 flex h-14 w-9 flex-shrink-0 items-center justify-center">
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-b from-slate-700 to-slate-800 shadow-lg">
+          <div className="absolute inset-[2px] rounded-[6px] bg-gradient-to-b from-slate-900 to-black">
+            <div className="absolute left-1/2 top-0.5 h-0.5 w-3 -translate-x-1/2 rounded-full bg-slate-700" />
+            <div className="absolute inset-0.5 top-2 rounded-md bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 opacity-90" />
+          </div>
+        </div>
+        {/* Notification badge */}
+        <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white shadow-lg animate-pulse">
+          1
         </div>
       </div>
     </a>

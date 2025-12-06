@@ -1,8 +1,6 @@
 ﻿'use client';
 
 import {
-  useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -12,10 +10,9 @@ import {
 import NextImage from 'next/image';
 import Link from 'next/link';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import type { ContestSubmissionSettings, ContestCandidateDraft, ContestCandidatePayload } from '@/types/contestSubmission';
-import { MAX_BIO_LENGTH, buildPhotoStoragePath, normalizePhoneNumber } from '@/utils/contestCandidate';
+import type { ContestSubmissionSettings, ContestCandidatePayload } from '@/types/contestSubmission';
+import { buildPhotoStoragePath, normalizePhoneNumber } from '@/utils/contestCandidate';
 import { sha256HexBrowser } from '@/utils/hashBrowser';
-import { clearContestDraft, loadContestDraft, saveContestDraft } from '@/utils/contestDraftStorage';
 import { storage } from '@/lib/firebaseClient';
 
 type Props = {
@@ -35,14 +32,21 @@ type PhotoState = {
   phoneHash?: string;
 };
 
+type FormValues = {
+  contestId: string;
+  fullName: string;
+  artistName: string;
+  phone: string;
+  email: string;
+};
+
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_UPLOAD_SIZE = 8 * 1024 * 1024; // 8 MB raw, compressed to <=5 MB server-side
 
-const emptyDraft: ContestCandidateDraft = {
+const emptyFormValues: FormValues = {
   contestId: '',
   fullName: '',
-  media: '',
-  biography: '',
+  artistName: '',
   phone: '',
   email: '',
 };
@@ -107,41 +111,18 @@ const createRandomSuffix = () => {
 };
 
 export default function ContestApplicationClient({ initialSettings }: Props) {
-  const [formValues, setFormValues] = useState<ContestCandidateDraft>(() => ({
-    ...emptyDraft,
+  const [formValues, setFormValues] = useState<FormValues>(() => ({
+    ...emptyFormValues,
     contestId: sanitizeContestId(initialSettings.contestId, 'talents-chanteurs-2025'),
   }));
   const [photoState, setPhotoState] = useState<PhotoState>({ status: 'idle' });
   const [statusMessage, setStatusMessage] = useState<StatusMessage>({ type: null, message: null });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [draftRestored, setDraftRestored] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    const savedDraft = loadContestDraft();
-    if (savedDraft) {
-      setFormValues(prev => ({
-        ...prev,
-        ...savedDraft,
-        contestId: sanitizeContestId(savedDraft.contestId || prev.contestId, prev.contestId),
-      }));
-      if (savedDraft.photoPath) {
-        setPhotoState({
-          status: 'uploaded',
-          path: savedDraft.photoPath,
-          url: savedDraft.photoUrl,
-        });
-      }
-      setStatusMessage({
-        type: 'success',
-        message: 'Brouillon chargé automatiquement.',
-      });
-    }
-    setDraftRestored(true);
-  }, []);
+
 
   const isContestOpen = initialSettings.isSubmissionOpen ?? initialSettings.isOpen;
 
@@ -158,13 +139,8 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     if (!formValues.fullName.trim()) {
       nextErrors.fullName = 'Nom complet requis.';
     }
-    if (!formValues.media.trim()) {
-      nextErrors.media = 'Type de musique requis.';
-    }
-    if (formValues.biography.trim().length === 0) {
-      nextErrors.biography = 'Biographie requise.';
-    } else if (formValues.biography.trim().length > MAX_BIO_LENGTH) {
-      nextErrors.biography = `Maximum ${MAX_BIO_LENGTH} caractères.`;
+    if (!formValues.artistName.trim()) {
+      nextErrors.artistName = "Nom d'artiste requis.";
     }
     const normalizedPhone = normalizePhoneNumber(formValues.phone);
     if (!normalizedPhone) {
@@ -182,30 +158,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
     return nextErrors;
   };
 
-  const handleSaveDraft = useCallback(() => {
-    setIsSavingDraft(true);
-    const payload: ContestCandidateDraft = {
-      ...formValues,
-      photoPath: photoState.path,
-      photoUrl: photoState.url,
-    };
-    const saved = saveContestDraft(payload);
-    setStatusMessage({
-      type: saved ? 'success' : 'error',
-      message: saved ? 'Brouillon enregistré !' : 'Sauvegarde impossible sur cet appareil.',
-    });
-    setIsSavingDraft(false);
-  }, [formValues, photoState.path, photoState.url]);
 
-  const handleClearDraft = () => {
-    clearContestDraft();
-    setFormValues(prev => ({
-      ...emptyDraft,
-      contestId: prev.contestId,
-    }));
-    setPhotoState({ status: 'idle' });
-    setStatusMessage({ type: 'success', message: 'Brouillon réinitialisé.' });
-  };
 
   const uploadPhoto = async (file: File) => {
     if (!isContestOpen) {
@@ -309,8 +262,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       const payload: ContestCandidatePayload = {
         contestId: sanitizeContestId(formValues.contestId, initialSettings.contestId),
         fullName: formValues.fullName.trim(),
-        media: formValues.media.trim(),
-        biography: formValues.biography.trim(),
+        media: formValues.artistName.trim(),
         phone: normalizedPhone,
         email: formValues.email?.trim() || undefined,
         photoPath: photoState.path,
@@ -326,10 +278,10 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       if (!response.ok) {
         throw new Error(data.message || 'Soumission impossible pour le moment.');
       }
-      clearContestDraft();
+
       setStatusMessage({ type: 'success', message: data.message });
       setFormValues(prev => ({
-        ...emptyDraft,
+        ...emptyFormValues,
         contestId: prev.contestId,
       }));
       setPhotoState({ status: 'idle' });
@@ -351,10 +303,10 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-10">
         <header className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <NextImage src="/logo.png" alt="AfricaPhone" width={120} height={40} className="h-10 w-auto" />
-            <p className="text-sm font-semibold uppercase tracking-wide text-white/70">Formulaire de candidature artistes chanteurs</p>
-          </div>
+            <div className="flex items-center gap-3">
+              <NextImage src="/logo.png" alt="AfricaPhone" width={120} height={40} className="h-10 w-auto" />
+              <p className="text-sm font-semibold uppercase tracking-wide text-white/70">Formulaire de candidature artistes chanteurs</p>
+            </div>
             <Link
               href={contestLink}
               target="_blank"
@@ -371,11 +323,10 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
 
         {statusMessage.message ? (
           <div
-            className={`rounded-2xl border px-5 py-4 text-sm font-medium ${
-              statusMessage.type === 'success'
-                ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-100'
-                : 'border-rose-400/50 bg-rose-500/10 text-rose-100'
-            }`}
+            className={`rounded-2xl border px-5 py-4 text-sm font-medium ${statusMessage.type === 'success'
+              ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-100'
+              : 'border-rose-400/50 bg-rose-500/10 text-rose-100'
+              }`}
           >
             {statusMessage.message}
           </div>
@@ -394,42 +345,30 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
           ) : null}
           <div className="space-y-6 md:col-span-2">
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-                Nom complet
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formValues.fullName}
-                  onChange={handleInputChange}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                  placeholder="Nom Prénom"
-                  required
-                />
-                {errors.fullName ? <span className="text-xs text-rose-300">{errors.fullName}</span> : null}
-              </label>
-            <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Type de musique (Moderne/Traditionnelle/Modern & Traditionnelle)
+              Nom complet
               <input
                 type="text"
-                name="media"
-                value={formValues.media}
+                name="fullName"
+                value={formValues.fullName}
                 onChange={handleInputChange}
                 className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                placeholder="Inscrire la réponse correspondante ici"
+                placeholder="Nom Prénom"
                 required
               />
-              {errors.media ? <span className="text-xs text-rose-300">{errors.media}</span> : null}
+              {errors.fullName ? <span className="text-xs text-rose-300">{errors.fullName}</span> : null}
             </label>
             <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
-              Biographie courte ({formValues.biography.length}/{MAX_BIO_LENGTH})
-              <textarea
-                name="biography"
-                value={formValues.biography}
+              Nom d&apos;artiste
+              <input
+                type="text"
+                name="artistName"
+                value={formValues.artistName}
                 onChange={handleInputChange}
-                className="min-h-[140px] rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
-                maxLength={MAX_BIO_LENGTH}
-                placeholder="En 3 ou 4 phrases, présentez votre parcours musical et votre univers."
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-white/40 focus:bg-white/10"
+                placeholder="Mentionnez ici votre nom d'artiste"
+                required
               />
-              {errors.biography ? <span className="text-xs text-rose-300">{errors.biography}</span> : null}
+              {errors.artistName ? <span className="text-xs text-rose-300">{errors.artistName}</span> : null}
             </label>
             <div className="grid gap-5 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-sm font-semibold text-white/90">
@@ -487,29 +426,7 @@ export default function ContestApplicationClient({ initialSettings }: Props) {
               {photoState.error ? <span className="text-xs text-rose-300">{photoState.error}</span> : null}
               {errors.photo ? <span className="text-xs text-rose-300">{errors.photo}</span> : null}
             </label>
-            <div className="space-y-3 rounded-2xl bg-slate-900/60 p-4 text-sm text-white/80">
-              <div className="flex items-center justify-between text-xs uppercase tracking-wide text-white/50">
-                <span>Brouillon local</span>
-                <span>{draftRestored ? 'Prêt' : 'Chargement...'}</span>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={handleSaveDraft}
-                  className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-white/20"
-                  disabled={isSavingDraft}
-                >
-                  {isSavingDraft ? 'Enregistrement...' : 'Enregistrer pour plus tard'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClearDraft}
-                  className="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-white/40 hover:text-white"
-                >
-                  Effacer le brouillon
-                </button>
-              </div>
-            </div>
+
             <button
               type="submit"
               disabled={!isContestOpen || isSubmitting}
