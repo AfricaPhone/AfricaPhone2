@@ -180,6 +180,7 @@
       position: sticky;
       top: 24px;
       z-index: 100;
+      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
       background: rgba(22, 27, 34, 0.85);
       /* Semi-transparent */
@@ -373,8 +374,8 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(180deg, var(--accent-primary-dim) 0%, transparent 80%);
+      -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" stroke="black" stroke-width="2" fill="none"/></svg>');
       mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" stroke="black" stroke-width="2" fill="none"/></svg>');
-      -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="black"/></svg>');
       -webkit-mask-size: 100% 100%;
       mask-size: 100% 100%;
       position: relative;
@@ -831,20 +832,156 @@
         display: none;
       }
 
+
       /* Simplified mobile table */
     }
+
+    /* Utility classes for inline style replacements */
+    .bg-abstract {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-gradient-1 {
+      position: absolute;
+      top: -10%;
+      right: -10%;
+      width: 50%;
+      height: 50%;
+      background: radial-gradient(circle, var(--accent-primary-dim) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+
+    .bg-gradient-2 {
+      position: absolute;
+      bottom: -10%;
+      left: -10%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(100, 100, 255, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(80px);
+    }
+
+    .icon-mr-4 {
+      margin-right: 4px;
+    }
+
+    .float-right {
+      float: right;
+    }
+
+    .svg-full {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .stop-opacity-30 {
+      opacity: 0.3;
+    }
+
+    .separator-mx-6 {
+      margin: 0 6px;
+    }
+
+    .channel-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .summary-small-mt {
+      margin-top: 16px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 8px;
+    }
+
+    .share-mt-4 {
+      margin-top: 4px;
+    }
+
+    .input-flex-full {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .qr-flex {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .qr-box {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+    }
+
+    .qr-icon {
+      color: black;
+      font-size: 32px;
+    }
+
+    .stack-width-60 {
+      width: 60%;
+    }
+
+    .stack-width-18 {
+      width: 18%;
+    }
+
+    .stack-width-12 {
+      width: 12%;
+    }
+
+    .stack-width-24 {
+      width: 24%;
+    }
+
+    .stack-width-10 {
+      width: 10%;
+    }
+
+    .stack-width-6 {
+      width: 6%;
+    }
+
+    .accent-color {
+      color: var(--accent-primary);
+    }
+
+    .fw-600 {
+      font-weight: 600;
+    }
   </style>
+
 </head>
 
 <body>
   <!-- Background Abstract shapes -->
-  <div
-    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none;">
-    <div
-      style="position: absolute; top: -10%; right: -10%; width: 50%; height: 50%; background: radial-gradient(circle, var(--accent-primary-dim) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);">
+  <div class="bg-abstract">
+    <div class="bg-gradient-1">
     </div>
-    <div
-      style="position: absolute; bottom: -10%; left: -10%; width: 60%; height: 60%; background: radial-gradient(circle, rgba(100,100,255,0.05) 0%, transparent 70%); border-radius: 50%; filter: blur(80px);">
+    <div class="bg-gradient-2">
     </div>
   </div>
 
@@ -859,7 +996,7 @@
       </div>
       <div class="top-actions">
         <button class="toggle-btn" id="themeToggle" type="button">
-          <i class="ph ph-moon" style="margin-right:4px;"></i> Mode sombre
+          <i class="ph ph-moon icon-mr-4"></i> Mode sombre
         </button>
       </div>
     </header>
@@ -872,15 +1009,15 @@
       <div class="filter-grid">
         <div>
           <p class="label">Periode</p>
-          <div class="field">7 derniers jours <i class="ph ph-caret-down" style="float:right"></i></div>
+          <div class="field">7 derniers jours <i class="ph ph-caret-down float-right"></i></div>
         </div>
         <div>
           <p class="label">Canal</p>
-          <div class="field">Tous canaux <i class="ph ph-caret-down" style="float:right"></i></div>
+          <div class="field">Tous canaux <i class="ph ph-caret-down float-right"></i></div>
         </div>
         <div>
           <p class="label">Statut</p>
-          <div class="field">Leads & Ventes <i class="ph ph-caret-down" style="float:right"></i></div>
+          <div class="field">Leads & Ventes <i class="ph ph-caret-down float-right"></i></div>
         </div>
       </div>
     </section>
@@ -907,7 +1044,7 @@
           <p class="label">Commission estimee</p>
           <span class="pill pill-ghost" id="kpi-commission-delta">Bonus inclus</span>
         </div>
-        <p class="kpi-value" id="kpi-commission" style="color: var(--accent-primary);">-</p>
+        <p class="kpi-value accent-color" id="kpi-commission">-</p>
         <p class="kpi-note" id="kpi-commission-note">Versee a validation</p>
       </article>
       <article class="card kpi">
@@ -931,16 +1068,15 @@
         </div>
         <div class="sparkline">
           <!-- Simulated SVG line -->
-          <svg style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; overflow: visible;"
-            preserveAspectRatio="none" viewBox="0 0 100 50">
+          <svg class="svg-full" preserveAspectRatio="none" viewBox="0 0 100 50">
             <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="none"
               stroke="var(--accent-primary)" stroke-width="2" vector-effect="non-scaling-stroke"></path>
             <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5 L100,50 Z"
-              fill="url(#grad1)" style="opacity: 0.3"></path>
+              fill="url(#grad1)" class="stop-opacity-30"></path>
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:1" />
-                <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0" />
+                <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="1" />
+                <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0" />
               </linearGradient>
             </defs>
           </svg>
@@ -959,9 +1095,9 @@
           </div>
           <div class="pill pill-ghost">
             <span>Visites 1 200</span>
-            <span style="margin: 0 6px;">-</span>
+            <span class="separator-mx-6">-</span>
             <span>Contacts WA 320</span>
-            <span style="margin: 0 6px;">-</span>
+            <span class="separator-mx-6">-</span>
             <span>Achats 86</span>
           </div>
         </div>
@@ -969,18 +1105,18 @@
           <div class="bar-stack-row">
             <span class="muted"><i class="ph ph-globe"></i> Web</span>
             <div class="stack">
-              <span class="stack-part part-visit" style="width: 60%"></span>
-              <span class="stack-part part-contact" style="width: 18%"></span>
-              <span class="stack-part part-win" style="width: 12%"></span>
+              <span class="stack-part part-visit stack-width-60"></span>
+              <span class="stack-part part-contact stack-width-18"></span>
+              <span class="stack-part part-win stack-width-12"></span>
             </div>
             <span class="muted small">Visites 800 - Contacts 180 - Achats 48</span>
           </div>
           <div class="bar-stack-row">
             <span class="muted"><i class="ph ph-whatsapp-logo"></i> WA</span>
             <div class="stack">
-              <span class="stack-part part-visit" style="width: 24%"></span>
-              <span class="stack-part part-contact" style="width: 10%"></span>
-              <span class="stack-part part-win" style="width: 6%"></span>
+              <span class="stack-part part-visit stack-width-24"></span>
+              <span class="stack-part part-contact stack-width-10"></span>
+              <span class="stack-part part-win stack-width-6"></span>
             </div>
             <span class="muted small">Visites 240 - Contacts 90 - Achats 38</span>
           </div>
@@ -997,7 +1133,7 @@
     </section>
 
     <section class="card channel-card">
-      <div class="channel-header" style="display:flex; justify-content:space-between; margin-bottom: 20px;">
+      <div class="channel-header">
         <div>
           <p class="label">Repartition par canal</p>
           <p class="section-title">Performance relative</p>
@@ -1021,7 +1157,7 @@
         <div class="payout-summary">
           <div class="summary-row">
             <span class="muted">Dernier reversement</span>
-            <span style="font-weight:600" id="payout-last-amount">-</span>
+            <span class="fw-600" id="payout-last-amount">-</span>
           </div>
           <div class="summary-row">
             <span class="muted">Date</span>
@@ -1031,7 +1167,7 @@
             <span class="muted">Prochain versement</span>
             <span class="pill pill-success" id="payout-next">-</span>
           </div>
-          <p class="muted small" style="margin-top:16px; border-top:1px solid var(--border-color); padding-top:8px;">
+          <p class="muted small summary-small-mt">
             Verification auto cote stock avant versement.
           </p>
         </div>
@@ -1079,10 +1215,9 @@
         <button class="btn-primary" id="generateLinksBtn" type="button">Générer les liens</button>
         <span class="status" id="linkStatus">Prêt.</span>
       </div>
-      <div class="share-actions" style="margin-top:4px">
-        <input id="cartValueInput" class="input" type="number" min="0" step="1000"
-          placeholder="Montant panier (optionnel)"
-          style="flex:1; min-width:200px; padding:8px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" />
+      <div class="share-actions share-mt-4">
+        <input id="cartValueInput" class="input input-flex-full" type="number" min="0" step="1000"
+          placeholder="Montant panier (optionnel)" />
         <button class="pill pill-light" id="validateCodeBtn" type="button">Valider le code</button>
         <span class="status" id="validateStatus"></span>
       </div>
@@ -1119,10 +1254,9 @@
             </ul>
           </div>
         </div>
-        <div class="share-block qr" style="display:flex; align-items:center; gap:16px;">
-          <div class="qr-box"
-            style="width:60px; height:60px; background:white; border-radius:4px; display:grid; place-items:center;">
-            <i class="ph ph-qr-code" style="color:black; font-size:32px;"></i>
+        <div class="share-block qr qr-flex">
+          <div class="qr-box">
+            <i class="ph ph-qr-code qr-icon"></i>
           </div>
           <div>
             <p class="muted small">Code QR</p>
@@ -1480,6 +1614,42 @@
 
     const renderDashboard = (payload, isFallback = false) => {
       const data = payload || FALLBACK_DASHBOARD;
+
+      // Afficher un bandeau d'avertissement si on utilise des données de fallback
+      let existingBanner = document.getElementById('fallback-warning-banner');
+      if (isFallback) {
+        if (!existingBanner) {
+          const banner = document.createElement('div');
+          banner.id = 'fallback-warning-banner';
+          banner.style.cssText = `
+            background: var(--accent-warning-dim);
+            border: 2px solid var(--accent-warning);
+            border-radius: var(--radius-md);
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          `;
+          banner.innerHTML = `
+            <i class="ph ph-warning" style="font-size:24px; color:var(--accent-warning);"></i>
+            <div style="flex:1;">
+              <strong style="display:block; margin-bottom:4px;">⚠️ Données de démonstration</strong>
+              <span class="muted small">Les statistiques affichées sont fictives. Saisissez votre code promo et générez vos liens pour voir vos vraies données.</span>
+            </div>
+          `;
+          const appShell = document.querySelector('.app-shell');
+          const firstCard = appShell?.querySelector('.card');
+          if (firstCard && appShell) {
+            appShell.insertBefore(banner, firstCard.nextSibling);
+          }
+        }
+      } else {
+        if (existingBanner) {
+          existingBanner.remove();
+        }
+      }
+
       renderKpis(data);
       renderChannels(data.channels);
       renderPayouts(data.payouts);
@@ -1488,10 +1658,8 @@
         updateRulePanel(data.rule);
       }
       renderChips(data.code || initialCode);
-      if (isFallback) {
-        setStatus('Donnees locales affichees (fallback)', true);
-      }
     };
+
 
     const renderChips = activeCode => {
       const container = document.getElementById('codeChips');
@@ -1616,6 +1784,7 @@
       const partner = (document.getElementById('refInput')?.value || '').trim();
       if (!code) {
         renderDashboard(FALLBACK_DASHBOARD, true);
+        setStatus('⚠️ Veuillez saisir un code promo pour voir vos vraies statistiques.', true);
         return;
       }
       setStatus('Chargement des stats...');
@@ -1626,14 +1795,29 @@
         }
         const functions = window.firebase.functions(appInstance);
         const callable = functions.httpsCallable('getPartnerDashboard');
-        const response = await callable({ code, partnerId: partner });
-        renderDashboard(response.data || FALLBACK_DASHBOARD);
-        setStatus('Stats synchronisees');
+        const response = await callable({ code, partnerId: partner, rangeDays: 30 });
+        const data = response.data;
+
+        // Vérifier si les données sont vides (aucune activité)
+        if (data && data.kpis && data.kpis.sales === 0 && data.kpis.leads === 0) {
+          renderDashboard(data, false);
+          setStatus('✅ Connecté. Aucune activité détectée pour ce code. Partagez vos liens pour générer des statistiques !');
+        } else {
+          renderDashboard(data || FALLBACK_DASHBOARD, !data);
+          setStatus(data ? '✅ Stats synchronisées en temps réel.' : '⚠️ Données de démonstration affichées.', !data);
+        }
       } catch (error) {
         console.warn('getPartnerDashboard fallback', error);
+        const errorMsg = error?.message || '';
+        if (errorMsg.includes('not-found') || errorMsg.includes('invalide')) {
+          setStatus('❌ Ce code promo est invalide ou inactif. Vérifiez avec votre gestionnaire.', true);
+        } else {
+          setStatus('⚠️ Impossible de charger les vraies données. Affichage de données de démonstration.', true);
+        }
         renderDashboard(FALLBACK_DASHBOARD, true);
       }
     };
+
 
     const preloadForm = () => {
       const codeInput = document.getElementById('codeInput');

@@ -44,6 +44,12 @@
       "frameworksBackend": {
         "region": "us-central1"
       },
+      "rewrites": [
+        {
+          "source": "/p/**",
+          "function": "trackPromoLink"
+        }
+      ],
       "headers": [
         {
           "source": "**/*.@(js|css|png|jpg|jpeg|svg|gif|webp|ico|woff|woff2)",

@@ -47,6 +47,8 @@ type LinkTemplates = {
   defaultSub?: string;
   whatsappNumber?: string;
   waMessageTemplate?: string;
+  shortLinkDomain?: string;
+  finalRedirectUrl?: string; // Ajouté pour le nouveau système
 };
 
 const DEFAULT_PRICE_BRACKETS: PriceBracket[] = [
@@ -282,14 +284,7 @@ export const validatePromoV2 = onCall(async request => {
  * Confirme un achat associé à un code promo (vente conclue via WA/boutique/app).
  * Attendu: data { code, channel, ref, amount, items?, promoSessionId? }
  */
-const buildUrlWithParams = (base: string, params: Record<string, string | number | null | undefined>) => {
-  const url = new URL(base);
-  Object.entries(params).forEach(([key, value]) => {
-    if (value === null || value === undefined || value === '') return;
-    url.searchParams.set(key, String(value));
-  });
-  return url.toString();
-};
+// buildUrlWithParams supprimé car non utilisé avec le nouveau système de liens courts
 
 /**
  * Génère les liens à partager pour un partenaire/détenteur de code.
@@ -331,16 +326,36 @@ export const generatePromoLinks = onCall(async request => {
     sub: sub ?? linkTemplates.defaultSub ?? 'cta1',
   };
 
-  const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
-  const appLink = buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
-    ...sharedParams,
-    channel: 'app',
-  });
+  // Générer les liens courts au format africaphone.org/p/CODE
+  const baseDomain = linkTemplates.shortLinkDomain || 'https://africaphone.org';
+
+  // Construire les paramètres query (sans le code qui est dans le path)
+  const queryParams = new URLSearchParams();
+  if (ref) queryParams.set('ref', ref);
+  if (channel) queryParams.set('channel', normalizedChannel);
+  if (campaign) queryParams.set('campaign', campaign ?? linkTemplates.defaultCampaign ?? 'default');
+  if (sub) queryParams.set('sub', sub ?? linkTemplates.defaultSub ?? 'cta1');
+
+  const queryString = queryParams.toString();
+
+  // Lien web court : africaphone.org/p/CODE?ref=xxx
+  const webLink = `${baseDomain}/p/${normalizedCode}${queryString ? '?' + queryString : ''}`;
+
+  // Lien app : même format mais avec channel=app
+  const appQueryParams = new URLSearchParams(queryParams);
+  appQueryParams.set('channel', 'app');
+  const appLink = `${baseDomain}/p/${normalizedCode}?${appQueryParams.toString()}`;
+
+  // Deep link app natif
   const appDeepLink = `${linkTemplates.appScheme}?${new URLSearchParams({
-    ...sharedParams,
+    code: normalizedCode,
+    ref: ref ?? '',
     channel: 'app',
+    campaign: campaign ?? linkTemplates.defaultCampaign ?? 'default',
+    sub: sub ?? linkTemplates.defaultSub ?? 'cta1',
   }).toString()}`;
 
+  // Message WhatsApp avec le lien court
   const waMessageTemplate =
     linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
   const message = waMessageTemplate
@@ -397,24 +412,30 @@ const incrementPromoMetrics = async (delta: PromoMetricDelta) => {
     : null;
 
   const buildUpdate = () => {
-    const update: Record<string, admin.firestore.FieldValue | string | number | null> = {
+    const update: any = {
       code,
       date: dateKey,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
     if (visitDelta) {
-      update[`visits.${channel}`] = admin.firestore.FieldValue.increment(visitDelta);
-      update['visits.total'] = admin.firestore.FieldValue.increment(visitDelta);
+      update.visits = {
+        [channel]: admin.firestore.FieldValue.increment(visitDelta),
+        total: admin.firestore.FieldValue.increment(visitDelta),
+      };
     }
     if (waContactDelta) {
-      update['contacts.wa'] = admin.firestore.FieldValue.increment(waContactDelta);
-      update['contacts.total'] = admin.firestore.FieldValue.increment(waContactDelta);
+      update.contacts = {
+        wa: admin.firestore.FieldValue.increment(waContactDelta),
+        total: admin.firestore.FieldValue.increment(waContactDelta),
+      };
     }
     if (saleCount) {
-      update['sales.count'] = admin.firestore.FieldValue.increment(saleCount);
-      update['sales.amount'] = admin.firestore.FieldValue.increment(saleAmount);
-      update['sales.discount'] = admin.firestore.FieldValue.increment(saleDiscount);
-      update['sales.commission'] = admin.firestore.FieldValue.increment(saleCommission);
+      update.sales = {
+        count: admin.firestore.FieldValue.increment(saleCount),
+        amount: admin.firestore.FieldValue.increment(saleAmount),
+        discount: admin.firestore.FieldValue.increment(saleDiscount),
+        commission: admin.firestore.FieldValue.increment(saleCommission),
+      };
     }
     return update;
   };
@@ -428,10 +449,18 @@ const incrementPromoMetrics = async (delta: PromoMetricDelta) => {
 /**
  * Redirection trackée d'un lien promo.
  * Incrémente les visites (et contacts WA si canal = wa) puis redirige vers la destination finale.
+ * Supporte deux formats:
+ * 1. /p/CODE?channel=web&ref=xxx (format court)
+ * 2. ?code=CODE&channel=web&ref=xxx (format query classique)
  */
 export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_SECRET] }, async (req, res) => {
   try {
-    const code = (req.query.code as string | undefined)?.trim();
+    // Extraire le code depuis /p/CODE ou ?code=CODE
+    const pathMatch = req.path.match(/\/p\/([^\/\?]+)/);
+    const codeFromPath = pathMatch ? pathMatch[1] : null;
+    const codeFromQuery = (req.query.code as string | undefined)?.trim();
+    const code = codeFromPath || codeFromQuery;
+
     const channel = normalizeChannel((req.query.channel as string | undefined) || 'web');
     const ref = (req.query.ref as string | undefined)?.trim() || null;
     const campaign = (req.query.campaign as string | undefined)?.trim();
@@ -463,10 +492,12 @@ export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_
       sub: sub || linkTemplates.defaultSub || 'cta1',
     };
 
+    // Destination finale: africaphone.org avec le code en query param
+    const finalDestination = linkTemplates.finalRedirectUrl || 'https://africaphone.org';
     const target =
       channel === 'wa'
         ? (() => {
-          const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+          const webLink = `${finalDestination}/?code=${normalizedCode}&ref=${sharedParams.ref}`;
           const messageTemplate =
             linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
           const message = messageTemplate
@@ -477,11 +508,27 @@ export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_
           return `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
         })()
         : channel === 'app'
-          ? buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
-            ...sharedParams,
-            channel: 'app',
-          })
-          : buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+          ? `${linkTemplates.appScheme}?code=${normalizedCode}&ref=${sharedParams.ref}&campaign=${sharedParams.campaign}&sub=${sharedParams.sub}`
+          : `${finalDestination}/?code=${normalizedCode}&ref=${sharedParams.ref}&channel=${channel}`;
+
+    // Cookie deduplication using __session (required by Firebase Hosting)
+    let sessionData: Record<string, boolean> = {};
+    const sessionCookie = req.headers.cookie
+      ?.split(';')
+      .find(c => c.trim().startsWith('__session='));
+
+    if (sessionCookie) {
+      try {
+        const rawValue = sessionCookie.split('=')[1].trim();
+        // Handle potentially URL-encoded or base64 encoded values if needed, but simple JSON is standard for custom usage
+        // We'll use simple JSON string for the value
+        sessionData = JSON.parse(decodeURIComponent(rawValue));
+      } catch (e) {
+        // Ignore parse errors, treat as new session
+      }
+    }
+
+    const hasVisited = !!sessionData[`visited_${normalizedCode}`];
 
     await sendGa4ClickEvent({
       req,
@@ -493,14 +540,26 @@ export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_
       target,
     });
 
-    await incrementPromoMetrics({
-      code: normalizedCode,
-      channel,
-      ref,
-      visitDelta: 1,
-      waContactDelta: channel === 'wa' ? 1 : 0,
-    });
+    if (!hasVisited) {
+      await incrementPromoMetrics({
+        code: normalizedCode,
+        channel,
+        ref,
+        visitDelta: 1,
+        waContactDelta: channel === 'wa' ? 1 : 0,
+      });
+      console.log(`Unique visit recorded for ${normalizedCode}`);
 
+      // Update session
+      sessionData[`visited_${normalizedCode}`] = true;
+    } else {
+      console.log(`Duplicate visit ignored for ${normalizedCode}`);
+    }
+
+    // Set __session cookie
+    // Note: Firebase Hosting only allows __session. We serialize our data into it.
+    const newSessionValue = encodeURIComponent(JSON.stringify(sessionData));
+    res.setHeader('Set-Cookie', `__session=${newSessionValue}; Max-Age=86400; Path=/; Secure; SameSite=Lax`);
     res.redirect(302, target);
   } catch (err) {
     logger.error('trackPromoLink failed', err);

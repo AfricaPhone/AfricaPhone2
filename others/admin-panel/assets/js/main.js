@@ -205,14 +205,16 @@ let promoPayoutSearchTerm = '';
 let functionsInstance = functions;
 let promoTab = 'codes';
 const isLocalhost = ['localhost', '127.0.0.1'].includes(location.hostname);
-if (isLocalhost) {
-  try {
-    connectFunctionsEmulator(functionsInstance, 'localhost', 5001);
-    console.info('[Admin] Functions emulator connected (localhost:5001)');
-  } catch (err) {
-    console.warn('[Admin] Functions emulator connection failed', err);
-  }
-}
+// NOTE: Emulator connection disabled to use production Cloud Functions
+// Uncomment below to use local emulator during development
+// if (isLocalhost) {
+//   try {
+//     connectFunctionsEmulator(functionsInstance, 'localhost', 5001);
+//     console.info('[Admin] Functions emulator connected (localhost:5001)');
+//   } catch (err) {
+//     console.warn('[Admin] Functions emulator connection failed', err);
+//   }
+// }
 const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
 let PREDEFINED_SPECS = [
   '?cran',
@@ -3683,10 +3685,23 @@ async function previewPromoLinks(code, ref) {
     const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
     const res = await callable({ code: normalized, ref });
     const data = res.data || {};
+
+    // Générer le lien vers le dashboard PromoPage pour l'influenceur
+    const promoPageUrl = window.location.origin.includes('localhost')
+      ? `http://localhost:5000/PromoPage/?code=${encodeURIComponent(normalized)}&ref=${encodeURIComponent(ref || '')}&partner=${encodeURIComponent(ref || '')}`
+      : `${window.location.origin}/PromoPage/?code=${encodeURIComponent(normalized)}&ref=${encodeURIComponent(ref || '')}&partner=${encodeURIComponent(ref || '')}`;
+
     const body = `
       <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
       <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
       <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
+      <div class="field" style="margin-top:16px; padding-top:16px; border-top: 2px solid var(--border-color);">
+        <div class="label">📊 Dashboard Partenaire (à partager avec l'influenceur)</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div class="chip" style="flex:1; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(promoPageUrl)}</div>
+          <button class="btn btn-small btn-primary" onclick="navigator.clipboard.writeText('${escapeAttr(promoPageUrl)}'); this.textContent='Copié!'; setTimeout(() => this.textContent='Copier', 2000);">Copier</button>
+        </div>
+      </div>
     `;
     await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
   } catch (error) {
@@ -3694,6 +3709,7 @@ async function previewPromoLinks(code, ref) {
     toast('Erreur', 'Impossible de générer les liens.', 'error');
   }
 }
+
 
 async function handlePromoCodeStatusToggle(id, isActive) {
   try {
