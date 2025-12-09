@@ -106,7 +106,7 @@ function VoteContestPromoCard({ imageUrl }: VoteContestPromoCardProps) {
           src={imageUrl}
           alt="Vote digital"
           fill
-          priority={false}
+          priority
           className="object-cover object-center transition duration-300 group-hover:scale-[1.03]"
         />
         <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(3,26,63,0.8)_0%,rgba(13,75,162,0.4)_50%,rgba(26,109,224,0.1)_100%)]" />
