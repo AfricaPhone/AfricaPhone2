@@ -1,13 +1,20 @@
 'use client';
 
+import Image from 'next/image';
+
 export default function MaintenanceBanner() {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
             <div className="mx-4 max-w-lg rounded-3xl border border-orange-500/30 bg-slate-800/80 p-8 text-center shadow-2xl backdrop-blur-sm">
                 <div className="mb-6 flex justify-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-orange-500 text-3xl font-bold text-white shadow-lg shadow-orange-500/30">
-                        AP
-                    </div>
+                    <Image
+                        src="/logo.png"
+                        alt="Logo AfricaPhone"
+                        width={80}
+                        height={80}
+                        priority
+                        className="rounded-2xl shadow-lg shadow-orange-500/30"
+                    />
                 </div>
                 <h1 className="mb-4 text-2xl font-bold text-white">
                     Site en maintenance
