@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CommunityPromotionRow from '@/components/CommunityPromotionRow';
+import MaintenanceBanner from '@/components/MaintenanceBanner';
 import ProductGridSection from '@/components/ProductGridSection';
 import ScrollToTopButton from '@/components/ScrollToTopButton';
 import SiteFooter from '@/components/SiteFooter';
@@ -16,6 +17,9 @@ import {
   type AlgoliaProductHit,
 } from '@/lib/algoliaClient';
 
+// Set to true to show maintenance banner
+const MAINTENANCE_MODE = true;
+
 export default function HomePageClient() {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -26,6 +30,10 @@ export default function HomePageClient() {
   const handleClearSearch = useCallback(() => {
     setSearchQuery('');
   }, []);
+
+  if (MAINTENANCE_MODE) {
+    return <MaintenanceBanner />;
+  }
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
@@ -280,8 +288,8 @@ const safeString = (value: unknown): string | null => {
 const extractPrimaryImage = (hit: AlgoliaProductHit): string | null => {
   const urls = Array.isArray(hit.imageUrls)
     ? (hit.imageUrls as unknown[])
-        .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
-        .map(url => url.trim())
+      .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+      .map(url => url.trim())
     : [];
   if (urls.length > 0) {
     return urls[0];
