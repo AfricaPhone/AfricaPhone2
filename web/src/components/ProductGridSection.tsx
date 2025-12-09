@@ -126,8 +126,8 @@ const mapDocToProduct = (doc: QueryDocumentSnapshot<DocumentData>): ProductCardD
   const imageCandidates =
     Array.isArray(data.imageUrls) && data.imageUrls.length > 0
       ? (data.imageUrls as unknown[])
-          .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
-          .map(url => url.trim())
+        .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+        .map(url => url.trim())
       : [];
 
   const primaryImage = imageCandidates[0] ?? safeString(data.imageUrl) ?? null;
@@ -215,8 +215,8 @@ const mapAlgoliaHitToProduct = (hit: AlgoliaHit): ProductCardData | null => {
   const imageCandidates =
     Array.isArray(hit.imageUrls) && hit.imageUrls.length > 0
       ? (hit.imageUrls as unknown[])
-          .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
-          .map(url => url.trim())
+        .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+        .map(url => url.trim())
       : [];
 
   const primaryImage = imageCandidates[0] ?? safeString(hit.imageUrl) ?? null;
@@ -420,11 +420,11 @@ const SEGMENTS: Array<{
   label: string;
   icon: (props: { className?: string }) => JSX.Element;
 }> = [
-  { key: 'telephone', label: 'Populaires', icon: StarOutlineIcon },
-  { key: 'tablette', label: 'Tablettes', icon: TabletIcon },
-  { key: 'portable a touche', label: 'A touches', icon: KeypadIcon },
-  { key: 'accessoire', label: 'Accessoires', icon: HeadsetIcon },
-];
+    { key: 'telephone', label: 'Populaires', icon: StarOutlineIcon },
+    { key: 'tablette', label: 'Tablettes', icon: TabletIcon },
+    { key: 'portable a touche', label: 'A touches', icon: KeypadIcon },
+    { key: 'accessoire', label: 'Accessoires', icon: HeadsetIcon },
+  ];
 
 const SEGMENT_SCROLL_CLASSNAME = 'product-segment-scroll';
 const TOP_PRODUCTS_SCROLL_CLASSNAME = 'top-products-scroll';
@@ -910,11 +910,10 @@ export default function ProductGridSection({
                     type="button"
                     onClick={() => handleSegmentChange(segment.key)}
                     aria-pressed={isActive}
-                    className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                      isActive
-                        ? 'border-transparent bg-slate-900 text-white shadow-sm shadow-slate-900/30 hover:bg-slate-800'
-                        : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
-                    }`}
+                    className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${isActive
+                      ? 'border-transparent bg-slate-900 text-white shadow-sm shadow-slate-900/30 hover:bg-slate-800'
+                      : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+                      }`}
                   >
                     <segment.icon
                       className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-900'}`}
@@ -1065,9 +1064,8 @@ function TopProductsArrowButton({ direction, onClick }: TopProductsArrowButtonPr
         type="button"
         onClick={onClick}
         aria-label={isNext ? 'Afficher les prochains produits' : 'Afficher les produits precedents'}
-        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-orange-500 bg-orange-500 text-white shadow-lg transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${
-          isNext ? 'right-2' : 'left-2'
-        }`}
+        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-orange-500 bg-orange-500 text-white shadow-lg transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${isNext ? 'right-2' : 'left-2'
+          }`}
       >
         <svg className={`h-5 w-5 ${isNext ? '' : 'rotate-180'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
