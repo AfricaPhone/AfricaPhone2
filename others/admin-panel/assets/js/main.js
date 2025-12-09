@@ -243,8 +243,8 @@ const CHANNEL_OPTIONS = [
 let featuresConfig = { promoCardsEnabled: true };
 let linkTemplates = null;
 const FALLBACK_LINK_TEMPLATES = {
-  webBaseUrl: 'https://africaphone-org.web.app/promo',
-  appLinkDomain: 'https://africaphone-org.web.app/ul',
+  webBaseUrl: 'https://us-central1-africaphone-vente.cloudfunctions.net/trackPromoLink',
+  appLinkDomain: 'https://us-central1-africaphone-vente.cloudfunctions.net/trackPromoLink',
   appScheme: 'africaphone://apply-promo',
   defaultCampaign: 'default',
   defaultSub: 'cta1',
@@ -1414,30 +1414,30 @@ async function handleDelete(id, name, type) {
       matchPredictionsCache.delete(id);
       renderMatchList();
       $('#kpi-matches').textContent = String(allMatches.length);
-  } else if (type === 'promoCards') {
-    allPromoCards = allPromoCards.filter(c => c.id !== id);
-    renderPromoCardList();
-    updatePromoCardsKpi();
-  } else if (type === 'promoCodes') {
-    allPromoCodes = allPromoCodes.filter(c => c.id !== id);
-    renderPromoCodeList();
-    $('#kpi-promocodes').textContent = String(allPromoCodes.length);
-    const codeValue = (name || id || '').toUpperCase();
-    if (codeValue) {
-      try {
-        await deleteDoc(doc(db, 'promoRules', codeValue));
-      } catch (err) {
-        console.warn('Unable to delete linked promoRule', err);
+    } else if (type === 'promoCards') {
+      allPromoCards = allPromoCards.filter(c => c.id !== id);
+      renderPromoCardList();
+      updatePromoCardsKpi();
+    } else if (type === 'promoCodes') {
+      allPromoCodes = allPromoCodes.filter(c => c.id !== id);
+      renderPromoCodeList();
+      $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+      const codeValue = (name || id || '').toUpperCase();
+      if (codeValue) {
+        try {
+          await deleteDoc(doc(db, 'promoRules', codeValue));
+        } catch (err) {
+          console.warn('Unable to delete linked promoRule', err);
+        }
+        allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
       }
-      allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
+    } else if (type === 'promoRules') {
+      allPromoRules = allPromoRules.filter(r => r.id !== id);
+      renderPromoRuleList();
+    } else if (type === 'promoPayouts') {
+      allPromoPayouts = allPromoPayouts.filter(p => p.id !== id);
+      renderPromoPayoutList();
     }
-  } else if (type === 'promoRules') {
-    allPromoRules = allPromoRules.filter(r => r.id !== id);
-    renderPromoRuleList();
-  } else if (type === 'promoPayouts') {
-    allPromoPayouts = allPromoPayouts.filter(p => p.id !== id);
-    renderPromoPayoutList();
-  }
     toast('Supprim?', '', 'success');
   } catch (e) {
     console.error(e);
@@ -2601,12 +2601,12 @@ function renderMatchList() {
   const term = ($('#search-matches').value || '').toLowerCase();
   const arr = term
     ? allMatches.filter(function (m) {
-        return (
-          (m.teamA || '').toLowerCase().indexOf(term) !== -1 ||
-          (m.teamB || '').toLowerCase().indexOf(term) !== -1 ||
-          (m.competition || '').toLowerCase().indexOf(term) !== -1
-        );
-      })
+      return (
+        (m.teamA || '').toLowerCase().indexOf(term) !== -1 ||
+        (m.teamB || '').toLowerCase().indexOf(term) !== -1 ||
+        (m.competition || '').toLowerCase().indexOf(term) !== -1
+      );
+    })
     : allMatches.slice();
 
   if (!arr.length) {
@@ -2635,7 +2635,7 @@ function renderMatchList() {
         : '';
     const tr = document.createElement('tr');
     tr.dataset.id = m.id;
-  tr.innerHTML = `
+    tr.innerHTML = `
 	  <td style="font-weight:800">${escapeHtml(m.teamA || '?quipe A')} vs ${escapeHtml(m.teamB || '?quipe B')}</td>
 	  <td>${escapeHtml(m.competition || '?')}</td>
 	  <td>${date ? fmtDate(date) : '?'}</td>
@@ -2754,9 +2754,9 @@ async function renderMatchPredictionsPage(matchId) {
 
   setCrumb(
     'Pronostics \u00b7 ' +
-      (match.teamA || '?quipe A') +
-      ' vs ' +
-      (match.teamB || '?quipe B')
+    (match.teamA || '?quipe A') +
+    ' vs ' +
+    (match.teamB || '?quipe B')
   );
 
   const container = document.createElement('div');
@@ -3167,13 +3167,13 @@ function renderPromoCardList() {
 
     const actionsCell = isContestCard
       ? '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
-        '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
-        '<button class="btn btn-small" data-edit>Editer</button>' +
-        '<button class="btn btn-danger btn-small" data-del>Supprimer</button>'
+      '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+      '<button class="btn btn-small" data-edit>Editer</button>' +
+      '<button class="btn btn-danger btn-small" data-del>Supprimer</button>'
       : '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
-        '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
-        '<button class="btn btn-small" data-edit>Editer</button>' +
-        '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
+      '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+      '<button class="btn btn-small" data-edit>Editer</button>' +
+      '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
 
     tr.innerHTML = `
 
@@ -3400,8 +3400,8 @@ function renderPromoPayoutList() {
   const term = (promoPayoutSearchTerm || '').toLowerCase();
   const arr = term
     ? allPromoPayouts.filter(p =>
-        `${p.code || ''} ${p.status || ''} ${p.mode || ''}`.toLowerCase().includes(term.toLowerCase()),
-      )
+      `${p.code || ''} ${p.status || ''} ${p.mode || ''}`.toLowerCase().includes(term.toLowerCase()),
+    )
     : allPromoPayouts;
   if (!arr.length) {
     $promoPayoutsContent.innerHTML = '<div class="center" style="padding:32px">Aucun versement.</div>';
@@ -3954,10 +3954,10 @@ function renderPromoRuleList() {
   const term = (document.getElementById('search-promorules')?.value || '').toLowerCase();
   const arr = term
     ? allPromoRules.filter(r => {
-        const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
-        const partnerMatch = (r.allowedPartners || []).join(',').toLowerCase().includes(term);
-        return codeMatch || partnerMatch;
-      })
+      const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
+      const partnerMatch = (r.allowedPartners || []).join(',').toLowerCase().includes(term);
+      return codeMatch || partnerMatch;
+    })
     : allPromoRules;
 
   if (!arr.length) {
@@ -4053,9 +4053,8 @@ async function renderPromoRuleFormPage(id) {
       <div class="twocol">
         <div class="field">
           <label class="label" for="pr-code">Code</label>
-          <input id="pr-code" class="input" type="text" value="${escapeAttr(rule.code || rule.id || '')}" ${
-    id ? 'disabled' : ''
-  } required />
+          <input id="pr-code" class="input" type="text" value="${escapeAttr(rule.code || rule.id || '')}" ${id ? 'disabled' : ''
+    } required />
           <div class="hint">Utilise des lettres/chiffres, ex: JOYFUL-AP</div>
         </div>
         <div class="field">

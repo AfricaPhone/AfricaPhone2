@@ -57,9 +57,9 @@ const DEFAULT_PRICE_BRACKETS: PriceBracket[] = [
 ];
 
 const DEFAULT_LINK_TEMPLATES: LinkTemplates = {
-  webBaseUrl: 'https://africaphone-org.web.app/promo',
+  webBaseUrl: 'https://us-central1-africaphone-vente.cloudfunctions.net/trackPromoLink',
   appScheme: 'africaphone://apply-promo',
-  appLinkDomain: 'https://africaphone-org.web.app/ul',
+  appLinkDomain: 'https://us-central1-africaphone-vente.cloudfunctions.net/trackPromoLink',
   defaultCampaign: 'default',
   defaultSub: 'cta1',
 };
@@ -466,21 +466,21 @@ export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_
     const target =
       channel === 'wa'
         ? (() => {
-            const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
-            const messageTemplate =
-              linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
-            const message = messageTemplate
-              .replace('{code}', sharedParams.code)
-              .replace('{link}', webLink)
-              .replace('{ref}', sharedParams.ref);
-            const waNumberNormalized = whatsappNumber ? whatsappNumber.replace(/\D+/g, '') : '';
-            return `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
-          })()
+          const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+          const messageTemplate =
+            linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
+          const message = messageTemplate
+            .replace('{code}', sharedParams.code)
+            .replace('{link}', webLink)
+            .replace('{ref}', sharedParams.ref);
+          const waNumberNormalized = whatsappNumber ? whatsappNumber.replace(/\D+/g, '') : '';
+          return `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
+        })()
         : channel === 'app'
           ? buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
-              ...sharedParams,
-              channel: 'app',
-            })
+            ...sharedParams,
+            channel: 'app',
+          })
           : buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
 
     await sendGa4ClickEvent({
