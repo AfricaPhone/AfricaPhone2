@@ -28,8 +28,8 @@ const buildFallbackDates = (now: Date) => {
 
   return {
     submissionOpenAt: makeDate(4),
-    submissionCloseAt: makeDate(10),
-    votingOpenAt: makeDate(10),
+    submissionCloseAt: makeDate(15),
+    votingOpenAt: makeDate(15),
     votingCloseAt: makeDate(25),
   };
 };

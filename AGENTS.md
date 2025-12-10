@@ -1,6 +1,5 @@
 ALWAYS COMMIT WHEN YOU MAKE CHANGES, ALWAYS
-and when i tell you to implement a new feature or i give you an idea to never implement it directly you have resay it in detail and correctly to make sure you understand it correctly and alwyas ask me if it is okay to implement it, only if i give you TOP that you can implemnt it. and always talk to me in non technical terms.
-I have to explicitely tell you the word "top" before you can edit the code, if you dotn see that word do not edit anything. 
+  
 # Repository Guidelines
 
 ## Project Structure & Module Organization
