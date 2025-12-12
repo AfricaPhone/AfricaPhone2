@@ -3679,35 +3679,51 @@ function renderPromoCodeList() {
 }
 
 async function previewPromoLinks(code, ref) {
-  const normalized = (code || '').trim();
+  const normalized = (code || '').trim().toUpperCase();
   if (!normalized) return;
-  try {
-    const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
-    const res = await callable({ code: normalized, ref });
-    const data = res.data || {};
 
-    // Générer le lien vers le dashboard PromoPage pour l'influenceur
-    const promoPageUrl = window.location.origin.includes('localhost')
-      ? `http://localhost:5000/PromoPage/?code=${encodeURIComponent(normalized)}&ref=${encodeURIComponent(ref || '')}&partner=${encodeURIComponent(ref || '')}`
-      : `${window.location.origin}/PromoPage/?code=${encodeURIComponent(normalized)}&ref=${encodeURIComponent(ref || '')}&partner=${encodeURIComponent(ref || '')}`;
+  const domain = 'africaphone.org';
+  const dashLink = `https://${domain}/d/${normalized}`;
+  const appLink = `https://${domain}/a/${normalized}`;
+  const waLink = `https://${domain}/w/${normalized}`;
+  const webLink = `https://${domain}/p/${normalized}`;
 
-    const body = `
-      <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
-      <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
-      <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
-      <div class="field" style="margin-top:16px; padding-top:16px; border-top: 2px solid var(--border-color);">
-        <div class="label">📊 Dashboard Partenaire (à partager avec l'influenceur)</div>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <div class="chip" style="flex:1; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(promoPageUrl)}</div>
-          <button class="btn btn-small btn-primary" onclick="navigator.clipboard.writeText('${escapeAttr(promoPageUrl)}'); this.textContent='Copié!'; setTimeout(() => this.textContent='Copier', 2000);">Copier</button>
-        </div>
+  const copyBtn = (text) => `
+    <button class="btn btn-small btn-outline"
+      onclick="navigator.clipboard.writeText('${text}'); this.textContent='Copié!'; this.classList.add('success'); setTimeout(()=>{this.textContent='Copier'; this.classList.remove('success')}, 2000);">
+      Copier
+    </button>`;
+
+  const row = (label, url, isPrimary = false) => `
+    <div class="field">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px">
+        <div class="label" style="font-weight:600; color:${isPrimary ? 'var(--primary-color)' : 'inherit'}">${label}</div>
       </div>
-    `;
-    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
-  } catch (error) {
-    console.error('Preview promo links failed', error);
-    toast('Erreur', 'Impossible de générer les liens.', 'error');
-  }
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div class="chip" style="flex:1; font-family:monospace; overflow:hidden; text-overflow:ellipsis; background:${isPrimary ? 'var(--primary-light)' : ''}; border-color:${isPrimary ? 'var(--primary-color)' : ''}">${url}</div>
+        ${copyBtn(url)}
+      </div>
+    </div>`;
+
+  const body = `
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      ${row('Tableau de Bord (à envoyer à l\'influenceur)', dashLink, true)}
+      <div class="hint" style="margin-top:-8px; margin-bottom:8px">C'est le seul lien dont il a vraiment besoin. Il contient tous les autres.</div>
+      
+      <div class="divider"></div>
+      
+      ${row('Lien WhatsApp', waLink)}
+      ${row('Lien Web', webLink)}
+      ${row('Lien App', appLink)}
+    </div>
+  `;
+
+  await openModal({
+    title: `Liens pour ${escapeHtml(normalized)}`,
+    body,
+    okText: 'Fermer',
+    cancelText: null
+  });
 }
 
 
@@ -3752,6 +3768,9 @@ async function renderPromoCodeFormPage(id) {
     priceBrackets: DEFAULT_PRICE_BRACKETS,
     startsAt: null,
     endsAt: null,
+    partnerName: '',
+    partnerPhone: '',
+    partnerPasswordHash: null,
   };
   const channelsSelected =
     (ruleData.allowedChannels && ruleData.allowedChannels.length
@@ -3760,6 +3779,7 @@ async function renderPromoCodeFormPage(id) {
     ).map(c => String(c).toLowerCase());
   const partnersValue = (ruleData.allowedPartners || []).join(',');
   const initialBrackets = ruleData.priceBrackets && ruleData.priceBrackets.length ? ruleData.priceBrackets : DEFAULT_PRICE_BRACKETS;
+  const hasPassword = !!ruleData.partnerPasswordHash;
 
   const wrap = document.createElement('div');
   wrap.className = 'form-wrap';
@@ -3788,6 +3808,42 @@ async function renderPromoCodeFormPage(id) {
                 <label class="label" for="pc-partner">Partenaire attribué</label>
                 <input id="pc-partner" class="input" type="text" value="${escapeAttr(code.assignedTo || '')}" placeholder="Orange Money, Canal+, etc." />
                 <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associée à ce code.</div>
+            </div>
+            <div class="divider"></div>
+            <div class="field">
+              <label class="label">🔐 Accès Dashboard Partenaire</label>
+              <div class="hint">Identifiants pour que le partenaire accède à son tableau de bord</div>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pc-partnerName">Nom du partenaire</label>
+                <input id="pc-partnerName" class="input" type="text" value="${escapeAttr(ruleData.partnerName || '')}" placeholder="Marie Dupont" />
+              </div>
+              <div class="field">
+                <label class="label" for="pc-partnerPhone">WhatsApp du partenaire</label>
+                <input id="pc-partnerPhone" class="input" type="tel" value="${escapeAttr(ruleData.partnerPhone || '')}" placeholder="+229 97 00 00 00" />
+              </div>
+            </div>
+            <div class="field" id="pc-password-section">
+              <label class="label">Mot de passe dashboard</label>
+              <div class="top-actions" style="gap:8px; align-items:center;">
+                <div class="chip" id="pc-password-display" style="font-family:monospace; ${hasPassword ? '' : 'display:none;'}">
+                  ${hasPassword ? '••••••••' : ''}
+                </div>
+                <button type="button" id="pc-gen-password" class="btn btn-outline btn-small">
+                  <i data-lucide="${hasPassword ? 'refresh-cw' : 'key'}" class="icon"></i>
+                  ${hasPassword ? 'Régénérer' : 'Générer un mot de passe'}
+                </button>
+                <button type="button" id="pc-copy-password" class="btn btn-small" style="display:none;">
+                  <i data-lucide="copy" class="icon"></i> Copier
+                </button>
+              </div>
+              <div class="hint" style="margin-top:6px;">
+                ${hasPassword
+      ? 'Un mot de passe existe. Cliquez sur Régénérer pour en créer un nouveau (l\'ancien sera invalidé).'
+      : 'Générez un mot de passe pour permettre au partenaire d\'accéder à son dashboard.'}
+              </div>
+              <input type="hidden" id="pc-newPassword" value="" />
             </div>
             <div class="field">
                 <label class="toggle">
@@ -3863,6 +3919,57 @@ async function renderPromoCodeFormPage(id) {
     lucide.createIcons();
   });
   document.getElementById('reset-brackets')?.addEventListener('click', () => renderBracketRows(DEFAULT_PRICE_BRACKETS));
+
+  // Gestion du mot de passe partenaire
+  const genPasswordBtn = document.getElementById('pc-gen-password');
+  const copyPasswordBtn = document.getElementById('pc-copy-password');
+  const passwordDisplay = document.getElementById('pc-password-display');
+  const newPasswordInput = document.getElementById('pc-newPassword');
+
+  genPasswordBtn?.addEventListener('click', async () => {
+    const codeValue = ($('#pc-code').value || '').trim().toUpperCase();
+    if (!codeValue) {
+      toast('Erreur', 'Veuillez d\'abord saisir le code promo.', 'error');
+      return;
+    }
+
+    setButtonLoading(genPasswordBtn, true);
+    try {
+      const regeneratePartnerPassword = httpsCallable(functionsInstance, 'regeneratePartnerPassword');
+      const result = await regeneratePartnerPassword({ code: codeValue });
+      const newPassword = result.data.password;
+
+      // Afficher le mot de passe
+      passwordDisplay.textContent = newPassword;
+      passwordDisplay.style.display = 'inline-block';
+      passwordDisplay.style.background = 'var(--success-light)';
+      passwordDisplay.style.borderColor = 'var(--success)';
+      newPasswordInput.value = newPassword;
+      copyPasswordBtn.style.display = 'inline-flex';
+
+      // Mettre à jour le bouton
+      genPasswordBtn.innerHTML = '<i data-lucide="refresh-cw" class="icon"></i> Régénérer';
+      lucide.createIcons();
+
+      toast('Mot de passe généré', `Nouveau mot de passe: ${newPassword}`, 'success', 10000);
+      track('partner_password_generated', { code: codeValue });
+    } catch (err) {
+      console.error('Erreur génération mot de passe:', err);
+      toast('Erreur', 'Impossible de générer le mot de passe. ' + (err.message || ''), 'error');
+    } finally {
+      setButtonLoading(genPasswordBtn, false);
+    }
+  });
+
+  copyPasswordBtn?.addEventListener('click', () => {
+    const password = newPasswordInput?.value || passwordDisplay?.textContent;
+    if (password && password !== '••••••••') {
+      navigator.clipboard.writeText(password);
+      toast('Copié', 'Mot de passe copié dans le presse-papier.', 'success');
+    }
+  });
+
+  lucide.createIcons();
 }
 
 
@@ -3902,6 +4009,8 @@ async function handlePromoCodeFormSubmit(e, id) {
 
   const startsAtVal = $('#pc-start').value;
   const endsAtVal = $('#pc-end').value;
+  const partnerName = ($('#pc-partnerName')?.value || '').trim();
+  const partnerPhone = ($('#pc-partnerPhone')?.value || '').trim();
   const rulePayload = {
     code: codeValue,
     isActive: $('#pc-isActive').checked,
@@ -3911,8 +4020,11 @@ async function handlePromoCodeFormSubmit(e, id) {
     priceBrackets: priceBrackets,
     startsAt: startsAtVal ? new Date(startsAtVal) : null,
     endsAt: endsAtVal ? new Date(endsAtVal) : null,
+    partnerName: partnerName,
+    partnerPhone: partnerPhone,
     updatedAt: serverTimestamp(),
   };
+
 
   try {
     let promoCodeId = id;

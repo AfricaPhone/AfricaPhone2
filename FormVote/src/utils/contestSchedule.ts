@@ -27,10 +27,10 @@ const buildFallbackDates = (now: Date) => {
   const makeDate = (d: number) => new Date(Date.UTC(targetYear, 11, d, 0, 0, 0));
 
   return {
-    submissionOpenAt: makeDate(4),
-    submissionCloseAt: makeDate(10),
-    votingOpenAt: makeDate(10),
-    votingCloseAt: makeDate(25),
+    submissionOpenAt: undefined,
+    submissionCloseAt: undefined,
+    votingOpenAt: undefined,
+    votingCloseAt: undefined,
   };
 };
 
@@ -53,7 +53,7 @@ const parseDate = (value: unknown): Date | null => {
   return null;
 };
 
-const toIso = (value: Date | null): string | undefined => (value ? value.toISOString() : undefined);
+const toIso = (value: Date | null | undefined): string | undefined => (value ? value.toISOString() : undefined);
 
 export const computeContestSchedule = (
   input: ContestScheduleInput,
@@ -66,8 +66,9 @@ export const computeContestSchedule = (
   const votingOpenAt = parseDate(input.votingOpenAt) ?? fallback.votingOpenAt;
   const votingCloseAt = parseDate(input.votingCloseAt) ?? fallback.votingCloseAt;
 
-  const isSubmissionOpen = submissionOpenAt <= now && now < submissionCloseAt;
-  const isVotingOpen = votingOpenAt <= now && now < votingCloseAt;
+  const isSubmissionOpen =
+    !!submissionOpenAt && !!submissionCloseAt && submissionOpenAt <= now && now < submissionCloseAt;
+  const isVotingOpen = !!votingOpenAt && !!votingCloseAt && votingOpenAt <= now && now < votingCloseAt;
 
   let phase: ContestPhase = 'closed';
   if (isSubmissionOpen) {

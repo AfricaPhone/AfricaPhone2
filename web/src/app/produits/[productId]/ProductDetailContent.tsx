@@ -89,8 +89,18 @@ type CombinedProduct = {
 
 type ValidatedPromo = {
   code: string;
-  type: 'percentage' | 'fixed';
-  value: number;
+  ruleId?: string;
+  channel: string;
+  ref?: string | null;
+  discountType: 'fixed';
+  discountValue: number;
+  commissionValue: number;
+  priceBracket?: { min: number; max: number | null; label: string | null };
+  cartValue?: number | null;
+  promoSessionId: string;
+  // Compatibilité legacy (si validatePromoCode est appelé en fallback)
+  type?: 'percentage' | 'fixed';
+  value?: number;
 };
 
 type ProductDetailContentProps = {
@@ -347,22 +357,76 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     }
     setIsValidatingPromo(true);
     setPromoError(null);
+    
     try {
       const functions = getFunctions();
-      const validatePromo = httpsCallable<{ code: string }, ValidatedPromo>(functions, 'validatePromoCode');
-      const result = await validatePromo({ code: formatted });
-      const data = result.data;
-      setAppliedPromo(data);
-      setPromoNotice(`Le code "${data.code}" a été appliqué avec succès.`);
+      
+      // Stratégie avec fallback pour rétrocompatibilité:
+      // 1. Essayer d'abord validatePromoV2 (nouvelles fonctionnalités)
+      // 2. Si échec, fallback vers validatePromoCode (legacy)
+      
+      let promoData: ValidatedPromo;
+      let usedV2 = false;
+      
+      try {
+        // Tentative V2 avec canal et montant panier
+        const validatePromoV2 = httpsCallable<
+          { code: string; channel?: string; cartValue?: number; ref?: string },
+          ValidatedPromo
+        >(functions, 'validatePromoV2');
+        
+        const result = await validatePromoV2({
+          code: formatted,
+          channel: 'web',
+          cartValue: product?.price ?? undefined,
+        });
+        promoData = result.data;
+        usedV2 = true;
+      } catch (v2Error) {
+        // Fallback vers la fonction legacy si V2 échoue
+        // (ex: code existe seulement dans promoCodes, pas promoRules)
+        console.info('validatePromoV2 failed, trying legacy validatePromoCode', v2Error);
+        
+        const validatePromoLegacy = httpsCallable<
+          { code: string },
+          { code: string; type: 'percentage' | 'fixed'; value: number }
+        >(functions, 'validatePromoCode');
+        
+        const legacyResult = await validatePromoLegacy({ code: formatted });
+        const legacyData = legacyResult.data;
+        
+        // Convertir le format legacy vers le format V2 pour compatibilité UI
+        promoData = {
+          code: legacyData.code,
+          channel: 'web',
+          discountType: 'fixed',
+          discountValue: legacyData.type === 'fixed' ? legacyData.value : 0,
+          commissionValue: 0,
+          promoSessionId: '',
+          // Garder les champs legacy pour les fonctions utilitaires existantes
+          type: legacyData.type,
+          value: legacyData.value,
+        };
+      }
+      
+      setAppliedPromo(promoData);
+      
+      // Message de succès adapté au format utilisé
+      const discountLabel = usedV2 
+        ? formatPrice(promoData.discountValue)
+        : (promoData.type === 'percentage' ? `${promoData.value}%` : formatPrice(promoData.value ?? 0));
+      
+      setPromoNotice(`Le code "${promoData.code}" a été appliqué avec succès. Réduction : ${discountLabel}`);
       setPromoInput('');
       setIsPromoModalOpen(false);
+      
     } catch (error) {
       console.error('ProductDetailContent: promo validation failed', error);
       setPromoError(extractErrorMessage(error));
     } finally {
       setIsValidatingPromo(false);
     }
-  }, [promoInput]);
+  }, [promoInput, product?.price]);
 
   const handleRemovePromoCode = useCallback(() => {
     setAppliedPromo(null);
@@ -425,9 +489,8 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           {orderedSpecs.map((spec, index) => (
             <div
               key={`${spec.label}-${spec.value}`}
-              className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${
-                index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
-              }`}
+              className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
+                }`}
             >
               <span className="text-[#7A7C80]">{spec.label}</span>
               <span className="max-w-[55%] text-right font-semibold">{spec.value}</span>
@@ -520,9 +583,8 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 onClick={toggleFavorite}
                 aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 aria-pressed={isFavorite}
-                className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${
-                  isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
-                }`}
+                className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
+                  }`}
               >
                 <HeartIcon className="h-5 w-5" />
               </button>
@@ -604,18 +666,16 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                   <button
                     type="button"
                     onClick={() => setActiveTab('specs')}
-                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${
-                      activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
-                    }`}
+                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                      }`}
                   >
                     Specifications
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('description')}
-                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${
-                      activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
-                    }`}
+                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                      }`}
                   >
                     Description
                   </button>
@@ -747,12 +807,12 @@ function PromoCodeModal({ open, code, error, isSubmitting, onClose, onApply, onC
               type="text"
               inputMode="text"
               autoComplete="off"
-                spellCheck={false}
-                value={code}
-                onChange={event => onCodeChange(event.target.value)}
-                className="mt-2 h-12 w-full rounded-[16px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-[15px] font-semibold tracking-[0.12em] text-[#111111] outline-none transition focus:border-[#111111] focus:bg-white"
-                autoFocus
-              />
+              spellCheck={false}
+              value={code}
+              onChange={event => onCodeChange(event.target.value)}
+              className="mt-2 h-12 w-full rounded-[16px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-[15px] font-semibold tracking-[0.12em] text-[#111111] outline-none transition focus:border-[#111111] focus:bg-white"
+              autoFocus
+            />
           </div>
           {error ? <p className="text-sm font-medium text-[#DC2626]">{error}</p> : null}
           <button
@@ -791,8 +851,8 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
   const imageCandidates =
     Array.isArray(payload.imageUrls) && payload.imageUrls.length > 0
       ? (payload.imageUrls as unknown[])
-          .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
-          .map(url => url.trim())
+        .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+        .map(url => url.trim())
       : [];
 
   const primaryImageCandidate = imageCandidates[0] ?? safeString(payload.imageUrl) ?? null;
@@ -1067,15 +1127,27 @@ function appendPromoToWhatsappLink(baseLink: string, promo?: ValidatedPromo | nu
 }
 
 function formatPromoValue(promo: ValidatedPromo) {
-  if (promo.type === 'percentage') {
+  // Format V2: utiliser discountValue directement
+  if (promo.discountValue !== undefined && promo.discountValue > 0) {
+    return formatPrice(promo.discountValue);
+  }
+  // Format legacy: utiliser type et value
+  if (promo.type === 'percentage' && promo.value !== undefined) {
     return `${promo.value}%`;
   }
-  return formatPrice(promo.value);
+  if (promo.value !== undefined) {
+    return formatPrice(promo.value);
+  }
+  return 'une réduction';
 }
 
 function buildPromoBenefitSentence(promo: ValidatedPromo) {
   const valueLabel = formatPromoValue(promo);
-  return `Avec ce code promo, vous bénéficiez d'une réduction de ${valueLabel} sur tout article que vous achetez. Ce code promo ne peut être utilisé qu'une seule fois par vous.`;
+  // Ajouter info sur la tranche si disponible (V2)
+  const bracketInfo = promo.priceBracket?.label 
+    ? ` (tranche ${promo.priceBracket.label})` 
+    : '';
+  return `Avec ce code promo, vous bénéficiez d'une réduction de ${valueLabel}${bracketInfo} sur tout article que vous achetez. Ce code promo ne peut être utilisé qu'une seule fois par vous.`;
 }
 
 function extractErrorMessage(error: unknown) {

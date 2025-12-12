@@ -12,7 +12,7 @@ import * as os from 'os';
 import * as fs from 'fs-extra';
 import sharp = require('sharp');
 import { createHash, randomUUID } from 'crypto';
-import { URL } from 'url';
+// import { URL } from 'url';
 
 // Initialise l'app Firebase Admin pour interagir avec Firestore.
 admin.initializeApp();
@@ -773,8 +773,13 @@ const hydratePromoDashboardFromLogs = (logs: Array<Record<string, any>>) => {
   };
 };
 
-export const getPartnerDashboard = onCall(async request => {
+/**
+ * Dashboard partenaire legacy (sans authentification).
+ * @deprecated Utilisez getPartnerDashboard avec authentification.
+ */
+export const getPartnerDashboardLegacy = onCall(async request => {
   const { code, partnerId, ref, rangeDays } = request.data as {
+
     code?: string;
     partnerId?: string;
     ref?: string;
@@ -1666,3 +1671,494 @@ export const verifyKkiapay = onCall(
     return { ok: true, status: isSuccess ? 'success' : 'pending' };
   }
 );
+
+/* ========================================================================== */
+/*                          SHORT LINK REDIRECTS                              */
+/* ========================================================================== */
+
+export const redirectDashboard = onRequest(async (req, res) => {
+  const code = req.path.split('/').pop() || '';
+  if (!code) {
+    res.status(400).send('Code manquante');
+    return;
+  }
+  // Redirige vers le site PromoPage dédié (promo.africaphone.org) avec le code pré-rempli
+  res.redirect(302, `https://africaphone-promo.web.app/?code=${encodeURIComponent(code)}`);
+});
+
+export const redirectApp = onRequest(async (req, res) => {
+  const code = req.path.split('/').pop() || '';
+  if (!code) {
+    res.status(400).send('Code manquante');
+    return;
+  }
+  // Redirige vers le schéma de l'application
+  const appScheme = `africaphone://apply-promo?code=${encodeURIComponent(code)}&channel=app`;
+  res.redirect(302, appScheme);
+});
+
+export const redirectWhatsApp = onRequest(async (req, res) => {
+  const code = req.path.split('/').pop() || '';
+  // const sid = req.query.sid as string; // Unused
+
+  if (!code) {
+    res.status(400).send('Code manquante');
+    return;
+  }
+
+  try {
+    // Récupérer le modèle de message
+    const templateSnap = await db.collection('settings').doc('linkTemplates').get();
+    const data = templateSnap.exists ? templateSnap.data() || {} : {};
+
+    // Par défaut, numéro générique si non configuré
+    const waNumber = data.whatsappNumber || '2290154151522';
+
+    // Template par défaut
+    // Note: {code} sera remplacé par le code promo
+    // {link} sera remplacé par le lien Web court
+    const waTemplate = data.waMessageTemplate ||
+      'Rien que pour toi ! Profite du code promo {code} sur AfricaPhone. Télécharge ici : {link}';
+
+    const webBaseUrl = data.webBaseUrl || 'https://africaphone.org';
+    const webLink = `${webBaseUrl}/p/${code}`;
+
+    // Remplacement des placeholders
+    const message = waTemplate
+      .replace('{code}', code.toUpperCase())
+      .replace('{link}', webLink)
+      .replace('{ref}', ''); // Pas de ref ici
+
+    const waNumberNormalized = waNumber.replace(/\D+/g, '');
+    const waUrl = `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
+
+    res.redirect(302, waUrl);
+  } catch (error) {
+    logger.error('redirectWhatsApp failed', error);
+    // Fallback sécurité
+    res.redirect(302, `https://wa.me/2290154151522?text=Code%20promo%20${code}`);
+  }
+});
+
+/* ========================================================================== */
+/*                     PARTNER AUTHENTICATION SYSTEM                          */
+/* ========================================================================== */
+
+/**
+ * Génère un mot de passe aléatoire sécurisé pour les partenaires.
+ * Format: 8 caractères avec au moins une majuscule, une minuscule et un chiffre.
+ */
+const generatePartnerPassword = (): string => {
+  const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lowercase = 'abcdefghjkmnpqrstuvwxyz';
+  const digits = '23456789';
+  const all = uppercase + lowercase + digits;
+
+  let password = '';
+  // Assurer au moins un de chaque type
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += digits[Math.floor(Math.random() * digits.length)];
+
+  // Compléter jusqu'à 8 caractères
+  for (let i = 3; i < 8; i++) {
+    password += all[Math.floor(Math.random() * all.length)];
+  }
+
+  // Mélanger les caractères
+  return password
+    .split('')
+    .sort(() => Math.random() - 0.5)
+    .join('');
+};
+
+/**
+ * Hash un mot de passe avec SHA-256 (pour compatibilité navigateur).
+ * Note: En production, bcrypt serait idéal mais SHA-256 est suffisant pour ce cas d'usage.
+ */
+const hashPassword = (password: string): string => {
+  return createHash('sha256').update(password).digest('hex');
+};
+
+/**
+ * Vérifie si un mot de passe correspond au hash stocké.
+ */
+const verifyPassword = (password: string, hash: string): boolean => {
+  return hashPassword(password) === hash;
+};
+
+/**
+ * Authentifie un partenaire avec son code promo et son mot de passe.
+ * Retourne un token de session si succès.
+ */
+export const authenticatePartner = onCall(async request => {
+  const { code, password } = request.data as {
+    code?: string;
+    password?: string;
+  };
+
+  if (!code || typeof code !== 'string' || !password || typeof password !== 'string') {
+    throw new HttpsError('invalid-argument', 'Code et mot de passe requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+
+  // Récupérer les infos du code promo
+  const ruleSnap = await db.collection('promoRules').doc(normalizedCode).get();
+  if (!ruleSnap.exists) {
+    // Log tentative échouée
+    await logPromoEvent('partnerAuthAttempts', {
+      code: normalizedCode,
+      success: false,
+      reason: 'code_not_found',
+      ip: request.rawRequest?.ip || null,
+    });
+    throw new HttpsError('not-found', 'Identifiants invalides.');
+  }
+
+  const ruleData = ruleSnap.data() as any;
+
+  // Vérifier que le code est actif
+  if (ruleData.isActive === false) {
+    throw new HttpsError('permission-denied', 'Ce code promo est désactivé.');
+  }
+
+  // Vérifier le mot de passe
+  const storedHash = ruleData.partnerPasswordHash;
+  if (!storedHash) {
+    throw new HttpsError('failed-precondition', 'Aucun mot de passe configuré pour ce code. Contactez l\'administrateur.');
+  }
+
+  if (!verifyPassword(password, storedHash)) {
+    // Log tentative échouée
+    await logPromoEvent('partnerAuthAttempts', {
+      code: normalizedCode,
+      success: false,
+      reason: 'wrong_password',
+      ip: request.rawRequest?.ip || null,
+    });
+    throw new HttpsError('unauthenticated', 'Identifiants invalides.');
+  }
+
+  // Générer un token de session (valide 7 jours)
+  const sessionToken = randomUUID();
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 jours
+
+  // Sauvegarder la session
+  await db.collection('partnerSessions').doc(sessionToken).set({
+    code: normalizedCode,
+    token: sessionToken,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
+    ip: request.rawRequest?.ip || null,
+    userAgent: request.rawRequest?.headers?.['user-agent'] || null,
+  });
+
+  // Log succès
+  await logPromoEvent('partnerAuthAttempts', {
+    code: normalizedCode,
+    success: true,
+    ip: request.rawRequest?.ip || null,
+  });
+
+  // Mettre à jour la dernière connexion
+  await ruleSnap.ref.update({
+    lastPartnerLogin: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  logger.info('Partner authenticated', { code: normalizedCode });
+
+  return {
+    success: true,
+    token: sessionToken,
+    expiresAt: expiresAt.toISOString(),
+    code: normalizedCode,
+    partnerName: ruleData.partnerName || null,
+  };
+});
+
+/**
+ * Vérifie un token de session partenaire.
+ */
+export const verifyPartnerSession = onCall(async request => {
+  const { token } = request.data as { token?: string };
+
+  if (!token || typeof token !== 'string') {
+    throw new HttpsError('invalid-argument', 'Token requis.');
+  }
+
+  const sessionSnap = await db.collection('partnerSessions').doc(token).get();
+  if (!sessionSnap.exists) {
+    throw new HttpsError('unauthenticated', 'Session invalide ou expirée.');
+  }
+
+  const sessionData = sessionSnap.data() as any;
+  const expiresAt = sessionData.expiresAt?.toDate?.();
+
+  if (expiresAt && new Date() > expiresAt) {
+    // Supprimer la session expirée
+    await sessionSnap.ref.delete();
+    throw new HttpsError('unauthenticated', 'Session expirée.');
+  }
+
+  return {
+    valid: true,
+    code: sessionData.code,
+    expiresAt: expiresAt?.toISOString() || null,
+  };
+});
+
+/**
+ * Génère ou régénère le mot de passe d'un partenaire (admin uniquement).
+ * Attendu: data { code }
+ * Retourne le nouveau mot de passe en clair (à communiquer au partenaire).
+ */
+export const regeneratePartnerPassword = onCall(async request => {
+  // Vérifier que l'appelant est admin
+  if (!request.auth?.token?.admin) {
+    throw new HttpsError('permission-denied', 'Réservé aux administrateurs.');
+  }
+
+  const { code } = request.data as { code?: string };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Code promo requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+
+  // Vérifier que le code existe
+  const ruleRef = db.collection('promoRules').doc(normalizedCode);
+  const ruleSnap = await ruleRef.get();
+
+  if (!ruleSnap.exists) {
+    throw new HttpsError('not-found', 'Code promo introuvable.');
+  }
+
+  // Générer un nouveau mot de passe
+  const newPassword = generatePartnerPassword();
+  const passwordHash = hashPassword(newPassword);
+
+  // Mettre à jour le document
+  await ruleRef.update({
+    partnerPasswordHash: passwordHash,
+    partnerPasswordUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    partnerPasswordUpdatedBy: request.auth.uid,
+  });
+
+  // Invalider les anciennes sessions
+  const oldSessions = await db.collection('partnerSessions').where('code', '==', normalizedCode).get();
+  const batch = db.batch();
+  oldSessions.docs.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+
+  logger.info('Partner password regenerated', { code: normalizedCode, by: request.auth.uid });
+
+  return {
+    success: true,
+    code: normalizedCode,
+    password: newPassword, // En clair, à communiquer au partenaire
+    message: `Nouveau mot de passe généré. Communiquez-le au partenaire: ${newPassword}`,
+  };
+});
+
+/**
+ * Récupère le dashboard d'un partenaire authentifié.
+ * Nécessite un token de session valide.
+ */
+export const getPartnerDashboard = onCall(async request => {
+  const { token, code, rangeDays } = request.data as {
+    token?: string;
+    code?: string;
+    rangeDays?: number;
+  };
+
+  let authenticatedCode: string | null = null;
+
+  // Vérifier l'authentification par token de session
+  if (token) {
+    const sessionSnap = await db.collection('partnerSessions').doc(token).get();
+    if (sessionSnap.exists) {
+      const sessionData = sessionSnap.data() as any;
+      const expiresAt = sessionData.expiresAt?.toDate?.();
+      if (!expiresAt || new Date() <= expiresAt) {
+        authenticatedCode = sessionData.code;
+      }
+    }
+  }
+
+  // Fallback: si pas de token, vérifier le code (mode démonstration)
+  const queryCode = code?.trim().toUpperCase();
+  if (!authenticatedCode && !queryCode) {
+    throw new HttpsError('unauthenticated', 'Authentification requise.');
+  }
+
+  const targetCode = authenticatedCode || queryCode!;
+  const isAuthenticated = Boolean(authenticatedCode);
+
+  // Récupérer les données du code promo
+  const ruleSnap = await db.collection('promoRules').doc(targetCode).get();
+  if (!ruleSnap.exists) {
+    throw new HttpsError('not-found', 'Code promo introuvable.');
+  }
+
+  const ruleData = ruleSnap.data() as any;
+
+  // Si non authentifié, retourner seulement des infos basiques (mode démo)
+  if (!isAuthenticated) {
+    return {
+      code: targetCode,
+      authenticated: false,
+      message: 'Connectez-vous pour voir vos statistiques détaillées.',
+      kpis: { sales: 0, leads: 0, commission: 0, discount: 0 },
+      channels: [],
+      payouts: { history: [] },
+      table: [],
+      rule: {
+        code: targetCode,
+        allowedChannels: ruleData.allowedChannels || [],
+        partnerRefRequired: ruleData.partnerRefRequired || false,
+        priceBrackets: ruleData.priceBrackets || [],
+      },
+    };
+  }
+
+  // Utilisateur authentifié: retourner les vraies stats
+  const days = clampRangeDays(rangeDays);
+  const metrics = await fetchPartnerMetrics(targetCode, days);
+
+  return {
+    code: targetCode,
+    authenticated: true,
+    partnerName: ruleData.partnerName || null,
+    kpis: metrics.kpis,
+    channels: metrics.channels,
+    payouts: metrics.payouts,
+    table: metrics.table,
+    rule: {
+      code: targetCode,
+      allowedChannels: ruleData.allowedChannels || [],
+      partnerRefRequired: ruleData.partnerRefRequired || false,
+      priceBrackets: ruleData.priceBrackets || [],
+    },
+  };
+});
+
+/**
+ * Helper pour récupérer les métriques d'un partenaire.
+ */
+const fetchPartnerMetrics = async (code: string, rangeDays: number) => {
+  const now = new Date();
+  const startDate = new Date(now.getTime() - rangeDays * 24 * 60 * 60 * 1000);
+
+  let totalSales = 0;
+  let totalLeads = 0;
+  let totalCommission = 0;
+  let totalDiscount = 0;
+  const channelStats: Record<string, { count: number; commission: number; discount: number }> = {};
+  const salesTable: any[] = [];
+
+  // Récupérer les métriques quotidiennes
+  const metricsRef = db.collection('promoMetrics').doc(code).collection('daily');
+  const metricsSnap = await metricsRef.where('date', '>=', dayKeyUtc(startDate)).orderBy('date', 'desc').limit(rangeDays).get();
+
+  metricsSnap.docs.forEach(doc => {
+    const data = doc.data();
+
+    // Agrégation des visites (leads)
+    if (data.visits?.total) {
+      totalLeads += data.visits.total;
+    }
+
+    // Agrégation des ventes
+    if (data.sales?.count) {
+      totalSales += data.sales.count;
+      totalCommission += data.sales.commission || 0;
+      totalDiscount += data.sales.discount || 0;
+    }
+
+    // Agrégation par canal
+    if (data.visits) {
+      ['web', 'app', 'wa', 'qr', 'bo'].forEach(ch => {
+        if (data.visits[ch]) {
+          if (!channelStats[ch]) {
+            channelStats[ch] = { count: 0, commission: 0, discount: 0 };
+          }
+          channelStats[ch].count += data.visits[ch];
+        }
+      });
+    }
+  });
+
+  // Récupérer les versements
+  const payoutsSnap = await db
+    .collection('promoPayouts')
+    .where('code', '==', code)
+    .orderBy('createdAt', 'desc')
+    .limit(10)
+    .get();
+
+  const payoutHistory = payoutsSnap.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      amount: data.amount || 0,
+      date: serializeDate(data.createdAt),
+      mode: data.paymentMethod || 'Momo',
+      status: data.status || 'pending',
+      ref: data.reference || doc.id,
+    };
+  });
+
+  const pendingAmount = payoutHistory
+    .filter(p => p.status === 'pending' || p.status === 'planifie')
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const lastPaid = payoutHistory.find(p => p.status === 'percu' || p.status === 'paid');
+
+  // Formater les canaux pour l'affichage
+  const channels = Object.entries(channelStats).map(([id, stats]) => ({
+    id,
+    label: id.toUpperCase(),
+    count: stats.count,
+    commission: stats.commission,
+    discount: stats.discount,
+  }));
+
+  return {
+    kpis: {
+      sales: totalSales,
+      leads: totalLeads,
+      commission: totalCommission,
+      discount: totalDiscount,
+    },
+    channels,
+    payouts: {
+      lastAmount: lastPaid?.amount || 0,
+      lastDate: lastPaid?.date || null,
+      pendingAmount,
+      history: payoutHistory,
+    },
+    table: salesTable,
+  };
+};
+
+/**
+ * Déconnexion d'un partenaire (supprime la session).
+ */
+export const logoutPartner = onCall(async request => {
+  const { token } = request.data as { token?: string };
+
+  if (!token) {
+    return { success: true };
+  }
+
+  try {
+    await db.collection('partnerSessions').doc(token).delete();
+  } catch (e) {
+    // Ignorer si la session n'existe pas
+  }
+
+  return { success: true };
+});
+
