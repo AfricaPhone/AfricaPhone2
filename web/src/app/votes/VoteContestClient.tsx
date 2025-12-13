@@ -718,7 +718,7 @@ export default function VoteContestClientPage() {
 
         {!isSearchActive ? (
           <section className="rounded-3xl border border-slate-200 bg-white px-3 py-3 shadow-sm shadow-slate-200/50">
-            <BrandsCarousel />
+            <BrandsCarousel showCategoryBrands={true} />
           </section>
         ) : null}
 

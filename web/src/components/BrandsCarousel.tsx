@@ -22,11 +22,13 @@ export type BrandItem = {
 type BrandsCarouselProps = {
   activeBrandId?: string | null;
   segment?: SegmentKey | null;
+  /** If true, show category-type brands (Tablettes, Accessoires). Default: false */
+  showCategoryBrands?: boolean;
 };
 
 const SCROLL_CLASSNAME = 'brand-strip-scroll';
 
-export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouselProps) {
+export default function BrandsCarousel({ activeBrandId, segment, showCategoryBrands = false }: BrandsCarouselProps) {
   const [brands, setBrands] = useState<BrandItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -184,18 +186,30 @@ export default function BrandsCarousel({ activeBrandId, segment }: BrandsCarouse
       );
     }
 
-    const filteredBrands = segment
+    // Filter by segment if provided
+    let filteredBrands = segment
       ? brands.filter(brand => {
-          const inferred =
-            inferSegmentKeyFromValue(brand.filterValue) ??
-            inferSegmentKeyFromValue(brand.tagline) ??
-            inferSegmentKeyFromValue(brand.description);
-          if (!inferred) {
-            return segment === 'telephone';
-          }
-          return inferred === segment;
-        })
+        const inferred =
+          inferSegmentKeyFromValue(brand.filterValue) ??
+          inferSegmentKeyFromValue(brand.tagline) ??
+          inferSegmentKeyFromValue(brand.description);
+        if (!inferred) {
+          return segment === 'telephone';
+        }
+        return inferred === segment;
+      })
       : brands;
+
+    // Exclude category-type brands (Tablettes, Accessoires) unless showCategoryBrands is true
+    if (!showCategoryBrands) {
+      filteredBrands = filteredBrands.filter(brand => {
+        const inferred =
+          inferSegmentKeyFromValue(brand.filterValue) ??
+          inferSegmentKeyFromValue(brand.name);
+        // Exclude if it's a category (tablette or accessoire)
+        return inferred !== 'tablette' && inferred !== 'accessoire';
+      });
+    }
 
     if (error || filteredBrands.length === 0) {
       return null;
@@ -260,11 +274,10 @@ function BrandLogoButton({ brand, isActive, onSelect }: BrandLogoButtonProps) {
       className="flex flex-col items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition lg:w-full lg:max-w-[9rem]"
     >
       <span
-        className={`relative grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${
-          isActive
-            ? '-translate-y-1 ring-2 ring-orange-400 ring-offset-2 ring-offset-slate-100'
-            : 'hover:-translate-y-1'
-        }`}
+        className={`relative grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${isActive
+          ? '-translate-y-1 ring-2 ring-orange-400 ring-offset-2 ring-offset-slate-100'
+          : 'hover:-translate-y-1'
+          }`}
       >
         {!errored ? (
           <Image
@@ -303,9 +316,8 @@ function ScrollArrowButton({ direction, onClick }: ScrollArrowButtonProps) {
         type="button"
         onClick={onClick}
         aria-label={isNext ? 'Afficher les prochaines marques' : 'Afficher les marques precedentes'}
-        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-orange-500 bg-orange-500 text-white shadow-lg transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${
-          isNext ? 'right-2' : 'left-2'
-        }`}
+        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-orange-500 bg-orange-500 text-white shadow-lg transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${isNext ? 'right-2' : 'left-2'
+          }`}
       >
         <svg className={`h-5 w-5 ${isNext ? '' : 'rotate-180'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />

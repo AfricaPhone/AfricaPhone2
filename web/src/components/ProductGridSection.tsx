@@ -523,6 +523,16 @@ export default function ProductGridSection({
   const brandFallbackId = selectedBrand?.id ?? null;
   const activeBrandId = selectedBrand?.id ?? null;
 
+  // Detect if selectedBrand is actually a category (Tablettes, Accessoires)
+  const brandAsCategoryKey = useMemo(() => {
+    if (!brandFilterValue) return null;
+    const normalized = inferSegmentKeyFromValue(brandFilterValue);
+    if (normalized === 'tablette' || normalized === 'accessoire') {
+      return normalized;
+    }
+    return null;
+  }, [brandFilterValue]);
+
   useEffect(() => {
     setLoading(true);
     if (trimmedSearchTerm.length > 0) {
@@ -634,11 +644,22 @@ export default function ProductGridSection({
         const requestSize = pageSize + 1;
         const constraints: QueryConstraint[] = [];
         if (brandFilterValue) {
-          constraints.push(where('brand', '==', brandFilterValue));
+          // For category-type entries (Tablettes, Accessoires), filter by category field
+          // For regular brands (Tecno, Infinix, etc.), filter by brand field
+          // Use inferSegmentKeyFromValue to normalize values like "Tablettes" -> "tablette"
+          const normalizedCategory = inferSegmentKeyFromValue(brandFilterValue);
+          const isCategoryFilter = normalizedCategory === 'tablette' || normalizedCategory === 'accessoire';
+          if (isCategoryFilter && normalizedCategory) {
+            // Don't filter by category in Firebase query - let client-side filtering handle it
+            // This allows matching products with various category spellings
+          } else {
+            constraints.push(where('brand', '==', brandFilterValue));
+          }
         }
-        if (categoryFilterValue) {
-          constraints.push(where('category', '==', categoryFilterValue));
-        }
+
+        // NOTE: Category filtering is done client-side in segmentFilteredProducts
+        // to support variations like "Tablette", "tablettes", etc.
+
         if (trimmedSearchTerm.length > 0) {
           constraints.push(orderBy('name'));
           if (cursor) {
@@ -796,11 +817,17 @@ export default function ProductGridSection({
   }, []);
 
   const segmentFilteredProducts = useMemo(() => {
-    if (!categoryFilterValue) {
-      return products;
+    // First, filter by segment tabs (if active)
+    let filtered = products;
+    if (categoryFilterValue) {
+      filtered = filtered.filter(product => productMatchesSegment(product, categoryFilterValue));
     }
-    return products.filter(product => productMatchesSegment(product, categoryFilterValue));
-  }, [categoryFilterValue, products]);
+    // Then, filter by brand-as-category (Tablettes, Accessoires pages)
+    if (brandAsCategoryKey) {
+      filtered = filtered.filter(product => productMatchesSegment(product, brandAsCategoryKey));
+    }
+    return filtered;
+  }, [categoryFilterValue, brandAsCategoryKey, products]);
 
   const topProducts = useMemo(() => {
     const curated = topRankedProducts.filter(
