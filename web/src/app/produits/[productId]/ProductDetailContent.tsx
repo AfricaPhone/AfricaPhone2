@@ -582,7 +582,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 type="button"
                 onClick={toggleFavorite}
                 aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                aria-pressed={isFavorite ? 'true' : 'false'}
+                aria-pressed={isFavorite}
                 className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
                   }`}
               >
@@ -682,11 +682,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 </div>
                 <div className="relative mt-2 h-[2px] w-full bg-[#ECEDEF]">
                   <span
-                    className="absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200"
-                    style={{
-                      left: activeTab === 'specs' ? '0' : 'calc(50% + 0.25rem)',
-                      width: 'calc(50% - 0.25rem)',
-                    }}
+                    className={`absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200 w-[calc(50%-0.25rem)] ${activeTab === 'specs' ? 'left-0' : 'left-[calc(50%+0.25rem)]'}`}
                   />
                 </div>
               </div>

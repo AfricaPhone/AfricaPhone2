@@ -1250,6 +1250,12 @@
     .app-content--hidden {
       display: none;
     }
+
+    .no-data-message {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
   </style>
 
 
@@ -1411,7 +1417,7 @@
               vector-effect="non-scaling-stroke"></path>
             <path id="salesFill" d="" fill="url(#grad1)" class="stop-opacity-30"></path>
           </svg>
-          <p class="muted small" id="noDataMessage" style="display:none; text-align:center; padding:20px;">Aucune donnée
+          <p class="muted small no-data-message" id="noDataMessage">Aucune donnée
             pour cette période</p>
         </div>
         <div class="legend">
@@ -1645,7 +1651,7 @@
     };
 
     const urlParams = new URLSearchParams(window.location.search || '');
-    const initialCode = (urlParams.get('code') || 'JOYFUL-AP').trim();
+    const initialCode = (urlParams.get('code') || '').trim(); // Plus de fallback JOYFUL-AP
     const initialRef = (urlParams.get('partner') || urlParams.get('ref') || '').trim();
     const initialCampaign = (urlParams.get('campaign') || '').trim();
     const initialSub = (urlParams.get('sub') || '').trim();
@@ -1659,45 +1665,20 @@
       waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
     };
 
-    const FALLBACK_DASHBOARD = {
-      code: initialCode,
-      partnerId: initialRef || null,
-      kpis: { sales: 18, leads: 32, commission: 250000, discount: 145000, avgCart: 0 },
-      channels: [
-        { id: 'web', label: 'WEB', count: 10, commission: 120000, discount: 60000 },
-        { id: 'app', label: 'APP', count: 6, commission: 90000, discount: 50000 },
-        { id: 'wa', label: 'WA', count: 2, commission: 40000, discount: 35000 },
-      ],
+    // Structure vide pour l'état initial (pas de données fictives)
+    const EMPTY_DASHBOARD = {
+      code: '',
+      partnerId: null,
+      kpis: { sales: 0, leads: 0, commission: 0, discount: 0, avgCart: 0 },
+      channels: [],
       payouts: {
-        lastAmount: 25000,
-        lastDate: '2025-11-15T00:00:00.000Z',
-        pendingAmount: 130000,
-        history: [
-          { amount: 25000, date: '2025-11-15T00:00:00.000Z', mode: 'Momo', status: 'percu', ref: '#REV-482' },
-          { amount: 45000, date: '2025-11-10T00:00:00.000Z', mode: 'Virement', status: 'percu', ref: '#REV-461' },
-          { amount: 130000, date: null, mode: '--', status: 'planifie', ref: '#REV-496' },
-        ],
+        lastAmount: 0,
+        lastDate: null,
+        pendingAmount: 0,
+        history: [],
       },
-      table: [
-        {
-          id: 'row-1',
-          createdAt: '2025-11-19T00:00:00.000Z',
-          channel: 'web',
-          ref: 'partner',
-          cartValue: 315000,
-          discountValue: 15000,
-          commissionValue: 25000,
-        },
-        {
-          id: 'row-2',
-          createdAt: '2025-11-18T00:00:00.000Z',
-          channel: 'app',
-          ref: 'partner',
-          cartValue: 210000,
-          discountValue: 10000,
-          commissionValue: 15000,
-        },
-      ],
+      table: [],
+      dailyData: [],
       rule: { allowedChannels: [], partnerRefRequired: false, priceBrackets: [] },
     };
 
@@ -2004,7 +1985,7 @@
       const body = document.getElementById('sales-table-body');
       if (!body) return;
       body.innerHTML = '';
-      const list = Array.isArray(rows) && rows.length ? rows : FALLBACK_DASHBOARD.table;
+      const list = Array.isArray(rows) && rows.length ? rows : EMPTY_DASHBOARD.table;
       list.forEach(row => {
         const item = document.createElement('div');
         item.className = 'table-row';
@@ -2040,11 +2021,19 @@
     };
 
     const renderDashboard = (payload, isFallback = false) => {
-      const data = payload || FALLBACK_DASHBOARD;
+      const data = payload || EMPTY_DASHBOARD;
+      const isAuthenticated = Boolean(currentSession?.token);
 
-      // Afficher un bandeau d'avertissement si on utilise des données de fallback
+      // Gérer le bandeau d'information/avertissement
       let existingBanner = document.getElementById('fallback-warning-banner');
-      if (isFallback) {
+
+      // Ne jamais afficher le bandeau de démo si authentifié
+      if (isAuthenticated) {
+        if (existingBanner) {
+          existingBanner.remove();
+        }
+      } else if (isFallback) {
+        // Non authentifié et pas de vraies données
         if (!existingBanner) {
           const banner = document.createElement('div');
           banner.id = 'fallback-warning-banner';
@@ -2061,8 +2050,8 @@
           banner.innerHTML = `
             <i class="ph ph-warning" style="font-size:24px; color:var(--accent-warning);"></i>
             <div style="flex:1;">
-              <strong style="display:block; margin-bottom:4px;">⚠️ Données de démonstration</strong>
-              <span class="muted small">Les statistiques affichées sont fictives. Saisissez votre code promo et générez vos liens pour voir vos vraies données.</span>
+              <strong style="display:block; margin-bottom:4px;">⚠️ Connexion requise</strong>
+              <span class="muted small">Veuillez vous connecter pour voir vos statistiques.</span>
             </div>
           `;
           const appShell = document.querySelector('.app-shell');
@@ -2089,7 +2078,7 @@
       if (data.rule) {
         updateRulePanel(data.rule);
       }
-      renderChips(data.code || initialCode);
+      renderChips(data.code || currentSession?.code || '');
     };
 
 
@@ -2227,7 +2216,7 @@
       }
 
       if (!code) {
-        renderDashboard(FALLBACK_DASHBOARD, true);
+        renderDashboard(EMPTY_DASHBOARD, true);
         setStatus('⚠️ Veuillez saisir un code promo pour voir vos vraies statistiques.', true);
         if (refreshBtn) {
           refreshBtn.disabled = false;
@@ -2261,7 +2250,7 @@
           renderDashboard(data, false);
           setStatus('✅ Connecté. Aucune activité détectée pour ce code. Partagez vos liens pour générer des statistiques !');
         } else {
-          renderDashboard(data || FALLBACK_DASHBOARD, !data);
+          renderDashboard(data || EMPTY_DASHBOARD, !data);
           setStatus(data ? `✅ Stats synchronisées (${rangeDays}j)` : '⚠️ Données de démonstration affichées.', !data);
         }
       } catch (error) {
@@ -2272,7 +2261,7 @@
         } else {
           setStatus('⚠️ Impossible de charger les vraies données. Affichage de données de démonstration.', true);
         }
-        renderDashboard(FALLBACK_DASHBOARD, true);
+        renderDashboard(EMPTY_DASHBOARD, true);
       } finally {
         if (refreshBtn) {
           refreshBtn.disabled = false;
@@ -2457,7 +2446,7 @@
     };
 
     const initDashboard = async () => {
-      renderDashboard(FALLBACK_DASHBOARD, true);
+      renderDashboard(EMPTY_DASHBOARD, true);
       await loadLinkTemplates();
       await generateLinks();
       await loadDashboardWithAuth();
@@ -2468,9 +2457,26 @@
       const code = currentSession?.code || (document.getElementById('codeInput')?.value || '').trim();
       const token = currentSession?.token || null;
 
+      // Lire les filtres
+      const periodSelect = document.getElementById('filterPeriod');
+      const channelSelect = document.getElementById('filterChannel');
+      const rangeDays = periodSelect ? parseInt(periodSelect.value) : 30;
+      const channelFilter = channelSelect ? channelSelect.value : 'all';
+
+      // Bouton de refresh
+      const refreshBtn = document.getElementById('refreshDashboard');
+      if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.classList.add('loading');
+      }
+
       if (!code) {
-        renderDashboard(FALLBACK_DASHBOARD, true);
+        renderDashboard(EMPTY_DASHBOARD, true);
         setStatus('⚠️ Veuillez saisir un code promo.', true);
+        if (refreshBtn) {
+          refreshBtn.disabled = false;
+          refreshBtn.classList.remove('loading');
+        }
         return;
       }
 
@@ -2483,7 +2489,12 @@
         }
         const functions = window.firebase.functions(appInstance);
         const callable = functions.httpsCallable('getPartnerDashboard');
-        const response = await callable({ code, token, rangeDays: 30 });
+        const response = await callable({
+          code,
+          token,
+          rangeDays,
+          channel: channelFilter !== 'all' ? channelFilter : undefined
+        });
         const data = response.data;
 
         if (data.authenticated === false) {
@@ -2496,13 +2507,19 @@
           renderDashboard(data, false);
           setStatus('✅ Connecté. Aucune activité détectée. Partagez vos liens pour générer des stats!');
         } else {
-          renderDashboard(data || FALLBACK_DASHBOARD, !data);
+          renderDashboard(data || EMPTY_DASHBOARD, !data);
           setStatus(data ? '✅ Statistiques synchronisées.' : '⚠️ Données de démonstration.', !data);
         }
       } catch (error) {
         console.warn('getPartnerDashboard error', error);
         setStatus('⚠️ Erreur de chargement des données.', true);
-        renderDashboard(FALLBACK_DASHBOARD, true);
+        renderDashboard(EMPTY_DASHBOARD, true);
+      } finally {
+        const refreshBtn = document.getElementById('refreshDashboard');
+        if (refreshBtn) {
+          refreshBtn.disabled = false;
+          refreshBtn.classList.remove('loading');
+        }
       }
     };
 
