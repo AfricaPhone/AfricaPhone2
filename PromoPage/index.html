@@ -973,6 +973,74 @@
       font-weight: 600;
     }
 
+    /* ======= Styles Filtres Fonctionnels ======= */
+    .field-select {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    .field-select:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-primary-dim);
+    }
+
+    .btn-refresh {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: var(--accent-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-refresh:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-refresh:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-refresh i {
+      font-size: 1rem;
+    }
+
+    /* Animation rotation pour le bouton refresh */
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .btn-refresh.loading i {
+      animation: spin 1s linear infinite;
+    }
+
     /* ======= Styles Écran de Connexion ======= */
     .login-overlay {
       position: fixed;
@@ -1173,6 +1241,15 @@
       border-color: var(--accent-danger);
       color: #fff;
     }
+
+    /* Classes utilitaires pour éléments cachés */
+    .login-error--hidden {
+      display: none;
+    }
+
+    .app-content--hidden {
+      display: none;
+    }
   </style>
 
 
@@ -1191,7 +1268,7 @@
   <div id="login-screen" class="login-overlay">
     <div class="login-card">
       <div class="login-header">
-        <img src="../assets/icon.png" alt="AfricaPhone" class="login-logo" />
+        <img src="assets/icon.png" alt="AfricaPhone" class="login-logo" />
         <h1 class="login-title">Espace Partenaire</h1>
         <p class="login-subtitle">Connectez-vous pour accéder à votre tableau de bord</p>
       </div>
@@ -1205,12 +1282,13 @@
           <label for="login-password">Mot de passe</label>
           <div class="password-input-wrapper">
             <input type="password" id="login-password" placeholder="••••••••" required />
-            <button type="button" id="toggle-password" class="toggle-password-btn">
+            <button type="button" id="toggle-password" class="toggle-password-btn"
+              title="Afficher ou masquer le mot de passe" aria-label="Afficher ou masquer le mot de passe">
               <i class="ph ph-eye"></i>
             </button>
           </div>
         </div>
-        <div id="login-error" class="login-error" style="display:none;"></div>
+        <div id="login-error" class="login-error login-error--hidden"></div>
         <button type="submit" id="login-submit" class="login-btn">
           <i class="ph ph-sign-in"></i>
           Se connecter
@@ -1224,11 +1302,11 @@
     </div>
   </div>
 
-  <div class="app-shell" id="app-content" style="display:none;">
+  <div class="app-shell app-content--hidden" id="app-content">
 
     <header class="topbar card">
       <div class="brand">
-        <img src="../assets/icon.png" alt="AfricaPhone" class="logo" />
+        <img src="assets/icon.png" alt="AfricaPhone" class="logo" />
         <div>
           <p class="eyebrow">Espace partenaire</p>
           <p class="title" id="partner-welcome">Codes promos AfricaPhone</p>
@@ -1252,16 +1330,26 @@
       </div>
       <div class="filter-grid">
         <div>
-          <p class="label">Periode</p>
-          <div class="field">7 derniers jours <i class="ph ph-caret-down float-right"></i></div>
+          <p class="label">Période</p>
+          <select id="filterPeriod" class="field-select">
+            <option value="7">7 derniers jours</option>
+            <option value="14">14 derniers jours</option>
+            <option value="30" selected>30 derniers jours</option>
+            <option value="90">90 derniers jours</option>
+          </select>
         </div>
         <div>
           <p class="label">Canal</p>
-          <div class="field">Tous canaux <i class="ph ph-caret-down float-right"></i></div>
+          <select id="filterChannel" class="field-select">
+            <option value="all" selected>Tous canaux</option>
+            <option value="web">Web</option>
+            <option value="app">Application</option>
+            <option value="wa">WhatsApp</option>
+          </select>
         </div>
         <div>
-          <p class="label">Statut</p>
-          <div class="field">Leads & Ventes <i class="ph ph-caret-down float-right"></i></div>
+          <p class="label">Actualiser</p>
+          <button id="refreshDashboard" class="btn-refresh"><i class="ph ph-arrows-clockwise"></i> Rafraîchir</button>
         </div>
       </div>
     </section>
@@ -1306,28 +1394,29 @@
         <div class="section-head">
           <div>
             <p class="label">Tendance ventes</p>
-            <p class="section-title">Courbe 7 jours</p>
+            <p class="section-title" id="chartPeriodLabel">Courbe sur la période</p>
           </div>
-          <span class="pill pill-ghost">mock data</span>
+          <span class="pill pill-ghost" id="chartDataStatus">Temps réel</span>
         </div>
-        <div class="sparkline">
-          <!-- Simulated SVG line -->
-          <svg class="svg-full" preserveAspectRatio="none" viewBox="0 0 100 50">
-            <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="none"
-              stroke="var(--accent-primary)" stroke-width="2" vector-effect="non-scaling-stroke"></path>
-            <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5 L100,50 Z"
-              fill="url(#grad1)" class="stop-opacity-30"></path>
+        <div class="sparkline" id="salesSparkline">
+          <!-- Dynamic SVG will be inserted here -->
+          <svg class="svg-full" preserveAspectRatio="none" viewBox="0 0 100 50" id="salesChart">
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="1" />
                 <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0" />
               </linearGradient>
             </defs>
+            <path id="salesLine" d="" fill="none" stroke="var(--accent-primary)" stroke-width="2"
+              vector-effect="non-scaling-stroke"></path>
+            <path id="salesFill" d="" fill="url(#grad1)" class="stop-opacity-30"></path>
           </svg>
+          <p class="muted small" id="noDataMessage" style="display:none; text-align:center; padding:20px;">Aucune donnée
+            pour cette période</p>
         </div>
         <div class="legend">
           <span class="dot dot-primary"></span>
-          <span class="muted">Ventes conclues</span>
+          <span class="muted">Visites</span>
         </div>
       </article>
 
@@ -1335,35 +1424,18 @@
         <div class="section-head">
           <div>
             <p class="label">Conversion leads</p>
-            <p class="section-title">Visites -> Contacts -> Achats</p>
+            <p class="section-title">Visites → Contacts → Achats</p>
           </div>
-          <div class="pill pill-ghost">
-            <span>Visites 1 200</span>
+          <div class="pill pill-ghost" id="conversionSummary">
+            <span id="totalVisits">Visites 0</span>
             <span class="separator-mx-6">-</span>
-            <span>Contacts WA 320</span>
+            <span id="totalContacts">Contacts 0</span>
             <span class="separator-mx-6">-</span>
-            <span>Achats 86</span>
+            <span id="totalSales">Achats 0</span>
           </div>
         </div>
-        <div class="bar-stack">
-          <div class="bar-stack-row">
-            <span class="muted"><i class="ph ph-globe"></i> Web</span>
-            <div class="stack">
-              <span class="stack-part part-visit stack-width-60"></span>
-              <span class="stack-part part-contact stack-width-18"></span>
-              <span class="stack-part part-win stack-width-12"></span>
-            </div>
-            <span class="muted small">Visites 800 - Contacts 180 - Achats 48</span>
-          </div>
-          <div class="bar-stack-row">
-            <span class="muted"><i class="ph ph-whatsapp-logo"></i> WA</span>
-            <div class="stack">
-              <span class="stack-part part-visit stack-width-24"></span>
-              <span class="stack-part part-contact stack-width-10"></span>
-              <span class="stack-part part-win stack-width-6"></span>
-            </div>
-            <span class="muted small">Visites 240 - Contacts 90 - Achats 38</span>
-          </div>
+        <div class="bar-stack" id="conversionBars">
+          <!-- Dynamic bars will be inserted here -->
         </div>
         <div class="legend">
           <span class="dot dot-visit"></span>
@@ -1763,7 +1835,7 @@
         block.innerHTML = `
             <div class="channel-top">
               <span>${item.label || item.id || 'Canal'}</span>
-              <span class="pill pill-light">${item.count || 0} ventes</span>
+              <span class="pill pill-light">${item.count || 0} visites</span>
             </div>
             <div class="bar">
               <div class="bar-fill bar-web" style="width:${pct}%; background:linear-gradient(90deg,#4facfe 0%,#00f2fe 100%);"></div>
@@ -1771,6 +1843,117 @@
             <p class="channel-note">Commission: ${formatCfa(item.commission || 0)}</p>
           `;
         container.appendChild(block);
+      });
+    };
+
+    // ============================================
+    // GRAPHIQUES DYNAMIQUES
+    // ============================================
+
+    const renderSparkline = (dailyData) => {
+      const lineEl = document.getElementById('salesLine');
+      const fillEl = document.getElementById('salesFill');
+      const noDataEl = document.getElementById('noDataMessage');
+      const chartEl = document.getElementById('salesChart');
+      const periodLabel = document.getElementById('chartPeriodLabel');
+      const statusEl = document.getElementById('chartDataStatus');
+
+      // Récupérer la période sélectionnée
+      const periodSelect = document.getElementById('filterPeriod');
+      const days = periodSelect ? parseInt(periodSelect.value) : 30;
+      if (periodLabel) periodLabel.textContent = `Courbe ${days} jours`;
+
+      // Si pas de données ou données vides
+      if (!dailyData || !dailyData.length) {
+        if (lineEl) lineEl.setAttribute('d', '');
+        if (fillEl) fillEl.setAttribute('d', '');
+        if (noDataEl) noDataEl.style.display = 'block';
+        if (chartEl) chartEl.style.display = 'none';
+        if (statusEl) statusEl.textContent = 'Aucune donnée';
+        return;
+      }
+
+      if (noDataEl) noDataEl.style.display = 'none';
+      if (chartEl) chartEl.style.display = 'block';
+      if (statusEl) statusEl.textContent = 'Temps réel';
+
+      // Extraire les valeurs (visites totales par jour)
+      const values = dailyData.map(d => d.visits?.total || d.visits || 0);
+      const maxVal = Math.max(...values, 1);
+      const minVal = Math.min(...values, 0);
+      const range = maxVal - minVal || 1;
+
+      // Générer le path SVG
+      const points = values.map((val, i) => {
+        const x = (i / (values.length - 1 || 1)) * 100;
+        const y = 50 - ((val - minVal) / range) * 45; // 45 pour laisser une marge
+        return `${x},${y}`;
+      });
+
+      const linePath = 'M' + points.join(' L');
+      const fillPath = linePath + ` L100,50 L0,50 Z`;
+
+      if (lineEl) lineEl.setAttribute('d', linePath);
+      if (fillEl) fillEl.setAttribute('d', fillPath);
+    };
+
+    const renderConversionBars = (channels, kpis) => {
+      const container = document.getElementById('conversionBars');
+      const totalVisitsEl = document.getElementById('totalVisits');
+      const totalContactsEl = document.getElementById('totalContacts');
+      const totalSalesEl = document.getElementById('totalSales');
+
+      // Mettre à jour les totaux
+      const totalVisits = kpis?.leads || 0;
+      const totalContacts = kpis?.contacts || 0; // Si disponible
+      const totalSales = kpis?.sales || 0;
+
+      if (totalVisitsEl) totalVisitsEl.textContent = `Visites ${totalVisits.toLocaleString('fr-FR')}`;
+      if (totalContactsEl) totalContactsEl.textContent = `Contacts ${totalContacts.toLocaleString('fr-FR')}`;
+      if (totalSalesEl) totalSalesEl.textContent = `Achats ${totalSales.toLocaleString('fr-FR')}`;
+
+      if (!container) return;
+      container.innerHTML = '';
+
+      const list = Array.isArray(channels) ? channels : [];
+      if (!list.length) {
+        container.innerHTML = '<p class="muted small" style="padding:12px;">Aucune donnée par canal</p>';
+        return;
+      }
+
+      // Calculer le max pour la mise à l'échelle
+      const maxCount = Math.max(...list.map(c => c.count || 0), 1);
+
+      const channelIcons = {
+        web: 'ph-globe',
+        app: 'ph-device-mobile',
+        wa: 'ph-whatsapp-logo',
+        qr: 'ph-qr-code',
+        bo: 'ph-storefront'
+      };
+
+      list.forEach(ch => {
+        const visits = ch.count || 0;
+        const contacts = ch.contacts || 0;
+        const sales = ch.sales || 0;
+
+        // Calculer les largeurs proportionnelles (max 100%)
+        const visitWidth = Math.round((visits / maxCount) * 70);
+        const contactWidth = contacts > 0 ? Math.round((contacts / visits) * visitWidth) : 0;
+        const saleWidth = sales > 0 ? Math.round((sales / visits) * visitWidth) : 0;
+
+        const row = document.createElement('div');
+        row.className = 'bar-stack-row';
+        row.innerHTML = `
+          <span class="muted"><i class="ph ${channelIcons[ch.id] || 'ph-globe'}"></i> ${ch.label || ch.id?.toUpperCase() || 'N/A'}</span>
+          <div class="stack">
+            <span class="stack-part part-visit" style="width:${visitWidth}%"></span>
+            ${contactWidth > 0 ? `<span class="stack-part part-contact" style="width:${contactWidth}%"></span>` : ''}
+            ${saleWidth > 0 ? `<span class="stack-part part-win" style="width:${saleWidth}%"></span>` : ''}
+          </div>
+          <span class="muted small">Visites ${visits}</span>
+        `;
+        container.appendChild(row);
       });
     };
 
@@ -1898,6 +2081,11 @@
       renderChannels(data.channels);
       renderPayouts(data.payouts);
       renderTable(data.table);
+
+      // Graphiques dynamiques
+      renderSparkline(data.dailyData || []);
+      renderConversionBars(data.channels, data.kpis);
+
       if (data.rule) {
         updateRulePanel(data.rule);
       }
@@ -2022,13 +2210,32 @@
     };
 
     const loadDashboard = async () => {
-      const code = (document.getElementById('codeInput')?.value || '').trim();
+      const code = (document.getElementById('codeInput')?.value || currentSession?.code || '').trim();
       const partner = (document.getElementById('refInput')?.value || '').trim();
+
+      // Lire les filtres
+      const periodSelect = document.getElementById('filterPeriod');
+      const channelSelect = document.getElementById('filterChannel');
+      const rangeDays = periodSelect ? parseInt(periodSelect.value) : 30;
+      const channelFilter = channelSelect ? channelSelect.value : 'all';
+
+      // Bouton de refresh
+      const refreshBtn = document.getElementById('refreshDashboard');
+      if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.classList.add('loading');
+      }
+
       if (!code) {
         renderDashboard(FALLBACK_DASHBOARD, true);
         setStatus('⚠️ Veuillez saisir un code promo pour voir vos vraies statistiques.', true);
+        if (refreshBtn) {
+          refreshBtn.disabled = false;
+          refreshBtn.classList.remove('loading');
+        }
         return;
       }
+
       setStatus('Chargement des stats...');
       try {
         const appInstance = initFirebase();
@@ -2037,7 +2244,16 @@
         }
         const functions = window.firebase.functions(appInstance);
         const callable = functions.httpsCallable('getPartnerDashboard');
-        const response = await callable({ code, partnerId: partner, rangeDays: 30 });
+
+        // Passer le token de session si disponible
+        const token = currentSession?.token || null;
+        const response = await callable({
+          code,
+          partnerId: partner,
+          rangeDays,
+          channel: channelFilter !== 'all' ? channelFilter : undefined,
+          token
+        });
         const data = response.data;
 
         // Vérifier si les données sont vides (aucune activité)
@@ -2046,7 +2262,7 @@
           setStatus('✅ Connecté. Aucune activité détectée pour ce code. Partagez vos liens pour générer des statistiques !');
         } else {
           renderDashboard(data || FALLBACK_DASHBOARD, !data);
-          setStatus(data ? '✅ Stats synchronisées en temps réel.' : '⚠️ Données de démonstration affichées.', !data);
+          setStatus(data ? `✅ Stats synchronisées (${rangeDays}j)` : '⚠️ Données de démonstration affichées.', !data);
         }
       } catch (error) {
         console.warn('getPartnerDashboard fallback', error);
@@ -2057,6 +2273,11 @@
           setStatus('⚠️ Impossible de charger les vraies données. Affichage de données de démonstration.', true);
         }
         renderDashboard(FALLBACK_DASHBOARD, true);
+      } finally {
+        if (refreshBtn) {
+          refreshBtn.disabled = false;
+          refreshBtn.classList.remove('loading');
+        }
       }
     };
 
@@ -2311,6 +2532,31 @@
         const target = btn.getAttribute('data-copy');
         if (target) copyToClipboard(target);
       });
+    });
+
+    // Écouteurs pour les filtres
+    document.getElementById('filterPeriod')?.addEventListener('change', async () => {
+      if (currentSession?.token) {
+        await loadDashboardWithAuth();
+      } else {
+        await loadDashboard();
+      }
+    });
+
+    document.getElementById('filterChannel')?.addEventListener('change', async () => {
+      if (currentSession?.token) {
+        await loadDashboardWithAuth();
+      } else {
+        await loadDashboard();
+      }
+    });
+
+    document.getElementById('refreshDashboard')?.addEventListener('click', async () => {
+      if (currentSession?.token) {
+        await loadDashboardWithAuth();
+      } else {
+        await loadDashboard();
+      }
     });
 
     // Initialisation

@@ -2035,6 +2035,7 @@ export const getPartnerDashboard = onCall(async request => {
     channels: metrics.channels,
     payouts: metrics.payouts,
     table: metrics.table,
+    dailyData: metrics.dailyData,
     rule: {
       code: targetCode,
       allowedChannels: ruleData.allowedChannels || [],
@@ -2057,13 +2058,24 @@ const fetchPartnerMetrics = async (code: string, rangeDays: number) => {
   let totalDiscount = 0;
   const channelStats: Record<string, { count: number; commission: number; discount: number }> = {};
   const salesTable: any[] = [];
+  const dailyData: Array<{ date: string; visits: number; sales: number }> = [];
 
   // Récupérer les métriques quotidiennes
   const metricsRef = db.collection('promoMetrics').doc(code).collection('daily');
-  const metricsSnap = await metricsRef.where('date', '>=', dayKeyUtc(startDate)).orderBy('date', 'desc').limit(rangeDays).get();
+  const metricsSnap = await metricsRef.where('date', '>=', dayKeyUtc(startDate)).orderBy('date', 'asc').limit(rangeDays).get();
 
   metricsSnap.docs.forEach(doc => {
     const data = doc.data();
+    const docDate = data.date || doc.id;
+    const dailyVisits = data.visits?.total || 0;
+    const dailySales = data.sales?.count || 0;
+
+    // Collecter les données quotidiennes pour le graphique
+    dailyData.push({
+      date: docDate,
+      visits: dailyVisits,
+      sales: dailySales,
+    });
 
     // Agrégation des visites (leads)
     if (data.visits?.total) {
@@ -2140,6 +2152,7 @@ const fetchPartnerMetrics = async (code: string, rangeDays: number) => {
       history: payoutHistory,
     },
     table: salesTable,
+    dailyData,
   };
 };
 

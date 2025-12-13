@@ -357,24 +357,24 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     }
     setIsValidatingPromo(true);
     setPromoError(null);
-    
+
     try {
       const functions = getFunctions();
-      
+
       // Stratégie avec fallback pour rétrocompatibilité:
       // 1. Essayer d'abord validatePromoV2 (nouvelles fonctionnalités)
       // 2. Si échec, fallback vers validatePromoCode (legacy)
-      
+
       let promoData: ValidatedPromo;
       let usedV2 = false;
-      
+
       try {
         // Tentative V2 avec canal et montant panier
         const validatePromoV2 = httpsCallable<
           { code: string; channel?: string; cartValue?: number; ref?: string },
           ValidatedPromo
         >(functions, 'validatePromoV2');
-        
+
         const result = await validatePromoV2({
           code: formatted,
           channel: 'web',
@@ -386,15 +386,15 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
         // Fallback vers la fonction legacy si V2 échoue
         // (ex: code existe seulement dans promoCodes, pas promoRules)
         console.info('validatePromoV2 failed, trying legacy validatePromoCode', v2Error);
-        
+
         const validatePromoLegacy = httpsCallable<
           { code: string },
           { code: string; type: 'percentage' | 'fixed'; value: number }
         >(functions, 'validatePromoCode');
-        
+
         const legacyResult = await validatePromoLegacy({ code: formatted });
         const legacyData = legacyResult.data;
-        
+
         // Convertir le format legacy vers le format V2 pour compatibilité UI
         promoData = {
           code: legacyData.code,
@@ -408,18 +408,18 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           value: legacyData.value,
         };
       }
-      
+
       setAppliedPromo(promoData);
-      
+
       // Message de succès adapté au format utilisé
-      const discountLabel = usedV2 
+      const discountLabel = usedV2
         ? formatPrice(promoData.discountValue)
         : (promoData.type === 'percentage' ? `${promoData.value}%` : formatPrice(promoData.value ?? 0));
-      
+
       setPromoNotice(`Le code "${promoData.code}" a été appliqué avec succès. Réduction : ${discountLabel}`);
       setPromoInput('');
       setIsPromoModalOpen(false);
-      
+
     } catch (error) {
       console.error('ProductDetailContent: promo validation failed', error);
       setPromoError(extractErrorMessage(error));
@@ -582,7 +582,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 type="button"
                 onClick={toggleFavorite}
                 aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                aria-pressed={isFavorite}
+                aria-pressed={isFavorite ? 'true' : 'false'}
                 className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
                   }`}
               >
@@ -1144,8 +1144,8 @@ function formatPromoValue(promo: ValidatedPromo) {
 function buildPromoBenefitSentence(promo: ValidatedPromo) {
   const valueLabel = formatPromoValue(promo);
   // Ajouter info sur la tranche si disponible (V2)
-  const bracketInfo = promo.priceBracket?.label 
-    ? ` (tranche ${promo.priceBracket.label})` 
+  const bracketInfo = promo.priceBracket?.label
+    ? ` (tranche ${promo.priceBracket.label})`
     : '';
   return `Avec ce code promo, vous bénéficiez d'une réduction de ${valueLabel}${bracketInfo} sur tout article que vous achetez. Ce code promo ne peut être utilisé qu'une seule fois par vous.`;
 }
