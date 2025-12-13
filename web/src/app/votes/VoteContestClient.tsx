@@ -483,7 +483,7 @@ export default function VoteContestClientPage() {
       if (moduleInstance) {
         moduleInstance.removeKkiapayListener?.('success');
         moduleInstance.removeKkiapayListener?.('failed');
-        moduleInstance.addPendingListener(() => {});
+        moduleInstance.addPendingListener(() => { });
       }
     };
   }, [handlePaymentFailed, handlePaymentSuccess]);
@@ -699,7 +699,7 @@ export default function VoteContestClientPage() {
 
         {!isSearchActive ? (
           <section className="rounded-3xl border border-slate-200 bg-white px-3 py-3 shadow-sm shadow-slate-200/50">
-            <BrandsCarousel />
+            <BrandsCarousel showCategoryBrands={true} />
           </section>
         ) : null}
 
@@ -1220,36 +1220,36 @@ function VoteQuantityModal({
             Nombre de voix
           </label>
           <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-3 py-2">
-          <button
-            type="button"
-            onClick={handleDecrease}
-            disabled={disableDecrease}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Retirer une voix"
-          >
-            -
-          </button>
-          <input
-            type="number"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            min={0}
-            max={MAX_VOTE_QUANTITY}
-            value={quantityValue}
-            onChange={handleQuantityChange}
-            disabled={isProcessing}
-            className="w-20 border-none bg-transparent text-center text-2xl font-semibold text-slate-900 focus:outline-none"
-            aria-label="Nombre de voix"
-          />
-          <button
-            type="button"
-            onClick={handleIncrease}
-            disabled={disableIncrease}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Ajouter une voix"
-          >
-            +
-          </button>
+            <button
+              type="button"
+              onClick={handleDecrease}
+              disabled={disableDecrease}
+              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Retirer une voix"
+            >
+              -
+            </button>
+            <input
+              type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              min={0}
+              max={MAX_VOTE_QUANTITY}
+              value={quantityValue}
+              onChange={handleQuantityChange}
+              disabled={isProcessing}
+              className="w-20 border-none bg-transparent text-center text-2xl font-semibold text-slate-900 focus:outline-none"
+              aria-label="Nombre de voix"
+            />
+            <button
+              type="button"
+              onClick={handleIncrease}
+              disabled={disableIncrease}
+              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Ajouter une voix"
+            >
+              +
+            </button>
           </div>
         </div>
 
@@ -1318,9 +1318,8 @@ function VoteModal({ open, status, message, transactionId, candidate, onClose, v
         </button>
 
         <div
-          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
-            isSuccess ? 'bg-emerald-100 text-emerald-500' : isFailure ? 'bg-rose-100 text-rose-500' : 'bg-slate-100 text-slate-500'
-          }`}
+          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${isSuccess ? 'bg-emerald-100 text-emerald-500' : isFailure ? 'bg-rose-100 text-rose-500' : 'bg-slate-100 text-slate-500'
+            }`}
         >
           <TrophyIcon className="h-7 w-7" />
         </div>
@@ -1408,9 +1407,8 @@ function CandidateSearchBar({
 
   const searchField = (
     <div
-      className={`flex flex-1 items-center overflow-hidden rounded-full border border-slate-200 bg-white ${
-        showCancel ? 'px-4 py-2.5' : 'px-4 py-2'
-      } shadow-sm shadow-slate-200/50 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100`}
+      className={`flex flex-1 items-center overflow-hidden rounded-full border border-slate-200 bg-white ${showCancel ? 'px-4 py-2.5' : 'px-4 py-2'
+        } shadow-sm shadow-slate-200/50 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100`}
       onClick={handleContainerClick}
     >
       <SearchIcon className="mr-2 h-5 w-5 text-slate-400" />
