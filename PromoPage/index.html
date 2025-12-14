@@ -1776,15 +1776,15 @@
         `;
     };
 
-    const fetchRule = async code => {
+    const fetchRule = async (code, ruleData = null) => {
       try {
-        const snap = await window.firebase.firestore().collection('promoRules').doc(code.trim().toUpperCase()).get();
-        if (snap.exists) {
-          const data = snap.data();
-          updateRulePanel({ code: data.code || snap.id, ...data });
-        } else {
-          updateRulePanel({ code: code.trim(), allowedChannels: [], partnerRefRequired: false, priceBrackets: [] });
+        // Si les données de règle sont fournies (depuis getPartnerDashboard), les utiliser directement
+        if (ruleData) {
+          updateRulePanel({ code: ruleData.code || code, ...ruleData });
+          return;
         }
+        // Fallback: aucune donnée disponible
+        updateRulePanel({ code: code?.trim() || '', allowedChannels: [], partnerRefRequired: false, priceBrackets: [] });
       } catch (error) {
         console.warn('fetchRule error', error);
         updateRulePanel({ code, allowedChannels: [], partnerRefRequired: false, priceBrackets: [] });
@@ -2509,6 +2509,10 @@
         } else {
           renderDashboard(data || EMPTY_DASHBOARD, !data);
           setStatus(data ? '✅ Statistiques synchronisées.' : '⚠️ Données de démonstration.', !data);
+        }
+        // Mettre à jour le panneau de règle avec les données reçues
+        if (data && data.rule) {
+          fetchRule(data.code, data.rule);
         }
       } catch (error) {
         console.warn('getPartnerDashboard error', error);

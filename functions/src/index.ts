@@ -1967,10 +1967,11 @@ export const regeneratePartnerPassword = onCall(async request => {
  * Nécessite un token de session valide.
  */
 export const getPartnerDashboard = onCall(async request => {
-  const { token, code, rangeDays } = request.data as {
+  const { token, code, rangeDays, channel } = request.data as {
     token?: string;
     code?: string;
     rangeDays?: number;
+    channel?: string; // Filtre par canal: 'web', 'app', 'wa', 'qr', 'bo' ou undefined pour tous
   };
 
   let authenticatedCode: string | null = null;
@@ -2025,7 +2026,8 @@ export const getPartnerDashboard = onCall(async request => {
 
   // Utilisateur authentifié: retourner les vraies stats
   const days = clampRangeDays(rangeDays);
-  const metrics = await fetchPartnerMetrics(targetCode, days);
+  const channelFilter = channel && ['web', 'app', 'wa', 'qr', 'bo'].includes(channel) ? channel : undefined;
+  const metrics = await fetchPartnerMetrics(targetCode, days, channelFilter);
 
   return {
     code: targetCode,
@@ -2047,8 +2049,9 @@ export const getPartnerDashboard = onCall(async request => {
 
 /**
  * Helper pour récupérer les métriques d'un partenaire.
+ * @param channel - Optionnel: filtre par canal ('web', 'app', 'wa', 'qr', 'bo')
  */
-const fetchPartnerMetrics = async (code: string, rangeDays: number) => {
+const fetchPartnerMetrics = async (code: string, rangeDays: number, channel?: string) => {
   const now = new Date();
   const startDate = new Date(now.getTime() - rangeDays * 24 * 60 * 60 * 1000);
 
@@ -2067,7 +2070,15 @@ const fetchPartnerMetrics = async (code: string, rangeDays: number) => {
   metricsSnap.docs.forEach(doc => {
     const data = doc.data();
     const docDate = data.date || doc.id;
-    const dailyVisits = data.visits?.total || 0;
+
+    // Si un filtre canal est appliqué, n'utiliser que ce canal
+    let dailyVisits = 0;
+    if (channel && data.visits?.[channel]) {
+      dailyVisits = data.visits[channel];
+    } else if (!channel) {
+      dailyVisits = data.visits?.total || 0;
+    }
+
     const dailySales = data.sales?.count || 0;
 
     // Collecter les données quotidiennes pour le graphique
@@ -2078,18 +2089,16 @@ const fetchPartnerMetrics = async (code: string, rangeDays: number) => {
     });
 
     // Agrégation des visites (leads)
-    if (data.visits?.total) {
-      totalLeads += data.visits.total;
-    }
+    totalLeads += dailyVisits;
 
-    // Agrégation des ventes
+    // Agrégation des ventes (pas de filtre canal sur les ventes pour l'instant)
     if (data.sales?.count) {
       totalSales += data.sales.count;
       totalCommission += data.sales.commission || 0;
       totalDiscount += data.sales.discount || 0;
     }
 
-    // Agrégation par canal
+    // Agrégation par canal (toujours collecté pour l'affichage par canal)
     if (data.visits) {
       ['web', 'app', 'wa', 'qr', 'bo'].forEach(ch => {
         if (data.visits[ch]) {
