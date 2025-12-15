@@ -657,6 +657,11 @@ export default function ProductGridSection({
           } else {
             constraints.push(where('brand', '==', brandFilterValue));
           }
+        } else if (categoryFilterValue) {
+          // Home page tabs (activeSegment) filtering
+          // categoryFilterValue is derived from activeSegment ('tablette', 'accessoire', 'portable a touche')
+          // 'telephone' returns null so it shows "Populaires" (all products or sorted by popularity)
+          constraints.push(where('category', '==', categoryFilterValue));
         }
 
         // NOTE: Additional client-side filtering might still happen in segmentFilteredProducts
