@@ -1130,10 +1130,7 @@ function TopProductCard({ product }: { product: ProductCardData }) {
       </div>
       <div className="flex flex-[0_0_40%] flex-col gap-1.5 px-2 pb-2 pt-2 text-left sm:px-3 sm:pb-3">
         <p className="truncate text-[11px] font-semibold text-slate-900 sm:text-xs">{product.name}</p>
-        <p
-          className="text-[10px] font-semibold text-slate-800"
-          style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 2 }}
-        >
+        <p className="line-clamp-2 text-[10px] font-semibold text-slate-800">
           {product.tagline}
         </p>
         <div className="mt-auto space-y-1">

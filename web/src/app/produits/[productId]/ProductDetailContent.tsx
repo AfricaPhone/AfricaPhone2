@@ -618,11 +618,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 </div>
                 <div className="relative mt-2 h-[2px] w-full bg-[#ECEDEF]">
                   <span
-                    className="absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200"
-                    style={{
-                      left: activeTab === 'specs' ? '0' : 'calc(50% + 0.25rem)',
-                      width: 'calc(50% - 0.25rem)',
-                    }}
+                    className={`absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200 tab-indicator ${activeTab === 'specs' ? 'tab-indicator-specs' : 'tab-indicator-description'}`}
                   />
                 </div>
               </div>

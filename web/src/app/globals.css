@@ -24,3 +24,16 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
+/* Tab indicator for ProductDetail */
+.tab-indicator {
+  width: calc(50% - 0.25rem);
+}
+
+.tab-indicator-specs {
+  left: 0;
+}
+
+.tab-indicator-description {
+  left: calc(50% + 0.25rem);
+}

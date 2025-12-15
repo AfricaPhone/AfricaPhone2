@@ -374,8 +374,8 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(180deg, var(--accent-primary-dim) 0%, transparent 80%);
-      mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" stroke="black" stroke-width="2" fill="none"/></svg>');
       -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="black"/></svg>');
+      mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" stroke="black" stroke-width="2" fill="none"/></svg>');
       -webkit-mask-size: 100% 100%;
       mask-size: 100% 100%;
       position: relative;
@@ -834,19 +834,127 @@
 
       /* Simplified mobile table */
     }
+
+    /* Utility classes to replace inline styles */
+    .bg-abstract-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-abstract-orb-top {
+      position: absolute;
+      top: -10%;
+      right: -10%;
+      width: 50%;
+      height: 50%;
+      background: radial-gradient(circle, var(--accent-primary-dim) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+
+    .bg-abstract-orb-bottom {
+      position: absolute;
+      bottom: -10%;
+      left: -10%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(100, 100, 255, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(80px);
+    }
+
+    .icon-mr-4 {
+      margin-right: 4px;
+    }
+
+    .caret-float-right {
+      float: right;
+    }
+
+    .kpi-value-accent {
+      color: var(--accent-primary);
+    }
+
+    .sparkline-svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .svg-fill-opacity {
+      opacity: 0.3;
+    }
+
+    .separator-dash {
+      margin: 0 6px;
+    }
+
+    .channel-header-flex {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .payout-amount-bold {
+      font-weight: 600;
+    }
+
+    .payout-note-separator {
+      margin-top: 16px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 8px;
+    }
+
+    .share-actions-mt {
+      margin-top: 4px;
+    }
+
+    .cart-value-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .qr-block {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .qr-box {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+    }
+
+    .qr-icon {
+      color: black;
+      font-size: 32px;
+    }
   </style>
 </head>
 
 <body>
   <!-- Background Abstract shapes -->
-  <div
-    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none;">
-    <div
-      style="position: absolute; top: -10%; right: -10%; width: 50%; height: 50%; background: radial-gradient(circle, var(--accent-primary-dim) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);">
-    </div>
-    <div
-      style="position: absolute; bottom: -10%; left: -10%; width: 60%; height: 60%; background: radial-gradient(circle, rgba(100,100,255,0.05) 0%, transparent 70%); border-radius: 50%; filter: blur(80px);">
-    </div>
+  <div class="bg-abstract-container">
+    <div class="bg-abstract-orb-top"></div>
+    <div class="bg-abstract-orb-bottom"></div>
   </div>
 
   <div class="app-shell">
@@ -860,7 +968,7 @@
       </div>
       <div class="top-actions">
         <button class="toggle-btn" id="themeToggle" type="button">
-          <i class="ph ph-moon" style="margin-right:4px;"></i> Mode sombre
+          <i class="ph ph-moon icon-mr-4"></i> Mode sombre
         </button>
       </div>
     </header>
@@ -873,15 +981,15 @@
       <div class="filter-grid">
         <div>
           <p class="label">Periode</p>
-          <div class="field">7 derniers jours <i class="ph ph-caret-down" style="float:right"></i></div>
+          <div class="field">7 derniers jours <i class="ph ph-caret-down caret-float-right"></i></div>
         </div>
         <div>
           <p class="label">Canal</p>
-          <div class="field">Tous canaux <i class="ph ph-caret-down" style="float:right"></i></div>
+          <div class="field">Tous canaux <i class="ph ph-caret-down caret-float-right"></i></div>
         </div>
         <div>
           <p class="label">Statut</p>
-          <div class="field">Leads & Ventes <i class="ph ph-caret-down" style="float:right"></i></div>
+          <div class="field">Leads & Ventes <i class="ph ph-caret-down caret-float-right"></i></div>
         </div>
       </div>
     </section>
@@ -908,7 +1016,7 @@
           <p class="label">Commission estimee</p>
           <span class="pill pill-ghost" id="kpi-commission-delta">Bonus inclus</span>
         </div>
-        <p class="kpi-value" id="kpi-commission" style="color: var(--accent-primary);">-</p>
+        <p class="kpi-value kpi-value-accent" id="kpi-commission">-</p>
         <p class="kpi-note" id="kpi-commission-note">Versee a validation</p>
       </article>
       <article class="card kpi">
@@ -932,12 +1040,11 @@
         </div>
         <div class="sparkline">
           <!-- Simulated SVG line -->
-          <svg style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; overflow: visible;"
-            preserveAspectRatio="none" viewBox="0 0 100 50">
+          <svg class="sparkline-svg" preserveAspectRatio="none" viewBox="0 0 100 50">
             <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="none"
               stroke="var(--accent-primary)" stroke-width="2" vector-effect="non-scaling-stroke"></path>
             <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5 L100,50 Z"
-              fill="url(#grad1)" style="opacity: 0.3"></path>
+              fill="url(#grad1)" class="svg-fill-opacity"></path>
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:1" />
@@ -960,9 +1067,9 @@
           </div>
           <div class="pill pill-ghost">
             <span>Visites 1 200</span>
-            <span style="margin: 0 6px;">-</span>
+            <span class="separator-dash">-</span>
             <span>Contacts WA 320</span>
-            <span style="margin: 0 6px;">-</span>
+            <span class="separator-dash">-</span>
             <span>Achats 86</span>
           </div>
         </div>
@@ -998,7 +1105,7 @@
     </section>
 
     <section class="card channel-card">
-      <div class="channel-header" style="display:flex; justify-content:space-between; margin-bottom: 20px;">
+      <div class="channel-header channel-header-flex">
         <div>
           <p class="label">Repartition par canal</p>
           <p class="section-title">Performance relative</p>
@@ -1022,7 +1129,7 @@
         <div class="payout-summary">
           <div class="summary-row">
             <span class="muted">Dernier reversement</span>
-            <span style="font-weight:600" id="payout-last-amount">-</span>
+            <span class="payout-amount-bold" id="payout-last-amount">-</span>
           </div>
           <div class="summary-row">
             <span class="muted">Date</span>
@@ -1032,7 +1139,7 @@
             <span class="muted">Prochain versement</span>
             <span class="pill pill-success" id="payout-next">-</span>
           </div>
-          <p class="muted small" style="margin-top:16px; border-top:1px solid var(--border-color); padding-top:8px;">
+          <p class="muted small payout-note-separator">
             Verification auto cote stock avant versement.
           </p>
         </div>
@@ -1080,10 +1187,9 @@
         <button class="btn-primary" id="generateLinksBtn" type="button">Générer les liens</button>
         <span class="status" id="linkStatus">Prêt.</span>
       </div>
-      <div class="share-actions" style="margin-top:4px">
-        <input id="cartValueInput" class="input" type="number" min="0" step="1000"
-          placeholder="Montant panier (optionnel)"
-          style="flex:1; min-width:200px; padding:8px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" />
+      <div class="share-actions share-actions-mt">
+        <input id="cartValueInput" class="input cart-value-input" type="number" min="0" step="1000"
+          placeholder="Montant panier (optionnel)" />
         <button class="pill pill-light" id="validateCodeBtn" type="button">Valider le code</button>
         <span class="status" id="validateStatus"></span>
       </div>
@@ -1120,10 +1226,9 @@
             </ul>
           </div>
         </div>
-        <div class="share-block qr" style="display:flex; align-items:center; gap:16px;">
-          <div class="qr-box"
-            style="width:60px; height:60px; background:white; border-radius:4px; display:grid; place-items:center;">
-            <i class="ph ph-qr-code" style="color:black; font-size:32px;"></i>
+        <div class="share-block qr qr-block">
+          <div class="qr-box">
+            <i class="ph ph-qr-code qr-icon"></i>
           </div>
           <div>
             <p class="muted small">Code QR</p>
