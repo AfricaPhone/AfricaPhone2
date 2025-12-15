@@ -2005,6 +2005,19 @@ export const getPartnerDashboard = onCall(async request => {
 
   const ruleData = ruleSnap.data() as any;
 
+  // Récupérer les templates de liens pour construire les URLs
+  const templatesSnap = await db.collection('settings').doc('linkTemplates').get();
+  const templates = templatesSnap.exists ? (templatesSnap.data() as any) : {};
+  const baseDomain = (templates?.webBaseUrl || 'https://africaphone.org').replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+  // Construire les liens pré-remplis pour le partenaire
+  const partnerLinks = {
+    dashboardLink: `https://${baseDomain}/d/${targetCode}`,
+    webLink: `https://${baseDomain}/p/${targetCode}`,
+    appLink: `https://${baseDomain}/a/${targetCode}`,
+    waLink: `https://${baseDomain}/w/${targetCode}`,
+  };
+
   // Si non authentifié, retourner seulement des infos basiques (mode démo)
   if (!isAuthenticated) {
     return {
@@ -2015,6 +2028,7 @@ export const getPartnerDashboard = onCall(async request => {
       channels: [],
       payouts: { history: [] },
       table: [],
+      partnerLinks,
       rule: {
         code: targetCode,
         allowedChannels: ruleData.allowedChannels || [],
@@ -2038,6 +2052,7 @@ export const getPartnerDashboard = onCall(async request => {
     payouts: metrics.payouts,
     table: metrics.table,
     dailyData: metrics.dailyData,
+    partnerLinks,
     rule: {
       code: targetCode,
       allowedChannels: ruleData.allowedChannels || [],

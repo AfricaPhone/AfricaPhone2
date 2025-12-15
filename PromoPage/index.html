@@ -1510,60 +1510,71 @@
     <section class="card share-card">
       <header class="section-head">
         <div>
-          <p class="label">Liens a partager</p>
-          <p class="section-title">Outils de diffusion</p>
+          <p class="label">Prêts à utiliser</p>
+          <p class="section-title">🔗 Vos liens de partage</p>
         </div>
-        <span class="pill pill-ghost" id="activeCodeBadge">Code actif: JOYFUL-AP</span>
+        <span class="pill pill-success" id="activeCodeBadge">Code actif: -</span>
       </header>
-      <div class="share-config">
-        <div class="input-group">
-          <label for="codeInput">Code promo</label>
-          <input id="codeInput" placeholder="EX: JOYFUL-AP" value="JOYFUL-AP" />
+
+      <!-- Liens pré-remplis (principal) -->
+      <div class="share-grid" id="partner-links-grid">
+        <div class="share-block share-block-primary">
+          <p class="muted"><i class="ph ph-chart-line-up"></i> Lien Tableau de bord</p>
+          <p class="hint small">C'est le seul lien dont votre audience a besoin !</p>
+          <div class="share-field">
+            <input type="text" id="dashboardLink" class="share-input" value="..." readonly />
+            <button class="pill pill-primary" data-copy="dashboardLink">Copier</button>
+          </div>
         </div>
-        <div class="input-group">
-          <label for="refInput">Ref partenaire (facultatif)</label>
-          <input id="refInput" placeholder="EX: PART-001" />
-        </div>
-        <div class="input-group">
-          <label for="campaignInput">Campagne</label>
-          <input id="campaignInput" placeholder="default" />
-        </div>
-        <div class="input-group">
-          <label for="subInput">Variation / bouton</label>
-          <input id="subInput" placeholder="cta1" />
-        </div>
-      </div>
-      <div class="share-actions">
-        <button class="btn-primary" id="generateLinksBtn" type="button">Générer les liens</button>
-        <span class="status" id="linkStatus">Prêt.</span>
-      </div>
-      <div class="share-actions share-mt-4">
-        <input id="cartValueInput" class="input input-flex-full" type="number" min="0" step="1000"
-          placeholder="Montant panier (optionnel)" />
-        <button class="pill pill-light" id="validateCodeBtn" type="button">Valider le code</button>
-        <span class="status" id="validateStatus"></span>
-      </div>
-      <div class="share-grid">
         <div class="share-block">
           <p class="muted"><i class="ph ph-globe"></i> Lien Web</p>
           <div class="share-field">
-            <span id="webLink">africaphone.com/?code=JOYFUL-AP</span>
+            <input type="text" id="webLink" class="share-input" value="..." readonly />
             <button class="pill pill-light" data-copy="webLink">Copier</button>
           </div>
         </div>
         <div class="share-block">
-          <p class="muted"><i class="ph ph-device-mobile"></i> Lien App (Deep Link)</p>
+          <p class="muted"><i class="ph ph-device-mobile"></i> Lien App</p>
           <div class="share-field">
-            <span id="appLink">africaphone://apply-promo?code=JOYFUL-AP</span>
+            <input type="text" id="appLink" class="share-input" value="..." readonly />
             <button class="pill pill-light" data-copy="appLink">Copier</button>
           </div>
         </div>
         <div class="share-block">
           <p class="muted"><i class="ph ph-whatsapp-logo"></i> WhatsApp</p>
           <div class="share-field">
-            <span id="waLink">wa.me/229...text=Code</span>
+            <input type="text" id="waLink" class="share-input" value="..." readonly />
             <button class="pill pill-light" data-copy="waLink">Copier</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Section avancée (masquée par défaut, dépliable) -->
+      <details class="advanced-section">
+        <summary class="advanced-toggle">
+          <i class="ph ph-sliders"></i> Options avancées
+        </summary>
+        <div class="share-config">
+          <input type="hidden" id="codeInput" />
+          <input type="hidden" id="refInput" />
+          <div class="input-group">
+            <label for="campaignInput">Campagne</label>
+            <input id="campaignInput" placeholder="default" />
+          </div>
+          <div class="input-group">
+            <label for="subInput">Variation / bouton</label>
+            <input id="subInput" placeholder="cta1" />
+          </div>
+        </div>
+        <div class="share-actions">
+          <button class="btn-secondary" id="generateLinksBtn" type="button">Régénérer les liens</button>
+          <span class="status" id="linkStatus"></span>
+        </div>
+        <div class="share-actions share-mt-4">
+          <input id="cartValueInput" class="input input-flex-full" type="number" min="0" step="1000"
+            placeholder="Montant panier (optionnel)" />
+          <button class="pill pill-light" id="validateCodeBtn" type="button">Valider le code</button>
+          <span class="status" id="validateStatus"></span>
         </div>
         <div class="share-block">
           <p class="muted"><i class="ph ph-sliders"></i> Règle promo (lecture)</p>
@@ -1585,7 +1596,7 @@
             <span class="pill pill-light">Telecharger</span>
           </div>
         </div>
-      </div>
+      </details>
     </section>
 
     <section class="tables-grid">
@@ -1728,8 +1739,21 @@
     const copyToClipboard = id => {
       const el = document.getElementById(id);
       if (!el) return;
-      const value = el.textContent || '';
-      navigator.clipboard?.writeText(value);
+      // Supporte les input (value) et les span (textContent)
+      const value = el.value !== undefined ? el.value : (el.textContent || '');
+      navigator.clipboard?.writeText(value).then(() => {
+        // Feedback visuel temporaire
+        const btn = document.querySelector(`[data-copy="${id}"]`);
+        if (btn) {
+          const originalText = btn.textContent;
+          btn.textContent = '✓ Copié!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+          }, 1500);
+        }
+      });
     };
 
     const updateLinkField = (id, value) => {
@@ -2078,7 +2102,47 @@
       if (data.rule) {
         updateRulePanel(data.rule);
       }
+      // Afficher les liens pré-remplis du serveur
+      if (data.partnerLinks) {
+        renderPartnerLinks(data.partnerLinks, data.code);
+      }
       renderChips(data.code || currentSession?.code || '');
+    };
+
+    // Fonction pour afficher les liens partenaires pré-remplis
+    const renderPartnerLinks = (links, code) => {
+      if (!links) return;
+
+      // Mettre à jour le badge du code actif
+      const badge = document.getElementById('activeCodeBadge');
+      if (badge && code) {
+        badge.textContent = `Code actif: ${code}`;
+      }
+
+      // Mettre à jour les champs de liens
+      const dashboardInput = document.getElementById('dashboardLink');
+      const webInput = document.getElementById('webLink');
+      const appInput = document.getElementById('appLink');
+      const waInput = document.getElementById('waLink');
+
+      if (dashboardInput && links.dashboardLink) {
+        dashboardInput.value = links.dashboardLink;
+      }
+      if (webInput && links.webLink) {
+        webInput.value = links.webLink;
+      }
+      if (appInput && links.appLink) {
+        appInput.value = links.appLink;
+      }
+      if (waInput && links.waLink) {
+        waInput.value = links.waLink;
+      }
+
+      // Mettre à jour les champs cachés pour la compatibilité
+      const codeInput = document.getElementById('codeInput');
+      if (codeInput && code) {
+        codeInput.value = code;
+      }
     };
 
 
