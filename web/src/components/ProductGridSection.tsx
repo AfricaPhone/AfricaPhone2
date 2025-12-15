@@ -926,10 +926,10 @@ export default function ProductGridSection({
         Tous les produits
       </h2>
       {showSegments ? (
-        <div className="relative rounded-2xl bg-gradient-to-r from-orange-500 via-rose-500 to-purple-600 p-1 shadow-lg shadow-orange-500/25">
-          <div className="rounded-xl bg-white/95 backdrop-blur-sm px-3 py-3 sm:px-4 sm:py-4">
+        <div className="relative rounded-xl bg-gradient-to-r from-orange-500 via-rose-500 to-purple-600 p-0.5 shadow-md shadow-orange-500/20">
+          <div className="rounded-[10px] bg-white/95 backdrop-blur-sm px-2 py-2 sm:px-3">
             <div className={`${SEGMENT_SCROLL_CLASSNAME} overflow-x-auto -mx-1 px-1`}>
-              <div className="flex min-w-max items-center justify-center gap-2 sm:gap-3" role="group" aria-label="Filtrer les produits">
+              <div className="flex min-w-max items-center justify-center gap-1.5 sm:gap-2" role="group" aria-label="Filtrer les produits">
                 {SEGMENTS.map(segment => {
                   const isActive = segment.key === activeSegment;
                   return (
@@ -938,13 +938,13 @@ export default function ProductGridSection({
                       type="button"
                       onClick={() => handleSegmentChange(segment.key)}
                       aria-pressed={String(isActive) as 'true' | 'false'}
-                      className={`group flex items-center gap-2 whitespace-nowrap rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-all duration-200 sm:px-5 sm:py-3 sm:text-base ${isActive
-                        ? 'border-orange-500 bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg shadow-orange-500/40 scale-105'
-                        : 'border-slate-200 bg-white text-slate-700 shadow-md hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 hover:shadow-lg hover:scale-102 active:scale-95'
+                      className={`group flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200 sm:px-3.5 sm:py-2 sm:text-sm ${isActive
+                        ? 'border-orange-500 bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-md shadow-orange-500/30'
+                        : 'border-slate-200 bg-white text-slate-600 shadow-sm hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 hover:shadow-md active:scale-95'
                         }`}
                     >
                       <segment.icon
-                        className={`h-5 w-5 transition-all duration-200 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-orange-500'}`}
+                        className={`h-4 w-4 transition-all duration-200 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-orange-500'}`}
                       />
                       {segment.label}
                     </button>
