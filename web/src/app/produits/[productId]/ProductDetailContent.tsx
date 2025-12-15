@@ -518,7 +518,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 type="button"
                 onClick={toggleFavorite}
                 aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                aria-pressed={isFavorite ? 'true' : 'false'}
+                aria-pressed={String(isFavorite) as 'true' | 'false'}
                 className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
                   }`}
               >

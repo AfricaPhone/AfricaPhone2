@@ -37,3 +37,8 @@ body {
 .tab-indicator-description {
   left: calc(50% + 0.25rem);
 }
+
+/* Progress bar width using CSS variable */
+.progress-bar-width {
+  width: var(--progress-width, 0%);
+}

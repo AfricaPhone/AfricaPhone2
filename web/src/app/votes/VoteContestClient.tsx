@@ -1091,8 +1091,8 @@ function CandidateList({
               </div>
               <div className="h-2 rounded-full bg-slate-100">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-500"
-                  style={{ width: `${Math.max(ratio, ratio > 0 ? 6 : 0)}%` }}
+                  className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-500 progress-bar-width"
+                  style={{ '--progress-width': `${Math.max(ratio, ratio > 0 ? 6 : 0)}%` } as React.CSSProperties}
                 />
               </div>
             </article>

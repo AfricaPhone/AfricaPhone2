@@ -936,7 +936,7 @@ export default function ProductGridSection({
                     key={segment.key}
                     type="button"
                     onClick={() => handleSegmentChange(segment.key)}
-                    aria-pressed={isActive ? 'true' : 'false'}
+                    aria-pressed={String(isActive) as 'true' | 'false'}
                     className={`group flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${isActive
                       ? 'border-transparent bg-slate-900 text-white shadow-sm shadow-slate-900/30 hover:bg-slate-800'
                       : 'border-transparent bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
