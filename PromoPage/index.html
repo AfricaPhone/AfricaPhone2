@@ -947,6 +947,42 @@
       color: black;
       font-size: 32px;
     }
+
+    /* Stack bar width classes for mock data */
+    .stack-w-60 {
+      width: 60%;
+    }
+
+    .stack-w-24 {
+      width: 24%;
+    }
+
+    .stack-w-18 {
+      width: 18%;
+    }
+
+    .stack-w-12 {
+      width: 12%;
+    }
+
+    .stack-w-10 {
+      width: 10%;
+    }
+
+    .stack-w-6 {
+      width: 6%;
+    }
+
+    /* SVG gradient stops */
+    .gradient-stop-start {
+      stop-color: var(--accent-primary);
+      stop-opacity: 1;
+    }
+
+    .gradient-stop-end {
+      stop-color: var(--accent-primary);
+      stop-opacity: 0;
+    }
   </style>
 </head>
 
@@ -1047,8 +1083,8 @@
               fill="url(#grad1)" class="svg-fill-opacity"></path>
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:var(--accent-primary);stop-opacity:1" />
-                <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:0" />
+                <stop offset="0%" class="gradient-stop-start" />
+                <stop offset="100%" class="gradient-stop-end" />
               </linearGradient>
             </defs>
           </svg>
@@ -1077,18 +1113,18 @@
           <div class="bar-stack-row">
             <span class="muted"><i class="ph ph-globe"></i> Web</span>
             <div class="stack">
-              <span class="stack-part part-visit" style="width: 60%"></span>
-              <span class="stack-part part-contact" style="width: 18%"></span>
-              <span class="stack-part part-win" style="width: 12%"></span>
+              <span class="stack-part part-visit stack-w-60"></span>
+              <span class="stack-part part-contact stack-w-18"></span>
+              <span class="stack-part part-win stack-w-12"></span>
             </div>
             <span class="muted small">Visites 800 - Contacts 180 - Achats 48</span>
           </div>
           <div class="bar-stack-row">
             <span class="muted"><i class="ph ph-whatsapp-logo"></i> WA</span>
             <div class="stack">
-              <span class="stack-part part-visit" style="width: 24%"></span>
-              <span class="stack-part part-contact" style="width: 10%"></span>
-              <span class="stack-part part-win" style="width: 6%"></span>
+              <span class="stack-part part-visit stack-w-24"></span>
+              <span class="stack-part part-contact stack-w-10"></span>
+              <span class="stack-part part-win stack-w-6"></span>
             </div>
             <span class="muted small">Visites 240 - Contacts 90 - Achats 38</span>
           </div>
