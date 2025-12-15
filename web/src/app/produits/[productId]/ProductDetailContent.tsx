@@ -425,9 +425,8 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           {orderedSpecs.map((spec, index) => (
             <div
               key={`${spec.label}-${spec.value}`}
-              className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${
-                index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
-              }`}
+              className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
+                }`}
             >
               <span className="text-[#7A7C80]">{spec.label}</span>
               <span className="max-w-[55%] text-right font-semibold">{spec.value}</span>
@@ -519,10 +518,9 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 type="button"
                 onClick={toggleFavorite}
                 aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                aria-pressed={isFavorite}
-                className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${
-                  isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
-                }`}
+                aria-pressed={isFavorite ? 'true' : 'false'}
+                className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
+                  }`}
               >
                 <HeartIcon className="h-5 w-5" />
               </button>
@@ -604,18 +602,16 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                   <button
                     type="button"
                     onClick={() => setActiveTab('specs')}
-                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${
-                      activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
-                    }`}
+                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                      }`}
                   >
                     Specifications
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('description')}
-                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${
-                      activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
-                    }`}
+                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                      }`}
                   >
                     Description
                   </button>
@@ -747,12 +743,12 @@ function PromoCodeModal({ open, code, error, isSubmitting, onClose, onApply, onC
               type="text"
               inputMode="text"
               autoComplete="off"
-                spellCheck={false}
-                value={code}
-                onChange={event => onCodeChange(event.target.value)}
-                className="mt-2 h-12 w-full rounded-[16px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-[15px] font-semibold tracking-[0.12em] text-[#111111] outline-none transition focus:border-[#111111] focus:bg-white"
-                autoFocus
-              />
+              spellCheck={false}
+              value={code}
+              onChange={event => onCodeChange(event.target.value)}
+              className="mt-2 h-12 w-full rounded-[16px] border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-[15px] font-semibold tracking-[0.12em] text-[#111111] outline-none transition focus:border-[#111111] focus:bg-white"
+              autoFocus
+            />
           </div>
           {error ? <p className="text-sm font-medium text-[#DC2626]">{error}</p> : null}
           <button
@@ -791,8 +787,8 @@ function normalizeFirestoreProduct(id: string, data: DocumentData): FirestorePro
   const imageCandidates =
     Array.isArray(payload.imageUrls) && payload.imageUrls.length > 0
       ? (payload.imageUrls as unknown[])
-          .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
-          .map(url => url.trim())
+        .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+        .map(url => url.trim())
       : [];
 
   const primaryImageCandidate = imageCandidates[0] ?? safeString(payload.imageUrl) ?? null;

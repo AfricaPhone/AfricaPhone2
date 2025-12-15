@@ -727,7 +727,7 @@ export default function VoteContestClientPage() {
           <a
             href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#1a1a2e] to-[#0f3460] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:shadow-blue-500/20"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
