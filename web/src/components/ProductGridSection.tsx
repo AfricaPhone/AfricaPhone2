@@ -650,15 +650,17 @@ export default function ProductGridSection({
           const normalizedCategory = inferSegmentKeyFromValue(brandFilterValue);
           const isCategoryFilter = normalizedCategory === 'tablette' || normalizedCategory === 'accessoire' || normalizedCategory === 'portable a touche';
           if (isCategoryFilter && normalizedCategory) {
-            // Don't filter by category in Firebase query - let client-side filtering handle it
-            // This allows matching products with various category spellings
+            // Fix: Filter directly in Firestore to ensure pagination works correctly
+            // and pages are full. We assume the 'category' field matches the normalized key.
+            // Note: This assumes products have a 'category' field matching 'tablette', 'accessoire', or 'portable a touche'.
+            constraints.push(where('category', '==', normalizedCategory));
           } else {
             constraints.push(where('brand', '==', brandFilterValue));
           }
         }
 
-        // NOTE: Category filtering is done client-side in segmentFilteredProducts
-        // to support variations like "Tablette", "tablettes", etc.
+        // NOTE: Additional client-side filtering might still happen in segmentFilteredProducts
+        // to handle edge cases or segments, but the DB query should do the heavy lifting.
 
         if (trimmedSearchTerm.length > 0) {
           constraints.push(orderBy('name'));
