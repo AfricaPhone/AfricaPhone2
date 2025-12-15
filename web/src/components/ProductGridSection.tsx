@@ -954,7 +954,7 @@ export default function ProductGridSection({
         </div>
       ) : null}
       {!selectedBrand ? <BrandsCarousel segment={activeSegment} activeBrandId={activeBrandId} /> : null}
-      {topProductsLoading || topProducts.length > 0 ? (
+      {!selectedBrand && !brandAsCategoryKey && (topProductsLoading || topProducts.length > 0) ? (
         <TopProductsRail products={topProducts} loading={topProductsLoading} />
       ) : null}
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">

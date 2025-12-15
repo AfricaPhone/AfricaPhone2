@@ -52,6 +52,17 @@ service cloud.firestore {
         candidateId.matches('^[a-z0-9-]{8,64}$');
     }
 
+    // === SECURITY FIX: Empêche l'escalade de privilèges ===
+    // Vérifie si l'utilisateur tente de définir le champ isAdmin (création)
+    function isSettingAdminField() {
+      return request.resource.data.keys().hasAny(['isAdmin']);
+    }
+
+    // Vérifie si le champ isAdmin est modifié (mise à jour)
+    function isModifyingAdminField() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin']);
+    }
+
     match /products/{productId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
@@ -113,10 +124,13 @@ service cloud.firestore {
       }
     }
 
+    // === SECURITY FIX: Règles utilisateurs sécurisées ===
     match /users/{userId} {
       allow read: if isAdmin() || isOwner(userId);
-      allow create: if isAdmin() || isOwner(userId);
-      allow update: if isAdmin() || isOwner(userId);
+      // Seuls les admins peuvent créer un utilisateur avec isAdmin
+      allow create: if isAdmin() || (isOwner(userId) && !isSettingAdminField());
+      // Seuls les admins peuvent modifier le champ isAdmin
+      allow update: if isAdmin() || (isOwner(userId) && !isModifyingAdminField());
       allow delete: if isAdmin() || isOwner(userId);
     }
 
