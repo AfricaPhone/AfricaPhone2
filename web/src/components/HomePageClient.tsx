@@ -18,7 +18,7 @@ import {
 } from '@/lib/algoliaClient';
 
 // Set to true to show maintenance banner
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 export default function HomePageClient() {
   const [searchQuery, setSearchQuery] = useState('');
