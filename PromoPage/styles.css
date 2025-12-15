@@ -71,6 +71,7 @@ body.light .background {
   border-radius: 18px;
   padding: 18px 20px;
   box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
