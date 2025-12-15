@@ -200,14 +200,14 @@ export default function BrandsCarousel({ activeBrandId, segment, showCategoryBra
       })
       : brands;
 
-    // Exclude category-type brands (Tablettes, Accessoires) unless showCategoryBrands is true
+    // Exclude category-type brands (Tablettes, Accessoires, À touches) unless showCategoryBrands is true
     if (!showCategoryBrands) {
       filteredBrands = filteredBrands.filter(brand => {
         const inferred =
           inferSegmentKeyFromValue(brand.filterValue) ??
           inferSegmentKeyFromValue(brand.name);
-        // Exclude if it's a category (tablette or accessoire)
-        return inferred !== 'tablette' && inferred !== 'accessoire';
+        // Exclude if it's a category (tablette, accessoire, or portable a touche)
+        return inferred !== 'tablette' && inferred !== 'accessoire' && inferred !== 'portable a touche';
       });
     }
 

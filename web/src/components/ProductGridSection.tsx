@@ -523,11 +523,11 @@ export default function ProductGridSection({
   const brandFallbackId = selectedBrand?.id ?? null;
   const activeBrandId = selectedBrand?.id ?? null;
 
-  // Detect if selectedBrand is actually a category (Tablettes, Accessoires)
+  // Detect if selectedBrand is actually a category (Tablettes, Accessoires, À touches)
   const brandAsCategoryKey = useMemo(() => {
     if (!brandFilterValue) return null;
     const normalized = inferSegmentKeyFromValue(brandFilterValue);
-    if (normalized === 'tablette' || normalized === 'accessoire') {
+    if (normalized === 'tablette' || normalized === 'accessoire' || normalized === 'portable a touche') {
       return normalized;
     }
     return null;
@@ -648,7 +648,7 @@ export default function ProductGridSection({
           // For regular brands (Tecno, Infinix, etc.), filter by brand field
           // Use inferSegmentKeyFromValue to normalize values like "Tablettes" -> "tablette"
           const normalizedCategory = inferSegmentKeyFromValue(brandFilterValue);
-          const isCategoryFilter = normalizedCategory === 'tablette' || normalizedCategory === 'accessoire';
+          const isCategoryFilter = normalizedCategory === 'tablette' || normalizedCategory === 'accessoire' || normalizedCategory === 'portable a touche';
           if (isCategoryFilter && normalizedCategory) {
             // Don't filter by category in Firebase query - let client-side filtering handle it
             // This allows matching products with various category spellings

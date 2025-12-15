@@ -19,7 +19,7 @@ export const inferSegmentKeyFromValue = (value: unknown): SegmentKey | null => {
   if (normalized.includes('tablett')) {
     return 'tablette';
   }
-  if (normalized.includes('touch') || normalized.includes('bouton')) {
+  if (normalized.includes('touch') || normalized.includes('touche') || normalized.includes('bouton')) {
     return 'portable a touche';
   }
   if (normalized.includes('accessoire') || normalized.includes('audio') || normalized.includes('gadget')) {
