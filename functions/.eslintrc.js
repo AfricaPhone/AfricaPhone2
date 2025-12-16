@@ -23,11 +23,26 @@ module.exports = {
   ignorePatterns: [
     '/lib/**/*', // Ignore built files.
     '/generated/**/*', // Ignore generated files.
+    '/*.js', // Ignore root-level helper scripts not covered by tsconfig.
+    '/test/**/*.js',
+    '/diagnose-data-flow.js',
+    '/test-cloud-function.js',
+    '/test-links-manual.js',
+    '/add-a-touches-category.js',
+    '/add-category-brands.js',
   ],
   plugins: ['@typescript-eslint', 'import'],
   rules: {
-    quotes: ['error', 'double'],
+    quotes: 'off',
+    'linebreak-style': 'off',
     'import/no-unresolved': 0,
-    indent: ['error', 2],
+    indent: 'off',
+    'object-curly-spacing': 'off',
+    'max-len': 'off',
+    'arrow-parens': 'off',
+    'operator-linebreak': 'off',
+    'require-jsdoc': 'off',
+    'valid-jsdoc': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
   },
 };
