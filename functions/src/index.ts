@@ -466,21 +466,21 @@ export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_
     const target =
       channel === 'wa'
         ? (() => {
-            const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
-            const messageTemplate =
-              linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
-            const message = messageTemplate
-              .replace('{code}', sharedParams.code)
-              .replace('{link}', webLink)
-              .replace('{ref}', sharedParams.ref);
-            const waNumberNormalized = whatsappNumber ? whatsappNumber.replace(/\D+/g, '') : '';
-            return `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
-          })()
+          const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+          const messageTemplate =
+            linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
+          const message = messageTemplate
+            .replace('{code}', sharedParams.code)
+            .replace('{link}', webLink)
+            .replace('{ref}', sharedParams.ref);
+          const waNumberNormalized = whatsappNumber ? whatsappNumber.replace(/\D+/g, '') : '';
+          return `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
+        })()
         : channel === 'app'
           ? buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
-              ...sharedParams,
-              channel: 'app',
-            })
+            ...sharedParams,
+            channel: 'app',
+          })
           : buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
 
     await sendGa4ClickEvent({
@@ -1559,17 +1559,31 @@ export const kkiapayWebhook = onRequest(
     secrets: [KKIA_WEBHOOK_SECRET, KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX],
   },
   async (req, res) => {
+    // Log incoming request for debugging
+    logger.info('Webhook received', {
+      method: req.method,
+      ip: req.ip,
+      hasSecretHeader: !!req.header('x-kkiapay-secret'),
+    });
+
     if (req.method !== 'POST') {
+      logger.warn('Webhook rejected: wrong method', { method: req.method });
       res.status(405).send('Method Not Allowed');
       return;
     }
 
+
     const headerSecret = req.header('x-kkiapay-secret');
     if (!headerSecret || headerSecret !== KKIA_WEBHOOK_SECRET.value()) {
-      logger.warn('Invalid webhook signature');
+      logger.warn('Invalid webhook signature', {
+        hasHeader: !!headerSecret,
+        headerLength: headerSecret?.length || 0,
+        expectedLength: KKIA_WEBHOOK_SECRET.value()?.length || 0,
+      });
       res.status(401).send('Invalid signature');
       return;
     }
+
 
     const body: any = req.body || {};
     const transactionId = String(body?.transactionId || '');
@@ -1577,6 +1591,15 @@ export const kkiapayWebhook = onRequest(
     const amount = Number(body?.amount || 0);
     const event = String(body?.event || '');
     const isPaymentSucces = body?.isPaymentSucces === true;
+
+    // Log webhook payload for debugging
+    logger.info('Webhook payload', {
+      transactionId,
+      partnerId,
+      amount,
+      event,
+      isPaymentSucces,
+    });
 
     let verifiedSuccess = false;
     let verificationObj: any = null;
