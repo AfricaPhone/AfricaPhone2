@@ -1,0 +1,92 @@
+[
+  {
+    "transactionId": "9980011517054906",
+    "partnerId": "BD5sOeo3EpTH9w62G4vi",
+    "amount": 100,
+    "date": "2025-12-16T12:27:06.707Z",
+    "customer": "Francoise SOSSOU",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "intentAmount": "100"
+  },
+  {
+    "transactionId": "7760632164142432",
+    "partnerId": "HTZ9rgLJ2GVs06RFaFQo",
+    "amount": 1000,
+    "date": "2025-12-15T19:32:41.747Z",
+    "customer": "Ezckiel AKAKPO",
+    "candidateId": "8dxIvMVLsBZNKKBQiNFE",
+    "intentAmount": "1000"
+  },
+  {
+    "transactionId": "80252557101191",
+    "partnerId": "9hPnyPO4BPAWcknJqVW6",
+    "amount": 100,
+    "date": "2025-12-15T18:44:27.377Z",
+    "customer": "Yvette Amoussou",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "intentAmount": "100"
+  },
+  {
+    "transactionId": "5802522200913850",
+    "partnerId": "BUCM1SdJOqGe5KNyvJ06",
+    "amount": 1000,
+    "date": "2025-12-15T18:14:17.537Z",
+    "customer": "Karamatou IDRISSOU",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "intentAmount": "1000"
+  },
+  {
+    "transactionId": "2904642128184290",
+    "partnerId": "FIvwNLgB8VIqJ6bEzQap",
+    "amount": 3700,
+    "date": "2025-12-15T17:43:13.864Z",
+    "customer": "Roland Worou",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "intentAmount": "3700"
+  },
+  {
+    "transactionId": "1686631380794021",
+    "partnerId": "MM5h5MZQyCiestB9hEEk",
+    "amount": 100,
+    "date": "2025-12-15T17:17:13.702Z",
+    "customer": "issaou Akakpo",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "intentAmount": "100"
+  },
+  {
+    "transactionId": "1378828263760527",
+    "partnerId": "F7E76c5QRI5rqG8yH1wD",
+    "amount": 1000,
+    "date": "2025-12-15T12:34:59.040Z",
+    "customer": "mourana Akomedi",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "intentAmount": "1000"
+  },
+  {
+    "transactionId": "9843669211860436",
+    "partnerId": "bzlcBb861bCSZi1mDaqo",
+    "amount": 500,
+    "date": "2025-12-15T11:00:45.449Z",
+    "customer": "sanny SALIFOU",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "intentAmount": "500"
+  },
+  {
+    "transactionId": "9548344773181636",
+    "partnerId": "fKzKUfTqBUonH5E0UiWz",
+    "amount": 700,
+    "date": "2025-12-15T10:50:26.127Z",
+    "customer": "mandjibou Adjoko",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "intentAmount": "700"
+  },
+  {
+    "transactionId": "7085337399333685",
+    "partnerId": "lwuNWmaR0M0lbFXDinxm",
+    "amount": 500,
+    "date": "2025-12-15T09:39:25.754Z",
+    "customer": "GARBA Soumanou",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "intentAmount": "500"
+  }
+]

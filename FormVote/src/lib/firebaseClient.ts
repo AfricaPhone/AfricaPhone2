@@ -12,7 +12,7 @@ type FirebaseConfig = {
 };
 
 const DEFAULT_CONFIG: FirebaseConfig = {
-  apiKey: 'AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M',
+  apiKey: '',
   authDomain: 'africaphone-vente.firebaseapp.com',
   projectId: 'africaphone-vente',
   storageBucket: 'africaphone-vente.firebasestorage.app',

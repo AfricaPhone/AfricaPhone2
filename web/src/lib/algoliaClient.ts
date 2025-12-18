@@ -2,8 +2,8 @@ import { searchClient as createSearchClient } from '@algolia/client-search';
 
 export const MIN_ALGOLIA_TERM_LENGTH = 2;
 
-export const ALGOLIA_APP_ID = 'S18U9VKLQE';
-export const ALGOLIA_SEARCH_API_KEY = '2a55d141d98d03a2b22b3836c7dee3f8';
+export const ALGOLIA_APP_ID = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || '';
+export const ALGOLIA_SEARCH_API_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY || '';
 export const ALGOLIA_INDEX_NAME = 'products';
 
 export const ALGOLIA_ATTRIBUTES_TO_RETRIEVE = [

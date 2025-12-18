@@ -31,8 +31,7 @@ const PRODUCT_ID_REGEXP = /^[\w-]{1,128}$/;
 const DEFAULT_DESCRIPTION =
   'Découvrez les smartphones, tablettes et accessoires sélectionnés par AfricaPhone avec assistance locale.';
 const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'africaphone-vente';
-const FIREBASE_API_KEY =
-  process.env.FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M';
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '';
 const FIRESTORE_ENDPOINT = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/products`;
 
 const parseString = (value?: FirestoreValue | null): string | null => {

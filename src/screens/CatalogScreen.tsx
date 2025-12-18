@@ -23,8 +23,8 @@ import ProductGridCard from '../components/ProductGridCard';
 import { searchClient as createSearchClient } from '@algolia/client-search';
 
 // --- Config Algolia ---
-const ALGOLIA_APP_ID = 'S18U9VKLQE';
-const ALGOLIA_SEARCH_API_KEY = '2a55d141d98d03a2b22b3836c7dee3f8'; // ← remplace par ta Search API Key (Search-Only)
+const ALGOLIA_APP_ID = process.env.EXPO_PUBLIC_ALGOLIA_APP_ID || '';
+const ALGOLIA_SEARCH_API_KEY = process.env.EXPO_PUBLIC_ALGOLIA_SEARCH_KEY || '';
 const ALGOLIA_INDEX_NAME = 'products';
 const algolia = createSearchClient(ALGOLIA_APP_ID, ALGOLIA_SEARCH_API_KEY);
 

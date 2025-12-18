@@ -4,7 +4,7 @@ Cette check-list couvre les actions restantes pour rendre l'app web la plus robu
 
 ## Secrets & Configuration
 - [ ] Supprimer toute clé sensible du dépôt (service accounts, API privées). ✅ Vérifier l'historique Git.
-- [ ] Utiliser uniquement `NEXT_PUBLIC_*` pour les clés exposables, stocker les autres dans des variables d'env server-only (Vercel, serveurs, etc.).
+- [x] Utiliser uniquement `NEXT_PUBLIC_*` pour les clés exposables, stocker les autres dans des variables d'env server-only. *(2024-12-18: Clés Algolia et Firebase migrées vers variables d'environnement)*
 - [ ] Activer la rotation périodique des clés Firebase / tokens API.
 - [ ] Documenter la procédure de révocation urgente (qui contacter, délai).
 

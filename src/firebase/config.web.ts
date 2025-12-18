@@ -4,7 +4,7 @@ import 'firebase/compat/firestore';
 
 // Expo web does not read the native google-services files, so initialize Firebase manually.
 const firebaseConfig = {
-  apiKey: 'AIzaSyDNYwc40OWGXHrOOqqPYTB_jDGJmI7Mc1M',
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || '',
   authDomain: 'africaphone-vente.firebaseapp.com',
   projectId: 'africaphone-vente',
   storageBucket: 'africaphone-vente.firebasestorage.app',
