@@ -10,8 +10,8 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 
 const KKIAPAY_FILE = path.join(__dirname, '..', 'Affaire Vote', 'LISTE-DES-TRANSACTIONS KKIAPAY jusqu\'à maintenant.xlsx');
-const FIREBASE_INTENTS_CSV = path.join(__dirname, '..', 'exports', 'votes-artistes-pending-intents-2025-12-17.csv');
-const FIREBASE_FULL_EXPORT = path.join(__dirname, '..', 'exports', 'votes-artistes-full-export-2025-12-17.json');
+const FIREBASE_INTENTS_CSV = path.join(__dirname, '..', 'exports', 'votes-artistes-pending-intents-2025-12-19.csv');
+const FIREBASE_FULL_EXPORT = path.join(__dirname, '..', 'exports', 'votes-artistes-full-export-2025-12-19.json');
 
 function main() {
     console.log('=== COMPARAISON KKIAPAY vs FIREBASE (17 Décembre 2025) ===\n');
