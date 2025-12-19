@@ -8,7 +8,7 @@ const path = require('path');
 const XLSX = require('xlsx');
 
 const AFFAIRE_VOTE_DIR = path.join(__dirname, '..', 'Affaire Vote');
-const KKIAPAY_FILE = path.join(AFFAIRE_VOTE_DIR, 'LISTE-DES-TRANSACTIONS KKIAPAY.xlsx');
+const KKIAPAY_FILE = path.join(AFFAIRE_VOTE_DIR, 'LISTE-DES-TRANSACTIONS KKIAPAY jusqu\'à maintenant.xlsx');
 
 console.log('=== ANALYSE DU FICHIER EXCEL KKIAPAY ===\n');
 
