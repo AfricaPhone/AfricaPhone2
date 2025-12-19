@@ -1,0 +1,47 @@
+[
+  {
+    "transactionId": "3639192283360687",
+    "partnerId": "sqoEv07ZDfCWOSjYyMQk",
+    "amount": 10000,
+    "date": "2025-12-18T22:13:39.107Z",
+    "customer": "Abibou",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "status": "SUCCESS"
+  },
+  {
+    "transactionId": "7359052315888129",
+    "partnerId": "AfG6DQxoOSAMrXPHrFMX",
+    "amount": 200,
+    "date": "2025-12-18T07:01:54.359Z",
+    "customer": "YOROUBA CHABI",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "status": "SUCCESS"
+  },
+  {
+    "transactionId": "9600745960220276",
+    "partnerId": "Vz6MIBMNS2GvHDdFPZSQ",
+    "amount": 100,
+    "date": "2025-12-17T21:33:47.863Z",
+    "customer": "abran Tchabi",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "status": "SUCCESS"
+  },
+  {
+    "transactionId": "5804253434007278",
+    "partnerId": "WmBbfeyYbaQiwGAUhWg0",
+    "amount": 1000,
+    "date": "2025-12-17T19:25:08.211Z",
+    "customer": "Roland Worou",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "status": "SUCCESS"
+  },
+  {
+    "transactionId": "2108089888375084",
+    "partnerId": "7nkuLRDqnafzmB0GWbdN",
+    "amount": 500,
+    "date": "2025-12-17T15:28:08.668Z",
+    "customer": "Jean ACAKPO",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "status": "SUCCESS"
+  }
+]
