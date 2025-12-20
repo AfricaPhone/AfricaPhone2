@@ -10,8 +10,8 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 
 const AFFAIRE_VOTE_DIR = path.join(__dirname, '..', 'Affaire Vote');
-const KKIAPAY_FILE = path.join(AFFAIRE_VOTE_DIR, 'LISTE-DES-TRANSACTIONS KKIAPAY.xlsx');
-const PENDING_INTENTS_FILE = path.join(AFFAIRE_VOTE_DIR, 'votes-artistes-pending-intents-2025-12-16.csv');
+const KKIAPAY_FILE = path.join(AFFAIRE_VOTE_DIR, 'LISTE-DES-TRANSACTIONS KKIAPAY jusqu\'à maintenant.xlsx');
+const PENDING_INTENTS_FILE = path.join(AFFAIRE_VOTE_DIR, 'votes-artistes-pending-intents-2025-12-20.csv');
 
 function readKkiapayExcel(filePath) {
     console.log(`\nLecture du fichier Excel Kkiapay: ${path.basename(filePath)}`);
@@ -37,13 +37,27 @@ function readKkiapayExcel(filePath) {
         return [];
     }
 
-    // First row is headers
-    const headers = rawData[0];
-    console.log(`  - Colonnes: ${headers.join(', ')}`);
+    // Find header row
+    let headerRowIndex = -1;
+    for (let i = 0; i < 20; i++) {
+        if (rawData[i] && (rawData[i][0] === 'ID Transaction' || rawData[i].includes('ID Transaction'))) {
+            headerRowIndex = i;
+            break;
+        }
+    }
+
+    if (headerRowIndex === -1) {
+        console.log('  - En-tête non trouvé (ID Transaction)');
+        // Fallback to row 0 if not found, though unlikely to work
+        headerRowIndex = 0;
+    }
+
+    const headers = rawData[headerRowIndex];
+    console.log(`  - Colonnes (ligne ${headerRowIndex}): ${headers.join(', ')}`);
 
     // Convert to objects
     const data = [];
-    for (let i = 1; i < rawData.length; i++) {
+    for (let i = headerRowIndex + 1; i < rawData.length; i++) {
         const row = rawData[i];
         if (!row || row.length === 0 || !row[0]) continue;
 
@@ -70,11 +84,11 @@ function readPendingIntentsCSV(filePath) {
         return [];
     }
 
-    const headers = lines[0].split(',');
+    const headers = lines[0].split(';');
     const data = [];
 
     for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',');
+        const values = lines[i].split(';');
         const row = {};
         headers.forEach((header, idx) => {
             row[header] = values[idx] || '';

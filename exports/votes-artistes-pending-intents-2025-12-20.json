@@ -1,0 +1,6732 @@
+[
+  {
+    "id": "0BylJzSkGYWURLVx9BKO",
+    "intentId": "0BylJzSkGYWURLVx9BKO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T14:57:52.106Z"
+  },
+  {
+    "id": "0COSJ2WI5gDkKEfXOPzQ",
+    "intentId": "0COSJ2WI5gDkKEfXOPzQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:42:33.235Z"
+  },
+  {
+    "id": "0MElkQ9hr2gbTFxhAKHH",
+    "intentId": "0MElkQ9hr2gbTFxhAKHH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T20:46:24.970Z"
+  },
+  {
+    "id": "0QxzRVcdDUrpLxfcTTGk",
+    "intentId": "0QxzRVcdDUrpLxfcTTGk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 20000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:25:10.694Z"
+  },
+  {
+    "id": "0eQpGvLU505tMyJ42Z7j",
+    "intentId": "0eQpGvLU505tMyJ42Z7j",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:41:57.332Z"
+  },
+  {
+    "id": "0egg6YDjGeJWUoeOPV9E",
+    "intentId": "0egg6YDjGeJWUoeOPV9E",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:07:19.582Z"
+  },
+  {
+    "id": "0gXey68aNdeTtr9O4qpC",
+    "intentId": "0gXey68aNdeTtr9O4qpC",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:03:17.039Z"
+  },
+  {
+    "id": "0jAmGgpjGF3bKb7GasRk",
+    "intentId": "0jAmGgpjGF3bKb7GasRk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 4000,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:06:16.832Z"
+  },
+  {
+    "id": "0rtIBbkGd2gHlT7LhiHG",
+    "intentId": "0rtIBbkGd2gHlT7LhiHG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T18:55:15.304Z"
+  },
+  {
+    "id": "14GBG37w96yTpLNgTsCj",
+    "intentId": "14GBG37w96yTpLNgTsCj",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:02:13.717Z"
+  },
+  {
+    "id": "14W4GGdy5sneKTgIFB6n",
+    "intentId": "14W4GGdy5sneKTgIFB6n",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:43:19.975Z"
+  },
+  {
+    "id": "1H07CaN4X1cGS8EB6DVI",
+    "intentId": "1H07CaN4X1cGS8EB6DVI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:06:39.792Z"
+  },
+  {
+    "id": "1JXalAkiLVsFvk1D1DRb",
+    "intentId": "1JXalAkiLVsFvk1D1DRb",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:52:03.667Z"
+  },
+  {
+    "id": "1PFHKMqRlKrBdmyfhNWk",
+    "intentId": "1PFHKMqRlKrBdmyfhNWk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T09:44:41.708Z"
+  },
+  {
+    "id": "1ROaUBNlt5HctkT0vwzR",
+    "intentId": "1ROaUBNlt5HctkT0vwzR",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:14:37.724Z"
+  },
+  {
+    "id": "1ZxJ60D0YpbVFL0nftK4",
+    "intentId": "1ZxJ60D0YpbVFL0nftK4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-20T03:49:27.479Z"
+  },
+  {
+    "id": "1lpCzAHxXZkfRdwYks1G",
+    "intentId": "1lpCzAHxXZkfRdwYks1G",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:41:56.044Z"
+  },
+  {
+    "id": "1oGWcWemBIPvon0xtIZT",
+    "intentId": "1oGWcWemBIPvon0xtIZT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:47:43.480Z"
+  },
+  {
+    "id": "1uGBSkmxJtmwsADD2Qef",
+    "intentId": "1uGBSkmxJtmwsADD2Qef",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:08:20.972Z"
+  },
+  {
+    "id": "1uT3CZjFYhTwYOmoLtVi",
+    "intentId": "1uT3CZjFYhTwYOmoLtVi",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:07:31.764Z"
+  },
+  {
+    "id": "1wbk9goCnedoiJmiKj02",
+    "intentId": "1wbk9goCnedoiJmiKj02",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:31:56.056Z"
+  },
+  {
+    "id": "1xhNEuNaVzJHeCfeqltq",
+    "intentId": "1xhNEuNaVzJHeCfeqltq",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:44:28.071Z"
+  },
+  {
+    "id": "29j7CzVPobEOYzjJMe1v",
+    "intentId": "29j7CzVPobEOYzjJMe1v",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:05:40.113Z"
+  },
+  {
+    "id": "2EIaox3YARyQZ9PpsNJi",
+    "intentId": "2EIaox3YARyQZ9PpsNJi",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-19T16:57:24.256Z"
+  },
+  {
+    "id": "2HdSwYjgIhofTieeJNgh",
+    "intentId": "2HdSwYjgIhofTieeJNgh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 25000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:59:06.036Z"
+  },
+  {
+    "id": "2PIDfy0zEO5x1FwqHAZk",
+    "intentId": "2PIDfy0zEO5x1FwqHAZk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:22:20.564Z"
+  },
+  {
+    "id": "2TQxivYyzVYv2cx90jKu",
+    "intentId": "2TQxivYyzVYv2cx90jKu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:44:23.781Z"
+  },
+  {
+    "id": "2WwJDGrNi3BlUq4Bsi8S",
+    "intentId": "2WwJDGrNi3BlUq4Bsi8S",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T10:16:44.917Z"
+  },
+  {
+    "id": "2jTViQ88dBxH185XKmzL",
+    "intentId": "2jTViQ88dBxH185XKmzL",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "THSoBfgsHaDLamNs758L",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T11:55:57.870Z"
+  },
+  {
+    "id": "2vbqFZR43mcERxrhTzCc",
+    "intentId": "2vbqFZR43mcERxrhTzCc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "8ELIXFDTdljYr37syNyv",
+    "amount": 400,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:21:28.433Z"
+  },
+  {
+    "id": "2xU1khoCJkjZNTJhHR1a",
+    "intentId": "2xU1khoCJkjZNTJhHR1a",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:36:16.068Z"
+  },
+  {
+    "id": "2yokDMEgUC7MQD5aGN5P",
+    "intentId": "2yokDMEgUC7MQD5aGN5P",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:50:01.220Z"
+  },
+  {
+    "id": "32HVUuxvalec0VZSicqv",
+    "intentId": "32HVUuxvalec0VZSicqv",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T16:10:20.061Z"
+  },
+  {
+    "id": "3BWdV5AQW8lu5E9P5BFr",
+    "intentId": "3BWdV5AQW8lu5E9P5BFr",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 15400,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:59:26.921Z"
+  },
+  {
+    "id": "3EgF6Lyuqfhyu0ucmiHQ",
+    "intentId": "3EgF6Lyuqfhyu0ucmiHQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T07:23:44.912Z"
+  },
+  {
+    "id": "3NGFd1quICrKurrpxUVu",
+    "intentId": "3NGFd1quICrKurrpxUVu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:39:39.534Z"
+  },
+  {
+    "id": "3UQgqCNy2L4wMwETiaGZ",
+    "intentId": "3UQgqCNy2L4wMwETiaGZ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:35:13.520Z"
+  },
+  {
+    "id": "3jFqGqHZz4z7dKW2lLni",
+    "intentId": "3jFqGqHZz4z7dKW2lLni",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:01:40.740Z"
+  },
+  {
+    "id": "3pLerCAe2Hvm1ntBLcDT",
+    "intentId": "3pLerCAe2Hvm1ntBLcDT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T06:41:30.170Z"
+  },
+  {
+    "id": "3sbs3tiY8UOajOw2fyo1",
+    "intentId": "3sbs3tiY8UOajOw2fyo1",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "zNIM4k3VP04xbhamFPva",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T10:19:16.697Z"
+  },
+  {
+    "id": "3veN0wbU7GohHfrJNLHT",
+    "intentId": "3veN0wbU7GohHfrJNLHT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "aUt5Vh29CsUcstBHEF8H",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:45:54.728Z"
+  },
+  {
+    "id": "4PClpJg4Jj5D1abvmPYy",
+    "intentId": "4PClpJg4Jj5D1abvmPYy",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-16T22:37:14.437Z"
+  },
+  {
+    "id": "4a93aLseHMIuqtkNs9de",
+    "intentId": "4a93aLseHMIuqtkNs9de",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:46:34.256Z"
+  },
+  {
+    "id": "4buz5iK3Q8SlTEeEwwJM",
+    "intentId": "4buz5iK3Q8SlTEeEwwJM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-16T15:08:45.747Z"
+  },
+  {
+    "id": "4gQFCDrkX8S44WR2fVbD",
+    "intentId": "4gQFCDrkX8S44WR2fVbD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:48:21.705Z"
+  },
+  {
+    "id": "4ktPldBJonvAtqpMmyU2",
+    "intentId": "4ktPldBJonvAtqpMmyU2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:12:37.390Z"
+  },
+  {
+    "id": "4n28iNqrG4zoWhxyBoCn",
+    "intentId": "4n28iNqrG4zoWhxyBoCn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:09:41.029Z"
+  },
+  {
+    "id": "4t0aFyX5F7wFS87n095m",
+    "intentId": "4t0aFyX5F7wFS87n095m",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1500,
+    "status": "pending",
+    "createdAt": "2025-12-16T22:10:24.441Z"
+  },
+  {
+    "id": "4vWVfC68NAaDAH41tPYD",
+    "intentId": "4vWVfC68NAaDAH41tPYD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T20:18:52.384Z"
+  },
+  {
+    "id": "4z3ngwRoyZsvAB1UkjV0",
+    "intentId": "4z3ngwRoyZsvAB1UkjV0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:30:51.041Z"
+  },
+  {
+    "id": "555j3d4d4nh6KTCk3aXl",
+    "intentId": "555j3d4d4nh6KTCk3aXl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:21:24.969Z"
+  },
+  {
+    "id": "55ewCWgHE7Vu893fhOgd",
+    "intentId": "55ewCWgHE7Vu893fhOgd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "zNIM4k3VP04xbhamFPva",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:32:02.961Z"
+  },
+  {
+    "id": "5M1VZRFCets7j4E9Blvk",
+    "intentId": "5M1VZRFCets7j4E9Blvk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T10:09:29.192Z"
+  },
+  {
+    "id": "5N4wncs4QUvxQJZyotIL",
+    "intentId": "5N4wncs4QUvxQJZyotIL",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:04:29.696Z"
+  },
+  {
+    "id": "5m5rgsJzvif6LY6eBNqa",
+    "intentId": "5m5rgsJzvif6LY6eBNqa",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:07:11.491Z"
+  },
+  {
+    "id": "5mjfMydUfdtujCOWD7IH",
+    "intentId": "5mjfMydUfdtujCOWD7IH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:30:22.100Z"
+  },
+  {
+    "id": "5pQErxMFJ5UZlYkGjS8H",
+    "intentId": "5pQErxMFJ5UZlYkGjS8H",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:09:18.629Z"
+  },
+  {
+    "id": "5vqjPIU0OKOhryKWIkX6",
+    "intentId": "5vqjPIU0OKOhryKWIkX6",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T10:03:56.006Z"
+  },
+  {
+    "id": "5xF0Ctn32JoFV1tKl8mT",
+    "intentId": "5xF0Ctn32JoFV1tKl8mT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:37:23.202Z"
+  },
+  {
+    "id": "64eUgYAeEkGlj9pqq4vY",
+    "intentId": "64eUgYAeEkGlj9pqq4vY",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T09:15:05.045Z"
+  },
+  {
+    "id": "64go0qlAWaGQhtLlrX9s",
+    "intentId": "64go0qlAWaGQhtLlrX9s",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 900,
+    "status": "pending",
+    "createdAt": "2025-12-17T07:16:11.029Z"
+  },
+  {
+    "id": "68cRFTJk5kXk1PWUd4xn",
+    "intentId": "68cRFTJk5kXk1PWUd4xn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:33:34.014Z"
+  },
+  {
+    "id": "6BMAlYcTA0bJG5bzZTfg",
+    "intentId": "6BMAlYcTA0bJG5bzZTfg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:08:52.949Z"
+  },
+  {
+    "id": "6MrzahufBZ2ooNIL9Cib",
+    "intentId": "6MrzahufBZ2ooNIL9Cib",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:15:46.791Z"
+  },
+  {
+    "id": "6T7DmrK2FQtj7PypDT9e",
+    "intentId": "6T7DmrK2FQtj7PypDT9e",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:19:19.699Z"
+  },
+  {
+    "id": "6dJkQxbWIKMlNDFenv1M",
+    "intentId": "6dJkQxbWIKMlNDFenv1M",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2100,
+    "status": "pending",
+    "createdAt": "2025-12-19T04:14:34.527Z"
+  },
+  {
+    "id": "6mtybx0EDtc7eKXHP5XS",
+    "intentId": "6mtybx0EDtc7eKXHP5XS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:16:02.108Z"
+  },
+  {
+    "id": "6n9skVbJcOhDgIo1LYcp",
+    "intentId": "6n9skVbJcOhDgIo1LYcp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:18:17.017Z"
+  },
+  {
+    "id": "6wtoYaxe1jGZf1lr05I0",
+    "intentId": "6wtoYaxe1jGZf1lr05I0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 14500,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:55:43.366Z"
+  },
+  {
+    "id": "6zBcaj9txYKzgcInGo6O",
+    "intentId": "6zBcaj9txYKzgcInGo6O",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-18T23:07:40.500Z"
+  },
+  {
+    "id": "6zRuiQXEjbzor4840Xr9",
+    "intentId": "6zRuiQXEjbzor4840Xr9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 30000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:00:12.982Z"
+  },
+  {
+    "id": "74sdmtyZuDxXTbQpcTsd",
+    "intentId": "74sdmtyZuDxXTbQpcTsd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:09:39.876Z"
+  },
+  {
+    "id": "7CrDcnV4U2TRiTLosbTu",
+    "intentId": "7CrDcnV4U2TRiTLosbTu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:26:15.994Z"
+  },
+  {
+    "id": "7Mf1aZVoEV29HuApa8PY",
+    "intentId": "7Mf1aZVoEV29HuApa8PY",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:34:39.116Z"
+  },
+  {
+    "id": "7PRV2yCSsUWsBot311J2",
+    "intentId": "7PRV2yCSsUWsBot311J2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T13:41:58.468Z"
+  },
+  {
+    "id": "7PcbM4EOkUKlkS0cBvmD",
+    "intentId": "7PcbM4EOkUKlkS0cBvmD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T15:14:29.482Z"
+  },
+  {
+    "id": "7Ps4hqm32Bshx35t5uyB",
+    "intentId": "7Ps4hqm32Bshx35t5uyB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T08:17:33.120Z"
+  },
+  {
+    "id": "7cGFAz4NfV8i1sOGg9AO",
+    "intentId": "7cGFAz4NfV8i1sOGg9AO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:43:21.473Z"
+  },
+  {
+    "id": "7nodyyHV7G3loNENDQq4",
+    "intentId": "7nodyyHV7G3loNENDQq4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T06:00:10.251Z"
+  },
+  {
+    "id": "7qVoHeSpdG4IeoSyUuVo",
+    "intentId": "7qVoHeSpdG4IeoSyUuVo",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 22500,
+    "status": "pending",
+    "createdAt": "2025-12-16T22:35:18.482Z"
+  },
+  {
+    "id": "82TB4CMYZ0AXHcFOSqxT",
+    "intentId": "82TB4CMYZ0AXHcFOSqxT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T11:58:36.001Z"
+  },
+  {
+    "id": "86slvYBTfTYKksqiydq9",
+    "intentId": "86slvYBTfTYKksqiydq9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:55:03.971Z"
+  },
+  {
+    "id": "87pp9HaGClG9je9KqT4X",
+    "intentId": "87pp9HaGClG9je9KqT4X",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:24:52.204Z"
+  },
+  {
+    "id": "88xYoGM0EPIJ44oCN9Fk",
+    "intentId": "88xYoGM0EPIJ44oCN9Fk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 10300,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:52:35.295Z"
+  },
+  {
+    "id": "8BvJ6qJ1A0LCQbrPFrZP",
+    "intentId": "8BvJ6qJ1A0LCQbrPFrZP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T14:37:50.188Z"
+  },
+  {
+    "id": "8I2d5nXIZlvPN3FLk8xH",
+    "intentId": "8I2d5nXIZlvPN3FLk8xH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 3800,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:39:34.095Z"
+  },
+  {
+    "id": "8KlhlYpssxkURMEbxq2B",
+    "intentId": "8KlhlYpssxkURMEbxq2B",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:36:23.969Z"
+  },
+  {
+    "id": "8bhw9v79aUM1qmFVKBom",
+    "intentId": "8bhw9v79aUM1qmFVKBom",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 20000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:01:40.563Z"
+  },
+  {
+    "id": "8bzVAb9dtLmxPJTaPxK8",
+    "intentId": "8bzVAb9dtLmxPJTaPxK8",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:58:57.867Z"
+  },
+  {
+    "id": "8fS4AFpCdtKTSOuIptwz",
+    "intentId": "8fS4AFpCdtKTSOuIptwz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:36:10.796Z"
+  },
+  {
+    "id": "8iP3RqSuVWGn0HXTVd4S",
+    "intentId": "8iP3RqSuVWGn0HXTVd4S",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T16:02:53.554Z"
+  },
+  {
+    "id": "8jQEf9Y5jdVKfhKq0NB4",
+    "intentId": "8jQEf9Y5jdVKfhKq0NB4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:05:57.487Z"
+  },
+  {
+    "id": "8kLh2tjKeLM3ixs0RpxI",
+    "intentId": "8kLh2tjKeLM3ixs0RpxI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T14:24:00.558Z"
+  },
+  {
+    "id": "8phK8eibBSlWv4EWAJzp",
+    "intentId": "8phK8eibBSlWv4EWAJzp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "6AkulXNEKwaJVwByJl7t",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:54:38.105Z"
+  },
+  {
+    "id": "8qAanemi9YnpxIqiNMqT",
+    "intentId": "8qAanemi9YnpxIqiNMqT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T18:52:33.980Z"
+  },
+  {
+    "id": "8rDe0ztz4jJ6acXiVqsg",
+    "intentId": "8rDe0ztz4jJ6acXiVqsg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T04:50:17.333Z"
+  },
+  {
+    "id": "8roxwYPFa330JG9bbL2b",
+    "intentId": "8roxwYPFa330JG9bbL2b",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 1900,
+    "status": "pending",
+    "createdAt": "2025-12-19T07:14:31.471Z"
+  },
+  {
+    "id": "8uU0lUfItmik9A32KBIO",
+    "intentId": "8uU0lUfItmik9A32KBIO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "QYa6O7F6VvbOPzwmlD0Q",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T06:03:10.015Z"
+  },
+  {
+    "id": "8wpnU70C9Ht5zvnl9Ec3",
+    "intentId": "8wpnU70C9Ht5zvnl9Ec3",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T20:58:17.983Z"
+  },
+  {
+    "id": "8wwRn1IXwHFuWYUqBxJS",
+    "intentId": "8wwRn1IXwHFuWYUqBxJS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T09:37:09.399Z"
+  },
+  {
+    "id": "8y0RgdaaYl6fc9tbSKvH",
+    "intentId": "8y0RgdaaYl6fc9tbSKvH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T06:39:30.812Z"
+  },
+  {
+    "id": "93q8y7XQILtG94tzDQxi",
+    "intentId": "93q8y7XQILtG94tzDQxi",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T17:07:58.880Z"
+  },
+  {
+    "id": "9E30k6BS12wnzjQvFeuM",
+    "intentId": "9E30k6BS12wnzjQvFeuM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:36:54.620Z"
+  },
+  {
+    "id": "9QyNDJR7s2LQ4dvdr8Z0",
+    "intentId": "9QyNDJR7s2LQ4dvdr8Z0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 5100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:32:21.539Z"
+  },
+  {
+    "id": "9ZqQs0EmFwzu9LLh3Yib",
+    "intentId": "9ZqQs0EmFwzu9LLh3Yib",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:35:28.000Z"
+  },
+  {
+    "id": "9jddeDKZbmGKgbhfUPeb",
+    "intentId": "9jddeDKZbmGKgbhfUPeb",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-17T10:04:25.950Z"
+  },
+  {
+    "id": "9kweaO2sCSUKv5UTyoll",
+    "intentId": "9kweaO2sCSUKv5UTyoll",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:32:58.411Z"
+  },
+  {
+    "id": "9m5hTPUkjxF39RkJFUHg",
+    "intentId": "9m5hTPUkjxF39RkJFUHg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:15:19.876Z"
+  },
+  {
+    "id": "9mH2WNSmsR21DWUTvYIX",
+    "intentId": "9mH2WNSmsR21DWUTvYIX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "8ELIXFDTdljYr37syNyv",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:11:00.745Z"
+  },
+  {
+    "id": "9qnAezuzl7u4N4MVeztT",
+    "intentId": "9qnAezuzl7u4N4MVeztT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 2500,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:07:01.072Z"
+  },
+  {
+    "id": "9qsTlhKNpzrYT2Wfo7mh",
+    "intentId": "9qsTlhKNpzrYT2Wfo7mh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "zNIM4k3VP04xbhamFPva",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T06:19:34.334Z"
+  },
+  {
+    "id": "9rzd7bRwrYcUhi9DP8TM",
+    "intentId": "9rzd7bRwrYcUhi9DP8TM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:49:46.968Z"
+  },
+  {
+    "id": "A0ChB17xRRUOUMBpM5BV",
+    "intentId": "A0ChB17xRRUOUMBpM5BV",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:54:00.973Z"
+  },
+  {
+    "id": "AENwAKCJAj2PW3JUu8fd",
+    "intentId": "AENwAKCJAj2PW3JUu8fd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:46:10.275Z"
+  },
+  {
+    "id": "AOluk5dcYx2DMtxFINKU",
+    "intentId": "AOluk5dcYx2DMtxFINKU",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-16T17:56:37.006Z"
+  },
+  {
+    "id": "AVwgsklVlJaDIv66IvRQ",
+    "intentId": "AVwgsklVlJaDIv66IvRQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:12:26.565Z"
+  },
+  {
+    "id": "AiZqdhdQ13MdhxxdmzZn",
+    "intentId": "AiZqdhdQ13MdhxxdmzZn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:58:56.651Z"
+  },
+  {
+    "id": "Akvh5ZfzoJIIAD0S5isl",
+    "intentId": "Akvh5ZfzoJIIAD0S5isl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-17T17:04:32.379Z"
+  },
+  {
+    "id": "Ap5ll3GQVcxHIktklMe8",
+    "intentId": "Ap5ll3GQVcxHIktklMe8",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:05:08.101Z"
+  },
+  {
+    "id": "AuUqF4tEBmgpVjLoIe7T",
+    "intentId": "AuUqF4tEBmgpVjLoIe7T",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T18:36:06.739Z"
+  },
+  {
+    "id": "Audyzsx9PdHi00e0He0w",
+    "intentId": "Audyzsx9PdHi00e0He0w",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T21:15:07.826Z"
+  },
+  {
+    "id": "AvnoknVpbukP3Ro17GQW",
+    "intentId": "AvnoknVpbukP3Ro17GQW",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T07:17:21.927Z"
+  },
+  {
+    "id": "B5wOje56QN099WRnvvqd",
+    "intentId": "B5wOje56QN099WRnvvqd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:40:35.580Z"
+  },
+  {
+    "id": "B6GZhFFk0UUyYQn6GeWe",
+    "intentId": "B6GZhFFk0UUyYQn6GeWe",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:33:25.954Z"
+  },
+  {
+    "id": "BIhzpyNB4vQAmPR6PC7l",
+    "intentId": "BIhzpyNB4vQAmPR6PC7l",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:38:09.606Z"
+  },
+  {
+    "id": "BNDFmtSaRr3qlnQG5Gw9",
+    "intentId": "BNDFmtSaRr3qlnQG5Gw9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 15000,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:09:25.927Z"
+  },
+  {
+    "id": "BWvc3RyytT4WQQ0I86tY",
+    "intentId": "BWvc3RyytT4WQQ0I86tY",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:14:41.120Z"
+  },
+  {
+    "id": "BlAsjopePo1U2F65F2OO",
+    "intentId": "BlAsjopePo1U2F65F2OO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-18T18:04:23.676Z"
+  },
+  {
+    "id": "BxStuieb875xZZHU4vNc",
+    "intentId": "BxStuieb875xZZHU4vNc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:33:29.497Z"
+  },
+  {
+    "id": "Bz78flr5eGZCJTclQfAu",
+    "intentId": "Bz78flr5eGZCJTclQfAu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T21:15:47.659Z"
+  },
+  {
+    "id": "C0fkKBlGxcBhSwJBhRr4",
+    "intentId": "C0fkKBlGxcBhSwJBhRr4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 600,
+    "status": "pending",
+    "createdAt": "2025-12-16T05:43:22.876Z"
+  },
+  {
+    "id": "C5NrEJojRtVtIGsd6STO",
+    "intentId": "C5NrEJojRtVtIGsd6STO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:07:35.379Z"
+  },
+  {
+    "id": "C82wJN8MvbLcVbW1Z4O0",
+    "intentId": "C82wJN8MvbLcVbW1Z4O0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T13:11:43.012Z"
+  },
+  {
+    "id": "CEpPesPwoKybobvN5In8",
+    "intentId": "CEpPesPwoKybobvN5In8",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-17T11:15:32.145Z"
+  },
+  {
+    "id": "CFdiaA2PiNKKVfpdcJvI",
+    "intentId": "CFdiaA2PiNKKVfpdcJvI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:14:10.721Z"
+  },
+  {
+    "id": "CMdP8q7UgoioxCUGnbLu",
+    "intentId": "CMdP8q7UgoioxCUGnbLu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:46:09.651Z"
+  },
+  {
+    "id": "CMfyZlStn7FujsrA6NNi",
+    "intentId": "CMfyZlStn7FujsrA6NNi",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T08:43:00.747Z"
+  },
+  {
+    "id": "CPalIlZN4DgadUfCIvsk",
+    "intentId": "CPalIlZN4DgadUfCIvsk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T06:19:01.616Z"
+  },
+  {
+    "id": "CQSEkU3vTfsPh4vnxeJ3",
+    "intentId": "CQSEkU3vTfsPh4vnxeJ3",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:52:39.397Z"
+  },
+  {
+    "id": "CWm0zjd4zYqZC5twiqqG",
+    "intentId": "CWm0zjd4zYqZC5twiqqG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:10:14.882Z"
+  },
+  {
+    "id": "CZPTAM5ZdD06Jo7XUee2",
+    "intentId": "CZPTAM5ZdD06Jo7XUee2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T09:54:19.707Z"
+  },
+  {
+    "id": "CeNMxQsMJVdI9U7ts5pN",
+    "intentId": "CeNMxQsMJVdI9U7ts5pN",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:57:31.609Z"
+  },
+  {
+    "id": "CgkZnZMaZxb6CU8CuY7l",
+    "intentId": "CgkZnZMaZxb6CU8CuY7l",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T18:07:41.987Z"
+  },
+  {
+    "id": "D0DNuPy6vRBI6wFyvAKz",
+    "intentId": "D0DNuPy6vRBI6wFyvAKz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:40:50.843Z"
+  },
+  {
+    "id": "D1erIv0qaY0TPRVRha5X",
+    "intentId": "D1erIv0qaY0TPRVRha5X",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T17:16:59.717Z"
+  },
+  {
+    "id": "D7jB87ZcXN8gdduhZOZl",
+    "intentId": "D7jB87ZcXN8gdduhZOZl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "zNIM4k3VP04xbhamFPva",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T14:58:28.060Z"
+  },
+  {
+    "id": "D9aKJpP6lYgG8hdcTVol",
+    "intentId": "D9aKJpP6lYgG8hdcTVol",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T08:29:59.915Z"
+  },
+  {
+    "id": "DB0Bb2D0O142D5hE5INL",
+    "intentId": "DB0Bb2D0O142D5hE5INL",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T12:00:28.270Z"
+  },
+  {
+    "id": "DCHCZo2oQUyxN8IgRdNt",
+    "intentId": "DCHCZo2oQUyxN8IgRdNt",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:17:02.734Z"
+  },
+  {
+    "id": "DPZ3hVzTyyV7o8eXTiIe",
+    "intentId": "DPZ3hVzTyyV7o8eXTiIe",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T18:44:21.839Z"
+  },
+  {
+    "id": "DYtdt6kj8mAL2IACCpsu",
+    "intentId": "DYtdt6kj8mAL2IACCpsu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:08:27.826Z"
+  },
+  {
+    "id": "DdCGoLjUluOyr2KAp8FF",
+    "intentId": "DdCGoLjUluOyr2KAp8FF",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:24:31.110Z"
+  },
+  {
+    "id": "DlK2lWeRhRZWqhj4xHvk",
+    "intentId": "DlK2lWeRhRZWqhj4xHvk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T07:19:47.166Z"
+  },
+  {
+    "id": "DnUYMYUd2QeUsSw440Fd",
+    "intentId": "DnUYMYUd2QeUsSw440Fd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:00:30.896Z"
+  },
+  {
+    "id": "DrwVDpcCQUWQrLvZIX2r",
+    "intentId": "DrwVDpcCQUWQrLvZIX2r",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:45:02.161Z"
+  },
+  {
+    "id": "DwS7ha3G3k9yLPVE9Z2l",
+    "intentId": "DwS7ha3G3k9yLPVE9Z2l",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "aUt5Vh29CsUcstBHEF8H",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:20:11.811Z"
+  },
+  {
+    "id": "DzAZZ9KpcvvBlqHbPwPP",
+    "intentId": "DzAZZ9KpcvvBlqHbPwPP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:09:24.244Z"
+  },
+  {
+    "id": "DzYugKB6FK8PKcTdxoQg",
+    "intentId": "DzYugKB6FK8PKcTdxoQg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:23:06.542Z"
+  },
+  {
+    "id": "EIdtPgXbYzkMRI8RKWQl",
+    "intentId": "EIdtPgXbYzkMRI8RKWQl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 8000,
+    "status": "pending",
+    "createdAt": "2025-12-18T19:25:55.108Z"
+  },
+  {
+    "id": "EMeuB86nHF5Eg0kaIHXw",
+    "intentId": "EMeuB86nHF5Eg0kaIHXw",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:55:47.486Z"
+  },
+  {
+    "id": "EP8B63gghUVxgSXOxEmR",
+    "intentId": "EP8B63gghUVxgSXOxEmR",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T03:48:24.231Z"
+  },
+  {
+    "id": "EQ9EO7ZJF744UfdYl3oS",
+    "intentId": "EQ9EO7ZJF744UfdYl3oS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T17:38:50.346Z"
+  },
+  {
+    "id": "EgWBxeaRP1jnofvVWrO4",
+    "intentId": "EgWBxeaRP1jnofvVWrO4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T09:46:36.270Z"
+  },
+  {
+    "id": "EojClbAaIteNKt0xHp4F",
+    "intentId": "EojClbAaIteNKt0xHp4F",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T14:35:18.677Z"
+  },
+  {
+    "id": "F2sAV4TbykG42X9MBuIx",
+    "intentId": "F2sAV4TbykG42X9MBuIx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-18T16:01:35.802Z"
+  },
+  {
+    "id": "F4nQB7rq5bHe3H6nt6OO",
+    "intentId": "F4nQB7rq5bHe3H6nt6OO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:23:35.824Z"
+  },
+  {
+    "id": "F8H9aO2vZoq5TaSuqoi1",
+    "intentId": "F8H9aO2vZoq5TaSuqoi1",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T08:49:32.275Z"
+  },
+  {
+    "id": "FAtS26180D89sb0uyuWn",
+    "intentId": "FAtS26180D89sb0uyuWn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "THSoBfgsHaDLamNs758L",
+    "amount": 3000,
+    "status": "pending",
+    "createdAt": "2025-12-19T13:26:28.896Z"
+  },
+  {
+    "id": "FC2R6XOR7D4IsrtC6tAB",
+    "intentId": "FC2R6XOR7D4IsrtC6tAB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:50:42.327Z"
+  },
+  {
+    "id": "FI5dS60aDOl7p96xx8Pu",
+    "intentId": "FI5dS60aDOl7p96xx8Pu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T17:49:46.228Z"
+  },
+  {
+    "id": "FJQBswPJxS5mkghaM72X",
+    "intentId": "FJQBswPJxS5mkghaM72X",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 5200,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:40:27.243Z"
+  },
+  {
+    "id": "FOXlnBHZUzcpxj7Ep6P8",
+    "intentId": "FOXlnBHZUzcpxj7Ep6P8",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T07:04:51.726Z"
+  },
+  {
+    "id": "FQCzoNPDMHXw7n8feFY6",
+    "intentId": "FQCzoNPDMHXw7n8feFY6",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:01:38.094Z"
+  },
+  {
+    "id": "FXr3lN92k3rhvvBK0Xdf",
+    "intentId": "FXr3lN92k3rhvvBK0Xdf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:31:44.903Z"
+  },
+  {
+    "id": "Fb5KDoBPvsU72nT6LMJc",
+    "intentId": "Fb5KDoBPvsU72nT6LMJc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:13:02.502Z"
+  },
+  {
+    "id": "FcVrGF2KQPbFtQ7qFy7E",
+    "intentId": "FcVrGF2KQPbFtQ7qFy7E",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "8dxIvMVLsBZNKKBQiNFE",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:36:12.402Z"
+  },
+  {
+    "id": "FchSP5ZYRjOFJotxHs9P",
+    "intentId": "FchSP5ZYRjOFJotxHs9P",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:30:27.691Z"
+  },
+  {
+    "id": "Ff2meV4D5YIgO1OnMZq0",
+    "intentId": "Ff2meV4D5YIgO1OnMZq0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T20:57:06.037Z"
+  },
+  {
+    "id": "Ff8MMCkctUwG2OomVgRv",
+    "intentId": "Ff8MMCkctUwG2OomVgRv",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:50:29.380Z"
+  },
+  {
+    "id": "Ffx7wYksWIV7p9BBVIKp",
+    "intentId": "Ffx7wYksWIV7p9BBVIKp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T06:24:43.730Z"
+  },
+  {
+    "id": "Fhlq6jEssa6uJIcqL8W5",
+    "intentId": "Fhlq6jEssa6uJIcqL8W5",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:25:14.525Z"
+  },
+  {
+    "id": "FitO9MgjWHmOSwTQZ9qv",
+    "intentId": "FitO9MgjWHmOSwTQZ9qv",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:26:54.873Z"
+  },
+  {
+    "id": "Fm4gHy3dRaIn4NZMqEo4",
+    "intentId": "Fm4gHy3dRaIn4NZMqEo4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T07:56:13.313Z"
+  },
+  {
+    "id": "FnlqmdR0gjrkxEwverxD",
+    "intentId": "FnlqmdR0gjrkxEwverxD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T19:49:50.761Z"
+  },
+  {
+    "id": "FvdAbHapbO62pRU9c2bX",
+    "intentId": "FvdAbHapbO62pRU9c2bX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:00:11.043Z"
+  },
+  {
+    "id": "G7UlSPCuccRAMJYIItkm",
+    "intentId": "G7UlSPCuccRAMJYIItkm",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:10:22.759Z"
+  },
+  {
+    "id": "GEbF6ouhQ0GY89RsEn3b",
+    "intentId": "GEbF6ouhQ0GY89RsEn3b",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:14:34.047Z"
+  },
+  {
+    "id": "GInyQ9b8B7BuY0Kl8jpI",
+    "intentId": "GInyQ9b8B7BuY0Kl8jpI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T09:12:17.557Z"
+  },
+  {
+    "id": "GNO9n1eFWxOrMB5ElEXS",
+    "intentId": "GNO9n1eFWxOrMB5ElEXS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:43:27.489Z"
+  },
+  {
+    "id": "GYcK65OWhowTE8rTcb7l",
+    "intentId": "GYcK65OWhowTE8rTcb7l",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:01:33.300Z"
+  },
+  {
+    "id": "GgPnqqz4HPl9RYkdfi1R",
+    "intentId": "GgPnqqz4HPl9RYkdfi1R",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:55:35.553Z"
+  },
+  {
+    "id": "GjFqCLygo9jWFiHbLPKM",
+    "intentId": "GjFqCLygo9jWFiHbLPKM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-19T17:03:32.119Z"
+  },
+  {
+    "id": "GlAE1Bi3Irhd4xU1QI56",
+    "intentId": "GlAE1Bi3Irhd4xU1QI56",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T09:52:40.036Z"
+  },
+  {
+    "id": "GppLdTvpYWFUxReSYLaP",
+    "intentId": "GppLdTvpYWFUxReSYLaP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 5800,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:39:28.049Z"
+  },
+  {
+    "id": "H8vA4sabv5dbq74nRXl4",
+    "intentId": "H8vA4sabv5dbq74nRXl4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "6jJ1pd8NA2meRhVWW12M",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:37:37.387Z"
+  },
+  {
+    "id": "HCwKB6MDyR0QkMwtubyA",
+    "intentId": "HCwKB6MDyR0QkMwtubyA",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T23:18:53.184Z"
+  },
+  {
+    "id": "HR9gT3IfjzjlnJAyjqPT",
+    "intentId": "HR9gT3IfjzjlnJAyjqPT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:06:33.510Z"
+  },
+  {
+    "id": "HSOpV0ejUDnz7Yr5yC12",
+    "intentId": "HSOpV0ejUDnz7Yr5yC12",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:54:39.241Z"
+  },
+  {
+    "id": "HUkrTDNnWwoBfUwB7SIV",
+    "intentId": "HUkrTDNnWwoBfUwB7SIV",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T17:39:14.907Z"
+  },
+  {
+    "id": "HVaucU2hCY9tc3zMQNul",
+    "intentId": "HVaucU2hCY9tc3zMQNul",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "8dxIvMVLsBZNKKBQiNFE",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:37:55.049Z"
+  },
+  {
+    "id": "HXn7lWWjWzOyQndvTK3g",
+    "intentId": "HXn7lWWjWzOyQndvTK3g",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:49:42.975Z"
+  },
+  {
+    "id": "HrtY7uq1FMgWlorUmtmE",
+    "intentId": "HrtY7uq1FMgWlorUmtmE",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:08:38.469Z"
+  },
+  {
+    "id": "HtOucZqQpDclsTi3U42z",
+    "intentId": "HtOucZqQpDclsTi3U42z",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T06:50:29.622Z"
+  },
+  {
+    "id": "HtwvUesGiWVRCkpQyH2G",
+    "intentId": "HtwvUesGiWVRCkpQyH2G",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:19:52.601Z"
+  },
+  {
+    "id": "I0qHML9mki1wx3oTEEYs",
+    "intentId": "I0qHML9mki1wx3oTEEYs",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:29:09.429Z"
+  },
+  {
+    "id": "I4LQEaqNwImcTmCFRMyf",
+    "intentId": "I4LQEaqNwImcTmCFRMyf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 700,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:43:59.244Z"
+  },
+  {
+    "id": "I5QDcGZfc1nKjYje0Er5",
+    "intentId": "I5QDcGZfc1nKjYje0Er5",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:13:06.466Z"
+  },
+  {
+    "id": "I8JectGn9SKNkF8vDApg",
+    "intentId": "I8JectGn9SKNkF8vDApg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:36:19.042Z"
+  },
+  {
+    "id": "I8QpwcZKXGgeU3jOwXlQ",
+    "intentId": "I8QpwcZKXGgeU3jOwXlQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1200,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:42:56.331Z"
+  },
+  {
+    "id": "IE9n5uqNGTyEtrXnJkTH",
+    "intentId": "IE9n5uqNGTyEtrXnJkTH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "8ELIXFDTdljYr37syNyv",
+    "amount": 400,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:52:33.636Z"
+  },
+  {
+    "id": "IJRgjMKkX1CTBSYDja5b",
+    "intentId": "IJRgjMKkX1CTBSYDja5b",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T12:35:38.807Z"
+  },
+  {
+    "id": "ISojRkwuJgBzlh7sbdDT",
+    "intentId": "ISojRkwuJgBzlh7sbdDT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T15:50:35.260Z"
+  },
+  {
+    "id": "IVC93B34Ij7BrR0cTR9y",
+    "intentId": "IVC93B34Ij7BrR0cTR9y",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T23:10:35.787Z"
+  },
+  {
+    "id": "IVNGeLXox1nlT484sGTp",
+    "intentId": "IVNGeLXox1nlT484sGTp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:28:06.470Z"
+  },
+  {
+    "id": "IWC6pFk2Q1xoeN9a0WPJ",
+    "intentId": "IWC6pFk2Q1xoeN9a0WPJ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-17T14:02:30.380Z"
+  },
+  {
+    "id": "IX2hj0A5cIgsf64wi9nF",
+    "intentId": "IX2hj0A5cIgsf64wi9nF",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T07:01:44.801Z"
+  },
+  {
+    "id": "IY7QbQxQEeM7OG1rkpvP",
+    "intentId": "IY7QbQxQEeM7OG1rkpvP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:11:29.033Z"
+  },
+  {
+    "id": "Ih2dEEruKCBXucEayTYs",
+    "intentId": "Ih2dEEruKCBXucEayTYs",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T15:55:19.334Z"
+  },
+  {
+    "id": "ImH81YG3sS5QkOhEZ9FU",
+    "intentId": "ImH81YG3sS5QkOhEZ9FU",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:44:29.366Z"
+  },
+  {
+    "id": "Iym07AgRqQJLSJy92wS2",
+    "intentId": "Iym07AgRqQJLSJy92wS2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:51:52.527Z"
+  },
+  {
+    "id": "IztaJ816F8BjMhasHPIN",
+    "intentId": "IztaJ816F8BjMhasHPIN",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:33:03.192Z"
+  },
+  {
+    "id": "JF1u3E8CAknrOD8x4qsz",
+    "intentId": "JF1u3E8CAknrOD8x4qsz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:55:17.582Z"
+  },
+  {
+    "id": "JLCer12MMad0JjdFccQH",
+    "intentId": "JLCer12MMad0JjdFccQH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:10:53.157Z"
+  },
+  {
+    "id": "JNoe16rvSQcE9gBJmbRQ",
+    "intentId": "JNoe16rvSQcE9gBJmbRQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T14:36:00.273Z"
+  },
+  {
+    "id": "JpKSysstLSfTYl4dZNDZ",
+    "intentId": "JpKSysstLSfTYl4dZNDZ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-18T10:28:39.609Z"
+  },
+  {
+    "id": "JxX4qAgOlhMpB3qOFUoU",
+    "intentId": "JxX4qAgOlhMpB3qOFUoU",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 2100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:33:40.731Z"
+  },
+  {
+    "id": "K0eeGyItlfzjiWURngP0",
+    "intentId": "K0eeGyItlfzjiWURngP0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:36:34.817Z"
+  },
+  {
+    "id": "KAcWipTC7Gg6Ef6C3rEn",
+    "intentId": "KAcWipTC7Gg6Ef6C3rEn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "8ELIXFDTdljYr37syNyv",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:50:40.759Z"
+  },
+  {
+    "id": "KKlo2ChOmKlAxnDeNs4d",
+    "intentId": "KKlo2ChOmKlAxnDeNs4d",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 400,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:53:09.505Z"
+  },
+  {
+    "id": "KcIjOtWxaKStWMlpzznA",
+    "intentId": "KcIjOtWxaKStWMlpzznA",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T19:17:19.407Z"
+  },
+  {
+    "id": "KjSuJYozgOm5RL6o05Om",
+    "intentId": "KjSuJYozgOm5RL6o05Om",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T08:12:31.143Z"
+  },
+  {
+    "id": "KttylDUzquROdlVH77sf",
+    "intentId": "KttylDUzquROdlVH77sf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:41:53.507Z"
+  },
+  {
+    "id": "L2OKcX3f6JVEB4uFDSR2",
+    "intentId": "L2OKcX3f6JVEB4uFDSR2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "aUt5Vh29CsUcstBHEF8H",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-17T21:22:09.697Z"
+  },
+  {
+    "id": "L34bBy901syKf8UaBAbU",
+    "intentId": "L34bBy901syKf8UaBAbU",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T08:06:00.915Z"
+  },
+  {
+    "id": "L77PQQ6tubdyhLGOIHoV",
+    "intentId": "L77PQQ6tubdyhLGOIHoV",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 900,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:41:00.933Z"
+  },
+  {
+    "id": "LA8L2eB0xVBTKOwxF02E",
+    "intentId": "LA8L2eB0xVBTKOwxF02E",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:58:34.874Z"
+  },
+  {
+    "id": "LP3KuPO5mvSpb71AtngQ",
+    "intentId": "LP3KuPO5mvSpb71AtngQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:29:16.637Z"
+  },
+  {
+    "id": "LPluhDNO1NdUivj3xOLP",
+    "intentId": "LPluhDNO1NdUivj3xOLP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:14:19.777Z"
+  },
+  {
+    "id": "LSSa9BJtrhgvcfeHMGE6",
+    "intentId": "LSSa9BJtrhgvcfeHMGE6",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-16T16:09:08.576Z"
+  },
+  {
+    "id": "LTyUvRnRqdbXRv7KHsdK",
+    "intentId": "LTyUvRnRqdbXRv7KHsdK",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:03:31.709Z"
+  },
+  {
+    "id": "LXO2duRUKEi7MKttIqIz",
+    "intentId": "LXO2duRUKEi7MKttIqIz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "THSoBfgsHaDLamNs758L",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T09:42:55.968Z"
+  },
+  {
+    "id": "Ldi85m7UpMn7rXNlia45",
+    "intentId": "Ldi85m7UpMn7rXNlia45",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-19T17:02:42.099Z"
+  },
+  {
+    "id": "LlxZmpnSQWZ6thVQabxf",
+    "intentId": "LlxZmpnSQWZ6thVQabxf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T20:21:26.281Z"
+  },
+  {
+    "id": "LsoY96rfp0r9nVBD994E",
+    "intentId": "LsoY96rfp0r9nVBD994E",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-16T20:39:41.693Z"
+  },
+  {
+    "id": "LvNVGWv3MgSu5EdI9854",
+    "intentId": "LvNVGWv3MgSu5EdI9854",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-16T16:31:13.402Z"
+  },
+  {
+    "id": "M1Eb7lHyx3c2BIAA8td2",
+    "intentId": "M1Eb7lHyx3c2BIAA8td2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:48:42.034Z"
+  },
+  {
+    "id": "M8LIgjt5lNix6fOpZcHR",
+    "intentId": "M8LIgjt5lNix6fOpZcHR",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:36:23.780Z"
+  },
+  {
+    "id": "M9T5W5vn0AXWra2OxEEI",
+    "intentId": "M9T5W5vn0AXWra2OxEEI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:22:21.369Z"
+  },
+  {
+    "id": "MBey3WL3D8aaBrYDFkH7",
+    "intentId": "MBey3WL3D8aaBrYDFkH7",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:01:26.099Z"
+  },
+  {
+    "id": "MBgkoyb5JonAIjRkO3Ye",
+    "intentId": "MBgkoyb5JonAIjRkO3Ye",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:16:46.351Z"
+  },
+  {
+    "id": "MPbA28xyZJNxN5sIi1qq",
+    "intentId": "MPbA28xyZJNxN5sIi1qq",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:58:57.758Z"
+  },
+  {
+    "id": "MSTH3Ko2Pqa4ELaWCAZn",
+    "intentId": "MSTH3Ko2Pqa4ELaWCAZn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T13:16:30.008Z"
+  },
+  {
+    "id": "MkyfBKzlA9prF8i5PbP7",
+    "intentId": "MkyfBKzlA9prF8i5PbP7",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 3000,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:02:43.044Z"
+  },
+  {
+    "id": "Mn6z91bo4PPYn7beQDs9",
+    "intentId": "Mn6z91bo4PPYn7beQDs9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T17:11:32.693Z"
+  },
+  {
+    "id": "MozvESeEwV7bvP54EkUl",
+    "intentId": "MozvESeEwV7bvP54EkUl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-16T08:34:38.496Z"
+  },
+  {
+    "id": "MwzHk9s0tCxbcLRScWRe",
+    "intentId": "MwzHk9s0tCxbcLRScWRe",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:32:07.089Z"
+  },
+  {
+    "id": "NHlwUXtxHWPheqCTiMTy",
+    "intentId": "NHlwUXtxHWPheqCTiMTy",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:19:45.860Z"
+  },
+  {
+    "id": "NPW2abPsEDJPz962s9vO",
+    "intentId": "NPW2abPsEDJPz962s9vO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "6jJ1pd8NA2meRhVWW12M",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:00:34.158Z"
+  },
+  {
+    "id": "NPg6eefy0E4k1TvCVfur",
+    "intentId": "NPg6eefy0E4k1TvCVfur",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:32:11.551Z"
+  },
+  {
+    "id": "NSzbiwuIIdBSNd6feOac",
+    "intentId": "NSzbiwuIIdBSNd6feOac",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T07:32:21.272Z"
+  },
+  {
+    "id": "NVCF3mZzHYEO0bd8Ev0z",
+    "intentId": "NVCF3mZzHYEO0bd8Ev0z",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:06:29.888Z"
+  },
+  {
+    "id": "NlNaJsWGRA1DYQTjxQY6",
+    "intentId": "NlNaJsWGRA1DYQTjxQY6",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:31:42.006Z"
+  },
+  {
+    "id": "NmKvUv0FsZ1OLzvtfWI1",
+    "intentId": "NmKvUv0FsZ1OLzvtfWI1",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:38:16.419Z"
+  },
+  {
+    "id": "NoIXZnPhYGKxW5a40Rqk",
+    "intentId": "NoIXZnPhYGKxW5a40Rqk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T08:02:50.236Z"
+  },
+  {
+    "id": "Nyheyvz8hwWkULY6TFEs",
+    "intentId": "Nyheyvz8hwWkULY6TFEs",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:15:56.971Z"
+  },
+  {
+    "id": "Nz0dYPcK7wSqFiO9rMUB",
+    "intentId": "Nz0dYPcK7wSqFiO9rMUB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:16:14.235Z"
+  },
+  {
+    "id": "Nzuz3RcWHewxrgZbsgSK",
+    "intentId": "Nzuz3RcWHewxrgZbsgSK",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:19:45.884Z"
+  },
+  {
+    "id": "O0VTtBJ3pxT8SztjSwrh",
+    "intentId": "O0VTtBJ3pxT8SztjSwrh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-20T04:49:15.203Z"
+  },
+  {
+    "id": "O1GP6yRt2QEsoTrK6Dw6",
+    "intentId": "O1GP6yRt2QEsoTrK6Dw6",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:09:20.194Z"
+  },
+  {
+    "id": "O5Crk19c88H46eV2pxj0",
+    "intentId": "O5Crk19c88H46eV2pxj0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T10:10:13.642Z"
+  },
+  {
+    "id": "OLbHlQumxbpMVPLXcTXy",
+    "intentId": "OLbHlQumxbpMVPLXcTXy",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T07:53:21.280Z"
+  },
+  {
+    "id": "OVOaguNo0avkH6LPDTwx",
+    "intentId": "OVOaguNo0avkH6LPDTwx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:00:54.133Z"
+  },
+  {
+    "id": "OhNCzzrgOA4qhJdigcx8",
+    "intentId": "OhNCzzrgOA4qhJdigcx8",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:47:01.147Z"
+  },
+  {
+    "id": "Ojm44GwUbH0RqNqXCr4Y",
+    "intentId": "Ojm44GwUbH0RqNqXCr4Y",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:14:51.386Z"
+  },
+  {
+    "id": "Ojxukirm8XqWWgy10tyj",
+    "intentId": "Ojxukirm8XqWWgy10tyj",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:32:05.016Z"
+  },
+  {
+    "id": "OlQaRO46lTT6zmvVtars",
+    "intentId": "OlQaRO46lTT6zmvVtars",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:36:12.694Z"
+  },
+  {
+    "id": "Oo8oQCcFk8qcxkopN0Z8",
+    "intentId": "Oo8oQCcFk8qcxkopN0Z8",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:04:37.087Z"
+  },
+  {
+    "id": "OxiRjd619QzWKudsOZsu",
+    "intentId": "OxiRjd619QzWKudsOZsu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:57:43.439Z"
+  },
+  {
+    "id": "P6HPjPIWKZXKLqKoCW3e",
+    "intentId": "P6HPjPIWKZXKLqKoCW3e",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-18T02:34:37.007Z"
+  },
+  {
+    "id": "P7ZLY6WVxn0BtyruzsAy",
+    "intentId": "P7ZLY6WVxn0BtyruzsAy",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 4500,
+    "status": "pending",
+    "createdAt": "2025-12-16T15:09:33.906Z"
+  },
+  {
+    "id": "P7vbROHB6axSAq5WOHc7",
+    "intentId": "P7vbROHB6axSAq5WOHc7",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:11:46.303Z"
+  },
+  {
+    "id": "PDGfC2gGV1KdQnF9Wggh",
+    "intentId": "PDGfC2gGV1KdQnF9Wggh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T09:25:32.777Z"
+  },
+  {
+    "id": "PFif4a82CatR6nYyKNJ4",
+    "intentId": "PFif4a82CatR6nYyKNJ4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T22:48:06.631Z"
+  },
+  {
+    "id": "PKRGsxdOziznx0iDPLzB",
+    "intentId": "PKRGsxdOziznx0iDPLzB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:36:28.493Z"
+  },
+  {
+    "id": "PLoTpjiSSdthq1IrO0Ky",
+    "intentId": "PLoTpjiSSdthq1IrO0Ky",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 7000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:40:00.402Z"
+  },
+  {
+    "id": "PNDk7Wv6AeQwqLh8s4NW",
+    "intentId": "PNDk7Wv6AeQwqLh8s4NW",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T19:26:00.194Z"
+  },
+  {
+    "id": "PPvVeqOb6c32fSqbH7PF",
+    "intentId": "PPvVeqOb6c32fSqbH7PF",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "zNIM4k3VP04xbhamFPva",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-18T18:11:47.308Z"
+  },
+  {
+    "id": "PRJclV5DU55u94YeJoHO",
+    "intentId": "PRJclV5DU55u94YeJoHO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:14:49.308Z"
+  },
+  {
+    "id": "PWrVIClPRrpGTvJB06ck",
+    "intentId": "PWrVIClPRrpGTvJB06ck",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:11:01.531Z"
+  },
+  {
+    "id": "Pd3MbFVdeaJ7aIEHcr9S",
+    "intentId": "Pd3MbFVdeaJ7aIEHcr9S",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:13:58.742Z"
+  },
+  {
+    "id": "PfD8m6ytkyFidUy6rM3n",
+    "intentId": "PfD8m6ytkyFidUy6rM3n",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T20:56:45.367Z"
+  },
+  {
+    "id": "Pif1GMi5AaVh3e01lwWf",
+    "intentId": "Pif1GMi5AaVh3e01lwWf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "8dxIvMVLsBZNKKBQiNFE",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:05:16.444Z"
+  },
+  {
+    "id": "PmEjkyGFVw2o925dCxFX",
+    "intentId": "PmEjkyGFVw2o925dCxFX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-18T12:39:07.996Z"
+  },
+  {
+    "id": "PrlNrjJKXfnXkdYrmwBY",
+    "intentId": "PrlNrjJKXfnXkdYrmwBY",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 3000,
+    "status": "pending",
+    "createdAt": "2025-12-19T19:37:09.325Z"
+  },
+  {
+    "id": "Q4dP0BIklRPfwEp4EIdw",
+    "intentId": "Q4dP0BIklRPfwEp4EIdw",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 3000,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:07:57.620Z"
+  },
+  {
+    "id": "QIXmp2Yu8YPQRiP4Iqlf",
+    "intentId": "QIXmp2Yu8YPQRiP4Iqlf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-18T09:02:18.459Z"
+  },
+  {
+    "id": "QLPdNDGqml5snAza6qfj",
+    "intentId": "QLPdNDGqml5snAza6qfj",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:28:24.129Z"
+  },
+  {
+    "id": "QmZOqMvGPhwjUleH6WVv",
+    "intentId": "QmZOqMvGPhwjUleH6WVv",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:38:13.451Z"
+  },
+  {
+    "id": "QwIOW87YaFZdQZErUmWV",
+    "intentId": "QwIOW87YaFZdQZErUmWV",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:24:05.817Z"
+  },
+  {
+    "id": "R0f6IH2E1ZsS0qAD44Zj",
+    "intentId": "R0f6IH2E1ZsS0qAD44Zj",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T16:42:07.536Z"
+  },
+  {
+    "id": "ROTUcOveZEIebHcD6rMF",
+    "intentId": "ROTUcOveZEIebHcD6rMF",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T06:47:31.489Z"
+  },
+  {
+    "id": "RPiBfgXFWMPfVBvuftLm",
+    "intentId": "RPiBfgXFWMPfVBvuftLm",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T20:58:03.024Z"
+  },
+  {
+    "id": "RVgzxbzUWhUJxD3kJ7CC",
+    "intentId": "RVgzxbzUWhUJxD3kJ7CC",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T14:41:08.928Z"
+  },
+  {
+    "id": "RYuLqjY6u4zAvpZG4LEF",
+    "intentId": "RYuLqjY6u4zAvpZG4LEF",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:09:02.019Z"
+  },
+  {
+    "id": "Rj7mgckbbkmsEYlnIMgr",
+    "intentId": "Rj7mgckbbkmsEYlnIMgr",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:05:47.333Z"
+  },
+  {
+    "id": "RjFmVzXYiHpPyzNJRk3p",
+    "intentId": "RjFmVzXYiHpPyzNJRk3p",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:21:16.811Z"
+  },
+  {
+    "id": "Rm75dcLpZzaMf3H60GBt",
+    "intentId": "Rm75dcLpZzaMf3H60GBt",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:48:02.047Z"
+  },
+  {
+    "id": "RnQto6WJdrOWsRhhbmGs",
+    "intentId": "RnQto6WJdrOWsRhhbmGs",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:46:12.141Z"
+  },
+  {
+    "id": "Rrs20kBAriEpfDmQPhOz",
+    "intentId": "Rrs20kBAriEpfDmQPhOz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T06:00:26.969Z"
+  },
+  {
+    "id": "Ru53bl98TqZ5la1zFMwV",
+    "intentId": "Ru53bl98TqZ5la1zFMwV",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T00:47:20.991Z"
+  },
+  {
+    "id": "S46YkpePhkOsCydDlmBP",
+    "intentId": "S46YkpePhkOsCydDlmBP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:45:44.999Z"
+  },
+  {
+    "id": "S6GqaHeOrEavwJ5SUA29",
+    "intentId": "S6GqaHeOrEavwJ5SUA29",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:36:18.574Z"
+  },
+  {
+    "id": "S7JOCAzknyECApvOmrWw",
+    "intentId": "S7JOCAzknyECApvOmrWw",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T11:04:02.279Z"
+  },
+  {
+    "id": "SC0lyXbd6ptpUDUdhaik",
+    "intentId": "SC0lyXbd6ptpUDUdhaik",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 4300,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:39:14.699Z"
+  },
+  {
+    "id": "SNxkXoKUHUSlF1JKlr6J",
+    "intentId": "SNxkXoKUHUSlF1JKlr6J",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500000,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:58:51.094Z"
+  },
+  {
+    "id": "SOGPgbs5qLslywf345bT",
+    "intentId": "SOGPgbs5qLslywf345bT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:33:12.553Z"
+  },
+  {
+    "id": "SbtKDrjTkDsMG2ZUsjZ0",
+    "intentId": "SbtKDrjTkDsMG2ZUsjZ0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:22:49.815Z"
+  },
+  {
+    "id": "Sc4941EevigqCKct1JB5",
+    "intentId": "Sc4941EevigqCKct1JB5",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-17T11:34:26.665Z"
+  },
+  {
+    "id": "ScJ9nuVHZg5Qix8HSEyX",
+    "intentId": "ScJ9nuVHZg5Qix8HSEyX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:16:36.623Z"
+  },
+  {
+    "id": "SdldUBQGB21Ny5WfB8o5",
+    "intentId": "SdldUBQGB21Ny5WfB8o5",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:38:50.014Z"
+  },
+  {
+    "id": "SkVGCqY0BrmIlZ9MqPKf",
+    "intentId": "SkVGCqY0BrmIlZ9MqPKf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:16:06.732Z"
+  },
+  {
+    "id": "Sqfuy8QivZoH28NtxX0q",
+    "intentId": "Sqfuy8QivZoH28NtxX0q",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:43:14.830Z"
+  },
+  {
+    "id": "Sr9dzKycomXMunywNKV1",
+    "intentId": "Sr9dzKycomXMunywNKV1",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:25:00.491Z"
+  },
+  {
+    "id": "StsHyHEOxf9F2gJDnQ0K",
+    "intentId": "StsHyHEOxf9F2gJDnQ0K",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T10:40:44.882Z"
+  },
+  {
+    "id": "StviCGSIcFFsxvEsLmV1",
+    "intentId": "StviCGSIcFFsxvEsLmV1",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:54:04.073Z"
+  },
+  {
+    "id": "T7dxvdd5YtU292SY8iCc",
+    "intentId": "T7dxvdd5YtU292SY8iCc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:46:13.489Z"
+  },
+  {
+    "id": "T9RgPBUBb92xJWov5K2w",
+    "intentId": "T9RgPBUBb92xJWov5K2w",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T03:07:12.299Z"
+  },
+  {
+    "id": "T9hzWDpqk2SBYgWP4G4d",
+    "intentId": "T9hzWDpqk2SBYgWP4G4d",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T09:56:59.937Z"
+  },
+  {
+    "id": "TCboN3IWW7nQtjgGrBNS",
+    "intentId": "TCboN3IWW7nQtjgGrBNS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:23:45.544Z"
+  },
+  {
+    "id": "TYOJNbZ4ioPp2hvfnzui",
+    "intentId": "TYOJNbZ4ioPp2hvfnzui",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T20:01:37.593Z"
+  },
+  {
+    "id": "TplsVKkJ5ftzBMtJPxqn",
+    "intentId": "TplsVKkJ5ftzBMtJPxqn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:04:59.744Z"
+  },
+  {
+    "id": "TrH0RTUcCeWos6lqL7b9",
+    "intentId": "TrH0RTUcCeWos6lqL7b9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2500,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:33:17.384Z"
+  },
+  {
+    "id": "U1iqXz9UiL2MYzGiXQcg",
+    "intentId": "U1iqXz9UiL2MYzGiXQcg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-16T20:34:42.641Z"
+  },
+  {
+    "id": "U5sI8xUEnKKpEiZHRp93",
+    "intentId": "U5sI8xUEnKKpEiZHRp93",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 600,
+    "status": "pending",
+    "createdAt": "2025-12-17T09:54:30.621Z"
+  },
+  {
+    "id": "U7AB4JfH58O0Sk6VqM2a",
+    "intentId": "U7AB4JfH58O0Sk6VqM2a",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-18T20:31:22.180Z"
+  },
+  {
+    "id": "U8QlWP91zJoKS1z3oT8e",
+    "intentId": "U8QlWP91zJoKS1z3oT8e",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:32:12.267Z"
+  },
+  {
+    "id": "UOSNfoZmWJwCbqFhhoX2",
+    "intentId": "UOSNfoZmWJwCbqFhhoX2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T23:16:05.473Z"
+  },
+  {
+    "id": "UUFn99ffQRFB45f8vJT6",
+    "intentId": "UUFn99ffQRFB45f8vJT6",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "zNIM4k3VP04xbhamFPva",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-20T10:18:34.731Z"
+  },
+  {
+    "id": "UXxvim2ql8Ca6RZsqBF7",
+    "intentId": "UXxvim2ql8Ca6RZsqBF7",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T20:27:21.604Z"
+  },
+  {
+    "id": "UXyaUC9kbI6pAZZ3znKX",
+    "intentId": "UXyaUC9kbI6pAZZ3znKX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 14500,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:55:13.657Z"
+  },
+  {
+    "id": "UhXDMthlqybpWELhA2Ql",
+    "intentId": "UhXDMthlqybpWELhA2Ql",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:14:12.274Z"
+  },
+  {
+    "id": "UpMzeysI0Kc9E9WAzrr2",
+    "intentId": "UpMzeysI0Kc9E9WAzrr2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:51:29.078Z"
+  },
+  {
+    "id": "UtorQiIaClNijcQD0nrO",
+    "intentId": "UtorQiIaClNijcQD0nrO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:00:55.266Z"
+  },
+  {
+    "id": "V4ECmCzwdlPkzHUEmi5n",
+    "intentId": "V4ECmCzwdlPkzHUEmi5n",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:02:43.717Z"
+  },
+  {
+    "id": "V6oDT6KtXKKee6g6wkQM",
+    "intentId": "V6oDT6KtXKKee6g6wkQM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T17:29:55.803Z"
+  },
+  {
+    "id": "VA2I2aT6df9YUhczx6Sc",
+    "intentId": "VA2I2aT6df9YUhczx6Sc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 800,
+    "status": "pending",
+    "createdAt": "2025-12-20T05:26:51.144Z"
+  },
+  {
+    "id": "VEbXSkjhAag0wnt2gg8P",
+    "intentId": "VEbXSkjhAag0wnt2gg8P",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "Flxp9DD0iv0dzZaP0P2F",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:12:05.642Z"
+  },
+  {
+    "id": "VID1r2TeqgHKXg49cEUq",
+    "intentId": "VID1r2TeqgHKXg49cEUq",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T14:49:24.670Z"
+  },
+  {
+    "id": "VTVui5PVCeueijtH7CSs",
+    "intentId": "VTVui5PVCeueijtH7CSs",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:16:17.140Z"
+  },
+  {
+    "id": "VagNGolUtDApx15mcLhw",
+    "intentId": "VagNGolUtDApx15mcLhw",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:42:16.497Z"
+  },
+  {
+    "id": "VfDSysbNSTtoNpm3NYlX",
+    "intentId": "VfDSysbNSTtoNpm3NYlX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:44:46.662Z"
+  },
+  {
+    "id": "VhH40D2AGhRQvzH5h4j5",
+    "intentId": "VhH40D2AGhRQvzH5h4j5",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 700,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:17:43.356Z"
+  },
+  {
+    "id": "ViLaj1XLuqNhz8cTBmws",
+    "intentId": "ViLaj1XLuqNhz8cTBmws",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:24:44.928Z"
+  },
+  {
+    "id": "VzqLPLAXf8BNsmq1jxMf",
+    "intentId": "VzqLPLAXf8BNsmq1jxMf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-18T09:10:52.377Z"
+  },
+  {
+    "id": "W57Yax0UDmMpgA3miE7D",
+    "intentId": "W57Yax0UDmMpgA3miE7D",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:02:57.970Z"
+  },
+  {
+    "id": "W5T2L4XKZGPzt2C2Wr9Z",
+    "intentId": "W5T2L4XKZGPzt2C2Wr9Z",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-18T09:11:20.266Z"
+  },
+  {
+    "id": "W92ur1JtlBEO9TEQDCLg",
+    "intentId": "W92ur1JtlBEO9TEQDCLg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T06:37:55.442Z"
+  },
+  {
+    "id": "WEwTByugEUjAWzlVBsuE",
+    "intentId": "WEwTByugEUjAWzlVBsuE",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T11:59:25.858Z"
+  },
+  {
+    "id": "WGW90aXhOb5FsZrKBKdG",
+    "intentId": "WGW90aXhOb5FsZrKBKdG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:45:53.059Z"
+  },
+  {
+    "id": "WMlXDSZ5BMdH8DpsZN03",
+    "intentId": "WMlXDSZ5BMdH8DpsZN03",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T06:27:06.625Z"
+  },
+  {
+    "id": "WNIFGr6UUUiFeigfYqYX",
+    "intentId": "WNIFGr6UUUiFeigfYqYX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:37:44.238Z"
+  },
+  {
+    "id": "WYqHrDC9bGLRzZBaMEaK",
+    "intentId": "WYqHrDC9bGLRzZBaMEaK",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T07:45:11.221Z"
+  },
+  {
+    "id": "WZ5CNL8XDjv98cD2PraO",
+    "intentId": "WZ5CNL8XDjv98cD2PraO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-18T09:26:17.639Z"
+  },
+  {
+    "id": "Wb82G2TIQGYkw1ofGUjG",
+    "intentId": "Wb82G2TIQGYkw1ofGUjG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T09:14:56.884Z"
+  },
+  {
+    "id": "WbFju2ALiFnJLTgD8GJw",
+    "intentId": "WbFju2ALiFnJLTgD8GJw",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-16T15:11:40.418Z"
+  },
+  {
+    "id": "WexBVdr967BiCLWaffEl",
+    "intentId": "WexBVdr967BiCLWaffEl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:01:25.162Z"
+  },
+  {
+    "id": "WnaLTlfYgnAp9MDZpQAx",
+    "intentId": "WnaLTlfYgnAp9MDZpQAx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:17:17.570Z"
+  },
+  {
+    "id": "X4XcJydcaFjW9Z38VCLL",
+    "intentId": "X4XcJydcaFjW9Z38VCLL",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T20:19:54.931Z"
+  },
+  {
+    "id": "XdXTxOGSXyZZnwyA6SB4",
+    "intentId": "XdXTxOGSXyZZnwyA6SB4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T19:10:35.141Z"
+  },
+  {
+    "id": "XgvN0y16gm8zUa0wweNI",
+    "intentId": "XgvN0y16gm8zUa0wweNI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:21:12.251Z"
+  },
+  {
+    "id": "XhdIDVFxAg95eiOvDhNh",
+    "intentId": "XhdIDVFxAg95eiOvDhNh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T09:20:37.208Z"
+  },
+  {
+    "id": "XlOYplevyLbA7PFq1Wcv",
+    "intentId": "XlOYplevyLbA7PFq1Wcv",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T20:35:42.835Z"
+  },
+  {
+    "id": "Xr5DzS9mCfC1o2uEEYWq",
+    "intentId": "Xr5DzS9mCfC1o2uEEYWq",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:15:09.108Z"
+  },
+  {
+    "id": "Xraohte7zSxd07fSPS4n",
+    "intentId": "Xraohte7zSxd07fSPS4n",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:05:51.458Z"
+  },
+  {
+    "id": "Y2GFIxVzKEuG8IDTbwZm",
+    "intentId": "Y2GFIxVzKEuG8IDTbwZm",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:29:52.061Z"
+  },
+  {
+    "id": "Y3jLe4WI4bVD6ITeCRmD",
+    "intentId": "Y3jLe4WI4bVD6ITeCRmD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:46:35.899Z"
+  },
+  {
+    "id": "Y8ftFtXu8jpxZW2qVHgK",
+    "intentId": "Y8ftFtXu8jpxZW2qVHgK",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:10:19.755Z"
+  },
+  {
+    "id": "YAXNTsv9TKibx0cS7uyZ",
+    "intentId": "YAXNTsv9TKibx0cS7uyZ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:25:12.443Z"
+  },
+  {
+    "id": "YAuorlRVPoYvIMMcVICD",
+    "intentId": "YAuorlRVPoYvIMMcVICD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2500,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:42:16.841Z"
+  },
+  {
+    "id": "YVkeP30AceKR121SPv3I",
+    "intentId": "YVkeP30AceKR121SPv3I",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T12:01:32.762Z"
+  },
+  {
+    "id": "YiyuJZkxKajBwJZq0h0q",
+    "intentId": "YiyuJZkxKajBwJZq0h0q",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:09:45.971Z"
+  },
+  {
+    "id": "YjaexesM1lZwUmb3rexo",
+    "intentId": "YjaexesM1lZwUmb3rexo",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T05:02:19.728Z"
+  },
+  {
+    "id": "YlfeDVUXZgaHq1TLYMtb",
+    "intentId": "YlfeDVUXZgaHq1TLYMtb",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T12:47:18.589Z"
+  },
+  {
+    "id": "YviPHEsEiK3VFGta3BPr",
+    "intentId": "YviPHEsEiK3VFGta3BPr",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:52:21.916Z"
+  },
+  {
+    "id": "Z1YxBkgLnzEwqLcKmupM",
+    "intentId": "Z1YxBkgLnzEwqLcKmupM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:36:01.657Z"
+  },
+  {
+    "id": "Z6XWNCsjyGHy5XPkovDW",
+    "intentId": "Z6XWNCsjyGHy5XPkovDW",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T10:25:22.956Z"
+  },
+  {
+    "id": "ZCmS1kOFhLxp7iwvjaEj",
+    "intentId": "ZCmS1kOFhLxp7iwvjaEj",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T16:18:29.755Z"
+  },
+  {
+    "id": "ZGCzHqXGOoWLouHt52XG",
+    "intentId": "ZGCzHqXGOoWLouHt52XG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T10:41:59.824Z"
+  },
+  {
+    "id": "ZHwncqKTDXvWR8u7IHmx",
+    "intentId": "ZHwncqKTDXvWR8u7IHmx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "zNIM4k3VP04xbhamFPva",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T12:44:19.692Z"
+  },
+  {
+    "id": "ZKyz3XNkM0Wh6Sq4UIQh",
+    "intentId": "ZKyz3XNkM0Wh6Sq4UIQh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T13:35:13.199Z"
+  },
+  {
+    "id": "ZRlHsRy6rmozHE1QjlQY",
+    "intentId": "ZRlHsRy6rmozHE1QjlQY",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:08:13.069Z"
+  },
+  {
+    "id": "ZwRgU7RxHj3cyactcfs9",
+    "intentId": "ZwRgU7RxHj3cyactcfs9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:12:10.572Z"
+  },
+  {
+    "id": "a1L5uaFa5kD6MnBsW05E",
+    "intentId": "a1L5uaFa5kD6MnBsW05E",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T14:38:32.813Z"
+  },
+  {
+    "id": "a4owXn2ILAru1DjXeU7c",
+    "intentId": "a4owXn2ILAru1DjXeU7c",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:27:06.128Z"
+  },
+  {
+    "id": "a7SbS7UkNRbDdGLJ4o86",
+    "intentId": "a7SbS7UkNRbDdGLJ4o86",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "6jJ1pd8NA2meRhVWW12M",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:31:24.675Z"
+  },
+  {
+    "id": "aIAoHFdg0Wn3h1qAwB8r",
+    "intentId": "aIAoHFdg0Wn3h1qAwB8r",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 700,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:26:58.136Z"
+  },
+  {
+    "id": "aJ3XlWMQmCqP6FNzmGDG",
+    "intentId": "aJ3XlWMQmCqP6FNzmGDG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:59:22.404Z"
+  },
+  {
+    "id": "aOY7f59UCjxwYdhlQLfm",
+    "intentId": "aOY7f59UCjxwYdhlQLfm",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:18:04.617Z"
+  },
+  {
+    "id": "aReSnE5DZ8WfCodRJIhR",
+    "intentId": "aReSnE5DZ8WfCodRJIhR",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:48:27.957Z"
+  },
+  {
+    "id": "aUsHuilnh7rJZp3OYDTO",
+    "intentId": "aUsHuilnh7rJZp3OYDTO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:28:35.781Z"
+  },
+  {
+    "id": "afsREkggOkWz9Lu0A5p7",
+    "intentId": "afsREkggOkWz9Lu0A5p7",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T06:57:50.234Z"
+  },
+  {
+    "id": "ai8NVszZfzXKvwuj4WKy",
+    "intentId": "ai8NVszZfzXKvwuj4WKy",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T07:01:00.351Z"
+  },
+  {
+    "id": "aiElS5mm6hemZ65W3yxb",
+    "intentId": "aiElS5mm6hemZ65W3yxb",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:50:45.152Z"
+  },
+  {
+    "id": "anB1K9ZYhSiBEaxYcMvT",
+    "intentId": "anB1K9ZYhSiBEaxYcMvT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:36:55.214Z"
+  },
+  {
+    "id": "b4NClWUxjgwpA2ql95Vt",
+    "intentId": "b4NClWUxjgwpA2ql95Vt",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T05:08:33.600Z"
+  },
+  {
+    "id": "b74zpZXQAUrroyKdQdIH",
+    "intentId": "b74zpZXQAUrroyKdQdIH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:01:23.999Z"
+  },
+  {
+    "id": "bDc9l5ZDzqmozq0eq4hV",
+    "intentId": "bDc9l5ZDzqmozq0eq4hV",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-18T19:18:31.289Z"
+  },
+  {
+    "id": "bDe8gOPeQIlrVg3Xj6vD",
+    "intentId": "bDe8gOPeQIlrVg3Xj6vD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T13:07:45.683Z"
+  },
+  {
+    "id": "bSZAe3qeeYolYBbvXpuK",
+    "intentId": "bSZAe3qeeYolYBbvXpuK",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:40:27.948Z"
+  },
+  {
+    "id": "bSwvJf45KhLk6DBdxUeX",
+    "intentId": "bSwvJf45KhLk6DBdxUeX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:24:05.942Z"
+  },
+  {
+    "id": "bhXPeN1ops22wFXasHSx",
+    "intentId": "bhXPeN1ops22wFXasHSx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:47:33.767Z"
+  },
+  {
+    "id": "biTRahrboTPJk1UqrX6L",
+    "intentId": "biTRahrboTPJk1UqrX6L",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T08:14:11.972Z"
+  },
+  {
+    "id": "bjV0JC1lQkNXbO43Ybap",
+    "intentId": "bjV0JC1lQkNXbO43Ybap",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:49:46.505Z"
+  },
+  {
+    "id": "bpyrt5KNo8AA3vUSKMiG",
+    "intentId": "bpyrt5KNo8AA3vUSKMiG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:05:50.273Z"
+  },
+  {
+    "id": "bt8cgO5AfLc4HYD28iYG",
+    "intentId": "bt8cgO5AfLc4HYD28iYG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 1600,
+    "status": "pending",
+    "createdAt": "2025-12-16T15:27:02.088Z"
+  },
+  {
+    "id": "buU2eHfyKSoIigJQeReX",
+    "intentId": "buU2eHfyKSoIigJQeReX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:10:07.024Z"
+  },
+  {
+    "id": "bzpP8LFDbrOjLXBs2JOy",
+    "intentId": "bzpP8LFDbrOjLXBs2JOy",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T02:33:36.270Z"
+  },
+  {
+    "id": "c0G9Vq1TAvh0qShiul8Q",
+    "intentId": "c0G9Vq1TAvh0qShiul8Q",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:31:57.826Z"
+  },
+  {
+    "id": "cDvburOLKG0QzsZeBTMW",
+    "intentId": "cDvburOLKG0QzsZeBTMW",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:52:08.241Z"
+  },
+  {
+    "id": "cFs1FIOncWORQs9DkuDz",
+    "intentId": "cFs1FIOncWORQs9DkuDz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T13:00:12.435Z"
+  },
+  {
+    "id": "cULx2F9FE7buSGK2OPF3",
+    "intentId": "cULx2F9FE7buSGK2OPF3",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:27:20.749Z"
+  },
+  {
+    "id": "cju1px0QDRDFhJ2ujD6E",
+    "intentId": "cju1px0QDRDFhJ2ujD6E",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:39:05.928Z"
+  },
+  {
+    "id": "ckJwlP7NKWEipqfgjiCD",
+    "intentId": "ckJwlP7NKWEipqfgjiCD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:43:18.846Z"
+  },
+  {
+    "id": "clcFQFG93wh0uz0vpeMB",
+    "intentId": "clcFQFG93wh0uz0vpeMB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:45:04.665Z"
+  },
+  {
+    "id": "cmOPnsLoEkRRfMtoDVVB",
+    "intentId": "cmOPnsLoEkRRfMtoDVVB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:33:23.339Z"
+  },
+  {
+    "id": "cyUyKLIaCDE1cVKpD7CB",
+    "intentId": "cyUyKLIaCDE1cVKpD7CB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T08:52:09.260Z"
+  },
+  {
+    "id": "d4eHBW9f9RwbElLKq16o",
+    "intentId": "d4eHBW9f9RwbElLKq16o",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:24:23.396Z"
+  },
+  {
+    "id": "dSfnf7pSqAH4JoDvLLDt",
+    "intentId": "dSfnf7pSqAH4JoDvLLDt",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T11:47:48.576Z"
+  },
+  {
+    "id": "dT5k8cpjr89y28Ont8Mc",
+    "intentId": "dT5k8cpjr89y28Ont8Mc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:45:42.677Z"
+  },
+  {
+    "id": "dbuSZ0dRr5LghBmSmF6Y",
+    "intentId": "dbuSZ0dRr5LghBmSmF6Y",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T19:23:20.341Z"
+  },
+  {
+    "id": "demlsWT27sFKlsGsw1Yd",
+    "intentId": "demlsWT27sFKlsGsw1Yd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T15:06:23.564Z"
+  },
+  {
+    "id": "dhuhm790kVNVNsCWgzBB",
+    "intentId": "dhuhm790kVNVNsCWgzBB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:55:44.426Z"
+  },
+  {
+    "id": "djlBh2xGaoM0U9PePgTn",
+    "intentId": "djlBh2xGaoM0U9PePgTn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 700,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:09:37.857Z"
+  },
+  {
+    "id": "dohSWPEHuNHRTuXKPVSC",
+    "intentId": "dohSWPEHuNHRTuXKPVSC",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-18T18:03:51.530Z"
+  },
+  {
+    "id": "dwihxbnHyRoaZm1hCJuy",
+    "intentId": "dwihxbnHyRoaZm1hCJuy",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T09:25:40.766Z"
+  },
+  {
+    "id": "eDvtPUVOWrSayOnUZy3c",
+    "intentId": "eDvtPUVOWrSayOnUZy3c",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:28:10.735Z"
+  },
+  {
+    "id": "eElKXTYqsDwLI0EYiVaI",
+    "intentId": "eElKXTYqsDwLI0EYiVaI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:04:35.312Z"
+  },
+  {
+    "id": "eGHGZ9Y4GyzZMHvU3q0T",
+    "intentId": "eGHGZ9Y4GyzZMHvU3q0T",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T20:54:38.137Z"
+  },
+  {
+    "id": "eHibbyIdtF3nl3IHwn0d",
+    "intentId": "eHibbyIdtF3nl3IHwn0d",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 4400,
+    "status": "pending",
+    "createdAt": "2025-12-15T06:50:18.284Z"
+  },
+  {
+    "id": "eKXgEjNApPJg9AQXWvAH",
+    "intentId": "eKXgEjNApPJg9AQXWvAH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:30:17.687Z"
+  },
+  {
+    "id": "eRfpfLkpQ5Qm10sfLAAa",
+    "intentId": "eRfpfLkpQ5Qm10sfLAAa",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:00:53.864Z"
+  },
+  {
+    "id": "eUaMq45sVew2oKqOlCVQ",
+    "intentId": "eUaMq45sVew2oKqOlCVQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T09:42:53.019Z"
+  },
+  {
+    "id": "ei1H3O1aZQOjpB2tSWXx",
+    "intentId": "ei1H3O1aZQOjpB2tSWXx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T18:10:47.717Z"
+  },
+  {
+    "id": "eieUIPKrpXOd9qyc7jU3",
+    "intentId": "eieUIPKrpXOd9qyc7jU3",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:41:55.564Z"
+  },
+  {
+    "id": "emabl3FN3Ft2t7oqEqfh",
+    "intentId": "emabl3FN3Ft2t7oqEqfh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:01:37.611Z"
+  },
+  {
+    "id": "enluzNsssADqFwzeoQnf",
+    "intentId": "enluzNsssADqFwzeoQnf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:32:18.604Z"
+  },
+  {
+    "id": "f2TEujmNGZgRHapBqPfQ",
+    "intentId": "f2TEujmNGZgRHapBqPfQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:05:07.789Z"
+  },
+  {
+    "id": "f8PsIirl23Mq7utjBhXh",
+    "intentId": "f8PsIirl23Mq7utjBhXh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:55:41.810Z"
+  },
+  {
+    "id": "f92uLigpq7jqP6Z2pQCe",
+    "intentId": "f92uLigpq7jqP6Z2pQCe",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "THSoBfgsHaDLamNs758L",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T17:59:03.830Z"
+  },
+  {
+    "id": "fB9NuByBRcdh2SBLZSMg",
+    "intentId": "fB9NuByBRcdh2SBLZSMg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:33:12.864Z"
+  },
+  {
+    "id": "fRozvbLu0mLbzU79996r",
+    "intentId": "fRozvbLu0mLbzU79996r",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:28:28.832Z"
+  },
+  {
+    "id": "fZ75WuP8Mq7TMW2ZBveI",
+    "intentId": "fZ75WuP8Mq7TMW2ZBveI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-18T10:45:35.651Z"
+  },
+  {
+    "id": "fct7MLQ9uZXEtWsozdXd",
+    "intentId": "fct7MLQ9uZXEtWsozdXd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:36:23.422Z"
+  },
+  {
+    "id": "fkJmme3V26KzFvzS7xsa",
+    "intentId": "fkJmme3V26KzFvzS7xsa",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:15:41.770Z"
+  },
+  {
+    "id": "fq5uo1rEPOHczTgRvJ96",
+    "intentId": "fq5uo1rEPOHczTgRvJ96",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:08:48.652Z"
+  },
+  {
+    "id": "fqf1krKb5HaI8ejpZrw9",
+    "intentId": "fqf1krKb5HaI8ejpZrw9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:28:26.492Z"
+  },
+  {
+    "id": "g3fqXN9nqENzN1OMFWCr",
+    "intentId": "g3fqXN9nqENzN1OMFWCr",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:15:10.910Z"
+  },
+  {
+    "id": "g6yfGZ47eQrNLmAVTKFR",
+    "intentId": "g6yfGZ47eQrNLmAVTKFR",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:39:33.652Z"
+  },
+  {
+    "id": "g7pDwhZYH8BBxxZDadGI",
+    "intentId": "g7pDwhZYH8BBxxZDadGI",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:03:59.478Z"
+  },
+  {
+    "id": "gEW4k65P705TecAZQoKq",
+    "intentId": "gEW4k65P705TecAZQoKq",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:33:55.244Z"
+  },
+  {
+    "id": "gGe85Y1l3DWj1BZeQUxZ",
+    "intentId": "gGe85Y1l3DWj1BZeQUxZ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:10:16.077Z"
+  },
+  {
+    "id": "gNhjiVNPnmqp8hikjAWD",
+    "intentId": "gNhjiVNPnmqp8hikjAWD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T09:57:10.844Z"
+  },
+  {
+    "id": "gOEP4JJs7d5k134KFcNq",
+    "intentId": "gOEP4JJs7d5k134KFcNq",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000000,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:48:10.596Z"
+  },
+  {
+    "id": "gOS9CSLyAFeV4PLCzMia",
+    "intentId": "gOS9CSLyAFeV4PLCzMia",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:54:31.938Z"
+  },
+  {
+    "id": "gUmIkjwyh2u44SyhaT4y",
+    "intentId": "gUmIkjwyh2u44SyhaT4y",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:18:15.322Z"
+  },
+  {
+    "id": "gXuoZv6TuhYZbzMF1M9j",
+    "intentId": "gXuoZv6TuhYZbzMF1M9j",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:43:56.692Z"
+  },
+  {
+    "id": "gZrXRWNLgBWcKscriCK3",
+    "intentId": "gZrXRWNLgBWcKscriCK3",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:57:04.532Z"
+  },
+  {
+    "id": "ga2qVU3xEsHtCXGbtW80",
+    "intentId": "ga2qVU3xEsHtCXGbtW80",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:59:26.917Z"
+  },
+  {
+    "id": "gh8QcZxHv1ABZD5WA12z",
+    "intentId": "gh8QcZxHv1ABZD5WA12z",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:02:00.599Z"
+  },
+  {
+    "id": "gi426HG6rekzoC14U7tR",
+    "intentId": "gi426HG6rekzoC14U7tR",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T17:24:39.257Z"
+  },
+  {
+    "id": "gx3vHbd9eG9IS1MylfwO",
+    "intentId": "gx3vHbd9eG9IS1MylfwO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 3000,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:22:27.402Z"
+  },
+  {
+    "id": "hMdv6R3lQBqAKuR954SW",
+    "intentId": "hMdv6R3lQBqAKuR954SW",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T08:18:51.639Z"
+  },
+  {
+    "id": "hdRM7xJpdKXmNlx5oy2Z",
+    "intentId": "hdRM7xJpdKXmNlx5oy2Z",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "THSoBfgsHaDLamNs758L",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T11:08:30.647Z"
+  },
+  {
+    "id": "hrtgE6ZBHVy8xMQDUKYc",
+    "intentId": "hrtgE6ZBHVy8xMQDUKYc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:09:59.491Z"
+  },
+  {
+    "id": "i9LKHfsYvaUbDNqiKLKA",
+    "intentId": "i9LKHfsYvaUbDNqiKLKA",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:12:22.861Z"
+  },
+  {
+    "id": "iAC4m2L8z9f5OkY2mKJ1",
+    "intentId": "iAC4m2L8z9f5OkY2mKJ1",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:52:58.667Z"
+  },
+  {
+    "id": "iJfKWcRHP3huaW2ZMVyE",
+    "intentId": "iJfKWcRHP3huaW2ZMVyE",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T07:17:07.199Z"
+  },
+  {
+    "id": "iUV1pYh5JUOX47hCXwyx",
+    "intentId": "iUV1pYh5JUOX47hCXwyx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T23:13:09.145Z"
+  },
+  {
+    "id": "ihbjgvCnIUerOSR5BkXn",
+    "intentId": "ihbjgvCnIUerOSR5BkXn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:05:34.444Z"
+  },
+  {
+    "id": "ik7bPRXcP2iKkOncTQhp",
+    "intentId": "ik7bPRXcP2iKkOncTQhp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:56:39.168Z"
+  },
+  {
+    "id": "jX7dE1LIhTaeEWbFqMZf",
+    "intentId": "jX7dE1LIhTaeEWbFqMZf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T10:59:21.660Z"
+  },
+  {
+    "id": "jbNb3D8NqB0WRtlcH1jc",
+    "intentId": "jbNb3D8NqB0WRtlcH1jc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 4800,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:33:30.538Z"
+  },
+  {
+    "id": "jbSD82cPR4CHTcFizKGp",
+    "intentId": "jbSD82cPR4CHTcFizKGp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T22:08:00.522Z"
+  },
+  {
+    "id": "jcBCXdKuAUDaIENyW05S",
+    "intentId": "jcBCXdKuAUDaIENyW05S",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 1200,
+    "status": "pending",
+    "createdAt": "2025-12-16T09:52:35.030Z"
+  },
+  {
+    "id": "k4BoFoqlurVtTyDvPqtf",
+    "intentId": "k4BoFoqlurVtTyDvPqtf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-17T11:30:38.962Z"
+  },
+  {
+    "id": "k89YRADX0ZkBIljs4H8e",
+    "intentId": "k89YRADX0ZkBIljs4H8e",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:08:15.704Z"
+  },
+  {
+    "id": "kITyubOJfZrZNoKTCC3r",
+    "intentId": "kITyubOJfZrZNoKTCC3r",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:17:38.887Z"
+  },
+  {
+    "id": "kM6fH4iO8v8uRAH79q3n",
+    "intentId": "kM6fH4iO8v8uRAH79q3n",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:00:23.843Z"
+  },
+  {
+    "id": "kQXO7JDYMyJUaX7zG5rY",
+    "intentId": "kQXO7JDYMyJUaX7zG5rY",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:51:28.108Z"
+  },
+  {
+    "id": "kQZWq84Cdkg5EsGRjUi6",
+    "intentId": "kQZWq84Cdkg5EsGRjUi6",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T00:13:10.150Z"
+  },
+  {
+    "id": "kUqME0ju0uJtKCOi5TI4",
+    "intentId": "kUqME0ju0uJtKCOi5TI4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T12:53:23.278Z"
+  },
+  {
+    "id": "kYTnRpfwpz4wUbJA1H3l",
+    "intentId": "kYTnRpfwpz4wUbJA1H3l",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T12:52:44.033Z"
+  },
+  {
+    "id": "kijRwubCdqAwsoq5Jzk3",
+    "intentId": "kijRwubCdqAwsoq5Jzk3",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:46:20.255Z"
+  },
+  {
+    "id": "kr7kad9SojrQZKb4QtMk",
+    "intentId": "kr7kad9SojrQZKb4QtMk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:14:33.427Z"
+  },
+  {
+    "id": "kznMimks6ThrlDdx1ySo",
+    "intentId": "kznMimks6ThrlDdx1ySo",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:12:51.448Z"
+  },
+  {
+    "id": "l3MuLamrm2BGr9G7oy3I",
+    "intentId": "l3MuLamrm2BGr9G7oy3I",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T20:13:47.712Z"
+  },
+  {
+    "id": "l44I19lSfpHcefHAEDfq",
+    "intentId": "l44I19lSfpHcefHAEDfq",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:08:47.142Z"
+  },
+  {
+    "id": "l4UOA9OityTKbMDiXw07",
+    "intentId": "l4UOA9OityTKbMDiXw07",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "6jJ1pd8NA2meRhVWW12M",
+    "amount": 400,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:48:34.210Z"
+  },
+  {
+    "id": "lEp94dOILJo8P5k33Q1d",
+    "intentId": "lEp94dOILJo8P5k33Q1d",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:35:14.647Z"
+  },
+  {
+    "id": "lF9nZQbG0FWO3a0VE0tw",
+    "intentId": "lF9nZQbG0FWO3a0VE0tw",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:20:56.142Z"
+  },
+  {
+    "id": "lFiK98D3zUai1RyxJV5s",
+    "intentId": "lFiK98D3zUai1RyxJV5s",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T07:26:37.932Z"
+  },
+  {
+    "id": "lPmkLBjMbwCme3wdVmQT",
+    "intentId": "lPmkLBjMbwCme3wdVmQT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:32:39.608Z"
+  },
+  {
+    "id": "la8T05RFRjGLGsITA3wB",
+    "intentId": "la8T05RFRjGLGsITA3wB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:06:37.793Z"
+  },
+  {
+    "id": "m5eiaR8Bo81jZHjWgQcz",
+    "intentId": "m5eiaR8Bo81jZHjWgQcz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T19:37:57.113Z"
+  },
+  {
+    "id": "mBPsUl32u5UlLOy35c3u",
+    "intentId": "mBPsUl32u5UlLOy35c3u",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:30:03.386Z"
+  },
+  {
+    "id": "mHRbjqnHkeyG1NxvXHdC",
+    "intentId": "mHRbjqnHkeyG1NxvXHdC",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T17:36:46.429Z"
+  },
+  {
+    "id": "meWCvbTZTiwte0KNt099",
+    "intentId": "meWCvbTZTiwte0KNt099",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T16:57:56.202Z"
+  },
+  {
+    "id": "mn7WqeuRmrFZWrUG9t0U",
+    "intentId": "mn7WqeuRmrFZWrUG9t0U",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-17T18:14:07.355Z"
+  },
+  {
+    "id": "mnK44yf1lDiJYXYtZGpK",
+    "intentId": "mnK44yf1lDiJYXYtZGpK",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:21:34.036Z"
+  },
+  {
+    "id": "n2NyJjBHWRgbhqTE54Xo",
+    "intentId": "n2NyJjBHWRgbhqTE54Xo",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:02:44.546Z"
+  },
+  {
+    "id": "n35IueE2DzPSJvemWsPX",
+    "intentId": "n35IueE2DzPSJvemWsPX",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "THSoBfgsHaDLamNs758L",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T14:28:55.894Z"
+  },
+  {
+    "id": "nBEfpV2I3NWZ0ByrVXhz",
+    "intentId": "nBEfpV2I3NWZ0ByrVXhz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T06:35:23.082Z"
+  },
+  {
+    "id": "nJ19APfPyXtK9buKQVtp",
+    "intentId": "nJ19APfPyXtK9buKQVtp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T08:02:42.028Z"
+  },
+  {
+    "id": "nL0sJSABeKgF6BzdOcwZ",
+    "intentId": "nL0sJSABeKgF6BzdOcwZ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T09:18:15.860Z"
+  },
+  {
+    "id": "nPqOp1hau3Pvwj9UMXjp",
+    "intentId": "nPqOp1hau3Pvwj9UMXjp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T10:54:57.031Z"
+  },
+  {
+    "id": "ngqiCUDwwlVxoYlA0rPG",
+    "intentId": "ngqiCUDwwlVxoYlA0rPG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T22:10:31.517Z"
+  },
+  {
+    "id": "nvvSohyTY1UStGlfxK0z",
+    "intentId": "nvvSohyTY1UStGlfxK0z",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:02:48.413Z"
+  },
+  {
+    "id": "nyX68nwOCyGkyklB0r0z",
+    "intentId": "nyX68nwOCyGkyklB0r0z",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:30:36.862Z"
+  },
+  {
+    "id": "o7AJsXfwkXHJooef0ODr",
+    "intentId": "o7AJsXfwkXHJooef0ODr",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:38:15.309Z"
+  },
+  {
+    "id": "oEvKkHn8SVOvDaqm6on9",
+    "intentId": "oEvKkHn8SVOvDaqm6on9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-18T21:16:08.501Z"
+  },
+  {
+    "id": "oGOfcg5XM20Jb2jKVgZB",
+    "intentId": "oGOfcg5XM20Jb2jKVgZB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:35:24.990Z"
+  },
+  {
+    "id": "oJDJYVWe6e0RflBJsmiM",
+    "intentId": "oJDJYVWe6e0RflBJsmiM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-17T07:42:05.817Z"
+  },
+  {
+    "id": "oNOIqUxNkdtpuKbJAfPx",
+    "intentId": "oNOIqUxNkdtpuKbJAfPx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:29:51.909Z"
+  },
+  {
+    "id": "oOUzN9SGQlz2GBzFVsd7",
+    "intentId": "oOUzN9SGQlz2GBzFVsd7",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T23:53:02.160Z"
+  },
+  {
+    "id": "oOeyor24g4Bec1P1PHZD",
+    "intentId": "oOeyor24g4Bec1P1PHZD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:20:48.972Z"
+  },
+  {
+    "id": "oRKCJjEJ2Sh9xYWdyCgG",
+    "intentId": "oRKCJjEJ2Sh9xYWdyCgG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T07:52:11.032Z"
+  },
+  {
+    "id": "oRRGH6TT2LCPHCGGKj8t",
+    "intentId": "oRRGH6TT2LCPHCGGKj8t",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:57:31.029Z"
+  },
+  {
+    "id": "okaXU1zcOIH0vTcUviiu",
+    "intentId": "okaXU1zcOIH0vTcUviiu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:14:57.478Z"
+  },
+  {
+    "id": "oo1Qec9vLvxnT0MDrfXj",
+    "intentId": "oo1Qec9vLvxnT0MDrfXj",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-18T20:52:13.910Z"
+  },
+  {
+    "id": "ossa1waajVRn15glOaD8",
+    "intentId": "ossa1waajVRn15glOaD8",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:21:57.502Z"
+  },
+  {
+    "id": "ouV9z9I2j3FX5ukthmR4",
+    "intentId": "ouV9z9I2j3FX5ukthmR4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:47:04.766Z"
+  },
+  {
+    "id": "p1gUIncoNbmVYb39BovN",
+    "intentId": "p1gUIncoNbmVYb39BovN",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:57:44.212Z"
+  },
+  {
+    "id": "p6ccVxVaOJ0roRviJQyZ",
+    "intentId": "p6ccVxVaOJ0roRviJQyZ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:37:51.295Z"
+  },
+  {
+    "id": "pAL7cz4NZWS7Iq0VBgcl",
+    "intentId": "pAL7cz4NZWS7Iq0VBgcl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:58:16.287Z"
+  },
+  {
+    "id": "pIYdMprQPkXnvkDXla3K",
+    "intentId": "pIYdMprQPkXnvkDXla3K",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:52:24.252Z"
+  },
+  {
+    "id": "pU7A78FglrnbKy9Y4IfU",
+    "intentId": "pU7A78FglrnbKy9Y4IfU",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 1600,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:15:00.194Z"
+  },
+  {
+    "id": "pd2O2EEX0LYplzg0w1mP",
+    "intentId": "pd2O2EEX0LYplzg0w1mP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T06:47:32.390Z"
+  },
+  {
+    "id": "pdPVRNoJqMtOS4N2QxSw",
+    "intentId": "pdPVRNoJqMtOS4N2QxSw",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 700,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:29:44.832Z"
+  },
+  {
+    "id": "q0dqKr60q059mXN0Jx0U",
+    "intentId": "q0dqKr60q059mXN0Jx0U",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-18T09:15:39.093Z"
+  },
+  {
+    "id": "q38CN2pxxAun1Es2dMGJ",
+    "intentId": "q38CN2pxxAun1Es2dMGJ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 8600,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:43:23.221Z"
+  },
+  {
+    "id": "qBxEbLiW15zJ6gHoy2SO",
+    "intentId": "qBxEbLiW15zJ6gHoy2SO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T11:58:30.268Z"
+  },
+  {
+    "id": "qCjMMTlQtfYXASAdM2Ti",
+    "intentId": "qCjMMTlQtfYXASAdM2Ti",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:52:52.706Z"
+  },
+  {
+    "id": "qENL3muYzBJDbuRBPiDJ",
+    "intentId": "qENL3muYzBJDbuRBPiDJ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T20:08:34.609Z"
+  },
+  {
+    "id": "qJArdXYJcc5UQQU3Wzsc",
+    "intentId": "qJArdXYJcc5UQQU3Wzsc",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2500,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:22:59.919Z"
+  },
+  {
+    "id": "qLyJBSwcpvpj7nr4RUL8",
+    "intentId": "qLyJBSwcpvpj7nr4RUL8",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:07:16.198Z"
+  },
+  {
+    "id": "qQ1ufgQzGm0UWy1BwJjT",
+    "intentId": "qQ1ufgQzGm0UWy1BwJjT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:30:10.136Z"
+  },
+  {
+    "id": "qbOVyQ83ox71Royv6zEz",
+    "intentId": "qbOVyQ83ox71Royv6zEz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:12:19.448Z"
+  },
+  {
+    "id": "qcnq6sfZbWsS1Nykw7XE",
+    "intentId": "qcnq6sfZbWsS1Nykw7XE",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:11:47.305Z"
+  },
+  {
+    "id": "qh3AoVsJx0VoivGBW73J",
+    "intentId": "qh3AoVsJx0VoivGBW73J",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T18:56:37.940Z"
+  },
+  {
+    "id": "qjKDwUK7LPd8zlQn42zQ",
+    "intentId": "qjKDwUK7LPd8zlQn42zQ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 900,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:46:39.823Z"
+  },
+  {
+    "id": "qlTrMCWM0UBYW1qajSjO",
+    "intentId": "qlTrMCWM0UBYW1qajSjO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:19:14.866Z"
+  },
+  {
+    "id": "qpHOrUarRQv747DizHkS",
+    "intentId": "qpHOrUarRQv747DizHkS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-16T22:26:08.698Z"
+  },
+  {
+    "id": "qv9KKtKCFj3UQKLHJn8Y",
+    "intentId": "qv9KKtKCFj3UQKLHJn8Y",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:03:43.144Z"
+  },
+  {
+    "id": "qvJ7fHvpFpUDFQMHCrUn",
+    "intentId": "qvJ7fHvpFpUDFQMHCrUn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T18:49:11.821Z"
+  },
+  {
+    "id": "r3IDOqBZJ0JU1WhqaFlM",
+    "intentId": "r3IDOqBZJ0JU1WhqaFlM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:42:57.404Z"
+  },
+  {
+    "id": "r4DVPTPCerzYrJehtXhG",
+    "intentId": "r4DVPTPCerzYrJehtXhG",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:21:45.592Z"
+  },
+  {
+    "id": "rAdBUGynAqMVh1vVX83t",
+    "intentId": "rAdBUGynAqMVh1vVX83t",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:05:20.775Z"
+  },
+  {
+    "id": "rIjQE7qUTIHmwiIa725Y",
+    "intentId": "rIjQE7qUTIHmwiIa725Y",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-18T10:40:10.981Z"
+  },
+  {
+    "id": "rJ5lnw406C4MZyw6AOti",
+    "intentId": "rJ5lnw406C4MZyw6AOti",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:12:56.094Z"
+  },
+  {
+    "id": "rONwddQ44fXItNfy6VHO",
+    "intentId": "rONwddQ44fXItNfy6VHO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:53:46.682Z"
+  },
+  {
+    "id": "rQMP0jO5FoxiO3VS42S0",
+    "intentId": "rQMP0jO5FoxiO3VS42S0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T08:57:53.489Z"
+  },
+  {
+    "id": "ra4Q1Ib8K2h5ZhE3NPCf",
+    "intentId": "ra4Q1Ib8K2h5ZhE3NPCf",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:01:09.649Z"
+  },
+  {
+    "id": "rcfi7eRagE3Pu8cBbJ7a",
+    "intentId": "rcfi7eRagE3Pu8cBbJ7a",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T08:47:23.180Z"
+  },
+  {
+    "id": "rlaDxcb2qFfv0Nr2aaWr",
+    "intentId": "rlaDxcb2qFfv0Nr2aaWr",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 5000,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:32:25.607Z"
+  },
+  {
+    "id": "roCy1A3Th4s6gIxdcYwt",
+    "intentId": "roCy1A3Th4s6gIxdcYwt",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:42:45.457Z"
+  },
+  {
+    "id": "ry1WMh8nMS8lcfPMU3hH",
+    "intentId": "ry1WMh8nMS8lcfPMU3hH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T20:42:27.920Z"
+  },
+  {
+    "id": "s4SkvSGnGVBQKPyFJzu6",
+    "intentId": "s4SkvSGnGVBQKPyFJzu6",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-17T19:53:42.792Z"
+  },
+  {
+    "id": "s5ANZxLozlVsHoWa4dcq",
+    "intentId": "s5ANZxLozlVsHoWa4dcq",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:09:00.055Z"
+  },
+  {
+    "id": "s7p4ON8IFyEdJZZkXFPB",
+    "intentId": "s7p4ON8IFyEdJZZkXFPB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:11:47.067Z"
+  },
+  {
+    "id": "s8icRcqwY1KFPeJxZdqT",
+    "intentId": "s8icRcqwY1KFPeJxZdqT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:09:50.240Z"
+  },
+  {
+    "id": "s8uv4u3w0ByUm6pbw5ge",
+    "intentId": "s8uv4u3w0ByUm6pbw5ge",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:06:18.043Z"
+  },
+  {
+    "id": "sBwNe6p6LyJt6sLb2DZm",
+    "intentId": "sBwNe6p6LyJt6sLb2DZm",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T14:44:58.223Z"
+  },
+  {
+    "id": "sDZQcaz9IPmYHPlNr5hW",
+    "intentId": "sDZQcaz9IPmYHPlNr5hW",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T19:43:40.072Z"
+  },
+  {
+    "id": "sHIiMHFlCFkFeNhjLekd",
+    "intentId": "sHIiMHFlCFkFeNhjLekd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T21:06:52.659Z"
+  },
+  {
+    "id": "sKzCC5QipAlgd7iFOn6n",
+    "intentId": "sKzCC5QipAlgd7iFOn6n",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:39:14.700Z"
+  },
+  {
+    "id": "sM4WtvbtOkC2yhbCsJyx",
+    "intentId": "sM4WtvbtOkC2yhbCsJyx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:14:53.298Z"
+  },
+  {
+    "id": "sa1w58ditUDDiLRAqfHu",
+    "intentId": "sa1w58ditUDDiLRAqfHu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:17:52.547Z"
+  },
+  {
+    "id": "shMIAs9d81DXIKBSw8CP",
+    "intentId": "shMIAs9d81DXIKBSw8CP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:46:01.823Z"
+  },
+  {
+    "id": "smrRaEcaS0RjCbA52tH7",
+    "intentId": "smrRaEcaS0RjCbA52tH7",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T06:56:29.929Z"
+  },
+  {
+    "id": "t0K0hV4tOCW4g9WXOoYS",
+    "intentId": "t0K0hV4tOCW4g9WXOoYS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-18T11:38:37.225Z"
+  },
+  {
+    "id": "t1jUs1zSVQJBtnunwpQZ",
+    "intentId": "t1jUs1zSVQJBtnunwpQZ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T15:03:50.655Z"
+  },
+  {
+    "id": "tCszs1Nhlc4D161x1iCH",
+    "intentId": "tCszs1Nhlc4D161x1iCH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:47:16.606Z"
+  },
+  {
+    "id": "tGay0qp12f4FmSMFHDbR",
+    "intentId": "tGay0qp12f4FmSMFHDbR",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 3600,
+    "status": "pending",
+    "createdAt": "2025-12-18T16:20:07.330Z"
+  },
+  {
+    "id": "tJjUw6n3edt2utMxJhoP",
+    "intentId": "tJjUw6n3edt2utMxJhoP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:32:54.135Z"
+  },
+  {
+    "id": "tJsGF5xyAAFDdnvdF3FC",
+    "intentId": "tJsGF5xyAAFDdnvdF3FC",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 3600,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:48:07.434Z"
+  },
+  {
+    "id": "tK9T9bsK2xWCH4bNDUrM",
+    "intentId": "tK9T9bsK2xWCH4bNDUrM",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T06:40:33.796Z"
+  },
+  {
+    "id": "tOD4VHonySLLz6o6bv7S",
+    "intentId": "tOD4VHonySLLz6o6bv7S",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:26:52.949Z"
+  },
+  {
+    "id": "tOvoiiBn0zjYhBeuMbJd",
+    "intentId": "tOvoiiBn0zjYhBeuMbJd",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "THSoBfgsHaDLamNs758L",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T12:02:30.141Z"
+  },
+  {
+    "id": "tQR5TioLnJolwEmtpZYJ",
+    "intentId": "tQR5TioLnJolwEmtpZYJ",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "aUt5Vh29CsUcstBHEF8H",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:54:30.216Z"
+  },
+  {
+    "id": "tU81BwQWWNXGNkTAysaO",
+    "intentId": "tU81BwQWWNXGNkTAysaO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:42:14.820Z"
+  },
+  {
+    "id": "tell1IO9pw98Szqjb5Sz",
+    "intentId": "tell1IO9pw98Szqjb5Sz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:19:10.788Z"
+  },
+  {
+    "id": "tgrSfSUP0T65MqNSIa2m",
+    "intentId": "tgrSfSUP0T65MqNSIa2m",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:46:45.200Z"
+  },
+  {
+    "id": "tjOAkRXbnk1DSf311xew",
+    "intentId": "tjOAkRXbnk1DSf311xew",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:35:26.959Z"
+  },
+  {
+    "id": "tkgUMVMuJaO91gtec8hN",
+    "intentId": "tkgUMVMuJaO91gtec8hN",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:42:27.980Z"
+  },
+  {
+    "id": "todRvWFS0ETr6jz4VlC1",
+    "intentId": "todRvWFS0ETr6jz4VlC1",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:28:10.684Z"
+  },
+  {
+    "id": "tpx64EvkqcgCiMgbpYDw",
+    "intentId": "tpx64EvkqcgCiMgbpYDw",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:42:46.878Z"
+  },
+  {
+    "id": "u2tmoQ3CaFVqQOaytUKz",
+    "intentId": "u2tmoQ3CaFVqQOaytUKz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 10000,
+    "status": "pending",
+    "createdAt": "2025-12-19T07:38:11.874Z"
+  },
+  {
+    "id": "u5jGCv9KBVeSwMGCrjTr",
+    "intentId": "u5jGCv9KBVeSwMGCrjTr",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 20000,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:38:05.616Z"
+  },
+  {
+    "id": "uBBlwQtD70Co2RbEmS1E",
+    "intentId": "uBBlwQtD70Co2RbEmS1E",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T12:20:40.020Z"
+  },
+  {
+    "id": "uBm0OzrVU0Jl6vtReyUo",
+    "intentId": "uBm0OzrVU0Jl6vtReyUo",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:07:17.717Z"
+  },
+  {
+    "id": "uEQuKLOr7RJlPbNGJ1t7",
+    "intentId": "uEQuKLOr7RJlPbNGJ1t7",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:42:27.721Z"
+  },
+  {
+    "id": "uKRcIBVh0yHxCebfZPCN",
+    "intentId": "uKRcIBVh0yHxCebfZPCN",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:12:50.570Z"
+  },
+  {
+    "id": "uNZMA2DPbxz9eqeb29ql",
+    "intentId": "uNZMA2DPbxz9eqeb29ql",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100000,
+    "status": "pending",
+    "createdAt": "2025-12-18T13:21:35.365Z"
+  },
+  {
+    "id": "uSYyLseobHrxFSSTKaQC",
+    "intentId": "uSYyLseobHrxFSSTKaQC",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T18:50:44.638Z"
+  },
+  {
+    "id": "uTojB3JDOzfmKBslWGWn",
+    "intentId": "uTojB3JDOzfmKBslWGWn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-17T18:08:47.954Z"
+  },
+  {
+    "id": "uVjiI4SNeqPxRznYNaSN",
+    "intentId": "uVjiI4SNeqPxRznYNaSN",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:37:46.240Z"
+  },
+  {
+    "id": "uegYefRN6dl4OlcglcLl",
+    "intentId": "uegYefRN6dl4OlcglcLl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 4700,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:35:13.505Z"
+  },
+  {
+    "id": "ufK2qHd4hudDEWMKMlRH",
+    "intentId": "ufK2qHd4hudDEWMKMlRH",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:59:16.289Z"
+  },
+  {
+    "id": "ui6DMwX5tcorX0wYYwuF",
+    "intentId": "ui6DMwX5tcorX0wYYwuF",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:00:05.041Z"
+  },
+  {
+    "id": "ui9v2ef0Iux5NjUfZvHT",
+    "intentId": "ui9v2ef0Iux5NjUfZvHT",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T20:20:05.165Z"
+  },
+  {
+    "id": "uiEVv01u6T2Rh8wJjE1l",
+    "intentId": "uiEVv01u6T2Rh8wJjE1l",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 300,
+    "status": "pending",
+    "createdAt": "2025-12-15T12:05:46.007Z"
+  },
+  {
+    "id": "uls8WoxoOR6Tt5qyulHl",
+    "intentId": "uls8WoxoOR6Tt5qyulHl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:47:57.220Z"
+  },
+  {
+    "id": "uwqJMF6U9YVEi2SJSjU2",
+    "intentId": "uwqJMF6U9YVEi2SJSjU2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T08:46:34.115Z"
+  },
+  {
+    "id": "v0LMQx6jNHeKvksxQ56U",
+    "intentId": "v0LMQx6jNHeKvksxQ56U",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:25:26.729Z"
+  },
+  {
+    "id": "v5OR3sy45aHQSMbGNx6L",
+    "intentId": "v5OR3sy45aHQSMbGNx6L",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T13:56:09.112Z"
+  },
+  {
+    "id": "v9tfA33sIHGGuhxnt9ht",
+    "intentId": "v9tfA33sIHGGuhxnt9ht",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T16:34:07.734Z"
+  },
+  {
+    "id": "vAKJFD2R1gPw0da2LP6c",
+    "intentId": "vAKJFD2R1gPw0da2LP6c",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:13:28.072Z"
+  },
+  {
+    "id": "vH80IaWoB0yn4TJSQhRu",
+    "intentId": "vH80IaWoB0yn4TJSQhRu",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:31:32.631Z"
+  },
+  {
+    "id": "vHfVjGtQtsCBLHzSCmhD",
+    "intentId": "vHfVjGtQtsCBLHzSCmhD",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:17:23.465Z"
+  },
+  {
+    "id": "vLDD3VTYVVu1Je6gJyBb",
+    "intentId": "vLDD3VTYVVu1Je6gJyBb",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:28:54.625Z"
+  },
+  {
+    "id": "vN8UyRP3YpJt7pjmN6Ri",
+    "intentId": "vN8UyRP3YpJt7pjmN6Ri",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "aUt5Vh29CsUcstBHEF8H",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T18:23:06.216Z"
+  },
+  {
+    "id": "vWaoRufeFDDzYBAQFhbj",
+    "intentId": "vWaoRufeFDDzYBAQFhbj",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:29:18.220Z"
+  },
+  {
+    "id": "vf8AWLlwxim3ZgbQm7Gx",
+    "intentId": "vf8AWLlwxim3ZgbQm7Gx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T10:02:04.504Z"
+  },
+  {
+    "id": "vjeRnD4MeKvmt37ET4x4",
+    "intentId": "vjeRnD4MeKvmt37ET4x4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T17:23:11.155Z"
+  },
+  {
+    "id": "vxVm6YDzngiAbz8g2yF2",
+    "intentId": "vxVm6YDzngiAbz8g2yF2",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:03:56.982Z"
+  },
+  {
+    "id": "vy4FjHpt9fWSKMn6C2Fn",
+    "intentId": "vy4FjHpt9fWSKMn6C2Fn",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:04:45.926Z"
+  },
+  {
+    "id": "w16IlegERZ3yEEYNV8KB",
+    "intentId": "w16IlegERZ3yEEYNV8KB",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:49:47.080Z"
+  },
+  {
+    "id": "w2Xktth6lE84Wzqc2ldk",
+    "intentId": "w2Xktth6lE84Wzqc2ldk",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:32:00.921Z"
+  },
+  {
+    "id": "w44bCTAu46PklmRCxG07",
+    "intentId": "w44bCTAu46PklmRCxG07",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T20:21:51.167Z"
+  },
+  {
+    "id": "w8bCSIQbTxJapNxTa2TS",
+    "intentId": "w8bCSIQbTxJapNxTa2TS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:30:27.793Z"
+  },
+  {
+    "id": "wRZngJjPauPKi6vgjoF4",
+    "intentId": "wRZngJjPauPKi6vgjoF4",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T05:23:18.253Z"
+  },
+  {
+    "id": "wcmrYjthFBC5hS2L5Xsm",
+    "intentId": "wcmrYjthFBC5hS2L5Xsm",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-19T22:16:41.679Z"
+  },
+  {
+    "id": "wrvyjhGKgFuKVoztF2fN",
+    "intentId": "wrvyjhGKgFuKVoztF2fN",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:55:45.218Z"
+  },
+  {
+    "id": "ws1d5abzyF6endG1KWX1",
+    "intentId": "ws1d5abzyF6endG1KWX1",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 700,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:31:24.864Z"
+  },
+  {
+    "id": "wwqFJIM5GVuhohast7Be",
+    "intentId": "wwqFJIM5GVuhohast7Be",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T14:44:09.764Z"
+  },
+  {
+    "id": "wxSEPzEpE9lfVAHJHuOW",
+    "intentId": "wxSEPzEpE9lfVAHJHuOW",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:37:08.197Z"
+  },
+  {
+    "id": "wxzEu7HpPCRIp6FIma2c",
+    "intentId": "wxzEu7HpPCRIp6FIma2c",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:57:52.047Z"
+  },
+  {
+    "id": "x2PnCpn1phHL7ZpwGYgO",
+    "intentId": "x2PnCpn1phHL7ZpwGYgO",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-18T18:08:10.289Z"
+  },
+  {
+    "id": "x2WVoYM52DhF22uX31SL",
+    "intentId": "x2WVoYM52DhF22uX31SL",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:21:58.221Z"
+  },
+  {
+    "id": "x49OOcBxrNlfticDpcXb",
+    "intentId": "x49OOcBxrNlfticDpcXb",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T11:36:26.166Z"
+  },
+  {
+    "id": "x5c0hdv2dF7Wtsl7Y4Hx",
+    "intentId": "x5c0hdv2dF7Wtsl7Y4Hx",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:12:45.037Z"
+  },
+  {
+    "id": "x5uoducdtn5cN9cguGiL",
+    "intentId": "x5uoducdtn5cN9cguGiL",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "noLuODpebT7EXpZWBRkH",
+    "amount": 700,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:37:04.230Z"
+  },
+  {
+    "id": "x9CKNvTfeqFYxkVGjNIg",
+    "intentId": "x9CKNvTfeqFYxkVGjNIg",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:22:00.695Z"
+  },
+  {
+    "id": "xBMYNagD2Bll3S69GJyK",
+    "intentId": "xBMYNagD2Bll3S69GJyK",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T13:39:59.492Z"
+  },
+  {
+    "id": "xKBVLml0VvvALEJq8r7r",
+    "intentId": "xKBVLml0VvvALEJq8r7r",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 2000,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:29:20.308Z"
+  },
+  {
+    "id": "xXP6saqxpiy4HdlXgUAm",
+    "intentId": "xXP6saqxpiy4HdlXgUAm",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T08:06:39.268Z"
+  },
+  {
+    "id": "xZ0XxXWg0UUgfh2k8add",
+    "intentId": "xZ0XxXWg0UUgfh2k8add",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T10:04:42.733Z"
+  },
+  {
+    "id": "xh4ZyAkWFzxOEFKJFAtA",
+    "intentId": "xh4ZyAkWFzxOEFKJFAtA",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:04:30.089Z"
+  },
+  {
+    "id": "xk8Fza5dRlSZH3aRD1Am",
+    "intentId": "xk8Fza5dRlSZH3aRD1Am",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T13:34:35.969Z"
+  },
+  {
+    "id": "xmJCTfhh3ogygUgcrcbp",
+    "intentId": "xmJCTfhh3ogygUgcrcbp",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-20T07:25:23.979Z"
+  },
+  {
+    "id": "y37uAZ3CAAdY8ALVGVrl",
+    "intentId": "y37uAZ3CAAdY8ALVGVrl",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T15:42:34.867Z"
+  },
+  {
+    "id": "y6PgOHx93bU2aRqbv44b",
+    "intentId": "y6PgOHx93bU2aRqbv44b",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-18T11:59:44.459Z"
+  },
+  {
+    "id": "yCW50SSJ80T9NTeUjgPF",
+    "intentId": "yCW50SSJ80T9NTeUjgPF",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "aUt5Vh29CsUcstBHEF8H",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T19:12:12.375Z"
+  },
+  {
+    "id": "yFAXMB85Ot07rLBJlVyh",
+    "intentId": "yFAXMB85Ot07rLBJlVyh",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:54:25.269Z"
+  },
+  {
+    "id": "yMPSweI8MGda4F3s4HQY",
+    "intentId": "yMPSweI8MGda4F3s4HQY",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T21:02:40.988Z"
+  },
+  {
+    "id": "ySOpHVdopXz5PlrjC3bS",
+    "intentId": "ySOpHVdopXz5PlrjC3bS",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:32:18.785Z"
+  },
+  {
+    "id": "yTiEORy8EPgfADQSAO2a",
+    "intentId": "yTiEORy8EPgfADQSAO2a",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T15:38:48.115Z"
+  },
+  {
+    "id": "yaXFEvKCl8TtNi5LyrU3",
+    "intentId": "yaXFEvKCl8TtNi5LyrU3",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T06:50:55.059Z"
+  },
+  {
+    "id": "yeM1zVdo2HorFvja1Dzz",
+    "intentId": "yeM1zVdo2HorFvja1Dzz",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-19T18:15:01.153Z"
+  },
+  {
+    "id": "yfJ1rQ2dVNMZmc8Wo4j9",
+    "intentId": "yfJ1rQ2dVNMZmc8Wo4j9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:52:29.872Z"
+  },
+  {
+    "id": "yvmLcqrT9YCVHrsgCuFV",
+    "intentId": "yvmLcqrT9YCVHrsgCuFV",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1500,
+    "status": "pending",
+    "createdAt": "2025-12-18T22:19:47.815Z"
+  },
+  {
+    "id": "yzy3tRqkZxKRdTSpYU93",
+    "intentId": "yzy3tRqkZxKRdTSpYU93",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "aUt5Vh29CsUcstBHEF8H",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2025-12-17T10:49:47.205Z"
+  },
+  {
+    "id": "z3Yrf6GfWwkrvCnPtB9R",
+    "intentId": "z3Yrf6GfWwkrvCnPtB9R",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "amount": 900,
+    "status": "pending",
+    "createdAt": "2025-12-19T23:08:02.194Z"
+  },
+  {
+    "id": "z3iUVghkee18ThflfzA0",
+    "intentId": "z3iUVghkee18ThflfzA0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T16:45:03.567Z"
+  },
+  {
+    "id": "z9qikO0pYexHlk1CwPz9",
+    "intentId": "z9qikO0pYexHlk1CwPz9",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T20:56:10.672Z"
+  },
+  {
+    "id": "zER0T6xhzNAp5hUErl0U",
+    "intentId": "zER0T6xhzNAp5hUErl0U",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T21:29:29.122Z"
+  },
+  {
+    "id": "zXxtdqjrGEsv1VEhdrM0",
+    "intentId": "zXxtdqjrGEsv1VEhdrM0",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "R3DRrtGPGfw8jsQxG4r8",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T07:31:23.846Z"
+  },
+  {
+    "id": "zcbs1vpwXLcUsmYPDQQv",
+    "intentId": "zcbs1vpwXLcUsmYPDQQv",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-17T09:22:24.960Z"
+  },
+  {
+    "id": "zdMAwDCa9pzdIbEmN1DC",
+    "intentId": "zdMAwDCa9pzdIbEmN1DC",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T10:39:55.207Z"
+  },
+  {
+    "id": "zeSOChE9kNk5eksDTB9x",
+    "intentId": "zeSOChE9kNk5eksDTB9x",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-16T21:19:09.888Z"
+  },
+  {
+    "id": "zqJumKcy7lLmLF0ZIeEP",
+    "intentId": "zqJumKcy7lLmLF0ZIeEP",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "81cTWJpXQxqb1LcEQ9Nd",
+    "amount": 200,
+    "status": "pending",
+    "createdAt": "2025-12-16T07:22:53.514Z"
+  },
+  {
+    "id": "zvM65LNUWMTblzugjyvv",
+    "intentId": "zvM65LNUWMTblzugjyvv",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "amount": 100,
+    "status": "pending",
+    "createdAt": "2025-12-15T11:22:26.151Z"
+  },
+  {
+    "id": "zzZ7R0EX5OEvWeimEV3x",
+    "intentId": "zzZ7R0EX5OEvWeimEV3x",
+    "userId": "guest",
+    "contestId": "votes-artistes",
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "amount": 1000,
+    "status": "pending",
+    "createdAt": "2025-12-15T09:45:46.707Z"
+  }
+]

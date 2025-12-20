@@ -10,8 +10,8 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 
 const KKIAPAY_FILE = path.join(__dirname, '..', 'Affaire Vote', 'LISTE-DES-TRANSACTIONS KKIAPAY jusqu\'à maintenant.xlsx');
-const FIREBASE_INTENTS_CSV = path.join(__dirname, '..', 'exports', 'votes-artistes-pending-intents-2025-12-19.csv');
-const FIREBASE_FULL_EXPORT = path.join(__dirname, '..', 'exports', 'votes-artistes-full-export-2025-12-19.json');
+const FIREBASE_INTENTS_CSV = path.join(__dirname, '..', 'Affaire Vote', 'votes-artistes-pending-intents-2025-12-20.csv');
+// const FIREBASE_FULL_EXPORT = ... (Non utilisé dans cette étape critique de comparaison Kkiapay <-> Pending)
 
 function main() {
     console.log('=== ANALYSE DÉTAILLÉE DES VOTES PERDUS ===\n');
@@ -57,21 +57,34 @@ function main() {
     console.log('\n--- 2. Lecture des intents Firebase ---');
     const csvContent = fs.readFileSync(FIREBASE_INTENTS_CSV, 'utf8');
     const csvLines = csvContent.trim().split('\n');
-    const csvHeaders = csvLines[0].split(';');
+
+    // Detect separator: count occurrences of , and ; in first line
+    const firstLine = csvLines[0];
+    const commaCount = (firstLine.match(/,/g) || []).length;
+    const semiCount = (firstLine.match(/;/g) || []).length;
+    const separator = commaCount > semiCount ? ',' : ';';
+    console.log(`Séparateur détecté: "${separator}" (virgules: ${commaCount}, points-virgules: ${semiCount})`);
+
+    const csvHeaders = csvLines[0].split(separator);
+    console.log('En-têtes CSV:', csvHeaders.join(' | '));
 
     const pendingIntents = csvLines.slice(1).map(line => {
-        const values = line.split(';');
+        const values = line.split(separator);
         const obj = {};
         csvHeaders.forEach((h, i) => { obj[h.trim()] = values[i]?.trim() || ''; });
         return obj;
     });
 
     console.log(`Intents pending Firebase: ${pendingIntents.length}`);
+    if (pendingIntents.length > 0) {
+        console.log('Premier intent (sample):', JSON.stringify(pendingIntents[0], null, 2));
+    }
 
     // 3. Lire les votes déjà comptés
-    console.log('\n--- 3. Lecture des votes comptés ---');
+    console.log('\n--- 3. Lecture des votes comptés (SKIP - Fichier non dispo) ---');
     let countedVotes = [];
     let countedIntents = [];
+    /*
     if (fs.existsSync(FIREBASE_FULL_EXPORT)) {
         const fullExport = JSON.parse(fs.readFileSync(FIREBASE_FULL_EXPORT, 'utf8'));
         countedVotes = fullExport.votes || [];
@@ -79,6 +92,7 @@ function main() {
         console.log(`Votes enregistrés: ${countedVotes.length}`);
         console.log(`Intents counted: ${countedIntents.length}`);
     }
+    */
 
     // Créer les sets de recherche
     const pendingIntentIds = new Set(pendingIntents.map(i => String(i.intentId || '').trim()));

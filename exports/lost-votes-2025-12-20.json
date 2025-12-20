@@ -1,0 +1,379 @@
+[
+  {
+    "transactionId": "1366090290295064",
+    "partnerId": "hUnhOMPd0toygD95Ktuk",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "V4Yp04b0gzvcy3nUXW3a",
+    "intentCreatedAt": "2025-11-19T20:26:04.788Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763584012,
+      "_nanoseconds": 563000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "1391045630794623",
+    "partnerId": "Kyy0cG7LcXzAY0pm3COM",
+    "amount": 1000,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "V4Yp04b0gzvcy3nUXW3a",
+    "intentCreatedAt": "2025-11-20T09:24:18.365Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763630769,
+      "_nanoseconds": 16000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "1566202729369230",
+    "partnerId": "8KK3d3YoAQH4USyUwAOL",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "1S3JQ3vkdGbgsLgNhTTE",
+    "intentCreatedAt": "2025-11-18T11:00:49.239Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763463806,
+      "_nanoseconds": 987000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "1583858903522806",
+    "partnerId": "aXcZIWbIlfpclDIv9aDr",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "GDieaZwnau0cFOoQ3K7Z",
+    "intentCreatedAt": "2025-11-19T20:30:11.103Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763584365,
+      "_nanoseconds": 149000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "1657671338582434",
+    "partnerId": "3R9RgTvzZIWXopIDbuhf",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "qTyVM4EoESWnV6BRS7bo",
+    "intentCreatedAt": "2025-11-20T08:04:20.577Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763625893,
+      "_nanoseconds": 424000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "181855348799002",
+    "partnerId": "lJrOeQuvXwsBLdYDiGkR",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "dTBSRcAIzSbvIYWDiXcL",
+    "intentCreatedAt": "2025-11-17T11:41:25.790Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763379707,
+      "_nanoseconds": 517000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "2098326388294867",
+    "partnerId": "jOWLfXL1IGxA5TrbvNbw",
+    "amount": 200,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "eTS7KO02YY4FIyUxoD4u",
+    "intentCreatedAt": "2025-11-18T14:57:49.259Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763477905,
+      "_nanoseconds": 493000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "2585195215135405",
+    "partnerId": "GlPiWrSaYY3ni17cIMtv",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "3krbHK1gSGCJIUPQN7u2",
+    "intentCreatedAt": "2025-11-17T17:38:24.227Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763401157,
+      "_nanoseconds": 648000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "2757669206964181",
+    "partnerId": "10QG61m8QuHEFMy1vXBG",
+    "amount": 200,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "K1ahblkF9zbN87Hbsf9n",
+    "intentCreatedAt": "2025-11-18T14:55:20.378Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763477773,
+      "_nanoseconds": 748000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "394351451522797",
+    "partnerId": "1cgtQ124EWGOa9VigDFy",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "V4Yp04b0gzvcy3nUXW3a",
+    "intentCreatedAt": "2025-11-19T19:35:26.297Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763580960,
+      "_nanoseconds": 467000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "3975593555384517",
+    "partnerId": "QWVhjLH9ptC4M6qi1pmt",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "6OBg0seoTFcTZ9pLe7kM",
+    "intentCreatedAt": "2025-11-19T14:07:40.703Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763561313,
+      "_nanoseconds": 162000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "4919797945809705",
+    "partnerId": "evvJPEbi4Du1U1P8kqe7",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "bjoTtHpZVlme8X7VT3zc",
+    "intentCreatedAt": "2025-11-17T04:57:06.945Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763355482,
+      "_nanoseconds": 683000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "4943124062150593",
+    "partnerId": "GTAjOzvyWhNntU0eb7mo",
+    "amount": 1000,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "dTBSRcAIzSbvIYWDiXcL",
+    "intentCreatedAt": "2025-11-19T10:56:51.194Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763550035,
+      "_nanoseconds": 146000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "5490606147470104",
+    "partnerId": "SnSAXOfBhA9N7R4kIG8a",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "KloBDkllIFVxl0c4KmtE",
+    "intentCreatedAt": "2025-11-17T06:18:46.826Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763360391,
+      "_nanoseconds": 196000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "5708423742525866",
+    "partnerId": "3nnoQJjoTB0UB4vfHvFV",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "6OBg0seoTFcTZ9pLe7kM",
+    "intentCreatedAt": "2025-11-20T11:17:34.775Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763637511,
+      "_nanoseconds": 339000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "7111737605298521",
+    "partnerId": "QGOWFjwioJr1QucOjTWG",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "3krbHK1gSGCJIUPQN7u2",
+    "intentCreatedAt": "2025-11-18T12:12:46.162Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763468052,
+      "_nanoseconds": 269000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "7179416577697267",
+    "partnerId": "6zhAOHfsNZMmS74Sl1GF",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "bjoTtHpZVlme8X7VT3zc",
+    "intentCreatedAt": "2025-11-18T12:17:46.515Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763468337,
+      "_nanoseconds": 105000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "7853885288783346",
+    "partnerId": "9Ts6zRz51SsGazwDjbc8",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "bjoTtHpZVlme8X7VT3zc",
+    "intentCreatedAt": "2025-11-17T07:08:00.307Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763363371,
+      "_nanoseconds": 140000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "7883497828549428",
+    "partnerId": "YS2DSWBd3f9H694YzKBP",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "1S3JQ3vkdGbgsLgNhTTE",
+    "intentCreatedAt": "2025-11-18T08:14:30.659Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763453761,
+      "_nanoseconds": 626000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "7927510103061750",
+    "partnerId": "OXSpgh0GZIO2kcuMJkFW",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "1S3JQ3vkdGbgsLgNhTTE",
+    "intentCreatedAt": "2025-11-17T09:52:43.977Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763373201,
+      "_nanoseconds": 815000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "799649067278883",
+    "partnerId": "RPX5xv9sFoRv1DLO6swM",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "1dAcvBNyP92iOeMJFvcJ",
+    "intentCreatedAt": "2025-11-18T21:50:35.442Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763502653,
+      "_nanoseconds": 394000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "8128183307372345",
+    "partnerId": "ZBn9RTyzipoaM25O7DEl",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "bjoTtHpZVlme8X7VT3zc",
+    "intentCreatedAt": "2025-11-17T12:18:13.054Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763381933,
+      "_nanoseconds": 163000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "8202883845301872",
+    "partnerId": "YYmzYXVUzefZPID15IPq",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "1dAcvBNyP92iOeMJFvcJ",
+    "intentCreatedAt": "2025-11-21T10:11:50.898Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763719982,
+      "_nanoseconds": 30000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "8727708946322279",
+    "partnerId": "hdQ68KLc4uMw0GBXkHZD",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "1S3JQ3vkdGbgsLgNhTTE",
+    "intentCreatedAt": "2025-11-19T15:29:34.611Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763566187,
+      "_nanoseconds": 845000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "8803367042303822",
+    "partnerId": "CS1yiZ7crDaSicaTjYQ0",
+    "amount": 200,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "V4Yp04b0gzvcy3nUXW3a",
+    "intentCreatedAt": "2025-11-19T13:47:17.111Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763560061,
+      "_nanoseconds": 627000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "8842809666161674",
+    "partnerId": "A49JajaFd5gd9tzBLCwN",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "bjoTtHpZVlme8X7VT3zc",
+    "intentCreatedAt": "2025-11-17T22:38:53.086Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763419189,
+      "_nanoseconds": 93000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "9063099517155324",
+    "partnerId": "Z0I2QlhPDgbGEEqnImMA",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "bjoTtHpZVlme8X7VT3zc",
+    "intentCreatedAt": "2025-11-19T10:24:07.924Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763547899,
+      "_nanoseconds": 439000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "9158726130022656",
+    "partnerId": "S6KQjcrv5W2RDviKOjy6",
+    "amount": 1000,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "qTyVM4EoESWnV6BRS7bo",
+    "intentCreatedAt": "2025-11-19T17:11:17.963Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763572345,
+      "_nanoseconds": 28000000
+    },
+    "voterInfo": "N/A"
+  },
+  {
+    "transactionId": "9331505938148856",
+    "partnerId": "9NHhtBHii2oIOtzs2kwe",
+    "amount": 100,
+    "contestId": "f9NdI6f1lH7Z2ZxUzEFt",
+    "candidateId": "6OBg0seoTFcTZ9pLe7kM",
+    "intentCreatedAt": "2025-11-17T14:53:06.880Z",
+    "paymentVerifiedAt": {
+      "_seconds": 1763391427,
+      "_nanoseconds": 243000000
+    },
+    "voterInfo": "N/A"
+  }
+]
