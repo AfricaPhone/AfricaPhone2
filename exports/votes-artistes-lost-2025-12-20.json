@@ -1,0 +1,29 @@
+[
+  {
+    "transactionId": "5916256198067676",
+    "partnerId": "88xYoGM0EPIJ44oCN9Fk",
+    "amount": 10300,
+    "date": "2025-12-19T21:52:59.912Z",
+    "customer": "moubrak Oley",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "status": "SUCCESS"
+  },
+  {
+    "transactionId": "6545549931239778",
+    "partnerId": "6mtybx0EDtc7eKXHP5XS",
+    "amount": 500,
+    "date": "2025-12-19T18:17:51.787Z",
+    "customer": "ISSA Massourou",
+    "candidateId": "TXBLgEfug2LJqx5MXWe4",
+    "status": "SUCCESS"
+  },
+  {
+    "transactionId": "4454540328225857",
+    "partnerId": "mHRbjqnHkeyG1NxvXHdC",
+    "amount": 100,
+    "date": "2025-12-19T17:37:19.959Z",
+    "customer": "Mamoudou",
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "status": "SUCCESS"
+  }
+]

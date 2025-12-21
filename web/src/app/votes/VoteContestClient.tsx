@@ -1340,6 +1340,13 @@ function VoteModal({ open, status, message, transactionId, candidate, onClose, v
   const isSuccess = status === 'success';
   const isFailure = status === 'failed';
 
+  const candidateName = candidate?.media || candidate?.name || null;
+  const voiceCount = voteDetails?.voiceCount ?? 1;
+
+  const successMessage = candidateName
+    ? `Vous avez accordé ${voiceCount > 1 ? `${voiceCount} voix` : 'une voix'} à ${candidateName}.`
+    : (message ?? 'Merci pour votre participation.');
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
       <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl">
@@ -1358,38 +1365,91 @@ function VoteModal({ open, status, message, transactionId, candidate, onClose, v
         >
           <TrophyIcon className="h-7 w-7" />
         </div>
-        <h3 className="mt-4 text-lg font-semibold text-slate-900">
-          {isSuccess ? 'Vote enregistre !' : isFailure ? 'Paiement interrompu' : 'Information'}
-        </h3>
-        <p className="mt-2 text-sm text-slate-600">
-          {message ?? (isSuccess ? 'Merci pour votre participation.' : 'Veuillez reessayer dans un instant.')}
-        </p>
 
-        {candidate ? (
-          <div className="mt-4 rounded-2xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
-            {candidate.media || candidate.name}
-          </div>
-        ) : null}
+        {isSuccess ? (
+          <>
+            <h3 className="mt-4 text-xl font-bold text-slate-900">
+              🎉 Félicitations ! 🎉
+            </h3>
+            <p className="mt-3 text-sm text-slate-700">
+              {successMessage}
+            </p>
 
-        {voteDetails ? (
-          <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
-            {voteDetails.voiceCount} voix - {formatNumber(voteDetails.amount)} F CFA
-          </div>
-        ) : null}
+            {voteDetails ? (
+              <div className="mt-3 rounded-2xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
+                {voteDetails.voiceCount} voix - {formatNumber(voteDetails.amount)} F CFA
+              </div>
+            ) : null}
 
-        {transactionId ? (
-          <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-500">
-            Reference paiement : <span className="font-semibold text-slate-700">{transactionId}</span>
-          </div>
-        ) : null}
+            {transactionId ? (
+              <div className="mt-2 rounded-2xl bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-500">
+                Réf. : <span className="font-semibold text-slate-700">{transactionId}</span>
+              </div>
+            ) : null}
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-[#111827] text-sm font-semibold text-white transition hover:bg-[#0f172a]"
-        >
-          Fermer
-        </button>
+            {/* Section invitation téléchargement app */}
+            <div className="mt-5 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 px-4 py-4">
+              <p className="text-sm text-slate-700 leading-relaxed">
+                Téléchargez l'application <span className="font-semibold text-orange-600">AfricaPhone</span> pour finaliser votre participation et accéder à tous nos services, nos offres exclusives et rester connecté à l'actualité.
+              </p>
+            </div>
+
+            <a
+              href="https://play.google.com/store/apps/details?id=com.africaphone.africaphone"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-sm font-bold text-white shadow-lg shadow-orange-200 transition hover:from-orange-600 hover:to-amber-600"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z" />
+              </svg>
+              Télécharger l'application
+            </a>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="mt-3 text-sm font-medium text-slate-500 transition hover:text-slate-700"
+            >
+              Fermer
+            </button>
+          </>
+        ) : (
+          <>
+            <h3 className="mt-4 text-lg font-semibold text-slate-900">
+              {isFailure ? 'Paiement interrompu' : 'Information'}
+            </h3>
+            <p className="mt-2 text-sm text-slate-600">
+              {message ?? 'Veuillez reessayer dans un instant.'}
+            </p>
+
+            {candidate ? (
+              <div className="mt-4 rounded-2xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
+                {candidate.media || candidate.name}
+              </div>
+            ) : null}
+
+            {voteDetails ? (
+              <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+                {voteDetails.voiceCount} voix - {formatNumber(voteDetails.amount)} F CFA
+              </div>
+            ) : null}
+
+            {transactionId ? (
+              <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-500">
+                Reference paiement : <span className="font-semibold text-slate-700">{transactionId}</span>
+              </div>
+            ) : null}
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-[#111827] text-sm font-semibold text-white transition hover:bg-[#0f172a]"
+            >
+              Fermer
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

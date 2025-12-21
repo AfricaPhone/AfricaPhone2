@@ -1,0 +1,104 @@
+{
+    "contestId": "votes-artistes",
+    "cutoffLocalIso": "2025-12-19T23:57:27+01:00",
+    "timezone": "Africa/Porto-Novo",
+    "countedVotesAtCutoff": 6260,
+    "results": [
+        {
+            "name": "MOUKOUNKOUN MAYASOU (Mayasso)",
+            "votesAtCutoff": 1853
+        },
+        {
+            "name": "OGNIBO AZIZ (Azmedine number one)",
+            "votesAtCutoff": 1799
+        },
+        {
+            "name": "AMOUSSOU Adechinan Ola Thierry (OLOWOLAYÉMON)",
+            "votesAtCutoff": 1075
+        },
+        {
+            "name": "Worou Roland (Tonton Rodas)",
+            "votesAtCutoff": 794
+        },
+        {
+            "name": "Bassongui Mohamed (Dj BASSONGUI MLEWIS)",
+            "votesAtCutoff": 372
+        },
+        {
+            "name": "GBAGUIDI Sègla Wilfried (Ami des Vers)",
+            "votesAtCutoff": 113
+        },
+        {
+            "name": "Bakari Abdoul Hamid (Bakarison)",
+            "votesAtCutoff": 94
+        },
+        {
+            "name": "CHABI FAÏSOLATH (Ifèwâ)",
+            "votesAtCutoff": 37
+        },
+        {
+            "name": "BARASSOUNON Sabi Gningo (GEBAS)",
+            "votesAtCutoff": 36
+        },
+        {
+            "name": "MASSENON Mahouhlin Jonas (Gbenonhunmen)",
+            "votesAtCutoff": 31
+        },
+        {
+            "name": "AKOMINAN Moussibaou (DJ Mousso)",
+            "votesAtCutoff": 23
+        },
+        {
+            "name": "Brou Franck Allen F. (Francky Joezzhy)",
+            "votesAtCutoff": 17
+        },
+        {
+            "name": "AKAKPO Ezéckiel (Ezeko Cool -Boy)",
+            "votesAtCutoff": 10
+        },
+        {
+            "name": "Gbadou eritie (seriki)",
+            "votesAtCutoff": 3
+        },
+        {
+            "name": "Ballogun PROSPER (MB MEGGERS)",
+            "votesAtCutoff": 3
+        },
+        {
+            "name": "Zoulkif (Dubest)",
+            "votesAtCutoff": 0
+        },
+        {
+            "name": "Touhan godonou junior G. (ANY LOVE LE FILS SACRÉ)",
+            "votesAtCutoff": 0
+        },
+        {
+            "name": "MALAM MOUSSA Abdoul-Aziz (Dj Kerwis l'assassin des arrangeurs)",
+            "votesAtCutoff": 0
+        },
+        {
+            "name": "Affokpate tchegoun dieu donne (Flak ti-dy)",
+            "votesAtCutoff": 0
+        },
+        {
+            "name": "Fataï adjibi (Muscador le moine)",
+            "votesAtCutoff": 0
+        },
+        {
+            "name": "Bassongui Mohamed ((Moderne) Coupé décalé)",
+            "votesAtCutoff": 0
+        },
+        {
+            "name": "Adjakidje Rodrigue (Lapaix du christ)",
+            "votesAtCutoff": 0
+        },
+        {
+            "name": "SONOUNAMETO CREPIN (S-crepino)",
+            "votesAtCutoff": 0
+        },
+        {
+            "name": "ADILEHOU Grégoire (ALOKE ABIYESSISSIN)",
+            "votesAtCutoff": 0
+        }
+    ]
+}

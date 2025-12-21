@@ -1,5 +1,5 @@
 {
-  "exportDate": "2025-12-20T15:06:29.248Z",
+  "exportDate": "2025-12-20T16:28:04.247Z",
   "contestId": "votes-artistes",
   "contest": {
     "id": "votes-artistes",
@@ -11,7 +11,7 @@
     "updatedAt": "2025-12-03T23:00:00.766Z",
     "voteOpensAt": "2025-12-14T23:00:00.000Z",
     "endDate": "2025-12-28T23:00:00.936Z",
-    "totalVotes": 6307
+    "totalVotes": 6432
   },
   "candidates": [
     {
@@ -46,7 +46,7 @@
       "createdAt": "2025-12-14T08:20:17.213Z",
       "publishedAt": "2025-12-14T08:20:17.213Z",
       "updatedAt": "2025-12-14T08:20:17.213Z",
-      "voteCount": 1692
+      "voteCount": 1800
     },
     {
       "id": "oucOMPgDKDQR8GKDvFHJ",
@@ -63,7 +63,7 @@
       "createdAt": "2025-12-10T19:15:52.490Z",
       "publishedAt": "2025-12-10T19:15:52.490Z",
       "updatedAt": "2025-12-10T19:15:52.490Z",
-      "voteCount": 1092
+      "voteCount": 1097
     },
     {
       "id": "RIAr7Uw1uo74gAhWWM9c",
@@ -97,7 +97,7 @@
       "createdAt": "2025-12-09T21:08:57.275Z",
       "publishedAt": "2025-12-09T21:08:57.275Z",
       "updatedAt": "2025-12-09T21:08:57.275Z",
-      "voteCount": 398
+      "voteCount": 400
     },
     {
       "id": "zNIM4k3VP04xbhamFPva",
@@ -134,6 +134,23 @@
       "voteCount": 94
     },
     {
+      "id": "ANLYRIZ6gRU8LgLSyaRq",
+      "contestId": "votes-artistes",
+      "name": "MASSENON Mahouhlin Jonas",
+      "media": "Gbɛnɔnhunmɛn",
+      "biography": "",
+      "slug": "massenon-mahouhlin-jonas-gb-n-nhunm-n",
+      "phoneHash": "b272aa28ac26c163fbe87a0e59baa873d6f79a378e692080fde8f3271aff118c",
+      "status": "published",
+      "photoUrl": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/contest-submissions%2Fvotes-artistes%2Fb272aa28ac26c163-d5cac14949.jpg?alt=media",
+      "photoPath": "contest-submissions/votes-artistes/b272aa28ac26c163-d5cac14949.jpg",
+      "source": "form",
+      "createdAt": "2025-12-06T08:55:12.917Z",
+      "publishedAt": "2025-12-06T08:55:12.917Z",
+      "updatedAt": "2025-12-06T08:55:12.917Z",
+      "voteCount": 41
+    },
+    {
       "id": "aUt5Vh29CsUcstBHEF8H",
       "contestId": "votes-artistes",
       "name": "CHABI FAÏSOLATH",
@@ -166,23 +183,6 @@
       "publishedAt": "2025-12-11T16:27:20.334Z",
       "updatedAt": "2025-12-11T16:27:20.334Z",
       "voteCount": 36
-    },
-    {
-      "id": "ANLYRIZ6gRU8LgLSyaRq",
-      "contestId": "votes-artistes",
-      "name": "MASSENON Mahouhlin Jonas",
-      "media": "Gbɛnɔnhunmɛn",
-      "biography": "",
-      "slug": "massenon-mahouhlin-jonas-gb-n-nhunm-n",
-      "phoneHash": "b272aa28ac26c163fbe87a0e59baa873d6f79a378e692080fde8f3271aff118c",
-      "status": "published",
-      "photoUrl": "https://firebasestorage.googleapis.com/v0/b/africaphone-vente.firebasestorage.app/o/contest-submissions%2Fvotes-artistes%2Fb272aa28ac26c163-d5cac14949.jpg?alt=media",
-      "photoPath": "contest-submissions/votes-artistes/b272aa28ac26c163-d5cac14949.jpg",
-      "source": "form",
-      "createdAt": "2025-12-06T08:55:12.917Z",
-      "publishedAt": "2025-12-06T08:55:12.917Z",
-      "updatedAt": "2025-12-06T08:55:12.917Z",
-      "voteCount": 31
     },
     {
       "id": "noLuODpebT7EXpZWBRkH",
@@ -1098,6 +1098,16 @@
       "transactionId": "2113846852535103"
     },
     {
+      "id": "2120871022062060",
+      "contestId": "votes-artistes",
+      "createdAt": "2025-12-20T15:40:43.258Z",
+      "amount": 100,
+      "counted": true,
+      "candidateId": "lrK8tSxZpQPYFTmIF7On",
+      "userId": "guest",
+      "transactionId": "2120871022062060"
+    },
+    {
       "id": "212177877174000",
       "contestId": "votes-artistes",
       "createdAt": "2025-12-15T22:47:06.811Z",
@@ -1146,6 +1156,16 @@
       "candidateId": "oucOMPgDKDQR8GKDvFHJ",
       "userId": "guest",
       "transactionId": "2205266282052656"
+    },
+    {
+      "id": "2206986716401179",
+      "contestId": "votes-artistes",
+      "createdAt": "2025-12-20T16:03:39.820Z",
+      "amount": 500,
+      "counted": true,
+      "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+      "userId": "guest",
+      "transactionId": "2206986716401179"
     },
     {
       "id": "2225341866120969",
@@ -2010,6 +2030,16 @@
       "transactionId": "3657448056992338"
     },
     {
+      "id": "3679763162183994",
+      "contestId": "votes-artistes",
+      "createdAt": "2025-12-20T16:01:08.860Z",
+      "amount": 1000,
+      "counted": true,
+      "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+      "userId": "guest",
+      "transactionId": "3679763162183994"
+    },
+    {
       "id": "3697351102526758",
       "contestId": "votes-artistes",
       "createdAt": "2025-12-15T21:06:34.412Z",
@@ -2439,6 +2469,17 @@
       "candidateId": "TXBLgEfug2LJqx5MXWe4",
       "userId": "guest",
       "transactionId": "4453649964944468"
+    },
+    {
+      "id": "4454540328225857",
+      "contestId": "votes-artistes",
+      "createdAt": "2025-12-20T15:45:26.310Z",
+      "backfilledAt": "2025-12-20T15:45:26.310Z",
+      "amount": 100,
+      "counted": true,
+      "candidateId": "lrK8tSxZpQPYFTmIF7On",
+      "userId": "guest",
+      "transactionId": "4454540328225857"
     },
     {
       "id": "4459702571667622",
@@ -3355,6 +3396,17 @@
       "transactionId": "5906074795104697"
     },
     {
+      "id": "5916256198067676",
+      "contestId": "votes-artistes",
+      "createdAt": "2025-12-20T15:45:23.767Z",
+      "backfilledAt": "2025-12-20T15:45:23.767Z",
+      "amount": 10300,
+      "counted": true,
+      "candidateId": "TXBLgEfug2LJqx5MXWe4",
+      "userId": "guest",
+      "transactionId": "5916256198067676"
+    },
+    {
       "id": "5927609966527903",
       "contestId": "votes-artistes",
       "createdAt": "2025-12-17T10:39:54.478Z",
@@ -3745,6 +3797,17 @@
       "candidateId": "oucOMPgDKDQR8GKDvFHJ",
       "userId": "guest",
       "transactionId": "6542658060989523"
+    },
+    {
+      "id": "6545549931239778",
+      "contestId": "votes-artistes",
+      "createdAt": "2025-12-20T15:45:24.964Z",
+      "backfilledAt": "2025-12-20T15:45:24.964Z",
+      "amount": 500,
+      "counted": true,
+      "candidateId": "TXBLgEfug2LJqx5MXWe4",
+      "userId": "guest",
+      "transactionId": "6545549931239778"
     },
     {
       "id": "6549623960302949",
@@ -6820,16 +6883,6 @@
         "createdAt": "2025-12-19T04:14:34.527Z"
       },
       {
-        "id": "6mtybx0EDtc7eKXHP5XS",
-        "intentId": "6mtybx0EDtc7eKXHP5XS",
-        "userId": "guest",
-        "contestId": "votes-artistes",
-        "candidateId": "TXBLgEfug2LJqx5MXWe4",
-        "amount": 500,
-        "status": "pending",
-        "createdAt": "2025-12-19T18:16:02.108Z"
-      },
-      {
         "id": "6n9skVbJcOhDgIo1LYcp",
         "intentId": "6n9skVbJcOhDgIo1LYcp",
         "userId": "guest",
@@ -6988,16 +7041,6 @@
         "amount": 100,
         "status": "pending",
         "createdAt": "2025-12-15T18:24:52.204Z"
-      },
-      {
-        "id": "88xYoGM0EPIJ44oCN9Fk",
-        "intentId": "88xYoGM0EPIJ44oCN9Fk",
-        "userId": "guest",
-        "contestId": "votes-artistes",
-        "candidateId": "TXBLgEfug2LJqx5MXWe4",
-        "amount": 10300,
-        "status": "pending",
-        "createdAt": "2025-12-19T21:52:35.295Z"
       },
       {
         "id": "8BvJ6qJ1A0LCQbrPFrZP",
@@ -9450,6 +9493,16 @@
         "createdAt": "2025-12-15T10:23:45.544Z"
       },
       {
+        "id": "TUJT4lq1qmccltdQHHLw",
+        "intentId": "TUJT4lq1qmccltdQHHLw",
+        "userId": "guest",
+        "contestId": "votes-artistes",
+        "candidateId": "lrK8tSxZpQPYFTmIF7On",
+        "amount": 100,
+        "status": "pending",
+        "createdAt": "2025-12-20T15:38:16.902Z"
+      },
+      {
         "id": "TYOJNbZ4ioPp2hvfnzui",
         "intentId": "TYOJNbZ4ioPp2hvfnzui",
         "userId": "guest",
@@ -11210,16 +11263,6 @@
         "createdAt": "2025-12-15T14:30:03.386Z"
       },
       {
-        "id": "mHRbjqnHkeyG1NxvXHdC",
-        "intentId": "mHRbjqnHkeyG1NxvXHdC",
-        "userId": "guest",
-        "contestId": "votes-artistes",
-        "candidateId": "lrK8tSxZpQPYFTmIF7On",
-        "amount": 100,
-        "status": "pending",
-        "createdAt": "2025-12-19T17:36:46.429Z"
-      },
-      {
         "id": "meWCvbTZTiwte0KNt099",
         "intentId": "meWCvbTZTiwte0KNt099",
         "userId": "guest",
@@ -11248,6 +11291,16 @@
         "amount": 100,
         "status": "pending",
         "createdAt": "2025-12-15T14:21:34.036Z"
+      },
+      {
+        "id": "msBFjKHBfrCLiC2gBrLM",
+        "intentId": "msBFjKHBfrCLiC2gBrLM",
+        "userId": "guest",
+        "contestId": "votes-artistes",
+        "candidateId": "TXBLgEfug2LJqx5MXWe4",
+        "amount": 1000000,
+        "status": "pending",
+        "createdAt": "2025-12-20T16:19:50.254Z"
       },
       {
         "id": "n2NyJjBHWRgbhqTE54Xo",
@@ -12988,6 +13041,18 @@
         "status": "counted"
       },
       {
+        "id": "0sCor9BI7VAiNdFRb2Uo",
+        "intentId": "0sCor9BI7VAiNdFRb2Uo",
+        "userId": "guest",
+        "contestId": "votes-artistes",
+        "candidateId": "ANLYRIZ6gRU8LgLSyaRq",
+        "amount": 1000,
+        "createdAt": "2025-12-20T15:55:26.026Z",
+        "countedAt": "2025-12-20T16:01:08.860Z",
+        "transactionId": "3679763162183994",
+        "status": "counted"
+      },
+      {
         "id": "0yaXAiPDy3lVyQZjZ7tq",
         "intentId": "0yaXAiPDy3lVyQZjZ7tq",
         "userId": "guest",
@@ -13601,6 +13666,18 @@
         "status": "counted"
       },
       {
+        "id": "60nvyoeNcf96RWNLXll7",
+        "intentId": "60nvyoeNcf96RWNLXll7",
+        "userId": "guest",
+        "contestId": "votes-artistes",
+        "candidateId": "oucOMPgDKDQR8GKDvFHJ",
+        "amount": 500,
+        "createdAt": "2025-12-20T16:02:05.141Z",
+        "countedAt": "2025-12-20T16:03:39.820Z",
+        "transactionId": "2206986716401179",
+        "status": "counted"
+      },
+      {
         "id": "6JE0iI3YDdFjA8BGQUPl",
         "intentId": "6JE0iI3YDdFjA8BGQUPl",
         "userId": "guest",
@@ -13670,6 +13747,19 @@
         "createdAt": "2025-12-16T06:25:34.790Z",
         "countedAt": "2025-12-16T06:26:41.183Z",
         "transactionId": "6272080680541522",
+        "status": "counted"
+      },
+      {
+        "id": "6mtybx0EDtc7eKXHP5XS",
+        "intentId": "6mtybx0EDtc7eKXHP5XS",
+        "userId": "guest",
+        "contestId": "votes-artistes",
+        "candidateId": "TXBLgEfug2LJqx5MXWe4",
+        "amount": 500,
+        "createdAt": "2025-12-19T18:16:02.108Z",
+        "backfilledAt": "2025-12-20T15:45:24.964Z",
+        "countedAt": "2025-12-20T15:45:24.964Z",
+        "transactionId": "6545549931239778",
         "status": "counted"
       },
       {
@@ -13743,6 +13833,19 @@
         "createdAt": "2025-12-18T15:55:52.332Z",
         "countedAt": "2025-12-18T15:57:11.324Z",
         "transactionId": "706691611958073",
+        "status": "counted"
+      },
+      {
+        "id": "88xYoGM0EPIJ44oCN9Fk",
+        "intentId": "88xYoGM0EPIJ44oCN9Fk",
+        "userId": "guest",
+        "contestId": "votes-artistes",
+        "candidateId": "TXBLgEfug2LJqx5MXWe4",
+        "amount": 10300,
+        "createdAt": "2025-12-19T21:52:35.295Z",
+        "backfilledAt": "2025-12-20T15:45:23.767Z",
+        "countedAt": "2025-12-20T15:45:23.767Z",
+        "transactionId": "5916256198067676",
         "status": "counted"
       },
       {
@@ -16181,6 +16284,18 @@
         "status": "counted"
       },
       {
+        "id": "UvHxLNYx4jqAHSAlKWDv",
+        "intentId": "UvHxLNYx4jqAHSAlKWDv",
+        "userId": "guest",
+        "contestId": "votes-artistes",
+        "candidateId": "lrK8tSxZpQPYFTmIF7On",
+        "amount": 100,
+        "createdAt": "2025-12-20T15:39:10.901Z",
+        "countedAt": "2025-12-20T15:40:43.258Z",
+        "transactionId": "2120871022062060",
+        "status": "counted"
+      },
+      {
         "id": "V0km1dEBNvTLThPLNLHJ",
         "intentId": "V0km1dEBNvTLThPLNLHJ",
         "userId": "guest",
@@ -18117,6 +18232,19 @@
         "createdAt": "2025-12-16T14:58:53.889Z",
         "countedAt": "2025-12-16T15:00:46.596Z",
         "transactionId": "9572608111559964",
+        "status": "counted"
+      },
+      {
+        "id": "mHRbjqnHkeyG1NxvXHdC",
+        "intentId": "mHRbjqnHkeyG1NxvXHdC",
+        "userId": "guest",
+        "contestId": "votes-artistes",
+        "candidateId": "lrK8tSxZpQPYFTmIF7On",
+        "amount": 100,
+        "createdAt": "2025-12-19T17:36:46.429Z",
+        "backfilledAt": "2025-12-20T15:45:26.310Z",
+        "countedAt": "2025-12-20T15:45:26.310Z",
+        "transactionId": "4454540328225857",
         "status": "counted"
       },
       {
@@ -21983,6 +22111,40 @@
         "candidateId": "GEVWzgnMyTnavWjEa6pg"
       },
       {
+        "id": "2120871022062060",
+        "amount": 100,
+        "verifiedAt": "2025-12-20T15:40:42.556Z",
+        "partnerId": "UvHxLNYx4jqAHSAlKWDv",
+        "source": "callable",
+        "transactionId": "2120871022062060",
+        "verification": {
+          "feeSupportedBy": "customer",
+          "income": 100,
+          "performed_at": "2025-12-20T15:40:23.591Z",
+          "reason": "payment",
+          "amount": 100,
+          "fees": 2,
+          "failureCode": "",
+          "source": "MOBILE_MONEY",
+          "type": "DEBIT",
+          "source_common_name": "mtn-benin",
+          "transactionId": "2120871022062060",
+          "performedAt": "20/12/2025",
+          "client": {
+            "phone": "2290197552008",
+            "fullname": "SESSOU KINNOUDO",
+            "email": "kinnoudomarmontel@gmail.com"
+          },
+          "partnerId": "UvHxLNYx4jqAHSAlKWDv",
+          "state": null,
+          "failureMessage": "",
+          "status": "SUCCESS"
+        },
+        "status": "success",
+        "contestId": "votes-artistes",
+        "candidateId": "lrK8tSxZpQPYFTmIF7On"
+      },
+      {
         "id": "212177877174000",
         "amount": 100,
         "verifiedAt": "2025-12-15T22:47:06.119Z",
@@ -22144,6 +22306,40 @@
             "email": "jeanmarieacakpo1985@gmail.com"
           },
           "partnerId": "lzMofY4TQpTLVVCMVVAq",
+          "state": null,
+          "failureMessage": "",
+          "status": "SUCCESS"
+        },
+        "status": "success",
+        "contestId": "votes-artistes",
+        "candidateId": "oucOMPgDKDQR8GKDvFHJ"
+      },
+      {
+        "id": "2206986716401179",
+        "amount": 500,
+        "verifiedAt": "2025-12-20T16:03:39.144Z",
+        "partnerId": "60nvyoeNcf96RWNLXll7",
+        "source": "callable",
+        "transactionId": "2206986716401179",
+        "verification": {
+          "feeSupportedBy": "customer",
+          "income": 500,
+          "performed_at": "2025-12-20T16:03:26.392Z",
+          "reason": "payment",
+          "amount": 500,
+          "fees": 8,
+          "failureCode": "",
+          "source": "MOBILE_MONEY",
+          "type": "DEBIT",
+          "source_common_name": "mtn-benin",
+          "transactionId": "2206986716401179",
+          "performedAt": "20/12/2025",
+          "client": {
+            "phone": "2290161918387",
+            "fullname": "RAPHAEL AMOUSSOU",
+            "email": "amoussouraphaelgm@il.com"
+          },
+          "partnerId": "60nvyoeNcf96RWNLXll7",
           "state": null,
           "failureMessage": "",
           "status": "SUCCESS"
@@ -25033,6 +25229,40 @@
         "candidateId": "TXBLgEfug2LJqx5MXWe4"
       },
       {
+        "id": "3679763162183994",
+        "amount": 1000,
+        "verifiedAt": "2025-12-20T16:01:08.145Z",
+        "partnerId": "0sCor9BI7VAiNdFRb2Uo",
+        "source": "callable",
+        "transactionId": "3679763162183994",
+        "verification": {
+          "feeSupportedBy": "customer",
+          "income": 1000,
+          "performed_at": "2025-12-20T16:00:35.742Z",
+          "reason": "payment",
+          "amount": 1000,
+          "fees": 15,
+          "failureCode": "",
+          "source": "MOBILE_MONEY",
+          "type": "DEBIT",
+          "source_common_name": "mtn-benin",
+          "transactionId": "3679763162183994",
+          "performedAt": "20/12/2025",
+          "client": {
+            "phone": "2290156046625",
+            "fullname": "E. MADAFIME",
+            "email": "madafimeanie@gmail.com"
+          },
+          "partnerId": "0sCor9BI7VAiNdFRb2Uo",
+          "state": null,
+          "failureMessage": "",
+          "status": "SUCCESS"
+        },
+        "status": "success",
+        "contestId": "votes-artistes",
+        "candidateId": "ANLYRIZ6gRU8LgLSyaRq"
+      },
+      {
         "id": "3697351102526758",
         "amount": 300,
         "verifiedAt": "2025-12-15T21:06:33.739Z",
@@ -26471,6 +26701,18 @@
         "status": "success",
         "contestId": "votes-artistes",
         "candidateId": "TXBLgEfug2LJqx5MXWe4"
+      },
+      {
+        "id": "4454540328225857",
+        "contestId": "votes-artistes",
+        "backfilledAt": "2025-12-20T15:45:26.310Z",
+        "amount": 100,
+        "partnerId": "mHRbjqnHkeyG1NxvXHdC",
+        "source": "backfill",
+        "candidateId": "lrK8tSxZpQPYFTmIF7On",
+        "transactionId": "4454540328225857",
+        "status": "success",
+        "updatedAt": "2025-12-20T15:45:26.310Z"
       },
       {
         "id": "4459702571667622",
@@ -29479,6 +29721,18 @@
         "candidateId": "GEVWzgnMyTnavWjEa6pg"
       },
       {
+        "id": "5916256198067676",
+        "contestId": "votes-artistes",
+        "backfilledAt": "2025-12-20T15:45:23.767Z",
+        "amount": 10300,
+        "partnerId": "88xYoGM0EPIJ44oCN9Fk",
+        "source": "backfill",
+        "candidateId": "TXBLgEfug2LJqx5MXWe4",
+        "transactionId": "5916256198067676",
+        "status": "success",
+        "updatedAt": "2025-12-20T15:45:23.767Z"
+      },
+      {
         "id": "5927609966527903",
         "amount": 200,
         "verifiedAt": "2025-12-17T10:39:53.720Z",
@@ -30759,6 +31013,18 @@
         "status": "success",
         "contestId": "votes-artistes",
         "candidateId": "oucOMPgDKDQR8GKDvFHJ"
+      },
+      {
+        "id": "6545549931239778",
+        "contestId": "votes-artistes",
+        "backfilledAt": "2025-12-20T15:45:24.964Z",
+        "amount": 500,
+        "partnerId": "6mtybx0EDtc7eKXHP5XS",
+        "source": "backfill",
+        "candidateId": "TXBLgEfug2LJqx5MXWe4",
+        "transactionId": "6545549931239778",
+        "status": "success",
+        "updatedAt": "2025-12-20T15:45:24.964Z"
       },
       {
         "id": "6549623960302949",
@@ -38707,11 +38973,11 @@
   },
   "summary": {
     "totalCandidates": 24,
-    "totalVotesRecorded": 571,
-    "totalVotesFromContest": 6307,
-    "intentsPending": 673,
-    "intentsCounted": 571,
-    "paymentsSuccess": 571,
+    "totalVotesRecorded": 577,
+    "totalVotesFromContest": 6432,
+    "intentsPending": 672,
+    "intentsCounted": 577,
+    "paymentsSuccess": 577,
     "paymentsPending": 0
   }
 }

@@ -65,7 +65,6 @@ intentId,contestId,candidateId,amount,status,createdAt
 6MrzahufBZ2ooNIL9Cib,votes-artistes,oucOMPgDKDQR8GKDvFHJ,100,pending,2025-12-17T15:15:46.791Z
 6T7DmrK2FQtj7PypDT9e,votes-artistes,TXBLgEfug2LJqx5MXWe4,100,pending,2025-12-15T21:19:19.699Z
 6dJkQxbWIKMlNDFenv1M,votes-artistes,GEVWzgnMyTnavWjEa6pg,2100,pending,2025-12-19T04:14:34.527Z
-6mtybx0EDtc7eKXHP5XS,votes-artistes,TXBLgEfug2LJqx5MXWe4,500,pending,2025-12-19T18:16:02.108Z
 6n9skVbJcOhDgIo1LYcp,votes-artistes,oucOMPgDKDQR8GKDvFHJ,100,pending,2025-12-15T14:18:17.017Z
 6wtoYaxe1jGZf1lr05I0,votes-artistes,TXBLgEfug2LJqx5MXWe4,14500,pending,2025-12-19T22:55:43.366Z
 6zBcaj9txYKzgcInGo6O,votes-artistes,TXBLgEfug2LJqx5MXWe4,10000,pending,2025-12-18T23:07:40.500Z
@@ -82,7 +81,6 @@ intentId,contestId,candidateId,amount,status,createdAt
 82TB4CMYZ0AXHcFOSqxT,votes-artistes,oucOMPgDKDQR8GKDvFHJ,100,pending,2025-12-20T11:58:36.001Z
 86slvYBTfTYKksqiydq9,votes-artistes,R3DRrtGPGfw8jsQxG4r8,100,pending,2025-12-15T19:55:03.971Z
 87pp9HaGClG9je9KqT4X,votes-artistes,GEVWzgnMyTnavWjEa6pg,100,pending,2025-12-15T18:24:52.204Z
-88xYoGM0EPIJ44oCN9Fk,votes-artistes,TXBLgEfug2LJqx5MXWe4,10300,pending,2025-12-19T21:52:35.295Z
 8BvJ6qJ1A0LCQbrPFrZP,votes-artistes,GEVWzgnMyTnavWjEa6pg,100,pending,2025-12-17T14:37:50.188Z
 8I2d5nXIZlvPN3FLk8xH,votes-artistes,RIAr7Uw1uo74gAhWWM9c,3800,pending,2025-12-15T17:39:34.095Z
 8KlhlYpssxkURMEbxq2B,votes-artistes,TXBLgEfug2LJqx5MXWe4,100,pending,2025-12-15T19:36:23.969Z
@@ -328,6 +326,7 @@ T7dxvdd5YtU292SY8iCc,votes-artistes,oucOMPgDKDQR8GKDvFHJ,100,pending,2025-12-15T
 T9RgPBUBb92xJWov5K2w,votes-artistes,GEVWzgnMyTnavWjEa6pg,1000,pending,2025-12-15T03:07:12.299Z
 T9hzWDpqk2SBYgWP4G4d,votes-artistes,TXBLgEfug2LJqx5MXWe4,100,pending,2025-12-19T09:56:59.937Z
 TCboN3IWW7nQtjgGrBNS,votes-artistes,TXBLgEfug2LJqx5MXWe4,100,pending,2025-12-15T10:23:45.544Z
+TUJT4lq1qmccltdQHHLw,votes-artistes,lrK8tSxZpQPYFTmIF7On,100,pending,2025-12-20T15:38:16.902Z
 TYOJNbZ4ioPp2hvfnzui,votes-artistes,TXBLgEfug2LJqx5MXWe4,100,pending,2025-12-17T20:01:37.593Z
 TplsVKkJ5ftzBMtJPxqn,votes-artistes,oucOMPgDKDQR8GKDvFHJ,100,pending,2025-12-15T09:04:59.744Z
 TrH0RTUcCeWos6lqL7b9,votes-artistes,GEVWzgnMyTnavWjEa6pg,2500,pending,2025-12-17T19:33:17.384Z
@@ -504,10 +503,10 @@ lPmkLBjMbwCme3wdVmQT,votes-artistes,81cTWJpXQxqb1LcEQ9Nd,5000,pending,2025-12-16
 la8T05RFRjGLGsITA3wB,votes-artistes,RIAr7Uw1uo74gAhWWM9c,500,pending,2025-12-15T07:06:37.793Z
 m5eiaR8Bo81jZHjWgQcz,votes-artistes,noLuODpebT7EXpZWBRkH,200,pending,2025-12-15T19:37:57.113Z
 mBPsUl32u5UlLOy35c3u,votes-artistes,ANLYRIZ6gRU8LgLSyaRq,100,pending,2025-12-15T14:30:03.386Z
-mHRbjqnHkeyG1NxvXHdC,votes-artistes,lrK8tSxZpQPYFTmIF7On,100,pending,2025-12-19T17:36:46.429Z
 meWCvbTZTiwte0KNt099,votes-artistes,ANLYRIZ6gRU8LgLSyaRq,1000,pending,2025-12-16T16:57:56.202Z
 mn7WqeuRmrFZWrUG9t0U,votes-artistes,RIAr7Uw1uo74gAhWWM9c,200,pending,2025-12-17T18:14:07.355Z
 mnK44yf1lDiJYXYtZGpK,votes-artistes,RIAr7Uw1uo74gAhWWM9c,100,pending,2025-12-15T14:21:34.036Z
+msBFjKHBfrCLiC2gBrLM,votes-artistes,TXBLgEfug2LJqx5MXWe4,1000000,pending,2025-12-20T16:19:50.254Z
 n2NyJjBHWRgbhqTE54Xo,votes-artistes,GEVWzgnMyTnavWjEa6pg,100,pending,2025-12-15T17:02:44.546Z
 n35IueE2DzPSJvemWsPX,votes-artistes,THSoBfgsHaDLamNs758L,100,pending,2025-12-18T14:28:55.894Z
 nBEfpV2I3NWZ0ByrVXhz,votes-artistes,RIAr7Uw1uo74gAhWWM9c,100,pending,2025-12-16T06:35:23.082Z
