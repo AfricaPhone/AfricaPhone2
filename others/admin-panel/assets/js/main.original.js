@@ -1,4 +1,4 @@
-// Importe la configuration et les services Firebase depuis le fichier d?di?.
+// Importe la configuration et les services Firebase depuis le fichier dédié.
 import {
   auth,
   db,
@@ -8,14 +8,20 @@ import {
   functions,
   connectFunctionsEmulator,
   httpsCallable,
+  multiFactor,
+  TotpMultiFactorGenerator,
+  TotpSecret,
+  getMultiFactorResolver,
 } from './firebase-config.js';
 
-// Importe les fonctions sp?cifiques de Firebase Auth et Firestore.
+// Importe les fonctions spécifiques de Firebase Auth et Firestore.
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
-} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js';
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import {
   collection,
   getDocs,
@@ -31,13 +37,13 @@ import {
   limit,
   serverTimestamp,
   arrayRemove,
-} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import {
   ref,
   uploadBytes,
   getDownloadURL,
   deleteObject,
-} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 /* ============================ Helpers ============================ */
 const $ = sel => document.querySelector(sel);
@@ -468,6 +474,135 @@ const $login = $('#login'),
   $loginError = $('#login-error');
 const $app = $('#app');
 
+// --- MFA State ---
+let pendingMfaResolver = null;
+let pendingCredentials = { email: '', password: '' };
+let mfaEnrollmentSecret = null;
+
+// --- MFA UI Helpers ---
+function showMfaModal(mode = 'verify') {
+  const modal = document.getElementById('mfa-modal');
+  if (!modal) return;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  const verifySection = document.getElementById('mfa-verify-section');
+  const enrollSection = document.getElementById('mfa-enroll-section');
+
+  if (mode === 'enroll') {
+    verifySection?.classList.add('hide');
+    enrollSection?.classList.remove('hide');
+  } else {
+    verifySection?.classList.remove('hide');
+    enrollSection?.classList.add('hide');
+  }
+}
+
+function hideMfaModal() {
+  const modal = document.getElementById('mfa-modal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  pendingMfaResolver = null;
+  pendingCredentials = { email: '', password: '' };
+  mfaEnrollmentSecret = null;
+}
+
+async function handleMfaVerification(code) {
+  if (!pendingMfaResolver || !code) {
+    toast('Erreur', 'Code TOTP invalide', 'error');
+    return false;
+  }
+
+  try {
+    const mfaAssertion = TotpMultiFactorGenerator.assertionForSignIn(
+      pendingMfaResolver.hints[0].uid,
+      code.trim()
+    );
+    await pendingMfaResolver.resolveSignIn(mfaAssertion);
+    hideMfaModal();
+    toast('Bienvenue', 'Connexion réussie avec 2FA', 'success');
+    return true;
+  } catch (err) {
+    console.error('MFA verification failed:', err);
+    toast('Erreur', 'Code 2FA invalide. Veuillez réessayer.', 'error');
+    return false;
+  }
+}
+
+async function startMfaEnrollment(user) {
+  try {
+    // Re-authenticate user first
+    const credential = EmailAuthProvider.credential(
+      pendingCredentials.email,
+      pendingCredentials.password
+    );
+    await reauthenticateWithCredential(user, credential);
+
+    // Generate TOTP secret
+    const mfaSession = await multiFactor(user).getSession();
+    mfaEnrollmentSecret = await TotpMultiFactorGenerator.generateSecret(mfaSession);
+
+    // Display QR code
+    const qrUrl = mfaEnrollmentSecret.generateQrCodeUrl(
+      pendingCredentials.email,
+      'AfricaPhone Admin'
+    );
+    const qrContainer = document.getElementById('mfa-qr-code');
+    if (qrContainer) {
+      qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}" alt="QR Code 2FA" />`;
+    }
+
+    const secretDisplay = document.getElementById('mfa-secret-key');
+    if (secretDisplay) {
+      secretDisplay.textContent = mfaEnrollmentSecret.secretKey;
+    }
+
+    showMfaModal('enroll');
+    return true;
+  } catch (err) {
+    console.error('MFA enrollment failed:', err);
+    toast('Erreur', 'Impossible de démarrer la configuration 2FA', 'error');
+    return false;
+  }
+}
+
+async function completeMfaEnrollment(code) {
+  if (!mfaEnrollmentSecret || !code) {
+    toast('Erreur', 'Code TOTP invalide', 'error');
+    return false;
+  }
+
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('Utilisateur non connecté');
+    }
+
+    const mfaAssertion = TotpMultiFactorGenerator.assertionForEnrollment(
+      mfaEnrollmentSecret,
+      code.trim()
+    );
+
+    await multiFactor(user).enroll(mfaAssertion, 'Authenticator App');
+    hideMfaModal();
+    toast('Succès', 'Authentification 2FA activée avec succès !', 'success');
+
+    // Now proceed with login
+    $login.classList.add('hide');
+    $app.classList.remove('hide');
+    $app.setAttribute('aria-hidden', 'false');
+    initAfterLogin();
+    return true;
+  } catch (err) {
+    console.error('MFA enrollment completion failed:', err);
+    toast('Erreur', 'Code de vérification invalide. Veuillez réessayer.', 'error');
+    return false;
+  }
+}
+
 $loginForm?.addEventListener('submit', async function (e) {
   e.preventDefault();
   const submitBtn = $loginForm.querySelector('button[type="submit"]');
@@ -489,14 +624,32 @@ $loginForm?.addEventListener('submit', async function (e) {
     setButtonLoading(submitBtn, false);
     return;
   }
+
+  // Store credentials for MFA flow
+  pendingCredentials = { email, password: pass };
+
   try {
     await signInWithEmailAndPassword(auth, email, pass);
-    toast('Bienvenue', 'Connexion r&eacute;ussie', 'success');
+    toast('Bienvenue', 'Connexion réussie', 'success');
   } catch (err) {
-    console.error(err);
-    $loginError.textContent = 'Identifiants invalides.';
-    $loginError.classList.remove('hide');
-    toast('Erreur', 'Impossible de se connecter', 'error');
+    console.error('Login error:', err);
+
+    // Check if MFA is required
+    if (err.code === 'auth/multi-factor-auth-required') {
+      try {
+        pendingMfaResolver = getMultiFactorResolver(auth, err);
+        showMfaModal('verify');
+        toast('2FA requis', 'Veuillez entrer votre code d\'authentification', 'info');
+      } catch (mfaErr) {
+        console.error('MFA resolver error:', mfaErr);
+        $loginError.textContent = 'Erreur de configuration 2FA.';
+        $loginError.classList.remove('hide');
+      }
+    } else {
+      $loginError.textContent = 'Identifiants invalides.';
+      $loginError.classList.remove('hide');
+      toast('Erreur', 'Impossible de se connecter', 'error');
+    }
   } finally {
     setButtonLoading(submitBtn, false);
   }
@@ -506,30 +659,41 @@ onAuthStateChanged(auth, async function (user) {
   const logged = !!user;
 
   if (logged) {
-    // V?rifie si l'utilisateur est un administrateur
+    // Vérifie si l'utilisateur est un administrateur
     try {
-      const tokenResult = await user.getIdTokenResult(true); // Force la mise ? jour du jeton
+      const tokenResult = await user.getIdTokenResult(true);
       if (tokenResult.claims.admin) {
         // L'utilisateur est un administrateur
-        console.log(`[Admin Panel] Connexion d'un admin r?ussie. UID: ${user.uid}, Token: ${tokenResult.token}`);
+        console.log(`[Admin Panel] Connexion d'un admin réussie. UID: ${user.uid}`);
+
+        // Check if MFA is enrolled
+        const enrolledFactors = multiFactor(user).enrolledFactors;
+        if (enrolledFactors.length === 0) {
+          // MFA not enrolled - force enrollment
+          console.log('[Admin Panel] 2FA non configuré, démarrage de l\'enrôlement obligatoire');
+          toast('Configuration 2FA requise', 'Vous devez configurer l\'authentification à deux facteurs pour accéder au panneau admin.', 'info');
+          await startMfaEnrollment(user);
+          return;
+        }
+
+        // MFA is enrolled, proceed with login
         $login.classList.add('hide');
         $app.classList.remove('hide');
         $app.setAttribute('aria-hidden', 'false');
         initAfterLogin();
       } else {
-        // L'utilisateur n'est pas un administrateur, le d?connecte
+        // L'utilisateur n'est pas un administrateur, le déconnecte
         await signOut(auth);
-        toast('Acc?s refus?', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
-        // Redirige pour nettoyer l'interface
+        toast('Accès refusé', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
         location.reload();
       }
     } catch (err) {
-      console.error('Erreur lors de la v?rification des revendications:', err);
+      console.error('Erreur lors de la vérification des revendications:', err);
       await signOut(auth);
       location.reload();
     }
   } else {
-    // L'utilisateur n'est pas connect?
+    // L'utilisateur n'est pas connecté
     $login.classList.remove('hide');
     $app.classList.add('hide');
     $app.setAttribute('aria-hidden', 'true');
@@ -1414,30 +1578,30 @@ async function handleDelete(id, name, type) {
       matchPredictionsCache.delete(id);
       renderMatchList();
       $('#kpi-matches').textContent = String(allMatches.length);
-  } else if (type === 'promoCards') {
-    allPromoCards = allPromoCards.filter(c => c.id !== id);
-    renderPromoCardList();
-    updatePromoCardsKpi();
-  } else if (type === 'promoCodes') {
-    allPromoCodes = allPromoCodes.filter(c => c.id !== id);
-    renderPromoCodeList();
-    $('#kpi-promocodes').textContent = String(allPromoCodes.length);
-    const codeValue = (name || id || '').toUpperCase();
-    if (codeValue) {
-      try {
-        await deleteDoc(doc(db, 'promoRules', codeValue));
-      } catch (err) {
-        console.warn('Unable to delete linked promoRule', err);
+    } else if (type === 'promoCards') {
+      allPromoCards = allPromoCards.filter(c => c.id !== id);
+      renderPromoCardList();
+      updatePromoCardsKpi();
+    } else if (type === 'promoCodes') {
+      allPromoCodes = allPromoCodes.filter(c => c.id !== id);
+      renderPromoCodeList();
+      $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+      const codeValue = (name || id || '').toUpperCase();
+      if (codeValue) {
+        try {
+          await deleteDoc(doc(db, 'promoRules', codeValue));
+        } catch (err) {
+          console.warn('Unable to delete linked promoRule', err);
+        }
+        allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
       }
-      allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
+    } else if (type === 'promoRules') {
+      allPromoRules = allPromoRules.filter(r => r.id !== id);
+      renderPromoRuleList();
+    } else if (type === 'promoPayouts') {
+      allPromoPayouts = allPromoPayouts.filter(p => p.id !== id);
+      renderPromoPayoutList();
     }
-  } else if (type === 'promoRules') {
-    allPromoRules = allPromoRules.filter(r => r.id !== id);
-    renderPromoRuleList();
-  } else if (type === 'promoPayouts') {
-    allPromoPayouts = allPromoPayouts.filter(p => p.id !== id);
-    renderPromoPayoutList();
-  }
     toast('Supprim?', '', 'success');
   } catch (e) {
     console.error(e);
@@ -2601,12 +2765,12 @@ function renderMatchList() {
   const term = ($('#search-matches').value || '').toLowerCase();
   const arr = term
     ? allMatches.filter(function (m) {
-        return (
-          (m.teamA || '').toLowerCase().indexOf(term) !== -1 ||
-          (m.teamB || '').toLowerCase().indexOf(term) !== -1 ||
-          (m.competition || '').toLowerCase().indexOf(term) !== -1
-        );
-      })
+      return (
+        (m.teamA || '').toLowerCase().indexOf(term) !== -1 ||
+        (m.teamB || '').toLowerCase().indexOf(term) !== -1 ||
+        (m.competition || '').toLowerCase().indexOf(term) !== -1
+      );
+    })
     : allMatches.slice();
 
   if (!arr.length) {
@@ -2635,7 +2799,7 @@ function renderMatchList() {
         : '';
     const tr = document.createElement('tr');
     tr.dataset.id = m.id;
-  tr.innerHTML = `
+    tr.innerHTML = `
 	  <td style="font-weight:800">${escapeHtml(m.teamA || '?quipe A')} vs ${escapeHtml(m.teamB || '?quipe B')}</td>
 	  <td>${escapeHtml(m.competition || '?')}</td>
 	  <td>${date ? fmtDate(date) : '?'}</td>
@@ -2754,9 +2918,9 @@ async function renderMatchPredictionsPage(matchId) {
 
   setCrumb(
     'Pronostics \u00b7 ' +
-      (match.teamA || '?quipe A') +
-      ' vs ' +
-      (match.teamB || '?quipe B')
+    (match.teamA || '?quipe A') +
+    ' vs ' +
+    (match.teamB || '?quipe B')
   );
 
   const container = document.createElement('div');
@@ -3167,13 +3331,13 @@ function renderPromoCardList() {
 
     const actionsCell = isContestCard
       ? '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
-        '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
-        '<button class="btn btn-small" data-edit>Editer</button>' +
-        '<button class="btn btn-danger btn-small" data-del>Supprimer</button>'
+      '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+      '<button class="btn btn-small" data-edit>Editer</button>' +
+      '<button class="btn btn-danger btn-small" data-del>Supprimer</button>'
       : '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
-        '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
-        '<button class="btn btn-small" data-edit>Editer</button>' +
-        '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
+      '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+      '<button class="btn btn-small" data-edit>Editer</button>' +
+      '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
 
     tr.innerHTML = `
 
@@ -3400,8 +3564,8 @@ function renderPromoPayoutList() {
   const term = (promoPayoutSearchTerm || '').toLowerCase();
   const arr = term
     ? allPromoPayouts.filter(p =>
-        `${p.code || ''} ${p.status || ''} ${p.mode || ''}`.toLowerCase().includes(term.toLowerCase()),
-      )
+      `${p.code || ''} ${p.status || ''} ${p.mode || ''}`.toLowerCase().includes(term.toLowerCase()),
+    )
     : allPromoPayouts;
   if (!arr.length) {
     $promoPayoutsContent.innerHTML = '<div class="center" style="padding:32px">Aucun versement.</div>';
@@ -3954,10 +4118,10 @@ function renderPromoRuleList() {
   const term = (document.getElementById('search-promorules')?.value || '').toLowerCase();
   const arr = term
     ? allPromoRules.filter(r => {
-        const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
-        const partnerMatch = (r.allowedPartners || []).join(',').toLowerCase().includes(term);
-        return codeMatch || partnerMatch;
-      })
+      const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
+      const partnerMatch = (r.allowedPartners || []).join(',').toLowerCase().includes(term);
+      return codeMatch || partnerMatch;
+    })
     : allPromoRules;
 
   if (!arr.length) {
@@ -4053,9 +4217,8 @@ async function renderPromoRuleFormPage(id) {
       <div class="twocol">
         <div class="field">
           <label class="label" for="pr-code">Code</label>
-          <input id="pr-code" class="input" type="text" value="${escapeAttr(rule.code || rule.id || '')}" ${
-    id ? 'disabled' : ''
-  } required />
+          <input id="pr-code" class="input" type="text" value="${escapeAttr(rule.code || rule.id || '')}" ${id ? 'disabled' : ''
+    } required />
           <div class="hint">Utilise des lettres/chiffres, ex: JOYFUL-AP</div>
         </div>
         <div class="field">
@@ -4219,3 +4382,8 @@ setTimeout(function () {
     content.setAttribute('tabindex', '-1');
   }
 }, 0);
+
+// Expose MFA functions globally for HTML onclick handlers
+window.handleMfaVerification = handleMfaVerification;
+window.completeMfaEnrollment = completeMfaEnrollment;
+

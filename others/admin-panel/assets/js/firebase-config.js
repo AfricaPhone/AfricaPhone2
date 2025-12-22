@@ -1,14 +1,20 @@
 // Importe les fonctions nécessaires du SDK Firebase.
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
-import { getStorage } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import {
+  getAuth,
+  multiFactor,
+  TotpMultiFactorGenerator,
+  TotpSecret,
+  getMultiFactorResolver,
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getStorage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import {
   getFunctions,
   connectFunctionsEmulator as connectFunctionsEmulatorV9,
   httpsCallable,
-} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-functions.js';
-import { getAnalytics, logEvent as firebaseLogEvent } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-analytics.js';
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
+import { getAnalytics, logEvent as firebaseLogEvent } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
 
 // Vos informations de configuration Firebase.
 const firebaseConfig = {
@@ -29,6 +35,6 @@ export const db = getFirestore(appFB);
 export const storage = getStorage(appFB);
 export const functions = getFunctions(appFB);
 export const connectFunctionsEmulator = connectFunctionsEmulatorV9;
-export { analytics };
+export { analytics, multiFactor, TotpMultiFactorGenerator, TotpSecret, getMultiFactorResolver };
 export const logEvent = (...args) => firebaseLogEvent(analytics, ...args);
 export { httpsCallable };
