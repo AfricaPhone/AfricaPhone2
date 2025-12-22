@@ -1390,7 +1390,7 @@ function VoteModal({ open, status, message, transactionId, candidate, onClose, v
             {/* Section invitation téléchargement app */}
             <div className="mt-5 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 px-4 py-4">
               <p className="text-sm text-slate-700 leading-relaxed">
-                Téléchargez l'application <span className="font-semibold text-orange-600">AfricaPhone</span> pour finaliser votre participation et accéder à tous nos services, nos offres exclusives et rester connecté à l'actualité.
+                Téléchargez l'application <span className="font-semibold text-orange-600">AfricaPhone</span> pour valider votre vote et accéder à tous nos services et nos meilleurs prix de téléphones.
               </p>
             </div>
 
