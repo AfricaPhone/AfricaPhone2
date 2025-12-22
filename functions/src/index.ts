@@ -19,6 +19,95 @@ admin.initializeApp();
 const db = admin.firestore();
 const STORAGE_BUCKET = process.env.PRODUCT_IMAGES_BUCKET || 'africaphone-vente.firebasestorage.app';
 
+// --- Rate Limiting ---
+type RateLimitConfig = {
+  maxRequests: number;
+  windowMs: number;
+};
+
+const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
+  createVoteIntent: { maxRequests: 30, windowMs: 60_000 },
+  submitPrediction: { maxRequests: 10, windowMs: 60_000 },
+  verifyKkiapay: { maxRequests: 20, windowMs: 60_000 },
+};
+
+const hashIp = (ip: string): string => {
+  return createHash('sha256').update(ip).digest('hex').slice(0, 16);
+};
+
+const getClientIp = (request: any): string => {
+  // For onCall functions
+  if (request?.rawRequest?.headers) {
+    const forwarded = request.rawRequest.headers['x-forwarded-for'];
+    if (forwarded) {
+      return String(forwarded).split(',')[0].trim();
+    }
+    return request.rawRequest.ip || request.rawRequest.connection?.remoteAddress || 'unknown';
+  }
+  // For onRequest functions
+  if (request?.headers) {
+    const forwarded = request.headers['x-forwarded-for'];
+    if (forwarded) {
+      return String(forwarded).split(',')[0].trim();
+    }
+    return request.ip || request.connection?.remoteAddress || 'unknown';
+  }
+  return 'unknown';
+};
+
+const checkRateLimit = async (
+  functionName: string,
+  clientIp: string
+): Promise<{ allowed: boolean; remaining: number }> => {
+  const config = RATE_LIMIT_CONFIGS[functionName];
+  if (!config) {
+    return { allowed: true, remaining: 999 };
+  }
+
+  const ipHash = hashIp(clientIp);
+  const docId = `${functionName}_${ipHash}`;
+  const rateLimitRef = db.collection('rateLimits').doc(docId);
+  const now = Date.now();
+
+  try {
+    const result = await db.runTransaction(async (tx) => {
+      const snap = await tx.get(rateLimitRef);
+      const data = snap.exists ? snap.data() : null;
+
+      // Check if window has expired
+      if (!data || (data.windowStart + config.windowMs) < now) {
+        // New window
+        tx.set(rateLimitRef, {
+          count: 1,
+          windowStart: now,
+          functionName,
+          ipHash,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return { allowed: true, remaining: config.maxRequests - 1 };
+      }
+
+      // Within window
+      if (data.count >= config.maxRequests) {
+        return { allowed: false, remaining: 0 };
+      }
+
+      // Increment count
+      tx.update(rateLimitRef, {
+        count: admin.firestore.FieldValue.increment(1),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      return { allowed: true, remaining: config.maxRequests - data.count - 1 };
+    });
+
+    return result;
+  } catch (error) {
+    logger.error('Rate limit check failed', { functionName, error });
+    // On error, allow the request (fail open)
+    return { allowed: true, remaining: 999 };
+  }
+};
+
 // --- Promo / Partenaires : Types et helpers ---
 type PriceBracket = {
   min: number;
@@ -997,6 +1086,14 @@ export const resetPrediction = onCall(async request => {
  * Gère la soumission (création/mise à jour) d'un pronostic.
  */
 export const submitPrediction = onCall(async request => {
+  // Rate limiting
+  const clientIp = getClientIp(request);
+  const rateLimitResult = await checkRateLimit('submitPrediction', clientIp);
+  if (!rateLimitResult.allowed) {
+    logger.warn('Rate limit exceeded for submitPrediction', { ip: clientIp });
+    throw new HttpsError('resource-exhausted', 'Trop de requêtes. Veuillez patienter une minute.');
+  }
+
   const { matchId, scoreA, scoreB, predictionId, contactFirstName, contactLastName, contactPhone } = request.data as {
     matchId: string;
     scoreA: number;
@@ -1008,7 +1105,7 @@ export const submitPrediction = onCall(async request => {
   };
 
   if (!matchId || typeof scoreA !== 'number' || typeof scoreB !== 'number') {
-    throw new HttpsError('invalid-argument', 'Les donn�es fournies sont invalides.');
+    throw new HttpsError('invalid-argument', 'Les données fournies sont invalides.');
   }
 
   const normalizePhone = (value: string) => value.replace(/\D+/g, '');
@@ -1529,6 +1626,14 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
 export const createVoteIntent = onCall(
   { region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET] },
   async request => {
+    // Rate limiting
+    const clientIp = getClientIp(request);
+    const rateLimitResult = await checkRateLimit('createVoteIntent', clientIp);
+    if (!rateLimitResult.allowed) {
+      logger.warn('Rate limit exceeded for createVoteIntent', { ip: clientIp });
+      throw new HttpsError('resource-exhausted', 'Trop de requêtes. Veuillez patienter une minute.');
+    }
+
     const uid = request.auth?.uid ?? 'guest';
     const contestId = String((request.data as any)?.contestId || '');
     const candidateId = String((request.data as any)?.candidateId || '');
@@ -1639,6 +1744,14 @@ export const kkiapayWebhook = onRequest(
 export const verifyKkiapay = onCall(
   { region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX] },
   async request => {
+    // Rate limiting
+    const clientIp = getClientIp(request);
+    const rateLimitResult = await checkRateLimit('verifyKkiapay', clientIp);
+    if (!rateLimitResult.allowed) {
+      logger.warn('Rate limit exceeded for verifyKkiapay', { ip: clientIp });
+      throw new HttpsError('resource-exhausted', 'Trop de requêtes. Veuillez patienter une minute.');
+    }
+
     const txId = String((request.data as any)?.transactionId || '');
     if (!txId) {
       throw new HttpsError('invalid-argument', 'transactionId is required');

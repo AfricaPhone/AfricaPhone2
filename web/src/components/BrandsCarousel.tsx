@@ -237,7 +237,7 @@ export default function BrandsCarousel({ activeBrandId, segment, showCategoryBra
         ) : null}
       </div>
     );
-  }, [activeBrandId, brands, canScrollNext, canScrollPrev, error, handleSelect, loading, scrollByAmount, scrollContainerRef, segment]);
+  }, [activeBrandId, brands, canScrollNext, canScrollPrev, error, handleSelect, loading, scrollByAmount, scrollContainerRef, segment, showCategoryBrands]);
 
   return (
     <>
