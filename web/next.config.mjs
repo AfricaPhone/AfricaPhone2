@@ -12,32 +12,47 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer, dev }) => {
-    // Obscurcir uniquement en production côté client
+    // Obscurcir uniquement en production côté CLIENT
+    // IMPORTANT: Ne jamais obfusquer le code serveur (SSR)
     if (!isServer && !dev) {
       config.plugins.push(
         new WebpackObfuscator({
-          // Niveau modéré d'obscurcissement (équilibre sécurité/performance)
+          // Options LÉGÈRES pour compatibilité Next.js
           rotateStringArray: true,
           stringArray: true,
-          stringArrayThreshold: 0.75,
-          identifierNamesGenerator: 'hexadecimal',
+          stringArrayThreshold: 0.5, // Réduit de 0.75 à 0.5
 
-          // Désactiver les console.log en production
+          // Désactiver console.log en production
           disableConsoleOutput: true,
 
-          // Options de performance (désactivées pour éviter la lenteur)
+          // DÉSACTIVER les options qui causent des problèmes avec Next.js
           deadCodeInjection: false,
           debugProtection: false,
           selfDefending: false,
 
-          // Compact pour réduire la taille
+          // Identifiants courts mais pas hexadécimaux (plus stable)
+          identifierNamesGenerator: 'mangled',
+
+          // Compact
           compact: true,
           simplify: true,
+
+          // Exclure les noms réservés Next.js/React
+          reservedNames: ['^_N_', '^__N', '^__next', '^__webpack'],
+          reservedStrings: ['__next', '__webpack', '_next'],
         }, [
-          // Exclure les chunks critiques de Next.js pour éviter les erreurs
-          'webpack-runtime*.js',
-          'framework*.js',
-          'main*.js',
+          // Exclure TOUS les fichiers critiques Next.js
+          '**/webpack*.js',
+          '**/framework*.js',
+          '**/main*.js',
+          '**/pages/**',
+          '**/app/**',
+          '**/_app*.js',
+          '**/_document*.js',
+          '**/_error*.js',
+          '**/polyfills*.js',
+          '**/react*.js',
+          '**/node_modules/**',
         ])
       );
     }
@@ -46,3 +61,4 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
