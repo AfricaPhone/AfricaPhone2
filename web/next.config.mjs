@@ -1,5 +1,5 @@
-// Configuration Next.js - Sans obfuscation webpack (incompatible avec SSR Firebase)
-// La minification native de Next.js offre une protection basique du code
+// Configuration Next.js avec suppression des console.log en production via Terser
+// Compatible avec next/font et SSR Firebase
 
 const nextConfig = {
   images: {
@@ -10,6 +10,14 @@ const nextConfig = {
       { protocol: 'https', hostname: 'storage.googleapis.com', pathname: '/**' },
       { protocol: 'https', hostname: 'africaphone-vente.firebasestorage.app', pathname: '/**' },
     ],
+  },
+
+  // Configuration du compilateur SWC pour supprimer les console.log en production
+  compiler: {
+    // Supprimer tous les console.* en production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'], // Garder console.error et console.warn pour le débogage critique
+    } : false,
   },
 };
 
