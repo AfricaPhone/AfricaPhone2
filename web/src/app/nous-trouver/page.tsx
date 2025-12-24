@@ -268,7 +268,7 @@ export default function NousTrouverPage() {
         <section className="px-4 pt-16">
           <h1 className="text-[26px] font-bold leading-tight text-slate-900">{pageData.name}</h1>
           <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
-            Ouvert tous les jours de 7h à 22h · 7J/7
+            Ouvert tous les jours de 7h à 00h · 7J/7
           </p>
           {deliveryNote ? (
             <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-blue-600">{deliveryNote}</p>
