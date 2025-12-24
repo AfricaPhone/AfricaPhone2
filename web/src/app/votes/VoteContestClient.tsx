@@ -1008,8 +1008,16 @@ function CandidateList({
   isPreparingPayment,
   contestNotStarted,
 }: CandidateListProps) {
-  const votedCandidateIds = useMemo(() => {
-    return new Set(storedVotes.map(record => record.candidateId));
+  const userVotesMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const record of storedVotes) {
+      if (record.candidateId) {
+        const current = map.get(record.candidateId) ?? 0;
+        const val = record.votes ?? 0;
+        map.set(record.candidateId, current + val);
+      }
+    }
+    return map;
   }, [storedVotes]);
 
   if (!isBusy && candidates.length === 0) {
@@ -1044,6 +1052,7 @@ function CandidateList({
       <div className="flex flex-col gap-3">
         {candidates.map(candidate => {
           const ratio = totalVotes > 0 ? Math.round((candidate.voteCount / totalVotes) * 100) : 0;
+          const userLocalVotes = userVotesMap.get(candidate.id) ?? 0;
           return (
             <article
               key={candidate.id}
@@ -1062,9 +1071,9 @@ function CandidateList({
                 <div className="flex flex-1 flex-col">
                   <span className="text-base font-semibold text-slate-900">
                     {candidate.media || candidate.name}
-                    {votedCandidateIds.has(candidate.id) ? (
+                    {userLocalVotes > 0 ? (
                       <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-600">
-                        {formatNumber(candidate.voteCount)} voix accordées
+                        {formatNumber(userLocalVotes)} voix accordées
                       </span>
                     ) : null}
                   </span>
