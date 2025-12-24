@@ -1406,13 +1406,7 @@ function VoteModal({ open, status, message, transactionId, candidate, onClose, v
               Télécharger l&apos;application
             </a>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="mt-3 text-sm font-medium text-slate-500 transition hover:text-slate-700"
-            >
-              Fermer
-            </button>
+
           </>
         ) : (
           <>
