@@ -96,7 +96,7 @@ type VoteContestPromoCardProps = {
 
 function VoteContestPromoCard({ imageUrl }: VoteContestPromoCardProps) {
   return (
-    <article className="w-[75vw] flex-shrink-0 snap-start sm:w-full">
+    <article className="w-[60vw] flex-shrink-0 snap-start sm:w-full">
       <Link
         href="/votes"
         className="group relative block h-[100px] w-full overflow-hidden rounded-[16px] shadow-md shadow-slate-900/15 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:h-[118px]"
