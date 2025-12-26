@@ -12,101 +12,12 @@ import * as os from 'os';
 import * as fs from 'fs-extra';
 import sharp = require('sharp');
 import { createHash, randomUUID } from 'crypto';
-import { URL } from 'url';
+// import { URL } from 'url';
 
 // Initialise l'app Firebase Admin pour interagir avec Firestore.
 admin.initializeApp();
 const db = admin.firestore();
 const STORAGE_BUCKET = process.env.PRODUCT_IMAGES_BUCKET || 'africaphone-vente.firebasestorage.app';
-
-// --- Rate Limiting ---
-type RateLimitConfig = {
-  maxRequests: number;
-  windowMs: number;
-};
-
-const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
-  createVoteIntent: { maxRequests: 30, windowMs: 60_000 },
-  submitPrediction: { maxRequests: 10, windowMs: 60_000 },
-  verifyKkiapay: { maxRequests: 20, windowMs: 60_000 },
-};
-
-const hashIp = (ip: string): string => {
-  return createHash('sha256').update(ip).digest('hex').slice(0, 16);
-};
-
-const getClientIp = (request: any): string => {
-  // For onCall functions
-  if (request?.rawRequest?.headers) {
-    const forwarded = request.rawRequest.headers['x-forwarded-for'];
-    if (forwarded) {
-      return String(forwarded).split(',')[0].trim();
-    }
-    return request.rawRequest.ip || request.rawRequest.connection?.remoteAddress || 'unknown';
-  }
-  // For onRequest functions
-  if (request?.headers) {
-    const forwarded = request.headers['x-forwarded-for'];
-    if (forwarded) {
-      return String(forwarded).split(',')[0].trim();
-    }
-    return request.ip || request.connection?.remoteAddress || 'unknown';
-  }
-  return 'unknown';
-};
-
-const checkRateLimit = async (
-  functionName: string,
-  clientIp: string
-): Promise<{ allowed: boolean; remaining: number }> => {
-  const config = RATE_LIMIT_CONFIGS[functionName];
-  if (!config) {
-    return { allowed: true, remaining: 999 };
-  }
-
-  const ipHash = hashIp(clientIp);
-  const docId = `${functionName}_${ipHash}`;
-  const rateLimitRef = db.collection('rateLimits').doc(docId);
-  const now = Date.now();
-
-  try {
-    const result = await db.runTransaction(async (tx) => {
-      const snap = await tx.get(rateLimitRef);
-      const data = snap.exists ? snap.data() : null;
-
-      // Check if window has expired
-      if (!data || (data.windowStart + config.windowMs) < now) {
-        // New window
-        tx.set(rateLimitRef, {
-          count: 1,
-          windowStart: now,
-          functionName,
-          ipHash,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-        return { allowed: true, remaining: config.maxRequests - 1 };
-      }
-
-      // Within window
-      if (data.count >= config.maxRequests) {
-        return { allowed: false, remaining: 0 };
-      }
-
-      // Increment count
-      tx.update(rateLimitRef, {
-        count: admin.firestore.FieldValue.increment(1),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      return { allowed: true, remaining: config.maxRequests - data.count - 1 };
-    });
-
-    return result;
-  } catch (error) {
-    logger.error('Rate limit check failed', { functionName, error });
-    // On error, allow the request (fail open)
-    return { allowed: true, remaining: 999 };
-  }
-};
 
 // --- Promo / Partenaires : Types et helpers ---
 type PriceBracket = {
@@ -136,6 +47,8 @@ type LinkTemplates = {
   defaultSub?: string;
   whatsappNumber?: string;
   waMessageTemplate?: string;
+  shortLinkDomain?: string;
+  finalRedirectUrl?: string; // Ajouté pour le nouveau système
 };
 
 const DEFAULT_PRICE_BRACKETS: PriceBracket[] = [
@@ -146,9 +59,9 @@ const DEFAULT_PRICE_BRACKETS: PriceBracket[] = [
 ];
 
 const DEFAULT_LINK_TEMPLATES: LinkTemplates = {
-  webBaseUrl: 'https://africaphone-org.web.app/promo',
+  webBaseUrl: 'https://us-central1-africaphone-vente.cloudfunctions.net/trackPromoLink',
   appScheme: 'africaphone://apply-promo',
-  appLinkDomain: 'https://africaphone-org.web.app/ul',
+  appLinkDomain: 'https://us-central1-africaphone-vente.cloudfunctions.net/trackPromoLink',
   defaultCampaign: 'default',
   defaultSub: 'cta1',
 };
@@ -371,14 +284,7 @@ export const validatePromoV2 = onCall(async request => {
  * Confirme un achat associé à un code promo (vente conclue via WA/boutique/app).
  * Attendu: data { code, channel, ref, amount, items?, promoSessionId? }
  */
-const buildUrlWithParams = (base: string, params: Record<string, string | number | null | undefined>) => {
-  const url = new URL(base);
-  Object.entries(params).forEach(([key, value]) => {
-    if (value === null || value === undefined || value === '') return;
-    url.searchParams.set(key, String(value));
-  });
-  return url.toString();
-};
+// buildUrlWithParams supprimé car non utilisé avec le nouveau système de liens courts
 
 /**
  * Génère les liens à partager pour un partenaire/détenteur de code.
@@ -420,16 +326,36 @@ export const generatePromoLinks = onCall(async request => {
     sub: sub ?? linkTemplates.defaultSub ?? 'cta1',
   };
 
-  const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
-  const appLink = buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
-    ...sharedParams,
-    channel: 'app',
-  });
+  // Générer les liens courts au format africaphone.org/p/CODE
+  const baseDomain = linkTemplates.shortLinkDomain || 'https://africaphone.org';
+
+  // Construire les paramètres query (sans le code qui est dans le path)
+  const queryParams = new URLSearchParams();
+  if (ref) queryParams.set('ref', ref);
+  if (channel) queryParams.set('channel', normalizedChannel);
+  if (campaign) queryParams.set('campaign', campaign ?? linkTemplates.defaultCampaign ?? 'default');
+  if (sub) queryParams.set('sub', sub ?? linkTemplates.defaultSub ?? 'cta1');
+
+  const queryString = queryParams.toString();
+
+  // Lien web court : africaphone.org/p/CODE?ref=xxx
+  const webLink = `${baseDomain}/p/${normalizedCode}${queryString ? '?' + queryString : ''}`;
+
+  // Lien app : même format mais avec channel=app
+  const appQueryParams = new URLSearchParams(queryParams);
+  appQueryParams.set('channel', 'app');
+  const appLink = `${baseDomain}/p/${normalizedCode}?${appQueryParams.toString()}`;
+
+  // Deep link app natif
   const appDeepLink = `${linkTemplates.appScheme}?${new URLSearchParams({
-    ...sharedParams,
+    code: normalizedCode,
+    ref: ref ?? '',
     channel: 'app',
+    campaign: campaign ?? linkTemplates.defaultCampaign ?? 'default',
+    sub: sub ?? linkTemplates.defaultSub ?? 'cta1',
   }).toString()}`;
 
+  // Message WhatsApp avec le lien court
   const waMessageTemplate =
     linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
   const message = waMessageTemplate
@@ -486,24 +412,30 @@ const incrementPromoMetrics = async (delta: PromoMetricDelta) => {
     : null;
 
   const buildUpdate = () => {
-    const update: Record<string, admin.firestore.FieldValue | string | number | null> = {
+    const update: any = {
       code,
       date: dateKey,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
     if (visitDelta) {
-      update[`visits.${channel}`] = admin.firestore.FieldValue.increment(visitDelta);
-      update['visits.total'] = admin.firestore.FieldValue.increment(visitDelta);
+      update.visits = {
+        [channel]: admin.firestore.FieldValue.increment(visitDelta),
+        total: admin.firestore.FieldValue.increment(visitDelta),
+      };
     }
     if (waContactDelta) {
-      update['contacts.wa'] = admin.firestore.FieldValue.increment(waContactDelta);
-      update['contacts.total'] = admin.firestore.FieldValue.increment(waContactDelta);
+      update.contacts = {
+        wa: admin.firestore.FieldValue.increment(waContactDelta),
+        total: admin.firestore.FieldValue.increment(waContactDelta),
+      };
     }
     if (saleCount) {
-      update['sales.count'] = admin.firestore.FieldValue.increment(saleCount);
-      update['sales.amount'] = admin.firestore.FieldValue.increment(saleAmount);
-      update['sales.discount'] = admin.firestore.FieldValue.increment(saleDiscount);
-      update['sales.commission'] = admin.firestore.FieldValue.increment(saleCommission);
+      update.sales = {
+        count: admin.firestore.FieldValue.increment(saleCount),
+        amount: admin.firestore.FieldValue.increment(saleAmount),
+        discount: admin.firestore.FieldValue.increment(saleDiscount),
+        commission: admin.firestore.FieldValue.increment(saleCommission),
+      };
     }
     return update;
   };
@@ -517,10 +449,18 @@ const incrementPromoMetrics = async (delta: PromoMetricDelta) => {
 /**
  * Redirection trackée d'un lien promo.
  * Incrémente les visites (et contacts WA si canal = wa) puis redirige vers la destination finale.
+ * Supporte deux formats:
+ * 1. /p/CODE?channel=web&ref=xxx (format court)
+ * 2. ?code=CODE&channel=web&ref=xxx (format query classique)
  */
 export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_SECRET] }, async (req, res) => {
   try {
-    const code = (req.query.code as string | undefined)?.trim();
+    // Extraire le code depuis /p/CODE ou ?code=CODE
+    const pathMatch = req.path.match(/\/p\/([^\/\?]+)/);
+    const codeFromPath = pathMatch ? pathMatch[1] : null;
+    const codeFromQuery = (req.query.code as string | undefined)?.trim();
+    const code = codeFromPath || codeFromQuery;
+
     const channel = normalizeChannel((req.query.channel as string | undefined) || 'web');
     const ref = (req.query.ref as string | undefined)?.trim() || null;
     const campaign = (req.query.campaign as string | undefined)?.trim();
@@ -552,10 +492,12 @@ export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_
       sub: sub || linkTemplates.defaultSub || 'cta1',
     };
 
+    // Destination finale: africaphone.org avec le code en query param
+    const finalDestination = linkTemplates.finalRedirectUrl || 'https://africaphone.org';
     const target =
       channel === 'wa'
         ? (() => {
-          const webLink = buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+          const webLink = `${finalDestination}/?code=${normalizedCode}&ref=${sharedParams.ref}`;
           const messageTemplate =
             linkTemplates.waMessageTemplate || 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})';
           const message = messageTemplate
@@ -566,11 +508,27 @@ export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_
           return `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
         })()
         : channel === 'app'
-          ? buildUrlWithParams(linkTemplates.appLinkDomain || linkTemplates.webBaseUrl, {
-            ...sharedParams,
-            channel: 'app',
-          })
-          : buildUrlWithParams(linkTemplates.webBaseUrl, { ...sharedParams, channel: 'web' });
+          ? `${linkTemplates.appScheme}?code=${normalizedCode}&ref=${sharedParams.ref}&campaign=${sharedParams.campaign}&sub=${sharedParams.sub}`
+          : `${finalDestination}/?code=${normalizedCode}&ref=${sharedParams.ref}&channel=${channel}`;
+
+    // Cookie deduplication using __session (required by Firebase Hosting)
+    let sessionData: Record<string, boolean> = {};
+    const sessionCookie = req.headers.cookie
+      ?.split(';')
+      .find(c => c.trim().startsWith('__session='));
+
+    if (sessionCookie) {
+      try {
+        const rawValue = sessionCookie.split('=')[1].trim();
+        // Handle potentially URL-encoded or base64 encoded values if needed, but simple JSON is standard for custom usage
+        // We'll use simple JSON string for the value
+        sessionData = JSON.parse(decodeURIComponent(rawValue));
+      } catch (e) {
+        // Ignore parse errors, treat as new session
+      }
+    }
+
+    const hasVisited = !!sessionData[`visited_${normalizedCode}`];
 
     await sendGa4ClickEvent({
       req,
@@ -582,14 +540,26 @@ export const trackPromoLink = onRequest({ secrets: [GA4_MEASUREMENT_ID, GA4_API_
       target,
     });
 
-    await incrementPromoMetrics({
-      code: normalizedCode,
-      channel,
-      ref,
-      visitDelta: 1,
-      waContactDelta: channel === 'wa' ? 1 : 0,
-    });
+    if (!hasVisited) {
+      await incrementPromoMetrics({
+        code: normalizedCode,
+        channel,
+        ref,
+        visitDelta: 1,
+        waContactDelta: channel === 'wa' ? 1 : 0,
+      });
+      console.log(`Unique visit recorded for ${normalizedCode}`);
 
+      // Update session
+      sessionData[`visited_${normalizedCode}`] = true;
+    } else {
+      console.log(`Duplicate visit ignored for ${normalizedCode}`);
+    }
+
+    // Set __session cookie
+    // Note: Firebase Hosting only allows __session. We serialize our data into it.
+    const newSessionValue = encodeURIComponent(JSON.stringify(sessionData));
+    res.setHeader('Set-Cookie', `__session=${newSessionValue}; Max-Age=86400; Path=/; Secure; SameSite=Lax`);
     res.redirect(302, target);
   } catch (err) {
     logger.error('trackPromoLink failed', err);
@@ -803,8 +773,13 @@ const hydratePromoDashboardFromLogs = (logs: Array<Record<string, any>>) => {
   };
 };
 
-export const getPartnerDashboard = onCall(async request => {
+/**
+ * Dashboard partenaire legacy (sans authentification).
+ * @deprecated Utilisez getPartnerDashboard avec authentification.
+ */
+export const getPartnerDashboardLegacy = onCall(async request => {
   const { code, partnerId, ref, rangeDays } = request.data as {
+
     code?: string;
     partnerId?: string;
     ref?: string;
@@ -1086,14 +1061,6 @@ export const resetPrediction = onCall(async request => {
  * Gère la soumission (création/mise à jour) d'un pronostic.
  */
 export const submitPrediction = onCall(async request => {
-  // Rate limiting
-  const clientIp = getClientIp(request);
-  const rateLimitResult = await checkRateLimit('submitPrediction', clientIp);
-  if (!rateLimitResult.allowed) {
-    logger.warn('Rate limit exceeded for submitPrediction', { ip: clientIp });
-    throw new HttpsError('resource-exhausted', 'Trop de requêtes. Veuillez patienter une minute.');
-  }
-
   const { matchId, scoreA, scoreB, predictionId, contactFirstName, contactLastName, contactPhone } = request.data as {
     matchId: string;
     scoreA: number;
@@ -1105,7 +1072,7 @@ export const submitPrediction = onCall(async request => {
   };
 
   if (!matchId || typeof scoreA !== 'number' || typeof scoreB !== 'number') {
-    throw new HttpsError('invalid-argument', 'Les données fournies sont invalides.');
+    throw new HttpsError('invalid-argument', 'Les donn�es fournies sont invalides.');
   }
 
   const normalizePhone = (value: string) => value.replace(/\D+/g, '');
@@ -1473,64 +1440,6 @@ interface VoteSuccessOptions {
   source: 'webhook' | 'callable';
 }
 
-async function recordPaymentAndVote(options: {
-  transactionId: string;
-  partnerId: string;
-  amount?: number;
-  source: 'webhook' | 'callable';
-  event?: string;
-  verification?: unknown;
-  status?: 'pending' | 'success' | 'failed';
-}): Promise<void> {
-  const { transactionId, partnerId, amount, source, verification, status, event } = options;
-  if (!transactionId) return;
-  await db.runTransaction(async tx => {
-    const paymentRef = db.collection('payments').doc(transactionId);
-    const paymentSnap = await tx.get(paymentRef);
-
-    if (!paymentSnap.exists) {
-      tx.set(
-        paymentRef,
-        {
-          transactionId,
-          partnerId: partnerId || null,
-          amount: Number.isFinite(amount) ? amount : undefined,
-          status: status || 'pending',
-          source,
-          event: event || null,
-          verification: verification || null,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-      );
-    } else {
-      tx.set(
-        paymentRef,
-        {
-          partnerId: partnerId || paymentSnap.get('partnerId') || null,
-          amount: Number.isFinite(amount) ? amount : paymentSnap.get('amount'),
-          status: status || paymentSnap.get('status') || 'pending',
-          source: source || paymentSnap.get('source') || null,
-          event: event || paymentSnap.get('event') || null,
-          verification: verification || paymentSnap.get('verification') || null,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-      );
-    }
-  });
-
-  if (status === 'success') {
-    await handleSuccessfulVote({
-      transactionId,
-      partnerId,
-      amount,
-      source,
-    });
-  }
-}
-
 async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> {
   const { transactionId, partnerId, amount, source } = options;
   if (!partnerId) {
@@ -1580,13 +1489,6 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
     const candidateRef = contestRef.collection('candidates').doc(candidateId);
     const voteRef = contestRef.collection('votes').doc(transactionId || `evt_${Date.now()}`);
 
-    const voteSnap = await tx.get(voteRef);
-    if (voteSnap.exists) {
-      // Already counted for this transaction; skip to avoid double increment.
-      logger.info('Vote already exists, skipping duplicate increment', { transactionId, partnerId, source });
-      return;
-    }
-
     tx.set(
       voteRef,
       {
@@ -1626,14 +1528,6 @@ async function handleSuccessfulVote(options: VoteSuccessOptions): Promise<void> 
 export const createVoteIntent = onCall(
   { region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET] },
   async request => {
-    // Rate limiting
-    const clientIp = getClientIp(request);
-    const rateLimitResult = await checkRateLimit('createVoteIntent', clientIp);
-    if (!rateLimitResult.allowed) {
-      logger.warn('Rate limit exceeded for createVoteIntent', { ip: clientIp });
-      throw new HttpsError('resource-exhausted', 'Trop de requêtes. Veuillez patienter une minute.');
-    }
-
     const uid = request.auth?.uid ?? 'guest';
     const contestId = String((request.data as any)?.contestId || '');
     const candidateId = String((request.data as any)?.candidateId || '');
@@ -1664,31 +1558,17 @@ export const kkiapayWebhook = onRequest(
     secrets: [KKIA_WEBHOOK_SECRET, KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX],
   },
   async (req, res) => {
-    // Log incoming request for debugging
-    logger.info('Webhook received', {
-      method: req.method,
-      ip: req.ip,
-      hasSecretHeader: !!req.header('x-kkiapay-secret'),
-    });
-
     if (req.method !== 'POST') {
-      logger.warn('Webhook rejected: wrong method', { method: req.method });
       res.status(405).send('Method Not Allowed');
       return;
     }
 
-
     const headerSecret = req.header('x-kkiapay-secret');
     if (!headerSecret || headerSecret !== KKIA_WEBHOOK_SECRET.value()) {
-      logger.warn('Invalid webhook signature', {
-        hasHeader: !!headerSecret,
-        headerLength: headerSecret?.length || 0,
-        expectedLength: KKIA_WEBHOOK_SECRET.value()?.length || 0,
-      });
+      logger.warn('Invalid webhook signature');
       res.status(401).send('Invalid signature');
       return;
     }
-
 
     const body: any = req.body || {};
     const transactionId = String(body?.transactionId || '');
@@ -1697,23 +1577,12 @@ export const kkiapayWebhook = onRequest(
     const event = String(body?.event || '');
     const isPaymentSucces = body?.isPaymentSucces === true;
 
-    // Log webhook payload for debugging
-    logger.info('Webhook payload', {
-      transactionId,
-      partnerId,
-      amount,
-      event,
-      isPaymentSucces,
-    });
-
     let verifiedSuccess = false;
-    let verificationObj: any = null;
     try {
       if (transactionId) {
         const k = makeKkiapay();
-        verificationObj = await k.verify(transactionId).catch(() => null);
-        verifiedSuccess =
-          verificationObj?.status === 'SUCCESS' || verificationObj?.isPaymentSucces === true;
+        const verif: any = await k.verify(transactionId).catch(() => null);
+        verifiedSuccess = verif?.status === 'SUCCESS' || verif?.isPaymentSucces === true;
       }
     } catch (e) {
       logger.error('verify() error', e as any);
@@ -1722,18 +1591,29 @@ export const kkiapayWebhook = onRequest(
     const finalSuccess = isPaymentSucces || verifiedSuccess || event === 'transaction.success';
 
     if (transactionId) {
-      await recordPaymentAndVote({
+      await db
+        .collection('payments')
+        .doc(transactionId)
+        .set(
+          {
+            transactionId,
+            partnerId: partnerId || null,
+            amount,
+            event,
+            status: finalSuccess ? 'success' : event === 'transaction.failed' ? 'failed' : 'pending',
+            source: 'webhook',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+    }
+
+    if (finalSuccess) {
+      await handleSuccessfulVote({
         transactionId,
         partnerId,
         amount: Number.isFinite(amount) ? amount : undefined,
         source: 'webhook',
-        event,
-        verification: verificationObj || body || null,
-        status: finalSuccess
-          ? 'success'
-          : event === 'transaction.failed'
-            ? 'failed'
-            : 'pending',
       });
     }
 
@@ -1744,14 +1624,6 @@ export const kkiapayWebhook = onRequest(
 export const verifyKkiapay = onCall(
   { region: REGION, secrets: [KKIA_PUBLIC, KKIA_PRIVATE, KKIA_SECRET, KKIA_SANDBOX] },
   async request => {
-    // Rate limiting
-    const clientIp = getClientIp(request);
-    const rateLimitResult = await checkRateLimit('verifyKkiapay', clientIp);
-    if (!rateLimitResult.allowed) {
-      logger.warn('Rate limit exceeded for verifyKkiapay', { ip: clientIp });
-      throw new HttpsError('resource-exhausted', 'Trop de requêtes. Veuillez patienter une minute.');
-    }
-
     const txId = String((request.data as any)?.transactionId || '');
     if (!txId) {
       throw new HttpsError('invalid-argument', 'transactionId is required');
@@ -1770,15 +1642,560 @@ export const verifyKkiapay = onCall(
         ? amountFromRequest
         : undefined;
 
-    await recordPaymentAndVote({
+    const updateData: Record<string, unknown> = {
       transactionId: txId,
-      partnerId,
-      amount,
-      source: 'callable',
-      verification: verif || null,
       status: isSuccess ? 'success' : 'pending',
-    });
+      verification: verif || null,
+      source: 'callable',
+      verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (partnerId) {
+      updateData.partnerId = partnerId;
+    }
+    if (typeof amount === 'number' && Number.isFinite(amount)) {
+      updateData.amount = amount;
+    }
+
+    await db.collection('payments').doc(txId).set(updateData, { merge: true });
+
+    if (isSuccess) {
+      await handleSuccessfulVote({
+        transactionId: txId,
+        partnerId,
+        amount,
+        source: 'callable',
+      });
+    }
 
     return { ok: true, status: isSuccess ? 'success' : 'pending' };
   }
 );
+
+/* ========================================================================== */
+/*                          SHORT LINK REDIRECTS                              */
+/* ========================================================================== */
+
+export const redirectDashboard = onRequest(async (req, res) => {
+  const code = req.path.split('/').pop() || '';
+  if (!code) {
+    res.status(400).send('Code manquante');
+    return;
+  }
+  // Redirige vers le site PromoPage dédié (promo.africaphone.org) avec le code pré-rempli
+  res.redirect(302, `https://africaphone-promo.web.app/?code=${encodeURIComponent(code)}`);
+});
+
+export const redirectApp = onRequest(async (req, res) => {
+  const code = req.path.split('/').pop() || '';
+  if (!code) {
+    res.status(400).send('Code manquante');
+    return;
+  }
+  // Redirige vers le schéma de l'application
+  const appScheme = `africaphone://apply-promo?code=${encodeURIComponent(code)}&channel=app`;
+  res.redirect(302, appScheme);
+});
+
+export const redirectWhatsApp = onRequest(async (req, res) => {
+  const code = req.path.split('/').pop() || '';
+  // const sid = req.query.sid as string; // Unused
+
+  if (!code) {
+    res.status(400).send('Code manquante');
+    return;
+  }
+
+  try {
+    // Récupérer le modèle de message
+    const templateSnap = await db.collection('settings').doc('linkTemplates').get();
+    const data = templateSnap.exists ? templateSnap.data() || {} : {};
+
+    // Par défaut, numéro générique si non configuré
+    const waNumber = data.whatsappNumber || '2290154151522';
+
+    // Template par défaut
+    // Note: {code} sera remplacé par le code promo
+    // {link} sera remplacé par le lien Web court
+    const waTemplate = data.waMessageTemplate ||
+      'Rien que pour toi ! Profite du code promo {code} sur AfricaPhone. Télécharge ici : {link}';
+
+    const webBaseUrl = data.webBaseUrl || 'https://africaphone.org';
+    const webLink = `${webBaseUrl}/p/${code}`;
+
+    // Remplacement des placeholders
+    const message = waTemplate
+      .replace('{code}', code.toUpperCase())
+      .replace('{link}', webLink)
+      .replace('{ref}', ''); // Pas de ref ici
+
+    const waNumberNormalized = waNumber.replace(/\D+/g, '');
+    const waUrl = `https://wa.me/${waNumberNormalized}?text=${encodeURIComponent(message)}`;
+
+    res.redirect(302, waUrl);
+  } catch (error) {
+    logger.error('redirectWhatsApp failed', error);
+    // Fallback sécurité
+    res.redirect(302, `https://wa.me/2290154151522?text=Code%20promo%20${code}`);
+  }
+});
+
+/* ========================================================================== */
+/*                     PARTNER AUTHENTICATION SYSTEM                          */
+/* ========================================================================== */
+
+/**
+ * Génère un mot de passe aléatoire sécurisé pour les partenaires.
+ * Format: 8 caractères avec au moins une majuscule, une minuscule et un chiffre.
+ */
+const generatePartnerPassword = (): string => {
+  const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lowercase = 'abcdefghjkmnpqrstuvwxyz';
+  const digits = '23456789';
+  const all = uppercase + lowercase + digits;
+
+  let password = '';
+  // Assurer au moins un de chaque type
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += digits[Math.floor(Math.random() * digits.length)];
+
+  // Compléter jusqu'à 8 caractères
+  for (let i = 3; i < 8; i++) {
+    password += all[Math.floor(Math.random() * all.length)];
+  }
+
+  // Mélanger les caractères
+  return password
+    .split('')
+    .sort(() => Math.random() - 0.5)
+    .join('');
+};
+
+/**
+ * Hash un mot de passe avec SHA-256 (pour compatibilité navigateur).
+ * Note: En production, bcrypt serait idéal mais SHA-256 est suffisant pour ce cas d'usage.
+ */
+const hashPassword = (password: string): string => {
+  return createHash('sha256').update(password).digest('hex');
+};
+
+/**
+ * Vérifie si un mot de passe correspond au hash stocké.
+ */
+const verifyPassword = (password: string, hash: string): boolean => {
+  return hashPassword(password) === hash;
+};
+
+/**
+ * Authentifie un partenaire avec son code promo et son mot de passe.
+ * Retourne un token de session si succès.
+ */
+export const authenticatePartner = onCall(async request => {
+  const { code, password } = request.data as {
+    code?: string;
+    password?: string;
+  };
+
+  if (!code || typeof code !== 'string' || !password || typeof password !== 'string') {
+    throw new HttpsError('invalid-argument', 'Code et mot de passe requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+
+  // Récupérer les infos du code promo
+  const ruleSnap = await db.collection('promoRules').doc(normalizedCode).get();
+  if (!ruleSnap.exists) {
+    // Log tentative échouée
+    await logPromoEvent('partnerAuthAttempts', {
+      code: normalizedCode,
+      success: false,
+      reason: 'code_not_found',
+      ip: request.rawRequest?.ip || null,
+    });
+    throw new HttpsError('not-found', 'Identifiants invalides.');
+  }
+
+  const ruleData = ruleSnap.data() as any;
+
+  // Vérifier que le code est actif
+  if (ruleData.isActive === false) {
+    throw new HttpsError('permission-denied', 'Ce code promo est désactivé.');
+  }
+
+  // Vérifier le mot de passe
+  const storedHash = ruleData.partnerPasswordHash;
+  if (!storedHash) {
+    throw new HttpsError('failed-precondition', 'Aucun mot de passe configuré pour ce code. Contactez l\'administrateur.');
+  }
+
+  if (!verifyPassword(password, storedHash)) {
+    // Log tentative échouée
+    await logPromoEvent('partnerAuthAttempts', {
+      code: normalizedCode,
+      success: false,
+      reason: 'wrong_password',
+      ip: request.rawRequest?.ip || null,
+    });
+    throw new HttpsError('unauthenticated', 'Identifiants invalides.');
+  }
+
+  // Générer un token de session (valide 7 jours)
+  const sessionToken = randomUUID();
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 jours
+
+  // Sauvegarder la session
+  await db.collection('partnerSessions').doc(sessionToken).set({
+    code: normalizedCode,
+    token: sessionToken,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
+    ip: request.rawRequest?.ip || null,
+    userAgent: request.rawRequest?.headers?.['user-agent'] || null,
+  });
+
+  // Log succès
+  await logPromoEvent('partnerAuthAttempts', {
+    code: normalizedCode,
+    success: true,
+    ip: request.rawRequest?.ip || null,
+  });
+
+  // Mettre à jour la dernière connexion
+  await ruleSnap.ref.update({
+    lastPartnerLogin: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  logger.info('Partner authenticated', { code: normalizedCode });
+
+  return {
+    success: true,
+    token: sessionToken,
+    expiresAt: expiresAt.toISOString(),
+    code: normalizedCode,
+    partnerName: ruleData.partnerName || null,
+  };
+});
+
+/**
+ * Vérifie un token de session partenaire.
+ */
+export const verifyPartnerSession = onCall(async request => {
+  const { token } = request.data as { token?: string };
+
+  if (!token || typeof token !== 'string') {
+    throw new HttpsError('invalid-argument', 'Token requis.');
+  }
+
+  const sessionSnap = await db.collection('partnerSessions').doc(token).get();
+  if (!sessionSnap.exists) {
+    throw new HttpsError('unauthenticated', 'Session invalide ou expirée.');
+  }
+
+  const sessionData = sessionSnap.data() as any;
+  const expiresAt = sessionData.expiresAt?.toDate?.();
+
+  if (expiresAt && new Date() > expiresAt) {
+    // Supprimer la session expirée
+    await sessionSnap.ref.delete();
+    throw new HttpsError('unauthenticated', 'Session expirée.');
+  }
+
+  return {
+    valid: true,
+    code: sessionData.code,
+    expiresAt: expiresAt?.toISOString() || null,
+  };
+});
+
+/**
+ * Génère ou régénère le mot de passe d'un partenaire (admin uniquement).
+ * Attendu: data { code }
+ * Retourne le nouveau mot de passe en clair (à communiquer au partenaire).
+ */
+export const regeneratePartnerPassword = onCall(async request => {
+  // Vérifier que l'appelant est admin
+  if (!request.auth?.token?.admin) {
+    throw new HttpsError('permission-denied', 'Réservé aux administrateurs.');
+  }
+
+  const { code } = request.data as { code?: string };
+
+  if (!code || typeof code !== 'string') {
+    throw new HttpsError('invalid-argument', 'Code promo requis.');
+  }
+
+  const normalizedCode = code.trim().toUpperCase();
+
+  // Vérifier que le code existe
+  const ruleRef = db.collection('promoRules').doc(normalizedCode);
+  const ruleSnap = await ruleRef.get();
+
+  if (!ruleSnap.exists) {
+    throw new HttpsError('not-found', 'Code promo introuvable.');
+  }
+
+  // Générer un nouveau mot de passe
+  const newPassword = generatePartnerPassword();
+  const passwordHash = hashPassword(newPassword);
+
+  // Mettre à jour le document
+  await ruleRef.update({
+    partnerPasswordHash: passwordHash,
+    partnerPasswordUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    partnerPasswordUpdatedBy: request.auth.uid,
+  });
+
+  // Invalider les anciennes sessions
+  const oldSessions = await db.collection('partnerSessions').where('code', '==', normalizedCode).get();
+  const batch = db.batch();
+  oldSessions.docs.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+
+  logger.info('Partner password regenerated', { code: normalizedCode, by: request.auth.uid });
+
+  return {
+    success: true,
+    code: normalizedCode,
+    password: newPassword, // En clair, à communiquer au partenaire
+    message: `Nouveau mot de passe généré. Communiquez-le au partenaire: ${newPassword}`,
+  };
+});
+
+/**
+ * Récupère le dashboard d'un partenaire authentifié.
+ * Nécessite un token de session valide.
+ */
+export const getPartnerDashboard = onCall(async request => {
+  const { token, code, rangeDays, channel } = request.data as {
+    token?: string;
+    code?: string;
+    rangeDays?: number;
+    channel?: string; // Filtre par canal: 'web', 'app', 'wa', 'qr', 'bo' ou undefined pour tous
+  };
+
+  let authenticatedCode: string | null = null;
+
+  // Vérifier l'authentification par token de session
+  if (token) {
+    const sessionSnap = await db.collection('partnerSessions').doc(token).get();
+    if (sessionSnap.exists) {
+      const sessionData = sessionSnap.data() as any;
+      const expiresAt = sessionData.expiresAt?.toDate?.();
+      if (!expiresAt || new Date() <= expiresAt) {
+        authenticatedCode = sessionData.code;
+      }
+    }
+  }
+
+  // Fallback: si pas de token, vérifier le code (mode démonstration)
+  const queryCode = code?.trim().toUpperCase();
+  if (!authenticatedCode && !queryCode) {
+    throw new HttpsError('unauthenticated', 'Authentification requise.');
+  }
+
+  const targetCode = authenticatedCode || queryCode!;
+  const isAuthenticated = Boolean(authenticatedCode);
+
+  // Récupérer les données du code promo
+  const ruleSnap = await db.collection('promoRules').doc(targetCode).get();
+  if (!ruleSnap.exists) {
+    throw new HttpsError('not-found', 'Code promo introuvable.');
+  }
+
+  const ruleData = ruleSnap.data() as any;
+
+  // Récupérer les templates de liens pour construire les URLs
+  const templatesSnap = await db.collection('settings').doc('linkTemplates').get();
+  const templates = templatesSnap.exists ? (templatesSnap.data() as any) : {};
+  const baseDomain = (templates?.webBaseUrl || 'https://africaphone.org').replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+  // Construire les liens pré-remplis pour le partenaire
+  const partnerLinks = {
+    dashboardLink: `https://${baseDomain}/d/${targetCode}`,
+    webLink: `https://${baseDomain}/p/${targetCode}`,
+    appLink: `https://${baseDomain}/a/${targetCode}`,
+    waLink: `https://${baseDomain}/w/${targetCode}`,
+  };
+
+  // Si non authentifié, retourner seulement des infos basiques (mode démo)
+  if (!isAuthenticated) {
+    return {
+      code: targetCode,
+      authenticated: false,
+      message: 'Connectez-vous pour voir vos statistiques détaillées.',
+      kpis: { sales: 0, leads: 0, commission: 0, discount: 0 },
+      channels: [],
+      payouts: { history: [] },
+      table: [],
+      partnerLinks,
+      rule: {
+        code: targetCode,
+        allowedChannels: ruleData.allowedChannels || [],
+        partnerRefRequired: ruleData.partnerRefRequired || false,
+        priceBrackets: ruleData.priceBrackets || [],
+      },
+    };
+  }
+
+  // Utilisateur authentifié: retourner les vraies stats
+  const days = clampRangeDays(rangeDays);
+  const channelFilter = channel && ['web', 'app', 'wa', 'qr', 'bo'].includes(channel) ? channel : undefined;
+  const metrics = await fetchPartnerMetrics(targetCode, days, channelFilter);
+
+  return {
+    code: targetCode,
+    authenticated: true,
+    partnerName: ruleData.partnerName || null,
+    kpis: metrics.kpis,
+    channels: metrics.channels,
+    payouts: metrics.payouts,
+    table: metrics.table,
+    dailyData: metrics.dailyData,
+    partnerLinks,
+    rule: {
+      code: targetCode,
+      allowedChannels: ruleData.allowedChannels || [],
+      partnerRefRequired: ruleData.partnerRefRequired || false,
+      priceBrackets: ruleData.priceBrackets || [],
+    },
+  };
+});
+
+/**
+ * Helper pour récupérer les métriques d'un partenaire.
+ * @param channel - Optionnel: filtre par canal ('web', 'app', 'wa', 'qr', 'bo')
+ */
+const fetchPartnerMetrics = async (code: string, rangeDays: number, channel?: string) => {
+  const now = new Date();
+  const startDate = new Date(now.getTime() - rangeDays * 24 * 60 * 60 * 1000);
+
+  let totalSales = 0;
+  let totalLeads = 0;
+  let totalCommission = 0;
+  let totalDiscount = 0;
+  const channelStats: Record<string, { count: number; commission: number; discount: number }> = {};
+  const salesTable: any[] = [];
+  const dailyData: Array<{ date: string; visits: number; sales: number }> = [];
+
+  // Récupérer les métriques quotidiennes
+  const metricsRef = db.collection('promoMetrics').doc(code).collection('daily');
+  const metricsSnap = await metricsRef.where('date', '>=', dayKeyUtc(startDate)).orderBy('date', 'asc').limit(rangeDays).get();
+
+  metricsSnap.docs.forEach(doc => {
+    const data = doc.data();
+    const docDate = data.date || doc.id;
+
+    // Si un filtre canal est appliqué, n'utiliser que ce canal
+    let dailyVisits = 0;
+    if (channel && data.visits?.[channel]) {
+      dailyVisits = data.visits[channel];
+    } else if (!channel) {
+      dailyVisits = data.visits?.total || 0;
+    }
+
+    const dailySales = data.sales?.count || 0;
+
+    // Collecter les données quotidiennes pour le graphique
+    dailyData.push({
+      date: docDate,
+      visits: dailyVisits,
+      sales: dailySales,
+    });
+
+    // Agrégation des visites (leads)
+    totalLeads += dailyVisits;
+
+    // Agrégation des ventes (pas de filtre canal sur les ventes pour l'instant)
+    if (data.sales?.count) {
+      totalSales += data.sales.count;
+      totalCommission += data.sales.commission || 0;
+      totalDiscount += data.sales.discount || 0;
+    }
+
+    // Agrégation par canal (toujours collecté pour l'affichage par canal)
+    if (data.visits) {
+      ['web', 'app', 'wa', 'qr', 'bo'].forEach(ch => {
+        if (data.visits[ch]) {
+          if (!channelStats[ch]) {
+            channelStats[ch] = { count: 0, commission: 0, discount: 0 };
+          }
+          channelStats[ch].count += data.visits[ch];
+        }
+      });
+    }
+  });
+
+  // Récupérer les versements
+  const payoutsSnap = await db
+    .collection('promoPayouts')
+    .where('code', '==', code)
+    .orderBy('createdAt', 'desc')
+    .limit(10)
+    .get();
+
+  const payoutHistory = payoutsSnap.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      amount: data.amount || 0,
+      date: serializeDate(data.createdAt),
+      mode: data.paymentMethod || 'Momo',
+      status: data.status || 'pending',
+      ref: data.reference || doc.id,
+    };
+  });
+
+  const pendingAmount = payoutHistory
+    .filter(p => p.status === 'pending' || p.status === 'planifie')
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const lastPaid = payoutHistory.find(p => p.status === 'percu' || p.status === 'paid');
+
+  // Formater les canaux pour l'affichage
+  const channels = Object.entries(channelStats).map(([id, stats]) => ({
+    id,
+    label: id.toUpperCase(),
+    count: stats.count,
+    commission: stats.commission,
+    discount: stats.discount,
+  }));
+
+  return {
+    kpis: {
+      sales: totalSales,
+      leads: totalLeads,
+      commission: totalCommission,
+      discount: totalDiscount,
+    },
+    channels,
+    payouts: {
+      lastAmount: lastPaid?.amount || 0,
+      lastDate: lastPaid?.date || null,
+      pendingAmount,
+      history: payoutHistory,
+    },
+    table: salesTable,
+    dailyData,
+  };
+};
+
+/**
+ * Déconnexion d'un partenaire (supprime la session).
+ */
+export const logoutPartner = onCall(async request => {
+  const { token } = request.data as { token?: string };
+
+  if (!token) {
+    return { success: true };
+  }
+
+  try {
+    await db.collection('partnerSessions').doc(token).delete();
+  } catch (e) {
+    // Ignorer si la session n'existe pas
+  }
+
+  return { success: true };
+});
+
