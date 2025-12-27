@@ -90,6 +90,16 @@
             }
           ]
         }
+      ],
+      "rewrites": [
+        {
+          "source": "/p/**",
+          "function": "trackPromoLink"
+        },
+        {
+          "source": "/w/**",
+          "function": "trackPromoLink"
+        }
       ]
     },
     {
@@ -144,13 +154,25 @@
             }
           ]
         }
+      ],
+      "rewrites": [
+        {
+          "source": "/p/**",
+          "function": "trackPromoLink"
+        },
+        {
+          "source": "/w/**",
+          "function": "trackPromoLink"
+        }
       ]
     },
     {
       "site": "africaphone-test",
       "source": "web",
       "frameworksBackend": {
-        "region": "us-central1"
+        "region": "us-central1",
+        "memory": "512MiB",
+        "timeoutSeconds": 60
       },
       "headers": [
         {
@@ -195,6 +217,16 @@
               "value": "DENY"
             }
           ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/p/**",
+          "function": "trackPromoLink"
+        },
+        {
+          "source": "/w/**",
+          "function": "trackPromoLink"
         }
       ]
     },
