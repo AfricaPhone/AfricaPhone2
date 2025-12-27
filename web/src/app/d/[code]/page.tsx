@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import styles from './dashboard.module.css';
 
 // Firebase config
@@ -125,7 +124,7 @@ export default function PartnerDashboardPage() {
   const code = (params.code as string)?.toUpperCase() || '';
 
   const [darkMode, setDarkMode] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [status, setStatus] = useState('Chargement...');
   const [data, setData] = useState<DashboardData>({ ...FALLBACK_DATA, code });
   const [links, setLinks] = useState<GeneratedLinks | null>(null);
@@ -143,11 +142,11 @@ export default function PartnerDashboardPage() {
     if (!promoCode) {
       setData({ ...FALLBACK_DATA, code: promoCode });
       setStatus('Veuillez entrer un code promo.');
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
     setStatus('Chargement des statistiques...');
 
     try {
@@ -165,7 +164,7 @@ export default function PartnerDashboardPage() {
       setData({ ...FALLBACK_DATA, code: promoCode });
       setStatus('Erreur de chargement. Données locales affichées.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [refInput]);
 
@@ -244,12 +243,20 @@ export default function PartnerDashboardPage() {
       loadDashboard(code);
       generateLinks();
     } else {
-      setLoading(false);
+      setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
   return (
     <div className={`${styles.appShell} ${darkMode ? styles.dark : styles.light}`}>
+      {/* Loading indicator */}
+      {isLoading && (
+        <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+          Chargement...
+        </div>
+      )}
+
       {/* Header */}
       <header className={styles.topbar}>
         <div className={styles.brand}>
@@ -528,9 +535,9 @@ export default function PartnerDashboardPage() {
                   Tranches:{' '}
                   {data.rule.priceBrackets.length > 0
                     ? data.rule.priceBrackets
-                        .slice(0, 3)
-                        .map((b) => `${b.min}-${b.max || '+'}: -${b.discountValue}/+${b.commissionValue}`)
-                        .join(' | ')
+                      .slice(0, 3)
+                      .map((b) => `${b.min}-${b.max || '+'}: -${b.discountValue}/+${b.commissionValue}`)
+                      .join(' | ')
                     : '--'}
                 </li>
               </ul>
