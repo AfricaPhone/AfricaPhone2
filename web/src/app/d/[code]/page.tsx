@@ -152,7 +152,7 @@ export default function PartnerDashboardPage() {
       const functions = getFunctions(app);
       const getPartnerDashboard = httpsCallable<{ code: string; partnerId?: string; rangeDays?: number, startAt?: string, endAt?: string }, DashboardData>(
         functions,
-        'getPartnerDashboardV2'
+        'getPartnerDashboard'
       );
 
       // Calcul des paramètres de date
