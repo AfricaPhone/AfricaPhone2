@@ -7,8 +7,10 @@ import { allProducts, type ProductSummary } from '@/data/home';
 import BrandsCarousel from '@/components/BrandsCarousel';
 import {
   collection,
+  doc,
   DocumentData,
   endAt,
+  getDoc,
   getDocs,
   limit,
   orderBy,
@@ -774,15 +776,50 @@ export default function ProductGridSection({
     const fetchTopRankedProducts = async () => {
       setTopProductsLoading(true);
       try {
-        const topSnapshot = await getDocs(
-          query(collection(db, 'products'), orderBy('ordreVedette', 'desc'), limit(TOP_PRODUCTS_FETCH_LIMIT))
-        );
+        // 1. Try to fetch from the new config/topProducts
+        const configRef = doc(db, 'config', 'topProducts');
+        const configSnap = await getDoc(configRef);
+
+        let mapped: ProductCardData[] = [];
+
+        if (configSnap.exists()) {
+          const data = configSnap.data();
+          const productIds = Array.isArray(data?.productIds) ? (data.productIds as string[]) : [];
+
+          if (productIds.length > 0) {
+            // Fetch these specific products
+            // Since firestore 'in' query is limited to 10-30, and IDs might be more, 
+            // we can fetch by documentId if < 30, or just fetch them individually in parallel.
+            // For < 20 items, parallel fetch is fine.
+            const fetchPromises = productIds.slice(0, 20).map(id => getDoc(doc(db, 'products', id)));
+            const productSnaps = await Promise.all(fetchPromises);
+
+            mapped = productSnaps
+              .filter(s => s.exists())
+              .map(mapDocToProduct)
+              .filter((item): item is ProductCardData => item !== null);
+
+            // Re-sort based on the config order (productIds)
+            mapped.sort((a, b) => {
+              return productIds.indexOf(a.id) - productIds.indexOf(b.id);
+            });
+          }
+        }
+
+        // 2. Fallback to old behavior if config logic yielded nothing
+        if (mapped.length === 0) {
+          const topSnapshot = await getDocs(
+            query(collection(db, 'products'), orderBy('ordreVedette', 'desc'), limit(TOP_PRODUCTS_FETCH_LIMIT))
+          );
+          mapped = topSnapshot.docs
+            .map(mapDocToProduct)
+            .filter((item): item is ProductCardData => item !== null);
+        }
+
         if (disposed) {
           return;
         }
-        const mapped = topSnapshot.docs
-          .map(mapDocToProduct)
-          .filter((item): item is ProductCardData => item !== null);
+
         setTopRankedProducts(dedupeProducts(mapped));
       } catch (error) {
         console.error('ProductGridSection: unable to load top-ranked products', error);
