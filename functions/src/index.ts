@@ -708,75 +708,9 @@ export const getPromoMetrics = onCall(async request => {
   };
 });
 
-type DashboardChannel = { id: string; label: string; count: number; commission: number; discount: number };
-type DashboardRow = {
-  id: string;
-  createdAt: string | null;
-  channel: string;
-  ref: string | null;
-  cartValue: number | null;
-  discountValue: number | null;
-  commissionValue: number | null;
-};
+// Types for Dashboard (DashboardPayout is used by getPartnerDashboardV2)
 type DashboardPayout = { amount: number; date: string | null; mode?: string | null; status?: string | null; ref?: string | null };
 
-const hydratePromoDashboardFromLogs = (logs: Array<Record<string, any>>) => {
-  const channels: Record<string, DashboardChannel> = {};
-  let totalCommission = 0;
-  let totalDiscount = 0;
-  let totalCart = 0;
-  let cartCount = 0;
-
-  logs.forEach(log => {
-    const channel = normalizeChannel(log?.channel);
-    const commission = typeof log?.commissionValue === 'number' ? log.commissionValue : 0;
-    const discount = typeof log?.discountValue === 'number' ? log.discountValue : 0;
-    const cartValue = typeof log?.cartValue === 'number' ? log.cartValue : null;
-
-    totalCommission += commission;
-    totalDiscount += discount;
-    if (cartValue !== null) {
-      totalCart += cartValue;
-      cartCount += 1;
-    }
-
-    if (!channels[channel]) {
-      channels[channel] = { id: channel, label: channel.toUpperCase(), count: 0, commission: 0, discount: 0 };
-    }
-    channels[channel].count += 1;
-    channels[channel].commission += commission;
-    channels[channel].discount += discount;
-  });
-
-  const rows: DashboardRow[] = logs.slice(0, 8).map((log, idx) => ({
-    id: log?.promoSessionId || log?.id || `row-${idx}`,
-    createdAt: serializeDate(log?.createdAt) || null,
-    channel: normalizeChannel(log?.channel),
-    ref: typeof log?.ref === 'string' ? log.ref : log?.partnerId ?? null,
-    cartValue: typeof log?.cartValue === 'number' ? log.cartValue : null,
-    discountValue: typeof log?.discountValue === 'number' ? log.discountValue : null,
-    commissionValue: typeof log?.commissionValue === 'number' ? log.commissionValue : null,
-  }));
-
-  const sortedChannels = Object.values(channels).sort((a, b) => b.count - a.count);
-  const avgCart = cartCount > 0 ? Math.round(totalCart / cartCount) : 0;
-  const saleLogs = logs.filter(log => typeof log?.commissionValue === 'number' && log.commissionValue > 0);
-
-  return {
-    leadsCount: logs.length,
-    salesCount: saleLogs.length || logs.length,
-    totalCommission,
-    totalDiscount,
-    avgCart,
-    channels: sortedChannels,
-    rows,
-  };
-};
-
-/**
- * Dashboard partenaire legacy (sans authentification).
- * @deprecated Utilisez getPartnerDashboard avec authentification.
- */
 /**
  * Dashboard partenaire V2 (Live Metrics).
  */
