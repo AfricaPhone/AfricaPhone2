@@ -210,6 +210,12 @@ let promoCodePartnerFilter = '';
 let promoPayoutSearchTerm = '';
 let functionsInstance = functions;
 let promoTab = 'codes';
+// Votes Module State
+let allVotes = [];
+let allVoteIntents = [];
+let votesDateFilter = { start: '', end: '' };
+let lostVotesFound = [];
+let votesContestId = '';
 const isLocalhost = ['localhost', '127.0.0.1'].includes(location.hostname);
 if (isLocalhost) {
   try {
@@ -247,6 +253,7 @@ const CHANNEL_OPTIONS = [
 
 // --- Features / Flags ---
 let featuresConfig = { promoCardsEnabled: true };
+let topProductsIds = []; // Global state for top products
 let linkTemplates = null;
 const FALLBACK_LINK_TEMPLATES = {
   webBaseUrl: 'https://africaphone-org.web.app/promo',
@@ -770,6 +777,229 @@ $$('#page-settings [data-theme-choice]').forEach(function (btn) {
   });
 });
 
+/* ============================ Votes Module ============================ */
+async function initVotesModule() {
+  const contestSelect = $('#votes-contest-select');
+  const refreshBtn = $('#votes-refresh');
+  const generateReportBtn = $('#votes-generate-report');
+  const startDateInput = $('#votes-start-date');
+  const endDateInput = $('#votes-end-date');
+
+  // Load contests into select
+  await ensureContestsLoaded();
+  contestSelect.innerHTML = '<option value="">Sélectionner un concours</option>' +
+    allContests.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+
+  // Set default contest if available
+  if (allContests.length > 0 && !votesContestId) {
+    votesContestId = allContests[0].id;
+    contestSelect.value = votesContestId;
+  }
+
+  // Listeners
+  contestSelect.addEventListener('change', (e) => {
+    votesContestId = e.target.value;
+    loadVotesData();
+  });
+
+  startDateInput.addEventListener('change', (e) => {
+    votesDateFilter.start = e.target.value;
+    loadVotesData(); // Refresh on date change
+  });
+
+  endDateInput.addEventListener('change', (e) => {
+    votesDateFilter.end = e.target.value;
+    loadVotesData(); // Refresh on date change
+  });
+
+  refreshBtn.addEventListener('click', loadVotesData);
+
+  generateReportBtn.addEventListener('click', () => {
+    toast('Info', 'Fonctionnalité de rapport à venir', 'info');
+  });
+
+  // Initial load
+  if (votesContestId) {
+    loadVotesData();
+  }
+}
+
+async function loadVotesData() {
+  if (!votesContestId) return;
+
+  const container = $('#votes-content');
+  const statsContainer = $('#votes-stats');
+  const rankingsContainer = $('#votes-rankings');
+  const alertContainer = $('#votes-lost-alert');
+
+  // Show loading state
+  statsContainer.innerHTML = '<div class="skeleton" style="height:100px;"></div>'.repeat(4);
+  rankingsContainer.innerHTML = '<div class="skeleton" style="height:300px;"></div>';
+
+  try {
+    // 1. Fetch Votes for Contest
+    const votesRef = collection(db, `contests/${votesContestId}/votes`);
+    let q = query(votesRef, orderBy('timestamp', 'desc'));
+
+    // Client-side filtering for dates (since compound queries might need indexes)
+    // We fetch all or a reasonable limit, then filter. For admin stats, we might want all.
+    // WARNING: If thousands of votes, this might be heavy. 
+    // Optimization: Add date range to query if indexes exist. 
+    // For now, let's fetch last 2000 votes to avoid reading too much if no date filter.
+    if (!votesDateFilter.start && !votesDateFilter.end) {
+      q = query(votesRef, orderBy('timestamp', 'desc'), limit(5000));
+    }
+
+    const votesSnap = await getDocs(q);
+    allVotes = votesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Filter by date matches
+    let filteredVotes = allVotes;
+    if (votesDateFilter.start) {
+      const startTs = new Date(votesDateFilter.start).getTime();
+      filteredVotes = filteredVotes.filter(v => v.timestamp?.toMillis() >= startTs);
+    }
+    if (votesDateFilter.end) {
+      // End of day
+      const endTs = new Date(votesDateFilter.end).setHours(23, 59, 59, 999);
+      filteredVotes = filteredVotes.filter(v => v.timestamp?.toMillis() <= endTs);
+    }
+
+    // 2. Fetch Candidates (should be loaded)
+    // const candidates = ... (we need to fetch candidates subcollection or use a map)
+    const candidatesRef = collection(db, `contests/${votesContestId}/candidates`);
+    const candidatesSnap = await getDocs(candidatesRef);
+    const candidatesMap = new Map();
+    candidatesSnap.docs.forEach(d => {
+      candidatesMap.set(d.id, { id: d.id, ...d.data() });
+    });
+
+    // 3. Calculate Stats
+    const totalVotes = filteredVotes.length;
+    const totalAmount = filteredVotes.reduce((sum, v) => sum + (v.amount || 0), 0);
+    const totalTransactions = new Set(filteredVotes.map(v => v.transactionId)).size; // approx
+
+    // 4. Render Stats
+    statsContainer.innerHTML = `
+        <div class="stat-card">
+            <span class="stat-label">Total Votes</span>
+            <span class="stat-value">${totalVotes.toLocaleString()}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Montant Total</span>
+            <span class="stat-value">${fmtXOF.format(totalAmount)}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Transactions (est.)</span>
+            <span class="stat-value">${totalTransactions.toLocaleString()}</span>
+        </div>
+         <div class="stat-card">
+            <span class="stat-label">Candidats</span>
+            <span class="stat-value">${candidatesMap.size}</span>
+        </div>
+    `;
+
+    // 5. Calculate Rankings
+    const rankingMap = new Map();
+    candidatesMap.forEach((c, id) => rankingMap.set(id, { ...c, count: 0, amount: 0 }));
+
+    filteredVotes.forEach(v => {
+      if (v.candidateId && rankingMap.has(v.candidateId)) {
+        const c = rankingMap.get(v.candidateId);
+        c.count += 1;
+        c.amount += (v.amount || 0);
+      }
+    });
+
+    const rankedList = Array.from(rankingMap.values()).sort((a, b) => b.count - a.count);
+
+    // 6. Render Rankings
+    rankingsContainer.innerHTML = `
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Candidat</th>
+                    <th>Votes</th>
+                    <th>Montant</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rankedList.map((c, idx) => `
+                    <tr>
+                        <td><strong>#${idx + 1}</strong></td>
+                        <td>
+                             <div style="display:flex;align-items:center;gap:10px;">
+                                <img src="${c.photoUrl || ''}" class="thumb" style="width:32px;height:32px;border-radius:50%" onerror="this.style.display='none'">
+                                <span>${escapeHtml(c.name)}</span>
+                            </div>
+                        </td>
+                        <td>${c.count}</td>
+                        <td>${fmtXOF.format(c.amount)}</td>
+                        <td>${totalVotes > 0 ? ((c.count / totalVotes) * 100).toFixed(1) + '%' : '0%'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+
+    // 7. Check for Lost Votes logic (simplified: check pending intents vs successful payments)
+    // This requires fetching voteIntents which can be large.
+    // For this specific view, we might only scan properly if we query intents.
+    checkForLostVotes(alertContainer);
+
+  } catch (err) {
+    console.error("Error loading votes data:", err);
+    toast('Erreur', 'Impossible de charger les données de votes', 'error');
+  }
+}
+
+async function checkForLostVotes(container) {
+  if (!votesContestId) return;
+  container.classList.add('hide');
+
+  try {
+    // Query for PENDING intents that are OLDER than 5 minutes (to avoid race conditions with live votes)
+    const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+    // We look for intents that are strictly 'pending'
+    // In a real scenario we'd query by status.
+    const intentsRef = collection(db, 'voteIntents');
+    const q = query(intentsRef, where('contestId', '==', votesContestId), where('status', '==', 'pending'), limit(50));
+    const snap = await getDocs(q);
+
+    const potentialLost = [];
+    // For each pending intent, we ideally verify with Kkiapay (via edge function or simple status check if we had the API key here, but we don't safely).
+    // For this Admin panel, we will rely on a "Scan" button or just display those that seem stuck?
+    // Actually, detecting lost votes requires checking if payment WAS successful. 
+    // We can't easily know if payment was successful from here without Kkiapay API.
+    // BUT, if we assume the user might have run a script or we have a flag, we can show it.
+
+    // Alternative: The user has `scripts/recover_lost_votes.js` for deep analysis.
+    // Here, we can just provide a UI to trigger that analysis OR just show basic "Stuck" intents.
+
+    if (!snap.empty) {
+      container.innerHTML = `
+                <div class="votes-alert-content">
+                    <div class="votes-alert-title">Votes en attente détectés</div>
+                    <div class="votes-alert-msg">Il y a ${snap.size} intentions de vote en statut 'pending'. Cela peut indiquer des votes perdus ou des abandons.</div>
+                </div>
+                <button class="btn btn-small btn-outline" id="btn-scan-lost">Analyser</button>
+             `;
+      container.classList.remove('hide');
+
+      $('#btn-scan-lost').onclick = () => {
+        toast('Info', 'Veuillez utiliser le script de récupération via le terminal pour une analyse précise.', 'info');
+      };
+    }
+
+  } catch (err) {
+    console.warn("Lost votes check failed", err);
+  }
+}
+
+
 /* ============================ Routing ============================ */
 const $navProducts = $('#nav-products'),
   $navBrands = $('#nav-brands'),
@@ -818,6 +1048,7 @@ async function handleRoute() {
 
   const isContestRoute = route.includes('contest') || route.includes('candidate');
   const isPromoRoute = route.includes('promocode') || route.includes('promorule') || route.includes('promopayout');
+  const isVotesRoute = route.includes('votes');
 
   // Nav active
   $navProducts.classList.toggle('active', route.includes('product'));
@@ -826,7 +1057,10 @@ async function handleRoute() {
   $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
   $navPromoCodes.classList.toggle('active', isPromoRoute);
-  $navSettings.classList.toggle('active', route === 'settings');
+  if ($navSettings) $navSettings.classList.toggle('active', route === 'settings');
+  // Dynamic Nav for Votes (if element exists)
+  const $navVotes = document.getElementById('nav-votes');
+  if ($navVotes) $navVotes.classList.toggle('active', isVotesRoute);
 
   // Toolbars affichage
   $toolbarProducts.classList.toggle('hide', !route.includes('product'));
@@ -835,6 +1069,8 @@ async function handleRoute() {
   $toolbarContests.classList.toggle('hide', !isContestRoute);
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
   $toolbarPromoCodes.classList.toggle('hide', !isPromoRoute);
+  const $toolbarVotes = document.getElementById('toolbar-votes');
+  if ($toolbarVotes) $toolbarVotes.classList.toggle('hide', !isVotesRoute);
 
   // Pages
   $('#page-products').classList.toggle('hide', !route.includes('product'));
@@ -844,8 +1080,20 @@ async function handleRoute() {
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
   $('#page-promocodes').classList.toggle('hide', !isPromoRoute);
   $('#page-settings').classList.toggle('hide', route !== 'settings');
+  const $pageVotes = document.getElementById('page-votes');
+  if ($pageVotes) $pageVotes.classList.toggle('hide', !isVotesRoute);
 
   if (route === 'products') {
+    setCrumb('Produits');
+    await ensureProductsLoaded();
+    renderProductList();
+  } else if (route === 'votes') {
+    setCrumb('Votes');
+    // Logic is handled by listeners, but we might want to refresh if first load
+    if (!votesContestId && allContests.length > 0) {
+      initVotesModule(); // Ensure init if not done
+    }
+  } else if (route === 'new-product') {
     setCrumb('Produits');
     await ensureProductsLoaded();
     renderProductList();
@@ -1072,6 +1320,8 @@ async function initAfterLogin() {
   } catch (e) {
     console.warn('Settings sync skipped', e);
   }
+  // Initialize Votes Module
+  initVotesModule().catch(err => console.warn('Votes module init failed', err));
 }
 
 /* ============================ Data Fetch ============================ */
@@ -4386,4 +4636,362 @@ setTimeout(function () {
 // Expose MFA functions globally for HTML onclick handlers
 window.handleMfaVerification = handleMfaVerification;
 window.completeMfaEnrollment = completeMfaEnrollment;
+
+/* ============================ Top Products Manager ============================ */
+async function openTopProductsModal() {
+  const modal = document.getElementById('top-products-modal');
+  const sourceList = document.getElementById('tpm-source-list');
+  const targetList = document.getElementById('tpm-target-list');
+  const searchInput = document.getElementById('tpm-search-source');
+  const saveBtn = document.getElementById('tpm-save');
+  const closeBtn = document.getElementById('tpm-close');
+  const statusEl = document.getElementById('tpm-status');
+
+  // Helper to load Config
+  async function loadTopProductsConfig() {
+    try {
+      const snap = await getDoc(doc(db, 'config', 'topProducts'));
+      if (snap.exists()) {
+        const data = snap.data();
+        topProductsIds = Array.isArray(data.productIds) ? data.productIds : [];
+      } else {
+        topProductsIds = [];
+      }
+    } catch (e) {
+      console.error('Error loading top products config', e);
+      toast('Erreur', 'Impossible de charger la configuration Top Produits', 'error');
+    }
+  }
+
+  // Ensure fresh data
+  setButtonLoading(saveBtn, true);
+  await Promise.all([ensureProductsLoaded(), loadTopProductsConfig()]);
+  setButtonLoading(saveBtn, false);
+
+  let currentSourceFilter = '';
+
+  function renderLists() {
+    // 1. Filter Source List (All products NOT in topProductsIds)
+    const availableProducts = allProducts.filter(p => !topProductsIds.includes(p.id));
+
+    // Apply search filter
+    const filteredSource = availableProducts.filter(p => {
+      const term = currentSourceFilter.toLowerCase();
+      return (p.name || '').toLowerCase().includes(term) || (p.brand || '').toLowerCase().includes(term);
+    });
+
+    sourceList.innerHTML = '';
+    filteredSource.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'tpm-item source';
+      item.style.padding = '8px';
+      item.style.border = '1px solid var(--color-border)';
+      item.style.borderRadius = '4px';
+      item.style.marginBottom = '4px';
+      item.style.background = 'var(--color-bg)';
+      item.style.display = 'flex';
+      item.style.alignItems = 'center';
+      item.style.justifyContent = 'space-between';
+
+      item.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
+          <div>
+            <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
+            <div style="font-size:11px; color:var(--color-muted);">${escapeHtml(p.brand)}</div>
+          </div>
+        </div>
+        <button class="btn btn-small btn-icon" title="Ajouter">
+          <i data-lucide="plus" class="icon"></i>
+        </button>
+      `;
+      item.querySelector('button').onclick = () => {
+        topProductsIds.push(p.id);
+        renderLists();
+      };
+      sourceList.appendChild(item);
+    });
+
+    // 2. Render Target List (topProductsIds in order)
+    targetList.innerHTML = '';
+    if (topProductsIds.length === 0) {
+      targetList.innerHTML = '<div style="padding:16px; text-align:center; color:var(--color-muted); font-size:13px;">Aucun produit sélectionné.</div>';
+    } else {
+      topProductsIds.forEach((pid, index) => {
+        const p = allProducts.find(x => x.id === pid);
+        if (!p) return; // Should not happen if data is consistent
+
+        const item = document.createElement('div');
+        item.className = 'tpm-item target';
+        item.style.padding = '8px';
+        item.style.border = '1px solid var(--color-border)';
+        item.style.borderRadius = '4px';
+        item.style.marginBottom = '4px';
+        item.style.background = 'var(--color-bg)';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'space-between';
+
+        item.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="font-weight:bold; color:var(--color-primary); width:20px;">#${index + 1}</div>
+            ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
+            <div>
+              <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <button class="btn btn-small btn-icon" data-action="up" ${index === 0 ? 'disabled' : ''} title="Monter">
+              <i data-lucide="chevron-up" class="icon"></i>
+            </button>
+            <button class="btn btn-small btn-icon" data-action="down" ${index === topProductsIds.length - 1 ? 'disabled' : ''} title="Descendre">
+              <i data-lucide="chevron-down" class="icon"></i>
+            </button>
+            <button class="btn btn-small btn-icon btn-danger" data-action="remove" title="Retirer">
+              <i data-lucide="trash-2" class="icon"></i>
+            </button>
+          </div>
+        `;
+
+        item.querySelector('[data-action="up"]').onclick = () => {
+          if (index > 0) {
+            [topProductsIds[index], topProductsIds[index - 1]] = [topProductsIds[index - 1], topProductsIds[index]];
+            renderLists();
+          }
+        };
+        item.querySelector('[data-action="down"]').onclick = () => {
+          if (index < topProductsIds.length - 1) {
+            [topProductsIds[index], topProductsIds[index + 1]] = [topProductsIds[index + 1], topProductsIds[index]];
+            renderLists();
+          }
+        };
+        item.querySelector('[data-action="remove"]').onclick = () => {
+          topProductsIds.splice(index, 1);
+          renderLists();
+        };
+
+        targetList.appendChild(item);
+      });
+    }
+    lucide.createIcons();
+  }
+
+  // Event Listeners
+  searchInput.oninput = (e) => {
+    currentSourceFilter = e.target.value;
+    renderLists();
+  };
+
+  saveBtn.onclick = async () => {
+    setButtonLoading(saveBtn, true);
+    try {
+      await setDoc(doc(db, 'config', 'topProducts'), {
+        productIds: topProductsIds,
+        updatedAt: serverTimestamp()
+      });
+      toast('Succès', 'Liste des Top Produits mise à jour !', 'success');
+      closeModal();
+    } catch (e) {
+      console.error(e);
+      toast('Erreur', 'Impossible de sauvegarder la liste.', 'error');
+    } finally {
+      setButtonLoading(saveBtn, false);
+    }
+  };
+
+  function closeModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  closeBtn.onclick = closeModal;
+
+  // Open Modal UI
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  // Initial Render
+  renderLists();
+}
+
+/* ============================ Top Products Manager ============================ */
+async function openTopProductsModal() {
+  const modal = document.getElementById('top-products-modal');
+  const sourceList = document.getElementById('tpm-source-list');
+  const targetList = document.getElementById('tpm-target-list');
+  const searchInput = document.getElementById('tpm-search-source');
+  const saveBtn = document.getElementById('tpm-save');
+  const closeBtn = document.getElementById('tpm-close');
+  const statusEl = document.getElementById('tpm-status');
+
+  // Helper to load Config
+  async function loadTopProductsConfig() {
+    try {
+      const snap = await getDoc(doc(db, 'config', 'topProducts'));
+      if (snap.exists()) {
+        const data = snap.data();
+        topProductsIds = Array.isArray(data.productIds) ? data.productIds : [];
+      } else {
+        topProductsIds = [];
+      }
+    } catch (e) {
+      console.error('Error loading top products config', e);
+      toast('Erreur', 'Impossible de charger la configuration Top Produits', 'error');
+    }
+  }
+
+  // Ensure fresh data
+  setButtonLoading(saveBtn, true);
+  await Promise.all([ensureProductsLoaded(), loadTopProductsConfig()]);
+  setButtonLoading(saveBtn, false);
+
+  let currentSourceFilter = '';
+
+  function renderLists() {
+    // 1. Filter Source List (All products NOT in topProductsIds)
+    const availableProducts = allProducts.filter(p => !topProductsIds.includes(p.id));
+
+    // Apply search filter
+    const filteredSource = availableProducts.filter(p => {
+      const term = currentSourceFilter.toLowerCase();
+      return (p.name || '').toLowerCase().includes(term) || (p.brand || '').toLowerCase().includes(term);
+    });
+
+    sourceList.innerHTML = '';
+    filteredSource.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'tpm-item source';
+      item.style.padding = '8px';
+      item.style.border = '1px solid var(--color-border)';
+      item.style.borderRadius = '4px';
+      item.style.marginBottom = '4px';
+      item.style.background = 'var(--color-bg)';
+      item.style.display = 'flex';
+      item.style.alignItems = 'center';
+      item.style.justifyContent = 'space-between';
+
+      item.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
+          <div>
+            <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
+            <div style="font-size:11px; color:var(--color-muted);">${escapeHtml(p.brand)}</div>
+          </div>
+        </div>
+        <button class="btn btn-small btn-icon" title="Ajouter">
+          <i data-lucide="plus" class="icon"></i>
+        </button>
+      `;
+      item.querySelector('button').onclick = () => {
+        topProductsIds.push(p.id);
+        renderLists();
+      };
+      sourceList.appendChild(item);
+    });
+
+    // 2. Render Target List (topProductsIds in order)
+    targetList.innerHTML = '';
+    if (topProductsIds.length === 0) {
+      targetList.innerHTML = '<div style="padding:16px; text-align:center; color:var(--color-muted); font-size:13px;">Aucun produit sélectionné.</div>';
+    } else {
+      topProductsIds.forEach((pid, index) => {
+        const p = allProducts.find(x => x.id === pid);
+        if (!p) return; // Should not happen if data is consistent
+
+        const item = document.createElement('div');
+        item.className = 'tpm-item target';
+        item.style.padding = '8px';
+        item.style.border = '1px solid var(--color-border)';
+        item.style.borderRadius = '4px';
+        item.style.marginBottom = '4px';
+        item.style.background = 'var(--color-bg)';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'space-between';
+
+        item.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="font-weight:bold; color:var(--color-primary); width:20px;">#${index + 1}</div>
+            ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
+            <div>
+              <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <button class="btn btn-small btn-icon" data-action="up" ${index === 0 ? 'disabled' : ''} title="Monter">
+              <i data-lucide="chevron-up" class="icon"></i>
+            </button>
+            <button class="btn btn-small btn-icon" data-action="down" ${index === topProductsIds.length - 1 ? 'disabled' : ''} title="Descendre">
+              <i data-lucide="chevron-down" class="icon"></i>
+            </button>
+            <button class="btn btn-small btn-icon btn-danger" data-action="remove" title="Retirer">
+              <i data-lucide="trash-2" class="icon"></i>
+            </button>
+          </div>
+        `;
+
+        item.querySelector('[data-action="up"]').onclick = () => {
+          if (index > 0) {
+            [topProductsIds[index], topProductsIds[index - 1]] = [topProductsIds[index - 1], topProductsIds[index]];
+            renderLists();
+          }
+        };
+        item.querySelector('[data-action="down"]').onclick = () => {
+          if (index < topProductsIds.length - 1) {
+            [topProductsIds[index], topProductsIds[index + 1]] = [topProductsIds[index + 1], topProductsIds[index]];
+            renderLists();
+          }
+        };
+        item.querySelector('[data-action="remove"]').onclick = () => {
+          topProductsIds.splice(index, 1);
+          renderLists();
+        };
+
+        targetList.appendChild(item);
+      });
+    }
+    lucide.createIcons();
+  }
+
+  // Event Listeners
+  searchInput.oninput = (e) => {
+    currentSourceFilter = e.target.value;
+    renderLists();
+  };
+
+  saveBtn.onclick = async () => {
+    setButtonLoading(saveBtn, true);
+    try {
+      await setDoc(doc(db, 'config', 'topProducts'), {
+        productIds: topProductsIds,
+        updatedAt: serverTimestamp()
+      });
+      toast('Succès', 'Liste des Top Produits mise à jour !', 'success');
+      closeModal();
+    } catch (e) {
+      console.error(e);
+      toast('Erreur', 'Impossible de sauvegarder la liste.', 'error');
+    } finally {
+      setButtonLoading(saveBtn, false);
+    }
+  };
+
+  function closeModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  closeBtn.onclick = closeModal;
+
+  // Open Modal UI
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  // Initial Render
+  renderLists();
+}
 
