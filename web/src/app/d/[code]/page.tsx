@@ -16,8 +16,9 @@ const firebaseConfig = {
   appId: '1:203471818329:web:c2c77d48098c1a6a596b48',
 };
 
-// Types
+// Types V2
 interface KPIs {
+  clicks: number;
   sales: number;
   leads: number;
   commission: number;
@@ -55,6 +56,8 @@ interface SaleRow {
   cartValue: number | null;
   discountValue: number | null;
   commissionValue: number | null;
+  status?: string;
+  isSale?: boolean;
 }
 
 interface PromoRule {
@@ -66,18 +69,12 @@ interface PromoRule {
 
 interface DashboardData {
   code: string;
-  authenticated: boolean;
   kpis: KPIs;
   channels: Channel[];
   payouts: Payouts;
   table: SaleRow[];
   rule: PromoRule;
-  partnerLinks?: {
-    dashboardLink: string;
-    webLink: string;
-    appLink: string;
-    waLink: string;
-  };
+  dailyHistory?: Array<{ date: string; clicks: number; sales: number; leads: number }>;
 }
 
 interface GeneratedLinks {
@@ -90,8 +87,7 @@ interface GeneratedLinks {
 // Fallback data
 const FALLBACK_DATA: DashboardData = {
   code: '',
-  authenticated: false,
-  kpis: { sales: 0, leads: 0, commission: 0, discount: 0 },
+  kpis: { clicks: 0, sales: 0, leads: 0, commission: 0, discount: 0 },
   channels: [],
   payouts: { lastAmount: 0, lastDate: null, pendingAmount: 0, history: [] },
   table: [],
@@ -129,13 +125,15 @@ export default function PartnerDashboardPage() {
   const [data, setData] = useState<DashboardData>({ ...FALLBACK_DATA, code });
   const [links, setLinks] = useState<GeneratedLinks | null>(null);
 
+  // Filters State
+  const [rangeType, setRangeType] = useState<'7d' | '30d' | 'month' | 'custom'>('7d');
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
+
   // Form state
   const [codeInput, setCodeInput] = useState(code);
-  const [refInput, setRefInput] = useState('');
-  const [campaignInput, setCampaignInput] = useState('');
-  const [subInput, setSubInput] = useState('');
-  const [cartValueInput, setCartValueInput] = useState('');
-  const [validateStatus, setValidateStatus] = useState('');
+  const [refInput] = useState(''); // Kept as it might be used in loadDashboard if UI allows input in future
+  // Removed unused inputs: campaignInput, subInput, cartValueInput
 
   // Load dashboard data
   const loadDashboard = useCallback(async (promoCode: string) => {
@@ -147,26 +145,46 @@ export default function PartnerDashboardPage() {
     }
 
     setIsLoading(true);
-    setStatus('Chargement des statistiques...');
+    setStatus('Synchronisation...');
 
     try {
       const app = getFirebaseApp();
       const functions = getFunctions(app);
-      const getPartnerDashboard = httpsCallable<{ code: string; partnerId?: string }, DashboardData>(
+      const getPartnerDashboard = httpsCallable<{ code: string; partnerId?: string; rangeDays?: number, startAt?: string, endAt?: string }, DashboardData>(
         functions,
-        'getPartnerDashboard'
+        'getPartnerDashboardV2'
       );
-      const result = await getPartnerDashboard({ code: promoCode, partnerId: refInput || undefined });
+
+      // Calcul des paramètres de date
+      let rangeDays = 7;
+      let startAt = undefined;
+      let endAt = undefined;
+
+      if (rangeType === '30d') rangeDays = 30;
+      if (rangeType === 'month') rangeDays = 30;
+      if (rangeType === 'custom' && customStart) {
+        startAt = customStart;
+        endAt = customEnd || undefined;
+      }
+
+      const result = await getPartnerDashboard({
+        code: promoCode,
+        partnerId: refInput || undefined,
+        rangeDays: rangeType !== 'custom' ? rangeDays : undefined,
+        startAt,
+        endAt
+      });
+
       setData(result.data || { ...FALLBACK_DATA, code: promoCode });
-      setStatus('Données synchronisées');
+      setStatus('Données à jour');
     } catch (error) {
       console.error('getPartnerDashboard error:', error);
       setData({ ...FALLBACK_DATA, code: promoCode });
-      setStatus('Erreur de chargement. Données locales affichées.');
+      setStatus('Erreur de chargement. Données locales.');
     } finally {
       setIsLoading(false);
     }
-  }, [refInput]);
+  }, [refInput, rangeType, customStart, customEnd]);
 
   // Generate links
   const generateLinks = useCallback(async () => {
@@ -184,11 +202,10 @@ export default function PartnerDashboardPage() {
         { code: string; ref?: string; campaign?: string; sub?: string },
         GeneratedLinks
       >(functions, 'generatePromoLinks');
+      // Removed campaign/sub inputs from call as they are not in UI
       const result = await generatePromoLinks({
         code: codeInput.trim(),
         ref: refInput || undefined,
-        campaign: campaignInput || undefined,
-        sub: subInput || undefined,
       });
       setLinks(result.data);
       setStatus('Liens générés.');
@@ -196,38 +213,7 @@ export default function PartnerDashboardPage() {
       console.error('generatePromoLinks error:', error);
       setStatus('Erreur lors de la génération des liens.');
     }
-  }, [codeInput, refInput, campaignInput, subInput]);
-
-  // Validate code
-  const validateCode = useCallback(async () => {
-    if (!codeInput.trim()) {
-      setValidateStatus('Veuillez saisir un code promo.');
-      return;
-    }
-
-    setValidateStatus('Validation...');
-
-    try {
-      const app = getFirebaseApp();
-      const functions = getFunctions(app);
-      const validatePromoV2 = httpsCallable<
-        { code: string; channel: string; cartValue?: number },
-        { discountValue: number; commissionValue: number }
-      >(functions, 'validatePromoV2');
-      const cartValue = cartValueInput ? Number(cartValueInput) : undefined;
-      const result = await validatePromoV2({
-        code: codeInput.trim(),
-        channel: 'web',
-        cartValue,
-      });
-      setValidateStatus(
-        `Valide. Remise: ${result.data.discountValue} CFA / Commission: ${result.data.commissionValue} CFA`
-      );
-    } catch (error) {
-      console.error('validatePromoV2 error:', error);
-      setValidateStatus('Code invalide ou indisponible.');
-    }
-  }, [codeInput, cartValueInput]);
+  }, [codeInput, refInput]);
 
   // Copy to clipboard
   const copyToClipboard = (text: string) => {
@@ -248,12 +234,17 @@ export default function PartnerDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
+  // Helper: Conversion Rate
+  const conversionRate = data.kpis.clicks > 0
+    ? ((data.kpis.sales / data.kpis.clicks) * 100).toFixed(1)
+    : '0.0';
+
   return (
     <div className={`${styles.appShell} ${darkMode ? styles.dark : styles.light}`}>
       {/* Loading indicator */}
       {isLoading && (
-        <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
-          Chargement...
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99, background: 'rgba(0,0,0,0.5)', color: 'white', textAlign: 'center', padding: '10px' }}>
+          Chargement des données...
         </div>
       )}
 
@@ -262,331 +253,213 @@ export default function PartnerDashboardPage() {
         <div className={styles.brand}>
           <div className={styles.logo}></div>
           <div>
-            <p className={styles.eyebrow}>Espace partenaire</p>
-            <p className={styles.title}>Codes promos AfricaPhone</p>
+            <p className={styles.eyebrow}>Espace Partenaire Pro</p>
+            <p className={styles.title}>Dashboard Performance</p>
           </div>
         </div>
         <div className={styles.topActions}>
           <button className={styles.toggleBtn} onClick={() => setDarkMode(!darkMode)}>
-            {darkMode ? '☀️ Mode clair' : '🌙 Mode sombre'}
+            {darkMode ? '☀️ Clair' : '🌙 Sombre'}
           </button>
         </div>
       </header>
 
-      {/* Filters */}
-      <section className={styles.card}>
-        <div className={styles.filters}>
-          <div className={styles.filterBlock}>
-            <p className={styles.label}>Code actif</p>
-            <div className={styles.chipRow}>
-              {code && <span className={styles.chipActive}>{code}</span>}
-            </div>
+      {/* Filters Bar */}
+      <section className={styles.card} style={{ padding: '15px 20px' }}>
+        <div className={styles.filters} style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span className={styles.label} style={{ marginBottom: 0 }}>Période :</span>
+            <button
+              className={rangeType === '7d' ? styles.pillPrimary : styles.pillLight}
+              onClick={() => { setRangeType('7d'); setCustomStart(''); loadDashboard(code); }}
+            >
+              7 jours
+            </button>
+            <button
+              className={rangeType === '30d' ? styles.pillPrimary : styles.pillLight}
+              onClick={() => { setRangeType('30d'); setCustomStart(''); loadDashboard(code); }}
+            >
+              30 jours
+            </button>
+            <button
+              className={rangeType === 'custom' ? styles.pillPrimary : styles.pillLight}
+              onClick={() => setRangeType('custom')}
+            >
+              Calendrier 📅
+            </button>
           </div>
-          <div className={styles.filterGrid}>
-            <div>
-              <p className={styles.label}>Période</p>
-              <div className={styles.field}>7 derniers jours ▼</div>
+
+          {rangeType === 'custom' && (
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <input
+                type="date"
+                value={customStart}
+                onChange={(e) => setCustomStart(e.target.value)}
+                className={styles.field}
+                style={{ padding: '5px' }}
+              />
+              <span>à</span>
+              <input
+                type="date"
+                value={customEnd}
+                onChange={(e) => setCustomEnd(e.target.value)}
+                className={styles.field}
+                style={{ padding: '5px' }}
+              />
+              <button className={styles.pillSuccess} onClick={() => loadDashboard(code)}>Appliquer</button>
             </div>
-            <div>
-              <p className={styles.label}>Canal</p>
-              <div className={styles.field}>Tous canaux ▼</div>
-            </div>
+          )}
+
+          <div style={{ marginLeft: 'auto' }}>
+            <span className={styles.chipActive}>{code}</span>
+            {status && <span style={{ marginLeft: '10px', fontSize: '0.8em', opacity: 0.7 }}>{status}</span>}
           </div>
         </div>
       </section>
 
-      {/* KPIs */}
+      {/* KPIs V2 */}
       <section className={styles.kpiGrid}>
+
+        {/* KPI 1: CLICS (Trafic) */}
         <article className={styles.kpi}>
           <div className={styles.kpiHeader}>
-            <p className={styles.label}>Ventes conclues</p>
-            <span className={styles.pillSuccess}>+{data.kpis.sales} validées</span>
+            <p className={styles.label}>Trafic (Clics)</p>
+            <span className={styles.pillGhost}>Visites</span>
           </div>
-          <p className={styles.kpiValue}>{data.kpis.sales}</p>
-          <p className={styles.kpiNote}>✓ Paiements confirmés</p>
+          <p className={styles.kpiValue}>{data.kpis.clicks}</p>
+          <p className={styles.kpiNote}>Personnes intéressées</p>
         </article>
 
+        {/* KPI 2: LEADS (Panier) */}
         <article className={styles.kpi}>
           <div className={styles.kpiHeader}>
-            <p className={styles.label}>Leads à suivre</p>
-            <span className={styles.pillWarning}>{data.kpis.leads} en attente</span>
+            <p className={styles.label}>Leads (Paniers)</p>
+            <span className={styles.pillWarning}>Intention</span>
           </div>
           <p className={styles.kpiValue}>{data.kpis.leads}</p>
-          <p className={styles.kpiNote}>Code vu sans achat</p>
+          <p className={styles.kpiNote}>Ont testé le code</p>
         </article>
 
+        {/* KPI 3: CONVERSION (Taux) */}
+        <article className={styles.kpi} style={{ border: '1px solid var(--accent)' }}>
+          <div className={styles.kpiHeader}>
+            <p className={styles.label}>Taux de Transfo.</p>
+            <span className={styles.pillSuccess}>Performance</span>
+          </div>
+          <p className={`${styles.kpiValue} ${styles.accent}`}>{conversionRate}%</p>
+          <p className={styles.kpiNote}>Ventes / Clics</p>
+        </article>
+
+        {/* KPI 4: VENTES (Réelles) */}
         <article className={styles.kpi}>
           <div className={styles.kpiHeader}>
-            <p className={styles.label}>Commission estimée</p>
-            <span className={styles.pillGhost}>Bonus inclus</span>
+            <p className={styles.label}>Ventes Confirmées</p>
+            <span className={styles.pillSuccess}>Payé</span>
           </div>
-          <p className={`${styles.kpiValue} ${styles.accent}`}>{formatCfa(data.kpis.commission)}</p>
-          <p className={styles.kpiNote}>Versée à validation</p>
+          <p className={styles.kpiValue}>{data.kpis.sales}</p>
+          <p className={styles.kpiNote}>Commandes validées</p>
         </article>
 
+        {/* KPI 5: GAINS */}
         <article className={styles.kpi}>
           <div className={styles.kpiHeader}>
-            <p className={styles.label}>Remises clients</p>
-            <span className={styles.pillGhost}>Motivation</span>
+            <p className={styles.label}>Mes Gains</p>
+            <span className={styles.pillGhost}>CFA</span>
           </div>
-          <p className={styles.kpiValue}>{formatCfa(data.kpis.discount)}</p>
-          <p className={styles.kpiNote}>Économies générées</p>
+          <p className={styles.kpiValue}>{formatCfa(data.kpis.commission)}</p>
+          <p className={styles.kpiNote}>Disponibles</p>
         </article>
       </section>
 
-      {/* Channels */}
-      <section className={styles.card}>
-        <div className={styles.sectionHead}>
-          <div>
-            <p className={styles.label}>Répartition par canal</p>
-            <p className={styles.sectionTitle}>Performance relative</p>
-          </div>
-        </div>
-        <div className={styles.channelGrid}>
-          {data.channels.length === 0 ? (
-            <p className={styles.muted}>Aucune donnée canal.</p>
-          ) : (
-            data.channels.map((channel) => {
-              const total = data.channels.reduce((sum, c) => sum + c.count, 0) || 1;
-              const pct = Math.round((channel.count / total) * 100);
-              return (
-                <div key={channel.id} className={styles.channel}>
-                  <div className={styles.channelTop}>
-                    <span>{channel.label}</span>
-                    <span className={styles.pillLight}>{channel.count} ventes</span>
-                  </div>
-                  <div className={styles.bar}>
-                    <div className={styles.barFill} style={{ width: `${pct}%` }}></div>
-                  </div>
-                  <p className={styles.channelNote}>Commission: {formatCfa(channel.commission)}</p>
+      {/* Chart Placeholder (Si data.dailyHistory existe) */}
+      {data.dailyHistory && data.dailyHistory.length > 0 && (
+        <section className={styles.card}>
+          <header className={styles.sectionHead}>
+            <p className={styles.sectionTitle}>Évolution (Clics vs Ventes)</p>
+          </header>
+          <div style={{ padding: '20px', height: '200px', display: 'flex', alignItems: 'flex-end', gap: '5px' }}>
+            {data.dailyHistory.map((day, i) => (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', height: '150px', gap: '2px' }}>
+                  <div style={{ flex: 1, background: 'var(--text-secondary)', opacity: 0.3, height: `${Math.min(100, day.clicks * 5)}%`, borderRadius: '4px' }} title={`${day.clicks} clics`}></div>
+                  <div style={{ flex: 1, background: 'var(--accent)', height: `${Math.min(100, day.sales * 20)}%`, borderRadius: '4px' }} title={`${day.sales} ventes`}></div>
                 </div>
-              );
-            })
-          )}
-        </div>
-      </section>
-
-      {/* Payouts */}
-      <section className={styles.card}>
-        <header className={styles.sectionHead}>
-          <div>
-            <p className={styles.label}>Commissions</p>
-            <p className={styles.sectionTitle}>Paiements perçus et en attente</p>
-          </div>
-          <div className={styles.pillGroup}>
-            <span className={styles.pillPrimary}>
-              Total: {formatCfa(data.payouts.history.reduce((s, p) => s + p.amount, 0))}
-            </span>
-            <span className={styles.pillWarning}>Attente: {formatCfa(data.payouts.pendingAmount)}</span>
-          </div>
-        </header>
-        <div className={styles.payoutGrid}>
-          <div className={styles.payoutSummary}>
-            <div className={styles.summaryRow}>
-              <span className={styles.muted}>Dernier reversement</span>
-              <span className={styles.bold}>{formatCfa(data.payouts.lastAmount)}</span>
-            </div>
-            <div className={styles.summaryRow}>
-              <span className={styles.muted}>Date</span>
-              <span>{formatDate(data.payouts.lastDate)}</span>
-            </div>
-            <div className={styles.summaryRow}>
-              <span className={styles.muted}>Prochain versement</span>
-              <span className={styles.pillSuccess}>
-                {data.payouts.pendingAmount > 0 ? 'À programmer' : 'OK'}
-              </span>
-            </div>
-          </div>
-          <div className={styles.table}>
-            <div className={`${styles.tableRow} ${styles.tableHead}`}>
-              <span>Date</span>
-              <span>Montant</span>
-              <span>Mode</span>
-              <span>Statut</span>
-              <span>Ref</span>
-            </div>
-            {data.payouts.history.length === 0 ? (
-              <div className={styles.tableRow}>
-                <span className={styles.muted}>Aucun paiement</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{day.date.split('-')[2]}</span>
               </div>
-            ) : (
-              data.payouts.history.map((item, i) => (
-                <div key={i} className={styles.tableRow}>
-                  <span>{formatDate(item.date)}</span>
-                  <span>{formatCfa(item.amount)}</span>
-                  <span>{item.mode || '--'}</span>
-                  <span>
-                    <span className={item.status === 'percu' ? styles.pillSuccess : styles.pillWarning}>
-                      {item.status || '--'}
-                    </span>
-                  </span>
-                  <span className={styles.muted}>{item.ref || '--'}</span>
-                </div>
-              ))
-            )}
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* Share Links */}
-      <section className={styles.card}>
-        <header className={styles.sectionHead}>
-          <div>
-            <p className={styles.label}>Liens à partager</p>
-            <p className={styles.sectionTitle}>Outils de diffusion</p>
-          </div>
-          <span className={styles.pillGhost}>Code actif: {codeInput.toUpperCase()}</span>
-        </header>
-        <div className={styles.shareConfig}>
-          <div className={styles.inputGroup}>
-            <label>Code promo</label>
-            <input
-              value={codeInput}
-              onChange={(e) => setCodeInput(e.target.value)}
-              placeholder="EX: ZIDANE1"
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <label>Ref partenaire (facultatif)</label>
-            <input
-              value={refInput}
-              onChange={(e) => setRefInput(e.target.value)}
-              placeholder="EX: PART-001"
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <label>Campagne</label>
-            <input
-              value={campaignInput}
-              onChange={(e) => setCampaignInput(e.target.value)}
-              placeholder="default"
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <label>Variation / bouton</label>
-            <input value={subInput} onChange={(e) => setSubInput(e.target.value)} placeholder="cta1" />
-          </div>
-        </div>
-        <div className={styles.shareActions}>
-          <button
-            className={styles.btnPrimary}
-            onClick={async () => {
-              await generateLinks();
-              await loadDashboard(codeInput);
-            }}
-          >
-            Générer les liens
-          </button>
-          <span className={styles.status}>{status}</span>
-        </div>
-        <div className={styles.shareActions}>
-          <input
-            type="number"
-            value={cartValueInput}
-            onChange={(e) => setCartValueInput(e.target.value)}
-            placeholder="Montant panier (optionnel)"
-            className={styles.cartValueInput}
-          />
-          <button className={styles.pillLight} onClick={validateCode}>
-            Valider le code
-          </button>
-          <span className={styles.status}>{validateStatus}</span>
-        </div>
-        <div className={styles.shareGrid}>
-          {links && (
-            <>
-              <div className={styles.shareBlock}>
-                <p className={styles.muted}>🌐 Lien Web</p>
-                <div className={styles.shareField}>
-                  <span>{links.webLink}</span>
-                  <button className={styles.pillLight} onClick={() => copyToClipboard(links.webLink)}>
-                    Copier
-                  </button>
-                </div>
-              </div>
-              <div className={styles.shareBlock}>
-                <p className={styles.muted}>📱 Lien App (Deep Link)</p>
-                <div className={styles.shareField}>
-                  <span>{links.appDeepLink}</span>
-                  <button className={styles.pillLight} onClick={() => copyToClipboard(links.appDeepLink)}>
-                    Copier
-                  </button>
-                </div>
-              </div>
-              <div className={styles.shareBlock}>
-                <p className={styles.muted}>💬 WhatsApp</p>
-                <div className={styles.shareField}>
-                  <span>{links.whatsappLink?.slice(0, 50)}...</span>
-                  <button className={styles.pillLight} onClick={() => copyToClipboard(links.whatsappLink)}>
-                    Copier
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-          <div className={styles.shareBlock}>
-            <p className={styles.muted}>⚙️ Règle promo</p>
-            <div className={styles.infoBlock}>
-              <h4>Code: {data.rule.code || codeInput}</h4>
-              <ul className={styles.infoList}>
-                <li>Canaux: {data.rule.allowedChannels.join(', ') || 'tous'}</li>
-                <li>Ref partenaire obligatoire: {data.rule.partnerRefRequired ? 'Oui' : 'Non'}</li>
-                <li>
-                  Tranches:{' '}
-                  {data.rule.priceBrackets.length > 0
-                    ? data.rule.priceBrackets
-                      .slice(0, 3)
-                      .map((b) => `${b.min}-${b.max || '+'}: -${b.discountValue}/+${b.commissionValue}`)
-                      .join(' | ')
-                    : '--'}
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Sales Table */}
       <section className={styles.card}>
         <header className={styles.sectionHead}>
           <div>
-            <p className={styles.label}>Tableau ventes / leads</p>
-            <p className={styles.sectionTitle}>Suivi unique</p>
+            <p className={styles.label}>Journal d&apos;activité</p>
+            <p className={styles.sectionTitle}>Détail des interactions</p>
           </div>
           <span className={styles.pillGhost}>Code: {codeInput.toUpperCase()}</span>
         </header>
         <div className={styles.table}>
           <div className={`${styles.tableRow} ${styles.tableHead}`}>
             <span>Date</span>
-            <span>Client</span>
+            <span>Type</span>
             <span>Canal</span>
-            <span>Qté</span>
             <span>Montant</span>
-            <span>Remise</span>
             <span>Commission</span>
+            <span>Statut</span>
           </div>
           {data.table.length === 0 ? (
             <div className={styles.tableRow}>
-              <span className={styles.muted}>Aucune vente enregistrée</span>
+              <span className={styles.muted}>Aucune activité sur la période</span>
             </div>
           ) : (
             data.table.map((row) => (
               <div key={row.id} className={styles.tableRow}>
                 <span>{formatDate(row.createdAt)}</span>
-                <span className={styles.muted}>{row.ref || '--'}</span>
+                <span className={row.isSale ? styles.bold : styles.muted}>
+                  {row.isSale ? '💰 VENTE' : '👀 LEAD'}
+                </span>
                 <span>{(row.channel || 'web').toUpperCase()}</span>
-                <span>1</span>
                 <span>{row.cartValue ? `${Math.round(row.cartValue / 1000)}k` : '-'}</span>
-                <span className={styles.pillLight}>
-                  {row.discountValue ? `-${Math.round(row.discountValue / 1000)}k` : '-'}
+                <span className={row.isSale ? styles.pillSuccess : styles.muted}>
+                  {row.commissionValue ? `+${Math.round(row.commissionValue)}` : '-'}
                 </span>
-                <span className={styles.pillPrimary}>
-                  {row.commissionValue ? `+${Math.round(row.commissionValue / 1000)}k` : '-'}
-                </span>
+                <span style={{ fontSize: '0.8em' }}>{row.status || (row.isSale ? 'Confirmé' : 'Abandon')}</span>
               </div>
             ))
           )}
         </div>
+      </section>
+
+      {/* Share Links (Reduced visibility) */}
+      <section className={styles.card} style={{ opacity: 0.9 }}>
+        <header className={styles.sectionHead} onClick={() => { }} style={{ cursor: 'pointer' }}>
+          <p className={styles.sectionTitle}>⚙️ Outils & Liens (Configuration)</p>
+          <button className={styles.pillLight}>Afficher / Masquer</button>
+        </header>
+        {/* Keeping share links logic but visible is fine */}
+        <div className={styles.shareConfig}>
+          <div className={styles.inputGroup}>
+            <label>Code</label>
+            <input value={codeInput} onChange={(e) => setCodeInput(e.target.value)} />
+          </div>
+          <div className={styles.shareActions} style={{ margin: 0 }}>
+            <button className={styles.btnPrimary} onClick={generateLinks}>Générer mes liens</button>
+          </div>
+        </div>
+
+        {links && (
+          <div className={styles.shareGrid} style={{ marginTop: '20px' }}>
+            <div className={styles.shareBlock}>
+              <p className={styles.muted}>🌐 Site Web</p>
+              <div className={styles.shareField}>
+                <input readOnly value={links.webLink} style={{ width: '100%', border: 'none', background: 'transparent' }} />
+                <button className={styles.pillLight} onClick={() => copyToClipboard(links.webLink)}>Copier</button>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Footer */}

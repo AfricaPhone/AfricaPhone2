@@ -67,6 +67,7 @@
         <a data-route="#/matches" class="link-item"><i data-lucide="swords" class="icon"></i> Matchs</a>
         <a data-route="#/winners" class="link-item"><i data-lucide="award" class="icon"></i> Gagnants</a>
         <a data-route="#/contests" class="link-item"><i data-lucide="trophy" class="icon"></i> Concours</a>
+        <a data-route="#/votes" class="link-item"><i data-lucide="clipboard-list" class="icon"></i> Votes</a>
         <a data-route="#/promocards" class="link-item"><i data-lucide="layout-template" class="icon"></i> Cartes
           Promo</a>
         <a data-route="#/promocodes" class="link-item"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
@@ -97,6 +98,7 @@
         <a id="nav-matches" href="#/matches"><i data-lucide="swords" class="icon"></i> Matchs</a>
         <a id="nav-winners" href="#/winners"><i data-lucide="award" class="icon"></i> Gagnants</a>
         <a id="nav-contests" href="#/contests"><i data-lucide="trophy" class="icon"></i> Concours</a>
+        <a id="nav-votes" href="#/votes"><i data-lucide="clipboard-list" class="icon"></i> Votes</a>
         <a id="nav-promocards" href="#/promocards"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
         <a id="nav-promocodes" href="#/promocodes"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
         <div class="section">G&eacute;n&eacute;ral</div>
@@ -316,6 +318,35 @@
       <section id="page-contests" class="page hide" aria-labelledby="nav-contests">
         <div id="contests-content"></div>
       </section>
+
+      <!-- VOTES MODULE START -->
+      <div id="toolbar-votes" class="toolbar hide">
+        <div class="filters">
+          <select id="votes-contest-select" class="select" aria-label="Sélectionner concours">
+            <option value="">Sélectionner un concours</option>
+          </select>
+          <input id="votes-start-date" class="input" type="date" aria-label="Date de début" />
+          <input id="votes-end-date" class="input" type="date" aria-label="Date de fin" />
+          <button id="votes-refresh" class="btn btn-small"><i data-lucide="refresh-cw" class="icon"></i>
+            Rafraîchir</button>
+        </div>
+        <div class="top-actions">
+          <button id="votes-generate-report" class="btn btn-primary btn-small"><i data-lucide="file-text"
+              class="icon"></i> Générer Rapport</button>
+        </div>
+      </div>
+
+      <section id="page-votes" class="page hide" aria-labelledby="nav-votes">
+        <div id="votes-content">
+          <!-- Stats cards -->
+          <div id="votes-stats" class="votes-stats-grid"></div>
+          <!-- Lost votes alert -->
+          <div id="votes-lost-alert" class="votes-alert hide"></div>
+          <!-- Rankings table -->
+          <div id="votes-rankings"></div>
+        </div>
+      </section>
+      <!-- VOTES MODULE END -->
 
       <section id="page-promocards" class="page hide" aria-labelledby="nav-promocards">
         <div id="promocards-content"></div>

@@ -1,0 +1,29 @@
+[
+  {
+    "transactionId": "3188437727613324",
+    "partnerId": "6bKNxdFbQ0V2Ib652aUl",
+    "amount": 500,
+    "candidateId": "lrK8tSxZpQPYFTmIF7On",
+    "contestId": "votes-artistes",
+    "date": "2025-12-27T05:35:27.552Z",
+    "customer": "Dj"
+  },
+  {
+    "transactionId": "1194765846252138",
+    "partnerId": "uFSmTeXd4N2uPnlG5erc",
+    "amount": 100,
+    "candidateId": "RIAr7Uw1uo74gAhWWM9c",
+    "contestId": "votes-artistes",
+    "date": "2025-12-26T12:40:43.688Z",
+    "customer": "MITCHOADOU KBODJATCHON"
+  },
+  {
+    "transactionId": "9454058806867940",
+    "partnerId": "LyUUkZDKhLXIf9uKBKAM",
+    "amount": 100,
+    "candidateId": "GEVWzgnMyTnavWjEa6pg",
+    "contestId": "votes-artistes",
+    "date": "2025-12-21T03:59:25.601Z",
+    "customer": "CHABI ADAm"
+  }
+]

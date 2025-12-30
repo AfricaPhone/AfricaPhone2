@@ -777,13 +777,17 @@ const hydratePromoDashboardFromLogs = (logs: Array<Record<string, any>>) => {
  * Dashboard partenaire legacy (sans authentification).
  * @deprecated Utilisez getPartnerDashboard avec authentification.
  */
-export const getPartnerDashboardLegacy = onCall(async request => {
-  const { code, partnerId, ref, rangeDays } = request.data as {
-
+/**
+ * Dashboard partenaire V2 (Live Metrics).
+ */
+export const getPartnerDashboardV2 = onCall(async request => {
+  const { code, partnerId, ref, rangeDays, startAt, endAt } = request.data as {
     code?: string;
     partnerId?: string;
     ref?: string;
     rangeDays?: number;
+    startAt?: string;
+    endAt?: string;
   };
 
   if (!code || typeof code !== 'string') {
@@ -792,101 +796,190 @@ export const getPartnerDashboardLegacy = onCall(async request => {
 
   const normalizedCode = code.trim().toUpperCase();
   const partnerRef = typeof partnerId === 'string' && partnerId.trim().length > 0 ? partnerId.trim() : ref?.trim() || null;
-  const effectiveRange = clampRangeDays(rangeDays);
-  const sinceTs = admin.firestore.Timestamp.fromDate(new Date(Date.now() - effectiveRange * 24 * 60 * 60 * 1000));
 
+  // 1. Déterminer la plage de dates
+  let startDate: Date;
+  let endDate: Date = new Date();
+
+  if (startAt) {
+    startDate = new Date(startAt);
+    if (endAt) endDate = new Date(endAt);
+  } else {
+    // Par défaut : plage dynamique (7, 30 jours, etc.)
+    const days = clampRangeDays(rangeDays);
+    startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+  }
+
+  // S'assurer que les dates sont valides
+  if (isNaN(startDate.getTime())) startDate = new Date(Date.now() - 30 * 24 * 3600 * 1000);
+  if (isNaN(endDate.getTime())) endDate = new Date();
+
+  const startTs = admin.firestore.Timestamp.fromDate(startDate);
+  const endTs = admin.firestore.Timestamp.fromDate(endDate);
+
+  // 2. Vérifier la règle promo
   const rule = await fetchPromoRule(normalizedCode);
   if (!rule || !rule.isActive || !isWithinDates(rule)) {
     throw new HttpsError('not-found', 'Code promo introuvable ou inactif.');
   }
 
-  let validationLogs: Array<Record<string, any>> = [];
+  // 3. Récupérer les métriques de CLICS (promoMetrics)
+  // Structure: promoMetrics/{code}/daily/{YYYY-MM-DD}
+  let totalClicks = 0;
+  const metricsRef = db.collection('promoMetrics').doc(normalizedCode).collection('daily');
   try {
-    const snap = await db
-      .collection('promoValidationLogs')
+    // Note: Pour une plage précise, on pourrait filtrer par ID (date string), mais un `where` sur timestamp n'existe pas ici.
+    // On va lire tous les docs "daily" et filtrer en JS pour cette version (volume faible attendu par code).
+    // Optimisation future: where(admin.firestore.FieldPath.documentId(), '>=', startDateStr)
+    const metricsSnap = await metricsRef.get();
+    metricsSnap.forEach(doc => {
+      const dayDate = new Date(doc.id); // YYYY-MM-DD
+      if (dayDate >= startDate && dayDate <= endDate) {
+        const data = doc.data();
+        // Si filtre partenaire actif, on essaie de trouver les clics spécifiques (si stockés), sinon on prend le total
+        // Actuellement promoMetrics stocke souvent le total global. On prend total pour l'instant.
+        totalClicks += typeof data.visits?.total === 'number' ? data.visits.total : 0;
+      }
+    });
+  } catch (err) {
+    logger.error('Erreur lecture promoMetrics', err);
+  }
+
+  // 4. Récupérer les VRAIES VENTES (promoSalesLogs)
+  let realSalesCount = 0;
+  let realCommission = 0;
+  let salesTable: any[] = [];
+
+  try {
+    let salesQuery = db.collection('promoSalesLogs')
       .where('code', '==', normalizedCode)
-      .where('createdAt', '>=', sinceTs)
-      .orderBy('createdAt', 'desc')
-      .limit(200)
-      .get();
-    validationLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    logger.warn('promoValidationLogs query fallback (index missing?)', error);
-    try {
-      const snap = await db.collection('promoValidationLogs').where('code', '==', normalizedCode).limit(200).get();
-      validationLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (err) {
-      logger.error('promoValidationLogs unavailable', err);
+      .where('createdAt', '>=', startTs)
+      .where('createdAt', '<=', endTs);
+
+    if (partnerRef) {
+      salesQuery = salesQuery.where('ref', '==', partnerRef);
     }
+
+    const salesSnap = await salesQuery.get();
+    salesSnap.forEach(doc => {
+      const data = doc.data();
+      realSalesCount++;
+      realCommission += (data.commissionValue || 0);
+      salesTable.push({
+        id: doc.id,
+        ...data,
+        type: 'sale'
+      });
+    });
+  } catch (err) {
+    logger.warn('Erreur lecture promoSalesLogs (index manquant?)', err);
   }
 
-  if (partnerRef) {
-    validationLogs = validationLogs.filter(
-      log => (log?.ref && log.ref === partnerRef) || (log?.partnerId && log.partnerId === partnerRef)
-    );
+  // 5. Récupérer les LEADS (promoValidationLogs)
+  // Ce sont les gens qui ont mis le code au panier
+  let leadsCount = 0;
+  let leadsTable: any[] = [];
+  try {
+    let leadsQuery = db.collection('promoValidationLogs')
+      .where('code', '==', normalizedCode)
+      .where('createdAt', '>=', startTs)
+      .where('createdAt', '<=', endTs);
+
+    if (partnerRef) {
+      leadsQuery = leadsQuery.where('ref', '==', partnerRef); // ou partnerId selon log
+    }
+
+    const leadsSnap = await leadsQuery.limit(200).get();
+    leadsSnap.forEach(doc => {
+      leadsCount++;
+      const data = doc.data();
+      leadsTable.push({
+        id: doc.id,
+        ...data,
+        type: 'lead'
+      });
+    });
+  } catch (err) {
+    logger.warn('Erreur lecture promoValidationLogs', err);
   }
 
+  // 6. Fusionner pour le tableau (Ventes + Leads récents)
+  // On priorise les ventes, puis les leads
+  const combinedRows = [...salesTable, ...leadsTable]
+    .sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0))
+    .slice(0, 50)
+    .map(row => ({
+      id: row.id,
+      createdAt: serializeDate(row.createdAt),
+      channel: normalizeChannel(row.channel),
+      ref: row.ref || row.partnerId || null,
+      cartValue: row.cartValue || 0,
+      discountValue: row.discountValue || 0,
+      commissionValue: row.commissionValue || 0,
+      status: row.type === 'sale' ? 'Vente confirmée' : 'Lead (Panier)',
+      isSale: row.type === 'sale'
+    }));
+
+  // 7. Calcul du Taux de conversion
+  // Leads / Clics (Intérêt) et Ventes / Leads (Transformation)
+  // On renverra un taux global Ventes / Clics pour simplifier l'UI
+  // let conversionRate = 0;
+  // if (totalClicks > 0) conversionRate = (realSalesCount / totalClicks) * 100;
+
+  // 8. Payouts (Reste inchangé pour l'instant)
   const payouts: DashboardPayout[] = [];
   try {
-    const payoutSnap = await db
-      .collection('promoPayouts')
+    const payoutSnap = await db.collection('promoPayouts')
       .where('code', '==', normalizedCode)
       .orderBy('createdAt', 'desc')
       .limit(5)
       .get();
     payoutSnap.forEach(doc => {
-      const data = doc.data() as any;
+      const data = doc.data();
       payouts.push({
-        amount: typeof data?.amount === 'number' ? data.amount : 0,
-        date: serializeDate(data?.createdAt),
-        mode: data?.mode ?? null,
-        status: data?.status ?? null,
-        ref: doc.id,
+        amount: data.amount || 0,
+        date: serializeDate(data.createdAt),
+        mode: data.mode,
+        status: data.status,
+        ref: doc.id
       });
     });
-  } catch (error) {
-    logger.info('promoPayouts collection non disponible ou sans index', error);
-  }
+  } catch (_) { }
 
-  const payoutPaid = payouts.reduce((sum, p) => sum + (Number.isFinite(p.amount) ? p.amount : 0), 0);
-  const {
-    leadsCount,
-    salesCount,
-    totalCommission,
-    totalDiscount,
-    avgCart,
-    channels,
-    rows,
-  } = hydratePromoDashboardFromLogs(validationLogs);
+  const payoutPaid = payouts.reduce((sum, p) => sum + (p.amount || 0), 0);
 
   return {
     code: normalizedCode,
-    partnerId: partnerRef,
-    rangeDays: effectiveRange,
+    kpis: {
+      clicks: totalClicks,
+      leads: leadsCount,
+      sales: realSalesCount, // Vrai chiffre
+      commission: realCommission, // Vrai chiffre
+      discount: 0 // On pourrait summer, mais moins prioritaire
+    },
+    payouts: {
+      lastAmount: payouts[0]?.amount || 0,
+      lastDate: payouts[0]?.date || null,
+      pendingAmount: Math.max(0, realCommission - payoutPaid),
+      history: payouts
+    },
+    table: combinedRows,
+    channels: [], // Pourrait être recalculé si besoin
     rule: {
       code: rule.code || normalizedCode,
       allowedChannels: rule.allowedChannels || [],
       partnerRefRequired: !!rule.partnerRefRequired,
-      priceBrackets: rule.priceBrackets || [],
-    },
-    kpis: {
-      sales: salesCount,
-      leads: leadsCount,
-      commission: Math.max(0, Math.round(totalCommission)),
-      discount: Math.max(0, Math.round(totalDiscount)),
-      avgCart: Math.max(0, avgCart),
-    },
-    channels,
-    payouts: {
-      lastAmount: payouts[0]?.amount ?? 0,
-      lastDate: payouts[0]?.date ?? null,
-      pendingAmount: Math.max(0, Math.round(totalCommission - payoutPaid)),
-      history: payouts,
-    },
-    table: rows,
-    samples: validationLogs.length,
+      priceBrackets: rule.priceBrackets || []
+    }
   };
 });
+
+
+/**
+ * Alias pour retrocompatibilité (Prod utilise encore getPartnerDashboardLegacy)
+ */
+export const getPartnerDashboardLegacy = getPartnerDashboardV2;
 
 /**
  * NOUVELLE FONCTION "CALLABLE"
