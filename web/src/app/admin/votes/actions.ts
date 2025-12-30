@@ -210,8 +210,8 @@ export async function recoverLostVoteAction(vote: LostVote) {
             });
         });
         return { success: true };
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("Recovery failed", e);
-        return { success: false, error: e.message };
+        return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
     }
 }
