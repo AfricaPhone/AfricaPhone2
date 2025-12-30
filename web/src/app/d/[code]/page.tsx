@@ -377,14 +377,14 @@ export default function PartnerDashboardPage() {
           <header className={styles.sectionHead}>
             <p className={styles.sectionTitle}>Évolution (Clics vs Ventes)</p>
           </header>
-          <div style={{ padding: '20px', height: '200px', display: 'flex', alignItems: 'flex-end', gap: '5px' }}>
+          <div className={styles.chartContainer}>
             {data.dailyHistory.map((day, i) => (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', height: '150px', gap: '2px' }}>
-                  <div style={{ flex: 1, background: 'var(--text-secondary)', opacity: 0.3, height: `${Math.min(100, day.clicks * 5)}%`, borderRadius: '4px' }} title={`${day.clicks} clics`}></div>
-                  <div style={{ flex: 1, background: 'var(--accent)', height: `${Math.min(100, day.sales * 20)}%`, borderRadius: '4px' }} title={`${day.sales} ventes`}></div>
+              <div key={i} className={styles.chartBarGroup}>
+                <div className={styles.barsWrapper}>
+                  <div className={styles.barClick} style={{ height: `${Math.min(100, day.clicks * 5)}%` }} title={`${day.clicks} clics`}></div>
+                  <div className={styles.barSale} style={{ height: `${Math.min(100, day.sales * 20)}%` }} title={`${day.sales} ventes`}></div>
                 </div>
-                <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{day.date.split('-')[2]}</span>
+                <span className={styles.chartLabel}>{day.date.split('-')[2]}</span>
               </div>
             ))}
           </div>

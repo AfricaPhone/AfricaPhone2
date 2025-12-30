@@ -415,6 +415,56 @@
   border-radius: 6px;
 }
 
+/* Chart Styles */
+.chartContainer {
+  padding: 20px;
+  height: 200px;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  overflow-x: auto;
+  /* Enable scroll on mobile if many items */
+}
+
+.chartBarGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 20px;
+  /* Ensure bars don't get too thin */
+}
+
+.barsWrapper {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  height: 150px;
+  gap: 2px;
+}
+
+.barClick {
+  flex: 1;
+  background: var(--text-secondary);
+  opacity: 0.3;
+  border-radius: 4px;
+  transition: height 0.3s ease;
+}
+
+.barSale {
+  flex: 1;
+  background: var(--accent-primary);
+  border-radius: 4px;
+  transition: height 0.3s ease;
+}
+
+.chartLabel {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+
 /* Share */
 .shareConfig {
   display: grid;
@@ -558,4 +608,45 @@
   padding: 24px;
   color: var(--text-tertiary);
   font-size: 0.875rem;
+}
+
+/* --- MOBILE OPTIMIZATIONS --- */
+@media (max-width: 768px) {
+
+  /* Reduce global padding */
+  .appShell {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  /* Reduce font sizes */
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .kpiValue {
+    font-size: 2rem;
+  }
+
+  /* Adjust grid gap for KPIs */
+  .kpiGrid {
+    gap: 12px;
+    /* On very small screens, force 1 column or maintain auto-fit down to smaller width */
+    grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+  }
+
+  /* Improve Charts on Mobile */
+  .chartContainer {
+    padding: 10px;
+    gap: 2px;
+  }
+
+  /* Compact Filters */
+  .filters {
+    gap: 16px;
+  }
 }
