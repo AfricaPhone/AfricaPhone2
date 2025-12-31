@@ -4995,3 +4995,8 @@ async function openTopProductsModal() {
   renderLists();
 }
 
+// Attach Top Products button listener
+const topProductsBtn = document.getElementById('manage-top-products');
+if (topProductsBtn) {
+  topProductsBtn.addEventListener('click', openTopProductsModal);
+}
