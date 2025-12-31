@@ -5,9 +5,6 @@
   "targets": {
     "africaphone-vente": {
       "hosting": {
-        "africaphone-admin-pro": [
-          "africaphone-admin-pro"
-        ],
         "africaphone-admin-legal": [
           "africaphone-admin-legal"
         ],
@@ -19,6 +16,9 @@
         ],
         "contest-form": [
           "africaphone-contest-form"
+        ],
+        "admin": [
+          "africaphone-admin-pro"
         ]
       }
     }

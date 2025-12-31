@@ -1,1 +1,4823 @@
-const _0x39c496=_0x34de;(function(_0x2bdfe2,_0x5d25aa){const _0x3feb8e=_0x34de,_0x2edfbc=_0x2bdfe2();while(!![]){try{const _0x491447=parseInt(_0x3feb8e(0x241))/0x1*(-parseInt(_0x3feb8e(0x2f3))/0x2)+parseInt(_0x3feb8e(0x37b))/0x3*(parseInt(_0x3feb8e(0x406))/0x4)+parseInt(_0x3feb8e(0x22f))/0x5*(parseInt(_0x3feb8e(0x1ae))/0x6)+parseInt(_0x3feb8e(0x2e1))/0x7*(parseInt(_0x3feb8e(0x1c9))/0x8)+-parseInt(_0x3feb8e(0x4f7))/0x9+-parseInt(_0x3feb8e(0x20d))/0xa*(-parseInt(_0x3feb8e(0x416))/0xb)+parseInt(_0x3feb8e(0x34b))/0xc;if(_0x491447===_0x5d25aa)break;else _0x2edfbc['push'](_0x2edfbc['shift']());}catch(_0x248ef9){_0x2edfbc['push'](_0x2edfbc['shift']());}}}(_0x13bc,0x603ad));const _0x247feb=_0x2953;(function(_0x1e80bb,_0x4dc048){const _0x3d306c=_0x34de,_0x5a7f5b=(function(){let _0x4aaa00=!![];return function(_0x1f3adc,_0x5ad3bd){const _0x1a005b=_0x4aaa00?function(){const _0x256721=_0x34de;if(_0x5ad3bd){const _0x130b05=_0x5ad3bd[_0x256721(0x30c)](_0x1f3adc,arguments);return _0x5ad3bd=null,_0x130b05;}}:function(){};return _0x4aaa00=![],_0x1a005b;};}()),_0x26de6c=_0x5a7f5b(this,function(){const _0x905d84=_0x34de,_0x268a02=function(){const _0x525c16=_0x34de;let _0xdb5234;try{_0xdb5234=Function(_0x525c16(0x4c4)+'{}.constructor(\x22return\x20this\x22)(\x20)'+');')();}catch(_0x4c7b65){_0xdb5234=window;}return _0xdb5234;},_0xdc9708=_0x268a02(),_0x24d9e1=_0xdc9708['console']=_0xdc9708[_0x905d84(0x408)]||{},_0x421626=[_0x905d84(0x30e),_0x905d84(0x36f),_0x905d84(0x4bb),_0x905d84(0x192),'exception',_0x905d84(0x4cb),_0x905d84(0x32f)];for(let _0x37ce91=0x0;_0x37ce91<_0x421626[_0x905d84(0x2df)];_0x37ce91++){const _0x180dba=_0x5a7f5b['constructor'][_0x905d84(0x198)][_0x905d84(0x15f)](_0x5a7f5b),_0x2d3b0b=_0x421626[_0x37ce91],_0x18f41a=_0x24d9e1[_0x2d3b0b]||_0x180dba;_0x180dba[_0x905d84(0x4f6)]=_0x5a7f5b[_0x905d84(0x15f)](_0x5a7f5b),_0x180dba[_0x905d84(0x3f5)]=_0x18f41a[_0x905d84(0x3f5)][_0x905d84(0x15f)](_0x18f41a),_0x24d9e1[_0x2d3b0b]=_0x180dba;}});_0x26de6c();const _0x59a7bf=_0x2953,_0xd5bc15=_0x1e80bb();while(!![]){try{const _0x1b5288=-parseInt(_0x59a7bf(0x46e))/0x1*(-parseInt(_0x59a7bf(0x23a))/0x2)+-parseInt(_0x59a7bf(0x176))/0x3*(-parseInt(_0x59a7bf(0x3ae))/0x4)+-parseInt(_0x59a7bf(0x484))/0x5*(parseInt(_0x59a7bf(0x4d5))/0x6)+-parseInt(_0x59a7bf(0x28b))/0x7*(parseInt(_0x59a7bf(0x481))/0x8)+parseInt(_0x59a7bf(0x38a))/0x9+-parseInt(_0x59a7bf(0x2d7))/0xa*(-parseInt(_0x59a7bf(0x1d9))/0xb)+parseInt(_0x59a7bf(0x1eb))/0xc;if(_0x1b5288===_0x4dc048)break;else _0xd5bc15[_0x3d306c(0x448)](_0xd5bc15[_0x3d306c(0x3ee)]());}catch(_0x20865c){_0xd5bc15[_0x3d306c(0x448)](_0xd5bc15['shift']());}}}(_0x4187,0x51ae2));const _0x37ce72=_0x47d2;(function(_0x5a7f2b,_0x39c4fb){const _0x21a5d1=_0x2953,_0x51d96e=_0x47d2,_0x39aa16=_0x5a7f2b();while(!![]){try{const _0x3ec112=parseInt(_0x51d96e(0x437))/0x1+-parseInt(_0x51d96e(0x463))/0x2*(-parseInt(_0x51d96e(0x47d))/0x3)+parseInt(_0x51d96e(0x2f1))/0x4+-parseInt(_0x51d96e(0x3f9))/0x5*(parseInt(_0x51d96e(0x3e2))/0x6)+parseInt(_0x51d96e(0x59e))/0x7*(-parseInt(_0x51d96e(0x48d))/0x8)+-parseInt(_0x51d96e(0x32d))/0x9+parseInt(_0x51d96e(0x1e1))/0xa*(parseInt(_0x51d96e(0x20e))/0xb);if(_0x3ec112===_0x39c4fb)break;else _0x39aa16[_0x21a5d1(0x315)](_0x39aa16[_0x21a5d1(0x1f2)]());}catch(_0x25aba4){_0x39aa16[_0x21a5d1(0x315)](_0x39aa16[_0x21a5d1(0x1f2)]());}}}(_0x4e27,0x39ef3));const _0x1c09bd=_0x1be0;(function(_0x32c470,_0xa9d427){const _0x37e981=_0x47d2,_0xba6582=_0x1be0,_0x2a8500=_0x32c470();while(!![]){try{const _0x76bf34=parseInt(_0xba6582(0x441))/0x1*(-parseInt(_0xba6582(0x405))/0x2)+parseInt(_0xba6582(0x32e))/0x3+-parseInt(_0xba6582(0x35f))/0x4+-parseInt(_0xba6582(0x3e1))/0x5*(parseInt(_0xba6582(0x40a))/0x6)+parseInt(_0xba6582(0x1fe))/0x7+parseInt(_0xba6582(0x2af))/0x8*(parseInt(_0xba6582(0x230))/0x9)+parseInt(_0xba6582(0x3a1))/0xa*(-parseInt(_0xba6582(0xdf))/0xb);if(_0x76bf34===_0xa9d427)break;else _0x2a8500[_0x37e981(0x533)](_0x2a8500[_0x37e981(0x214)]());}catch(_0x35cb33){_0x2a8500[_0x37e981(0x533)](_0x2a8500[_0x37e981(0x214)]());}}}(_0x3962,0xf1802));const _0x3fb306=(function(){const _0x204b07=(function(){let _0x531e3d=!![];return function(_0x323447,_0x1cb8bf){const _0x141de9=_0x531e3d?function(){const _0x46f9e7=_0x2953;if(_0x1cb8bf){const _0x5016b0=_0x1cb8bf[_0x46f9e7(0x294)](_0x323447,arguments);return _0x1cb8bf=null,_0x5016b0;}}:function(){};return _0x531e3d=![],_0x141de9;};}()),_0x1a3336=(function(){const _0x5429aa=_0x204b07(this,function(){const _0x323951=_0x34de,_0x5b8bdd=_0x2953;let _0x4fd39b;try{const _0x3b25ee=Function(_0x5b8bdd(0x1f3)+_0x5b8bdd(0x31a)+');');_0x4fd39b=_0x3b25ee();}catch(_0x3b9745){_0x4fd39b=window;}const _0x2240eb=_0x4fd39b[_0x5b8bdd(0x49b)]=_0x4fd39b[_0x5b8bdd(0x49b)]||{},_0x3bcf3a=[_0x5b8bdd(0x2b0),_0x5b8bdd(0x271),_0x323951(0x4bb),_0x5b8bdd(0x491),_0x5b8bdd(0x1d1),_0x5b8bdd(0x2fc),_0x5b8bdd(0x4d9)];for(let _0x516bad=0x0;_0x516bad<_0x3bcf3a['length'];_0x516bad++){const _0x49fa8c=_0x204b07[_0x5b8bdd(0x3cd)][_0x5b8bdd(0x3d3)][_0x5b8bdd(0x28a)](_0x204b07),_0x4cf321=_0x3bcf3a[_0x516bad],_0xaafdae=_0x2240eb[_0x4cf321]||_0x49fa8c;_0x49fa8c[_0x5b8bdd(0x33c)]=_0x204b07[_0x5b8bdd(0x28a)](_0x204b07),_0x49fa8c[_0x5b8bdd(0x35f)]=_0xaafdae[_0x5b8bdd(0x35f)][_0x323951(0x15f)](_0xaafdae),_0x2240eb[_0x4cf321]=_0x49fa8c;}});_0x5429aa();let _0xfc7001=!![];return function(_0x2a7c81,_0x3f8242){const _0x3e3bb2=_0xfc7001?function(){const _0x28697b=_0x47d2;if(_0x3f8242){const _0x2ab5cd=_0x3f8242[_0x28697b(0x229)](_0x2a7c81,arguments);return _0x3f8242=null,_0x2ab5cd;}}:function(){};return _0xfc7001=![],_0x3e3bb2;};}()),_0x29d51d=_0x1a3336(this,function(){const _0x3a635f=_0x2953,_0x5b6e67=_0x47d2,_0x5d232a=function(){const _0x3e020d=_0x2953,_0x37941f=_0x47d2;let _0x407a09;try{_0x407a09=Function(_0x3e020d(0x1f3)+_0x37941f(0x43c)+');')();}catch(_0xc0f10b){_0x407a09=window;}return _0x407a09;},_0xe880d0=_0x5d232a(),_0x4f5610=_0xe880d0[_0x5b6e67(0x491)]=_0xe880d0[_0x3a635f(0x49b)]||{},_0x296345=[_0x3a635f(0x2b0),_0x5b6e67(0x2b1),_0x5b6e67(0x3c5),_0x5b6e67(0x3e4),_0x5b6e67(0x555),_0x5b6e67(0x413),_0x3a635f(0x4d9)];for(let _0x4dcd0a=0x0;_0x4dcd0a<_0x296345[_0x3a635f(0x297)];_0x4dcd0a++){const _0x4dc289=_0x1a3336[_0x3a635f(0x3cd)][_0x5b6e67(0x2d9)][_0x5b6e67(0x562)](_0x1a3336),_0x159604=_0x296345[_0x4dcd0a],_0x4132a5=_0x4f5610[_0x159604]||_0x4dc289;_0x4dc289[_0x5b6e67(0x487)]=_0x1a3336[_0x5b6e67(0x562)](_0x1a3336),_0x4dc289[_0x3a635f(0x35f)]=_0x4132a5['toString'][_0x5b6e67(0x562)](_0x4132a5),_0x4f5610[_0x159604]=_0x4dc289;}});_0x29d51d();let _0x2cfb93=!![];return function(_0x12beb6,_0x3117f2){const _0x7d50ee=_0x2cfb93?function(){const _0xbe1d4=_0x1be0;if(_0x3117f2){const _0x4525c7=_0x3117f2[_0xbe1d4(0x134)](_0x12beb6,arguments);return _0x3117f2=null,_0x4525c7;}}:function(){};return _0x2cfb93=![],_0x7d50ee;};}()),_0x14ba81=_0x3fb306(this,function(){const _0xff02f7=_0x47d2,_0x28275d=_0x1be0;let _0x14f648;try{const _0x4342b=Function(_0x28275d(0x14e)+_0xff02f7(0x43c)+');');_0x14f648=_0x4342b();}catch(_0x4771b5){_0x14f648=window;}const _0x34c8f0=_0x14f648[_0x28275d(0x344)]=_0x14f648[_0x28275d(0x344)]||{},_0x475d6b=[_0x28275d(0x407),_0x28275d(0x3e3),_0x28275d(0x166),_0x28275d(0x381),_0xff02f7(0x555),_0x28275d(0x3f3),_0x28275d(0x2c8)];for(let _0x3604d0=0x0;_0x3604d0<_0x475d6b[_0x28275d(0x109)];_0x3604d0++){const _0x2d8cd6=_0x3fb306[_0x28275d(0x2ae)][_0xff02f7(0x2d9)][_0x28275d(0x153)](_0x3fb306),_0x4ca5f6=_0x475d6b[_0x3604d0],_0x20f589=_0x34c8f0[_0x4ca5f6]||_0x2d8cd6;_0x2d8cd6[_0x28275d(0x19e)]=_0x3fb306[_0xff02f7(0x562)](_0x3fb306),_0x2d8cd6[_0x28275d(0x138)]=_0x20f589[_0x28275d(0x138)][_0xff02f7(0x562)](_0x20f589),_0x34c8f0[_0x4ca5f6]=_0x2d8cd6;}});_0x14ba81();import{auth,db,storage,analytics,logEvent,functions,connectFunctionsEmulator,httpsCallable}from'./firebase-config.js';import{signInWithEmailAndPassword,onAuthStateChanged,signOut}from'https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js';import{collection,getDocs,doc,getDoc,setDoc,updateDoc,deleteDoc,addDoc,orderBy,query,where,limit,serverTimestamp,arrayRemove}from'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';import{ref,uploadBytes,getDownloadURL,deleteObject}from'https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js';const $=_0x35328f=>document[_0x37ce72(0x242)](_0x35328f),$$=_0x3aa6c9=>document[_0x1c09bd(0x379)](_0x3aa6c9),fmtXOF=new Intl[(_0x39c496(0x4ae))](_0x37ce72(0x2f9),{'style':_0x1c09bd(0x3fd),'currency':_0x1c09bd(0x314)}),fmtDate=_0x528ced=>new Intl[(_0x1c09bd(0xe8))](_0x1c09bd(0x3ca),{'dateStyle':_0x1c09bd(0x41d),'timeStyle':_0x1c09bd(0x165)})[_0x1c09bd(0x347)](_0x528ced);window[_0x37ce72(0x4f9)](_0x1c09bd(0x437),_0x53540b=>{const _0x2390cf=_0x2953,_0x4bda7e=_0x37ce72,_0x2c4232=_0x1c09bd,_0x5ec217=_0x53540b&&_0x53540b[_0x2c4232(0x427)],_0x57ec6f=typeof _0x5ec217?.[_0x2c4232(0x37d)]===_0x2c4232(0x11b)?_0x5ec217[_0x2c4232(0x37d)]:'',_0x2f7738=typeof _0x5ec217?.[_0x2c4232(0x3d4)]===_0x2c4232(0x11b)?_0x5ec217[_0x4bda7e(0x4cc)]:'';(_0x2f7738===_0x4bda7e(0x46a)||/permission/i[_0x2c4232(0x443)](_0x57ec6f))&&(_0x53540b[_0x2c4232(0x2ff)](),console[_0x2c4232(0x381)](_0x2390cf(0x375),_0x5ec217),toast(_0x2390cf(0x1b2),_0x2c4232(0x3d5),_0x4bda7e(0x3e4)));});function escapeHtml(_0x9ab0e9=''){const _0x23e16e=_0x1c09bd;return String(_0x9ab0e9)[_0x23e16e(0x280)](/[&<>"']/g,function(_0x26768a){const _0x214b6b=_0x47d2,_0x2d9d5a=_0x23e16e;return{'&':_0x2d9d5a(0x40e),'<':_0x2d9d5a(0x1ff),'>':_0x214b6b(0x257),'\x22':_0x2d9d5a(0x34c),'\x27':_0x2d9d5a(0x2ba)}[_0x26768a];});}function escapeAttr(_0x2e906c=''){const _0x2dfec1=_0x1c09bd;return escapeHtml(_0x2e906c)[_0x2dfec1(0x280)](/`/g,_0x2dfec1(0x3b9));}function track(_0x5461cc,_0x48bbdc={}){const _0x48d2a0=_0x1c09bd;try{analytics&&typeof logEvent===_0x48d2a0(0xbc)&&logEvent(analytics,_0x5461cc,_0x48bbdc);}catch(_0x36d24e){console[_0x48d2a0(0x3e3)](_0x48d2a0(0xd5),_0x36d24e);}}function setButtonLoading(_0x169a6e,_0x285017){const _0x3e3a4a=_0x37ce72,_0xb7c8d0=_0x1c09bd;if(!_0x169a6e)return;_0x285017?(_0x169a6e[_0xb7c8d0(0x28b)]=!![],_0x169a6e[_0xb7c8d0(0xca)][_0xb7c8d0(0x1e3)]=_0x169a6e[_0xb7c8d0(0xfc)],_0x169a6e[_0xb7c8d0(0xfc)]=_0xb7c8d0(0x35d)):(_0x169a6e[_0xb7c8d0(0x28b)]=![],_0x169a6e[_0xb7c8d0(0xca)][_0xb7c8d0(0x1e3)]&&(_0x169a6e[_0x3e3a4a(0x29b)]=_0x169a6e[_0xb7c8d0(0xca)][_0xb7c8d0(0x1e3)]));}function toast(_0x444b42,_0x1e7a6a='',_0x1fa649=_0x37ce72(0x1fe),_0x4a4211=0xdac){const _0x538d89=_0x2953,_0x3ab1f5=_0x37ce72,_0x1a8bc5=_0x1c09bd,_0x487957=$(_0x1a8bc5(0x30c)),_0x260305=document[_0x1a8bc5(0x259)](_0x1a8bc5(0x99)),_0x4743cf={'success':_0x1a8bc5(0x1fc),'error':_0x1a8bc5(0x194),'info':_0x1a8bc5(0x166)};_0x260305[_0x1a8bc5(0x394)]=_0x3ab1f5(0x34e)+_0x1fa649,_0x260305[_0x538d89(0x458)]=_0x1a8bc5(0x325)+(_0x4743cf[_0x1fa649]||_0x1a8bc5(0x166))+_0x538d89(0x1b6)+escapeHtml(_0x444b42)+_0x3ab1f5(0x4c5)+(_0x1e7a6a?_0x1a8bc5(0x3a9)+escapeHtml(_0x1e7a6a)+_0x1a8bc5(0x9b):'')+_0x1a8bc5(0x17b),_0x487957[_0x1a8bc5(0x385)](_0x260305),lucide[_0x3ab1f5(0x4fa)]();const _0xa53a89=()=>{const _0x18754c=_0x1a8bc5;_0x260305[_0x18754c(0xe0)][_0x18754c(0x31d)]=_0x18754c(0x177),_0x260305[_0x18754c(0xe0)][_0x18754c(0x388)]='0',setTimeout(()=>_0x260305[_0x18754c(0x3ac)](),0xb4);};_0x260305[_0x1a8bc5(0x10a)](_0x1a8bc5(0x96))[_0x1a8bc5(0x446)](_0x1a8bc5(0x42e),_0xa53a89);if(_0x4a4211)setTimeout(_0xa53a89,_0x4a4211);}function openModal(_0x52a8b5){const _0x57e960=_0x37ce72,_0x217590=_0x1c09bd,{title:title=_0x57e960(0x537),body:body='',okText:okText=_0x217590(0x2b9),cancelText:cancelText=_0x217590(0x2a1),danger:danger=![]}=_0x52a8b5||{};return new Promise(function(_0x2f425f){const _0x9fdba9=_0x34de,_0x35e7df=_0x2953,_0x368cb4=_0x57e960,_0x48c6d2=_0x217590,_0x352597=$(_0x48c6d2(0x12d)),_0x1542a=$(_0x368cb4(0x465)),_0x3e5e2a=$(_0x48c6d2(0x356));$(_0x48c6d2(0x189))[_0x48c6d2(0x284)]=title,_0x3e5e2a[_0x368cb4(0x29b)]=body,_0x1542a[_0x48c6d2(0xfc)]='';const _0x269e72=document[_0x368cb4(0x501)](_0x48c6d2(0x96));_0x269e72[_0x48c6d2(0x394)]=_0x35e7df(0x1af),_0x269e72[_0x368cb4(0x41e)]=cancelText;const _0x744a6a=document[_0x48c6d2(0x259)](_0x368cb4(0x477));_0x744a6a[_0x368cb4(0x276)]=_0x368cb4(0x323)+(danger?_0x9fdba9(0x18a):_0x48c6d2(0x3da)),_0x744a6a[_0x48c6d2(0x284)]=okText,_0x1542a[_0x48c6d2(0x385)](_0x269e72),_0x1542a[_0x48c6d2(0x385)](_0x744a6a);const _0x4ed665=function(_0x19598c){const _0x388ebf=_0x368cb4,_0x38b06b=_0x48c6d2;_0x352597[_0x38b06b(0xf7)][_0x38b06b(0x3ac)](_0x388ebf(0x596)),_0x352597[_0x38b06b(0x3ef)](_0x38b06b(0x1b0),_0x38b06b(0xcb)),document[_0x388ebf(0x2ac)][_0x38b06b(0xe0)][_0x38b06b(0x310)]='',_0x2f425f(_0x19598c);};$(_0x48c6d2(0x45d))[_0x48c6d2(0x453)]=function(){_0x4ed665(![]);},_0x269e72[_0x48c6d2(0x453)]=function(){_0x4ed665(![]);},_0x744a6a[_0x48c6d2(0x453)]=function(){_0x4ed665(!![]);},_0x352597[_0x368cb4(0x503)][_0x48c6d2(0x1bb)](_0x48c6d2(0x17f)),_0x352597[_0x48c6d2(0x3ef)](_0x48c6d2(0x1b0),_0x48c6d2(0x436)),document[_0x48c6d2(0x304)][_0x48c6d2(0xe0)][_0x48c6d2(0x310)]=_0x48c6d2(0x228),_0x352597[_0x48c6d2(0x446)](_0x48c6d2(0x42e),function(_0x49ed81){const _0x2562a3=_0x48c6d2;_0x49ed81[_0x2562a3(0x340)]===_0x352597&&_0x4ed665(![]);},{'once':!![]}),setTimeout(function(){const _0x45e7f3=_0x48c6d2;_0x744a6a[_0x45e7f3(0x415)]();},0x0);function _0x5ca298(_0x2e9769){const _0x4c0605=_0x35e7df,_0xb4bf1d=_0x368cb4,_0x3175bd=_0x48c6d2;_0x2e9769[_0x4c0605(0x1e9)]===_0x3175bd(0xe9)&&(_0x4ed665(![]),document[_0x3175bd(0x1ac)](_0xb4bf1d(0x3ae),_0x5ca298));}document[_0x48c6d2(0x446)](_0x48c6d2(0x156),_0x5ca298);});}function setCrumb(_0x238aed){const _0x380d03=_0x37ce72,_0x4a30d1=_0x1c09bd;$(_0x4a30d1(0x2b8))[_0x380d03(0x41e)]=_0x238aed;}let allProducts=[],allMatches=[];const matchPredictionsCache=new Map();let allPromoCards=[],contestPromoCard=null,allPromoCodes=[],allPromoRules=[],allPromoPayouts=[],allBrands=[],allContests=[];const contestCandidates=new Map(),CONTEST_SELECTION_STORAGE_KEY=_0x247feb(0x1b0);let selectedContestId=localStorage[_0x1c09bd(0x151)](CONTEST_SELECTION_STORAGE_KEY)||'',candidateSearchTerm='',productSearchTerm='',productCategoryFilter='',viewMode=_0x37ce72(0x413),sortBy={'key':_0x1c09bd(0x354),'dir':_0x1c09bd(0x41c)},promoCodePartnerFilter='',promoPayoutSearchTerm='',functionsInstance=functions,promoTab=_0x1c09bd(0x116);const isLocalhost=[_0x1c09bd(0x327),_0x1c09bd(0x384)][_0x37ce72(0x2f6)](location[_0x1c09bd(0x20f)]);if(isLocalhost)try{connectFunctionsEmulator(functionsInstance,_0x1c09bd(0x327),0x1389),console[_0x1c09bd(0x166)](_0x1c09bd(0x1a2));}catch(_0x3f7917){console[_0x1c09bd(0x3e3)](_0x1c09bd(0x14a),_0x3f7917);}const PREDEFINED_CATEGORIES=[_0x247feb(0x435),_0x1c09bd(0x10c),_0x1c09bd(0x95),_0x1c09bd(0x1a7)];let PREDEFINED_SPECS=[_0x37ce72(0x326),_0x37ce72(0x530),_0x1c09bd(0xe6),_0x37ce72(0x570),_0x1c09bd(0x45e),'Dimensions',_0x37ce72(0x1db),_0x1c09bd(0x100)];const DEFAULT_PRICE_BRACKETS=[{'min':0x0,'max':0x24608,'discountValue':0x1388,'commissionValue':0x1f40,'label':_0x37ce72(0x4d1)},{'min':0x24608,'max':0x3cca8,'discountValue':0x2710,'commissionValue':0x3a98,'label':_0x1c09bd(0x33e)},{'min':0x3cca8,'max':0x61698,'discountValue':0x3a98,'commissionValue':0x61a8,'label':_0x1c09bd(0x28d)},{'min':0x61698,'max':null,'discountValue':0x4e20,'commissionValue':0x88b8,'label':_0x1c09bd(0x1dd)}],CHANNEL_OPTIONS=[{'value':_0x1c09bd(0x25d),'label':_0x1c09bd(0xfe)},{'value':_0x37ce72(0x33b),'label':_0x1c09bd(0x107)},{'value':'wa','label':_0x1c09bd(0x317)},{'value':'qr','label':_0x1c09bd(0x249)},{'value':'bo','label':_0x37ce72(0x53c)}];let featuresConfig={'promoCardsEnabled':!![]},linkTemplates=null;const FALLBACK_LINK_TEMPLATES={'webBaseUrl':_0x1c09bd(0x24e),'appLinkDomain':_0x1c09bd(0x2e8),'appScheme':_0x1c09bd(0x18c),'defaultCampaign':_0x1c09bd(0x39c),'defaultSub':_0x37ce72(0x225),'waMessageTemplate':_0x1c09bd(0x359),'whatsappNumber':''};function renderChannelCheckboxes(_0x2e7187,_0x396c0b=[]){const _0x568841=_0x39c496,_0x559a0b=_0x37ce72,_0x34c2a3=_0x1c09bd,_0x416f24=document[_0x34c2a3(0x362)](_0x2e7187);if(!_0x416f24)return;const _0x29dd7c=new Set((_0x396c0b||[])[_0x34c2a3(0x287)](_0x143641=>String(_0x143641)[_0x559a0b(0x288)]()));_0x416f24[_0x34c2a3(0xe0)][_0x34c2a3(0x406)]=_0x34c2a3(0xf6),_0x416f24[_0x34c2a3(0xe0)][_0x34c2a3(0x30d)]=_0x34c2a3(0x2b2),_0x416f24[_0x34c2a3(0xe0)][_0x559a0b(0x58a)]=_0x34c2a3(0x231),_0x416f24[_0x34c2a3(0xfc)]=CHANNEL_OPTIONS[_0x34c2a3(0x287)](_0x1e898d=>_0x34c2a3(0x1b4)+_0x1e898d[_0x34c2a3(0x1d2)]+'\x22\x20'+(_0x29dd7c[_0x34c2a3(0x39a)](_0x1e898d[_0x559a0b(0x398)])?_0x568841(0x405):'')+_0x34c2a3(0x27f)+_0x1e898d[_0x34c2a3(0x193)]+_0x34c2a3(0x157))[_0x34c2a3(0x12e)]('');}function readChannelCheckboxes(_0x2e1808){const _0x5a2c06=_0x247feb,_0x83073f=_0x37ce72,_0x3000f5=_0x1c09bd,_0xb7d730=document[_0x3000f5(0x362)](_0x2e1808);if(!_0xb7d730)return[];return Array[_0x83073f(0x495)](_0xb7d730[_0x5a2c06(0x37f)](_0x83073f(0x47b)))[_0x3000f5(0x287)](_0x1c3300=>(_0x1c3300[_0x3000f5(0x1d2)]||'')[_0x3000f5(0x408)]()[_0x3000f5(0xba)]())[_0x83073f(0x52e)](Boolean);}function buildBracketHeaderRow(){const _0x31645d=_0x37ce72,_0xc51d42=_0x1c09bd,_0x155b55=document[_0xc51d42(0x259)](_0x31645d(0x1ff));return _0x155b55[_0xc51d42(0x394)]=_0x31645d(0x2dc),_0x155b55[_0xc51d42(0xe0)][_0xc51d42(0x406)]=_0xc51d42(0xf6),_0x155b55[_0xc51d42(0xe0)][_0xc51d42(0x30d)]=_0x31645d(0x22a),_0x155b55[_0x31645d(0x20f)][_0x31645d(0x58a)]=_0xc51d42(0x15c),_0x155b55[_0x31645d(0x20f)][_0xc51d42(0x312)]=_0xc51d42(0xed),_0x155b55[_0x31645d(0x20f)][_0xc51d42(0x17d)]=_0x31645d(0x38f),_0x155b55[_0xc51d42(0xe0)][_0xc51d42(0x372)]=_0xc51d42(0x2ee),_0x155b55[_0xc51d42(0xe0)][_0xc51d42(0x187)]=_0xc51d42(0x26b),_0x155b55[_0xc51d42(0xe0)][_0xc51d42(0x388)]=_0xc51d42(0x28a),_0x155b55[_0x31645d(0x29b)]=_0x31645d(0x4bd),_0x155b55;}function buildBracketRow(_0x20c028={}){const _0x1a85bc=_0x39c496,_0x401a84=_0x247feb,_0xe41ead=_0x37ce72,_0x3690cd=_0x1c09bd,_0x503fa7=document[_0x3690cd(0x259)](_0x3690cd(0x99));return _0x503fa7[_0xe41ead(0x276)]=_0xe41ead(0x3f3),_0x503fa7[_0x3690cd(0xe0)][_0x3690cd(0x406)]=_0xe41ead(0x536),_0x503fa7[_0x3690cd(0xe0)][_0x3690cd(0x30d)]=_0x3690cd(0xf4),_0x503fa7[_0x1a85bc(0x181)][_0x3690cd(0x2e3)]=_0x3690cd(0x15c),_0x503fa7[_0xe41ead(0x20f)][_0x3690cd(0x312)]=_0x3690cd(0xed),_0x503fa7[_0x3690cd(0xe0)][_0x3690cd(0x17d)]=_0x3690cd(0x242),_0x503fa7[_0x401a84(0x458)]=_0xe41ead(0x265)+(_0x20c028[_0x3690cd(0x306)]??'')+_0xe41ead(0x346)+(_0x20c028[_0x3690cd(0x3f1)]??'')+_0xe41ead(0x57a)+(_0x20c028[_0x3690cd(0x2f2)]??'')+_0x3690cd(0x3b0)+(_0x20c028[_0x3690cd(0x3de)]??'')+_0x3690cd(0x3c7)+escapeAttr(_0x20c028[_0x3690cd(0x193)]||'')+_0x3690cd(0x245),_0x503fa7[_0x3690cd(0x10a)](_0xe41ead(0x211))[_0x3690cd(0x453)]=()=>_0x503fa7[_0x3690cd(0x3ac)](),_0x503fa7;}function renderBracketRows(_0x25910c){const _0x3d5596=_0x37ce72,_0x5adac1=_0x1c09bd,_0x3ec3d3=document[_0x3d5596(0x4ac)](_0x5adac1(0x353));if(!_0x3ec3d3)return;_0x3ec3d3[_0x5adac1(0xfc)]='',_0x3ec3d3[_0x5adac1(0x385)](buildBracketHeaderRow());const _0x17daa9=Array[_0x5adac1(0x3fb)](_0x25910c)&&_0x25910c[_0x5adac1(0x109)]?_0x25910c:DEFAULT_PRICE_BRACKETS;_0x17daa9[_0x3d5596(0x53e)](_0x4cc206=>_0x3ec3d3[_0x5adac1(0x385)](buildBracketRow(_0x4cc206))),lucide[_0x5adac1(0x38b)]();}function readBracketRows(){const _0x2bbefa=_0x247feb,_0x1adf65=_0x37ce72,_0x456626=_0x1c09bd,_0x256da7=document[_0x1adf65(0x4ac)](_0x2bbefa(0x47a));if(!_0x256da7)return[];const _0x49db8e=Array[_0x456626(0x35b)](_0x256da7[_0x456626(0x379)](_0x2bbefa(0x296))),_0x1c7865=[];return _0x49db8e[_0x456626(0x335)](_0xc2ac0d=>{const _0x5295d5=_0x2bbefa,_0x3151c6=_0x1adf65,_0x18265e=_0x456626,_0x267081=Number(_0xc2ac0d[_0x3151c6(0x242)](_0x18265e(0x2f5))?.[_0x18265e(0x1d2)]||0x0),_0x43f734=_0xc2ac0d['querySelector'](_0x3151c6(0x2e4))?.[_0x18265e(0x1d2)],_0x21dd7b=_0x43f734===''||_0x43f734===null||_0x43f734===undefined?null:Number(_0x43f734),_0x13c8a9=Number(_0xc2ac0d[_0x18265e(0x10a)](_0x3151c6(0x32e))?.[_0x18265e(0x1d2)]||0x0),_0xc2823=Number(_0xc2ac0d[_0x18265e(0x10a)](_0x18265e(0x3a5))?.[_0x18265e(0x1d2)]||0x0),_0x4a3fe5=(_0xc2ac0d[_0x3151c6(0x242)](_0x18265e(0x442))?.[_0x18265e(0x1d2)]||'')[_0x5295d5(0x19e)]();if(Number[_0x18265e(0x3f4)](_0x13c8a9)||Number[_0x5295d5(0x2cc)](_0xc2823))return;_0x1c7865[_0x18265e(0x1a3)]({'min':Number[_0x3151c6(0x3fe)](_0x267081)?0x0:_0x267081,'max':Number[_0x18265e(0x3f4)](_0x21dd7b)?null:_0x21dd7b,'discountValue':_0x13c8a9,'commissionValue':_0xc2823,'label':_0x4a3fe5||null});}),_0x1c7865;}async function ensureFeaturesLoaded(){const _0x4fe602=_0x37ce72,_0x148b78=_0x1c09bd;try{const _0x12d609=doc(db,_0x148b78(0x18e),_0x148b78(0x368)),_0xd7cc49=await getDoc(_0x12d609);if(_0xd7cc49[_0x148b78(0x371)]()){const _0x425f4f=_0xd7cc49[_0x148b78(0x2d9)]()||{};featuresConfig[_0x148b78(0x1c7)]=_0x425f4f[_0x148b78(0x1c7)]!==![];}else featuresConfig[_0x4fe602(0x512)]=!![];}catch(_0x4bc48b){console[_0x148b78(0x381)](_0x148b78(0x3f0),_0x4bc48b),featuresConfig[_0x148b78(0x1c7)]=!![];}}function applyLinkTemplatesToSettingsUI(){const _0x25e104=_0x247feb,_0xe39a3a=_0x37ce72,_0x5a4ef9=_0x1c09bd,_0x31e28e=linkTemplates||FALLBACK_LINK_TEMPLATES,_0x5f0935=(_0x202137=[],_0x185271='')=>{const _0x14000f=_0x1be0;_0x202137[_0x14000f(0x335)](_0x27cc6e=>{const _0x1f121b=_0x2953,_0x5f4da8=_0x14000f,_0x208200=document[_0x5f4da8(0x362)](_0x27cc6e);if(_0x208200)_0x208200[_0x1f121b(0x215)]=_0x185271||'';});},_0x1ed98e=(_0x560088=[],_0x4491e4)=>{const _0x1c0114=_0x1be0;_0x560088[_0x1c0114(0x335)](_0x4d3120=>{const _0x6b3c2c=_0x47d2,_0x3e49e6=_0x1c0114,_0x30746d=document[_0x3e49e6(0x362)](_0x4d3120);if(_0x30746d)_0x30746d[_0x6b3c2c(0x41e)]=_0x4491e4;});};_0x5f0935([_0xe39a3a(0x267),'tab-lt-webBaseUrl'],_0x31e28e[_0x5a4ef9(0x3ad)]||''),_0x5f0935([_0xe39a3a(0x567),_0x5a4ef9(0x2cd)],_0x31e28e[_0xe39a3a(0x4b5)]||''),_0x5f0935([_0x5a4ef9(0xc9),_0x5a4ef9(0x218)],_0x31e28e[_0x5a4ef9(0x21d)]||''),_0x5f0935([_0x5a4ef9(0x459),_0x25e104(0x1b1)],_0x31e28e[_0x5a4ef9(0x22e)]||''),_0x5f0935([_0x5a4ef9(0x114),_0xe39a3a(0x480)],_0x31e28e[_0x25e104(0x414)]||''),_0x5f0935([_0xe39a3a(0x260),_0x5a4ef9(0xa2)],_0x31e28e[_0xe39a3a(0x34f)]||''),_0x5f0935([_0x5a4ef9(0x27a),_0x5a4ef9(0x1ec)],_0x31e28e[_0x25e104(0x1a8)]||''),_0x1ed98e([_0x5a4ef9(0x1ea),_0x5a4ef9(0x19d)],_0x5a4ef9(0x191));}async function saveLinkTemplates(){const _0x46dc08=_0x247feb,_0x2944c7=_0x37ce72,_0x32b761=_0x1c09bd,_0x5f41a8=document[_0x32b761(0x362)](_0x32b761(0x3d6))||document[_0x32b761(0x362)](_0x32b761(0x3f5));setButtonLoading(_0x5f41a8,!![]);const _0x4c2fde=_0x136e7c=>{const _0x4e1da3=_0x32b761;for(const _0x7e2f97 of _0x136e7c){const _0x15307e=document[_0x4e1da3(0x362)](_0x7e2f97);if(_0x15307e&&typeof _0x15307e[_0x4e1da3(0x1d2)]===_0x4e1da3(0x11b))return _0x15307e[_0x4e1da3(0x1d2)][_0x4e1da3(0x408)]();}return'';},_0x5d232c=_0x4c2fde([_0x32b761(0x414),_0x32b761(0x29d)]),_0x29f832=_0x4c2fde([_0x32b761(0x1da),_0x32b761(0x2cd)]),_0x3dbcfb=_0x4c2fde([_0x32b761(0xc9),_0x32b761(0x218)]),_0x3b8628=_0x4c2fde([_0x32b761(0x459),_0x32b761(0x38e)])||_0x2944c7(0x25f),_0x3e8229=_0x4c2fde([_0x32b761(0x114),_0x32b761(0x216)])||_0x46dc08(0x31d),_0xc1a012=_0x4c2fde([_0x2944c7(0x260),_0x32b761(0xa2)]),_0x573d65=_0x4c2fde([_0x2944c7(0x29f),_0x32b761(0x1ec)]),_0x364bbc={'webBaseUrl':_0x5d232c,'appLinkDomain':_0x29f832,'appScheme':_0x3dbcfb,'defaultCampaign':_0x3b8628,'defaultSub':_0x3e8229,'waMessageTemplate':_0xc1a012,'whatsappNumber':_0x573d65};try{const _0x37ba8d=doc(db,_0x32b761(0x18e),_0x2944c7(0x23a));await setDoc(_0x37ba8d,_0x364bbc,{'merge':!![]}),linkTemplates={...FALLBACK_LINK_TEMPLATES,..._0x364bbc},applyLinkTemplatesToSettingsUI(),track(_0x32b761(0x2db),{'hasWaNumber':Boolean(_0x364bbc[_0x2944c7(0x386)])}),toast(_0x32b761(0x262),_0x46dc08(0x371),_0x32b761(0x2bf));}catch(_0x5f17e0){console[_0x32b761(0x381)](_0x32b761(0x255),_0x5f17e0),toast(_0x2944c7(0x4b8),_0x32b761(0x355),_0x32b761(0x381));}finally{setButtonLoading(_0x5f41a8,![]);}}async function ensureLinkTemplatesLoaded(){const _0x175f23=_0x37ce72,_0x595096=_0x1c09bd;try{const _0x309c41=doc(db,_0x595096(0x18e),_0x595096(0x2b0)),_0x2ddce7=await getDoc(_0x309c41);_0x2ddce7[_0x595096(0x371)]()?linkTemplates={...FALLBACK_LINK_TEMPLATES,..._0x2ddce7[_0x175f23(0x3b2)]()||{}}:linkTemplates={...FALLBACK_LINK_TEMPLATES};}catch(_0x695c28){console[_0x595096(0x381)](_0x595096(0x1b3),_0x695c28),linkTemplates={...FALLBACK_LINK_TEMPLATES};}}function applyFeaturesToSettingsUI(){const _0x3350f2=_0x1c09bd,_0x5ea0d9=document[_0x3350f2(0x362)](_0x3350f2(0xfb));_0x5ea0d9&&(_0x5ea0d9[_0x3350f2(0x8d)]=!!featuresConfig[_0x3350f2(0x1c7)]);}const $login=$(_0x1c09bd(0x44e)),$loginForm=$(_0x37ce72(0x1f6)),$loginError=$(_0x1c09bd(0x2bc)),$app=$(_0x1c09bd(0x3bf));$loginForm?.[_0x37ce72(0x4f9)](_0x1c09bd(0x239),async function(_0x258c5d){const _0x171baf=_0x39c496,_0x46cc00=_0x247feb,_0x4e9b0e=_0x37ce72,_0x4919ac=_0x1c09bd;_0x258c5d[_0x4919ac(0x2ff)]();const _0x3cf3d1=$loginForm[_0x4919ac(0x10a)](_0x4919ac(0x2cb));setButtonLoading(_0x3cf3d1,!![]);const _0x33a2bf=$(_0x4919ac(0x1f9))[_0x4919ac(0x1d2)][_0x4919ac(0x408)](),_0x2055c8=$(_0x4919ac(0xb9))[_0x4919ac(0x1d2)][_0x4919ac(0x408)]();$(_0x4919ac(0x387))[_0x4919ac(0xf7)][_0x4919ac(0x1bb)](_0x4919ac(0xf3)),$(_0x4e9b0e(0x311))[_0x4919ac(0xf7)][_0x4919ac(0x1bb)](_0x4919ac(0xf3)),$loginError[_0x4919ac(0xf7)][_0x4919ac(0x1bb)](_0x4919ac(0xf3));if(!_0x33a2bf){$(_0x4919ac(0x387))[_0x4919ac(0x284)]=_0x4919ac(0x42a),$(_0x4919ac(0x387))[_0x4e9b0e(0x503)][_0x4919ac(0x3ac)](_0x4919ac(0xf3)),setButtonLoading(_0x3cf3d1,![]);return;}if(!_0x2055c8){$(_0x4919ac(0x206))[_0x4919ac(0x284)]=_0x171baf(0x1b7),$(_0x4919ac(0x206))[_0x4919ac(0xf7)][_0x4919ac(0x3ac)](_0x4919ac(0xf3)),setButtonLoading(_0x3cf3d1,![]);return;}try{await signInWithEmailAndPassword(auth,_0x33a2bf,_0x2055c8),toast(_0x4919ac(0x13f),_0x4919ac(0x383),_0x4919ac(0x2bf));}catch(_0x78a627){console[_0x4919ac(0x381)](_0x78a627),$loginError[_0x4919ac(0x284)]=_0x4919ac(0x376),$loginError[_0x46cc00(0x13e)][_0x4919ac(0x3ac)](_0x4919ac(0xf3)),toast(_0x4e9b0e(0x4b8),_0x4919ac(0x43c),_0x4e9b0e(0x3e4));}finally{setButtonLoading(_0x3cf3d1,![]);}}),onAuthStateChanged(auth,async function(_0x474e5a){const _0x72bcf5=_0x247feb,_0x2816c3=_0x37ce72,_0x540277=_0x1c09bd,_0x12752a=!!_0x474e5a;if(_0x12752a)try{const _0x3fcbf0=await _0x474e5a[_0x540277(0x37b)](!![]);_0x3fcbf0[_0x540277(0x363)][_0x540277(0x2f3)]?(console[_0x2816c3(0x385)](_0x72bcf5(0x359)+_0x474e5a[_0x2816c3(0x511)]+_0x2816c3(0x552)+_0x3fcbf0[_0x540277(0x21b)]),$login[_0x2816c3(0x503)][_0x72bcf5(0x380)](_0x540277(0xf3)),$app[_0x540277(0xf7)][_0x2816c3(0x431)](_0x540277(0xf3)),$app[_0x540277(0x3ef)](_0x540277(0x1b0),_0x540277(0x436)),initAfterLogin()):(await signOut(auth),toast(_0x540277(0x31a),_0x540277(0x409),_0x2816c3(0x3e4)),location[_0x540277(0x219)]());}catch(_0x100da8){console[_0x2816c3(0x3e4)](_0x540277(0x2dd),_0x100da8),await signOut(auth),location[_0x540277(0x219)]();}else $login[_0x72bcf5(0x13e)][_0x540277(0x3ac)](_0x540277(0xf3)),$app[_0x540277(0xf7)][_0x72bcf5(0x380)](_0x540277(0xf3)),$app[_0x540277(0x3ef)](_0x72bcf5(0x19a),_0x540277(0xcb));}),$(_0x1c09bd(0x37c))[_0x1c09bd(0x446)](_0x1c09bd(0x42e),async function(){const _0x8956c2=_0x37ce72,_0x5d18ad=_0x1c09bd;await signOut(auth),toast(_0x8956c2(0x26e),'',_0x5d18ad(0x2bf)),location[_0x5d18ad(0xa3)]=_0x5d18ad(0x336);});const drawer=$(_0x247feb(0x27e));function _0x13bc(){const _0x17a783=['toast\x20','commissionValue','code','Pronostics\x20·\x20','Connexion\x20r&eacute;ussie','Carte\x20cr??e','9551171VOtkGN','get','>Pourcentage\x20(%)</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22fixed\x22\x20','Éditer\x20versement','unhandledrejection','media','La\x20date/heure\x20est\x20requise.','\x22\x20/>\x0a\x09\x09\x20\x20<div\x20class=\x22hint\x22>1\x20apparaÃ®t\x20en\x20premiÃ¨re\x20position\x20sur\x20le\x20site.\x20Laissez\x200\x20pour\x20retirer\x20le\x20produit\x20du\x20top.</div>\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22field\x22>\x0a\x09\x09<label\x20class=\x22label\x22\x20for=\x22p-images\x22>Images</label>\x0a\x09\x09<input\x20id=\x22p-images-file\x22\x20class=\x22input\x22\x20type=\x22file\x22\x20accept=\x22image/png,image/jpeg,image/webp\x22\x20multiple\x20/>\x0a\x09\x09<div\x20class=\x22hint\x22>SÃ©lectionnez\x20une\x20ou\x20plusieurs\x20images.\x20La\x20premiÃ¨re\x20sera\x20l\x27image\x20principale.</div>\x0a\x09\x09<div\x20id=\x22p-images-preview\x22\x20class=\x22image-preview-grid\x22>\x0a\x09\x09\x20\x20','pop','card','theme-pref','amount','&gt;','#add-promocode','#tbody-products\x20[data-select]','Éditer\x20Règle\x20Promo','Identifiants\x20invalides.','#/promocodes/payouts','\x20avec\x20succ?s.','tab-lt-waNumber','candidates','includes','trace','</strong>\x20?l?ment(s)\x20?\x20Cette\x20action\x20est\x20irr?versible.','<label\x20class=\x22toggle\x22>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-switch\x22>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22checkbox\x22\x20data-active-toggle\x20','326966xGSgrM','appendChild','Nouvelle','Enregistr?','map','Impossible\x20de\x20supprimer\x20l\x27image\x20du\x20produit','<div\x20class=\x22empty-state\x22><p>Concours\x20introuvable.</p></div>','Escape','</td>\x0a\x09\x09<td\x20style=\x22font-weight:800\x22>','setAttribute','tab-lt-appScheme','bracket-head','Actif','#add-promopayout','promoPayouts','selected','</strong></div>','.bracket-max','<option\x20value=\x22','\x0a\x20\x20\x20\x20<thead>\x0a\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<th>Code</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<th>Actif</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<th>Canaux</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<th>Tranches</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<th>Actions</th>\x0a\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20</thead>\x0a\x20\x20\x20\x20<tbody\x20id=\x22tbody-promorules\x22></tbody>','Cr?er\x20le\x20concours','matchId','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Aucune\x20carte\x20promo.</div>','#p-specs-container','#err-mstart','3302460xZRvzy','#pc-partnerRequired','data','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td><span\x20class=\x22badge\x22>','div','>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-slider\x22></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</label>\x0a\x20\x20\x20\x20\x20\x20</td>\x0a\x20\x20\x20\x20\x20\x20<td>','\x0a\x09\x09\x20\x20<div\x20style=\x22display:flex;align-items:center;justify-content:space-between;margin-top:8px\x22>\x0a\x09\x09\x09<div\x20style=\x22font-weight:900\x22>','momo',':\x20-','</div>\x0a\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22candidate-name\x22>Nom</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22candidate-name\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','>En\x20attente</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22cancelled\x22\x20','\x22>\x0a\x09\x09\x09<i\x20data-lucide=\x22x\x22\x20class=\x22icon\x22\x20style=\x22width:16px;height:16px\x22></i>\x0a\x09\x09</button>\x0a\x09</div>\x0a\x20\x20','brands','\x22\x20required\x20/>\x0a\x09\x09\x20\x20<div\x20class=\x22hint\x22>Nom\x20commercial\x20lisible\x20(ex.\x20\x22iPhone\x2013\x20128\x20Go\x22).</div>\x0a\x09\x09\x20\x20<div\x20id=\x22err-name\x22\x20class=\x22error\x20hide\x22></div>\x0a\x09\x09</div>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22p-brand\x22>Marque</label>\x0a\x09\x09\x20\x20<input\x20id=\x22p-brand\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22p-vedette\x22>Ordre\x20top\x20produits</label>\x0a\x09\x09\x20\x20<input\x20id=\x22p-vedette\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22','\x22\x20style=\x22width:40px;height:40px;border-radius:20px;object-fit:cover;\x22\x20/>','\x20<span\x20class=\x22muted\x22>vs</span>\x20','currentUser','#login-error','Concours\x20supprime','#pp-date','new-match','\x0a\x20\x20\x20\x20\x20\x20<table\x20class=\x22table\x20predictions-table\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Participant</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Pronostic</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Contact</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Statut</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Enregistr&eacute;\x20le</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<tbody>','</span></td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20data-edit>?diter</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20data-del>Supprimer</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','call','Règles\x20Promo','App\x20mobile','tous','#tbody-products','>Termin?</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</select>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22contest-end\x22>Date\x20de\x20fin</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22contest-end\x22\x20class=\x22input\x22\x20type=\x22datetime-local\x22\x20value=\x22','contestId','click','\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22form-actions\x22>\x0a\x09\x09<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x09\x09<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>','ce\x20candidat','exception','?diter\x20marque','warn','hostname','<div\x20class=\x22kpi\x22>ID\x20:\x20','</div>\x0a\x09\x20\x20','.bracket-discount','\x22><i\x20data-lucide=\x22edit-3\x22\x20class=\x22icon\x22></i>\x20?diter</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20type=\x22button\x22\x20data-delete-candidate=\x22','matchMedia','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20type=\x22button\x22\x20data-edit-candidate=\x22','keydown','</td>\x0a\x09\x09<td><input\x20type=\x22number\x22\x20step=\x221\x22\x20min=\x220\x22\x20class=\x22input\x22\x20style=\x22max-width:100px\x22\x20value=\x22','#p-price','#pc-subtitle','449022xpiPuI','Bienvenue','discountValue','#pc-title','Marque\x20mise\x20?\x20jour','trim','2260oRsZrf','isFinite','#drawer\x20.link-item','lt-defaultSub','change','\x22\x20/>\x0a\x20\x20\x20\x20<input\x20type=\x22text\x22\x20class=\x22input\x20bracket-label\x22\x20placeholder=\x22Label\x22\x20value=\x22','removeImageUrl','</option>','Marque\x20cr??e','ctrlKey','uid','imageUrls','\x20versement</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pp-code\x22>Code</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pp-code\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','\x22\x20/>\x0a\x20\x20\x20\x20<input\x20type=\x22number\x22\x20class=\x22input\x20bracket-discount\x22\x20placeholder=\x22Remise\x22\x20min=\x220\x22\x20step=\x22500\x22\x20value=\x22','appLink','<div\x20class=\x22match-score\x22>Score\x20final\x20:\x20<strong>','</div>\x0a\x09</div>\x0a\x09<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x09\x20\x20<div\x20class=\x22twocol\x22>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22p-name\x22>Nom</label>\x0a\x09\x09\x20\x20<input\x20id=\x22p-name\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','#m-scoreB','4px','predictions','\x22\x20required\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Montant\x20versé\x20(FCFA).</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pp-mode\x22>Mode</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<select\x20id=\x22pp-mode\x22\x20class=\x22select\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22momo\x22\x20','#email','#drawer-logout','tabindex','whatsappNumber','match','totalParticipants','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22candidate-cell\x22\x20style=\x22display:flex;align-items:center;gap:12px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','184EXarCa','success','\x0a\x09</div>\x0a\x09<button\x20class=\x22btn\x20btn-icon\x20btn-small\x22\x20aria-label=\x22Fermer\x22>\x0a\x09\x20\x20<i\x20data-lucide=\x22x\x22\x20class=\x22icon\x22></i>\x0a\x09</button>','scoreB','add','<span\x20class=\x22chip\x22>','#pc-image','false','contests','Impossible\x20de\x20mettre\x20?\x20jour\x20le\x20prix','>Brouillon</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22active\x22\x20','btn\x20','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20style=\x22width:60px\x22>Logo</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Nom</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Ordre</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20style=\x22width:180px;text-align:right\x22>Actions</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<tbody\x20id=\x22tbody-brands\x22></tbody>\x0a\x20\x20\x20\x20','brackets-rows','string','#open-drawer','\x22/>','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Code</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Montant</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Statut</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Mode</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Date</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20style=\x22width:180px;text-align:right\x22>Actions</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<tbody\x20id=\x22tbody-promopayouts\x22></tbody>','replace','Voir\x20les\x20resultats','product','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-icon\x20btn-small\x22\x20type=\x22button\x22\x20data-delete-current-contest\x20title=\x22Supprimer\x22><i\x20data-lucide=\x22trash-2\x22\x20class=\x22icon\x22></i></button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-outline\x20btn-small\x22\x20type=\x22button\x22\x20data-edit-current-contest><i\x20data-lucide=\x22edit-3\x22\x20class=\x22icon\x22></i>\x20?diter</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card-body\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<dl\x20class=\x22meta-grid\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<dt>Date\x20de\x20fin</dt>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<dd>','#/new-promocard','join','</div></div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22><div\x20class=\x22label\x22>App</div><div\x20class=\x22chip\x22>','?diter\x20concours','catch','#pc-code','\x22\x20placeholder=\x22Ex:\x20MatchList,\x20Store...\x22\x20/>\x0a\x09\x09\x09\x09</div>\x0a\x09\x09\x09</div>\x0a\x09\x09\x09<div\x20class=\x22twocol\x22>\x0a\x09\x09\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22pc-image\x22>URL\x20de\x20l\x27image</label>\x0a\x09\x09\x09\x09\x20\x20<input\x20id=\x22pc-image\x22\x20class=\x22input\x22\x20type=\x22url\x22\x20value=\x22','La\x20r?gle\x20est\x20maintenant\x20','setItem','Produit\x20retirÃ©\x20du\x20top','<div\x20class=\x22predictions-empty\x22>Aucun\x20pronostic\x20correspondant.</div>','&lt;','</th>\x0a\x09\x09\x20\x20<th\x20style=\x22width:140px\x22>Prix</th>\x0a\x09\x09\x20\x20<th\x20style=\x22width:90px\x22>Stock</th>\x0a\x09\x09\x20\x20<th\x20style=\x22width:110px\x22\x20class=\x22sortable\x20','\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22twocol\x22>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22m-scoreA\x22>Score\x20A\x20(final)</label>\x0a\x09\x09\x20\x20<input\x20id=\x22m-scoreA\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22','Produit\x20positionnÃ©\x20#','#modal-body','#nav-promocards','#promocards-content','Candidat\x20supprim?','#pc-end','#pp-code','#quick-add-match','#kpi-matches','Confirmer','waMessageTemplate','WhatsApp','mis\x20?\x20jour','Sans\x20nom','result','Enregistrer\x20le\x20versement','[data-add-candidate]','#pp-ref','[data-price-update]','onsubmit','#modal-foot','edit-contest','btn-primary','findIndex','Fermer','\x20/>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-slider\x22></span>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</span>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20</label>','innerHTML','contactPhone','#tbody-brands','La\x20carte\x20est\x20maintenant\x20','finalScoreA','Image\x20supprim?e\x20du\x20produit','{}.constructor(\x22return\x20this\x22)(\x20)','photoUrl','\x22\x20required\x20/>\x0a\x09\x09\x20\x20<div\x20id=\x22err-mstart\x22\x20class=\x22error\x20hide\x22></div>\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22twocol\x22>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22m-teamA\x22>?quipe\x20A</label>\x0a\x09\x09\x20\x20<input\x20id=\x22m-teamA\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','stock','<div\x20class\x20\x22skeleton\x22\x20style=\x22height:52px;margin-bottom:8px\x22></div>','Settings:\x20unable\x20to\x20load\x20link\x20templates','?diter\x20match','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tbody>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</table>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>','btn','promocode','#predictions-table-wrap','appDeepLink','edit-promopayout','shift','<i\x20data-lucide=\x22chevron-up\x22\x20class=\x22icon\x20sort-icon\x22></i>','</span></td>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20<td><span\x20class=\x22badge\x22>','#toolbar-promocodes','#/new-candidate/','promo-templates-content','Cr?er\x20le\x20match','toString','Concours\x20cr??','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22muted\x22>','Chargé.','Cartes\x20Promo','reason','?quipe\x20B','\x22\x20required\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22b-sortOrder\x22>Ordre\x20d\x27affichage</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22b-sortOrder\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x221\x22\x20step=\x221\x22\x20value=\x22','Erreur\x20de\x20mise\x20?\x20jour\x20du\x20statut:','En\x20attente','hidden','Pourcentage','2384820LbbOhH','now','finalScoreB','Active\x20(auto)','checked','16JoyfHm','<div\x20class=\x22img\x20center\x20muted\x22><i\x20data-lucide=\x22image-off\x22\x20class=\x22icon\x22></i></div>','console','delete','\x0a\x09<thead>\x0a\x09\x20\x20<tr>\x0a\x09\x09<th>Affiche</th>\x0a\x09\x09<th>Comp?tition</th>\x0a\x09\x09<th>Date</th>\x0a\x09\x09<th\x20style=\x22width:180px;text-align:right\x22>Actions</th>\x0a\x09\x20\x20</tr>\x0a\x09</thead>\x0a\x09<tbody\x20id=\x22tbody-matches\x22></tbody>','\x0a\x20\x20\x20\x20<div\x20class=\x22contest-layout\x22>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22card\x20contest-summary\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card-head\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h2>','Pronostics\x20mis\x20?\x20jour','Créer\x20le\x20code','isActive','\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22empty-state\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p>Aucun\x20concours\x20disponible.</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-primary\x22\x20type=\x22button\x22\x20data-create-first-contest><i\x20data-lucide=\x22plus\x22\x20class=\x22icon\x22></i>\x20Cr?er\x20un\x20concours</button>\x0a\x20\x20\x20\x20\x20\x20</div>','Image\x20produit','promorules','admin-selected-contest','<div\x20class=\x22skeleton\x22\x20style=\x22height:52px;margin-bottom:8px\x22></div>','pc-channels-group','value','1149445DvqQqU','indexOf','#add-brand','#tbody-promopayouts','<div\x20class=\x22muted\x22>','</span></td>\x0a\x09\x09<td>\x0a\x09\x09\x20\x20<input\x20type=\x22number\x22\x20step=\x221\x22\x20min=\x220\x22\x20class=\x22input\x22\x20style=\x22max-width:120px\x22\x20value=\x22','closest','>Montant\x20Fixe\x20(FCFA)</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</select>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pc-value\x22>Valeur\x20de\x20la\x20réduction</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pc-value\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22','\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20<thead>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20style=\x22width:60px\x22>Image</th>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Titre</th>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Destination</th>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Ordre</th>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Statut</th>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20style=\x22width:180px;text-align:right\x22>Actions</th>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20</thead>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20<tbody\x20id=\x22tbody-promocards\x22></tbody>','</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22card\x20candidate-list\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card-head\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3>Candidats</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22muted\x22>','#m-competition','#p-images-file','tablette','<span\x20class=\x22chip\x20chip-info\x22>Mis\x20en\x20avant</span>','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22remove-btn\x22\x20data-remove-image-url=\x22','</td>\x0a\x09\x09<td>','\x20required\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Utilise\x20des\x20lettres/chiffres,\x20ex:\x20JOYFUL-AP</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22>Actif</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22toggle\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-switch\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pr-active\x22\x20type=\x22checkbox\x22\x20','Impossible\x20de\x20changer\x20le\x20statut.','ParamÃ¨tre\x20enregistrÃ©','#drawer-theme','#b-logoUrl','>\x0a\x09\x09\x09\x09\x09\x09<span\x20class=\x22toggle-slider\x22></span>\x0a\x09\x09\x09\x09\x09</span>\x0a\x09\x09\x09\x09\x09<span>Active\x20(visible\x20dans\x20l\x27application)</span>\x0a\x09\x09\x09\x09</label>\x0a\x09\x09\x09</div>\x0a\x09\x09\x09<div\x20class=\x22form-actions\x22>\x0a\x09\x09\x09\x09<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x09\x09\x09\x09<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>','\x20concours</div>\x0a\x20\x20\x20\x20\x20\x20','createdAt','pr-add-bracket','localeCompare','contest','percentage','jpg','>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<span>','<span\x20class=\x22chip\x20chip-muted\x22>En\x20attente</span>','1fr\x201fr\x201fr\x201fr\x201.2fr\x20auto','[data-cancel]','webLink','classList','.image-preview-item','#p-category','#search-products','Nouveau\x20candidat','getElementById','cancelled','endDate','tab-lt-defaultCampaign','#contest-title','[data-preview]','Supprimer\x20cette\x20image\x20?','new-promorule','#pc-start','rules','max','push','#kpi-products','#candidate-votes','Annuler','isWinner','?diter\x20candidat','<div\x20class=\x22empty-state\x22><p>S?lectionnez\x20un\x20concours\x20pour\x20voir\x20ses\x20candidats.</p></div>','promopayouts-content','ram','R?gle\x20cr??e','#candidate-name','Marques','\x22\x20/>\x0a\x09\x09\x09\x09</div>\x0a\x09\x09\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09\x09\x09<label\x20class=\x22label\x22\x20for=\x22pc-screen\x22>?cran\x20de\x20destination</label>\x0a\x09\x09\x09\x09\x09<input\x20id=\x22pc-screen\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','bracket-row','lt-appLinkDomain','marginTop','Carte\x20mise\x20?\x20jour','#pr-start','sorted','12px','>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-slider\x22></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>Ref\x20partenaire\x20obligatoire</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</label>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pr-start\x22>D?but</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pr-start\x22\x20class=\x22input\x22\x20type=\x22datetime-local\x22\x20value=\x22','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Erreur\x20de\x20chargement\x20des\x20versements.</div>','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>','\x22\x20/>\x0a\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22btn\x20btn-icon\x20btn-small\x22\x20data-remove-bracket\x20title=\x22Supprimer\x22>\x0a\x20\x20\x20\x20\x20\x20<i\x20data-lucide=\x22x\x22\x20class=\x22icon\x22></i>\x0a\x20\x20\x20\x20</button>\x0a\x20\x20','6px','assign','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20style=\x22font-weight:800\x22><span\x20class=\x22chip\x22>','Preview\x20promo\x20links\x20failed','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22','Match\x20cr??','Cr?ation','#add-contest','Participer','\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-slider\x22></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22muted\x20small\x22>','</span></td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>','\x0a\x20\x20\x20\x20\x20\x20<label\x20class=\x22checkbox\x20channel-item\x22\x20style=\x22display:flex;align-items:center;gap:6px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22checkbox\x22\x20value=\x22','totalCandidates','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>','isNaN','MAX_SAFE_INTEGER','Permissions\x20insuffisantes','\x0a\x20\x20\x20\x20<div\x20class=\x22form-head\x22><div\x20class=\x22form-title\x22>','docs','\x22\x20data-sort=\x22name\x22>Nom\x20','save-link-templates','category','0.85','Le\x20titre\x20est\x20requis.','Promo\x20card\x20reorder\x20failed','Termin?','31273nrcXvF','toggle','#search-promocodes','description','#b-name','149k-249k','claims','#p-ram','#quick-add-promocode','currency','</td>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22actions\x22>','</div>\x0a\x09\x09\x09<label\x20class=\x22chip\x22\x20style=\x22user-select:none\x22>\x0a\x09\x09\x09\x20\x20<input\x20type=\x22checkbox\x22\x20data-select\x20id=\x22sel-','has','Match\x20predictions\x20load\x20failed','Nouveau','alert-circle','\x20/\x20+','#tbody-promocodes','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Carte\x20introuvable.</div>','#nav-brands','#toolbar-matches','</td>','#contest-description','\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22contest-votes\x22>Votes\x20(optionnel)</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22contest-votes\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22','#search-candidates','>Annulé</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</select>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pp-date\x22>Date</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pp-date\x22\x20class=\x22input\x22\x20type=\x22datetime-local\x22\x20value=\x22','.bracket-commission','Liens\x20pour\x20','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20data-edit>Éditer</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20data-del>Supprimer</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</td>','Participant','\x20produit</div>\x0a\x09\x20\x20<div\x20class=\x22kpi\x22>','\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22form-actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>','hash','</td>\x0a\x09\x20\x20<td\x20class=\x22actions\x22>\x0a\x09\x09<span\x20class=\x22badge\x20','#add-spec-btn','Éditer','#/promocodes','#page-promocodes','endsAt','<div\x20class=\x22empty-state\x22><p>Candidat\x20introuvable.</p></div>','</td>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20<td><span\x20class=\x22chip\x22>','#login-form','<div\x20class=\x22muted\x22>ID:\x20','N/A','<img\x20class=\x22img\x22\x20src=\x22','transform','#m-logoB','R?gle\x20mise\x20?\x20jour','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Aucun\x20match.</div>','edit-brand','642189ThTTYD','XOF','NumberFormat','<span\x20class=\x22badge\x22>Gagnant</span>','toUpperCase','>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-slider\x22></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>Actif\x20(utilisable\x20dans\x20l\x27application)</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22divider\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22>Règle\x20promo\x20(validation)</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Canaux\x20autorisés,\x20partenaires\x20et\x20tranches\x20de\x20remise/commission</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22>Canaux\x20autorisés</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22pc-channels-group\x22\x20class=\x22channel-checks\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Coche\x20les\x20canaux\x20où\x20ce\x20code\x20peut\x20être\x20utilisé.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pc-partners\x22>Partenaires\x20autorisés</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pc-partners\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','down','#m-scoreA','\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22form-actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>','dark','<option\x20value=\x22\x22>Aucun\x20concours\x20disponible</option>','match-detail','#/edit-contest/','Le\x20code\x20est\x20maintenant\x20','#matches-content','info','promorules-content','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22toggle\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-switch\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22checkbox\x22\x20data-active-toggle\x20','[data-active-toggle]','#toggle-theme','className','#p-rom','\x22\x20required\x20placeholder=\x22EX:\x20JOYFUL-AP\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Code\x20promo\x20concerné.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pp-amount\x22>Montant</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pp-amount\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221000\x22\x20value=\x22','#promocodes-content','return\x20(function()\x20','</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</form>\x0a\x20\x20\x20\x20','name','button','Candidat\x20mis\x20?\x20jour','codes','ce\x20concours','table','Annulé','#empty-add-product','\x22>\x0a\x09\x09<input\x20type=\x22text\x22\x20class=\x22input\x20spec-value\x22\x20placeholder=\x22Valeur\x20(ex:\x206.1\x20Pouces\x20OLED)\x22\x20value=\x22','teamBLogo','#m-startTime','249k-399k','</td>\x0a\x09\x09<td><span\x20class=\x22chip\x22>','</div></div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22><div\x20class=\x22label\x22>WhatsApp</div><div\x20class=\x22chip\x22>','Code\x20cr??','1610970dvpPce','\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22match-actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20type=\x22button\x22\x20id=\x22match-back\x22><i\x20data-lucide=\x22arrow-left\x22\x20class=\x22icon\x22></i>\x20Retour</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20type=\x22button\x22\x20id=\x22match-refresh\x22><i\x20data-lucide=\x22refresh-cw\x22\x20class=\x22icon\x22></i>\x20Rafra&icirc;chir</button>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20<div\x20class=\x22card\x20predictions-toolbar\x22>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x20predictions-search\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pred-search\x22>Recherche</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pred-search\x22\x20class=\x22input\x22\x20type=\x22search\x22\x20placeholder=\x22Nom,\x20t&eacute;l&eacute;phone\x20ou\x20identifiant\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<label\x20class=\x22toggle\x20predictions-toggle\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-switch\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22checkbox\x22\x20id=\x22pred-winners-only\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-slider\x22></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<span>Gagnants\x20uniquement</span>\x0a\x20\x20\x20\x20\x20\x20</label>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22kpi-counters\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22kpi-card\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22kpi-label\x22>Pronostics</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22kpi-value\x22\x20id=\x22pred-total\x22>0</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22kpi-card\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22kpi-label\x22>Gagnants</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22kpi-value\x22\x20id=\x22pred-winners\x22>0</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20<div\x20id=\x22predictions-table-wrap\x22\x20class=\x22predictions-card\x22>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22predictions-empty\x20muted\x22>Chargement\x20des\x20pronostics...</div>\x0a\x20\x20\x20\x20</div>\x0a\x20\x20','tab-lt-status','\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22m-scoreB\x22>Score\x20B\x20(final)</label>\x0a\x09\x09\x20\x20<input\x20id=\x22m-scoreB\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22','search-promocodes','Lecture\x20des\x20pronostics\x20impossible.','#pc-screen','\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pc-end\x22>Fin</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pc-end\x22\x20class=\x22input\x22\x20type=\x22datetime-local\x22\x20value=\x22','toLowerCase','[Admin\x20Panel]\x20Connexion\x20d\x27un\x20admin\x20r?ussie.\x20UID:\x20','16614sNpHoK','#p-desc','appLinkDomain','\x20?chec(s)','#kpi-candidates','#email-err','835IsPrbv','promorule','132958CGefDg','#modal-close','fr-FR','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-outline\x20btn-small\x22\x20data-preview>Tester\x20liens</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20data-edit>Éditer</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20data-del>Supprimer</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</td>','Connectivit?','Codes\x20Promo','Nouveau\x20produit','new-promocard','\x20-\x20','number','?diter\x20produit','#pc-isActive','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Code</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Type</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Valeur</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Partenaire</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Statut\x20/\x20Règle</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20style=\x22width:220px;text-align:right\x22>Actions</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<tbody\x20id=\x22tbody-promocodes\x22></tbody>','#quick-add-product','Aucun\x20candidat\x20n?est\x20encore\x20enregistr?\x20pour\x20ce\x20concours.','__proto__','7043139rClomr','\x0a\x09<i\x20data-lucide=\x22','input','Sombre','<span\x20class=\x22loader\x22></span>','>Cash</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22autre\x22\x20','all','grid','</div>','\x22><i\x20data-lucide=\x22trash-2\x22\x20class=\x22icon\x22></i></button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</tr>','\x22\x20required\x20/>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22contest-description\x22>Description</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<textarea\x20id=\x22contest-description\x22\x20class=\x22textarea\x22\x20rows=\x224\x22\x20placeholder=\x22D?tails\x20du\x20concours\x22>','#m-teamA','<option\x20value=\x22\x22>S?lectionner\x20un\x20concours</option>','Email\x20requis.','image-preview-item','features','#pc-partner','isArray','Poids','[data-move-down]','Ajouter\x20le\x20candidat','inactive','edit-product','\x22\x20required\x20/>\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22twocol\x22>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22m-logoA\x22>Logo\x20&eacute;quipe\x20A\x20(URL)</label>\x0a\x09\x09\x20\x20<input\x20id=\x22m-logoA\x22\x20class=\x22input\x22\x20type=\x22url\x22\x20value=\x22','random','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Aucune\x20marque.</div>','QR\x20code','addEventListener','[data-delete-candidate]','bind','\x20|\x20','Info','#p-vedette','cards','fontSize','\x20candidat(s)</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-primary\x20btn-small\x22\x20type=\x22button\x22\x20data-add-candidate><i\x20data-lucide=\x22plus\x22\x20class=\x22icon\x22></i>\x20Ajouter</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card-body\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','<img\x20src=\x22','splice','label','Suppression\x20impossible\x20pour\x20le\x20moment.','voteCount','Nouveau\x20Code\x20Promo','Supprimer\x20la\x20s?lection','\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22form-actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>','#page-products','slice','Nouvelle\x20R?gle\x20Promo','#pc-partners',',\x20Token:\x20','brand','#app','>Payé</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22pending\x22\x20','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td><span\x20class=\x22badge\x20','</td>\x0a\x20\x20\x20\x20\x20\x20<td>','toISOString','Nouveau\x20match','mode','4398XXkTRR','#pp-note','Aucune\x20description\x20fournie.','\x22\x20placeholder=\x22PART-001,PART-002\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Laisse\x20vide\x20pour\x20tous\x20les\x20partenaires.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22toggle\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-switch\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pc-partnerRequired\x22\x20type=\x22checkbox\x22\x20','desc','[data-view]','style','#m-logoA','</button>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20</form>','</div></div>\x0a\x20\x20\x20\x20<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pr-code\x22>Code</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pr-code\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','#nav-matches','Montant\x20Fixe','new-promocode','38kpvSNu','#/promocards','btn-danger','#quick-add-brand','web','filter-promocode-partner','4807809zutILL','themeChoice','#nav-products','Le\x20fichier\x20reste\x20sur\x20le\x20serveur.','error','Impossible\x20de\x20générer\x20les\x20liens.','getItem','competition','&amp;','Confirmer\x20la\x20suppression\x20de\x20<strong>','prototype','Clair','hide','contactLastName','min','Back-office','#/edit-candidate/','isContestCard','#specs-suggestions','\x20\x20<div>','Appareil\x20Photo','71457LHbDWa','virement','Erreur','#/edit-promocode/','400k+','</strong>\x20?','edit-match','\x22\x20placeholder=\x220\x22\x20data-vedette-update\x20/></td>\x0a\x09\x09<td\x20class=\x22actions\x22>\x0a\x09\x09\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20data-edit>?diter</button>\x0a\x09\x09\x20\x20<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20data-del>Supprimer</button>\x0a\x09\x09</td>','#password-err','gridTemplateColumns','contactPhoneNormalized','10662jpmIfP','linkTemplates','partnerRefRequired','Ordre\x20mis\x20a\x20jour','\x20?\x20','Enregistrement\x20impossible','Suppression\x20impossible','#quick-add-candidate','Param?tres','Mot\x20de\x20passe\x20requis.','#page-matches','</strong>\x22\x20?','image','opacity','#kpi-promocodes','form','edit-candidate','admin','[data-remove-bracket]','teamALogo','<br/>','\x20Code\x20Promo</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pc-code\x22>Le\x20Code</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pc-code\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','note','Suppression\x20termin?e','\x22\x20placeholder=\x22https://\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Utilisez\x20une\x20URL\x20publique\x20ou\x20importez\x20l\x27image\x20depuis\x20un\x20stockage\x20d?j?\x20autoris?.</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22candidate-votes\x22>Votes\x20initiaux</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22candidate-votes\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22','#contest-filter','\x20succ?s,\x20','1928sTXVRV','</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</form>','Aucune\x20tranche','disabled','#search-matches','contactName','#tbody-promorules','17388laDhFi','empty','\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20<td>','#/matches','1573912GzTsaA','new-candidate','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22pred-status\x22>','#tbody-matches','<div\x20class=\x22chip\x20chip-primary\x22\x20style=\x22margin-top:6px\x22>Top\x20#','defaultCampaign','</th>\x0a\x09\x09\x20\x20<th\x20style=\x22width:180px;text-align:right\x22>Actions</th>\x0a\x09\x09</tr>\x0a\x09\x20\x20</thead>\x0a\x09\x20\x20<tbody\x20id=\x22tbody-products\x22></tbody>','valueOf','files','search','Nouveau\x20concours','then','<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20data-del>Supprimer</button>','Impossible\x20de\x20reordonner\x20la\x20carte.','\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22field\x22>\x0a\x09\x09<label\x20class=\x22label\x22\x20for=\x22p-desc\x22>Description</label>\x0a\x09\x09<textarea\x20id=\x22p-desc\x22\x20class=\x22textarea\x22\x20rows=\x224\x22>','PromoCards:\x20unable\x20to\x20load\x20contest\x20card','Confirmation','lt-defaultCampaign','defaultSub','lt-appScheme','#pc-sortOrder','bannerImage','\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pr-end\x22>Fin</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pr-end\x22\x20class=\x22input\x22\x20type=\x22datetime-local\x22\x20value=\x22','8px','page_view_admin','</dd>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</dl>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22muted\x22>','userName','44bDEOez','Cartes\x20promo\x20dÃ©sactivÃ©es','</textarea>\x0a\x09\x20\x20</div>\x0a\x0a\x09\x20\x20<div\x20class=\x22field\x22>\x0a\x09\x09<label\x20class=\x22label\x22>Sp?cifications\x20techniques</label>\x0a\x09\x09<div\x20id=\x22p-specs-container\x22\x20class=\x22specs-container\x22>\x0a\x09\x09</div>\x0a\x09\x09<button\x20type=\x22button\x22\x20id=\x22add-spec-btn\x22\x20class=\x22btn\x20btn-small\x22\x20style=\x22margin-top:10px;\x22><i\x20data-lucide=\x22plus\x22\x20class=\x22icon\x22></i>\x20Ajouter\x20une\x20sp?cification</button>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20\x0a\x09\x20\x20<div\x20class=\x22twocol\x22>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22p-stock\x22>Stock</label>\x0a\x09\x09\x20\x20<input\x20id=\x22p-stock\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22','Cr?er\x20la\x20r?gle','4WIxiFH','Profite\x20du\x20code\x20{code}\x20sur\x20AfricaPhone\x20:\x20{link}\x20(ref\x20{ref})','\x0a\x20\x20\x20\x20\x20\x20<td\x20style=\x22font-weight:700\x22>','\x0a\x09<div\x20class=\x22image-preview-item\x22\x20data-url=\x22','\x22\x20data-sort=\x22category\x22>Cat?gorie\x20','\x22\x20alt=\x22Logo\x20','data-theme','[Admin]\x20Functions\x20emulator\x20connection\x20failed','\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22twocol\x22>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22p-category\x22>Cat?gorie</label>\x0a\x09\x09\x20\x20<select\x20id=\x22p-category\x22\x20class=\x22select\x22>\x0a\x09\x09\x09<option\x20value=\x22\x22>?\x20s?lectionner</option>\x0a\x09\x09\x09','Enregistrer','dataset','#p-specs-container\x20.spec-row','\x22\x20loading=\x22lazy\x22\x20onerror=\x22this.style.display=\x27none\x27\x22/>\x0a\x09\x09<div\x20class=\x22grow\x22>\x0a\x09\x09\x20\x20<div\x20style=\x22display:flex;align-items:center;justify-content:space-between;gap:8px\x22>\x0a\x09\x09\x09<div\x20style=\x22font-weight:800\x22>','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr\x20class=\x22','removeEventListener','unshift','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22badge\x20status-','settings','#crumb-current','screen','forEach','lt-webBaseUrl','\x22\x20/>\x0a\x09\x09\x09\x09</div>\x0a\x09\x09\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09\x09\x09<label\x20class=\x22label\x22\x20for=\x22pc-sortOrder\x22>Ordre\x20d\x27affichage</label>\x0a\x09\x09\x09\x09\x09<input\x20id=\x22pc-sortOrder\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x221\x22\x20step=\x221\x22\x20value=\x22','#kpi-brands','[data-vedette-update]','light','10jXiocK','\x22\x20/>\x0a\x09\x09\x09\x09</div>\x0a\x09\x09\x09</div>\x0a\x09\x09\x09<div\x20class=\x22twocol\x22>\x0a\x09\x09\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09\x09\x09<label\x20class=\x22label\x22\x20for=\x22pc-cta\x22>Texte\x20du\x20bouton\x20(CTA)</label>\x0a\x09\x09\x09\x09\x09<input\x20id=\x22pc-cta\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','#add-promorule','<div\x20class=\x22msg\x22>','Sans\x20code','Succ?s','exists','\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22contest-participants\x22>Participants\x20(optionnel)</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22contest-participants\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22','[data-create-first-contest]','#pc-type','sortOrder','970vrizxg','\x20\x20\x20\x20</div>','promoCodes','Concours','querySelectorAll','Une\x20erreur\x20est\x20survenue\x20lors\x20de\x20la\x20sauvegarde.','onload','Cartes\x20promo\x20activÃ©es','(prefers-color-scheme:\x20dark)','[data-edit]','test','priceBrackets','querySelector','lt-waMessageTemplate','>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-slider\x22></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>Ref\x20partenaire\x20obligatoire</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pc-start\x22>Début</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pc-start\x22\x20class=\x22input\x22\x20type=\x22datetime-local\x22\x20value=\x22','#contest-status','#login','draft','\x22>\x0a\x09\x09<button\x20type=\x22button\x22\x20class=\x22remove-btn\x22\x20data-remove-image-url=\x22','#add-match','</button>\x0a\x09\x20\x20</div>\x0a\x09</form>','Code\x20et\x20montant\x20requis.','#pr-partners','1755BMgtTU','fixed','scoreA','\x20fichier(s)\x20en\x20cours\x20de\x20traitement.','https://africaphone-org.web.app/ul','#pp-mode','remove','split','?quipe\x20A','PromoRule\x20status\x20update\x20failed','cta','#toasts','#match-back','medium','\x0a\x09<div\x20class=\x22form-head\x22>\x0a\x09\x20\x20<div\x20class=\x22form-title\x22>','Concours\x20mis\x20?\x20jour','message','type','474077xpShGM','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22muted\x22>','\x22\x20data-sort=\x22ordreVedette\x22>Top\x20','createIcons','Nouveau\x20versement','danger','</span></td>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20<td>','metaKey','substring','1897784uKkBJm','</div>\x0a\x09\x09\x09<div\x20class=\x22actions\x22>\x0a\x09\x09\x09\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20data-edit>?diter</button>\x0a\x09\x09\x09\x20\x20<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20data-del>Supprimer</button>\x0a\x09\x09\x09</div>\x0a\x09\x09\x20\x20</div>\x0a\x09\x09</div>','\x20\x20\x20\x20<div\x20class=\x22muted\x22\x20style=\x22text-align:center\x22>Ajoutez\x20votre\x20premier\x20produit\x20pour\x20d&eacute;marrer.</div>','Entrez\x20un\x20nombre\x20positif','templates','autre','route','#page-settings','#/contests','short','config','featuredWinner','new-product','</tbody>\x0a\x20\x20\x20\x20\x20\x20</table>\x0a\x20\x20\x20\x20','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','<span\x20class=\x22muted\x22>?</span>','from','toggle-promocards','dir','contains','pr-channels-group','\x0a\x09\x09<td><input\x20type=\x22checkbox\x22\x20data-select\x20/></td>\x0a\x09\x09<td>','D&eacute;connect&eacute;','15118533kzTIyz','</p></div>','PromoRules\x20preload\x20skipped','#kpi-promocards','originalText','userId','#contest-votes','Versements\x20Promo','Processeur','tab-lt-appLinkDomain','Le\x20code\x20est\x20requis.','warning','#pred-search','\x22\x20placeholder=\x22Orange\x20Money,\x20Canal+,\x20etc.\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Optionnel.\x20Permet\x20d\x27identifier\x20le\x20partenaire\x20ou\x20la\x20campagne\x20associée\x20à\x20ce\x20code.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22toggle\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-switch\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pc-isActive\x22\x20type=\x22checkbox\x22\x20','reload','281920ltpGwS','app','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Produit\x20introuvable.</div>','#modal-title','allowedPartners','\x0a\x20\x20\x20\x20<div>Min</div>\x0a\x20\x20\x20\x20<div>Max</div>\x0a\x20\x20\x20\x20<div>Remise</div>\x0a\x20\x20\x20\x20<div>Commission</div>\x0a\x20\x20\x20\x20<div>Label</div>\x0a\x20\x20\x20\x20<div></div>\x0a\x20\x20','readAsDataURL','button[type=\x22submit\x22]','\x22\x20class=\x22icon\x22></i>\x0a\x09<div\x20class=\x22grow\x22>\x0a\x09\x20\x20<div\x20class=\x22title\x22>','[data-remove-image-url]','\x22>\x0a\x09\x09<img\x20src=\x22','preventDefault','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22muted\x22>','Cr?er\x20la\x20marque','focus','[data-del]','appScheme','#p-stock','set','Confirmer\x20la\x20suppression\x20du\x20concours\x20<strong>','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Versement\x20introuvable.</div>','#/new-match','\x22>\x0a\x09\x09<button\x20type=\x22button\x22\x20class=\x22btn\x20btn-icon\x20btn-danger\x22\x20data-remove-spec><i\x20data-lucide=\x22trash-2\x22\x20class=\x22icon\x22></i></button>\x0a\x09','Nouvelle\x20marque','#page-settings\x20[data-theme-choice]','Impossible\x20de\x20mettre\x20Ã\u00a0\x20jour\x20l\x27ordre\x20vedette','#pr-end','>Actif</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22ended\x22\x20','\x22\x20required\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Ex:\x20\x2210\x22\x20pour\x2010%\x20ou\x20\x225000\x22\x20pour\x205000\x20FCFA.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pc-partner\x22>Partenaire\x20attribué</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pc-partner\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','alignItems','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Match\x20introuvable.</div>','Vos\x20identifiants\x20ne\x20sont\x20pas\x20ceux\x20d\x27un\x20administrateur.','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Marque\x20introuvable.</div>','Supprimer','Nouvelle\x20Carte\x20Promo','\x20candidat</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22muted\x22>Concours\x20:\x20','#toolbar-brands','accessoire','<div\x20class=\x22predictions-empty\x20muted\x22>Rafra&icirc;chissement...</div>','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Aucun\x20versement.</div>','#/brands','#contest-participants','4122009oNJmsY','textContent','</dd>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<dt>Total\x20votes</dt>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<dd>','</textarea>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22form-actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>','match-predictions','#pred-winners-only','#/edit-promocard/','Acc?s\x20refus?','true','#search-brands','status','PromoRules\x20load\x20skipped','repeat(auto-fit,\x20minmax(150px,\x201fr))','#toolbar-products','PromoPayouts\x20load\x20failed','#nav-contests','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22strong\x22>','Settings\x20sync\x20skipped','\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22>Tranches\x20(visuel)</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22pr-brackets-rows\x22\x20class=\x22brackets-rows\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22top-actions\x22\x20style=\x22margin-top:8px;\x20gap:8px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22pr-add-bracket\x22\x20type=\x22button\x22\x20class=\x22btn\x20btn-outline\x20btn-small\x22><i\x20data-lucide=\x22plus\x22\x20class=\x22icon\x22></i>\x20Ajouter\x20une\x20tranche</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22pr-reset-brackets\x22\x20type=\x22button\x22\x20class=\x22btn\x20btn-small\x22><i\x20data-lucide=\x22rotate-ccw\x22\x20class=\x22icon\x22></i>\x20Valeurs\x20par\x20défaut</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Chaque\x20tranche:\x20{\x20min,\x20max,\x20discountValue,\x20commissionValue,\x20label\x20}.\x20Laisse\x20Max\x20vide\x20pour\x20une\x20tranche\x20ouverte.</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22form-actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>','#m-teamB','cash','africaphone://apply-promo','Templates\x20de\x20liens\x20mis\x20?\x20jour','transactionId','77LkICsf','#sel-all','?diter','searchIndex','products','#theme-pref','createElement','#modal','body','#pp-amount','Enregistrement\x20impossible\x20pour\x20le\x20moment.','Le\x20nom\x20du\x20candidat\x20est\x20requis.','find','webBaseUrl','constructor','\x22\x20alt=\x22Aper?u\x20','promoRules','>Mobile\x20Money</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22virement\x22\x20','#logout','DateTimeFormat','object','#global-search','updatedAt','\x22\x20/>\x0a\x09\x09\x09\x20\x20S?lection\x0a\x09\x09\x09</label>\x0a\x09\x09\x20\x20</div>\x0a\x09\x09\x20\x20<div\x20class=\x22muted\x22>','reset-brackets','\x20\x20\x20\x20<div\x20style=\x22display:flex;justify-content:center;margin-top:10px\x22>','overflow','#pred-winners','Le\x20code\x20et\x20la\x20valeur\x20sont\x20requis.','filter','>Autre</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</select>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pp-status\x22>Statut</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<select\x20id=\x22pp-status\x22\x20class=\x22select\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22paid\x22\x20','6px\x2012px','sort','#save-link-templates,\x20#tab-save-link-templates','activeElement','#quick-add-promocard','matches','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22match-meta\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','</div></div>\x0a\x20\x20\x20\x20','data-delete-candidate','rom','<button\x20class=\x22btn\x20btn-icon\x20btn-small\x22\x20type=\x22button\x22\x20data-move-down\x20title=\x22Descendre\x22><i\x20data-lucide=\x22arrow-down\x22\x20class=\x22icon\x22></i></button>','subtitle','#/match-predictions/','#/new-promorule','length','Matchs','1414rTxEFM','#nav-promocodes','search-promorules','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22table-wrap\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<table\x20class=\x22table\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>#</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Candidat</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>ID</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th>Votes</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th></th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</thead>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tbody>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','promocodes','heroImage','tagName','allowedChannels','\x0a\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22contest-title\x22>Titre\x20du\x20concours</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22contest-title\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','#/products','#contests-content','pending','4179267fYdCck','active','#kpi-contests','pr-brackets-rows','Prix\x20mis\x20?\x20jour','#pp-status','2QzajKS','\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20</div>','logoUrl','promopayouts','[data-delete-current-contest]','#/new-product','cr??','new-promopayout','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Aucune\x20rÃ¨gle\x20promo.</div>','#view-cards','Éditer\x20Code\x20Promo','\x0a\x09\x09<div\x20class=\x22form-head\x22><div\x20class=\x22form-title\x22>','#filter-promocode-partner','winnersOnly','aria-hidden','Contest\x20deletion\x20failed','\x0a\x09\x20\x20<td\x20style=\x22font-weight:800\x22>','#page-promocards','#toolbar-promocards','.spec-value','tab-save-link-templates','promo_code_save','promoCardsEnabled','Date\x20&agrave;\x20confirmer','apply','Settings:\x20unable\x20to\x20update\x20promo\x20cards\x20flag','log','payouts','assignedTo','ordreVedette','#/edit-promopayout/'];_0x13bc=function(){return _0x17a783;};return _0x13bc();}function _0x4187(){const _0x41a350=_0x39c496,_0x4e9a1e=[_0x41a350(0x4d0),_0x41a350(0x2b0),_0x41a350(0x159),_0x41a350(0x2ee),_0x41a350(0x1dc),'[Admin\x20Panel]\x20Operation\x20blocked\x20by\x20Firestore\x20security\x20rules.',_0x41a350(0x365),_0x41a350(0x39c),'onchange',_0x41a350(0x1dd),_0x41a350(0x4d3),_0x41a350(0x3c2),_0x41a350(0x41d),'[data-select]',_0x41a350(0x3e2),_0x41a350(0x21c),_0x41a350(0x3a1),_0x41a350(0x184),_0x41a350(0x317),_0x41a350(0x333),'onclick',_0x41a350(0x4ce),_0x41a350(0x32b),_0x41a350(0x486),_0x41a350(0x2c3),_0x41a350(0x3c7),_0x41a350(0x18e),'some',_0x41a350(0x44c),_0x41a350(0x310),_0x41a350(0x4c0),'</td>\x0a\x20\x20\x20\x20\x20\x20<td\x20class=\x22actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-small\x22\x20data-edit>?diter</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20data-del>Supprimer</button>\x0a\x20\x20\x20\x20\x20\x20</td>',_0x41a350(0x203),_0x41a350(0x329),'promopayout',_0x41a350(0x46c),_0x41a350(0x308),_0x41a350(0x29a),_0x41a350(0x26d),'startTime',_0x41a350(0x454),_0x41a350(0x3b6),_0x41a350(0x3dd),_0x41a350(0x207),'\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pp-ref\x22>Référence\x20paiement</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pp-ref\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22',_0x41a350(0x2a1),'Impossible\x20d?enregistrer\x20le\x20candidat.',_0x41a350(0x3f1),_0x41a350(0x3b3),_0x41a350(0x17e),_0x41a350(0x3ba),_0x41a350(0x21a),_0x41a350(0x361),_0x41a350(0x2d9),_0x41a350(0x1b9),_0x41a350(0x1bc),_0x41a350(0x478),'createdAt',_0x41a350(0x277),'#/new-brand',_0x41a350(0x1f0),'\x22\x20required\x20/>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22candidate-media\x22>M?dia\x20/\x20Organisation</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22candidate-media\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22',_0x41a350(0x1f3),_0x41a350(0x272),_0x41a350(0x3ef),_0x41a350(0x4c6),_0x41a350(0x1f7),_0x41a350(0x2ce),_0x41a350(0x301),_0x41a350(0x20a),_0x41a350(0x377),_0x41a350(0x485),'Clair',_0x41a350(0x186),'default',_0x41a350(0x33a),_0x41a350(0x450),_0x41a350(0x2fc),_0x41a350(0x33c),_0x41a350(0x1bd),_0x41a350(0x3fb),_0x41a350(0x1ca),_0x41a350(0x304),_0x41a350(0x2a8),_0x41a350(0x335),_0x41a350(0x366),_0x41a350(0x493),_0x41a350(0x2ff),'Web\x20(site)',_0x41a350(0x383),'Pr&eacute;f&eacute;rence:\x20',_0x41a350(0x268),_0x41a350(0x378),_0x41a350(0x2c0),_0x41a350(0x228),_0x41a350(0x1d9),_0x41a350(0x1a2),_0x41a350(0x34f),_0x41a350(0x446),_0x41a350(0x198),'toLocaleString',_0x41a350(0x384),_0x41a350(0x4b4),_0x41a350(0x487),_0x41a350(0x33b),_0x41a350(0x197),_0x41a350(0x21e),_0x41a350(0x2b5),_0x41a350(0x2a0),'#/edit-promorule/',_0x41a350(0x175),_0x41a350(0x466),_0x41a350(0x3b8),'\x20match</div>\x0a\x09</div>\x0a\x09<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x09\x20\x20<div\x20class=\x22twocol\x22>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22m-competition\x22>Comp?tition</label>\x0a\x09\x09\x20\x20<input\x20id=\x22m-competition\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22',_0x41a350(0x2db),'link_templates_save',_0x41a350(0x244),_0x41a350(0x381),'gap',_0x41a350(0x239),_0x41a350(0x204),_0x41a350(0x31f),_0x41a350(0x299),_0x41a350(0x296),'</span>','auto','\x20required\x20placeholder=\x22ex:\x20BIENVENUE10\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pc-type\x22>Type\x20de\x20réduction</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<select\x20id=\x22pc-type\x22\x20class=\x22select\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22percentage\x22\x20',_0x41a350(0x439),_0x41a350(0x28d),_0x41a350(0x263),'\x20vs\x20',_0x41a350(0x2d0),_0x41a350(0x4c2),_0x41a350(0x394),_0x41a350(0x312),_0x41a350(0x2d8),_0x41a350(0x3e0),_0x41a350(0x1be),'getTimezoneOffset',_0x41a350(0x36e),'>Virement\x20bancaire</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22cash\x22\x20',_0x41a350(0x18c),_0x41a350(0x2fb),_0x41a350(0x202),_0x41a350(0x48d),'Carte\x20promo',_0x41a350(0x31a),_0x41a350(0x187),_0x41a350(0x4ab),_0x41a350(0x38f),_0x41a350(0x24b),_0x41a350(0x37f),'<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Code\x20introuvable.</div>','</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td><span\x20class=\x22badge\x20success\x22>',_0x41a350(0x219),_0x41a350(0x161),_0x41a350(0x331),'\x22\x20/>\x0a\x20\x20\x20\x20<input\x20type=\x22number\x22\x20class=\x22input\x20bracket-max\x22\x20placeholder=\x22Max\x20(vide\x20=\x20+)\x22\x20min=\x220\x22\x20step=\x221000\x22\x20value=\x22',_0x41a350(0x336),_0x41a350(0x324),'lt-status',_0x41a350(0x433),'style',_0x41a350(0x3b7),_0x41a350(0x1e6),_0x41a350(0x4ed),_0x41a350(0x257),'check-circle-2',_0x41a350(0x2d4),_0x41a350(0x23a),_0x41a350(0x19c),_0x41a350(0x27d),'</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20style=\x22font-weight:800\x22>','Sans\x20titre',_0x41a350(0x402),_0x41a350(0x243),_0x41a350(0x43f),'\x22\x20/>\x0a\x09\x09\x20\x20<div\x20id=\x22err-price\x22\x20class=\x22error\x20hide\x22></div>\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22twocol\x22>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09<label\x20class=\x22label\x22\x20for=\x22p-rom\x22>Stockage</label>\x0a\x09\x09\x09<input\x20id=\x22p-rom\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22',_0x41a350(0x355),_0x41a350(0x42c),'Créez\x20un\x20concours\x20avant\x20d\x27ajouter\x20un\x20candidat.',_0x41a350(0x2ca),'&quot;',_0x41a350(0x282),_0x41a350(0x266),_0x41a350(0x38b),_0x41a350(0x2de),_0x41a350(0x1aa),_0x41a350(0x3a8),'</div>\x0a\x09\x09\x20\x20',_0x41a350(0x4a4),_0x41a350(0x3ea),'[data-remove-spec]',_0x41a350(0x200),'\x0a\x20\x20\x20\x20<input\x20type=\x22number\x22\x20class=\x22input\x20bracket-min\x22\x20placeholder=\x22Min\x22\x20min=\x220\x22\x20step=\x221000\x22\x20value=\x22',_0x41a350(0x32e),'ref','smartphone',_0x41a350(0x14a),_0x41a350(0x189),_0x41a350(0x4be),_0x41a350(0x297),_0x41a350(0x350),'\x22\x20onerror=\x22this.style.display=\x27none\x27\x22\x20/>',_0x41a350(0x4f3),_0x41a350(0x1b8),_0x41a350(0x313),_0x41a350(0x151),_0x41a350(0x3f4),_0x41a350(0x2d6),_0x41a350(0x31b),'#search-promocards',_0x41a350(0x43e),_0x41a350(0x2cf),_0x41a350(0x1ee),_0x41a350(0x172),'Votre\x20compte\x20n\x27a\x20pas\x20acc?s\x20?\x20cette\x20ressource.','Payé','product-images/',_0x41a350(0x458),'Brouillon',_0x41a350(0x3ff),_0x41a350(0x4e4),_0x41a350(0x341),_0x41a350(0x286),_0x41a350(0x15b),_0x41a350(0x4a3),_0x41a350(0x156),_0x41a350(0x455),'toDate',_0x41a350(0x4cd),_0x41a350(0x388),_0x41a350(0x3db),_0x41a350(0x337),'documentElement',_0x41a350(0x405),'\x20selected','portable\x20a\x20touche',_0x41a350(0x149),'#p-name',_0x41a350(0x289),'Produit\x20',_0x41a350(0x35c),'[Admin]\x20Functions\x20emulator\x20connected\x20(localhost:5001)',_0x41a350(0x3b1),_0x41a350(0x385),_0x41a350(0x4d8),'linkTemplates',_0x41a350(0x29b),_0x41a350(0x24d),_0x41a350(0x3f0),_0x41a350(0x4e6),'600','\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22m-logoB\x22>Logo\x20&eacute;quipe\x20B\x20(URL)</label>\x0a\x09\x09\x20\x20<input\x20id=\x22m-logoB\x22\x20class=\x22input\x22\x20type=\x22url\x22\x20value=\x22','14191qfrEoD',_0x41a350(0x1b0),_0x41a350(0x147),_0x41a350(0x437),_0x41a350(0x3cd),'\x22\x20required\x20/>\x0a\x09\x09\x09\x09</div>\x0a\x09\x09\x09</div>\x0a\x09\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09\x09<label\x20class=\x22toggle\x22>\x0a\x09\x09\x09\x09\x09<span\x20class=\x22toggle-switch\x22>\x0a\x09\x09\x09\x09\x09\x09<input\x20id=\x22pc-isActive\x22\x20type=\x22checkbox\x22\x20',_0x41a350(0x285),_0x41a350(0x4e2),'pr-reset-brackets',_0x41a350(0x1a9),_0x41a350(0x2e0),_0x41a350(0x4c9),'brackets-rows',_0x41a350(0x4f2),_0x41a350(0x171),_0x41a350(0x28b),'#search-promorules',_0x41a350(0x434),_0x41a350(0x1e9),'16DnauZY','\x22\x20required\x20/>\x0a\x09\x09\x09\x09</div>\x0a\x09\x09\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09\x09\x09<label\x20class=\x22label\x22\x20for=\x22pc-subtitle\x22>Sous-titre\x20(optionnel)</label>\x0a\x09\x09\x09\x09\x09<input\x20id=\x22pc-subtitle\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','priceBrackets',_0x41a350(0x218),_0x41a350(0x1e7),_0x41a350(0x1c2),'localeCompare','?\x20jouer',_0x41a350(0x253),_0x41a350(0x35d),_0x41a350(0x1e4),_0x41a350(0x418),_0x41a350(0x1f2),'function',_0x41a350(0x3a4),_0x41a350(0x1bb),_0x41a350(0x192),_0x41a350(0x39f),_0x41a350(0x2ea),_0x41a350(0x1ff),_0x41a350(0x19e),_0x41a350(0x447),_0x41a350(0x443),_0x41a350(0x246),_0x41a350(0x245),_0x41a350(0x4a9),_0x41a350(0x408),'#page-brands',_0x41a350(0x275),_0x41a350(0x1fe),'Cette\x20action\x20va\x20retirer\x20l\x27image\x20du\x20produit,\x20mais\x20le\x20fichier\x20restera\x20sur\x20le\x20serveur.',_0x41a350(0x17b),'Cr?er\x20la\x20carte','https://africaphone-org.web.app/promo',_0x41a350(0x352),_0x41a350(0x1a5),'Cr?er\x20le\x20produit',_0x41a350(0x449),_0x41a350(0x37d),'Aucun\x20candidat\x20ne\x20correspond\x20?\x20cette\x20recherche.',_0x41a350(0x391),_0x41a350(0x34e),_0x41a350(0x234),_0x41a350(0x1f6),_0x41a350(0x307),_0x41a350(0x36b),_0x41a350(0x28e),_0x41a350(0x194),_0x41a350(0x41c),_0x41a350(0x4ba),_0x41a350(0x3e3),_0x41a350(0x2be),'\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x20\x20</div>\x0a\x09\x20\x20<div\x20class=\x22form-actions\x22>\x0a\x09\x09<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x09\x09<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>',_0x41a350(0x247),_0x41a350(0x32d),'promocard','#pc-cta',_0x41a350(0x420),_0x41a350(0x18b),_0x41a350(0x3d1),_0x41a350(0x163),'<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>Aucun\x20code\x20promo.</div>',_0x41a350(0x497),_0x41a350(0x217),_0x41a350(0x1cc),'Analytics\x20log\x20failed',_0x41a350(0x3d5),_0x41a350(0x43b),_0x41a350(0x31e),_0x41a350(0x279),'</dd>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<dt>Participants</dt>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<dd>',_0x41a350(0x3d6),_0x41a350(0x4f8),'#password',_0x41a350(0x373),_0x41a350(0x168),_0x41a350(0x226),'edit-promocard','description',_0x41a350(0x1ea),_0x41a350(0x343),_0x41a350(0x3f9),'input[type=\x22checkbox\x22]:checked','\x20marque</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22b-name\x22>Nom\x20de\x20la\x20marque</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22b-name\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22',_0x41a350(0x4df),'candidate',_0x41a350(0x2aa),_0x41a350(0x3c5),'trace','#products-content',_0x41a350(0x4bc),_0x41a350(0x293),'115965WZQPqS',_0x41a350(0x40f),_0x41a350(0x225),_0x41a350(0x482),_0x41a350(0x17a),_0x41a350(0x284),_0x41a350(0x339),_0x41a350(0x48a),_0x41a350(0x3f3),_0x41a350(0x320),_0x41a350(0x150),_0x41a350(0x2e9),_0x41a350(0x400),_0x41a350(0x4b8),_0x41a350(0x21d),_0x41a350(0x413),_0x41a350(0x499),_0x41a350(0x438),_0x41a350(0x1f4),'votes','#/edit-brand/',_0x41a350(0x44d),_0x41a350(0x483),'\x22\x20placeholder=\x22Cha?ne,\x20journal...\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22candidate-photo\x22>Photo\x20(URL)</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22candidate-photo\x22\x20class=\x22input\x22\x20type=\x22url\x22\x20value=\x22','toUpperCase',_0x41a350(0x44a),_0x41a350(0x19f),_0x41a350(0x288),_0x41a350(0x22d),'\x0a\x09\x09<img\x20class=\x22thumb\x22\x20src=\x22',_0x41a350(0x480),'true',_0x41a350(0x451),'8PNtUAO',_0x41a350(0x4ad),_0x41a350(0x477),_0x41a350(0x249),'<button\x20class=\x22btn\x20btn-icon\x20btn-small\x22\x20type=\x22button\x22\x20data-move-up\x20title=\x22Monter\x22><i\x20data-lucide=\x22arrow-up\x22\x20class=\x22icon\x22></i></button>','setMinutes','tab-lt-waMessageTemplate','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20data-lucide=\x22x\x22\x20class=\x22icon\x22\x20style=\x22width:16px;height:16px\x22></i>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20',_0x41a350(0x1c1),_0x41a350(0x369),_0x41a350(0x2e5),_0x41a350(0x3b5),_0x41a350(0x325),_0x41a350(0x360),'\x0a\x09\x09\x20\x20</select>\x0a\x09\x09</div>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22p-price\x22>Prix\x20(FCFA)</label>\x0a\x09\x09\x20\x20<input\x20id=\x22p-price\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22',_0x41a350(0x44f),_0x41a350(0x2e6),_0x41a350(0x182),_0x41a350(0x1ad),_0x41a350(0x4f1),_0x41a350(0x3ec),_0x41a350(0x309),'#/new-promopayout',_0x41a350(0x2a6),_0x41a350(0x3d2),'Save\x20link\x20templates\x20failed',_0x41a350(0x14e),_0x41a350(0x283),_0x41a350(0x2e8),_0x41a350(0x41e),'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400&auto=format&fit=crop',_0x41a350(0x1d2),_0x41a350(0x3af),_0x41a350(0x2ad),_0x41a350(0x3f6),_0x41a350(0x427),_0x41a350(0x2f7),'2878504vKdEac',_0x41a350(0x2c1),'.bracket-label',_0x41a350(0x4ac),_0x41a350(0x1eb),_0x41a350(0x40b),_0x41a350(0x4c8),'promocards',_0x41a350(0x4e9),_0x41a350(0x1d4),_0x41a350(0x22a),_0x41a350(0x3b2),'\x0a\x09\x09<input\x20type=\x22text\x22\x20class=\x22input\x20spec-key\x22\x20list=\x22specs-suggestions\x22\x20placeholder=\x22Caract?ristique\x20(ex:\x20?cran)\x22\x20value=\x22',_0x41a350(0x157),'</span>\x0a\x20\x20\x20\x20\x20\x20</label>\x0a\x20\x20\x20\x20',_0x41a350(0x35f),'hashchange',_0x41a350(0x23d),_0x41a350(0x3e7),_0x41a350(0x25e),_0x41a350(0x338),_0x41a350(0x269),_0x41a350(0x25c),_0x41a350(0x2bf),_0x41a350(0x3eb),_0x41a350(0x14f),_0x41a350(0x3a7),_0x41a350(0x28f),_0x41a350(0x1f9),_0x41a350(0x3f2),_0x41a350(0x174),_0x41a350(0x2b9),_0x41a350(0x3d0),_0x41a350(0x464),_0x41a350(0x4b2),_0x41a350(0x1fd),'getIdTokenResult',_0x41a350(0x463),_0x41a350(0x30b),_0x41a350(0x302),'#pr-partnerRequired','winner-row',_0x41a350(0x26e),_0x41a350(0x380),'\x22\x20required\x20/>\x0a\x09\x09</div>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22m-teamB\x22>?quipe\x20B</label>\x0a\x09\x09\x20\x20<input\x20id=\x22m-teamB\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22',_0x41a350(0x248),'promo_rule_save',_0x41a350(0x2eb),_0x41a350(0x49a),'5tPLQYv',_0x41a350(0x1ef),_0x41a350(0x231),_0x41a350(0x250),_0x41a350(0x399),_0x41a350(0x18d),_0x41a350(0x153),'\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22image-preview-item\x22\x20data-url=\x22',_0x41a350(0x213),_0x41a350(0x34d),_0x41a350(0x424),_0x41a350(0x3e9),_0x41a350(0x412),_0x41a350(0x440),_0x41a350(0x470),_0x41a350(0x46d),'#toolbar-contests','edit-promorule',_0x41a350(0x278),_0x41a350(0x20b),_0x41a350(0x2f4),'target',_0x41a350(0x3c0),_0x41a350(0x18f),'tab-lt-webBaseUrl',_0x41a350(0x4a0),_0x41a350(0x1fb),'force',_0x41a350(0x2f1),_0x41a350(0x322),_0x41a350(0x4d5),'0-149k',_0x41a350(0x26c),'#bulk-delete','Contest','charAt',_0x41a350(0x49d),_0x41a350(0x39d),_0x41a350(0x1b3),_0x41a350(0x45e),_0x41a350(0x242),_0x41a350(0x221),_0x41a350(0x29c),'tab-lt-defaultSub','Produits',_0x41a350(0x36d),_0x41a350(0x4d6),_0x41a350(0x3b4),_0x41a350(0x3a2),_0x41a350(0x2b8),_0x41a350(0x3c3),_0x41a350(0x154),_0x41a350(0x179),_0x41a350(0x2b2),'Impossible\x20de\x20mettre\x20Ã\u00a0\x20jour\x20le\x20paramÃ¨tre',_0x41a350(0x1b1),'Ordre\x20mis\x20Ã\u00a0\x20jour',_0x41a350(0x280),'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>',_0x41a350(0x3d9),_0x41a350(0x3d7),_0x41a350(0x1ab),_0x41a350(0x2fa),_0x41a350(0x17f),_0x41a350(0x1d5),_0x41a350(0x471),_0x41a350(0x291),_0x41a350(0x374),_0x41a350(0x1de),'key','<button\x20class=\x22btn\x20btn-small\x22\x20data-edit>Editer</button>',_0x41a350(0x401),_0x41a350(0x3c4),'26vVVnsg',_0x41a350(0x4e5),_0x41a350(0x39a),_0x41a350(0x165),_0x41a350(0x2d2),'shift',_0x41a350(0x4c4),_0x41a350(0x33f),'\x22\x20placeholder=\x220\x22\x20data-price-update\x20/>\x0a\x09\x09</td>\x0a\x09\x09<td>',_0x41a350(0x271),_0x41a350(0x26f),_0x41a350(0x254),'\x20\x20</div>',_0x41a350(0x255),_0x41a350(0x166),_0x41a350(0x492),_0x41a350(0x16a),'add-bracket',_0x41a350(0x349),_0x41a350(0x469),_0x41a350(0x475),_0x41a350(0x1db),_0x41a350(0x2ac),_0x41a350(0x344),_0x41a350(0x431),_0x41a350(0x2ec),'>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-slider\x22></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>Code\x20utilisable</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22>Canaux\x20autorises</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22pr-channels-group\x22\x20class=\x22channel-checks\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Coche\x20les\x20canaux\x20ou\x20la\x20regle\x20peut\x20s\x27appliquer.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pr-partners\x22>Partenaires\x20autorises</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pr-partners\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22',_0x41a350(0x403),'</span>\x0a\x09\x09<button\x20class=\x22btn\x20btn-small\x22\x20data-view>Pronostics</button>\x0a\x09\x09<button\x20class=\x22btn\x20btn-small\x22\x20data-edit>?diter</button>\x0a\x09\x09<button\x20class=\x22btn\x20btn-danger\x20btn-small\x22\x20data-del>Supprimer</button>\x0a\x09\x20\x20</td>','Code\x20mis\x20?\x20jour',_0x41a350(0x323),_0x41a350(0x1a4),_0x41a350(0x3df),_0x41a350(0x484),_0x41a350(0x2bd),_0x41a350(0x167),_0x41a350(0x47c),_0x41a350(0x37a),'display',_0x41a350(0x35e),_0x41a350(0x415),_0x41a350(0x417),_0x41a350(0x206),'<div\x20class=\x22predictions-empty\x22>Impossible\x20de\x20charger\x20les\x20pronostics\x20pour\x20le\x20moment.</div>',_0x41a350(0x4b3),_0x41a350(0x2c4),_0x41a350(0x4b5),'Supprim?','Supprimer\x20\x22<strong>','Versement\x20enregistré',_0x41a350(0x3fd),_0x41a350(0x2b7),_0x41a350(0x191),_0x41a350(0x19a),_0x41a350(0x34c),_0x41a350(0x201),_0x41a350(0x212),_0x41a350(0x258),'Le\x20nom\x20du\x20produit\x20est\x20obligatoire.','#nav-settings','getTime','Unable\x20to\x20delete\x20linked\x20promoRule',_0x41a350(0x40c),_0x41a350(0x38e),'#pr-active',_0x41a350(0x3fc),_0x41a350(0x428),_0x41a350(0x4e8),_0x41a350(0x2b4),'lt-waNumber',_0x41a350(0x220),_0x41a350(0x3ac),_0x41a350(0x4dd),_0x41a350(0x19d),_0x41a350(0x3fe),_0x41a350(0x294),_0x41a350(0x479),_0x41a350(0x188),'Impossible\x20de\x20se\x20connecter','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22form-head\x22><div\x20class=\x22form-title\x22>','new-brand','asc',_0x41a350(0x1d0),_0x41a350(0x4f9),_0x41a350(0x2b3),'<i\x20data-lucide=\x22chevrons-up-down\x22\x20class=\x22icon\x20sort-icon\x22></i>',_0x41a350(0x30a),_0x41a350(0x414),_0x41a350(0x185),'\x22\x20required\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22b-logoUrl\x22>URL\x20du\x20logo</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22b-logoUrl\x22\x20class=\x22input\x22\x20type=\x22url\x22\x20value=\x22',_0x41a350(0x265),_0x41a350(0x46a),_0x41a350(0x210),_0x41a350(0x27b),'token','#candidate-photo',_0x41a350(0x15e),_0x41a350(0x1df),_0x41a350(0x20f),_0x41a350(0x24e),'spec-row','\x22\x20placeholder=\x22TxID,\x20ref\x20bancaire...\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22pp-note\x22>Note\x20(optionnel)</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<textarea\x20id=\x22pp-note\x22\x20class=\x22textarea\x22\x20rows=\x223\x22\x20placeholder=\x22Détail\x20ou\x20commentaire\x22>',_0x41a350(0x24c),_0x41a350(0x49b),_0x41a350(0x31d),_0x41a350(0x4db),_0x41a350(0x407),_0x41a350(0x445),_0x41a350(0x300),'new-contest','#b-sortOrder',_0x41a350(0x22e),'\x22></option>',_0x41a350(0x3c8),_0x41a350(0x364),_0x41a350(0x2ba),_0x41a350(0x389),'Inactif',_0x41a350(0x340),_0x41a350(0x3f8),_0x41a350(0x2a4),_0x41a350(0x16c),'</textarea>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22twocol\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22\x20for=\x22contest-status\x22>Statut</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<select\x20id=\x22contest-status\x22\x20class=\x22select\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22draft\x22\x20',_0x41a350(0x306),_0x41a350(0x24f),'localhost','[data-move-up]',_0x41a350(0x353),'#/edit-product/',_0x41a350(0x28a),_0x41a350(0x3be),_0x41a350(0x190),_0x41a350(0x36f),_0x41a350(0x4f5),_0x41a350(0x2f9),_0x41a350(0x390),_0x41a350(0x240),_0x41a350(0x34a),_0x41a350(0x36c),_0x41a350(0x1a7),_0x41a350(0x328),'getIdToken',_0x41a350(0x298),_0x41a350(0x180),'items','#drawer',_0x41a350(0x16e),_0x41a350(0x3d8),_0x41a350(0x155),_0x41a350(0x444),_0x41a350(0x33d),'&#96;',_0x41a350(0x45c),_0x41a350(0x45f),'teamB',_0x41a350(0x4ec),'permission-denied',_0x41a350(0x15f),_0x41a350(0x24a),_0x41a350(0x1ed),'tr,.card',_0x41a350(0x1e3),_0x41a350(0x3b9),_0x41a350(0x17c),'#/edit-match/',_0x41a350(0x36a),'\x22\x20placeholder=\x22PART-001,PART-002\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Laisse\x20vide\x20pour\x20tous\x20les\x20partenaires.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22toggle\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-switch\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20id=\x22pr-partnerRequired\x22\x20type=\x22checkbox\x22\x20',_0x41a350(0x30c),'totalVotes','.bracket-row',_0x41a350(0x2df),'</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22muted\x22>Identifiant\x20:\x20',_0x41a350(0x490),_0x41a350(0x2e7),'#tbody-promocards','?tes-vous\x20s?r\x20de\x20vouloir\x20supprimer\x20<strong>',_0x41a350(0x43d),_0x41a350(0x409),_0x41a350(0x292),'Envoi\x20des\x20images...',_0x41a350(0x2cc),_0x41a350(0x2a7),_0x41a350(0x14d),_0x41a350(0x3e8),'\x20Carte\x20Promo</div></div>\x0a\x09\x09<form\x20class=\x22form-main\x22\x20novalidate>\x0a\x09\x09\x09<div\x20class=\x22twocol\x22>\x0a\x09\x09\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09\x09\x09<label\x20class=\x22label\x22\x20for=\x22pc-title\x22>Titre</label>\x0a\x09\x09\x09\x09\x09<input\x20id=\x22pc-title\x22\x20class=\x22input\x22\x20type=\x22text\x22\x20value=\x22','#content',_0x41a350(0x43c),'#brands-content','whatsappLink',_0x41a350(0x224),_0x41a350(0x2dc),_0x41a350(0x2d5),'contest-',_0x41a350(0x16b),_0x41a350(0x410),_0x41a350(0x30e),_0x41a350(0x44b),'specifications',_0x41a350(0x2f2),_0x41a350(0x441),_0x41a350(0x35b),_0x41a350(0x170),_0x41a350(0x4ee),'Enregistrer',_0x41a350(0x1d3),_0x41a350(0x345),_0x41a350(0x379),_0x41a350(0x3b0),_0x41a350(0x4cc),_0x41a350(0x321),'<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>',_0x41a350(0x274),'#candidate-media',_0x41a350(0x1c0),'<div\x20class=\x22empty-state\x22><p>Sélectionnez\x20un\x20concours\x20avant\x20d\x27ajouter\x20un\x20candidat.</p></div>','translateX(8px)','Auto',_0x41a350(0x460),_0x41a350(0x49e),_0x41a350(0x462),_0x41a350(0x215),_0x41a350(0x46b),_0x41a350(0x1e0),_0x41a350(0x46e),_0x41a350(0x489),_0x41a350(0x362),_0x41a350(0x371),_0x41a350(0x2cb),'form-wrap',_0x41a350(0x411),'teamA',_0x41a350(0x1f1),_0x41a350(0x1ac),_0x41a350(0x303),_0x41a350(0x270),_0x41a350(0x459),_0x41a350(0x315),_0x41a350(0x423),_0x41a350(0x2c2),_0x41a350(0x3bc),_0x41a350(0x358),'actif',_0x41a350(0x422),_0x41a350(0x3a0),'imageUrl',_0x41a350(0x3d4),_0x41a350(0x45d),_0x41a350(0x3d3),'#/new-contest',_0x41a350(0x3de),'.promo-tab-btn',_0x41a350(0x334),'entries','Prix\x20invalide',_0x41a350(0x348),'Candidat',_0x41a350(0x169),'Elisez\x20votre\x20candidat\x20favori.',_0x41a350(0x452),_0x41a350(0x27c),_0x41a350(0x252),_0x41a350(0x2f6),'\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x09<label\x20class=\x22label\x22\x20for=\x22p-ram\x22>RAM</label>\x0a\x09\x09\x09<input\x20id=\x22p-ram\x22\x20class=\x22input\x22\x20type=\x22number\x22\x20min=\x220\x22\x20step=\x221\x22\x20value=\x22',_0x41a350(0x472),_0x41a350(0x1e2),_0x41a350(0x4bd),_0x41a350(0x233),_0x41a350(0x318),_0x41a350(0x305),'getAttribute',_0x41a350(0x367),_0x41a350(0x4cb),_0x41a350(0x1fa),'\x22\x20/>\x0a\x20\x20\x20\x20<input\x20type=\x22number\x22\x20class=\x22input\x20bracket-commission\x22\x20placeholder=\x22Commission\x22\x20min=\x220\x22\x20step=\x22500\x22\x20value=\x22','Versement\x20mis\x20à\x20jour',_0x41a350(0x2e4),_0x41a350(0x382),_0x41a350(0x39e),'#add-candidate',_0x41a350(0x2af),_0x41a350(0x1b4),_0x41a350(0x4ea),_0x41a350(0x4b9),_0x41a350(0x453),_0x41a350(0x368),_0x41a350(0x3cc),_0x41a350(0x25a),_0x41a350(0x1da),_0x41a350(0x160),'\x0a\x20\x20\x20\x20<div\x20class=\x22form-head\x22>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22form-title\x22>',_0x41a350(0x1a6),_0x41a350(0x23b),_0x41a350(0x205),_0x41a350(0x465),_0x41a350(0x4cf),'promoCards',_0x41a350(0x448),_0x41a350(0x3a9),_0x41a350(0x3ad),_0x41a350(0x229),_0x41a350(0x1bf),_0x41a350(0x3e1),_0x41a350(0x15d),'</button>\x0a\x09\x09\x09</div>\x0a\x09\x09</form>','cta1',_0x41a350(0x4bf),_0x41a350(0x23e),_0x41a350(0x14c),_0x41a350(0x2f5),_0x41a350(0x3cf),_0x41a350(0x2a9),_0x41a350(0x15a),_0x41a350(0x3ed),_0x41a350(0x314),_0x41a350(0x1c6),_0x41a350(0x3a6),_0x41a350(0x3c9),'toggle',_0x41a350(0x40e),_0x41a350(0x33e),_0x41a350(0x1d7),_0x41a350(0x29d),_0x41a350(0x351),_0x41a350(0x2dd),_0x41a350(0x15c),_0x41a350(0x436),_0x41a350(0x404),'tab',_0x41a350(0x1cf),_0x41a350(0x2bc),'\x0a\x09\x20\x20<thead>\x0a\x09\x09<tr>\x0a\x09\x09\x20\x20<th\x20style=\x22width:38px\x22><input\x20id=\x22sel-all\x22\x20type=\x22checkbox\x22/></th>\x0a\x09\x09\x20\x20<th\x20style=\x22width:60px\x22>Image</th>\x0a\x09\x09\x20\x20<th\x20class=\x22sortable\x20',_0x41a350(0x3e6),'#view-table',_0x41a350(0x2c8),_0x41a350(0x16f),'__proto__',_0x41a350(0x290),_0x41a350(0x30d),'light',_0x41a350(0x4d9),_0x41a350(0x4ef),_0x41a350(0x276),_0x41a350(0x48b),_0x41a350(0x235),_0x41a350(0x16d),_0x41a350(0x393),_0x41a350(0x14b),_0x41a350(0x1c3),_0x41a350(0x38d),_0x41a350(0x3bf),_0x41a350(0x3a5),_0x41a350(0x4b7),_0x41a350(0x342),_0x41a350(0x2b1),_0x41a350(0x4eb),_0x41a350(0x311),_0x41a350(0x2d1),_0x41a350(0x467),'Settings:\x20unable\x20to\x20load\x20features\x20config',_0x41a350(0x3da),_0x41a350(0x41f),'Candidat\x20ajout?','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td\x20class=\x22pred-score\x22>',_0x41a350(0x2c6),_0x41a350(0x4de),_0x41a350(0x25f),'#add-promocard',_0x41a350(0x4f0),_0x41a350(0x267),_0x41a350(0x27f),_0x41a350(0x3f5),'Aucune',_0x41a350(0x435),_0x41a350(0x22c),_0x41a350(0x281),_0x41a350(0x196),_0x41a350(0x4a6),_0x41a350(0x27e),'#/promocodes/rules','\x20sur\x20',_0x41a350(0x3bb),'#add-product',_0x41a350(0x256),_0x41a350(0x40d),_0x41a350(0x2a3),_0x41a350(0x419),_0x41a350(0x1e8)];return _0x4187=function(){return _0x4e9a1e;},_0x4187();}$(_0x1c09bd(0x158))[_0x1c09bd(0x446)](_0x1c09bd(0x42e),function(){const _0x2e0e6d=_0x1c09bd;drawer[_0x2e0e6d(0xf7)][_0x2e0e6d(0x1bb)](_0x2e0e6d(0x17f));}),$(_0x1c09bd(0x173))?.[_0x1c09bd(0x446)](_0x1c09bd(0x42e),function(){const _0x281799=_0x37ce72,_0x49e9bb=_0x1c09bd;drawer[_0x49e9bb(0xf7)][_0x281799(0x431)](_0x281799(0x596));}),$(_0x1c09bd(0x192))?.[_0x1c09bd(0x446)](_0x1c09bd(0x42e),async function(){const _0x41b172=_0x37ce72,_0x169128=_0x1c09bd;await signOut(auth),drawer[_0x41b172(0x503)][_0x169128(0x3ac)](_0x169128(0x17f));}),$$(_0x247feb(0x3c9))[_0x1c09bd(0x335)](function(_0x3e8bbf){const _0x401a35=_0x1c09bd;_0x3e8bbf[_0x401a35(0x446)](_0x401a35(0x42e),function(){const _0x26d77d=_0x34de,_0x4930cd=_0x401a35;location[_0x4930cd(0xa3)]=_0x3e8bbf[_0x26d77d(0x1fd)][_0x4930cd(0x29e)],drawer[_0x4930cd(0xf7)][_0x4930cd(0x3ac)](_0x4930cd(0x17f));});});const themePrefEl=$(_0x37ce72(0x2b5));function applyTheme(_0x44b5c5){const _0x3e6858=_0x39c496,_0x1389bf=_0x37ce72,_0x5b4972=_0x1c09bd,_0x450b6a=document[_0x5b4972(0x30f)];if(_0x44b5c5===_0x3e6858(0x20c))_0x450b6a[_0x5b4972(0x3ef)](_0x1389bf(0x391),_0x3e6858(0x20c)),themePrefEl&&(themePrefEl[_0x5b4972(0x284)]=_0x1389bf(0x4ab));else{if(_0x44b5c5===_0x5b4972(0xac))_0x450b6a[_0x5b4972(0x3ef)](_0x5b4972(0x222),_0x5b4972(0xac)),themePrefEl&&(themePrefEl[_0x5b4972(0x284)]=_0x5b4972(0x426));else{const _0x16694e=window[_0x1389bf(0x4a6)](_0x5b4972(0xd1))[_0x5b4972(0x10e)];_0x450b6a[_0x1389bf(0x554)](_0x1389bf(0x391),_0x16694e?_0x5b4972(0xac):_0x5b4972(0x16b)),themePrefEl&&(themePrefEl[_0x5b4972(0x284)]=_0x5b4972(0x3d7));}}localStorage[_0x5b4972(0x31c)](_0x5b4972(0x3e2),_0x44b5c5);}applyTheme(localStorage[_0x1c09bd(0x151)](_0x37ce72(0x2b4))||_0x1c09bd(0x16b)),$(_0x1c09bd(0x213))[_0x1c09bd(0x446)](_0x1c09bd(0x42e),function(){const _0x259eb4=_0x39c496,_0x218836=_0x247feb,_0x56bcbd=_0x1c09bd,_0x172db6=localStorage[_0x56bcbd(0x151)](_0x218836(0x20b))||_0x56bcbd(0x16b),_0x5d7c8b=_0x172db6===_0x56bcbd(0x2a3)?_0x56bcbd(0xac):_0x172db6===_0x56bcbd(0xac)?_0x56bcbd(0x16b):_0x259eb4(0x20c);applyTheme(_0x5d7c8b),toast(_0x56bcbd(0x11f),_0x56bcbd(0x37a)+(_0x5d7c8b===_0x56bcbd(0x2a3)?_0x56bcbd(0x2a2):_0x5d7c8b===_0x56bcbd(0xac)?_0x56bcbd(0x426):_0x56bcbd(0x3d7)),_0x56bcbd(0x166));}),$(_0x1c09bd(0x36f))?.[_0x1c09bd(0x446)](_0x1c09bd(0x42e),function(){const _0x1bb8e0=_0x247feb,_0x3fb151=_0x1c09bd;$(_0x3fb151(0x213))[_0x1bb8e0(0x292)]();}),$$(_0x1c09bd(0x1a1))[_0x1c09bd(0x335)](function(_0x452e2b){const _0x722f86=_0x1c09bd;_0x452e2b[_0x722f86(0x446)](_0x722f86(0x42e),function(){const _0x6c0a17=_0x47d2,_0x1abb8e=_0x722f86;applyTheme(_0x452e2b[_0x1abb8e(0xca)][_0x6c0a17(0x396)]);});});const $navProducts=$(_0x37ce72(0x502)),$navBrands=$(_0x1c09bd(0x3ed)),$navMatches=$(_0x1c09bd(0x20e)),$navContests=$(_0x37ce72(0x3ca)),$navSettings=$(_0x37ce72(0x454)),$navPromoCards=$(_0x37ce72(0x340)),$navPromoCodes=$(_0x1c09bd(0x43e)),$toolbarProducts=$(_0x1c09bd(0x18b)),$toolbarBrands=$(_0x1c09bd(0x19b)),$toolbarMatches=$(_0x1c09bd(0x36c)),$toolbarContests=$(_0x37ce72(0x333)),$toolbarPromoCards=$(_0x1c09bd(0x1fd)),$toolbarPromoCodes=$(_0x1c09bd(0x2b6)),$productsContent=$(_0x1c09bd(0x91)),$brandsContent=$(_0x247feb(0x2a8)),$matchesContent=$(_0x1c09bd(0xbf)),$contestsContent=$(_0x37ce72(0x551)),$promoCardsContent=$(_0x1c09bd(0xd6)),$promoCodesContent=$(_0x1c09bd(0x1ca)),$promoRulesContent=document[_0x37ce72(0x4ac)](_0x1c09bd(0x3be)),$promoPayoutsContent=document[_0x1c09bd(0x362)](_0x1c09bd(0xc8)),$promoTemplatesContent=document[_0x1c09bd(0x362)](_0x1c09bd(0x1f6));window[_0x1c09bd(0x446)](_0x1c09bd(0x2fe),handleRoute),window[_0x37ce72(0x4f9)](_0x37ce72(0x585),async function(){const _0xb208e8=_0x37ce72,_0x2821ba=_0x1c09bd;try{const _0x13e8ed=(location[_0x2821ba(0xa3)]||_0xb208e8(0x327))[_0x2821ba(0x34f)]('/'),_0xbdda38=_0x13e8ed[0x1]||_0x2821ba(0x43b);_0xbdda38===_0x2821ba(0x270)&&(await ensureFeaturesLoaded(),applyFeaturesToSettingsUI(),await ensureLinkTemplatesLoaded(),applyLinkTemplatesToSettingsUI());}catch(_0x1a9c19){console[_0x2821ba(0x3e3)](_0x2821ba(0x3ce),_0x1a9c19);}});async function handleRoute(){const _0xff5a2f=_0x39c496,_0x44887c=_0x247feb,_0x29cc8a=_0x37ce72,_0x3fccd8=_0x1c09bd,_0x150f39=(location[_0x3fccd8(0xa3)]||_0x3fccd8(0x336))[_0x3fccd8(0x34f)]('/'),_0x3a3ec3=_0x150f39[0x1]||_0x3fccd8(0x43b),_0x57019c=_0x150f39[0x2],_0x209679=_0x150f39[0x3];track(_0x29cc8a(0x49c),{'route':_0x3a3ec3,'id':_0x57019c||null});const _0x3fa3b9=_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0x97))||_0x3a3ec3[_0x3fccd8(0x124)](_0x29cc8a(0x3ba)),_0x435cf5=_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0x14c))||_0x3a3ec3[_0x3fccd8(0x124)](_0x29cc8a(0x278))||_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0x143));$navProducts[_0x29cc8a(0x503)][_0x44887c(0x32a)](_0x3fccd8(0x27b),_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0xd9))),$navBrands[_0x3fccd8(0xf7)][_0x29cc8a(0x451)](_0x3fccd8(0x27b),_0x3a3ec3[_0x3fccd8(0x124)](_0x29cc8a(0x238))),$navMatches[_0x29cc8a(0x503)][_0x3fccd8(0x29b)](_0x29cc8a(0x38d),_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0x3dd))),$navContests[_0x3fccd8(0xf7)][_0x29cc8a(0x451)](_0x44887c(0x373),_0x3fa3b9),$navPromoCards[_0x29cc8a(0x503)][_0x3fccd8(0x29b)](_0x3fccd8(0x27b),_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0xec))),$navPromoCodes[_0x3fccd8(0xf7)][_0x3fccd8(0x29b)](_0x29cc8a(0x38d),_0x435cf5),$navSettings[_0x3fccd8(0xf7)][_0x29cc8a(0x451)](_0x3fccd8(0x27b),_0x3a3ec3===_0x3fccd8(0x270)),$toolbarProducts[_0x3fccd8(0xf7)][_0x3fccd8(0x29b)](_0x3fccd8(0xf3),!_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0xd9))),$toolbarBrands[_0x3fccd8(0xf7)][_0x3fccd8(0x29b)](_0x29cc8a(0x3ef),!_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0x428))),$toolbarMatches[_0x3fccd8(0xf7)][_0x3fccd8(0x29b)](_0x44887c(0x222),!_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0x3dd))),$toolbarContests[_0x3fccd8(0xf7)][_0x29cc8a(0x451)](_0x29cc8a(0x3ef),!_0x3fa3b9),$toolbarPromoCards[_0x29cc8a(0x503)][_0x3fccd8(0x29b)](_0x3fccd8(0xf3),!_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0xec))),$toolbarPromoCodes[_0x29cc8a(0x503)][_0x29cc8a(0x451)](_0x29cc8a(0x3ef),!_0x435cf5),$(_0x3fccd8(0x44b))[_0x3fccd8(0xf7)][_0x3fccd8(0x29b)](_0x3fccd8(0xf3),!_0x3a3ec3[_0x29cc8a(0x2f6)](_0x44887c(0x464))),$(_0x3fccd8(0x154))[_0x44887c(0x13e)][_0x3fccd8(0x29b)](_0x3fccd8(0xf3),!_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0x428))),$(_0x3fccd8(0x246))[_0x3fccd8(0xf7)][_0x29cc8a(0x451)](_0x3fccd8(0xf3),!_0x3a3ec3[_0x3fccd8(0x124)](_0xff5a2f(0x39a))),$('#page-contests')[_0x3fccd8(0xf7)][_0x3fccd8(0x29b)](_0x29cc8a(0x3ef),!_0x3fa3b9),$(_0x3fccd8(0x111))[_0x3fccd8(0xf7)][_0x29cc8a(0x451)](_0x3fccd8(0xf3),!_0x3a3ec3[_0x3fccd8(0x124)](_0x3fccd8(0xec))),$(_0x29cc8a(0x467))[_0x3fccd8(0xf7)][_0x3fccd8(0x29b)](_0x3fccd8(0xf3),!_0x435cf5),$(_0x3fccd8(0x403))[_0x3fccd8(0xf7)][_0x3fccd8(0x29b)](_0x3fccd8(0xf3),_0x3a3ec3!==_0x3fccd8(0x270));if(_0x3a3ec3===_0x3fccd8(0x43b))setCrumb(_0x3fccd8(0x298)),await ensureProductsLoaded(),renderProductList();else{if(_0x3a3ec3===_0x3fccd8(0x142))setCrumb(_0x3fccd8(0x38f)),renderProductFormPage();else{if(_0x3a3ec3===_0x3fccd8(0x22c)&&_0x57019c)setCrumb(_0x44887c(0x161)),await renderProductFormPage(_0x57019c);else{if(_0x3a3ec3===_0x3fccd8(0x2cc))setCrumb(_0x3fccd8(0x357)),await ensureBrandsLoaded(),renderBrandList();else{if(_0x3a3ec3===_0x3fccd8(0x3c9))setCrumb(_0x3fccd8(0x1c9)),renderBrandFormPage();else{if(_0x3a3ec3===_0x29cc8a(0x3f6)&&_0x57019c)setCrumb(_0x29cc8a(0x3d9)),await renderBrandFormPage(_0x57019c);else{if(_0x3a3ec3===_0x44887c(0x441))setCrumb(_0x3fccd8(0x243)),await ensureMatchesLoaded(),renderMatchList();else{if(_0x3a3ec3===_0x3fccd8(0x40b))setCrumb(_0x3fccd8(0x20a)),renderMatchFormPage();else{if(_0x3a3ec3===_0x3fccd8(0x260)&&_0x57019c)setCrumb(_0x44887c(0x185)),await renderMatchFormPage(_0x57019c);else{if(_0x3a3ec3===_0x29cc8a(0x282)&&_0x57019c)await ensureMatchesLoaded(),await renderMatchPredictionsPage(_0x57019c);else{if(_0x3a3ec3===_0x29cc8a(0x544))setCrumb(_0x3fccd8(0x2fb)),await ensureContestsLoaded(),await setSelectedContest(selectedContestId||allContests[0x0]?.['id']||'',{'force':!![]});else{if(_0x3a3ec3===_0x3fccd8(0x137))setCrumb(_0x3fccd8(0x34d)),await ensureContestsLoaded(),renderContestFormPage();else{if(_0x3a3ec3===_0x3fccd8(0x2a6)&&_0x57019c)setCrumb(_0x3fccd8(0x1d8)),await ensureContestsLoaded(),await renderContestFormPage(_0x57019c);else{if(_0x3a3ec3===_0x3fccd8(0x102)){await ensureContestsLoaded();const _0x3017fd=_0x57019c||selectedContestId||allContests[0x0]?.['id']||'';if(!_0x3017fd){toast(_0x3fccd8(0x1ce),_0x44887c(0x424),_0x3fccd8(0x166)),location[_0x3fccd8(0xa3)]=_0x3fccd8(0x256);return;}await setSelectedContest(_0x3017fd,{'force':!![],'skipRender':!![]}),setCrumb(_0x3fccd8(0x209)),await renderCandidateFormPage(_0x3017fd);}else{if(_0x3a3ec3===_0x3fccd8(0x391)&&_0x57019c&&_0x209679)await ensureContestsLoaded(),await setSelectedContest(_0x57019c,{'force':!![],'skipRender':!![]}),setCrumb(_0x29cc8a(0x565)),await renderCandidateFormPage(_0x57019c,_0x209679);else{if(_0x3a3ec3===_0x3fccd8(0x135))setCrumb(_0x3fccd8(0x155)),await ensurePromoCardsLoaded(),renderPromoCardList();else{if(_0x3a3ec3===_0x3fccd8(0x174))setCrumb(_0x3fccd8(0xe2)),renderPromoCardFormPage();else{if(_0x3a3ec3===_0x3fccd8(0x458)&&_0x57019c)setCrumb(_0x3fccd8(0xea)),await renderPromoCardFormPage(_0x57019c);else{if(_0x3a3ec3===_0x44887c(0x158)){setCrumb(_0x3fccd8(0x2c4));const _0x206f42=_0x57019c&&[_0xff5a2f(0x4c9),_0x29cc8a(0x26b),_0x29cc8a(0x468),_0x3fccd8(0x240)][_0x29cc8a(0x2f6)](_0x57019c)?_0x57019c:_0x3fccd8(0x116);await setPromoTab(_0x206f42);}else{if(_0x3a3ec3===_0x29cc8a(0x30a))setCrumb(_0x29cc8a(0x3a8)),await setPromoTab(_0x3fccd8(0x116)),renderPromoCodeFormPage();else{if(_0x3a3ec3===_0x29cc8a(0x3c7)&&_0x57019c)setCrumb(_0x3fccd8(0x369)),await setPromoTab(_0x3fccd8(0x116)),await renderPromoCodeFormPage(_0x57019c);else{if(_0x3a3ec3===_0x29cc8a(0x2d4))setCrumb(_0x29cc8a(0x39b)),await setPromoTab(_0x29cc8a(0x468));else{if(_0x3a3ec3===_0x3fccd8(0x449))setCrumb(_0x3fccd8(0xa0)),await setPromoTab(_0x3fccd8(0x2ef)),renderPromoPayoutFormPage();else{if(_0x3a3ec3===_0x3fccd8(0x15b)&&_0x57019c)setCrumb(_0x3fccd8(0x8e)),await setPromoTab(_0x3fccd8(0x2ef)),await renderPromoPayoutFormPage(_0x57019c);else{if(_0x3a3ec3===_0x29cc8a(0x2ce))setCrumb(_0x3fccd8(0xf9)),await setPromoTab(_0x44887c(0x3d2));else{if(_0x3a3ec3===_0x29cc8a(0x324))setCrumb(_0x3fccd8(0x313)),await setPromoTab(_0x3fccd8(0x3ec)),renderPromoRuleFormPage();else{if(_0x3a3ec3===_0x3fccd8(0x1cd)&&_0x57019c)setCrumb(_0x44887c(0x279)),await setPromoTab(_0x3fccd8(0x3ec)),await renderPromoRuleFormPage(_0x57019c);else _0x3a3ec3===_0x29cc8a(0x275)?setCrumb(_0x3fccd8(0x1e0)):location[_0x3fccd8(0xa3)]=_0x3fccd8(0x336);}}}}}}}}}}}}}}}}}}}}}}}}}}}async function initAfterLogin(){const _0x32469b=_0x39c496,_0x4bded5=_0x247feb,_0xb68f57=_0x37ce72,_0x4af683=_0x1c09bd;lucide[_0x4af683(0x38b)](),await ensureFeaturesLoaded(),applyFeaturesToSettingsUI(),await ensureLinkTemplatesLoaded(),applyLinkTemplatesToSettingsUI(),document[_0x4af683(0x379)](_0x4af683(0x29a))[_0x4af683(0x335)](_0x34a781=>{const _0x59ec26=_0x4af683;_0x34a781[_0x59ec26(0x446)](_0x59ec26(0x42e),saveLinkTemplates);});const _0x1b4e36=document[_0x4bded5(0x29d)](_0x4af683(0xfb));_0x1b4e36&&(_0x1b4e36[_0xb68f57(0x312)]=async _0x15cd64=>{const _0x21b7bf=_0x4bded5,_0x5ea2a7=_0xb68f57,_0x59e432=_0x4af683,_0x19c7ee=_0x15cd64[_0x21b7bf(0x1b9)],_0x43e054=!!_0x19c7ee[_0x59e432(0x8d)];_0x19c7ee[_0x5ea2a7(0x375)]=!![];try{const _0x38e295=doc(db,_0x59e432(0x18e),_0x59e432(0x368));await setDoc(_0x38e295,{'promoCardsEnabled':_0x43e054},{'merge':!![]}),featuresConfig[_0x59e432(0x1c7)]=_0x43e054,toast(_0x5ea2a7(0x25d),_0x43e054?_0x59e432(0x42c):_0x59e432(0x22d),_0x59e432(0x2bf));}catch(_0x17e265){console[_0x59e432(0x381)](_0x5ea2a7(0x2b7),_0x17e265),_0x19c7ee[_0x59e432(0x8d)]=!_0x43e054,toast(_0x5ea2a7(0x4b8),_0x5ea2a7(0x418),_0x59e432(0x381));}finally{_0x19c7ee[_0x21b7bf(0x4c1)]=![];}}),($(_0x32469b(0x4f4))[_0x4af683(0x453)]=function(){const _0x2ec7c1=_0x4af683;location[_0x2ec7c1(0xa3)]=_0x2ec7c1(0x13a);},$(_0xb68f57(0x234))[_0x4af683(0x453)]=function(){const _0x1c4173=_0x4af683;location[_0x1c4173(0xa3)]=_0x1c4173(0x332);},$(_0x4af683(0x207))[_0xb68f57(0x370)]=function(){const _0x90a13c=_0xb68f57,_0x57f9b1=_0x4af683;location[_0x90a13c(0x318)]=_0x57f9b1(0x224);},$(_0x4af683(0xd4))[_0x4af683(0x453)]=function(){const _0x410388=_0xb68f57,_0x294d50=_0x4af683;location[_0x294d50(0xa3)]=_0x410388(0x4a2);},$(_0x4af683(0x3b8))[_0x4af683(0x453)]=function(){const _0x32b2c2=_0xb68f57,_0x1dbaab=_0x4af683;if(!allContests[_0x1dbaab(0x109)]){toast(_0x1dbaab(0x1ce),_0x1dbaab(0x42b),_0x1dbaab(0x166)),location[_0x32b2c2(0x318)]=_0x1dbaab(0x256);return;}const _0x49a4aa=selectedContestId||allContests[0x0]['id'];location[_0x1dbaab(0xa3)]='#/new-candidate/'+_0x49a4aa;},$(_0x4af683(0x211))[_0x4af683(0x453)]=function(){const _0x3f77cf=_0x4af683;location[_0x3f77cf(0xa3)]=_0x3f77cf(0x3a4);},$(_0xb68f57(0x47c))[_0x4af683(0x453)]=function(){const _0x42687c=_0x4af683;location[_0x42687c(0xa3)]=_0x42687c(0x2c6);});const _0x5282e0=$(_0x4af683(0x319));_0x5282e0&&_0x5282e0[_0x4af683(0x446)](_0x4af683(0xa1),async _0x1e908c=>{const _0xa1beb1=_0x4bded5,_0x35f248=_0xb68f57,_0x115eec=_0x1e908c[_0xa1beb1(0x1b9)][_0x35f248(0x398)];_0x115eec?await setSelectedContest(_0x115eec,{'force':!![]}):await setSelectedContest(allContests[0x0]?.['id']||'',{'force':!![]});});const _0x6c2665=$(_0x4af683(0x110));_0x6c2665&&_0x6c2665[_0x4af683(0x446)](_0x4af683(0x40c),_0x12fe26=>{const _0x11208a=_0x4af683;candidateSearchTerm=_0x12fe26[_0x11208a(0x340)][_0x11208a(0x1d2)]||'',(location[_0x11208a(0xa3)][_0x11208a(0x124)](_0x11208a(0x97))||location[_0x11208a(0xa3)][_0x11208a(0x124)](_0x11208a(0x274)))&&renderContestsOverview();}),($(_0x4af683(0x2e1))?.[_0xb68f57(0x4f9)](_0x4af683(0x42e),()=>{const _0x243f1d=_0x4af683;location[_0x243f1d(0xa3)]=_0x243f1d(0x256);}),$(_0x4af683(0x101))?.[_0x4af683(0x446)](_0x4af683(0x42e),()=>{const _0x530ca5=_0xb68f57,_0x242ca9=_0x4af683,_0xfb50ae=selectedContestId||allContests[0x0]?.['id']||'';if(!_0xfb50ae){toast(_0x242ca9(0x1ce),_0x242ca9(0x42b),_0x242ca9(0x166)),location[_0x242ca9(0xa3)]=_0x242ca9(0x256);return;}location[_0x242ca9(0xa3)]=_0x530ca5(0x534)+_0xfb50ae;}));const _0x169d35=$(_0x4af683(0x234));document[_0x4af683(0x446)](_0x4bded5(0x3b6),function(_0x306c91){const _0x1fdb8a=_0xb68f57,_0x5d90ff=_0x4af683,_0xfb9c12=document[_0x1fdb8a(0x579)]&&document[_0x5d90ff(0x1cf)][_0x5d90ff(0x399)]||'',_0x262f4c=/input|textarea|select/i[_0x5d90ff(0x443)](_0xfb9c12);!_0x262f4c&&(_0x306c91[_0x5d90ff(0x413)]==='/'||_0x306c91[_0x5d90ff(0x413)]&&_0x306c91[_0x1fdb8a(0x3eb)][_0x1fdb8a(0x288)]()==='k'&&(_0x306c91[_0x5d90ff(0x9a)]||_0x306c91[_0x5d90ff(0x3c1)]))&&(_0x306c91[_0x5d90ff(0x2ff)](),_0x169d35[_0x5d90ff(0x415)]());}),handleRoute();try{const _0x4ac6ab=(location[_0x4af683(0xa3)]||_0x4af683(0x336))[_0xb68f57(0x479)]('/'),_0x144612=_0x4ac6ab[0x1]||_0x4af683(0x43b);_0x144612===_0x4af683(0x270)&&(await ensureFeaturesLoaded(),applyFeaturesToSettingsUI());}catch(_0x4d216f){console[_0xb68f57(0x2b1)](_0x4af683(0x3ce),_0x4d216f);}}async function ensureProductsLoaded(){const _0x5eac34=_0x247feb,_0x17bb50=_0x37ce72,_0x5f4303=_0x1c09bd;if(allProducts[_0x5f4303(0x109)])return;$productsContent[_0x5f4303(0xfc)]=_0x5f4303(0x3cb)[_0x17bb50(0x220)](0x6);const _0x2d307f=query(collection(db,_0x5f4303(0x43b)),orderBy(_0x5f4303(0x354),_0x5eac34(0x23e))),_0x5f5664=await getDocs(_0x2d307f);allProducts=_0x5f5664[_0x5f4303(0x2a7)][_0x5eac34(0x40e)](function(_0x36fb94){const _0x43c1c6=_0x5f4303;return{'id':_0x36fb94['id'],..._0x36fb94[_0x43c1c6(0x2d9)]()};}),$(_0x17bb50(0x319))[_0x17bb50(0x41e)]=String(allProducts[_0x5eac34(0x297)]);}async function ensureBrandsLoaded(){const _0x102443=_0x37ce72,_0x49bdd2=_0x1c09bd;if(allBrands[_0x49bdd2(0x109)])return;$brandsContent[_0x49bdd2(0xfc)]=_0x102443(0x2cb)[_0x49bdd2(0xfa)](0x4);const _0x405564=query(collection(db,_0x49bdd2(0x2cc)),orderBy(_0x49bdd2(0x2fc),_0x49bdd2(0x41c))),_0x37ea06=await getDocs(_0x405564);allBrands=_0x37ea06[_0x49bdd2(0x2a7)][_0x102443(0x1ee)](function(_0x2c133d){const _0x319c36=_0x49bdd2;return{'id':_0x2c133d['id'],..._0x2c133d[_0x319c36(0x2d9)]()};}),$(_0x49bdd2(0x393))[_0x102443(0x41e)]=String(allBrands[_0x49bdd2(0x109)]);}async function ensureMatchesLoaded(){const _0x2000af=_0x37ce72,_0x48e4cb=_0x1c09bd;if(allMatches[_0x48e4cb(0x109)])return;$matchesContent[_0x48e4cb(0xfc)]=_0x48e4cb(0x3cb)[_0x48e4cb(0xfa)](0x6);const _0x3ae9aa=query(collection(db,_0x2000af(0x3b4)),orderBy(_0x48e4cb(0x339),_0x48e4cb(0x185))),_0x3e680b=await getDocs(_0x3ae9aa);allMatches=_0x3e680b[_0x48e4cb(0x2a7)][_0x48e4cb(0x287)](function(_0x38358d){const _0x11e9cf=_0x48e4cb;return{'id':_0x38358d['id'],..._0x38358d[_0x11e9cf(0x2d9)]()};}),$(_0x48e4cb(0x3bc))[_0x2000af(0x41e)]=String(allMatches[_0x2000af(0x28d)]);}function getPromoSortOrder(_0x1f1d33){const _0x1d6ec9=_0x37ce72,_0x3047c0=_0x1c09bd;if(typeof _0x1f1d33?.[_0x3047c0(0x2fc)]===_0x3047c0(0x392))return _0x1f1d33[_0x3047c0(0x2fc)];const _0x2afe8e=parseInt(_0x1f1d33?.[_0x3047c0(0x2fc)],0xa);return Number[_0x3047c0(0xae)](_0x2afe8e)?_0x2afe8e:Number[_0x1d6ec9(0x3db)];}function getPromoCardsForDisplay(){const _0x1275a5=_0x1c09bd,_0x50135f=contestPromoCard?[...allPromoCards,contestPromoCard]:[...allPromoCards];return _0x50135f[_0x1275a5(0x18a)]((_0x4df35f,_0x349f3c)=>getPromoSortOrder(_0x4df35f)-getPromoSortOrder(_0x349f3c));}function updatePromoCardsKpi(){const _0x3d95d5=_0x37ce72,_0x12e244=_0x1c09bd,_0x26bdd5=allPromoCards[_0x12e244(0x109)]+(contestPromoCard?0x1:0x0);$(_0x12e244(0x25e))[_0x3d95d5(0x41e)]=String(_0x26bdd5);}async function refreshContestPromoCard(){const _0x4b012c=_0x39c496,_0x3ea91f=_0x37ce72,_0x864698=_0x1c09bd;try{const _0x206c31=collection(db,_0x864698(0x2eb)),_0x51ba7b=query(_0x206c31,where(_0x864698(0x3c3),'==',_0x864698(0x27b)),orderBy(_0x864698(0x21c),_0x3ea91f(0x5a2)),limit(0x1)),_0x577580=await getDocs(_0x51ba7b);if(_0x577580[_0x864698(0x3e6)]){contestPromoCard=null;return;}const _0x59beaa=_0x577580[_0x864698(0x2a7)][0x0],_0xdbfe16=_0x59beaa[_0x3ea91f(0x3b2)]()||{},_0x3f4663=_0x864698(0x1eb),_0x3ca98f=typeof _0xdbfe16[_0x864698(0x3c6)]===_0x864698(0x11b)&&_0xdbfe16[_0x864698(0x3c6)]||typeof _0xdbfe16[_0x864698(0xe1)]===_0x864698(0x11b)&&_0xdbfe16[_0x3ea91f(0x37f)]||typeof _0xdbfe16[_0x4b012c(0x1ba)]===_0x864698(0x11b)&&_0xdbfe16[_0x864698(0x198)]||_0x3f4663,_0x5199b2=typeof _0xdbfe16[_0x864698(0x3c3)]===_0x864698(0x11b)?_0xdbfe16[_0x864698(0x3c3)]:_0x3ea91f(0x219),_0x121eed=typeof _0xdbfe16[_0x864698(0x13b)]===_0x864698(0x392)&&Number[_0x3ea91f(0x215)](_0xdbfe16[_0x864698(0x13b)])?_0xdbfe16[_0x864698(0x13b)]:-0x1;contestPromoCard={'id':_0x864698(0x1d9)+_0x59beaa['id'],'contestId':_0x59beaa['id'],'title':typeof _0xdbfe16[_0x864698(0x1d6)]===_0x864698(0x11b)?_0xdbfe16[_0x864698(0x1d6)]:_0x864698(0x2fb),'subtitle':typeof _0xdbfe16[_0x864698(0x20b)]===_0x864698(0x11b)&&_0xdbfe16[_0x864698(0x20b)]?_0xdbfe16[_0x864698(0x20b)]:_0x864698(0xdc),'cta':_0x5199b2===_0x864698(0x33a)?_0x864698(0x3ea):_0x864698(0x275),'screen':_0x864698(0x402),'image':_0x3ca98f,'sortOrder':_0x121eed,'isActive':_0x5199b2===_0x864698(0x27b),'isContestCard':!![]};}catch(_0x4ec79d){console[_0x864698(0x381)](_0x864698(0x2b1),_0x4ec79d),contestPromoCard=null;}}async function ensurePromoCardsLoaded(_0x1597c5=![]){const _0x9614ad=_0x1c09bd;if(!_0x1597c5&&allPromoCards[_0x9614ad(0x109)]>0x0){await refreshContestPromoCard(),updatePromoCardsKpi();return;}$promoCardsContent[_0x9614ad(0xfc)]=_0x9614ad(0x268)[_0x9614ad(0xfa)](0x3);const _0x50ede4=query(collection(db,_0x9614ad(0x3a2)),orderBy(_0x9614ad(0x2fc),_0x9614ad(0x41c))),_0x2de3da=await getDocs(_0x50ede4);allPromoCards=_0x2de3da[_0x9614ad(0x2a7)][_0x9614ad(0x287)](_0x175eda=>({'id':_0x175eda['id'],..._0x175eda[_0x9614ad(0x2d9)]()})),await refreshContestPromoCard(),updatePromoCardsKpi();}async function ensurePromoCodesLoaded(){const _0x3a8192=_0x247feb,_0x433a97=_0x37ce72,_0x151360=_0x1c09bd;if(allPromoCodes[_0x151360(0x109)]>0x0)return;await ensurePromoRulesLoaded()[_0x151360(0x44f)](_0x4885a3=>console[_0x3a8192(0x271)](_0x151360(0x108),_0x4885a3)),$promoCodesContent[_0x151360(0xfc)]=_0x151360(0x3cb)[_0x151360(0xfa)](0x3);const _0x4ba1f9=query(collection(db,_0x3a8192(0x3a3)),orderBy(_0x151360(0x34b),_0x151360(0x185))),_0x165342=await getDocs(_0x4ba1f9);allPromoCodes=_0x165342[_0x151360(0x2a7)][_0x151360(0x287)](_0x9448e7=>({'id':_0x9448e7['id'],..._0x9448e7[_0x433a97(0x3b2)]()})),$(_0x151360(0x1a9))[_0x151360(0x284)]=String(allPromoCodes[_0x151360(0x109)]);}function _0x2953(_0x3c1099,_0x445edb){_0x3c1099=_0x3c1099-0x12e;const _0x272103=_0x4187();let _0x41033b=_0x272103[_0x3c1099];return _0x41033b;}async function ensurePromoRulesLoaded(){const _0x4c8a58=_0x37ce72,_0x3fe085=_0x1c09bd;if(allPromoRules[_0x3fe085(0x109)]>0x0)return;const _0xeb28ce=$promoRulesContent||$promoCodesContent;_0xeb28ce&&(_0xeb28ce[_0x4c8a58(0x29b)]=_0x3fe085(0x3cb)[_0x3fe085(0xfa)](0x3));const _0x16abfc=query(collection(db,_0x4c8a58(0x4c6))),_0x68360e=await getDocs(_0x16abfc);allPromoRules=_0x68360e[_0x3fe085(0x2a7)][_0x3fe085(0x287)](_0x43a3a0=>({'id':_0x43a3a0['id'],..._0x43a3a0[_0x3fe085(0x2d9)]()}))[_0x3fe085(0x18a)]((_0x5f32ef,_0x14e745)=>{const _0x3d51f1=_0x2953,_0xf4a72d=_0x4c8a58,_0x1bf5b2=_0x3fe085;return(_0x5f32ef[_0x1bf5b2(0x3d4)]||_0x5f32ef['id']||'')[_0x3d51f1(0x487)](_0x14e745[_0xf4a72d(0x4cc)]||_0x14e745['id']||'');});}async function ensurePromoPayoutsLoaded(_0x7b729a=![]){const _0x870bb0=_0x37ce72,_0x4fcbce=_0x1c09bd;if(!_0x7b729a&&allPromoPayouts[_0x4fcbce(0x109)]>0x0)return;$promoPayoutsContent&&($promoPayoutsContent[_0x4fcbce(0xfc)]=_0x4fcbce(0x3cb)[_0x870bb0(0x220)](0x3));try{const _0x2d343c=query(collection(db,_0x4fcbce(0x25b)),orderBy(_0x4fcbce(0x34b),_0x870bb0(0x3da))),_0x1f285a=await getDocs(_0x2d343c);allPromoPayouts=_0x1f285a[_0x4fcbce(0x2a7)][_0x4fcbce(0x287)](_0x4c8222=>({'id':_0x4c8222['id'],..._0x4c8222[_0x870bb0(0x3b2)]()}));}catch(_0x16deb2){console[_0x4fcbce(0x381)](_0x4fcbce(0x301),_0x16deb2),allPromoPayouts=[],$promoPayoutsContent&&($promoPayoutsContent[_0x4fcbce(0xfc)]=_0x4fcbce(0x178));}}async function setPromoTab(_0x4b6e0b=_0x1c09bd(0x116)){const _0x5611b7=_0x247feb,_0x279cfa=_0x37ce72,_0x27f5e5=_0x1c09bd,_0xdb40f8=[_0x279cfa(0x54a),_0x27f5e5(0x3ec),_0x27f5e5(0x2ef),_0x27f5e5(0x240)],_0x2a4702=_0xdb40f8[_0x27f5e5(0x124)](_0x4b6e0b)?_0x4b6e0b:_0x279cfa(0x54a);promoTab=_0x2a4702,document[_0x27f5e5(0x379)](_0x279cfa(0x51d))[_0x279cfa(0x53e)](_0x502ce8=>{const _0x1a53bd=_0x34de,_0x4ae1bd=_0x279cfa,_0x40c44d=_0x27f5e5,_0x9c5488=_0x502ce8[_0x4ae1bd(0x358)][_0x40c44d(0x2a5)]===_0x2a4702;_0x502ce8[_0x40c44d(0xf7)][_0x40c44d(0x29b)](_0x40c44d(0x27b),_0x9c5488),_0x502ce8[_0x40c44d(0x3ef)](_0x40c44d(0x3aa),_0x9c5488?_0x1a53bd(0x2a2):_0x40c44d(0x436));});const _0x3243d8={'codes':$promoCodesContent,'rules':$promoRulesContent,'payouts':$promoPayoutsContent,'templates':$promoTemplatesContent};Object[_0x5611b7(0x2e9)](_0x3243d8)[_0x27f5e5(0x335)](([_0xc0ba17,_0x444cda])=>{const _0xd812a1=_0x27f5e5;_0x444cda&&_0x444cda[_0xd812a1(0xf7)][_0xd812a1(0x29b)](_0xd812a1(0xf3),_0xc0ba17!==_0x2a4702);});const _0x556622=[document[_0x27f5e5(0x362)](_0x27f5e5(0x3cf)),document[_0x27f5e5(0x362)](_0x27f5e5(0x33d))];_0x556622[_0x279cfa(0x53e)](_0x264814=>{const _0x49a74c=_0x279cfa,_0x1d7d01=_0x27f5e5;if(_0x264814)_0x264814[_0x49a74c(0x503)][_0x1d7d01(0x29b)](_0x1d7d01(0xf3),_0x2a4702!==_0x1d7d01(0x116));});if(_0x2a4702===_0x279cfa(0x54a))await ensurePromoCodesLoaded(),renderPromoCodeList();else{if(_0x2a4702===_0x27f5e5(0x3ec))await ensurePromoRulesLoaded(),renderPromoRuleList();else{if(_0x2a4702===_0x27f5e5(0x2ef))await ensurePromoPayoutsLoaded(),renderPromoPayoutList();else _0x2a4702===_0x27f5e5(0x240)&&(await ensureLinkTemplatesLoaded(),applyLinkTemplatesToSettingsUI());}}}$(_0x1c09bd(0x2fa))[_0x1c09bd(0x446)](_0x1c09bd(0x40c),function(_0x101b12){const _0xb5b18f=_0x37ce72,_0x42c12c=_0x1c09bd;productSearchTerm=(_0x101b12[_0x42c12c(0x340)][_0x42c12c(0x1d2)]||'')[_0x42c12c(0xba)]();if(location[_0xb5b18f(0x318)][_0x42c12c(0x2c3)](_0x42c12c(0x336))===0x0)renderProductList();}),$(_0x1c09bd(0x21f))[_0x1c09bd(0x446)](_0x1c09bd(0xa1),function(_0x230776){const _0x29af98=_0x1c09bd;productCategoryFilter=_0x230776[_0x29af98(0x340)][_0x29af98(0x1d2)]||'';if(location[_0x29af98(0xa3)][_0x29af98(0x2c3)](_0x29af98(0x336))===0x0)renderProductList();}),$(_0x1c09bd(0x35c))[_0x1c09bd(0x446)](_0x1c09bd(0x42e),function(){const _0x2bdc83=_0x1c09bd;location[_0x2bdc83(0xa3)]=_0x2bdc83(0x13a);}),$(_0x1c09bd(0x210))[_0x1c09bd(0x446)](_0x37ce72(0x44e),function(){const _0x165002=_0x37ce72,_0x125917=_0x1c09bd;viewMode=_0x125917(0x3f3),$(_0x125917(0x210))[_0x125917(0x3ef)](_0x165002(0x285),_0x125917(0xcb)),$(_0x125917(0x433))[_0x165002(0x554)](_0x125917(0x3aa),_0x125917(0x436)),renderProductList();}),$(_0x1c09bd(0x433))[_0x1c09bd(0x446)](_0x37ce72(0x44e),function(){const _0x1b4c73=_0x247feb,_0x5596b1=_0x37ce72,_0x7b7329=_0x1c09bd;viewMode=_0x1b4c73(0x4bd),$(_0x7b7329(0x210))[_0x1b4c73(0x3d8)](_0x7b7329(0x3aa),_0x7b7329(0x436)),$(_0x7b7329(0x433))[_0x5596b1(0x554)](_0x7b7329(0x3aa),_0x5596b1(0x40e)),renderProductList();});function filteredProducts(){const _0x264a9b=_0x37ce72,_0x1e979c=_0x1c09bd;let _0x33086b=allProducts[_0x1e979c(0xce)]();if(productSearchTerm){const _0x3b10f7=productSearchTerm;_0x33086b=_0x33086b[_0x264a9b(0x52e)](function(_0x3c084e){const _0x5b55f2=_0x2953,_0x166e82=_0x264a9b,_0x5d1a17=_0x1e979c;return(_0x3c084e[_0x5d1a17(0x354)]||'')[_0x5d1a17(0xba)]()[_0x5d1a17(0x2c3)](_0x3b10f7)!==-0x1||(_0x3c084e[_0x5d1a17(0x428)]||'')[_0x166e82(0x288)]()[_0x5d1a17(0x2c3)](_0x3b10f7)!==-0x1||(_0x3c084e[_0x5d1a17(0x247)]||'')[_0x5b55f2(0x235)]()[_0x166e82(0x597)](_0x3b10f7)!==-0x1;});}productCategoryFilter&&(_0x33086b=_0x33086b[_0x1e979c(0x43a)](function(_0x112ffe){const _0x4c2dec=_0x1e979c;return(_0x112ffe[_0x4c2dec(0x247)]||'')===productCategoryFilter;}));const _0x335a17=sortBy[_0x264a9b(0x35d)]===_0x1e979c(0x41c)?0x1:-0x1;return _0x33086b[_0x1e979c(0x18a)](function(_0x5ce7cc,_0x118ce7){const _0x216a2e=_0x264a9b,_0x2e45cb=_0x1e979c;if([_0x2e45cb(0x320),_0x2e45cb(0xb0),_0x2e45cb(0x396)][_0x2e45cb(0x124)](sortBy[_0x2e45cb(0x413)])){const _0xc24201=Number(_0x5ce7cc[sortBy[_0x2e45cb(0x413)]]),_0x12bde4=Number(_0x118ce7[sortBy[_0x2e45cb(0x413)]]),_0xdafc06=Number[_0x2e45cb(0xae)](_0xc24201)?_0xc24201:0x0,_0x27a006=Number[_0x2e45cb(0xae)](_0x12bde4)?_0x12bde4:0x0;if(_0xdafc06<_0x27a006)return-0x1*_0x335a17;if(_0xdafc06>_0x27a006)return 0x1*_0x335a17;return(_0x5ce7cc[_0x2e45cb(0x354)]||'')[_0x2e45cb(0xba)]()[_0x2e45cb(0x39e)]((_0x118ce7[_0x2e45cb(0x354)]||'')[_0x2e45cb(0xba)](),'fr');}const _0x570587=(_0x5ce7cc[sortBy[_0x2e45cb(0x413)]]??'')[_0x2e45cb(0x138)]()[_0x216a2e(0x288)](),_0x43c2b1=(_0x118ce7[sortBy[_0x216a2e(0x3eb)]]??'')[_0x2e45cb(0x138)]()[_0x2e45cb(0xba)]();if(_0x570587<_0x43c2b1)return-0x1*_0x335a17;if(_0x570587>_0x43c2b1)return 0x1*_0x335a17;return 0x0;}),_0x33086b;}function renderProductList(){const _0x588c0b=_0x37ce72,_0x1c0aee=_0x1c09bd,_0x5957dc=filteredProducts();$(_0x1c0aee(0x117))[_0x1c0aee(0x28b)]=!![];if(!_0x5957dc[_0x588c0b(0x28d)]){$productsContent[_0x1c0aee(0xfc)]=''+_0x1c0aee(0x229)+_0x1c0aee(0x1a0)+_0x1c0aee(0x318)+_0x1c0aee(0x452)+_0x1c0aee(0x404)+_0x588c0b(0x213)+_0x1c0aee(0x184)+_0x1c0aee(0x2e6)+_0x588c0b(0x39a),$(_0x1c0aee(0x421))[_0x1c0aee(0x453)]=()=>location[_0x1c0aee(0xa3)]=_0x1c0aee(0x13a),lucide[_0x1c0aee(0x38b)]();return;}if(viewMode===_0x1c0aee(0x26e)){const _0x36dc28=document[_0x1c0aee(0x259)](_0x1c0aee(0x99));_0x36dc28[_0x1c0aee(0x394)]=_0x1c0aee(0xf6),_0x5957dc[_0x1c0aee(0x335)](function(_0x580025){const _0x21a9ca=_0x34de,_0x58cac4=_0x588c0b,_0x59302c=_0x1c0aee,_0x1cb018=document[_0x59302c(0x259)](_0x59302c(0x99));_0x1cb018[_0x59302c(0x394)]=_0x59302c(0x263),_0x1cb018[_0x59302c(0xca)]['id']=_0x580025['id'],_0x1cb018[_0x58cac4(0x29b)]=_0x59302c(0x32a)+escapeAttr(_0x580025[_0x59302c(0x455)]&&_0x580025[_0x59302c(0x455)][0x0]||_0x580025[_0x59302c(0x2c0)]||'')+_0x59302c(0x1f8)+escapeAttr(_0x580025[_0x59302c(0x354)]||_0x58cac4(0x4e6))+_0x59302c(0x186)+escapeHtml(_0x580025[_0x59302c(0x354)]||_0x59302c(0x1b9))+_0x59302c(0x351)+_0x580025['id']+_0x59302c(0x3cd)+escapeHtml(_0x580025[_0x59302c(0x428)]||'?')+_0x59302c(0x43d)+escapeHtml(_0x580025[_0x58cac4(0x367)]||'?')+_0x58cac4(0x56b)+(typeof _0x580025[_0x59302c(0x396)]===_0x59302c(0x392)&&_0x580025[_0x58cac4(0x599)]>0x0?_0x59302c(0x373)+escapeHtml(String(_0x580025[_0x59302c(0x396)]))+_0x59302c(0x9b):'')+_0x59302c(0x170)+(typeof _0x580025[_0x59302c(0x320)]===_0x59302c(0x392)?fmtXOF[_0x59302c(0x347)](_0x580025[_0x59302c(0x320)]):'?')+_0x59302c(0x324),_0x1cb018[_0x59302c(0x10a)](_0x59302c(0xa9))[_0x59302c(0x446)](_0x58cac4(0x44e),function(){const _0x3b0f4=_0x58cac4,_0x4c88a8=_0x59302c;location[_0x3b0f4(0x318)]=_0x4c88a8(0x24a)+_0x580025['id'];}),_0x1cb018[_0x59302c(0x10a)](_0x59302c(0x1cc))[_0x58cac4(0x4f9)](_0x59302c(0x42e),function(){const _0x3f063b=_0x58cac4,_0x4ac472=_0x59302c;handleDelete(_0x580025['id'],_0x580025[_0x4ac472(0x354)],_0x3f063b(0x381));}),_0x36dc28[_0x21a9ca(0x333)](_0x1cb018);}),$productsContent[_0x1c0aee(0xfc)]='',$productsContent[_0x1c0aee(0x385)](_0x36dc28);}else{const _0x51fcba=document[_0x588c0b(0x501)](_0x1c0aee(0x3f3));_0x51fcba[_0x588c0b(0x276)]=_0x588c0b(0x413);const _0x2d880c=_0x32944f=>{const _0x22207c=_0x2953,_0x360f37=_0x588c0b,_0x5e40c1=_0x1c0aee;if(sortBy[_0x5e40c1(0x413)]!==_0x32944f)return _0x22207c(0x242);return sortBy[_0x360f37(0x35d)]===_0x360f37(0x5a2)?_0x360f37(0x38c):_0x5e40c1(0xcf);};_0x51fcba[_0x1c0aee(0xfc)]=_0x588c0b(0x561)+(sortBy[_0x588c0b(0x3eb)]===_0x1c0aee(0x354)?_0x1c0aee(0xa8):'')+_0x1c0aee(0x133)+_0x2d880c(_0x588c0b(0x3a5))+_0x1c0aee(0x132)+(sortBy[_0x1c0aee(0x413)]===_0x588c0b(0x238)?_0x588c0b(0x284):'')+_0x1c0aee(0xc5)+_0x2d880c(_0x588c0b(0x238))+_0x1c0aee(0x132)+(sortBy[_0x588c0b(0x3eb)]===_0x1c0aee(0x247)?_0x1c0aee(0xa8):'')+_0x1c0aee(0x265)+_0x2d880c(_0x1c0aee(0x247))+_0x588c0b(0x4c1)+(sortBy[_0x1c0aee(0x413)]===_0x1c0aee(0x396)?_0x1c0aee(0xa8):'')+_0x588c0b(0x3df)+_0x2d880c(_0x1c0aee(0x396))+_0x1c0aee(0x401);const _0x216250=_0x51fcba[_0x1c0aee(0x10a)](_0x588c0b(0x41f));_0x5957dc[_0x1c0aee(0x335)](function(_0x44678e){const _0x2575ac=_0x34de,_0x5aa1f7=_0x588c0b,_0x5a96b9=_0x1c0aee,_0x3167ab=document[_0x5a96b9(0x259)]('tr');_0x3167ab[_0x5a96b9(0xca)]['id']=_0x44678e['id'];const _0x397f22=_0x44678e[_0x5a96b9(0x455)]&&_0x44678e[_0x5a96b9(0x455)][0x0]||_0x44678e[_0x5a96b9(0x2c0)]||'';_0x3167ab[_0x5a96b9(0xfc)]=_0x5a96b9(0x2d2)+(_0x397f22?_0x5aa1f7(0x359)+escapeAttr(_0x397f22)+_0x5a96b9(0x1f8)+escapeAttr(_0x44678e[_0x5aa1f7(0x3a5)]||_0x5a96b9(0x294))+_0x5a96b9(0x145):_0x5a96b9(0x2e5))+_0x5a96b9(0x290)+escapeHtml(_0x44678e[_0x5aa1f7(0x3a5)]||_0x5a96b9(0x1b9))+_0x2575ac(0x425)+escapeHtml(_0x44678e[_0x5a96b9(0x428)]||'?')+_0x5aa1f7(0x3b1)+escapeHtml(_0x44678e[_0x5aa1f7(0x367)]||'?')+_0x5a96b9(0x345)+(typeof _0x44678e[_0x5a96b9(0x320)]===_0x5aa1f7(0x341)?_0x44678e[_0x5a96b9(0x320)]:'')+_0x5aa1f7(0x302)+(typeof _0x44678e[_0x5a96b9(0xb0)]===_0x5a96b9(0x392)?_0x44678e[_0x5a96b9(0xb0)]:'?')+_0x5aa1f7(0x2c5)+(typeof _0x44678e[_0x5a96b9(0x396)]===_0x5a96b9(0x392)?_0x44678e[_0x5a96b9(0x396)]:'')+_0x5a96b9(0x195);const _0x410ef0=_0x3167ab[_0x5a96b9(0x10a)](_0x5a96b9(0x164)),_0x728485=_0x3167ab[_0x5a96b9(0x10a)](_0x5a96b9(0x316)),_0x188771=_0x3167ab[_0x5a96b9(0x10a)](_0x5a96b9(0x2e4)),_0x20c8d3=_0x3167ab[_0x5a96b9(0x10a)](_0x5aa1f7(0x389)),_0x1b04e9=_0x3167ab[_0x5a96b9(0x10a)](_0x5a96b9(0x1cc));_0x410ef0[_0x5a96b9(0x446)](_0x5a96b9(0xa1),updateBulkState),_0x728485[_0x5a96b9(0x446)](_0x5a96b9(0xa1),function(){handlePriceUpdate(_0x44678e['id'],_0x728485);}),_0x188771&&_0x188771[_0x5a96b9(0x446)](_0x5aa1f7(0x2c7),function(){handleVedetteUpdate(_0x44678e['id'],_0x188771);}),_0x20c8d3[_0x5a96b9(0x446)](_0x5a96b9(0x42e),function(){const _0x91e589=_0x5a96b9;location[_0x91e589(0xa3)]=_0x91e589(0x24a)+_0x44678e['id'];}),_0x1b04e9[_0x5a96b9(0x446)](_0x5a96b9(0x42e),function(){const _0x2566c6=_0x5a96b9;handleDelete(_0x44678e['id'],_0x44678e[_0x2566c6(0x354)],_0x2566c6(0x43b));}),_0x216250[_0x5a96b9(0x385)](_0x3167ab);}),$productsContent[_0x588c0b(0x29b)]='',$productsContent[_0x1c0aee(0x385)](_0x51fcba),$(_0x1c0aee(0x2c9))[_0x1c0aee(0x446)](_0x1c0aee(0xa1),function(_0x51eb9d){const _0x3c3127=_0x34de,_0x3aa248=_0x588c0b;$$(_0x3c3127(0x327))[_0x3aa248(0x53e)](function(_0x341905){const _0x25f620=_0x1be0;_0x341905[_0x25f620(0x8d)]=_0x51eb9d[_0x25f620(0x340)][_0x25f620(0x8d)];}),updateBulkState();});}lucide[_0x1c0aee(0x38b)]();}function updateBulkState(){const _0x2493d1=_0x247feb,_0x375e80=_0x37ce72,_0x255d64=_0x1c09bd,_0x3e7bcc=Array[_0x375e80(0x2d9)][_0x255d64(0xce)][_0x255d64(0x412)]($$(_0x255d64(0x164)))[_0x255d64(0x21a)](function(_0xa15125){const _0x120d03=_0x255d64;return _0xa15125[_0x120d03(0x8d)];});$(_0x2493d1(0x1c5))[_0x375e80(0x375)]=!_0x3e7bcc;}$(_0x1c09bd(0x117))[_0x37ce72(0x4f9)](_0x1c09bd(0x42e),async function(){const _0x486099=_0x247feb,_0x5ba7be=_0x37ce72,_0xa1fa2d=_0x1c09bd,_0x23f679=Array[_0xa1fa2d(0x30a)][_0xa1fa2d(0xce)][_0xa1fa2d(0x412)]($$(_0xa1fa2d(0x164)))[_0xa1fa2d(0x43a)](function(_0x39015f){const _0x1b41aa=_0x47d2;return _0x39015f[_0x1b41aa(0x55e)];})[_0xa1fa2d(0x287)](function(_0x11e889){const _0x522ee8=_0x47d2,_0x538e91=_0xa1fa2d;return _0x11e889[_0x538e91(0x44d)](_0x522ee8(0x264))[_0x538e91(0xca)]['id'];});if(!_0x23f679[_0xa1fa2d(0x109)])return;const _0x167384=await openModal({'title':_0xa1fa2d(0x3bb),'body':_0xa1fa2d(0x16e)+_0x23f679[_0xa1fa2d(0x109)]+_0xa1fa2d(0x288),'okText':_0x486099(0x1e6),'cancelText':_0xa1fa2d(0x2a1),'danger':!![]});if(!_0x167384)return;let _0x2c54e4=0x0,_0x3e396b=0x0;for(const _0x2185a2 of _0x23f679){try{await deleteDoc(doc(db,_0x5ba7be(0x381),_0x2185a2)),allProducts=allProducts[_0xa1fa2d(0x43a)](function(_0x33beaf){return _0x33beaf['id']!==_0x2185a2;}),_0x2c54e4++;}catch(_0x5a62e6){console[_0xa1fa2d(0x381)](_0x5a62e6),_0x3e396b++;}}toast(_0xa1fa2d(0x15f),_0x2c54e4+_0xa1fa2d(0x2df)+_0x3e396b+_0x486099(0x475),_0x3e396b?_0xa1fa2d(0x381):_0xa1fa2d(0x2bf)),renderProductList(),$(_0xa1fa2d(0x139))[_0xa1fa2d(0x284)]=String(allProducts[_0x5ba7be(0x28d)]);});async function handlePriceUpdate(_0x2a0fc0,_0x3fccd3){const _0x349de8=_0x39c496,_0x2741b6=_0x37ce72,_0x3319a0=_0x1c09bd,_0x3514d5=parseFloat(_0x3fccd3[_0x3319a0(0x1d2)]);if(Number[_0x2741b6(0x3fe)](_0x3514d5)||_0x3514d5<0x0){toast(_0x3319a0(0x293),_0x3319a0(0xaa),_0x3319a0(0x381)),_0x3fccd3[_0x3319a0(0x415)]();return;}_0x3fccd3[_0x2741b6(0x375)]=!![];try{await updateDoc(doc(db,_0x3319a0(0x43b),_0x2a0fc0),{'price':_0x3514d5});const _0x5387bd=allProducts[_0x3319a0(0x326)](function(_0x157219){return _0x157219['id']===_0x2a0fc0;});if(_0x5387bd)_0x5387bd[_0x3319a0(0x320)]=_0x3514d5;toast(_0x3319a0(0x36e),fmtXOF[_0x3319a0(0x347)](_0x3514d5),_0x3319a0(0x2bf));}catch(_0x511f94){console[_0x3319a0(0x381)](_0x511f94),toast(_0x3319a0(0x454),_0x3319a0(0x2e9),_0x2741b6(0x3e4));}finally{_0x3fccd3[_0x349de8(0x1cc)]=![];}}async function handleVedetteUpdate(_0x56f382,_0x27d785){const _0x818e0a=_0x37ce72,_0x5c64e9=_0x1c09bd,_0x5d882a=parseInt(_0x27d785[_0x818e0a(0x398)],0xa),_0x53890e=Number[_0x5c64e9(0xae)](_0x5d882a)&&_0x5d882a>0x0?_0x5d882a:0x0;_0x27d785[_0x818e0a(0x398)]=_0x53890e||'',_0x27d785[_0x5c64e9(0x28b)]=!![];try{await updateDoc(doc(db,_0x5c64e9(0x43b),_0x56f382),{'ordreVedette':_0x53890e});const _0x16e504=allProducts[_0x5c64e9(0x326)](_0x3ec9c0=>_0x3ec9c0['id']===_0x56f382);_0x16e504&&(_0x16e504[_0x5c64e9(0x396)]=_0x53890e),toast(_0x818e0a(0x522),_0x53890e>0x0?_0x5c64e9(0xb3)+_0x53890e:_0x5c64e9(0x225),_0x5c64e9(0x2bf));}catch(_0x109371){console[_0x5c64e9(0x381)](_0x109371),toast(_0x5c64e9(0x454),_0x5c64e9(0x16d),_0x5c64e9(0x381));}finally{_0x27d785[_0x5c64e9(0x28b)]=![];}}async function handleDelete(_0x1f8f37,_0xfe46a5,_0xfb002f){const _0x5e4de=_0x39c496,_0x4f53d5=_0x247feb,_0x5746de=_0x37ce72,_0x19bf43=_0x1c09bd,_0x126e90=await openModal({'title':_0x19bf43(0x2d0),'body':_0x5746de(0x2db)+escapeHtml(_0xfe46a5||_0x1f8f37)+_0x19bf43(0x40d),'okText':_0x4f53d5(0x1e6),'cancelText':_0x4f53d5(0x2b1),'danger':!![]});if(!_0x126e90)return;try{auth[_0x19bf43(0xaf)]&&await auth[_0x5746de(0x2b6)][_0x19bf43(0x3a6)](!![]),await deleteDoc(doc(db,_0xfb002f,_0x1f8f37));if(_0xfb002f===_0x19bf43(0x43b))allProducts=allProducts[_0x5e4de(0x2cf)](_0x43f0ab=>_0x43f0ab['id']!==_0x1f8f37),renderProductList(),$(_0x19bf43(0x139))[_0x5746de(0x41e)]=String(allProducts[_0x5746de(0x28d)]);else{if(_0xfb002f===_0x19bf43(0x2cc))allBrands=allBrands[_0x19bf43(0x43a)](_0x526b66=>_0x526b66['id']!==_0x1f8f37),renderBrandList(),$(_0x4f53d5(0x3b5))[_0x19bf43(0x284)]=String(allBrands[_0x19bf43(0x109)]);else{if(_0xfb002f===_0x5746de(0x3b4))allMatches=allMatches[_0x19bf43(0x43a)](_0x3577d9=>_0x3577d9['id']!==_0x1f8f37),matchPredictionsCache[_0x19bf43(0x20c)](_0x1f8f37),renderMatchList(),$(_0x19bf43(0x3bc))[_0x19bf43(0x284)]=String(allMatches[_0x19bf43(0x109)]);else{if(_0xfb002f===_0x19bf43(0x3a2))allPromoCards=allPromoCards[_0x19bf43(0x43a)](_0x33f3ac=>_0x33f3ac['id']!==_0x1f8f37),renderPromoCardList(),updatePromoCardsKpi();else{if(_0xfb002f===_0x19bf43(0x126)){allPromoCodes=allPromoCodes[_0x19bf43(0x43a)](_0x44d68a=>_0x44d68a['id']!==_0x1f8f37),renderPromoCodeList(),$(_0x4f53d5(0x3a7))[_0x19bf43(0x284)]=String(allPromoCodes[_0x19bf43(0x109)]);const _0xd37ba2=(_0xfe46a5||_0x1f8f37||'')[_0x5746de(0x3ec)]();if(_0xd37ba2){try{await deleteDoc(doc(db,_0x4f53d5(0x2db),_0xd37ba2));}catch(_0x1d20e3){console[_0x19bf43(0x3e3)](_0x19bf43(0x23b),_0x1d20e3);}allPromoRules=allPromoRules[_0x19bf43(0x43a)](_0x3cbd6b=>(_0x3cbd6b[_0x19bf43(0x3d4)]||_0x3cbd6b['id']||'')[_0x19bf43(0x2d3)]()!==_0xd37ba2);}}else{if(_0xfb002f===_0x5746de(0x4c6))allPromoRules=allPromoRules[_0x19bf43(0x43a)](_0x1a5051=>_0x1a5051['id']!==_0x1f8f37),renderPromoRuleList();else _0xfb002f===_0x19bf43(0x25b)&&(allPromoPayouts=allPromoPayouts[_0x4f53d5(0x445)](_0x1f9b9e=>_0x1f9b9e['id']!==_0x1f8f37),renderPromoPayoutList());}}}}}toast(_0x5746de(0x456),'',_0x5746de(0x1fe));}catch(_0x4096ca){console[_0x5746de(0x3e4)](_0x4096ca),toast(_0x5746de(0x4b8),_0x19bf43(0x3af),_0x19bf43(0x381));}}function addSpecRow(_0x129bec,_0x5a3e45={'key':'','value':''}){const _0x15ba9e=_0x247feb,_0x214fed=_0x37ce72,_0x24b144=_0x1c09bd,_0x527e1b=document[_0x24b144(0x259)](_0x24b144(0x99));_0x527e1b[_0x24b144(0x394)]=_0x24b144(0xcd),_0x527e1b[_0x24b144(0xfc)]=_0x24b144(0x1d3)+escapeAttr(_0x5a3e45[_0x214fed(0x3eb)])+_0x24b144(0x445)+escapeAttr(_0x5a3e45[_0x24b144(0x1d2)])+_0x15ba9e(0x450),_0x527e1b[_0x24b144(0x10a)](_0x15ba9e(0x430))[_0x214fed(0x4f9)](_0x24b144(0x42e),()=>_0x527e1b[_0x15ba9e(0x344)]()),_0x129bec[_0x24b144(0x385)](_0x527e1b),lucide[_0x15ba9e(0x3e4)]();}function updateSpecSuggestions(){const _0x4260e5=_0x39c496,_0x2cddc5=_0x1c09bd,_0x49c599=$(_0x4260e5(0x1a0));_0x49c599[_0x2cddc5(0xfc)]=PREDEFINED_SPECS[_0x2cddc5(0x287)](_0x258054=>_0x2cddc5(0x18f)+escapeAttr(_0x258054)+_0x2cddc5(0x3fc))[_0x2cddc5(0x12e)]('');}async function renderProductFormPage(_0x511440){const _0x44d7ee=_0x39c496,_0x2e3144=_0x247feb,_0x523088=_0x37ce72,_0x297600=_0x1c09bd;let _0xac0b82={};if(_0x511440){_0xac0b82=allProducts[_0x297600(0x326)](function(_0x3897d5){return _0x3897d5['id']===_0x511440;})||await getDoc(doc(db,_0x297600(0x43b),_0x511440))[_0x297600(0x422)](function(_0x486dee){const _0x59f407=_0x297600;return _0x486dee[_0x59f407(0x371)]()?{'id':_0x486dee['id'],..._0x486dee[_0x59f407(0x2d9)]()}:null;});if(!_0xac0b82){$productsContent[_0x44d7ee(0x3db)]=_0x297600(0x343);return;}}const _0x4b342c=PREDEFINED_CATEGORIES[_0x523088(0x1ee)](_0x2af021=>_0x297600(0x18f)+escapeAttr(_0x2af021)+'\x22>'+escapeHtml(_0x2af021[_0x297600(0x2e7)](0x0)[_0x297600(0x2d3)]()+_0x2af021[_0x297600(0xce)](0x1))+_0x297600(0x23c))[_0x523088(0x273)]('');let _0x5d68f7=(_0xac0b82[_0x523088(0x32a)]||[])[_0x44d7ee(0x336)]((_0x470caf,_0x1fd256)=>_0x297600(0x295)+escapeAttr(_0x470caf)+_0x44d7ee(0x27a)+escapeAttr(_0x470caf)+_0x297600(0x13e)+(_0x1fd256+0x1)+_0x523088(0x52b)+escapeAttr(_0x470caf)+_0x297600(0x1b8))[_0x297600(0x12e)]('');const _0x1ccbce=document[_0x523088(0x501)](_0x523088(0x1ff));_0x1ccbce[_0x297600(0x394)]=_0x297600(0x377),_0x1ccbce[_0x297600(0xfc)]=_0x297600(0x3df)+(_0x511440?_0x297600(0x2d4):_0x523088(0x4de))+_0x297600(0x188)+(_0x511440?_0x297600(0x3d2)+escapeHtml(_0x511440):_0x297600(0x2dc))+_0x297600(0x15d)+escapeAttr(_0xac0b82[_0x297600(0x354)]||'')+_0x297600(0x337)+escapeAttr(_0xac0b82[_0x44d7ee(0x173)]||'')+_0x523088(0x407)+_0x4b342c+_0x297600(0x3e5)+(typeof _0xac0b82[_0x297600(0x320)]===_0x523088(0x341)?_0xac0b82[_0x523088(0x46b)]:'')+_0x523088(0x354)+(typeof _0xac0b82[_0x44d7ee(0x2da)]===_0x297600(0x392)?_0xac0b82[_0x297600(0xd0)]:'')+_0x297600(0x248)+(typeof _0xac0b82[_0x2e3144(0x3bc)]===_0x297600(0x392)?_0xac0b82[_0x297600(0x29c)]:'')+_0x523088(0x222)+escapeHtml(_0xac0b82[_0x297600(0x20b)]||'')+_0x523088(0x2e1)+(typeof _0xac0b82[_0x523088(0x307)]===_0x523088(0x341)?_0xac0b82[_0x297600(0xb0)]:'')+_0x297600(0x37e)+(typeof _0xac0b82[_0x297600(0x396)]===_0x297600(0x392)?_0xac0b82[_0x297600(0x396)]:'')+_0x523088(0x23b)+_0x5d68f7+_0x297600(0x215)+(_0x511440?_0x297600(0x226):_0x523088(0x24b))+_0x297600(0x1c6),$productsContent[_0x297600(0xfc)]='',$productsContent[_0x297600(0x385)](_0x1ccbce),updateSpecSuggestions();const _0x43f37e=$(_0x297600(0xf5));_0xac0b82[_0x297600(0x3e9)]&&Array[_0x523088(0x2ab)](_0xac0b82[_0x297600(0x3e9)])&&_0xac0b82[_0x297600(0x3e9)][_0x297600(0x335)](_0x4d65d0=>addSpecRow(_0x43f37e,_0x4d65d0)),$(_0x297600(0x424))[_0x297600(0x446)](_0x2e3144(0x292),()=>addSpecRow(_0x43f37e));if(_0xac0b82[_0x297600(0x247)])$(_0x523088(0x50e))[_0x297600(0x1d2)]=_0xac0b82[_0x523088(0x367)];const _0x1677fd=$(_0x523088(0x3d7)),_0x243bad=$(_0x297600(0x2d8));_0x243bad[_0x523088(0x4f9)](_0x523088(0x44e),async _0xd90f5a=>{const _0x207042=_0x2e3144,_0x3db818=_0x523088,_0x2d2830=_0x297600,_0x772caa=_0xd90f5a[_0x3db818(0x293)][_0x2d2830(0x44d)](_0x2d2830(0x3cc));if(!_0x772caa||!_0x511440)return;_0xd90f5a[_0x2d2830(0x2ff)]();const _0x2ef7e7=_0x772caa[_0x2d2830(0xca)][_0x2d2830(0x15e)],_0x2c77ba=await openModal({'title':_0x2d2830(0x40f),'body':_0x2d2830(0x197),'okText':_0x2d2830(0x2d0),'cancelText':_0x2d2830(0x2a1),'danger':!![]});if(!_0x2c77ba)return;try{const _0x565234={'imageUrls':arrayRemove(_0x2ef7e7)};if(_0xac0b82[_0x2d2830(0x2c0)]===_0x2ef7e7){const _0xa0b645=(_0xac0b82[_0x2d2830(0x455)]||[])[_0x2d2830(0x326)](_0xffb982=>_0xffb982!==_0x2ef7e7)||'';_0x565234[_0x2d2830(0x2c0)]=_0xa0b645,_0xac0b82[_0x2d2830(0x2c0)]=_0xa0b645;}await updateDoc(doc(db,_0x2d2830(0x43b),_0x511440),_0x565234),_0xac0b82[_0x2d2830(0x455)]=(_0xac0b82[_0x2d2830(0x455)]||[])[_0x3db818(0x52e)](_0x22971a=>_0x22971a!==_0x2ef7e7),_0x5d68f7=_0xac0b82[_0x2d2830(0x455)][_0x2d2830(0x287)]((_0xe5106,_0x60dafc)=>_0x2d2830(0x2f8)+escapeAttr(_0xe5106)+_0x3db818(0x2c0)+escapeAttr(_0xe5106)+_0x2d2830(0x13e)+(_0x60dafc+0x1)+_0x2d2830(0x12a)+escapeAttr(_0xe5106)+_0x3db818(0x4aa))[_0x2d2830(0x12e)](''),_0x772caa[_0x2d2830(0x44d)](_0x207042(0x3ef))[_0x2d2830(0x3ac)](),toast(_0x3db818(0x2e8),_0x2d2830(0x3e7),_0x207042(0x302));}catch(_0xaf51a6){console[_0x2d2830(0x381)](_0xaf51a6),toast(_0x3db818(0x4b8),_0x2d2830(0x382),_0x2d2830(0x381));}lucide[_0x2d2830(0x38b)]();}),_0x1677fd[_0x297600(0x446)](_0x297600(0xa1),()=>{const _0x32f51a=_0x2e3144,_0x387778=_0x523088,_0x18a18f=_0x297600;_0x243bad[_0x18a18f(0xfc)]=_0x5d68f7,_0x1677fd[_0x18a18f(0x24b)]&&Array[_0x387778(0x495)](_0x1677fd[_0x18a18f(0x24b)])[_0x32f51a(0x39b)](_0x186901=>{const _0x536bf2=_0x18a18f,_0x251579=new FileReader();_0x251579[_0x536bf2(0x2e2)]=_0x7a44d4=>{const _0x1bd934=_0x47d2,_0x58f286=_0x536bf2,_0x1d3483=document[_0x58f286(0x259)](_0x58f286(0x99));_0x1d3483[_0x58f286(0x394)]=_0x58f286(0x180),_0x1d3483[_0x58f286(0xfc)]=_0x58f286(0x3d9)+_0x7a44d4[_0x58f286(0x340)][_0x58f286(0x147)]+_0x58f286(0x1f8)+escapeAttr(_0x186901[_0x1bd934(0x3a5)])+'\x22>',_0x243bad[_0x58f286(0x385)](_0x1d3483);},_0x251579[_0x536bf2(0x212)](_0x186901);}),lucide[_0x387778(0x4fa)]();}),_0x1ccbce[_0x297600(0x10a)](_0x297600(0x1ed))[_0x297600(0x446)](_0x297600(0x42e),function(){const _0x279174=_0x523088,_0x2c6b03=_0x297600;history['length']>0x1?history[_0x279174(0x531)]():location[_0x2c6b03(0xa3)]=_0x2c6b03(0x336);}),_0x1ccbce[_0x297600(0x10a)](_0x297600(0x13d))[_0x297600(0x446)](_0x297600(0x239),function(_0x290cb5){handleProductFormSubmit(_0x290cb5,_0x511440);}),lucide[_0x297600(0x38b)]();}async function handleProductFormSubmit(_0x28da1c,_0x31e9eb){const _0x1f65a5=_0x247feb,_0x249d49=_0x37ce72,_0x5c7655=_0x1c09bd;_0x28da1c[_0x5c7655(0x2ff)]();const _0x15b983=_0x28da1c[_0x249d49(0x293)][_0x5c7655(0x10a)](_0x249d49(0x41a));setButtonLoading(_0x15b983,!![]);const _0x5f46ca=$(_0x5c7655(0x28e))[_0x5c7655(0x1d2)][_0x249d49(0x519)]();if(!_0x5f46ca){toast(_0x5c7655(0x454),_0x249d49(0x2b2),_0x249d49(0x3e4)),setButtonLoading(_0x15b983,![]);return;}const _0x29aa7f=[];$$(_0x5c7655(0x35a))[_0x5c7655(0x335)](_0x19a95a=>{const _0x394510=_0x249d49,_0xb255be=_0x5c7655,_0x3cbd6a=_0x19a95a[_0xb255be(0x10a)](_0xb255be(0x9d))[_0xb255be(0x1d2)][_0xb255be(0x408)](),_0x150fc8=_0x19a95a[_0xb255be(0x10a)](_0x394510(0x4a3))[_0xb255be(0x1d2)][_0xb255be(0x408)]();_0x3cbd6a&&_0x150fc8&&(_0x29aa7f[_0xb255be(0x1a3)]({'key':_0x3cbd6a,'value':_0x150fc8}),!PREDEFINED_SPECS[_0x394510(0x2f6)](_0x3cbd6a)&&PREDEFINED_SPECS[_0xb255be(0x1a3)](_0x3cbd6a));});const _0x406463=parseInt($(_0x249d49(0x3d1))[_0x5c7655(0x1d2)],0xa),_0x22da3a=Number[_0x5c7655(0xae)](_0x406463)&&_0x406463>0x0?_0x406463:0x0;try{let _0x18e0aa=_0x31e9eb;const _0x10c34b={'name':_0x5f46ca,'brand':$(_0x5c7655(0x323))[_0x5c7655(0x1d2)][_0x5c7655(0x408)](),'category':$(_0x5c7655(0x2c2))[_0x5c7655(0x1d2)][_0x5c7655(0x408)]()||'','price':parseFloat($(_0x5c7655(0x1ab))[_0x5c7655(0x1d2)])||null,'stock':parseInt($(_0x5c7655(0x201))[_0x5c7655(0x1d2)],0xa)||null,'ram':parseInt($(_0x5c7655(0x439))[_0x5c7655(0x1d2)],0xa)||null,'rom':parseInt($(_0x5c7655(0x3f6))[_0x5c7655(0x1d2)],0xa)||null,'ordreVedette':_0x22da3a,'description':$(_0x5c7655(0x283))[_0x5c7655(0x1d2)][_0x5c7655(0x408)](),'specifications':_0x29aa7f,'updatedAt':serverTimestamp()};if(_0x18e0aa)await updateDoc(doc(db,_0x5c7655(0x43b),_0x18e0aa),_0x10c34b);else{const _0x559501=await addDoc(collection(db,_0x5c7655(0x43b)),{..._0x10c34b,'imageUrls':[],'createdAt':serverTimestamp()});_0x18e0aa=_0x559501['id'];}const _0x28dd9e=$(_0x5c7655(0xe7))[_0x1f65a5(0x374)];if(_0x28dd9e&&_0x28dd9e[_0x249d49(0x28d)]>0x0){toast(_0x249d49(0x28b),_0x28dd9e[_0x5c7655(0x109)]+_0x5c7655(0x169),_0x5c7655(0x166));for(const _0xae2f77 of _0x28dd9e){const _0x25037e=Date[_0x1f65a5(0x41e)](),_0x441b55=Math[_0x5c7655(0xb4)]()[_0x1f65a5(0x35f)](0x24)[_0x249d49(0x24d)](0x2,0x8),_0x568472=_0xae2f77[_0x5c7655(0x354)][_0x249d49(0x479)]('.')[_0x5c7655(0x1c8)]()||_0x5c7655(0x103),_0x3648a5=_0x25037e+'_'+_0x441b55+'.'+_0x568472,_0x282da7=_0x5c7655(0x28c)+_0x18e0aa+'/'+_0x3648a5,_0x598e9f=ref(storage,_0x282da7);await uploadBytes(_0x598e9f,_0xae2f77);}}toast(_0x5c7655(0x2be),_0x5c7655(0x3b7)+(_0x31e9eb?_0x5c7655(0x430):_0x5c7655(0xd3))+_0x5c7655(0x289),_0x5c7655(0x2bf)),allProducts=[],await ensureProductsLoaded(),location[_0x5c7655(0xa3)]=_0x5c7655(0x336);}catch(_0x5bc20e){console[_0x5c7655(0x381)](_0x5bc20e),toast(_0x5c7655(0x454),_0x5c7655(0x9e),_0x5c7655(0x381));}finally{setButtonLoading(_0x15b983,![]);}}function _0x3962(){const _0x30c8cb=_0x39c496,_0x26c110=_0x247feb,_0x24c892=_0x37ce72,_0x166c50=[_0x24c892(0x406),_0x24c892(0x3a4),_0x26c110(0x486),_0x26c110(0x1fb),_0x24c892(0x573),_0x24c892(0x42c),_0x26c110(0x38f),_0x26c110(0x1ef),_0x24c892(0x475),_0x24c892(0x466),_0x24c892(0x245),_0x24c892(0x4e7),_0x24c892(0x2b4),_0x24c892(0x2b1),_0x24c892(0x4a4),_0x26c110(0x15c),_0x30c8cb(0x1d1),_0x26c110(0x221),_0x26c110(0x19f),_0x26c110(0x2b2),_0x26c110(0x2bc),_0x24c892(0x4d0),_0x24c892(0x26b),_0x24c892(0x584),_0x30c8cb(0x37e),_0x26c110(0x3d8),_0x24c892(0x464),_0x26c110(0x496),_0x24c892(0x35a),_0x24c892(0x413),_0x24c892(0x3fe),_0x24c892(0x39d),_0x24c892(0x52a),_0x24c892(0x461),_0x24c892(0x416),_0x26c110(0x36c),_0x24c892(0x499),_0x24c892(0x2ab),_0x24c892(0x237),_0x24c892(0x3d8),'media',_0x24c892(0x3f7),_0x24c892(0x46c),_0x24c892(0x317),_0x24c892(0x41c),_0x24c892(0x33d),_0x26c110(0x2d0),_0x30c8cb(0x332),_0x24c892(0x4f6),_0x24c892(0x385),_0x24c892(0x519),_0x24c892(0x3c3),_0x24c892(0x1fa),_0x24c892(0x337),_0x24c892(0x471),_0x24c892(0x4df),_0x24c892(0x4a7),_0x26c110(0x497),_0x30c8cb(0x4a8),_0x24c892(0x30b),_0x24c892(0x1e9),_0x24c892(0x3eb),_0x24c892(0x267),_0x24c892(0x58e),_0x26c110(0x159),_0x24c892(0x421),_0x24c892(0x486),_0x24c892(0x23e),_0x24c892(0x39e),_0x24c892(0x542),_0x24c892(0x5a2),_0x30c8cb(0x23c),_0x24c892(0x1df),_0x24c892(0x532),_0x24c892(0x4b2),_0x24c892(0x3e6),_0x24c892(0x352),_0x24c892(0x2f3),_0x24c892(0x3ff),_0x24c892(0x4a8),_0x24c892(0x460),_0x24c892(0x348),_0x24c892(0x238),_0x26c110(0x140),_0x24c892(0x31c),_0x24c892(0x1f3),_0x24c892(0x4eb),_0x24c892(0x547),_0x24c892(0x44e),_0x26c110(0x4d0),_0x24c892(0x395),_0x26c110(0x341),_0x24c892(0x300),_0x30c8cb(0x2fd),_0x24c892(0x51d),_0x24c892(0x46f),_0x26c110(0x48f),_0x24c892(0x392),_0x24c892(0x4f1),_0x30c8cb(0x481),_0x24c892(0x52e),_0x24c892(0x381),_0x26c110(0x23b),_0x30c8cb(0x1b2),_0x24c892(0x50b),_0x26c110(0x24d),_0x26c110(0x3c2),_0x24c892(0x247),_0x24c892(0x3f2),_0x24c892(0x380),_0x24c892(0x426),_0x24c892(0x2bc),_0x24c892(0x4f9),_0x24c892(0x526),_0x26c110(0x32d),_0x24c892(0x361),_0x24c892(0x2ee),_0x24c892(0x3ad),_0x24c892(0x4d4),_0x24c892(0x43e),_0x24c892(0x3e3),_0x24c892(0x53f),_0x26c110(0x141),_0x24c892(0x2ca),_0x24c892(0x535),_0x24c892(0x370),_0x26c110(0x4a4),_0x24c892(0x32a),_0x24c892(0x2bf),_0x24c892(0x51e),_0x24c892(0x40a),_0x30c8cb(0x1e5),_0x24c892(0x393),_0x24c892(0x45b),_0x24c892(0x509),_0x24c892(0x524),_0x26c110(0x34f),_0x24c892(0x55e),_0x24c892(0x3cc),_0x24c892(0x4d3),_0x24c892(0x577),_0x26c110(0x4da),_0x26c110(0x281),_0x24c892(0x37e),_0x26c110(0x44f),_0x24c892(0x4a5),_0x24c892(0x477),_0x24c892(0x59b),_0x24c892(0x359),_0x24c892(0x1ff),_0x24c892(0x377),_0x24c892(0x39a),_0x24c892(0x49a),_0x24c892(0x56f),_0x24c892(0x4cd),_0x24c892(0x207),_0x24c892(0x3a3),_0x24c892(0x2c7),_0x24c892(0x507),_0x24c892(0x318),_0x24c892(0x58b),'contestId','data-edit-candidate',_0x24c892(0x223),_0x24c892(0x284),_0x26c110(0x1cd),_0x26c110(0x469),_0x24c892(0x397),_0x26c110(0x21b),_0x24c892(0x365),_0x30c8cb(0x382),'currentUser',_0x24c892(0x307),_0x26c110(0x252),_0x24c892(0x366),_0x24c892(0x2b8),_0x24c892(0x45f),_0x24c892(0x244),_0x26c110(0x2b4),_0x26c110(0x2d8),_0x26c110(0x2c7),_0x24c892(0x384),_0x24c892(0x288),_0x24c892(0x444),_0x24c892(0x50c),_0x26c110(0x32b),_0x24c892(0x3d3),_0x24c892(0x553),_0x24c892(0x404),_0x26c110(0x1cb),_0x24c892(0x3cb),_0x24c892(0x2da),_0x24c892(0x493),'\x22\x20data-sort=\x22brand\x22>Marque\x20',_0x24c892(0x3ea),_0x24c892(0x2fa),_0x24c892(0x56d),_0x26c110(0x485),_0x24c892(0x358),_0x24c892(0x40e),_0x26c110(0x223),_0x26c110(0x251),_0x24c892(0x35f),_0x24c892(0x2a3),_0x24c892(0x241),_0x24c892(0x3dd),_0x24c892(0x3fd),_0x24c892(0x513),'#quick-add-contest',_0x24c892(0x4fc),_0x26c110(0x1ec),_0x24c892(0x4f8),_0x24c892(0x405),_0x24c892(0x3b0),_0x24c892(0x4f2),_0x24c892(0x312),_0x26c110(0x2ee),_0x24c892(0x483),_0x24c892(0x3c1),_0x24c892(0x3e9),_0x24c892(0x20f),_0x24c892(0x37f),_0x24c892(0x566),_0x24c892(0x42a),_0x26c110(0x2f6),_0x24c892(0x313),_0x26c110(0x3d0),_0x24c892(0x3d7),_0x24c892(0x4be),_0x24c892(0x4d2),'Éditer\x20Carte\x20Promo',_0x24c892(0x4a1),_0x24c892(0x332),_0x24c892(0x232),_0x26c110(0x1fe),_0x24c892(0x3ab),_0x24c892(0x54f),'paid',_0x24c892(0x28c),_0x24c892(0x3ef),_0x30c8cb(0x435),_0x26c110(0x1ff),_0x24c892(0x536),_0x24c892(0x503),_0x24c892(0x35d),_0x24c892(0x236),_0x24c892(0x220),_0x24c892(0x4b0),_0x30c8cb(0x3db),_0x24c892(0x2f5),_0x24c892(0x373),_0x24c892(0x353),_0x24c892(0x2d1),_0x24c892(0x2a5),_0x24c892(0x35b),_0x24c892(0x42f),_0x24c892(0x22e),_0x24c892(0x306),_0x26c110(0x229),_0x24c892(0x423),_0x24c892(0x280),_0x26c110(0x297),_0x24c892(0x242),_0x26c110(0x442),_0x24c892(0x221),_0x24c892(0x254),_0x24c892(0x3b4),_0x24c892(0x3c0),_0x24c892(0x22b),_0x24c892(0x459),_0x24c892(0x351),_0x24c892(0x4fd),_0x26c110(0x3d5),_0x24c892(0x59a),_0x24c892(0x54a),_0x24c892(0x342),_0x26c110(0x138),'Nouvelle',_0x24c892(0x2a1),_0x24c892(0x439),_0x24c892(0x58d),_0x26c110(0x367),_0x24c892(0x344),'Th&egrave;me',_0x24c892(0x548),_0x24c892(0x36e),_0x24c892(0x32f),_0x24c892(0x2fc),_0x26c110(0x433),_0x24c892(0x1dc),_0x24c892(0x2b9),_0x24c892(0x216),'contactFirstName',_0x24c892(0x52d),_0x24c892(0x350),_0x24c892(0x3a2),_0x24c892(0x484),_0x24c892(0x549),_0x24c892(0x273),_0x24c892(0x2f0),_0x24c892(0x2fe),_0x24c892(0x388),_0x24c892(0x51b),_0x30c8cb(0x473),_0x24c892(0x229),_0x24c892(0x1f1),_0x24c892(0x497),_0x24c892(0x598),_0x24c892(0x3cd),_0x26c110(0x4a6),_0x24c892(0x527),_0x24c892(0x3de),_0x24c892(0x478),_0x26c110(0x3bf),_0x24c892(0x4b9),_0x30c8cb(0x37c),_0x24c892(0x27a),_0x24c892(0x43b),_0x24c892(0x1e5),_0x24c892(0x321),_0x24c892(0x55c),_0x26c110(0x43b),_0x24c892(0x262),_0x24c892(0x376),_0x24c892(0x3ce),_0x24c892(0x48f),_0x24c892(0x3be),_0x24c892(0x259),_0x24c892(0x572),_0x24c892(0x571),_0x24c892(0x430),_0x24c892(0x40d),_0x24c892(0x2c2),_0x24c892(0x33f),_0x24c892(0x249),_0x24c892(0x562),_0x24c892(0x476),_0x26c110(0x4d2),_0x24c892(0x3ae),_0x24c892(0x575),_0x24c892(0x4e2),_0x24c892(0x485),_0x24c892(0x531),_0x26c110(0x325),_0x24c892(0x336),_0x24c892(0x41b),_0x24c892(0x210),_0x24c892(0x53b),_0x26c110(0x3c0),_0x24c892(0x4d9),_0x24c892(0x4dd),_0x24c892(0x54d),_0x26c110(0x37d),_0x24c892(0x2fd),_0x24c892(0x3c5),_0x24c892(0x399),_0x24c892(0x227),_0x24c892(0x3c6),_0x24c892(0x1f2),_0x24c892(0x239),_0x24c892(0x2a6),_0x26c110(0x460),_0x26c110(0x29c),_0x24c892(0x3ed),_0x24c892(0x3ee),_0x24c892(0x580),_0x24c892(0x379),_0x24c892(0x528),_0x26c110(0x2b7),_0x24c892(0x2bb),_0x24c892(0x1e3),_0x24c892(0x25b),_0x24c892(0x343),_0x26c110(0x28f),_0x24c892(0x4ad),_0x24c892(0x27b),_0x26c110(0x20f),_0x24c892(0x2d0),_0x24c892(0x5a0),_0x24c892(0x596),_0x26c110(0x137),_0x24c892(0x231),_0x24c892(0x510),_0x24c892(0x4af),_0x24c892(0x54c),_0x24c892(0x3da),_0x24c892(0x4f7),_0x24c892(0x505),_0x24c892(0x1e0),_0x24c892(0x546),_0x30c8cb(0x2d2),_0x24c892(0x1fb),_0x26c110(0x304),_0x26c110(0x19b),_0x24c892(0x450),_0x24c892(0x482),_0x24c892(0x46d),_0x26c110(0x264),_0x24c892(0x23f),_0x26c110(0x4cc),_0x24c892(0x2ff),_0x24c892(0x56a),_0x24c892(0x378),_0x26c110(0x49f),_0x24c892(0x230),_0x24c892(0x218),_0x26c110(0x134),_0x24c892(0x588),_0x24c892(0x412),_0x24c892(0x43d),_0x24c892(0x487),_0x24c892(0x2b0),_0x24c892(0x4b6),_0x24c892(0x420),_0x26c110(0x463),_0x24c892(0x533),_0x24c892(0x492),_0x24c892(0x1f0),_0x24c892(0x3d6),_0x24c892(0x3d5),_0x24c892(0x51f),_0x24c892(0x268),_0x24c892(0x4a0),_0x24c892(0x3c2),_0x26c110(0x224),_0x24c892(0x48c),_0x26c110(0x226),_0x24c892(0x4c7),_0x24c892(0x4fe),_0x24c892(0x4e8),_0x24c892(0x481),_0x24c892(0x516),_0x24c892(0x258),'\x22\x20/>',_0x26c110(0x402),_0x24c892(0x26f),_0x24c892(0x1e2),_0x24c892(0x335),_0x26c110(0x2e6),_0x26c110(0x380),_0x24c892(0x424),_0x26c110(0x36d),_0x24c892(0x2ae),_0x24c892(0x281),_0x24c892(0x458),_0x30c8cb(0x223),_0x24c892(0x538),_0x26c110(0x408),_0x24c892(0x209),_0x24c892(0x374),_0x24c892(0x2c8),_0x24c892(0x512),_0x24c892(0x3b3),_0x24c892(0x233),_0x24c892(0x58c),_0x26c110(0x3db),_0x26c110(0x35e),_0x24c892(0x4bf),_0x24c892(0x2a2),_0x24c892(0x579),_0x24c892(0x4fb),_0x24c892(0x2a7),_0x24c892(0x398),_0x24c892(0x29e),_0x24c892(0x2de),_0x24c892(0x4ee),_0x24c892(0x2af),_0x24c892(0x248),_0x24c892(0x1f5),_0x26c110(0x2ad),_0x24c892(0x567),_0x24c892(0x383),_0x24c892(0x3cf),_0x24c892(0x49d),_0x24c892(0x488),_0x24c892(0x4e3),_0x24c892(0x50d),_0x26c110(0x2a3),_0x26c110(0x144),_0x24c892(0x20d),_0x24c892(0x36b),_0x26c110(0x407),_0x24c892(0x563),_0x24c892(0x2c3),_0x26c110(0x269),_0x24c892(0x24e),_0x24c892(0x51c),_0x24c892(0x46e),_0x30c8cb(0x32c),_0x24c892(0x50f),_0x24c892(0x3c4),_0x24c892(0x4cf),_0x24c892(0x2e5),_0x24c892(0x4de),_0x24c892(0x400),_0x24c892(0x289),_0x24c892(0x2e7),_0x24c892(0x1e8),_0x26c110(0x135),_0x26c110(0x3f7),_0x24c892(0x3b6),_0x30c8cb(0x396),_0x24c892(0x529),_0x24c892(0x47f),_0x26c110(0x417),_0x26c110(0x268),_0x24c892(0x42b),_0x26c110(0x26f),_0x24c892(0x3d4),_0x26c110(0x363),_0x24c892(0x29c),_0x24c892(0x4f5),_0x24c892(0x3d0),_0x24c892(0x440),_0x26c110(0x1e1),_0x26c110(0x25e),_0x24c892(0x4bb),_0x26c110(0x2a7),_0x24c892(0x422),_0x24c892(0x3bb),_0x24c892(0x32c),_0x24c892(0x2d6),_0x24c892(0x3fc),_0x24c892(0x39c),_0x24c892(0x518),_0x26c110(0x2ac),_0x26c110(0x342),_0x24c892(0x4c3),_0x24c892(0x2fb),_0x26c110(0x4ae),_0x24c892(0x480),_0x24c892(0x339),_0x24c892(0x583),_0x24c892(0x261),_0x24c892(0x2d8),_0x26c110(0x24b),_0x30c8cb(0x43f),_0x24c892(0x36c),_0x24c892(0x429),_0x24c892(0x48a),_0x24c892(0x299),_0x24c892(0x2ea),_0x26c110(0x18f),_0x24c892(0x279),_0x24c892(0x37b),_0x24c892(0x1e6),_0x24c892(0x52c),_0x24c892(0x1e7),_0x24c892(0x2cd),_0x26c110(0x2bf),_0x26c110(0x3dd),_0x24c892(0x560),_0x24c892(0x3e1),_0x26c110(0x3ac),_0x24c892(0x57b),_0x24c892(0x25c),_0x24c892(0x297),_0x24c892(0x38b),_0x26c110(0x24c),_0x24c892(0x57c),_0x24c892(0x2f2),_0x24c892(0x494),_0x24c892(0x587),_0x24c892(0x55f),_0x24c892(0x251),_0x24c892(0x387),_0x24c892(0x525),_0x24c892(0x316),_0x24c892(0x58f),_0x24c892(0x455),_0x30c8cb(0x177),_0x24c892(0x4ae),_0x24c892(0x301),'Le\x20nom\x20et\x20l\x27ordre\x20sont\x20requis.',_0x24c892(0x1fd),_0x24c892(0x1dd),_0x24c892(0x1e4),_0x24c892(0x568),_0x24c892(0x2df),_0x24c892(0x367),_0x24c892(0x38a),_0x24c892(0x1ef),_0x24c892(0x57d),_0x26c110(0x374),_0x24c892(0x34c),_0x26c110(0x2f8),_0x24c892(0x443),_0x24c892(0x591),_0x26c110(0x444),_0x24c892(0x550),_0x24c892(0x28e),_0x24c892(0x224),_0x24c892(0x2f7),_0x24c892(0x4f0),_0x24c892(0x4a2),_0x24c892(0x4c6),_0x24c892(0x557),_0x24c892(0x501),_0x24c892(0x427),_0x24c892(0x24c),_0x24c892(0x43a),_0x24c892(0x558),_0x24c892(0x2e2),_0x24c892(0x20b),_0x24c892(0x253),_0x24c892(0x235),_0x24c892(0x394),_0x24c892(0x514),_0x24c892(0x449),_0x24c892(0x4e5),_0x24c892(0x442),_0x26c110(0x246),_0x30c8cb(0x3e5),_0x24c892(0x36f),_0x24c892(0x500),_0x24c892(0x329),_0x24c892(0x25a),_0x24c892(0x4c9),_0x24c892(0x2c6),_0x24c892(0x290),_0x24c892(0x275),_0x24c892(0x4ba),_0x24c892(0x4b3),_0x24c892(0x2f8),_0x24c892(0x3ba),_0x24c892(0x556),_0x26c110(0x2e2),_0x24c892(0x32b),_0x26c110(0x409),_0x24c892(0x1f4),_0x24c892(0x29f),_0x24c892(0x38d),_0x24c892(0x45d),_0x24c892(0x2d7),_0x24c892(0x419),_0x26c110(0x411),_0x26c110(0x16e),_0x30c8cb(0x3c6),_0x24c892(0x208),_0x30c8cb(0x4e0),_0x24c892(0x41e),_0x24c892(0x445),_0x24c892(0x4b7),_0x24c892(0x1ee),_0x24c892(0x212),_0x24c892(0x2c1),_0x24c892(0x372),_0x30c8cb(0x1cc),_0x24c892(0x545),_0x24c892(0x1eb),_0x26c110(0x45f),_0x26c110(0x4c7),_0x24c892(0x382),_0x30c8cb(0x211),_0x24c892(0x44f),_0x24c892(0x489),_0x24c892(0x4e6),_0x26c110(0x4ac),_0x24c892(0x266),_0x24c892(0x4db),_0x24c892(0x40f),_0x24c892(0x470),_0x24c892(0x3e8),_0x24c892(0x451),_0x24c892(0x334),_0x24c892(0x3b8),_0x24c892(0x3f1),_0x26c110(0x3e7),_0x24c892(0x29a),_0x24c892(0x304),_0x30c8cb(0x199),_0x24c892(0x586),_0x24c892(0x425),_0x24c892(0x320),_0x24c892(0x27c),_0x24c892(0x4ec),_0x24c892(0x325),_0x24c892(0x25e),_0x26c110(0x449),_0x24c892(0x345),_0x24c892(0x2ec),_0x24c892(0x4ed),_0x30c8cb(0x2c0),_0x24c892(0x29d),_0x30c8cb(0x1af),_0x24c892(0x3f4),_0x24c892(0x1ec),_0x24c892(0x428),_0x24c892(0x21b),_0x24c892(0x3b5),_0x24c892(0x4ef),_0x24c892(0x520),_0x24c892(0x292),_0x24c892(0x3e0),_0x24c892(0x368),_0x24c892(0x4c4),_0x24c892(0x31a),_0x24c892(0x4c0),_0x26c110(0x225),_0x30c8cb(0x39e),_0x26c110(0x2e1),_0x26c110(0x498),_0x24c892(0x50e),_0x24c892(0x597),_0x26c110(0x288),_0x24c892(0x4a9),'#/new-promocode',_0x24c892(0x2c4),_0x24c892(0x1f7),_0x24c892(0x402),_0x24c892(0x226),_0x24c892(0x41a),_0x24c892(0x446),_0x24c892(0x30f),_0x26c110(0x4bc),_0x24c892(0x410),_0x24c892(0x314),_0x26c110(0x18b),_0x24c892(0x574),_0x30c8cb(0x4b0),_0x24c892(0x31b),_0x24c892(0x371),_0x24c892(0x457),_0x24c892(0x515),'#p-images-preview',_0x24c892(0x3b2),_0x24c892(0x490),_0x24c892(0x271),_0x24c892(0x21d),_0x24c892(0x47a),_0x24c892(0x49e),_0x30c8cb(0x1c8),_0x24c892(0x3f8),_0x24c892(0x48e),_0x26c110(0x3da),_0x24c892(0x58a),_0x26c110(0x1b7),_0x24c892(0x411),_0x26c110(0x1f9),_0x24c892(0x42d),_0x24c892(0x1ea),_0x24c892(0x21a),_0x24c892(0x496),_0x24c892(0x544),_0x26c110(0x377),_0x24c892(0x35c),_0x24c892(0x2be),_0x24c892(0x468),_0x24c892(0x447),_0x24c892(0x55a),_0x24c892(0x36a),_0x24c892(0x3aa),_0x24c892(0x5a1),'.bracket-min',_0x24c892(0x415),_0x24c892(0x55b),_0x26c110(0x1ab),_0x26c110(0x48d),_0x26c110(0x4c4),_0x30c8cb(0x21b),_0x24c892(0x286),_0x24c892(0x2e3),_0x24c892(0x585),_0x24c892(0x21f),_0x24c892(0x3bd),_0x24c892(0x47e),_0x26c110(0x3f2),_0x24c892(0x4c8),_0x24c892(0x2ac),_0x24c892(0x37c),_0x26c110(0x41a),_0x30c8cb(0x4b1),_0x24c892(0x53a),_0x26c110(0x471),_0x26c110(0x3d3),_0x24c892(0x4e9),_0x24c892(0x44a),_0x24c892(0x434),_0x26c110(0x15f),_0x24c892(0x417),_0x24c892(0x28a),_0x24c892(0x269),_0x24c892(0x256),_0x24c892(0x255),_0x24c892(0x2f4),_0x24c892(0x4d6),_0x24c892(0x3c9),_0x26c110(0x30a),_0x24c892(0x521),_0x24c892(0x540),_0x26c110(0x39d),_0x24c892(0x403),_0x24c892(0x3fa),_0x24c892(0x3e7),_0x24c892(0x20c),_0x24c892(0x263),_0x24c892(0x46b),_0x26c110(0x434),_0x24c892(0x2cf),'#p-brand',_0x24c892(0x34b),_0x24c892(0x4c2),_0x26c110(0x4b4),_0x24c892(0x45e),_0x24c892(0x4e1),_0x24c892(0x338),_0x24c892(0x2ed),_0x24c892(0x4ce),_0x24c892(0x435),_0x24c892(0x51a),_0x24c892(0x49f),_0x26c110(0x37e),_0x24c892(0x3dc),_0x24c892(0x240),_0x24c892(0x31f),_0x26c110(0x3f3),_0x24c892(0x205),_0x24c892(0x53e),_0x24c892(0x327),_0x24c892(0x356),_0x24c892(0x414),_0x26c110(0x397),_0x24c892(0x2ef),_0x30c8cb(0x462),_0x24c892(0x4da),_0x24c892(0x4e4),_0x24c892(0x4d7),_0x24c892(0x2b3),_0x24c892(0x293),_0x24c892(0x24a),_0x24c892(0x441),_0x24c892(0x360),_0x24c892(0x491),_0x30c8cb(0x41b),_0x24c892(0x582),_0x24c892(0x287),_0x26c110(0x166),_0x26c110(0x47e),_0x24c892(0x432),_0x24c892(0x56c),_0x24c892(0x4b4),_0x24c892(0x305),_0x26c110(0x199),_0x24c892(0x479),_0x24c892(0x3c8),_0x24c892(0x590),_0x24c892(0x347),_0x24c892(0x45a),_0x24c892(0x3a5),_0x24c892(0x364),_0x24c892(0x206),_0x26c110(0x308),_0x24c892(0x322),_0x24c892(0x30c),_0x24c892(0x593),_0x24c892(0x495),_0x24c892(0x559),_0x24c892(0x3f5),_0x24c892(0x438),_0x24c892(0x4dc),_0x26c110(0x16f),_0x26c110(0x293),_0x24c892(0x4ac),_0x24c892(0x217),_0x26c110(0x2b6),_0x26c110(0x355),_0x24c892(0x27d),_0x24c892(0x57f),_0x24c892(0x2e0),_0x24c892(0x2a9),_0x24c892(0x1ed),_0x24c892(0x452),_0x24c892(0x55d),_0x24c892(0x578),_0x26c110(0x1c0),_0x24c892(0x433),_0x26c110(0x34d),_0x24c892(0x30e),_0x24c892(0x59d),_0x30c8cb(0x1d8),_0x26c110(0x20e),_0x24c892(0x37d),_0x24c892(0x243),_0x24c892(0x27f),_0x24c892(0x3a0),_0x24c892(0x4bc),_0x26c110(0x3ca),_0x24c892(0x3b7),_0x24c892(0x2c9),_0x30c8cb(0x23f),_0x24c892(0x357),_0x24c892(0x22d),_0x24c892(0x291),_0x26c110(0x491),_0x26c110(0x459),_0x24c892(0x201),_0x24c892(0x498),_0x24c892(0x363),_0x24c892(0x3e5),_0x24c892(0x23c),_0x24c892(0x42e),_0x24c892(0x390),_0x24c892(0x2ad),_0x24c892(0x4fa),_0x24c892(0x576),_0x24c892(0x30d),_0x24c892(0x41d),_0x26c110(0x415),_0x24c892(0x594),_0x24c892(0x589),_0x24c892(0x341),_0x26c110(0x3b5),_0x24c892(0x276),_0x30c8cb(0x395),_0x24c892(0x599),'</td>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20<td\x20style=\x22font-weight:800\x22>',_0x24c892(0x3a1),_0x24c892(0x22f),_0x24c892(0x26d),_0x26c110(0x34c),_0x24c892(0x25f),_0x26c110(0x256),_0x24c892(0x2e9),_0x24c892(0x283),_0x26c110(0x16a),_0x24c892(0x2cc),_0x26c110(0x314),_0x24c892(0x219),_0x24c892(0x31e),_0x24c892(0x295),_0x26c110(0x27a),_0x24c892(0x44c),_0x30c8cb(0x3f2),_0x24c892(0x581),_0x24c892(0x285),_0x24c892(0x26c),_0x30c8cb(0x235),_0x24c892(0x2d3),_0x24c892(0x33a),_0x26c110(0x305),_0x24c892(0x3bc),_0x26c110(0x35b),_0x24c892(0x592),_0x24c892(0x3fb),_0x26c110(0x280),_0x24c892(0x4f3),_0x24c892(0x228),_0x24c892(0x2e6),_0x30c8cb(0x1b5),_0x24c892(0x2aa),_0x26c110(0x1f6),_0x26c110(0x266),_0x24c892(0x38e),_0x26c110(0x310),_0x26c110(0x4db),_0x24c892(0x436),_0x24c892(0x200),_0x24c892(0x59f),_0x24c892(0x27e),_0x24c892(0x22c),_0x24c892(0x541),_0x26c110(0x2b3),_0x24c892(0x330),_0x24c892(0x34d),_0x24c892(0x36d),_0x26c110(0x23d),_0x24c892(0x2f9),_0x24c892(0x2cb),_0x24c892(0x3a9),_0x30c8cb(0x2c9),_0x24c892(0x3a7),_0x24c892(0x43f),_0x24c892(0x595),_0x24c892(0x408),_0x24c892(0x1f8),'\x22\x20/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22label\x22>Tranches\x20(remise\x20/\x20commission)</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22brackets-rows\x22\x20class=\x22brackets-rows\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22top-actions\x22\x20style=\x22margin-top:8px;\x20gap:8px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22add-bracket\x22\x20type=\x22button\x22\x20class=\x22btn\x20btn-outline\x20btn-small\x22><i\x20data-lucide=\x22plus\x22\x20class=\x22icon\x22></i>\x20Ajouter\x20une\x20tranche</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22reset-brackets\x22\x20type=\x22button\x22\x20class=\x22btn\x20btn-small\x22><i\x20data-lucide=\x22rotate-ccw\x22\x20class=\x22icon\x22></i>\x20Valeurs\x20par\x20défaut</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22hint\x22>Ex:\x200-149\x20000\x20=>\x20remise\x205\x20000\x20/\x20commission\x208\x20000.\x20Laissez\x20Max\x20vide\x20pour\x20une\x20tranche\x20ouverte.</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22form-actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22button\x22\x20class=\x22btn\x22\x20data-cancel>Annuler</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20type=\x22submit\x22\x20class=\x22btn\x20btn-primary\x22>',_0x26c110(0x2d9),_0x24c892(0x508)];return _0x3962=function(){return _0x166c50;},_0x3962();}const getSelectedContest=()=>allContests[_0x1c09bd(0x326)](_0x50e278=>_0x50e278['id']===selectedContestId)||null,CONTEST_STATUS_LABELS={'draft':_0x1c09bd(0x2d5),'active':_0x37ce72(0x3af),'ended':_0x1c09bd(0x2bd)},formatContestStatus=_0x488e03=>CONTEST_STATUS_LABELS[_0x488e03]||(_0x488e03?_0x488e03[_0x37ce72(0x42d)](0x0)[_0x1c09bd(0x2d3)]()+_0x488e03[_0x1c09bd(0xce)](0x1):''),toInputDateValue=_0x1326db=>{const _0x5bb003=_0x247feb,_0x522da6=_0x37ce72,_0x5ad0fb=_0x1c09bd;if(!_0x1326db)return'';const _0x47becb=_0x1326db instanceof Date?new Date(_0x1326db[_0x5ad0fb(0x106)]()):new Date(_0x1326db);if(Number[_0x5ad0fb(0x3f4)](_0x47becb[_0x5ad0fb(0x106)]()))return'';return _0x47becb[_0x5bb003(0x153)](_0x47becb[_0x5ad0fb(0x127)]()-_0x47becb[_0x522da6(0x2e3)]()),_0x47becb[_0x5ad0fb(0x1a4)]()[_0x5bb003(0x33b)](0x0,0x10);},toDisplayDate=_0x3dcad7=>{const _0x345651=_0x247feb,_0x5bd7d2=_0x1c09bd;if(!_0x3dcad7)return'?';const _0x381c9b=_0x3dcad7 instanceof Date?_0x3dcad7:new Date(_0x3dcad7);if(Number[_0x345651(0x2cc)](_0x381c9b[_0x5bd7d2(0x106)]()))return'?';return fmtDate(_0x381c9b);},updateContestFilterOptions=()=>{const _0x480b7a=_0x247feb,_0x5d2bdd=_0x1c09bd,_0x59f49a=$(_0x5d2bdd(0x319));if(!_0x59f49a)return;const _0x2331f6=selectedContestId,_0x215713=allContests[_0x5d2bdd(0x287)](_0x2b1ba4=>_0x480b7a(0x204)+escapeAttr(_0x2b1ba4['id'])+'\x22'+(_0x2b1ba4['id']===_0x2331f6?_0x5d2bdd(0x277):'')+'>'+escapeHtml(_0x2b1ba4[_0x5d2bdd(0x1d6)]||_0x2b1ba4['id'])+_0x5d2bdd(0x23c))[_0x5d2bdd(0x12e)]('');_0x59f49a[_0x5d2bdd(0xfc)]=allContests[_0x5d2bdd(0x109)]?_0x5d2bdd(0x31f)+_0x215713:_0x5d2bdd(0x12c),_0x2331f6&&_0x59f49a[_0x5d2bdd(0x1d2)]!==_0x2331f6&&(_0x59f49a[_0x480b7a(0x215)]=_0x2331f6);},updateKpiContests=()=>{const _0x114f6b=_0x1c09bd,_0x5696cb=$(_0x114f6b(0x252));_0x5696cb&&(_0x5696cb[_0x114f6b(0x284)]=allContests[_0x114f6b(0x109)]?String(allContests[_0x114f6b(0x109)]):'?');},updateKpiCandidates=_0x14b463=>{const _0x1c9394=_0x39c496,_0x4406c2=_0x1c09bd,_0x28b2ab=$(_0x1c9394(0x4e3));_0x28b2ab&&(_0x28b2ab[_0x4406c2(0x284)]=typeof _0x14b463===_0x4406c2(0x392)&&_0x14b463>=0x0?String(_0x14b463):'?');},normalizeSearch=_0x2f4526=>_0x2f4526?_0x2f4526[_0x1c09bd(0x408)]()[_0x1c09bd(0xba)]():'';async function ensureContestsLoaded(_0x534acf=![]){const _0x18783e=_0x247feb,_0xa572fe=_0x37ce72,_0x185994=_0x1c09bd;if(!_0x534acf&&allContests[_0x185994(0x109)]){updateContestFilterOptions(),updateKpiContests();return;}!$contestsContent[_0x185994(0xf7)][_0x185994(0x1c2)](_0x185994(0xf3))&&($contestsContent[_0x185994(0xfc)]=_0xa572fe(0x2cb)[_0x185994(0xfa)](0x6));const _0x56fc77=query(collection(db,_0xa572fe(0x544)),orderBy(_0x185994(0x21c),_0xa572fe(0x5a2))),_0x3e027c=await getDocs(_0x56fc77);allContests=_0x3e027c[_0x185994(0x2a7)][_0x18783e(0x40e)](_0x4a73e4=>{const _0x2dc3c9=_0x34de,_0x4f8bc2=_0x18783e,_0xba89f3=_0xa572fe,_0x22e731=_0x185994,_0x2f1f2c=_0x4a73e4[_0x22e731(0x2d9)]()||{},_0x543e4e=_0x2f1f2c[_0xba89f3(0x4f4)]&&typeof _0x2f1f2c[_0x22e731(0x21c)]===_0x22e731(0x38c)&&typeof _0x2f1f2c[_0x4f8bc2(0x420)][_0x22e731(0x236)]===_0xba89f3(0x50c)?_0x2f1f2c[_0x22e731(0x21c)][_0xba89f3(0x587)]():_0x2f1f2c[_0x22e731(0x21c)]?new Date(_0x2f1f2c[_0x22e731(0x21c)]):null;return{'id':_0x4a73e4['id'],'title':typeof _0x2f1f2c[_0xba89f3(0x2af)]===_0x22e731(0x11b)?_0x2f1f2c[_0x22e731(0x1d6)]:_0x22e731(0x2fb),'description':typeof _0x2f1f2c[_0x22e731(0x20b)]===_0x22e731(0x11b)?_0x2f1f2c[_0x2dc3c9(0x47d)]:'','status':typeof _0x2f1f2c[_0xba89f3(0x22c)]===_0xba89f3(0x439)?_0x2f1f2c[_0xba89f3(0x22c)]:_0xba89f3(0x219),'endDate':_0x543e4e,'totalParticipants':Number[_0xba89f3(0x215)](_0x2f1f2c[_0xba89f3(0x424)])?_0x2f1f2c[_0x22e731(0x1bc)]:Number[_0x22e731(0xae)](_0x2f1f2c[_0x22e731(0x42d)])?_0x2f1f2c[_0x22e731(0x42d)]:0x0,'totalVotes':Number[_0x22e731(0xae)](_0x2f1f2c[_0x22e731(0x233)])?_0x2f1f2c[_0x22e731(0x233)]:Number[_0x22e731(0xae)](_0x2f1f2c[_0x22e731(0x420)])?_0x2f1f2c[_0x22e731(0x420)]:0x0};}),updateContestFilterOptions(),updateKpiContests(),selectedContestId&&!allContests[_0x185994(0x21a)](_0x3c71f0=>_0x3c71f0['id']===selectedContestId)&&(selectedContestId='',localStorage[_0x185994(0x23a)](CONTEST_SELECTION_STORAGE_KEY)),!selectedContestId&&allContests[_0x185994(0x109)]&&(selectedContestId=allContests[0x0]['id'],localStorage[_0x185994(0x31c)](CONTEST_SELECTION_STORAGE_KEY,selectedContestId));}async function ensureContestCandidatesLoaded(_0x500b4d,_0xc87054=![]){const _0x3843a2=_0x37ce72,_0x1bf4b6=_0x1c09bd;if(!_0x500b4d)return updateKpiCandidates(0x0),[];if(!_0xc87054&&contestCandidates[_0x1bf4b6(0x39a)](_0x500b4d))return _0x500b4d===selectedContestId&&updateKpiCandidates(contestCandidates[_0x1bf4b6(0x1b6)](_0x500b4d)[_0x1bf4b6(0x109)]),contestCandidates[_0x1bf4b6(0x1b6)](_0x500b4d);const _0x5c3e30=collection(db,_0x3843a2(0x544),_0x500b4d,_0x1bf4b6(0x3e4)),_0x14acda=query(_0x5c3e30,orderBy(_0x1bf4b6(0x420),_0x1bf4b6(0x185))),_0x476a46=await getDocs(_0x14acda),_0xf875f4=_0x476a46[_0x1bf4b6(0x2a7)][_0x1bf4b6(0x287)](_0x1921eb=>{const _0x760b07=_0x3843a2,_0x1b4b22=_0x1bf4b6,_0x3116d4=_0x1921eb[_0x1b4b22(0x2d9)]()||{};return{'id':_0x1921eb['id'],'contestId':_0x500b4d,'name':typeof _0x3116d4[_0x1b4b22(0x354)]===_0x1b4b22(0x11b)?_0x3116d4[_0x760b07(0x3a5)]:_0x760b07(0x4ba),'media':typeof _0x3116d4[_0x1b4b22(0x3fe)]===_0x760b07(0x439)?_0x3116d4[_0x1b4b22(0x3fe)]:'','photoUrl':typeof _0x3116d4[_0x1b4b22(0x32f)]===_0x1b4b22(0x11b)?_0x3116d4[_0x1b4b22(0x32f)]:'','voteCount':Number[_0x1b4b22(0xae)](_0x3116d4[_0x760b07(0x4b2)])?_0x3116d4[_0x1b4b22(0x420)]:Number[_0x1b4b22(0xae)](_0x3116d4[_0x1b4b22(0x429)])?_0x3116d4[_0x1b4b22(0x429)]:0x0};});return contestCandidates[_0x1bf4b6(0x253)](_0x500b4d,_0xf875f4),_0x500b4d===selectedContestId&&updateKpiCandidates(_0xf875f4[_0x1bf4b6(0x109)]),_0xf875f4;}async function setSelectedContest(_0x61fd47,_0x1b5ac4={}){const _0xb142de=_0x247feb,_0x21947e=_0x1c09bd,{force:force=![],skipRender:skipRender=![]}=_0x1b5ac4,_0x280f50=_0x61fd47||'',_0x1ed7be=_0x280f50!==selectedContestId;selectedContestId=_0x280f50,selectedContestId?localStorage[_0xb142de(0x369)](CONTEST_SELECTION_STORAGE_KEY,selectedContestId):localStorage[_0x21947e(0x23a)](CONTEST_SELECTION_STORAGE_KEY);if(_0x1ed7be){candidateSearchTerm='';const _0xc4495a=$(_0x21947e(0x110));_0xc4495a&&(_0xc4495a[_0x21947e(0x1d2)]='');}updateContestFilterOptions(),selectedContestId?await ensureContestCandidatesLoaded(selectedContestId,force||_0x1ed7be):updateKpiCandidates(0x0),!skipRender&&renderContestsOverview();}function renderContestsOverview(){const _0xf6c1f0=_0x39c496,_0x3a5853=_0x247feb,_0x54db59=_0x37ce72,_0x5122a5=_0x1c09bd;if(!$contestsContent)return;if(!allContests[_0x5122a5(0x109)]){updateKpiCandidates(0x0),$contestsContent[_0x3a5853(0x458)]=_0x54db59(0x252),$contestsContent[_0x3a5853(0x2aa)](_0x5122a5(0x12b))?.[_0x3a5853(0x31b)](_0x5122a5(0x42e),()=>{const _0x351814=_0x3a5853,_0x8349a0=_0x5122a5;location[_0x8349a0(0xa3)]=_0x351814(0x2e5);}),lucide[_0x5122a5(0x38b)]();return;}const _0xa03d89=$(_0x5122a5(0x319));_0xa03d89&&_0xa03d89[_0x5122a5(0x1d2)]!==(selectedContestId||'')&&(_0xa03d89[_0x5122a5(0x1d2)]=selectedContestId||'');const _0x268cc2=$(_0x3a5853(0x1fc));_0x268cc2&&_0x268cc2[_0x5122a5(0x1d2)]!==candidateSearchTerm&&(_0x268cc2[_0x5122a5(0x1d2)]=candidateSearchTerm);const _0x19f69c=getSelectedContest();if(!_0x19f69c){updateKpiCandidates(0x0),$contestsContent[_0x54db59(0x29b)]=_0x54db59(0x31d),lucide[_0x5122a5(0x38b)]();return;}const _0x2ee7a8=contestCandidates[_0x5122a5(0x1b6)](_0x19f69c['id'])||[],_0x54a11d=normalizeSearch(candidateSearchTerm),_0x2ba10f=_0x54a11d?_0x2ee7a8[_0x5122a5(0x43a)](_0x5b8b19=>(_0x5b8b19[_0x5122a5(0x354)]+'\x20'+_0x5b8b19[_0x54db59(0x3ac)])[_0x54db59(0x288)]()[_0x5122a5(0x124)](_0x54a11d)):_0x2ee7a8;updateKpiCandidates(_0x2ee7a8[_0x3a5853(0x297)]);const _0x47acb3=_0x2ba10f[_0x5122a5(0x287)]((_0x1333f5,_0x19f00b)=>_0x5122a5(0x202)+(_0x19f00b+0x1)+_0x5122a5(0x2ec)+(_0x1333f5[_0x54db59(0x274)]?_0x5122a5(0x3d9)+escapeAttr(_0x1333f5[_0x5122a5(0x32f)])+_0x5122a5(0x1f8)+escapeAttr(_0x1333f5[_0x5122a5(0x354)])+_0x5122a5(0x25f):'')+_0x5122a5(0x25a)+escapeHtml(_0x1333f5[_0x5122a5(0x354)])+_0x54db59(0x204)+(_0x1333f5[_0x5122a5(0x3fe)]?_0x5122a5(0x1f0)+escapeHtml(_0x1333f5[_0x5122a5(0x3fe)])+_0x5122a5(0x9b):'')+_0x5122a5(0x32d)+escapeHtml(_0x1333f5['id'])+_0x54db59(0x277)+Number(_0x1333f5[_0x5122a5(0x420)]||0x0)[_0x5122a5(0x1df)](_0x3a5853(0x17b))+_0xf6c1f0(0x376)+escapeAttr(_0x1333f5['id'])+_0x5122a5(0x3b2)+escapeAttr(_0x1333f5['id'])+_0x5122a5(0x35e))[_0x5122a5(0x12e)](''),_0x31e825=_0x2ba10f[_0x3a5853(0x297)]?_0x5122a5(0xff)+_0x47acb3+_0x5122a5(0xfd):_0x5122a5(0x2cf)+(_0x54a11d?_0x5122a5(0xa7):_0x54db59(0x48b))+_0x5122a5(0x36d);$contestsContent[_0x5122a5(0xfc)]=_0x54db59(0x2d2)+escapeHtml(_0x19f69c[_0x5122a5(0x1d6)]||_0x5122a5(0x2fb))+_0x5122a5(0x2a4)+escapeHtml(_0x19f69c['id'])+_0x54db59(0x362)+escapeAttr(_0x19f69c[_0x5122a5(0x3c3)])+'\x22>'+formatContestStatus(_0x19f69c[_0x54db59(0x22c)])+_0x5122a5(0x217)+toDisplayDate(_0x19f69c[_0x54db59(0x4f4)])+_0x54db59(0x1fc)+Number(_0x19f69c[_0x3a5853(0x295)]||0x0)[_0x54db59(0x4e3)](_0x5122a5(0x3ca))+_0x5122a5(0x28f)+Number(_0x19f69c[_0x54db59(0x424)]||_0x2ee7a8[_0x5122a5(0x109)])[_0x5122a5(0x1df)](_0x54db59(0x2f9))+_0x5122a5(0x14d)+(_0x19f69c[_0xf6c1f0(0x47d)]?escapeHtml(_0x19f69c[_0x54db59(0x3bb)]):_0x5122a5(0x303))+_0x5122a5(0x365)+_0x2ba10f[_0x5122a5(0x109)]+_0x5122a5(0xe3)+_0x2ee7a8[_0x5122a5(0x109)]+_0x5122a5(0x115)+_0x31e825+_0x5122a5(0x32b);const _0x5154f0=$contestsContent[_0x5122a5(0x10a)](_0x54db59(0x202));_0x5154f0?.[_0x5122a5(0x446)](_0x5122a5(0x42e),()=>{const _0x4297df=_0x5122a5;location[_0x4297df(0xa3)]=_0x4297df(0x435)+_0x19f69c['id'];});const _0x22c1d5=$contestsContent[_0x54db59(0x242)](_0x54db59(0x40b));_0x22c1d5?.[_0x54db59(0x4f9)](_0x5122a5(0x42e),()=>{const _0x2c0ea9=_0x5122a5;handleContestDeletion(_0x19f69c['id'],_0x19f69c[_0x2c0ea9(0x1d6)]||_0x2c0ea9(0x264));});const _0x2df8db=$contestsContent[_0x5122a5(0x10a)](_0x5122a5(0x2ce));_0x2df8db?.[_0x5122a5(0x446)](_0x5122a5(0x42e),()=>{const _0x3376c7=_0x5122a5;location[_0x3376c7(0xa3)]=_0x3376c7(0x3a8)+_0x19f69c['id'];}),$contestsContent[_0x54db59(0x4bc)](_0x5122a5(0x350))[_0x54db59(0x53e)](_0x790295=>{const _0x12dc75=_0x5122a5;_0x790295[_0x12dc75(0x446)](_0x12dc75(0x42e),()=>{const _0x3036be=_0x12dc75,_0x82df8c=_0x790295[_0x3036be(0x3ab)](_0x3036be(0xa6));_0x82df8c&&(location[_0x3036be(0xa3)]=_0x3036be(0x141)+_0x19f69c['id']+'/'+_0x82df8c);});}),$contestsContent[_0x5122a5(0x379)](_0x5122a5(0x43f))[_0x5122a5(0x335)](_0x559216=>{const _0x28eaa8=_0x5122a5;_0x559216[_0x28eaa8(0x446)]('click',()=>{const _0x172c65=_0x28eaa8,_0x5cec7c=_0x559216[_0x172c65(0x3ab)](_0x172c65(0x26a)),_0x192310=_0x2ee7a8[_0x172c65(0x326)](_0x5c0ff8=>_0x5c0ff8['id']===_0x5cec7c);_0x5cec7c&&handleCandidateDeletion(_0x19f69c['id'],_0x5cec7c,_0x192310?.[_0x172c65(0x354)]||_0x172c65(0x342));});}),lucide[_0x5122a5(0x38b)]();}async function handleCandidateDeletion(_0x4d2f04,_0x176b3d,_0x32c3e5){const _0x1cd988=_0x39c496,_0x329501=_0x37ce72,_0x4e5eaa=_0x1c09bd,_0x1b41b5=await openModal({'title':_0x4e5eaa(0x2d0),'body':_0x329501(0x21c)+escapeHtml(_0x32c3e5)+_0x4e5eaa(0x2ac),'okText':_0x329501(0x314),'danger':!![]});if(!_0x1b41b5)return;try{await deleteDoc(doc(db,_0x329501(0x544),_0x4d2f04,_0x4e5eaa(0x3e4),_0x176b3d));const _0x11d4a1=contestCandidates[_0x4e5eaa(0x1b6)](_0x4d2f04)||[];contestCandidates[_0x4e5eaa(0x253)](_0x4d2f04,_0x11d4a1[_0x329501(0x52e)](_0x371971=>_0x371971['id']!==_0x176b3d)),toast(_0x4e5eaa(0x1aa),_0x32c3e5,_0x4e5eaa(0x2bf)),_0x4d2f04===selectedContestId&&(updateKpiCandidates((contestCandidates[_0x4e5eaa(0x1b6)](_0x4d2f04)||[])[_0x329501(0x28d)]),renderContestsOverview());}catch(_0x9b283e){console[_0x329501(0x3e4)](_0x9b283e),toast(_0x1cd988(0x1a5),_0x4e5eaa(0x390),_0x4e5eaa(0x381));}}async function handleContestDeletion(_0x2ebae5,_0x170169){const _0xdc8e82=_0x37ce72,_0x2f0231=_0x1c09bd,_0x35e225=await openModal({'title':_0xdc8e82(0x314),'body':_0x2f0231(0x8f)+escapeHtml(_0x170169||_0x2f0231(0x264))+_0x2f0231(0x2ac),'okText':_0xdc8e82(0x314),'cancelText':_0x2f0231(0x2a1),'danger':!![]});if(!_0x35e225)return;try{await ensureContestCandidatesLoaded(_0x2ebae5,!![]);const _0x456869=[...contestCandidates[_0xdc8e82(0x4ff)](_0x2ebae5)||[]];for(const _0x81f8b5 of _0x456869){await deleteDoc(doc(db,_0xdc8e82(0x544),_0x2ebae5,_0x2f0231(0x3e4),_0x81f8b5['id']));}await deleteDoc(doc(db,_0x2f0231(0x2eb),_0x2ebae5)),contestCandidates[_0x2f0231(0x20c)](_0x2ebae5),allContests=allContests[_0x2f0231(0x43a)](_0x3ac28e=>_0x3ac28e['id']!==_0x2ebae5),updateContestFilterOptions(),updateKpiContests();const _0x2a3521=selectedContestId===_0x2ebae5;if(_0x2a3521){const _0x2176bd=allContests[0x0]?.['id']||'';await setSelectedContest(_0x2176bd,{'force':!![]});}else renderContestsOverview();await refreshContestPromoCard(),renderPromoCardList(),updatePromoCardsKpi(),toast(_0x2f0231(0x105),_0x170169||_0x2f0231(0x264),_0xdc8e82(0x1fe));}catch(_0x2df7e2){console[_0x2f0231(0x381)](_0x2f0231(0x36b),_0x2df7e2),toast(_0x2f0231(0x454),_0x2f0231(0x390),_0xdc8e82(0x3e4));}}async function renderContestFormPage(_0xda80ad){const _0x3b92ee=_0x247feb,_0x185ba4=_0x37ce72,_0x477c5e=_0x1c09bd,_0x325a21=Boolean(_0xda80ad);let _0x28ba89=null;if(_0x325a21){_0x28ba89=getSelectedContest()||allContests[_0x477c5e(0x326)](_0x1fc7ee=>_0x1fc7ee['id']===_0xda80ad)||null;if(!_0x28ba89){const _0x3f72cf=await getDoc(doc(db,_0x185ba4(0x544),_0xda80ad));if(_0x3f72cf[_0x3b92ee(0x1ac)]()){const _0x2c7a54=_0x3f72cf[_0x477c5e(0x2d9)]()||{};_0x28ba89={'id':_0x3f72cf['id'],'title':typeof _0x2c7a54[_0x477c5e(0x1d6)]===_0x477c5e(0x11b)?_0x2c7a54[_0x477c5e(0x1d6)]:_0x477c5e(0x2fb),'description':typeof _0x2c7a54[_0x477c5e(0x20b)]===_0x477c5e(0x11b)?_0x2c7a54[_0x477c5e(0x20b)]:'','status':typeof _0x2c7a54[_0x477c5e(0x3c3)]===_0x477c5e(0x11b)?_0x2c7a54[_0x477c5e(0x3c3)]:_0x3b92ee(0x318),'endDate':_0x2c7a54[_0x477c5e(0x21c)]&&typeof _0x2c7a54[_0x477c5e(0x21c)]===_0x185ba4(0x576)&&typeof _0x2c7a54[_0x477c5e(0x21c)][_0x3b92ee(0x455)]===_0x477c5e(0xbc)?_0x2c7a54[_0x477c5e(0x21c)][_0x3b92ee(0x455)]():_0x2c7a54[_0x477c5e(0x21c)]?new Date(_0x2c7a54[_0x477c5e(0x21c)]):null,'totalParticipants':Number[_0x477c5e(0xae)](_0x2c7a54[_0x185ba4(0x424)])?_0x2c7a54[_0x477c5e(0x1bc)]:0x0,'totalVotes':Number[_0x477c5e(0xae)](_0x2c7a54[_0x477c5e(0x233)])?_0x2c7a54[_0x477c5e(0x233)]:0x0};}}if(!_0x28ba89){$contestsContent[_0x477c5e(0xfc)]=_0x185ba4(0x34a);return;}}const _0x4d5a6b=_0x28ba89||{'title':'','description':'','status':_0x477c5e(0x3a3),'endDate':null,'totalParticipants':0x0,'totalVotes':0x0},_0x4cf490=document[_0x185ba4(0x501)](_0x477c5e(0x99));_0x4cf490[_0x185ba4(0x276)]=_0x477c5e(0x377),_0x4cf490[_0x477c5e(0xfc)]=_0x477c5e(0xd7)+(_0x325a21?_0x477c5e(0x2d4):_0x185ba4(0x4de))+_0x477c5e(0x167)+(_0x325a21?_0x185ba4(0x4e0)+escapeHtml(_0x28ba89['id'])+_0x185ba4(0x39a):'')+_0x477c5e(0x118)+escapeAttr(_0x4d5a6b[_0x185ba4(0x2af)])+_0x185ba4(0x40c)+escapeHtml(_0x4d5a6b[_0x477c5e(0x20b)])+_0x477c5e(0x3ae)+(_0x4d5a6b[_0x477c5e(0x3c3)]===_0x477c5e(0x3a3)?_0x477c5e(0x94):'')+_0x477c5e(0x251)+(_0x4d5a6b[_0x185ba4(0x22c)]===_0x477c5e(0x27b)?_0x185ba4(0x310):'')+_0x477c5e(0x2b5)+(_0x4d5a6b[_0x185ba4(0x22c)]===_0x477c5e(0x33a)?_0x477c5e(0x94):'')+_0x3b92ee(0x309)+escapeAttr(toInputDateValue(_0x4d5a6b[_0x3b92ee(0x420)]))+_0x477c5e(0xc4)+(_0x4d5a6b[_0x477c5e(0x1bc)]||'')+_0x477c5e(0x190)+(_0x4d5a6b[_0x477c5e(0x233)]||'')+_0x3b92ee(0x345)+(_0x325a21?_0x3b92ee(0x2b8):_0x477c5e(0x341))+_0x477c5e(0x3e0),$contestsContent[_0x477c5e(0xfc)]='',$contestsContent[_0x185ba4(0x363)](_0x4cf490),_0x4cf490[_0x477c5e(0x10a)](_0x477c5e(0x1ed))?.[_0x477c5e(0x446)](_0x477c5e(0x42e),()=>{const _0x270231=_0x477c5e;location[_0x270231(0xa3)]=_0x270231(0x9f);}),_0x4cf490[_0x477c5e(0x10a)](_0x477c5e(0x13d))[_0x477c5e(0x276)]=_0x50b5eb=>handleContestFormSubmit(_0x50b5eb,_0x325a21?_0x28ba89['id']:null),lucide[_0x477c5e(0x38b)]();}async function handleContestFormSubmit(_0x227e40,_0x56de4b){const _0x59c013=_0x39c496,_0x30bb41=_0x247feb,_0x5bbd57=_0x37ce72,_0x535d8d=_0x1c09bd;_0x227e40[_0x535d8d(0x2ff)]();const _0x4169=_0x227e40[_0x535d8d(0x340)],_0x30790a=_0x4169[_0x535d8d(0x10a)](_0x535d8d(0x2cb));setButtonLoading(_0x30790a,!![]);try{const _0x35bf6f=_0x4169[_0x5bbd57(0x242)](_0x535d8d(0xb6))[_0x535d8d(0x1d2)][_0x535d8d(0x408)]();if(!_0x35bf6f){toast(_0x535d8d(0x454),_0x535d8d(0x329),_0x5bbd57(0x3e4)),setButtonLoading(_0x30790a,![]);return;}const _0x355667=_0x4169[_0x535d8d(0x10a)](_0x5bbd57(0x49b))[_0x535d8d(0x1d2)][_0x5bbd57(0x519)](),_0x1c74fd=_0x4169[_0x535d8d(0x10a)](_0x535d8d(0x227))[_0x5bbd57(0x398)]||_0x535d8d(0x3a3),_0x3b2e6c=_0x4169[_0x30bb41(0x2aa)]('#contest-end')[_0x535d8d(0x1d2)],_0x2a5368=Number(_0x4169[_0x535d8d(0x10a)](_0x535d8d(0x123))[_0x5bbd57(0x398)]),_0x5b2543=Number(_0x4169[_0x535d8d(0x10a)](_0x535d8d(0x22f))[_0x535d8d(0x1d2)]),_0x568e6d={'title':_0x35bf6f,'description':_0x355667,'status':_0x1c74fd,'updatedAt':serverTimestamp()};if(_0x3b2e6c){const _0x291747=new Date(_0x3b2e6c);!Number[_0x5bbd57(0x3fe)](_0x291747[_0x535d8d(0x106)]())&&(_0x568e6d[_0x5bbd57(0x4f4)]=_0x291747);}else _0x568e6d[_0x535d8d(0x21c)]=null;Number[_0x535d8d(0xae)](_0x2a5368)&&_0x2a5368>=0x0&&(_0x568e6d[_0x59c013(0x39b)]=_0x2a5368),Number[_0x535d8d(0xae)](_0x5b2543)&&_0x5b2543>=0x0&&(_0x568e6d[_0x535d8d(0x233)]=_0x5b2543);if(_0x56de4b){await updateDoc(doc(db,_0x5bbd57(0x544),_0x56de4b),_0x568e6d);const _0x4d1db8=allContests[_0x535d8d(0x3b4)](_0x2d5b75=>_0x2d5b75['id']===_0x56de4b);if(_0x4d1db8>-0x1){const _0xbab661={...allContests[_0x4d1db8],..._0x568e6d};if(_0x568e6d[_0x535d8d(0x21c)]instanceof Date)_0xbab661[_0x535d8d(0x21c)]=_0x568e6d[_0x535d8d(0x21c)];else _0x568e6d[_0x535d8d(0x21c)]===null&&(_0xbab661[_0x535d8d(0x21c)]=null);allContests[_0x4d1db8]=_0xbab661;}toast(_0x535d8d(0x1f5),_0x35bf6f,_0x535d8d(0x2bf)),await ensureContestsLoaded(!![]),await setSelectedContest(_0x56de4b,{'force':!![]});}else{const _0x10049e={..._0x568e6d,'createdAt':serverTimestamp(),'totalVotes':_0x568e6d[_0x535d8d(0x233)]||0x0,'totalParticipants':_0x568e6d[_0x5bbd57(0x424)]||0x0},_0x193eba=await addDoc(collection(db,_0x535d8d(0x2eb)),_0x10049e);await updateDoc(_0x193eba,{'id':_0x193eba['id']}),toast(_0x535d8d(0x1e4),_0x35bf6f,_0x5bbd57(0x1fe)),await ensureContestsLoaded(!![]),await setSelectedContest(_0x193eba['id'],{'force':!![]});}location[_0x535d8d(0xa3)]=_0x535d8d(0x9f);}catch(_0x379e0d){console[_0x535d8d(0x381)](_0x379e0d),toast(_0x535d8d(0x454),_0x535d8d(0x168),_0x5bbd57(0x3e4));}finally{setButtonLoading(_0x30790a,![]);}}async function renderCandidateFormPage(_0x1b14f7,_0x5ebaf7){const _0x2c1115=_0x247feb,_0x521da8=_0x37ce72,_0xa5f5cc=_0x1c09bd;if(!_0x1b14f7){$contestsContent[_0xa5f5cc(0xfc)]=_0xa5f5cc(0x237);return;}const _0x184986=allContests[_0xa5f5cc(0x326)](_0x5594f8=>_0x5594f8['id']===_0x1b14f7)||null;!_0x184986&&await ensureContestsLoaded(!![]);const _0x53c2be=contestCandidates[_0xa5f5cc(0x1b6)](_0x1b14f7)||[];let _0x308ec0=null;if(_0x5ebaf7){_0x308ec0=_0x53c2be[_0x2c1115(0x4b4)](_0x1b2d29=>_0x1b2d29['id']===_0x5ebaf7)||null;if(!_0x308ec0){const _0x3de2ab=await getDoc(doc(db,_0xa5f5cc(0x2eb),_0x1b14f7,_0xa5f5cc(0x3e4),_0x5ebaf7));if(_0x3de2ab[_0xa5f5cc(0x371)]()){const _0x1850d8=_0x3de2ab[_0xa5f5cc(0x2d9)]()||{};_0x308ec0={'id':_0x3de2ab['id'],'name':_0x1850d8[_0x521da8(0x3a5)]||_0xa5f5cc(0x271),'media':_0x1850d8[_0xa5f5cc(0x3fe)]||'','photoUrl':_0x1850d8[_0xa5f5cc(0x32f)]||'','voteCount':Number[_0x2c1115(0x301)](_0x1850d8[_0x521da8(0x4b2)])?_0x1850d8[_0xa5f5cc(0x420)]:0x0};}}if(!_0x308ec0){$contestsContent[_0xa5f5cc(0xfc)]=_0xa5f5cc(0x296);return;}}const _0x46f195=_0x308ec0||{'name':'','media':'','photoUrl':'','voteCount':0x0},_0x3e2bbd=document[_0xa5f5cc(0x259)](_0xa5f5cc(0x99));_0x3e2bbd[_0x521da8(0x276)]=_0x2c1115(0x2d1),_0x3e2bbd[_0x521da8(0x29b)]=_0xa5f5cc(0xd7)+(_0x5ebaf7?_0x2c1115(0x231):_0xa5f5cc(0x1f1))+_0xa5f5cc(0xe5)+escapeHtml((getSelectedContest()||{})[_0xa5f5cc(0x1d6)]||_0x1b14f7)+_0xa5f5cc(0x1d5)+escapeAttr(_0x46f195[_0x521da8(0x3a5)])+_0xa5f5cc(0x10d)+escapeAttr(_0x46f195[_0x521da8(0x3ac)])+_0xa5f5cc(0x1e2)+escapeAttr(_0x46f195[_0xa5f5cc(0x32f)])+_0xa5f5cc(0x171)+Number(_0x46f195[_0xa5f5cc(0x420)]||0x0)+_0x521da8(0x45c)+(_0x5ebaf7?_0x521da8(0x52c):_0x521da8(0x57e))+_0x521da8(0x245),$contestsContent[_0x521da8(0x29b)]='',$contestsContent[_0xa5f5cc(0x385)](_0x3e2bbd),_0x3e2bbd[_0xa5f5cc(0x10a)](_0xa5f5cc(0x1ed))?.[_0xa5f5cc(0x446)](_0xa5f5cc(0x42e),()=>{const _0x278442=_0xa5f5cc;location[_0x278442(0xa3)]=_0x278442(0x9f);}),_0x3e2bbd[_0x2c1115(0x2aa)](_0xa5f5cc(0x13d))[_0xa5f5cc(0x276)]=_0x24e748=>handleCandidateFormSubmit(_0x24e748,_0x1b14f7,_0x5ebaf7||null),lucide[_0x521da8(0x4fa)]();}async function handleCandidateFormSubmit(_0x4bbcb3,_0xdac9e1,_0x4ff38f){const _0x315fcb=_0x37ce72,_0x5a4158=_0x1c09bd;_0x4bbcb3[_0x315fcb(0x21f)]();const _0x5bc3e5=_0x4bbcb3[_0x5a4158(0x340)],_0x25b861=_0x5bc3e5[_0x5a4158(0x10a)](_0x5a4158(0x2cb));setButtonLoading(_0x25b861,!![]);try{const _0x335ebd=_0x5bc3e5[_0x315fcb(0x242)](_0x315fcb(0x473))[_0x5a4158(0x1d2)][_0x5a4158(0x408)]();if(!_0x335ebd){toast(_0x5a4158(0x454),_0x5a4158(0x17c),_0x315fcb(0x3e4)),setButtonLoading(_0x25b861,![]);return;}const _0x48113e=_0x5bc3e5[_0x5a4158(0x10a)](_0x5a4158(0x3a7))[_0x315fcb(0x398)][_0x5a4158(0x408)](),_0xb84bac=_0x5bc3e5[_0x5a4158(0x10a)](_0x5a4158(0x232))[_0x5a4158(0x1d2)][_0x315fcb(0x519)](),_0x13c229=Number(_0x5bc3e5[_0x5a4158(0x10a)](_0x5a4158(0x352))[_0x5a4158(0x1d2)]),_0x407907={'name':_0x335ebd,'media':_0x48113e,'photoUrl':_0xb84bac,'voteCount':Number[_0x5a4158(0xae)](_0x13c229)&&_0x13c229>=0x0?_0x13c229:0x0,'updatedAt':serverTimestamp()};if(_0x4ff38f){await updateDoc(doc(db,_0x5a4158(0x2eb),_0xdac9e1,_0x5a4158(0x3e4),_0x4ff38f),_0x407907);const _0x172635=contestCandidates[_0x5a4158(0x1b6)](_0xdac9e1)||[],_0x20140c=_0x172635[_0x5a4158(0x3b4)](_0xaaea0e=>_0xaaea0e['id']===_0x4ff38f);_0x20140c>-0x1&&(_0x172635[_0x20140c]={..._0x172635[_0x20140c],..._0x407907}),contestCandidates[_0x5a4158(0x253)](_0xdac9e1,_0x172635),toast(_0x5a4158(0x39f),_0x335ebd,_0x5a4158(0x2bf));}else{const _0x541bf6=await addDoc(collection(db,_0x5a4158(0x2eb),_0xdac9e1,_0x5a4158(0x3e4)),{..._0x407907,'contestId':_0xdac9e1,'createdAt':serverTimestamp()});await updateDoc(_0x541bf6,{'id':_0x541bf6['id']});const _0x2f2cbf=contestCandidates[_0x315fcb(0x4ff)](_0xdac9e1)||[];contestCandidates[_0x5a4158(0x253)](_0xdac9e1,[{'id':_0x541bf6['id'],'contestId':_0xdac9e1,..._0x407907},..._0x2f2cbf]),toast(_0x5a4158(0x411),_0x335ebd,_0x315fcb(0x1fe));}await setSelectedContest(_0xdac9e1,{'force':!![]}),location[_0x315fcb(0x318)]=_0x5a4158(0x9f);}catch(_0x516e3a){console[_0x5a4158(0x381)](_0x516e3a),toast(_0x5a4158(0x454),_0x5a4158(0x2ad),_0x315fcb(0x3e4));}finally{setButtonLoading(_0x25b861,![]);}}$(_0x247feb(0x48c))[_0x1c09bd(0x446)](_0x37ce72(0x44e),()=>location[_0x1c09bd(0xa3)]=_0x37ce72(0x31f)),$(_0x1c09bd(0x1bd))[_0x1c09bd(0x446)](_0x1c09bd(0x40c),()=>renderBrandList());function renderBrandList(){const _0x5483f5=_0x247feb,_0x27350b=_0x37ce72,_0xd87742=_0x1c09bd,_0x5582a8=($(_0x27350b(0x53d))[_0x27350b(0x398)]||'')[_0x5483f5(0x235)](),_0x5e940e=_0x5582a8?allBrands[_0xd87742(0x43a)](_0x1fdc98=>(_0x1fdc98[_0xd87742(0x354)]||'')[_0xd87742(0xba)]()[_0xd87742(0x124)](_0x5582a8)):allBrands;if(!_0x5e940e[_0xd87742(0x109)]){$brandsContent[_0xd87742(0xfc)]=_0x5483f5(0x451);return;}const _0x404fa8=document[_0xd87742(0x259)](_0x27350b(0x413));_0x404fa8[_0xd87742(0x394)]=_0xd87742(0x3f3),_0x404fa8[_0x27350b(0x29b)]=_0xd87742(0x205);const _0x24c32a=_0x404fa8[_0xd87742(0x10a)](_0x5483f5(0x39a));_0x5e940e[_0xd87742(0x335)](_0x2c9030=>{const _0x9ea73e=_0x5483f5,_0x6833b2=_0x27350b,_0x3cdeab=_0xd87742,_0x4b7bcb=document[_0x3cdeab(0x259)]('tr');_0x4b7bcb[_0x9ea73e(0x196)]['id']=_0x2c9030['id'],_0x4b7bcb[_0x3cdeab(0xfc)]=_0x3cdeab(0x125)+(_0x2c9030[_0x3cdeab(0x14b)]?_0x6833b2(0x359)+escapeAttr(_0x2c9030[_0x3cdeab(0x14b)])+_0x3cdeab(0x175)+escapeAttr(_0x2c9030[_0x3cdeab(0x354)])+_0x6833b2(0x39f):'')+_0x3cdeab(0x315)+escapeHtml(_0x2c9030[_0x3cdeab(0x354)]||_0x6833b2(0x335))+_0x3cdeab(0x11c)+(_0x2c9030[_0x3cdeab(0x2fc)]||_0x6833b2(0x412))+_0x3cdeab(0x203),_0x4b7bcb[_0x3cdeab(0x10a)](_0x3cdeab(0xa9))[_0x3cdeab(0x453)]=()=>location[_0x6833b2(0x318)]=_0x3cdeab(0x450)+_0x2c9030['id'],_0x4b7bcb[_0x3cdeab(0x10a)](_0x3cdeab(0x1cc))[_0x3cdeab(0x453)]=()=>handleDelete(_0x2c9030['id'],_0x2c9030[_0x3cdeab(0x354)],_0x3cdeab(0x2cc)),_0x24c32a[_0x9ea73e(0x383)](_0x4b7bcb);}),$brandsContent[_0x27350b(0x29b)]='',$brandsContent[_0xd87742(0x385)](_0x404fa8),lucide[_0xd87742(0x38b)]();}async function renderBrandFormPage(_0x160874){const _0x4afad0=_0x39c496,_0x33ef69=_0x247feb,_0x1a464b=_0x37ce72,_0x110d6e=_0x1c09bd;let _0x34380d={};if(_0x160874){_0x34380d=allBrands[_0x110d6e(0x326)](_0x264c05=>_0x264c05['id']===_0x160874)||await getDoc(doc(db,_0x110d6e(0x2cc),_0x160874))[_0x110d6e(0x422)](_0x2970e9=>_0x2970e9[_0x110d6e(0x371)]()?{'id':_0x2970e9['id'],..._0x2970e9[_0x110d6e(0x2d9)]()}:null);if(!_0x34380d){$brandsContent[_0x110d6e(0xfc)]=_0x110d6e(0x204);return;}}const _0x4933aa=document[_0x1a464b(0x501)](_0x110d6e(0x99));_0x4933aa[_0x110d6e(0x394)]=_0x110d6e(0x377),_0x4933aa[_0x110d6e(0xfc)]=_0x110d6e(0x144)+(_0x160874?_0x110d6e(0x2d4):_0x1a464b(0x20a))+_0x110d6e(0x1af)+escapeAttr(_0x34380d[_0x1a464b(0x3a5)]||'')+_0x110d6e(0x11e)+(_0x34380d[_0x1a464b(0x286)]||'')+_0x110d6e(0x267)+escapeAttr(_0x34380d[_0x110d6e(0x14b)]||'')+_0x110d6e(0x38d)+(_0x160874?_0x110d6e(0x226):_0x33ef69(0x41b))+_0x4afad0(0x4c5),$brandsContent[_0x110d6e(0xfc)]='',$brandsContent[_0x1a464b(0x363)](_0x4933aa),_0x4933aa[_0x110d6e(0x10a)](_0x110d6e(0x1ed))[_0x110d6e(0x453)]=()=>location[_0x110d6e(0xa3)]=_0x110d6e(0x17e),_0x4933aa[_0x33ef69(0x2aa)](_0x110d6e(0x13d))[_0x110d6e(0x276)]=_0x38e803=>handleBrandFormSubmit(_0x38e803,_0x160874);}async function handleBrandFormSubmit(_0x5f0c4f,_0x4c8416){const _0x23113f=_0x247feb,_0x1438a3=_0x37ce72,_0x3d5b66=_0x1c09bd;_0x5f0c4f[_0x3d5b66(0x2ff)]();const _0x15a5c9=_0x5f0c4f[_0x3d5b66(0x340)][_0x23113f(0x2aa)](_0x1438a3(0x41a));setButtonLoading(_0x15a5c9,!![]);const _0x5acce5=$(_0x3d5b66(0x112))[_0x3d5b66(0x1d2)][_0x3d5b66(0x408)](),_0x4f0396=parseInt($(_0x3d5b66(0x152))[_0x3d5b66(0x1d2)],0xa),_0x33a5f6=$(_0x3d5b66(0x1b7))[_0x3d5b66(0x1d2)][_0x3d5b66(0x408)]();if(!_0x5acce5||isNaN(_0x4f0396)){toast(_0x3d5b66(0x454),_0x3d5b66(0x241),_0x3d5b66(0x381)),setButtonLoading(_0x15a5c9,![]);return;}const _0x413fb8={'name':_0x5acce5,'sortOrder':_0x4f0396,'logoUrl':_0x33a5f6};try{if(_0x4c8416){await updateDoc(doc(db,_0x3d5b66(0x2cc),_0x4c8416),_0x413fb8);const _0x27bc5d=allBrands[_0x3d5b66(0x3b4)](_0x319a25=>_0x319a25['id']===_0x4c8416);if(_0x27bc5d>-0x1)allBrands[_0x27bc5d]={'id':_0x4c8416,..._0x413fb8};toast(_0x3d5b66(0x1e5),_0x5acce5,_0x3d5b66(0x2bf));}else{const _0x40f105=await addDoc(collection(db,_0x3d5b66(0x2cc)),_0x413fb8);allBrands[_0x3d5b66(0x1a3)]({'id':_0x40f105['id'],..._0x413fb8}),$(_0x3d5b66(0x393))[_0x3d5b66(0x284)]=String(allBrands[_0x3d5b66(0x109)]),toast(_0x3d5b66(0x3b3),_0x5acce5,_0x3d5b66(0x2bf));}allBrands[_0x1438a3(0x28f)]((_0x817c44,_0x3188cd)=>_0x817c44[_0x3d5b66(0x2fc)]-_0x3188cd[_0x23113f(0x4c0)]),location[_0x3d5b66(0xa3)]=_0x3d5b66(0x17e);}catch(_0x3ba9a4){console[_0x23113f(0x491)](_0x3ba9a4),toast(_0x3d5b66(0x454),_0x3d5b66(0x1c4),_0x3d5b66(0x381));}finally{setButtonLoading(_0x15a5c9,![]);}}$(_0x39c496(0x22b))[_0x1c09bd(0x446)](_0x1c09bd(0x42e),function(){const _0xcb026e=_0x1c09bd;location[_0xcb026e(0xa3)]=_0xcb026e(0x224);}),$(_0x1c09bd(0x27d))[_0x1c09bd(0x446)](_0x1c09bd(0x40c),function(){renderMatchList();});function renderMatchList(){const _0x214478=_0x247feb,_0x5f53da=_0x37ce72,_0x3fcf4e=_0x1c09bd,_0x315576=($(_0x3fcf4e(0x27d))[_0x5f53da(0x398)]||'')[_0x3fcf4e(0xba)](),_0x176602=_0x315576?allMatches[_0x5f53da(0x52e)](function(_0x20759e){const _0x1555fa=_0x3fcf4e;return(_0x20759e[_0x1555fa(0x338)]||'')[_0x1555fa(0xba)]()[_0x1555fa(0x2c3)](_0x315576)!==-0x1||(_0x20759e[_0x1555fa(0x27e)]||'')[_0x1555fa(0xba)]()[_0x1555fa(0x2c3)](_0x315576)!==-0x1||(_0x20759e[_0x1555fa(0x380)]||'')[_0x1555fa(0xba)]()[_0x1555fa(0x2c3)](_0x315576)!==-0x1;}):allMatches[_0x3fcf4e(0xce)]();if(!_0x176602[_0x3fcf4e(0x109)]){$matchesContent[_0x214478(0x458)]=_0x5f53da(0x349);return;}const _0x349abe=document[_0x3fcf4e(0x259)](_0x3fcf4e(0x3f3));_0x349abe[_0x5f53da(0x276)]=_0x5f53da(0x413),_0x349abe[_0x3fcf4e(0xfc)]=_0x3fcf4e(0x3f7);const _0x1a5cab=_0x349abe[_0x3fcf4e(0x10a)](_0x3fcf4e(0x448));_0x176602[_0x3fcf4e(0x335)](function(_0x24fb4a){const _0x129026=_0x214478,_0x3367bb=_0x5f53da,_0x971063=_0x3fcf4e,_0x5a04c0=_0x24fb4a[_0x971063(0x339)]&&_0x24fb4a[_0x971063(0x339)][_0x971063(0x236)]?_0x24fb4a[_0x971063(0x339)][_0x971063(0x236)]():_0x24fb4a[_0x971063(0x339)]?new Date(_0x24fb4a[_0x971063(0x339)]):null,_0x567078=typeof _0x24fb4a[_0x3367bb(0x455)]===_0x971063(0x392)&&typeof _0x24fb4a[_0x971063(0x1b1)]===_0x971063(0x392)?_0x24fb4a[_0x971063(0x23d)]+_0x971063(0x431)+_0x24fb4a[_0x3367bb(0x4e8)]:'',_0x1b3273=document[_0x971063(0x259)]('tr');_0x1b3273[_0x971063(0xca)]['id']=_0x24fb4a['id'],_0x1b3273[_0x971063(0xfc)]=_0x971063(0x440)+escapeHtml(_0x24fb4a[_0x971063(0x338)]||_0x971063(0x2f0))+_0x3367bb(0x564)+escapeHtml(_0x24fb4a[_0x971063(0x27e)]||_0x3367bb(0x517))+_0x971063(0x328)+escapeHtml(_0x24fb4a[_0x971063(0x380)]||'?')+_0x3367bb(0x4e1)+(_0x5a04c0?fmtDate(_0x5a04c0):'?')+_0x129026(0x254)+(_0x567078?_0x971063(0x2bf):'')+'\x22>'+(_0x567078||_0x971063(0x273))+_0x971063(0x1dc),_0x1b3273[_0x971063(0x10a)](_0x3367bb(0x472))[_0x3367bb(0x4f9)](_0x3367bb(0x44e),function(){const _0x2b0d85=_0x3367bb,_0xf2a965=_0x971063;location[_0xf2a965(0xa3)]=_0x2b0d85(0x33c)+_0x24fb4a['id'];}),_0x1b3273[_0x971063(0x10a)](_0x3367bb(0x389))[_0x3367bb(0x4f9)](_0x971063(0x42e),function(){const _0x38b76a=_0x971063;location[_0x38b76a(0xa3)]=_0x38b76a(0x3ff)+_0x24fb4a['id'];}),_0x1b3273[_0x971063(0x10a)](_0x971063(0x1cc))[_0x971063(0x446)](_0x971063(0x42e),function(){const _0x16c64b=_0x971063;handleDelete(_0x24fb4a['id'],(_0x24fb4a[_0x16c64b(0x338)]||'')+_0x16c64b(0x302)+(_0x24fb4a[_0x16c64b(0x27e)]||''),_0x16c64b(0x10e));}),_0x1a5cab[_0x971063(0x385)](_0x1b3273);}),$matchesContent[_0x3fcf4e(0xfc)]='',$matchesContent[_0x3fcf4e(0x385)](_0x349abe);}function _0x4e27(){const _0x313ddc=_0x39c496,_0x571dff=_0x247feb,_0x13d205=[_0x313ddc(0x49f),_0x313ddc(0x30f),_0x313ddc(0x2bb),_0x571dff(0x289),'price',_0x571dff(0x405),_0x313ddc(0x491),_0x571dff(0x16c),_0x571dff(0x13a),_0x313ddc(0x316),_0x571dff(0x240),_0x571dff(0x27c),_0x571dff(0x2ef),'#match-refresh',_0x571dff(0x326),_0x571dff(0x49c),_0x313ddc(0x4c7),_0x313ddc(0x2cd),_0x313ddc(0x236),'Erreur\x20lors\x20de\x20la\x20v?rification\x20des\x20revendications:',_0x571dff(0x4d3),_0x571dff(0x130),_0x313ddc(0x1a3),_0x571dff(0x3c3),_0x571dff(0x4cd),_0x571dff(0x1cf),_0x313ddc(0x42b),_0x571dff(0x204),_0x571dff(0x1e5),_0x313ddc(0x4b6),_0x571dff(0x19c),_0x571dff(0x22b),_0x571dff(0x33c),_0x313ddc(0x1cb),_0x571dff(0x2ea),'#filter-category',_0x571dff(0x272),_0x571dff(0x2ff),_0x571dff(0x1c9),_0x571dff(0x352),_0x313ddc(0x4da),_0x571dff(0x182),_0x571dff(0x49b),_0x313ddc(0x178),_0x313ddc(0x214),'th[data-sort]',_0x571dff(0x30b),_0x571dff(0x306),_0x571dff(0x1cc),'127.0.0.1',_0x313ddc(0x209),_0x571dff(0x1ba),_0x571dff(0x299),_0x313ddc(0x1ec),_0x571dff(0x278),_0x571dff(0x37a),_0x313ddc(0x2ed),_0x571dff(0x4d8),_0x571dff(0x210),_0x571dff(0x2e5),_0x571dff(0x4ad),_0x571dff(0x4b7),_0x571dff(0x45d),_0x313ddc(0x375),_0x571dff(0x364),'\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22field\x22><div\x20class=\x22label\x22>Web</div><div\x20class=\x22chip\x22>',_0x313ddc(0x48f),_0x571dff(0x155),_0x571dff(0x3b8),_0x571dff(0x29d),_0x571dff(0x360),_0x571dff(0x258),_0x313ddc(0x230),_0x313ddc(0x25b),_0x571dff(0x157),_0x571dff(0x1fd),_0x571dff(0x40c),_0x571dff(0x426),_0x313ddc(0x4e1),_0x313ddc(0x1a1),_0x571dff(0x2bd),_0x313ddc(0x1a5),_0x571dff(0x174),_0x571dff(0x2ec),_0x313ddc(0x19b),'querySelectorAll',_0x571dff(0x49d),_0x313ddc(0x2c5),_0x571dff(0x1b5),_0x571dff(0x239),_0x571dff(0x34a),_0x571dff(0x4c9),_0x571dff(0x31e),_0x571dff(0x466),_0x313ddc(0x372),_0x571dff(0x2db),_0x571dff(0x4d4),_0x313ddc(0x17d),_0x313ddc(0x2d7),_0x571dff(0x483),_0x571dff(0x36f),_0x571dff(0x2d9),_0x571dff(0x13b),_0x571dff(0x1b8),'startsAt','#pred-total',_0x571dff(0x1c3),_0x571dff(0x133),_0x571dff(0x169),_0x571dff(0x207),_0x571dff(0x16a),_0x571dff(0x41c),_0x313ddc(0x47f),_0x313ddc(0x148),_0x571dff(0x1a1),_0x571dff(0x1bf),'?diter\x20R?gle',_0x571dff(0x173),_0x571dff(0x379),_0x313ddc(0x488),_0x571dff(0x3a6),_0x571dff(0x2cf),'</td>\x0a\x09\x20\x20<td>',_0x571dff(0x234),_0x571dff(0x3d4),_0x571dff(0x1a9),_0x571dff(0x3b2),_0x571dff(0x2af),_0x571dff(0x1ee),_0x571dff(0x208),_0x313ddc(0x274),_0x571dff(0x307),_0x313ddc(0x21f),_0x571dff(0x2f4),_0x571dff(0x39e),_0x313ddc(0x354),_0x571dff(0x39f),_0x571dff(0x167),_0x571dff(0x21e),_0x571dff(0x290),_0x571dff(0x27d),_0x571dff(0x420),_0x571dff(0x2ce),_0x571dff(0x213),_0x571dff(0x494),_0x571dff(0x30e),_0x571dff(0x31b),_0x571dff(0x3e4),_0x571dff(0x2b9),_0x571dff(0x4c2),'\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22pred-name\x22>',_0x313ddc(0x302),_0x571dff(0x402),_0x571dff(0x3a5),_0x571dff(0x1d5),_0x571dff(0x270),_0x571dff(0x13e),_0x571dff(0x193),'fontWeight',_0x313ddc(0x3a3),_0x571dff(0x154),_0x571dff(0x448),_0x313ddc(0x1c4),_0x571dff(0x2b5),_0x313ddc(0x2e2),_0x571dff(0x48e),_0x313ddc(0x1b6),_0x313ddc(0x43a),_0x571dff(0x332),_0x571dff(0x46d),_0x571dff(0x429),_0x571dff(0x243),_0x571dff(0x273),_0x571dff(0x1c1),_0x313ddc(0x392),_0x571dff(0x338),_0x571dff(0x3c0),_0x571dff(0x339),_0x313ddc(0x380),_0x313ddc(0x3f7),'</th>\x0a\x09\x09\x20\x20<th\x20class=\x22sortable\x20',_0x571dff(0x410),_0x571dff(0x2e7),_0x313ddc(0x176),_0x571dff(0x2a6),_0x571dff(0x44b),'\x20\x20\x20\x20<div\x20class=\x22login-title\x22\x20style=\x22text-align:center;margin-bottom:6px\x22>Aucun\x20produit</div>',_0x571dff(0x1dc),_0x313ddc(0x442),_0x571dff(0x230),'removeItem',_0x313ddc(0x1f5),_0x313ddc(0x2f8),'[data-close-drawer]',_0x313ddc(0x28c),_0x313ddc(0x4c1),_0x571dff(0x17d),_0x571dff(0x2b8),_0x313ddc(0x4a2),_0x313ddc(0x2cf),_0x313ddc(0x398),_0x571dff(0x188),'back',_0x571dff(0x47b),_0x571dff(0x315),_0x571dff(0x190),_0x571dff(0x253),_0x571dff(0x45e),_0x571dff(0x48b),_0x313ddc(0x25d),_0x571dff(0x3a2),_0x571dff(0x3c5),_0x313ddc(0x1c5),_0x571dff(0x236),_0x571dff(0x36d),_0x313ddc(0x207),_0x571dff(0x413),_0x313ddc(0x1c7),_0x571dff(0x440),_0x571dff(0x163),_0x313ddc(0x495),_0x571dff(0x34b),_0x571dff(0x44a),_0x313ddc(0x273),_0x571dff(0x393),_0x571dff(0x3c6),_0x571dff(0x192),_0x571dff(0x479),_0x571dff(0x367),_0x571dff(0x40a),_0x571dff(0x3c1),_0x571dff(0x3d7),_0x313ddc(0x3bd),_0x571dff(0x18d),_0x571dff(0x1a2),_0x571dff(0x447),_0x571dff(0x4b2),_0x571dff(0x3d8),_0x571dff(0x1d1),_0x313ddc(0x468),_0x571dff(0x30d),_0x571dff(0x3fd),_0x571dff(0x36a),_0x571dff(0x431),_0x571dff(0x16b),_0x571dff(0x23c),_0x313ddc(0x48e),_0x571dff(0x45b),_0x571dff(0x2c3),_0x313ddc(0x2a5),_0x571dff(0x337),_0x313ddc(0x15f),_0x571dff(0x4b9),_0x571dff(0x3f2),_0x571dff(0x142),_0x571dff(0x29f),_0x313ddc(0x456),_0x571dff(0x286),_0x571dff(0x354),_0x571dff(0x42b),_0x571dff(0x42d),_0x571dff(0x3a9),_0x571dff(0x15d),_0x571dff(0x470),'.spec-key','Batterie',_0x571dff(0x28c),_0x571dff(0x42f),_0x571dff(0x1e0),_0x571dff(0x35a),_0x571dff(0x181),_0x571dff(0x358),'#pr-code',_0x313ddc(0x262),_0x571dff(0x418),_0x571dff(0x22c),_0x571dff(0x3cf),_0x571dff(0x295),_0x571dff(0x26d),_0x571dff(0x453),_0x571dff(0x4bf),_0x571dff(0x327),_0x571dff(0x249),_0x571dff(0x152),_0x571dff(0x3be),_0x571dff(0x400),_0x571dff(0x183),_0x571dff(0x33f),_0x571dff(0x455),_0x571dff(0x238),_0x571dff(0x3f9),_0x571dff(0x3e6),_0x571dff(0x398),_0x313ddc(0x4c3),_0x571dff(0x4aa),_0x571dff(0x366),_0x571dff(0x457),_0x571dff(0x3b7),_0x571dff(0x218),_0x571dff(0x1e7),_0x571dff(0x49e),_0x571dff(0x2ed),_0x571dff(0x3dc),'open',_0x571dff(0x216),_0x571dff(0x25a),_0x571dff(0x350),_0x571dff(0x1f0),_0x313ddc(0x430),_0x571dff(0x314),_0x313ddc(0x164),_0x313ddc(0x4e7),_0x313ddc(0x38a),_0x571dff(0x27b),_0x571dff(0x2cb),_0x571dff(0x23e),_0x571dff(0x1d7),_0x571dff(0x1de),_0x571dff(0x478),_0x571dff(0x3f5),_0x313ddc(0x26b),_0x313ddc(0x498),_0x571dff(0x1c2),_0x313ddc(0x356),_0x571dff(0x186),_0x571dff(0x19d),_0x571dff(0x36b),_0x571dff(0x2dc),_0x313ddc(0x227),_0x571dff(0x31f),_0x313ddc(0x363),_0x571dff(0x2f7),_0x313ddc(0x4d1),_0x571dff(0x165),_0x571dff(0x31c),_0x571dff(0x40e),_0x571dff(0x331),'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22muted\x20small\x22>',_0x571dff(0x17a),_0x571dff(0x16d),_0x571dff(0x424),_0x571dff(0x4b5),_0x571dff(0x399),_0x571dff(0x452),_0x571dff(0x4d9),'ID:\x20',_0x571dff(0x425),_0x571dff(0x23f),_0x571dff(0x2a2),_0x571dff(0x1ce),_0x571dff(0x177),_0x313ddc(0x39e),_0x571dff(0x3d1),_0x313ddc(0x347),_0x571dff(0x382),'[data-edit-current-contest]',_0x571dff(0x32b),_0x571dff(0x3fe),_0x571dff(0x162),_0x571dff(0x37b),_0x571dff(0x2f1),_0x571dff(0x335),_0x571dff(0x1ca),_0x571dff(0x2e8),_0x313ddc(0x35a),_0x571dff(0x32e),_0x571dff(0x247),_0x571dff(0x1a5),_0x571dff(0x412),_0x313ddc(0x387),_0x571dff(0x2c2),_0x313ddc(0x330),'\x20\x20\x20\x20\x20\x20<button\x20id=\x22empty-add-product\x22\x20class=\x22btn\x20btn-primary\x22><i\x20data-lucide=\x22plus\x22\x20class=\x22icon\x22></i>\x20Nouveau\x20produit</button>',_0x571dff(0x1f2),_0x571dff(0x301),'getMinutes',_0x571dff(0x14b),'<div\x20class=\x22center\x22\x20style=\x22padding:32px\x22>R?gle\x20introuvable.</div>',_0x313ddc(0x229),_0x571dff(0x328),_0x571dff(0x37c),_0x571dff(0x3d9),_0x571dff(0x3df),_0x571dff(0x439),_0x571dff(0x24a),'repeat',_0x571dff(0x2df),_0x571dff(0x2f5),_0x571dff(0x4a8),_0x571dff(0x427),_0x571dff(0x31d),_0x571dff(0x3ee),_0x571dff(0x336),_0x313ddc(0x32a),_0x571dff(0x294),_0x571dff(0x361),'#search-candidates',_0x571dff(0x265),_0x571dff(0x473),_0x571dff(0x205),_0x571dff(0x29a),_0x313ddc(0x1ba),_0x571dff(0x1d2),'center',_0x313ddc(0x287),_0x571dff(0x4bb),_0x313ddc(0x301),_0x571dff(0x25f),_0x571dff(0x25d),'brand',_0x571dff(0x3ed),_0x571dff(0x467),_0x571dff(0x136),_0x571dff(0x44e),_0x571dff(0x380),_0x571dff(0x3bd),_0x313ddc(0x397),_0x313ddc(0x216),_0x313ddc(0x2da),_0x571dff(0x2aa),_0x571dff(0x391),'inactif',_0x313ddc(0x183),_0x571dff(0x3f6),_0x571dff(0x1a4),_0x571dff(0x2e0),_0x571dff(0x25b),_0x313ddc(0x346),_0x571dff(0x4a5),_0x571dff(0x263),_0x571dff(0x151),_0x313ddc(0x326),_0x313ddc(0x193),_0x571dff(0x4ba),_0x571dff(0x2ab),_0x571dff(0x12e),_0x571dff(0x477),_0x571dff(0x3ad),'Nouvelle\x20Règle\x20Promo',_0x571dff(0x3f0),_0x571dff(0x15a),_0x571dff(0x2ca),_0x571dff(0x321),_0x571dff(0x1c8),_0x571dff(0x2c4),_0x571dff(0x35d),_0x571dff(0x22f),_0x571dff(0x39c),_0x571dff(0x3ba),_0x571dff(0x12f),_0x571dff(0x1f7),_0x571dff(0x2a5),_0x571dff(0x168),_0x571dff(0x28d),_0x571dff(0x432),_0x313ddc(0x4a1),_0x313ddc(0x208),_0x313ddc(0x1bc),_0x571dff(0x34e),_0x571dff(0x482),_0x571dff(0x3d2),_0x571dff(0x2fa),_0x571dff(0x387),_0x313ddc(0x260),_0x313ddc(0x42a),_0x571dff(0x1db),_0x571dff(0x3e3),_0x571dff(0x262),_0x571dff(0x1d3),_0x571dff(0x37e),_0x571dff(0x3e8),_0x571dff(0x38e),_0x571dff(0x4d7),_0x571dff(0x46b),_0x313ddc(0x20e),_0x571dff(0x4be),_0x571dff(0x492),_0x571dff(0x4c8),_0x571dff(0x42a),_0x313ddc(0x3dc),_0x571dff(0x2d1),_0x571dff(0x3f1),_0x313ddc(0x48c),_0x313ddc(0x29e),_0x571dff(0x179),_0x313ddc(0x45a),'aria-selected',_0x571dff(0x4c0),'format',_0x571dff(0x235),_0x571dff(0x43c),_0x571dff(0x2a1),_0x571dff(0x2a0),_0x571dff(0x1a6),_0x313ddc(0x2df),_0x313ddc(0x2ef),_0x571dff(0x1f1),_0x571dff(0x42e),_0x313ddc(0x195),_0x571dff(0x311),_0x571dff(0x1b9),_0x571dff(0x3ec),_0x313ddc(0x494),_0x571dff(0x3a4),_0x313ddc(0x261),_0x571dff(0x20c),_0x571dff(0x4b6),_0x571dff(0x24f),_0x571dff(0x458),_0x571dff(0x2f0),_0x571dff(0x14e),_0x571dff(0x17f),_0x571dff(0x232),_0x571dff(0x274),_0x571dff(0x285),_0x571dff(0x40b),'<i\x20data-lucide=\x22chevron-down\x22\x20class=\x22icon\x20sort-icon\x22></i>',_0x571dff(0x2c8),_0x571dff(0x303),_0x571dff(0x26b),_0x571dff(0x3ff),_0x313ddc(0x42e),_0x313ddc(0x2fe),_0x571dff(0x284),_0x571dff(0x1aa),_0x571dff(0x260),_0x313ddc(0x1ce),_0x571dff(0x3fc),'title',_0x571dff(0x244),_0x571dff(0x271),_0x571dff(0x227),_0x571dff(0x22d),_0x313ddc(0x323),_0x571dff(0x220),_0x571dff(0x462),_0x571dff(0x33e),_0x313ddc(0x3c1),_0x571dff(0x3a3),_0x571dff(0x43a),_0x313ddc(0x1f8),_0x571dff(0x385),_0x313ddc(0x426),_0x313ddc(0x45b),_0x571dff(0x3eb),_0x571dff(0x194),_0x571dff(0x386),_0x571dff(0x357),_0x571dff(0x4af),_0x313ddc(0x2f0),_0x571dff(0x3cc),_0x313ddc(0x163),_0x571dff(0x465),_0x571dff(0x362),_0x571dff(0x21a),'</td>\x0a\x20\x20\x20\x20\x20\x20<td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20class=\x22toggle\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22toggle-switch\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22checkbox\x22\x20data-active-toggle\x20',_0x571dff(0x13c),'5020fUTDuf',_0x571dff(0x44d),_0x571dff(0x2d2),_0x571dff(0x237),_0x313ddc(0x457),'Syst?me',_0x571dff(0x178),_0x571dff(0x18a),_0x571dff(0x2f2),_0x571dff(0x2c7),_0x571dff(0x3b3),_0x313ddc(0x1cd),_0x571dff(0x38b),_0x313ddc(0x198),_0x571dff(0x276),_0x571dff(0x21d),_0x571dff(0x283),'\x22\x20/>\x0a\x09\x09</div>\x0a\x09\x09<div\x20class=\x22field\x22>\x0a\x09\x09\x20\x20<label\x20class=\x22label\x22\x20for=\x22m-startTime\x22>Date\x20&amp;\x20heure</label>\x0a\x09\x09\x20\x20<input\x20id=\x22m-startTime\x22\x20class=\x22input\x22\x20type=\x22datetime-local\x22\x20value=\x22',_0x571dff(0x49a),_0x571dff(0x43d),_0x571dff(0x43f),_0x571dff(0x2d4),_0x313ddc(0x264),_0x571dff(0x3fa),_0x571dff(0x4d1),_0x313ddc(0x41a),_0x571dff(0x461),_0x571dff(0x33a),_0x571dff(0x3f8),_0x313ddc(0x42f),_0x571dff(0x132),_0x571dff(0x416),_0x313ddc(0x1a8),_0x571dff(0x14a),_0x571dff(0x401),'ended',_0x571dff(0x171),_0x571dff(0x17c),_0x313ddc(0x2c7),_0x571dff(0x396),_0x571dff(0x14f),_0x571dff(0x2a4),_0x313ddc(0x32e),_0x571dff(0x147),_0x571dff(0x488),_0x571dff(0x17b),_0x571dff(0x4a1),_0x571dff(0x476),_0x571dff(0x3ea),_0x571dff(0x489),_0x313ddc(0x238),_0x571dff(0x2cd),_0x571dff(0x437),_0x571dff(0x250),_0x571dff(0x1f5),_0x571dff(0x3bf),_0x571dff(0x2b1),_0x571dff(0x1e8),_0x571dff(0x214),_0x313ddc(0x3e4),_0x571dff(0x3de),_0x571dff(0x2ba),_0x571dff(0x403),_0x571dff(0x356),_0x571dff(0x13f),_0x571dff(0x3d6),'exists',_0x313ddc(0x26a),_0x571dff(0x44f),_0x571dff(0x1e1),_0x571dff(0x378),_0x571dff(0x4dc),_0x313ddc(0x291),_0x313ddc(0x4dc),_0x571dff(0x22a),_0x571dff(0x30c),_0x313ddc(0x49a),_0x571dff(0x4a6),_0x571dff(0x48a),_0x571dff(0x231),_0x571dff(0x18c),_0x313ddc(0x44e),_0x571dff(0x3a0),_0x571dff(0x3ab),_0x571dff(0x334),_0x571dff(0x392),_0x571dff(0x3e2),_0x571dff(0x42c),_0x571dff(0x282),_0x571dff(0x211),'?cran',_0x571dff(0x493),_0x571dff(0x35e),_0x571dff(0x46c),_0x313ddc(0x38c),_0x571dff(0x45c),_0x571dff(0x29e),_0x571dff(0x395),_0x571dff(0x4cb),_0x571dff(0x21f),_0x571dff(0x15e),_0x571dff(0x30f),_0x571dff(0x4b8),_0x571dff(0x1b4),_0x313ddc(0x450),_0x313ddc(0x3ce),_0x571dff(0x2c6),_0x571dff(0x15b),_0x571dff(0x150),_0x571dff(0x17e),_0x571dff(0x267),_0x571dff(0x1f6),_0x571dff(0x330),_0x313ddc(0x251),_0x571dff(0x212),_0x571dff(0x4b0),_0x571dff(0x1d6),_0x571dff(0x35c),_0x571dff(0x1c5),_0x571dff(0x2e3),_0x571dff(0x22e),_0x571dff(0x422),_0x571dff(0x40d),_0x571dff(0x146),_0x313ddc(0x3fa),_0x313ddc(0x4aa),_0x571dff(0x187),_0x571dff(0x406),_0x571dff(0x203),_0x313ddc(0x386),_0x571dff(0x43e),_0x313ddc(0x3cb),_0x571dff(0x1ae),_0x313ddc(0x47e),'then',_0x571dff(0x300),_0x571dff(0x421),_0x571dff(0x2eb),_0x571dff(0x2dd),_0x313ddc(0x359),_0x571dff(0x196),_0x571dff(0x365),_0x571dff(0x388),_0x571dff(0x1e4),_0x571dff(0x4ab),_0x571dff(0x189),_0x571dff(0x4b3),_0x313ddc(0x16f),_0x571dff(0x3af),_0x571dff(0x1e2),_0x571dff(0x390),_0x571dff(0x383),'Impossible\x20de\x20sauvegarder\x20les\x20templates',_0x571dff(0x3f4),_0x571dff(0x3a8),_0x571dff(0x201),'&#39;',_0x313ddc(0x2ae),_0x571dff(0x4a7),_0x571dff(0x170),_0x571dff(0x1dd),_0x571dff(0x259),_0x313ddc(0x1d6),_0x571dff(0x219),_0x571dff(0x384),_0x571dff(0x44c),_0x313ddc(0x476),_0x571dff(0x3c8),_0x571dff(0x348),_0x571dff(0x4c1),_0x571dff(0x322),_0x571dff(0x1a0),_0x571dff(0x217),_0x571dff(0x164),_0x571dff(0x341),_0x571dff(0x474),_0x571dff(0x3a1),_0x571dff(0x2a9),'<span\x20class=\x22muted\x22>',_0x571dff(0x480),_0x313ddc(0x222),_0x313ddc(0x2b6),_0x571dff(0x3bb),_0x571dff(0x1bd),_0x571dff(0x4ca),_0x571dff(0x2b0),_0x571dff(0x1a8),'submit',_0x313ddc(0x259),_0x571dff(0x1cd),_0x571dff(0x2f3),_0x571dff(0x351),_0x571dff(0x3b0),_0x313ddc(0x2ee),_0x571dff(0x329),_0x571dff(0x346),'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20',_0x571dff(0x18f),_0x571dff(0x255),_0x571dff(0x195),_0x571dff(0x3c4),_0x571dff(0x472),_0x571dff(0x1bb),_0x571dff(0x428),_0x571dff(0x215),_0x571dff(0x423),_0x571dff(0x436),_0x571dff(0x3cb),_0x313ddc(0x370),_0x571dff(0x394),_0x571dff(0x41d),_0x571dff(0x317),_0x313ddc(0x152),_0x313ddc(0x4af),_0x571dff(0x2c9),_0x571dff(0x499),_0x571dff(0x2c5),_0x571dff(0x3b1),_0x571dff(0x343),_0x313ddc(0x2ab),_0x571dff(0x2ae),_0x571dff(0x4c6),_0x571dff(0x319),_0x571dff(0x313),_0x571dff(0x4c5),_0x571dff(0x27f),_0x313ddc(0x377),_0x571dff(0x32c),_0x571dff(0x464),_0x313ddc(0x4d2),_0x571dff(0x1ad),_0x571dff(0x2be),_0x571dff(0x441),_0x571dff(0x47d),'\x22\x20alt=\x22',_0x571dff(0x197),_0x571dff(0x1bc),_0x571dff(0x46f),_0x571dff(0x4d6),_0x571dff(0x4cf),_0x571dff(0x2fe),_0x571dff(0x139),_0x571dff(0x2fd),_0x571dff(0x3e1),_0x571dff(0x156),_0x571dff(0x38d),_0x571dff(0x2bb),_0x571dff(0x18e),_0x571dff(0x248),_0x313ddc(0x4bb),_0x313ddc(0x232),'edit-promocode','[data-edit-candidate]',_0x571dff(0x2e4),_0x571dff(0x323),_0x571dff(0x1df),_0x313ddc(0x31c),_0x571dff(0x35f),_0x571dff(0x40f),_0x571dff(0x209),_0x571dff(0x33d),_0x313ddc(0x162),_0x571dff(0x180),_0x571dff(0x438),_0x571dff(0x443),_0x313ddc(0x295),_0x571dff(0x275),_0x313ddc(0x421),_0x571dff(0x143),_0x571dff(0x3fb),_0x571dff(0x1e3),_0x313ddc(0x46f),_0x571dff(0x2da),_0x571dff(0x233),'promoCardSortOrder',_0x571dff(0x41f),_0x313ddc(0x3ca),_0x313ddc(0x158),_0x571dff(0x4a0),_0x571dff(0x3ce),_0x571dff(0x491),_0x571dff(0x3b9),_0x571dff(0x456),_0x313ddc(0x4a7),_0x313ddc(0x2d3),_0x313ddc(0x47a),'Statut\x20mis\x20?\x20jour',_0x571dff(0x1e9),_0x571dff(0x145),_0x571dff(0x446),_0x571dff(0x32f),_0x571dff(0x222),_0x571dff(0x1d4),_0x571dff(0x1a7),_0x571dff(0x175),_0x571dff(0x454),_0x571dff(0x28e),_0x313ddc(0x4fb),_0x571dff(0x404),_0x571dff(0x291),_0x571dff(0x3e0),_0x571dff(0x3e5),'setItem',_0x571dff(0x261),_0x571dff(0x245),_0x571dff(0x1b3),_0x571dff(0x2cc),_0x313ddc(0x49c),_0x571dff(0x38c),_0x571dff(0x26c),_0x571dff(0x241),_0x571dff(0x131),_0x571dff(0x2de),'#pc-value',_0x313ddc(0x474),_0x571dff(0x1be),_0x571dff(0x160),_0x313ddc(0x4d4),_0x571dff(0x4ce),_0x571dff(0x172),_0x571dff(0x320),_0x571dff(0x1fa),_0x571dff(0x14c),_0x571dff(0x1d0),'<div\x20class=\x22empty-state\x22><p>',_0x571dff(0x257),_0x313ddc(0x4a5),_0x571dff(0x2fc),_0x571dff(0x2d3),_0x571dff(0x3c7),'Match\x20mis\x20?\x20jour',_0x571dff(0x45a),_0x571dff(0x1da),_0x571dff(0x287),_0x571dff(0x3aa),_0x571dff(0x4a9),_0x571dff(0x1c6),_0x571dff(0x1b1),_0x313ddc(0x29b),_0x571dff(0x2fb),_0x571dff(0x148),_0x571dff(0x1c4),_0x571dff(0x1d8),_0x571dff(0x376),_0x313ddc(0x39b),_0x571dff(0x298),'\x0a\x20\x20\x20\x20<div\x20class=\x22card\x20match-summary\x22>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22summary-info\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22match-title\x22>','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22candidate-name\x22>',_0x571dff(0x4a3),_0x571dff(0x149),_0x571dff(0x368),_0x313ddc(0x319),_0x571dff(0x1ea),_0x571dff(0x1c7),_0x571dff(0x490),_0x313ddc(0x432),_0x313ddc(0x4c4),_0x571dff(0x344),_0x571dff(0x312),_0x313ddc(0x429),_0x571dff(0x2d5),_0x571dff(0x46a),_0x571dff(0x191),_0x571dff(0x4dd),_0x571dff(0x347),_0x313ddc(0x3ab),_0x571dff(0x47c),_0x571dff(0x495),_0x571dff(0x31a),_0x313ddc(0x4d7),_0x571dff(0x4b1),_0x571dff(0x340),_0x571dff(0x316),_0x571dff(0x277),_0x313ddc(0x2ec),_0x571dff(0x4a2),_0x313ddc(0x1e1),_0x571dff(0x198),_0x313ddc(0x357),_0x313ddc(0x237),_0x571dff(0x26e),_0x313ddc(0x4ca),_0x571dff(0x419),'generatePromoLinks',_0x571dff(0x2c1),_0x571dff(0x4b4),_0x571dff(0x292),_0x571dff(0x25c),_0x571dff(0x1f8),_0x313ddc(0x47b),_0x571dff(0x2d6),_0x571dff(0x47f),_0x571dff(0x228),_0x313ddc(0x3df),_0x571dff(0x21c),_0x313ddc(0x29f),_0x313ddc(0x3ae),_0x571dff(0x2f9),_0x313ddc(0x3aa),_0x571dff(0x3e9),_0x571dff(0x13d),_0x313ddc(0x461),_0x571dff(0x26a),_0x571dff(0x324),_0x313ddc(0x4fa),_0x313ddc(0x40a),_0x313ddc(0x496),_0x571dff(0x1ed),_0x571dff(0x353),_0x571dff(0x4c3),_0x571dff(0x184)];return _0x4e27=function(){return _0x13d205;},_0x4e27();}async function loadMatchPredictions(_0x1d0e32,_0x386a25={}){const _0x34cced=_0x37ce72,_0x3db85d=_0x1c09bd,_0x4b05c1=_0x386a25[_0x3db85d(0x33c)]===!![];if(!_0x4b05c1&&matchPredictionsCache[_0x3db85d(0x39a)](_0x1d0e32))return matchPredictionsCache[_0x3db85d(0x1b6)](_0x1d0e32);_0x4b05c1&&matchPredictionsCache[_0x3db85d(0x20c)](_0x1d0e32);const _0x2ea30e=query(collection(db,_0x34cced(0x1de)),where(_0x3db85d(0x3c0),'==',_0x1d0e32)),_0x1daa9f=await getDocs(_0x2ea30e),_0x22064b=_0x1daa9f[_0x3db85d(0x2a7)][_0x3db85d(0x287)](_0x48149f=>{const _0x3e3aab=_0x34de,_0x3faf36=_0x2953,_0x52fdb7=_0x34cced,_0x55b5b5=_0x3db85d,_0x1d57b1=_0x48149f[_0x55b5b5(0x2d9)]()||{},_0x12282e=_0x1d57b1[_0x52fdb7(0x56c)]&&typeof _0x1d57b1[_0x55b5b5(0x34b)][_0x55b5b5(0x236)]===_0x55b5b5(0xbc)?_0x1d57b1[_0x3faf36(0x3a9)][_0x55b5b5(0x236)]():_0x1d57b1[_0x3e3aab(0x42d)]?new Date(_0x1d57b1[_0x52fdb7(0x56c)]):null,_0x267623=_0x1d57b1[_0x55b5b5(0x1f4)]&&typeof _0x1d57b1[_0x55b5b5(0x1f4)][_0x52fdb7(0x587)]===_0x52fdb7(0x50c)?_0x1d57b1[_0x55b5b5(0x1f4)][_0x55b5b5(0x236)]():_0x1d57b1[_0x55b5b5(0x1f4)]?new Date(_0x1d57b1[_0x55b5b5(0x1f4)]):null,_0x35780e=typeof _0x1d57b1[_0x55b5b5(0x128)]===_0x55b5b5(0x11b)?_0x1d57b1[_0x55b5b5(0x128)]:'',_0x2cb5b7=typeof _0x1d57b1[_0x52fdb7(0x4bb)]===_0x52fdb7(0x439)?_0x1d57b1[_0x55b5b5(0x208)]:'',_0x1c99b9=(_0x35780e+'\x20'+_0x2cb5b7)[_0x55b5b5(0x408)](),_0x3c7e53=typeof _0x1d57b1[_0x52fdb7(0x408)]===_0x55b5b5(0x11b)&&_0x1d57b1[_0x55b5b5(0x3d1)]?_0x1d57b1[_0x52fdb7(0x408)]:typeof _0x1d57b1[_0x55b5b5(0x3c2)]===_0x55b5b5(0x11b)?_0x1d57b1[_0x55b5b5(0x3c2)]:'',_0x2574cc=[_0x1d57b1[_0x55b5b5(0x16f)],_0x35780e,_0x2cb5b7,_0x3c7e53,_0x1d57b1[_0x55b5b5(0xab)],_0x1d57b1[_0x55b5b5(0x311)]][_0x55b5b5(0x43a)](Boolean)[_0x52fdb7(0x273)]('\x20')[_0x55b5b5(0xba)]();return{'id':_0x48149f['id'],'userName':typeof _0x1d57b1[_0x55b5b5(0x16f)]===_0x55b5b5(0x11b)&&_0x1d57b1[_0x55b5b5(0x16f)]?_0x1d57b1[_0x55b5b5(0x16f)]:_0x52fdb7(0x57f),'userId':typeof _0x1d57b1[_0x52fdb7(0x397)]===_0x52fdb7(0x439)?_0x1d57b1[_0x55b5b5(0xab)]:'','scoreA':typeof _0x1d57b1[_0x55b5b5(0xf2)]===_0x52fdb7(0x341)?_0x1d57b1[_0x55b5b5(0xf2)]:null,'scoreB':typeof _0x1d57b1[_0x55b5b5(0x1d7)]===_0x55b5b5(0x392)?_0x1d57b1[_0x55b5b5(0x1d7)]:null,'isWinner':_0x1d57b1[_0x55b5b5(0x1f2)]===!![],'featuredWinner':_0x1d57b1[_0x55b5b5(0x14f)]===!![],'contactName':_0x1c99b9,'contactPhone':_0x3c7e53,'createdAt':_0x12282e,'updatedAt':_0x267623,'searchIndex':_0x2574cc};});return _0x22064b[_0x3db85d(0x18a)]((_0x58e132,_0x473721)=>{const _0xf5397f=_0x3db85d,_0x1f23f8=_0x58e132[_0xf5397f(0x34b)]instanceof Date?_0x58e132[_0xf5397f(0x34b)][_0xf5397f(0x106)]():0x0,_0x745433=_0x473721[_0xf5397f(0x34b)]instanceof Date?_0x473721[_0xf5397f(0x34b)][_0xf5397f(0x106)]():0x0;return _0x745433-_0x1f23f8;}),matchPredictionsCache[_0x3db85d(0x253)](_0x1d0e32,_0x22064b),_0x22064b;}async function renderMatchPredictionsPage(_0x38f74b){const _0x5e7184=_0x247feb,_0xeed6b6=_0x37ce72,_0x4e433e=_0x1c09bd;let _0x2d91e2=allMatches[_0x4e433e(0x326)](function(_0x11b762){return _0x11b762['id']===_0x38f74b;})||await getDoc(doc(db,_0x4e433e(0x10e),_0x38f74b))[_0xeed6b6(0x352)](function(_0x317958){const _0x32de2f=_0x4e433e;return _0x317958[_0x32de2f(0x371)]()?{'id':_0x317958['id'],..._0x317958[_0x32de2f(0x2d9)]()}:null;});if(!_0x2d91e2){$matchesContent[_0x4e433e(0xfc)]=_0x4e433e(0x1e7);return;}const _0x272185=_0x2d91e2[_0x4e433e(0x339)]&&typeof _0x2d91e2[_0x4e433e(0x339)][_0x4e433e(0x236)]===_0xeed6b6(0x50c)?_0x2d91e2[_0x4e433e(0x339)][_0x4e433e(0x236)]():_0x2d91e2[_0x4e433e(0x339)]?new Date(_0x2d91e2[_0x4e433e(0x339)]):null,_0x54eb4f=typeof _0x2d91e2[_0x4e433e(0x23d)]===_0x4e433e(0x392)&&typeof _0x2d91e2[_0x4e433e(0x1b1)]===_0x4e433e(0x392)?_0x2d91e2[_0x5e7184(0x20d)]+_0xeed6b6(0x37a)+_0x2d91e2[_0x4e433e(0x1b1)]:'';setCrumb(_0x4e433e(0x299)+(_0x2d91e2[_0x4e433e(0x338)]||_0x4e433e(0x2f0))+_0x4e433e(0x302)+(_0x2d91e2[_0x4e433e(0x27e)]||_0x4e433e(0x160)));const _0x44bfe6=document[_0x5e7184(0x1d5)](_0x4e433e(0x99));_0x44bfe6[_0xeed6b6(0x276)]=_0x4e433e(0x39b),_0x44bfe6[_0x4e433e(0xfc)]=_0x4e433e(0x444)+escapeHtml(_0x2d91e2[_0x4e433e(0x338)]||_0x4e433e(0x2f0))+_0xeed6b6(0x50a)+escapeHtml(_0x2d91e2[_0xeed6b6(0x419)]||_0x4e433e(0x160))+_0x4e433e(0x26d)+(_0x2d91e2[_0x4e433e(0x380)]?_0xeed6b6(0x3f0)+escapeHtml(_0x2d91e2[_0x4e433e(0x380)])+_0x5e7184(0x3ec):'')+_0x4e433e(0x136)+(_0x272185?fmtDate(_0x272185):_0x4e433e(0x34e))+_0x4e433e(0x1ae)+(_0x54eb4f?_0xeed6b6(0x2a0)+_0x54eb4f+_0x4e433e(0x370):'')+_0x4e433e(0x181),$matchesContent[_0x4e433e(0xfc)]='',$matchesContent[_0x4e433e(0x385)](_0x44bfe6),lucide[_0x4e433e(0x38b)]();const _0x4e69a7=_0x44bfe6[_0x4e433e(0x10a)](_0x4e433e(0x3bd)),_0xb7391d=_0x44bfe6[_0x4e433e(0x10a)](_0xeed6b6(0x474)),_0x5c4eaf=_0x44bfe6[_0x4e433e(0x10a)](_0x4e433e(0x423)),_0x5e59ae=_0x44bfe6[_0x4e433e(0x10a)](_0x4e433e(0x2d6)),_0x3ffcad=_0x44bfe6[_0xeed6b6(0x242)](_0x4e433e(0x2d1)),_0x2fccf2=_0x44bfe6[_0xeed6b6(0x242)](_0x4e433e(0x3eb)),_0x281c5d=_0x44bfe6[_0x4e433e(0x10a)](_0x4e433e(0x13c)),_0xc81b17={'items':[],'search':'','winnersOnly':![]};function _0x279958(){const _0x5e2a36=_0x5e7184,_0x51dec3=_0xeed6b6,_0x2d3e7c=_0x4e433e,_0x5f054c=normalizeSearch(_0xc81b17[_0x2d3e7c(0x162)]),_0x1d9719=_0xc81b17[_0x5e2a36(0x3b4)],_0x362d90=_0xc81b17[_0x51dec3(0x4f3)][_0x2d3e7c(0x109)],_0x237fd0=_0xc81b17[_0x2d3e7c(0x3b5)][_0x2d3e7c(0x43a)](function(_0x3589d7){const _0x54831a=_0x2d3e7c;return _0x3589d7[_0x54831a(0x1f2)];})[_0x2d3e7c(0x109)];_0x2fccf2[_0x5e2a36(0x468)]=String(_0x362d90),_0x281c5d[_0x2d3e7c(0x284)]=String(_0x237fd0);let _0x242f87=_0xc81b17[_0x2d3e7c(0x3b5)];_0x5f054c&&(_0x242f87=_0x242f87[_0x51dec3(0x52e)](function(_0x1411d0){const _0x16bdf5=_0x51dec3,_0x174614=_0x2d3e7c;return _0x1411d0[_0x174614(0x1cb)][_0x16bdf5(0x2f6)](_0x5f054c);})),_0x1d9719&&(_0x242f87=_0x242f87[_0x2d3e7c(0x43a)](function(_0x182fd3){const _0x55e063=_0x2d3e7c;return _0x182fd3[_0x55e063(0x1f2)];})),_0x47389a(_0x242f87);}function _0x47389a(_0x4ca890){const _0x51725f=_0x5e7184,_0x179a0d=_0xeed6b6,_0xbc2444=_0x4e433e;if(!_0x4ca890[_0xbc2444(0x109)]){_0x3ffcad[_0xbc2444(0xfc)]=_0xbc2444(0xf0);return;}const _0x483398=_0x4ca890[_0x179a0d(0x1ee)](function(_0xb92cde){const _0x447030=_0x34de,_0x465fba=_0x2953,_0x51555e=_0x179a0d,_0x3ce38c=_0xbc2444,_0x436366=[];_0xb92cde[_0x51555e(0x400)]?_0x436366[_0x3ce38c(0x1a3)](_0x3ce38c(0x398)):_0x436366[_0x3ce38c(0x1a3)](_0x51555e(0x453)),_0xb92cde[_0x3ce38c(0x14f)]&&_0x436366[_0x3ce38c(0x1a3)](_0x3ce38c(0x330));const _0x2f6929=_0xb92cde[_0x3ce38c(0xf2)]===null||_0xb92cde[_0x3ce38c(0x1d7)]===null?'?':_0xb92cde[_0x3ce38c(0xf2)]+_0x3ce38c(0x431)+_0xb92cde[_0x3ce38c(0x1d7)],_0x551d13=[];_0xb92cde[_0x3ce38c(0x38a)]&&_0x551d13[_0x3ce38c(0x1a3)](escapeHtml(_0xb92cde[_0x51555e(0x2ad)])),_0xb92cde[_0x51555e(0x27e)]&&_0x551d13[_0x3ce38c(0x1a3)](_0x3ce38c(0x93)+escapeHtml(_0xb92cde[_0x3ce38c(0x3c2)])+_0x51555e(0x294));const _0x34fd77=_0xb92cde[_0x3ce38c(0xab)]?_0x3ce38c(0x26f)+escapeHtml(_0xb92cde[_0x3ce38c(0xab)])+_0x3ce38c(0x9b):'',_0x4bb862=_0xb92cde[_0x3ce38c(0x34b)]instanceof Date?fmtDate(_0xb92cde[_0x3ce38c(0x34b)]):'?';return _0x3ce38c(0x2f1)+(_0xb92cde[_0x3ce38c(0x1f2)]?_0x3ce38c(0x159):'')+_0x3ce38c(0x113)+escapeHtml(_0xb92cde[_0x465fba(0x446)]||_0x3ce38c(0x367))+_0x3ce38c(0x389)+_0x34fd77+_0x3ce38c(0x150)+_0x2f6929+_0x3ce38c(0xc1)+(_0x551d13[_0x51555e(0x28d)]?_0x551d13[_0x447030(0x3b4)](_0x3ce38c(0x3d8)):_0x3ce38c(0x131))+_0x3ce38c(0x121)+_0x436366[_0x3ce38c(0x12e)]('\x20')+_0x3ce38c(0xc1)+_0x4bb862+_0x3ce38c(0xd2);})[_0xbc2444(0x12e)]('');_0x3ffcad[_0x179a0d(0x29b)]=_0x179a0d(0x296)+_0x483398+_0x179a0d(0x2eb),lucide[_0x51725f(0x3e4)]();}async function _0x489ca2(_0x32f280=![]){const _0x1de0e7=_0xeed6b6,_0x34601c=_0x4e433e;_0x32f280&&(_0x3ffcad[_0x34601c(0xfc)]=_0x34601c(0x456));try{const _0x599646=await loadMatchPredictions(_0x38f74b,{'force':_0x32f280});_0xc81b17[_0x34601c(0x3b5)]=_0x599646,_0x279958(),_0x32f280&&toast(_0x34601c(0x418),'',_0x34601c(0x2bf));}catch(_0x45ea1a){console[_0x34601c(0x381)](_0x1de0e7(0x54e),_0x45ea1a),_0x3ffcad[_0x34601c(0xfc)]=_0x34601c(0x24f),toast(_0x34601c(0x454),_0x34601c(0x149),_0x34601c(0x381));}}_0x4e69a7?.[_0x4e433e(0x446)](_0x4e433e(0x42e),function(){const _0x49a34d=_0xeed6b6,_0x14f2da=_0x4e433e;location[_0x49a34d(0x318)]=_0x14f2da(0x1d0);}),_0xb7391d?.[_0x4e433e(0x446)](_0x4e433e(0x42e),async function(){const _0x5327f7=_0xeed6b6,_0x2db72a=_0x4e433e;_0xb7391d[_0x2db72a(0x28b)]=!![];try{await _0x489ca2(!![]);}finally{_0xb7391d[_0x5327f7(0x375)]=![];}}),_0x5c4eaf?.[_0x4e433e(0x446)](_0x4e433e(0x40c),function(_0x526123){const _0x19138f=_0x4e433e;_0xc81b17[_0x19138f(0x162)]=_0x526123[_0x19138f(0x340)][_0x19138f(0x1d2)]||'',_0x279958();}),_0x5e59ae?.[_0xeed6b6(0x4f9)](_0x4e433e(0xa1),function(_0x227e31){const _0x22285d=_0x4e433e;_0xc81b17[_0x22285d(0x261)]=!!_0x227e31[_0x22285d(0x340)][_0x22285d(0x8d)],_0x279958();}),await _0x489ca2();}async function renderMatchFormPage(_0x2bcfbc){const _0x319975=_0x39c496,_0x591267=_0x247feb,_0x235249=_0x37ce72,_0x8db6ef=_0x1c09bd;let _0xbb2a08={};if(_0x2bcfbc){_0xbb2a08=allMatches[_0x235249(0x44d)](function(_0x4bb830){return _0x4bb830['id']===_0x2bcfbc;})||await getDoc(doc(db,_0x235249(0x3b4),_0x2bcfbc))[_0x591267(0x24e)](function(_0x62da1c){const _0x55304d=_0x235249,_0x29a85d=_0x1be0;return _0x62da1c[_0x55304d(0x30e)]()?{'id':_0x62da1c['id'],..._0x62da1c[_0x29a85d(0x2d9)]()}:null;});if(!_0xbb2a08){$matchesContent[_0x8db6ef(0xfc)]=_0x8db6ef(0x1e7);return;}}const _0x5ad2ca=_0xbb2a08[_0x8db6ef(0x339)]&&_0xbb2a08[_0x8db6ef(0x339)][_0x235249(0x587)]?_0xbb2a08[_0x8db6ef(0x339)][_0x8db6ef(0x236)]():_0xbb2a08[_0x8db6ef(0x339)]?new Date(_0xbb2a08[_0x8db6ef(0x339)]):null,_0x194cd3=_0x5ad2ca?new Date(_0x5ad2ca[_0x8db6ef(0x106)]()-_0x5ad2ca[_0x8db6ef(0x2fd)]()*0xea60)[_0x8db6ef(0x1a4)]()[_0x8db6ef(0xce)](0x0,0x10):'',_0x24420c=document[_0x8db6ef(0x259)](_0x8db6ef(0x99));_0x24420c[_0x235249(0x276)]=_0x8db6ef(0x377),_0x24420c[_0x235249(0x29b)]=_0x8db6ef(0x3df)+(_0x2bcfbc?_0x235249(0x31b):_0x8db6ef(0x1f1))+_0x235249(0x3bf)+escapeAttr(_0xbb2a08[_0x235249(0x291)]||'')+_0x235249(0x2dd)+_0x194cd3+_0x235249(0x35e)+escapeAttr(_0xbb2a08[_0x235249(0x414)]||'')+_0x8db6ef(0x3e8)+escapeAttr(_0xbb2a08[_0x591267(0x287)]||'')+_0x591267(0x372)+escapeAttr(_0xbb2a08[_0x8db6ef(0x10f)]||'')+_0x8db6ef(0x182)+escapeAttr(_0xbb2a08[_0x8db6ef(0xef)]||'')+_0x8db6ef(0x9c)+(typeof _0xbb2a08[_0x8db6ef(0x23d)]===_0x8db6ef(0x392)?_0xbb2a08[_0x235249(0x455)]:'')+_0x8db6ef(0x2bb)+(typeof _0xbb2a08[_0x8db6ef(0x1b1)]===_0x591267(0x35c)?_0xbb2a08[_0x235249(0x4e8)]:'')+_0x8db6ef(0x279)+(_0x2bcfbc?_0x8db6ef(0x226):_0x8db6ef(0x3c4))+_0x8db6ef(0x1c6),$matchesContent[_0x8db6ef(0xfc)]='',$matchesContent[_0x235249(0x363)](_0x24420c),_0x24420c[_0x591267(0x2aa)](_0x8db6ef(0x1ed))[_0x235249(0x4f9)](_0x319975(0x36a),function(){const _0x2a28d3=_0x591267,_0x455ba4=_0x8db6ef;history[_0x455ba4(0x109)]>0x1?history[_0x455ba4(0x15a)]():location[_0x455ba4(0xa3)]=_0x2a28d3(0x2b9);}),_0x24420c[_0x8db6ef(0x10a)](_0x8db6ef(0x13d))[_0x8db6ef(0x446)](_0x8db6ef(0x239),function(_0x5382e0){handleMatchFormSubmit(_0x5382e0,_0x2bcfbc);});}async function handleMatchFormSubmit(_0x221b6f,_0x3075fc){const _0x2499b4=_0x39c496,_0xbf2992=_0x247feb,_0x428e3c=_0x37ce72,_0x301138=_0x1c09bd;_0x221b6f[_0x301138(0x2ff)]();const _0x2b20e3=_0x221b6f[_0x301138(0x340)][_0x301138(0x10a)](_0x428e3c(0x41a));setButtonLoading(_0x2b20e3,!![]);const _0x1c0b64=$(_0x428e3c(0x250))[_0x2499b4(0x415)][_0x301138(0x408)](),_0x44076b=$(_0x301138(0x1e1))[_0x301138(0x1d2)][_0x301138(0x408)](),_0x29e8db=$(_0x301138(0x360))[_0xbf2992(0x215)][_0x301138(0x408)](),_0x3fbed1=$(_0x301138(0x30e))[_0x301138(0x1d2)][_0x301138(0x408)]()||null,_0x11d9b4=$(_0x301138(0x410))[_0x428e3c(0x398)][_0x301138(0x408)]()||null,_0x490680=$(_0x301138(0x269))[_0x428e3c(0x398)]===''?null:parseInt($(_0x301138(0x269))[_0x301138(0x1d2)],0xa),_0x3fdbbd=$(_0x301138(0x2d7))[_0x301138(0x1d2)]===''?null:parseInt($(_0x301138(0x2d7))[_0x301138(0x1d2)],0xa),_0x10a30d=$(_0xbf2992(0x370))[_0x301138(0x1d2)];$(_0x301138(0xc3))[_0x301138(0xf7)][_0x428e3c(0x23d)](_0x301138(0xf3));if(!_0x10a30d){$(_0x301138(0xc3))[_0x301138(0x284)]=_0x301138(0x45b),$(_0x301138(0xc3))[_0x301138(0xf7)][_0x301138(0x3ac)](_0x301138(0xf3)),setButtonLoading(_0x2b20e3,![]);return;}try{const _0x1b8646={'competition':_0x1c0b64,'teamA':_0x44076b,'teamB':_0x29e8db,'teamALogo':_0x3fbed1,'teamBLogo':_0x11d9b4,'finalScoreA':Number[_0x301138(0x3f4)](_0x490680)?null:_0x490680,'finalScoreB':Number[_0x301138(0x3f4)](_0x3fdbbd)?null:_0x3fdbbd,'startTime':new Date(_0x10a30d)};if(_0x3075fc){await updateDoc(doc(db,_0x301138(0x10e),_0x3075fc),_0x1b8646);const _0x3df334=allMatches[_0x301138(0x326)](function(_0x598429){return _0x598429['id']===_0x3075fc;});if(_0x3df334)Object[_0x301138(0x27c)](_0x3df334,_0x1b8646);toast(_0x301138(0x3f8),_0x44076b+_0x428e3c(0x564)+_0x29e8db,_0x301138(0x2bf)),location[_0x428e3c(0x318)]=_0x301138(0x1d0);}else{const _0x2422ff=await addDoc(collection(db,_0x428e3c(0x3b4)),_0x1b8646);allMatches[_0x428e3c(0x2a7)]({'id':_0x2422ff['id'],..._0x1b8646}),toast(_0x301138(0x34a),_0x44076b+_0x301138(0x302)+_0x29e8db,_0x301138(0x2bf)),location[_0x301138(0xa3)]=_0x301138(0x1d0),$(_0x301138(0x3bc))[_0x301138(0x284)]=String(allMatches[_0x428e3c(0x28d)]);}}catch(_0x295aec){console[_0x301138(0x381)](_0x295aec),toast(_0xbf2992(0x4a4),_0xbf2992(0x1ca),_0x428e3c(0x3e4));}finally{setButtonLoading(_0x2b20e3,![]);}}$(_0x1c09bd(0x3b1))[_0x1c09bd(0x446)](_0x247feb(0x292),()=>location[_0x37ce72(0x318)]=_0x1c09bd(0x3a4)),$(_0x1c09bd(0x200))[_0x1c09bd(0x446)](_0x1c09bd(0x40c),()=>renderPromoCardList());function renderPromoCardList(){const _0x1c9c01=_0x247feb,_0x560fb5=_0x37ce72,_0x54a21f=_0x1c09bd,_0x5d37d6=normalizeSearch($(_0x54a21f(0x200))[_0x54a21f(0x1d2)]||''),_0x2d5608=getPromoCardsForDisplay(),_0x45d7de=_0x5d37d6?_0x2d5608[_0x54a21f(0x43a)](_0x71741f=>((_0x71741f[_0x54a21f(0x1d6)]||'')+'\x20'+(_0x71741f[_0x54a21f(0x238)]||''))[_0x54a21f(0xba)]()[_0x54a21f(0x124)](_0x5d37d6)):_0x2d5608;if(!_0x45d7de['length']){$promoCardsContent[_0x54a21f(0xfc)]=_0x560fb5(0x355);return;}const _0x16022a=document[_0x54a21f(0x259)](_0x560fb5(0x413));_0x16022a[_0x54a21f(0x394)]=_0x54a21f(0x3f3),_0x16022a[_0x54a21f(0xfc)]=_0x54a21f(0x2f7);const _0x1871c7=_0x16022a[_0x54a21f(0x10a)](_0x1c9c01(0x29b));_0x45d7de[_0x560fb5(0x53e)]((_0x7254ab,_0x277f41)=>{const _0x223d2c=_0x1c9c01,_0x58cbb0=_0x560fb5,_0xad2c98=_0x54a21f,_0x41f0fd=_0x7254ab[_0xad2c98(0x254)]===!![],_0x2de8ac=document[_0x58cbb0(0x501)]('tr');_0x2de8ac[_0xad2c98(0xca)]['id']=_0x7254ab['id'];const _0x18bd92=_0x41f0fd?_0x7254ab[_0xad2c98(0x2fc)]<0x0?_0x58cbb0(0x3a4):_0x7254ab[_0xad2c98(0x2fc)]??_0xad2c98(0x19c):_0x7254ab[_0xad2c98(0x2fc)]??_0xad2c98(0x19c),_0x42e9d9=_0x7254ab[_0xad2c98(0x196)]||(_0x41f0fd?_0x58cbb0(0x41c):_0xad2c98(0x17a)),_0x43d784=_0x41f0fd?_0x58cbb0(0x3f0)+(_0x7254ab[_0xad2c98(0xbd)]?_0x223d2c(0x333):_0x58cbb0(0x272))+_0x223d2c(0x3ec):_0xad2c98(0x272)+(_0x7254ab[_0xad2c98(0xbd)]?_0xad2c98(0x8d):'')+_0x58cbb0(0x569),_0x4b06cb=_0x41f0fd?_0xad2c98(0x346)+_0xad2c98(0x358)+_0xad2c98(0x3db)+_0x58cbb0(0x5a1):_0xad2c98(0x346)+_0xad2c98(0x358)+_0xad2c98(0x3db)+_0xad2c98(0x2f4);_0x2de8ac[_0xad2c98(0xfc)]=_0xad2c98(0x16a)+(_0x7254ab[_0xad2c98(0x198)]?_0xad2c98(0x98)+escapeAttr(_0x7254ab[_0xad2c98(0x198)])+_0xad2c98(0x1b5):'')+_0xad2c98(0x397)+escapeHtml(_0x7254ab[_0xad2c98(0x1d6)]||_0xad2c98(0x41a))+_0xad2c98(0x129)+escapeHtml(_0x42e9d9)+_0xad2c98(0x32c)+escapeHtml(String(_0x18bd92))+_0xad2c98(0x220)+_0x43d784+_0xad2c98(0x374)+_0x4b06cb+_0xad2c98(0x2c5);const _0x3bd09d=_0x2de8ac[_0x58cbb0(0x242)](_0xad2c98(0x16c)),_0xd1818a=_0x2de8ac[_0x58cbb0(0x242)](_0xad2c98(0x92));_0x3bd09d&&(_0x3bd09d[_0xad2c98(0x28b)]=_0x277f41===0x0,_0x3bd09d[_0xad2c98(0x453)]=()=>handlePromoCardMove(_0x7254ab['id'],'up')),_0xd1818a&&(_0xd1818a[_0xad2c98(0x28b)]=_0x277f41===_0x45d7de[_0xad2c98(0x109)]-0x1,_0xd1818a[_0xad2c98(0x453)]=()=>handlePromoCardMove(_0x7254ab['id'],_0xad2c98(0x45a))),_0x41f0fd?(_0x2de8ac[_0xad2c98(0x10a)](_0xad2c98(0xa9))[_0x58cbb0(0x370)]=()=>location[_0xad2c98(0xa3)]=_0x58cbb0(0x46f)+_0x7254ab[_0x58cbb0(0x4b1)],_0x2de8ac[_0xad2c98(0x10a)](_0x58cbb0(0x328))[_0x58cbb0(0x370)]=()=>handleContestDeletion(_0x7254ab[_0x58cbb0(0x4b1)],_0x7254ab[_0xad2c98(0x1d6)])):(_0x2de8ac[_0xad2c98(0x10a)](_0x58cbb0(0x389))[_0xad2c98(0x453)]=()=>location[_0x223d2c(0x1a3)]=_0xad2c98(0x3d0)+_0x7254ab['id'],_0x2de8ac[_0xad2c98(0x10a)](_0x58cbb0(0x328))[_0x223d2c(0x384)]=()=>handleDelete(_0x7254ab['id'],_0x7254ab[_0xad2c98(0x1d6)],_0xad2c98(0x3a2)),_0x2de8ac[_0xad2c98(0x10a)](_0xad2c98(0xbe))[_0xad2c98(0xdb)]=_0x49a437=>handlePromoCardStatusToggle(_0x7254ab['id'],_0x49a437[_0xad2c98(0x340)][_0xad2c98(0x8d)])),_0x1871c7[_0xad2c98(0x385)](_0x2de8ac);}),$promoCardsContent[_0x560fb5(0x29b)]='',$promoCardsContent[_0x54a21f(0x385)](_0x16022a),lucide[_0x54a21f(0x38b)]();}async function handlePromoCardStatusToggle(_0x15b261,_0x33d0cc){const _0x4698ba=_0x37ce72,_0x28a115=_0x1c09bd;try{await updateDoc(doc(db,_0x28a115(0x3a2),_0x15b261),{'isActive':_0x33d0cc});const _0x18195c=allPromoCards[_0x4698ba(0x44d)](_0x2dc533=>_0x2dc533['id']===_0x15b261);if(_0x18195c)_0x18195c[_0x28a115(0xbd)]=_0x33d0cc;toast(_0x4698ba(0x3ea),_0x28a115(0x1ba)+(_0x33d0cc?_0x28a115(0x27b):_0x28a115(0xb5))+'.',_0x28a115(0x2bf));}catch(_0x33dfcc){console['error'](_0x28a115(0x122),_0x33dfcc),toast(_0x28a115(0x454),_0x28a115(0x12f),_0x28a115(0x381)),renderPromoCardList();}}async function handlePromoCardMove(_0x424cc2,_0x57606b){const _0x599433=_0x37ce72,_0x4dd4df=_0x1c09bd,_0x33a41d=getPromoCardsForDisplay(),_0x137b96=_0x33a41d[_0x4dd4df(0x3b4)](_0x2efe1a=>_0x2efe1a['id']===_0x424cc2);if(_0x137b96===-0x1)return;const _0x5b7d9e=_0x57606b==='up'?-0x1:0x1,_0x1c7cf6=_0x137b96+_0x5b7d9e;if(_0x1c7cf6<0x0||_0x1c7cf6>=_0x33a41d[_0x599433(0x28d)])return;const [_0x1ed7ca]=_0x33a41d[_0x4dd4df(0xeb)](_0x137b96,0x1);_0x33a41d[_0x4dd4df(0xeb)](_0x1c7cf6,0x0,_0x1ed7ca);try{const _0x2b826d=[],_0x5042c4=[];_0x33a41d[_0x4dd4df(0x335)]((_0x48410a,_0x4ec107)=>{const _0x440980=_0x599433,_0x30235d=_0x4dd4df,_0x329b59=(_0x4ec107+0x1)*0xa;if(_0x48410a[_0x440980(0x2f7)])_0x48410a[_0x30235d(0x2fc)]!==_0x329b59&&(_0x48410a[_0x30235d(0x2fc)]=_0x329b59,_0x2b826d[_0x30235d(0x1a3)](updateDoc(doc(db,_0x30235d(0x2eb),_0x48410a[_0x30235d(0xa5)]),{'promoCardSortOrder':_0x329b59}))),contestPromoCard&&contestPromoCard['id']===_0x48410a['id']&&(contestPromoCard[_0x30235d(0x2fc)]=_0x329b59);else{_0x48410a[_0x30235d(0x2fc)]!==_0x329b59&&(_0x48410a[_0x30235d(0x2fc)]=_0x329b59,_0x2b826d[_0x30235d(0x1a3)](updateDoc(doc(db,_0x30235d(0x3a2),_0x48410a['id']),{'sortOrder':_0x329b59})));const {isContestCard:_0x42ad6a,contestId:_0x575243,..._0x6ad0c0}=_0x48410a;_0x5042c4[_0x440980(0x533)](_0x6ad0c0);}}),_0x2b826d[_0x4dd4df(0x109)]&&await Promise[_0x599433(0x4d8)](_0x2b826d),allPromoCards=_0x5042c4[_0x599433(0x28f)]((_0x1b05bf,_0x1505e2)=>getPromoSortOrder(_0x1b05bf)-getPromoSortOrder(_0x1505e2)),renderPromoCardList(),toast(_0x599433(0x270),_0x1ed7ca[_0x4dd4df(0x1d6)]||_0x4dd4df(0x44a),_0x4dd4df(0x2bf));}catch(_0x88e938){console[_0x4dd4df(0x381)](_0x4dd4df(0xb2),_0x88e938),toast(_0x4dd4df(0x454),_0x4dd4df(0xbb),_0x4dd4df(0x381)),await ensurePromoCardsLoaded(!![]),renderPromoCardList();}}async function renderPromoCardFormPage(_0x4b52e4){const _0x1f8970=_0x39c496,_0x699f99=_0x247feb,_0x1ba85c=_0x37ce72,_0x164d03=_0x1c09bd;let _0x1205d8={};if(_0x4b52e4){_0x1205d8=allPromoCards[_0x164d03(0x326)](_0x5a40ad=>_0x5a40ad['id']===_0x4b52e4)||await getDoc(doc(db,_0x164d03(0x3a2),_0x4b52e4))[_0x164d03(0x422)](_0x5d9f64=>_0x5d9f64[_0x164d03(0x371)]()?{'id':_0x5d9f64['id'],..._0x5d9f64[_0x164d03(0x2d9)]()}:null);if(!_0x1205d8){$promoCardsContent[_0x164d03(0xfc)]=_0x164d03(0x1bf);return;}}const _0x43c597=document[_0x164d03(0x259)](_0x164d03(0x99));_0x43c597[_0x164d03(0x394)]=_0x1ba85c(0x27f),_0x43c597[_0x164d03(0xfc)]=_0x164d03(0x2f6)+(_0x4b52e4?_0x164d03(0x2d4):_0x164d03(0x119))+_0x164d03(0x146)+escapeAttr(_0x1205d8[_0x164d03(0x1d6)]||'')+_0x1ba85c(0x26a)+escapeAttr(_0x1205d8[_0x164d03(0x238)]||'')+_0x164d03(0x223)+escapeAttr(_0x1205d8[_0x164d03(0x29f)]||'')+_0x164d03(0xa4)+escapeAttr(_0x1205d8[_0x164d03(0x196)]||'')+_0x164d03(0x179)+escapeAttr(_0x1205d8[_0x164d03(0x198)]||'')+_0x164d03(0x3fa)+(_0x1205d8[_0x1ba85c(0x286)]||'')+_0x164d03(0x37f)+(_0x1205d8[_0x164d03(0xbd)]!==![]?_0x1ba85c(0x55e):'')+_0x164d03(0x1b2)+(_0x4b52e4?_0x164d03(0x226):_0x164d03(0xc7))+_0x164d03(0x36a),$promoCardsContent[_0x699f99(0x458)]='',$promoCardsContent[_0x1ba85c(0x363)](_0x43c597),_0x43c597[_0x164d03(0x10a)](_0x1f8970(0x436))[_0x164d03(0x453)]=()=>location[_0x164d03(0xa3)]=_0x164d03(0x432),_0x43c597[_0x164d03(0x10a)](_0x164d03(0x13d))[_0x164d03(0x276)]=_0x45c243=>handlePromoCardFormSubmit(_0x45c243,_0x4b52e4);}async function handlePromoCardFormSubmit(_0x347654,_0x23f1d6){const _0x59cfa1=_0x247feb,_0x25277f=_0x37ce72,_0x5b231e=_0x1c09bd;_0x347654[_0x25277f(0x21f)]();const _0x5540e9=_0x347654[_0x5b231e(0x340)][_0x59cfa1(0x2aa)](_0x5b231e(0x2cb));setButtonLoading(_0x5540e9,!![]);const _0x348236=parseInt($(_0x25277f(0x4cb))[_0x5b231e(0x1d2)],0xa),_0x4ca082={'title':$(_0x5b231e(0x3ee))[_0x5b231e(0x1d2)][_0x59cfa1(0x19e)](),'subtitle':$(_0x25277f(0x33e))[_0x25277f(0x398)][_0x5b231e(0x408)](),'cta':$(_0x5b231e(0x1e6))[_0x5b231e(0x1d2)][_0x5b231e(0x408)](),'screen':$(_0x5b231e(0x39d))[_0x25277f(0x398)][_0x5b231e(0x408)](),'image':$(_0x25277f(0x506))[_0x5b231e(0x1d2)][_0x5b231e(0x408)](),'sortOrder':isNaN(_0x348236)?0x0:_0x348236,'isActive':$(_0x5b231e(0x41f))[_0x5b231e(0x8d)]};if(!_0x4ca082[_0x5b231e(0x1d6)]){toast(_0x5b231e(0x454),_0x5b231e(0x329),_0x5b231e(0x381)),setButtonLoading(_0x5540e9,![]);return;}try{if(_0x23f1d6){await updateDoc(doc(db,_0x25277f(0x59c),_0x23f1d6),_0x4ca082);const _0x24d586=allPromoCards[_0x5b231e(0x3b4)](_0x44d035=>_0x44d035['id']===_0x23f1d6);if(_0x24d586>-0x1)allPromoCards[_0x24d586]={'id':_0x23f1d6,..._0x4ca082};toast(_0x5b231e(0x2b7),_0x4ca082[_0x5b231e(0x1d6)],_0x5b231e(0x2bf));}else{const _0xa2c828=await addDoc(collection(db,_0x5b231e(0x3a2)),_0x4ca082);allPromoCards[_0x5b231e(0x1a3)]({'id':_0xa2c828['id'],..._0x4ca082}),updatePromoCardsKpi(),toast(_0x5b231e(0x24d),_0x4ca082[_0x5b231e(0x1d6)],_0x25277f(0x1fe));}allPromoCards[_0x5b231e(0x18a)]((_0xc43f94,_0x13097c)=>_0xc43f94[_0x25277f(0x286)]-_0x13097c[_0x25277f(0x286)]),location[_0x5b231e(0xa3)]=_0x5b231e(0x432);}catch(_0x4e3bb2){console[_0x5b231e(0x381)](_0x4e3bb2),toast(_0x5b231e(0x454),_0x59cfa1(0x1ca),_0x5b231e(0x381));}finally{setButtonLoading(_0x5540e9,![]);}}function renderPromoPayoutList(){const _0x3beda7=_0x247feb,_0x39bbbc=_0x37ce72,_0x57146e=_0x1c09bd;if(!$promoPayoutsContent)return;const _0x570538=(promoPayoutSearchTerm||'')[_0x39bbbc(0x288)](),_0x4925f5=_0x570538?allPromoPayouts[_0x57146e(0x43a)](_0x5d8d2f=>((_0x5d8d2f[_0x57146e(0x3d4)]||'')+'\x20'+(_0x5d8d2f[_0x57146e(0x3c3)]||'')+'\x20'+(_0x5d8d2f[_0x57146e(0x31b)]||''))[_0x57146e(0xba)]()[_0x39bbbc(0x2f6)](_0x570538[_0x57146e(0xba)]())):allPromoPayouts;if(!_0x4925f5[_0x57146e(0x109)]){$promoPayoutsContent[_0x57146e(0xfc)]=_0x39bbbc(0x21e);return;}const _0x14b66f=document[_0x57146e(0x259)](_0x57146e(0x3f3));_0x14b66f[_0x39bbbc(0x276)]=_0x57146e(0x3f3),_0x14b66f[_0x57146e(0xfc)]=_0x57146e(0x1c0);const _0x11015c=_0x14b66f[_0x3beda7(0x2aa)](_0x3beda7(0x36e));_0x4925f5[_0x57146e(0x335)](_0x59cda1=>{const _0x124d85=_0x3beda7,_0x50ce26=_0x39bbbc,_0x55326b=_0x57146e,_0x3b77c9=_0x59cda1[_0x55326b(0x34b)]&&typeof _0x59cda1[_0x55326b(0x34b)][_0x55326b(0x236)]===_0x50ce26(0x50c)?_0x59cda1[_0x55326b(0x34b)][_0x55326b(0x236)]():_0x59cda1[_0x55326b(0x34b)]?new Date(_0x59cda1[_0x55326b(0x34b)]):null,_0x3cb7dd=_0x3b77c9&&!Number[_0x55326b(0x3f4)](_0x3b77c9[_0x124d85(0x202)]())?fmtDate(_0x3b77c9):'-',_0x20a6b4=(_0x59cda1[_0x55326b(0x3c3)]||_0x55326b(0x266))[_0x55326b(0xba)](),_0x38464f=_0x20a6b4===_0x55326b(0xf1)?_0x55326b(0x2aa):_0x20a6b4===_0x55326b(0x250)?_0x55326b(0x286):_0x55326b(0x322),_0x105f5e=_0x20a6b4===_0x55326b(0xf1)?_0x55326b(0x2bf):_0x20a6b4===_0x55326b(0x250)?_0x55326b(0x2c1):_0x55326b(0x417),_0x109d9f=document[_0x55326b(0x259)]('tr');_0x109d9f[_0x55326b(0xca)]['id']=_0x59cda1['id'],_0x109d9f[_0x55326b(0xfc)]=_0x55326b(0x33b)+escapeHtml(_0x59cda1[_0x55326b(0x3d4)]||'')+_0x55326b(0x1ee)+fmtXOF[_0x55326b(0x347)](_0x59cda1[_0x55326b(0x148)]||0x0)+_0x55326b(0x457)+_0x105f5e+'\x22>'+_0x38464f+_0x55326b(0x1ee)+escapeHtml(_0x59cda1[_0x55326b(0x31b)]||'-')+_0x55326b(0xc1)+escapeHtml(_0x3cb7dd)+_0x50ce26(0x462),_0x109d9f[_0x55326b(0x10a)](_0x124d85(0x1cd))[_0x124d85(0x384)]=()=>location[_0x55326b(0xa3)]=_0x50ce26(0x246)+_0x59cda1['id'],_0x109d9f[_0x55326b(0x10a)](_0x55326b(0x1cc))[_0x55326b(0x453)]=()=>handleDelete(_0x59cda1['id'],_0x59cda1[_0x55326b(0x3d4)],_0x50ce26(0x24c)),_0x11015c[_0x55326b(0x385)](_0x109d9f);}),$promoPayoutsContent[_0x57146e(0xfc)]='',$promoPayoutsContent[_0x57146e(0x385)](_0x14b66f),lucide[_0x57146e(0x38b)]();}async function renderPromoPayoutFormPage(_0x16ea60){const _0x368062=_0x247feb,_0xbcc2c5=_0x37ce72,_0x93584a=_0x1c09bd;let _0x170c79={};if(_0x16ea60){_0x170c79=allPromoPayouts[_0xbcc2c5(0x44d)](_0x1ea212=>_0x1ea212['id']===_0x16ea60)||await getDoc(doc(db,_0x93584a(0x25b),_0x16ea60))[_0x93584a(0x422)](_0x1a2eb0=>_0x1a2eb0[_0xbcc2c5(0x30e)]()?{'id':_0x1a2eb0['id'],..._0x1a2eb0[_0x93584a(0x2d9)]()}:null);if(!_0x170c79){$promoPayoutsContent&&($promoPayoutsContent[_0x93584a(0xfc)]=_0x93584a(0x221));return;}}const _0x40841a=document[_0x93584a(0x259)](_0x368062(0x3d1));_0x40841a[_0x93584a(0x394)]=_0x93584a(0x377),_0x40841a[_0x93584a(0xfc)]=_0x93584a(0x144)+(_0x16ea60?_0x93584a(0x26c):_0x93584a(0x1f1))+_0x368062(0x349)+escapeAttr(_0x170c79[_0x93584a(0x3d4)]||'')+_0x93584a(0xad)+(_0x170c79[_0x93584a(0x148)]??'')+_0x93584a(0x395)+(_0x170c79[_0xbcc2c5(0x403)]===_0x93584a(0x2b3)?_0x93584a(0x94):'')+_0x93584a(0x3f2)+(_0x170c79[_0x368062(0x131)]===_0xbcc2c5(0x298)?_0x93584a(0x94):'')+_0x93584a(0x1be)+(_0x170c79[_0x93584a(0x31b)]===_0xbcc2c5(0x369)?_0x93584a(0x94):'')+_0xbcc2c5(0x56e)+(_0x170c79[_0x93584a(0x31b)]===_0x93584a(0x1e8)?_0xbcc2c5(0x310):'')+_0x93584a(0x333)+(_0x170c79[_0xbcc2c5(0x22c)]===_0x93584a(0xf1)?_0x93584a(0x94):'')+_0xbcc2c5(0x308)+(!_0x170c79[_0x93584a(0x3c3)]||_0x170c79[_0x93584a(0x3c3)]===_0x368062(0x206)?_0x368062(0x44f):'')+_0x93584a(0x2ab)+(_0x170c79[_0x93584a(0x3c3)]===_0x93584a(0x250)?_0x93584a(0x94):'')+_0x93584a(0x120)+escapeAttr(toInputDateValue(_0x170c79[_0x93584a(0x34b)]))+_0x93584a(0x2a9)+escapeAttr(_0x170c79[_0x93584a(0x321)]||'')+_0x93584a(0xb1)+escapeHtml(_0x170c79[_0x93584a(0x45c)]||'')+_0x93584a(0x31e)+(_0x16ea60?_0x93584a(0x226):_0xbcc2c5(0x504))+_0x93584a(0x163),$promoPayoutsContent&&($promoPayoutsContent[_0x93584a(0xfc)]='',$promoPayoutsContent[_0x93584a(0x385)](_0x40841a)),_0x40841a[_0x93584a(0x10a)](_0x93584a(0x1ed))[_0x93584a(0x453)]=()=>location[_0x93584a(0xa3)]=_0x93584a(0x3b6),_0x40841a[_0x93584a(0x10a)](_0x93584a(0x13d))[_0x93584a(0x276)]=_0x3101ce=>handlePromoPayoutFormSubmit(_0x3101ce,_0x16ea60,_0x170c79);}async function handlePromoPayoutFormSubmit(_0x21a3a8,_0x4325da,_0x2ccc80={}){const _0x6d8713=_0x247feb,_0x3ec774=_0x37ce72,_0x68e5a7=_0x1c09bd;_0x21a3a8[_0x68e5a7(0x2ff)]();const _0x1ad562=_0x21a3a8['target'][_0x3ec774(0x242)](_0x3ec774(0x41a));setButtonLoading(_0x1ad562,!![]);const _0x5066db=($(_0x6d8713(0x389))[_0x68e5a7(0x1d2)]||'')[_0x68e5a7(0x408)]()[_0x3ec774(0x3ec)](),_0x4e9c33=Number($(_0x3ec774(0x469))[_0x68e5a7(0x1d2)]),_0x5c8149=$(_0x68e5a7(0x2ed))[_0x68e5a7(0x1d2)]||_0x3ec774(0x428),_0x5d8fd8=$(_0x68e5a7(0x3c5))[_0x68e5a7(0x1d2)]||_0x68e5a7(0x266),_0x1bd6ff=($(_0x68e5a7(0xda))[_0x68e5a7(0x1d2)]||'')[_0x3ec774(0x519)](),_0x1ce056=($(_0x68e5a7(0x348))[_0x68e5a7(0x1d2)]||'')[_0x68e5a7(0x408)](),_0x23bfe5=$(_0x68e5a7(0x2da))[_0x68e5a7(0x1d2)];if(!_0x5066db||Number[_0x68e5a7(0x3f4)](_0x4e9c33)){toast(_0x68e5a7(0x454),_0x68e5a7(0x21e),_0x68e5a7(0x381)),setButtonLoading(_0x1ad562,![]);return;}const _0x481b06={'code':_0x5066db,'amount':_0x4e9c33,'mode':_0x5c8149,'status':_0x5d8fd8,'note':_0x1bd6ff||null,'ref':_0x1ce056||null};if(_0x23bfe5)_0x481b06[_0x68e5a7(0x34b)]=new Date(_0x23bfe5);else!_0x4325da&&(_0x481b06[_0x68e5a7(0x34b)]=serverTimestamp());try{if(_0x4325da){await updateDoc(doc(db,_0x68e5a7(0x25b),_0x4325da),_0x481b06);const _0x44591a=allPromoPayouts[_0x68e5a7(0x3b4)](_0x2d8f8d=>_0x2d8f8d['id']===_0x4325da);_0x44591a>-0x1&&(allPromoPayouts[_0x44591a]={...allPromoPayouts[_0x44591a],..._0x481b06}),toast(_0x68e5a7(0x1ad),_0x5066db,_0x3ec774(0x1fe));}else{const _0x57c9b2=await addDoc(collection(db,_0x68e5a7(0x25b)),_0x481b06),_0x23905b=await getDoc(_0x57c9b2),_0x1fd063=_0x23905b[_0x68e5a7(0x371)]()?{'id':_0x57c9b2['id'],..._0x23905b[_0x68e5a7(0x2d9)]()}:{'id':_0x57c9b2['id'],..._0x481b06};allPromoPayouts[_0x68e5a7(0x1d1)](_0x1fd063),toast(_0x68e5a7(0x438),_0x5066db,_0x68e5a7(0x2bf));}renderPromoPayoutList(),location[_0x68e5a7(0xa3)]=_0x68e5a7(0x3b6);}catch(_0x4fdf75){console[_0x68e5a7(0x381)](_0x4fdf75),toast(_0x68e5a7(0x454),_0x68e5a7(0x1c4),_0x68e5a7(0x381));}finally{setButtonLoading(_0x1ad562,![]);}}$(_0x1c09bd(0x1e9))[_0x247feb(0x31b)](_0x1c09bd(0x42e),()=>location[_0x39c496(0x49a)]=_0x1c09bd(0x2c6)),$(_0x1c09bd(0x2a8))[_0x247feb(0x31b)](_0x1c09bd(0x40c),()=>renderPromoCodeList()),$(_0x1c09bd(0x3c8))?.[_0x1c09bd(0x446)](_0x37ce72(0x471),_0x4fad97=>{const _0x332496=_0x1c09bd;promoCodePartnerFilter=(_0x4fad97[_0x332496(0x340)][_0x332496(0x1d2)]||'')[_0x332496(0xba)](),renderPromoCodeList();}),$(_0x1c09bd(0x2a0))?.[_0x1c09bd(0x446)](_0x1c09bd(0x42e),()=>location[_0x37ce72(0x318)]=_0x1c09bd(0x366)),$(_0x1c09bd(0x349))?.[_0x1c09bd(0x446)](_0x1c09bd(0x40c),()=>renderPromoRuleList()),$(_0x247feb(0x1f4))?.[_0x37ce72(0x4f9)](_0x1c09bd(0x42e),()=>location[_0x37ce72(0x318)]=_0x1c09bd(0x172)),document[_0x1c09bd(0x379)](_0x1c09bd(0x434))[_0x1c09bd(0x335)](_0x29fc42=>{const _0x2badc6=_0x1c09bd;_0x29fc42[_0x2badc6(0x446)](_0x2badc6(0x42e),async()=>{const _0x32794e=_0x2953,_0x327a8a=_0x47d2,_0xc7182c=_0x2badc6,_0x358ea1=_0x29fc42[_0xc7182c(0xca)][_0xc7182c(0x2a5)]||_0xc7182c(0x116);await setPromoTab(_0x358ea1);const _0x5316fd=_0x327a8a(0x2d5),_0x5c4ace=_0x358ea1===_0xc7182c(0x116)?_0x5316fd:_0x5316fd+'/'+_0x358ea1;location[_0x32794e(0x1a3)]=_0x5c4ace;});});function renderPromoCodeList(){const _0x37775f=_0x247feb,_0x5039c4=_0x37ce72,_0x213b95=_0x1c09bd;ensurePromoRulesLoaded()[_0x213b95(0x44f)](_0x467ddd=>console[_0x5039c4(0x2b1)](_0x213b95(0x22b),_0x467ddd));const _0x57973c=($(_0x213b95(0x2a8))[_0x213b95(0x1d2)]||'')[_0x213b95(0xba)](),_0x2a651a=promoCodePartnerFilter||'';let _0x39a184=allPromoCodes[_0x5039c4(0x35f)]();_0x57973c&&(_0x39a184=_0x39a184[_0x213b95(0x43a)](_0x499408=>{const _0x4d4cde=_0x5039c4,_0x51fc47=_0x213b95,_0x566507=(_0x499408[_0x51fc47(0x3d4)]||'')[_0x51fc47(0xba)]()[_0x4d4cde(0x2f6)](_0x57973c),_0x2ea195=(_0x499408[_0x51fc47(0xde)]||'')[_0x51fc47(0xba)]()[_0x51fc47(0x124)](_0x57973c);return _0x566507||_0x2ea195;})),_0x2a651a&&(_0x39a184=_0x39a184[_0x5039c4(0x52e)](_0x958573=>(_0x958573[_0x5039c4(0x3c1)]||'')[_0x5039c4(0x288)]()[_0x5039c4(0x2f6)](_0x2a651a)));if(!_0x39a184[_0x213b95(0x109)]){$promoCodesContent[_0x213b95(0xfc)]=_0x213b95(0x140);return;}const _0x3748ad=document[_0x37775f(0x1d5)](_0x213b95(0x3f3));_0x3748ad[_0x5039c4(0x276)]=_0x5039c4(0x413),_0x3748ad[_0x213b95(0xfc)]=_0x213b95(0x1f3);const _0x5f5d68=_0x3748ad[_0x213b95(0x10a)](_0x5039c4(0x3a6));_0x39a184[_0x213b95(0x335)](_0x2c108a=>{const _0x50bf84=_0x34de,_0x3049c8=_0x37775f,_0x49d7c2=_0x5039c4,_0x559de3=_0x213b95,_0x25b718=document[_0x559de3(0x259)]('tr');_0x25b718[_0x559de3(0xca)]['id']=_0x2c108a['id'];const _0x518871=_0x2c108a[_0x559de3(0x1a6)]===_0x50bf84(0x431)?_0x2c108a[_0x50bf84(0x415)]+'%':fmtXOF[_0x559de3(0x347)](_0x2c108a[_0x559de3(0x1d2)]),_0x22b571=allPromoRules[_0x559de3(0x326)](_0x331172=>(_0x331172[_0x559de3(0x3d4)]||_0x331172['id']||'')[_0x559de3(0xba)]()===(_0x2c108a[_0x559de3(0x3d4)]||'')[_0x559de3(0xba)]()),_0x18f02d=_0x22b571?.[_0x3049c8(0x16a)]?.[_0x559de3(0x12e)](',\x20')||_0x559de3(0x308),_0x14ff81=summarizeBrackets(_0x22b571?.[_0x559de3(0x1c1)]||DEFAULT_PRICE_BRACKETS);_0x25b718[_0x559de3(0xfc)]=_0x49d7c2(0x2a4)+escapeHtml(_0x2c108a[_0x559de3(0x3d4)]||_0x559de3(0x291))+_0x49d7c2(0x3c4)+escapeHtml(_0x2c108a[_0x559de3(0x1a6)]===_0x49d7c2(0x22e)?_0x559de3(0x300):_0x559de3(0x386))+_0x559de3(0x278)+_0x518871+_0x559de3(0x1ee)+escapeHtml(_0x2c108a[_0x559de3(0xde)]||'-')+_0x559de3(0xe4)+(_0x2c108a[_0x559de3(0xbd)]?_0x559de3(0x8d):'')+_0x3049c8(0x200)+escapeHtml(_0x18f02d)+_0x559de3(0x1a5)+escapeHtml(_0x14ff81)+_0x559de3(0x2ea),_0x25b718[_0x49d7c2(0x242)](_0x49d7c2(0x523))[_0x559de3(0x453)]=()=>previewPromoLinks(_0x2c108a[_0x559de3(0x3d4)],_0x2c108a[_0x559de3(0xde)]),_0x25b718[_0x49d7c2(0x242)](_0x559de3(0xa9))[_0x559de3(0x453)]=()=>location[_0x559de3(0xa3)]=_0x49d7c2(0x331)+_0x2c108a['id'],_0x25b718[_0x49d7c2(0x242)](_0x559de3(0x1cc))[_0x559de3(0x453)]=()=>handleDelete(_0x2c108a['id'],_0x2c108a[_0x49d7c2(0x4cc)],_0x559de3(0x126)),_0x25b718[_0x559de3(0x10a)](_0x559de3(0xbe))[_0x559de3(0xdb)]=_0x2f786a=>handlePromoCodeStatusToggle(_0x2c108a['id'],_0x2f786a[_0x559de3(0x340)][_0x559de3(0x8d)]),_0x5f5d68[_0x559de3(0x385)](_0x25b718);}),$promoCodesContent[_0x213b95(0xfc)]='',$promoCodesContent[_0x5039c4(0x363)](_0x3748ad),lucide[_0x213b95(0x38b)]();}async function previewPromoLinks(_0x3a8146,_0x2afffc){const _0x2b6115=_0x37ce72,_0x3f09a2=_0x1c09bd,_0x22baf6=(_0x3a8146||'')[_0x3f09a2(0x408)]();if(!_0x22baf6)return;try{const _0x1e23b9=httpsCallable(functionsInstance,_0x2b6115(0x44b)),_0x3d77db=await _0x1e23b9({'code':_0x22baf6,'ref':_0x2afffc}),_0x9b5705=_0x3d77db[_0x3f09a2(0x2d9)]||{},_0x3d4cce=_0x3f09a2(0x425)+escapeHtml(_0x9b5705[_0x3f09a2(0x309)]||'-')+_0x3f09a2(0x416)+escapeHtml(_0x9b5705[_0x3f09a2(0x334)]||_0x9b5705[_0x3f09a2(0x400)]||'-')+_0x3f09a2(0x2de)+escapeHtml(_0x9b5705[_0x3f09a2(0x375)]||'-')+_0x3f09a2(0x1f7);await openModal({'title':_0x2b6115(0x543)+escapeHtml(_0x22baf6),'body':_0x3d4cce,'okText':_0x3f09a2(0xc2),'cancelText':_0x3f09a2(0xc2)});}catch(_0x5b6b56){console[_0x3f09a2(0x381)](_0x3f09a2(0x285),_0x5b6b56),toast(_0x3f09a2(0x454),_0x2b6115(0x24f),_0x3f09a2(0x381));}}async function handlePromoCodeStatusToggle(_0x220168,_0x221e7f){const _0x2f5c9f=_0x247feb,_0x3bb65d=_0x37ce72,_0x10bb5a=_0x1c09bd;try{await updateDoc(doc(db,_0x10bb5a(0x126),_0x220168),{'isActive':_0x221e7f});const _0x382d50=allPromoCodes[_0x10bb5a(0x326)](_0x5248c1=>_0x5248c1['id']===_0x220168);if(_0x382d50)_0x382d50[_0x10bb5a(0xbd)]=_0x221e7f;toast(_0x10bb5a(0xc6),_0x3bb65d(0x4ea)+(_0x221e7f?_0x10bb5a(0xc0):_0x3bb65d(0x244))+'.',_0x3bb65d(0x1fe));}catch(_0x25b56d){console[_0x10bb5a(0x381)](_0x10bb5a(0x122),_0x25b56d),toast(_0x3bb65d(0x4b8),_0x10bb5a(0x12f),_0x2f5c9f(0x491)),renderPromoCodeList();}}function _0x34de(_0x17e580,_0x596e25){_0x17e580=_0x17e580-0x147;const _0x8e0e36=_0x13bc();let _0x454dbd=_0x8e0e36[_0x17e580];return _0x454dbd;}async function renderPromoCodeFormPage(_0x11233d){const _0x3041b9=_0x39c496,_0x91629=_0x247feb,_0x3ea63d=_0x37ce72,_0x1177e3=_0x1c09bd;let _0x481304={},_0x4ef875=null;if(_0x11233d){_0x481304=allPromoCodes[_0x1177e3(0x326)](_0x32f6fd=>_0x32f6fd['id']===_0x11233d)||await getDoc(doc(db,_0x1177e3(0x126),_0x11233d))[_0x91629(0x24e)](_0x37f861=>_0x37f861[_0x1177e3(0x371)]()?{'id':_0x37f861['id'],..._0x37f861[_0x1177e3(0x2d9)]()}:null);if(!_0x481304){$promoCodesContent[_0x1177e3(0xfc)]=_0x1177e3(0x1c3);return;}}const _0x56dbc7=(_0x481304[_0x1177e3(0x3d4)]||_0x481304['id']||_0x11233d||'')[_0x1177e3(0x2d3)]();_0x56dbc7&&(_0x4ef875=allPromoRules[_0x3ea63d(0x44d)](_0x3d8da2=>(_0x3d8da2[_0x1177e3(0x3d4)]||_0x3d8da2['id']||'')[_0x1177e3(0x2d3)]()===_0x56dbc7)||await getDoc(doc(db,_0x1177e3(0x257),_0x56dbc7))[_0x1177e3(0x422)](_0x262272=>_0x262272[_0x3ea63d(0x30e)]()?{'id':_0x262272['id'],..._0x262272[_0x1177e3(0x2d9)]()}:null));const _0x1f6bcd=_0x4ef875||{'code':_0x56dbc7,'isActive':_0x481304[_0x3ea63d(0x203)]!==![],'allowedChannels':[_0x1177e3(0x25d),_0x1177e3(0x3ba),'wa','qr','bo'],'allowedPartners':[],'partnerRefRequired':![],'priceBrackets':DEFAULT_PRICE_BRACKETS,'startsAt':null,'endsAt':null},_0x4ee7c6=(_0x1f6bcd[_0x3ea63d(0x4d5)]&&_0x1f6bcd[_0x1177e3(0x3a0)][_0x1177e3(0x109)]?_0x1f6bcd[_0x1177e3(0x3a0)]:[_0x3ea63d(0x558),_0x1177e3(0x3ba),'wa','qr','bo'])[_0x91629(0x40e)](_0x37c7a7=>String(_0x37c7a7)['toLowerCase']()),_0xef51e4=(_0x1f6bcd[_0x1177e3(0x30b)]||[])[_0x1177e3(0x12e)](','),_0x23e787=_0x1f6bcd[_0x1177e3(0x1c1)]&&_0x1f6bcd[_0x3ea63d(0x4ca)][_0x1177e3(0x109)]?_0x1f6bcd[_0x1177e3(0x1c1)]:DEFAULT_PRICE_BRACKETS,_0xcc12d9=document[_0x1177e3(0x259)](_0x3ea63d(0x1ff));_0xcc12d9[_0x3ea63d(0x276)]=_0x1177e3(0x377),_0xcc12d9[_0x1177e3(0xfc)]=_0x1177e3(0x144)+(_0x11233d?_0x1177e3(0x26c):_0x1177e3(0x1f1))+_0x1177e3(0x1c5)+escapeAttr(_0x481304[_0x1177e3(0x3d4)]||'')+'\x22\x20'+(_0x11233d?_0x3ea63d(0x375):'')+_0x1177e3(0x2ca)+(_0x481304[_0x1177e3(0x1a6)]===_0x1177e3(0x104)?_0x1177e3(0x94):'')+_0x1177e3(0x10b)+(_0x481304[_0x3ea63d(0x3d6)]===_0x1177e3(0x183)?_0x1177e3(0x94):'')+_0x1177e3(0x2b4)+(_0x481304[_0x1177e3(0x1d2)]||'')+_0x1177e3(0x1fa)+escapeAttr(_0x481304[_0x1177e3(0xde)]||'')+_0x1177e3(0x244)+(_0x481304[_0x1177e3(0xbd)]!==![]?_0x3ea63d(0x55e):'')+_0x1177e3(0x307)+escapeAttr(_0xef51e4)+_0x1177e3(0x305)+(_0x1f6bcd[_0x3ea63d(0x3b9)]?_0x3041b9(0x405):'')+_0x1177e3(0x1fb)+escapeAttr(toInputDateValue(_0x1f6bcd[_0x3ea63d(0x4cf)]))+_0x3ea63d(0x315)+escapeAttr(toInputDateValue(_0x1f6bcd[_0x1177e3(0x1db)]))+_0x1177e3(0x3d3)+(_0x11233d?_0x1177e3(0x226):_0x1177e3(0x3f9))+_0x1177e3(0x163),$promoCodesContent[_0x1177e3(0xfc)]='',$promoCodesContent[_0x3ea63d(0x363)](_0xcc12d9),_0xcc12d9[_0x1177e3(0x10a)](_0x1177e3(0x1ed))[_0x1177e3(0x453)]=()=>location[_0x1177e3(0xa3)]=_0x1177e3(0xb8),_0xcc12d9[_0x1177e3(0x10a)](_0x3ea63d(0x303))[_0x1177e3(0x276)]=_0x5d43c4=>handlePromoCodeFormSubmit(_0x5d43c4,_0x11233d||_0x56dbc7),renderChannelCheckboxes(_0x1177e3(0x19f),_0x4ee7c6),renderBracketRows(_0x23e787),document[_0x1177e3(0x362)](_0x1177e3(0xee))?.[_0x3ea63d(0x4f9)](_0x3ea63d(0x44e),()=>{const _0x2d822e=_0x1177e3,_0x1bbeef=document[_0x2d822e(0x362)](_0x2d822e(0x353));_0x1bbeef&&_0x1bbeef[_0x2d822e(0x385)](buildBracketRow({'min':0x0,'max':null,'discountValue':0x0,'commissionValue':0x0,'label':''})),lucide[_0x2d822e(0x38b)]();}),document[_0x1177e3(0x362)](_0x3ea63d(0x1f9))?.[_0x1177e3(0x446)](_0x3ea63d(0x44e),()=>renderBracketRows(DEFAULT_PRICE_BRACKETS));}async function handlePromoCodeFormSubmit(_0x497388,_0x4728b0){const _0x2725ed=_0x39c496,_0x4ff004=_0x247feb,_0x34a941=_0x37ce72,_0x4e44d4=_0x1c09bd;_0x497388[_0x4e44d4(0x2ff)]();const _0x13839a=_0x497388[_0x34a941(0x293)][_0x4e44d4(0x10a)](_0x4ff004(0x3aa));setButtonLoading(_0x13839a,!![]);const _0x3bcd41=($(_0x4e44d4(0x2e0))[_0x34a941(0x398)]||'')[_0x4e44d4(0x408)]()[_0x34a941(0x3ec)](),_0x4b6930=parseFloat($(_0x4e44d4(0xd8))[_0x4e44d4(0x1d2)]);if(!_0x3bcd41||isNaN(_0x4b6930)){toast(_0x2725ed(0x1a5),_0x4e44d4(0x20d),_0x4e44d4(0x381)),setButtonLoading(_0x13839a,![]);return;}const _0x1c11d8={'code':_0x3bcd41,'type':$(_0x4e44d4(0x331))[_0x4e44d4(0x1d2)],'value':_0x4b6930,'assignedTo':$(_0x4e44d4(0x378))[_0x4e44d4(0x1d2)][_0x34a941(0x519)](),'isActive':$(_0x4e44d4(0x41f))[_0x34a941(0x55e)]},_0x1aec3c=readChannelCheckboxes(_0x34a941(0x2b0)),_0x1f6352=$(_0x4e44d4(0x25c))[_0x34a941(0x398)]||'',_0x492238=_0x1f6352[_0x34a941(0x479)](',')[_0x4ff004(0x40e)](_0x5dd89f=>_0x5dd89f[_0x4e44d4(0x408)]())[_0x4e44d4(0x43a)](Boolean);let _0x521b35=readBracketRows();!_0x521b35[_0x4e44d4(0x109)]&&(_0x521b35=DEFAULT_PRICE_BRACKETS);const _0x539f34=$(_0x4e44d4(0x23f))[_0x34a941(0x398)],_0x5aa507=$(_0x4e44d4(0x281))[_0x4ff004(0x215)],_0x150c94={'code':_0x3bcd41,'isActive':$(_0x4e44d4(0x41f))[_0x4e44d4(0x8d)],'allowedChannels':_0x1aec3c[_0x34a941(0x28d)]?_0x1aec3c:[_0x4e44d4(0x25d),_0x4e44d4(0x3ba),'wa','qr','bo'],'allowedPartners':_0x492238,'partnerRefRequired':$(_0x4e44d4(0xcc))[_0x4e44d4(0x8d)],'priceBrackets':_0x521b35,'startsAt':_0x539f34?new Date(_0x539f34):null,'endsAt':_0x5aa507?new Date(_0x5aa507):null,'updatedAt':serverTimestamp()};try{let _0x331996=_0x4728b0;if(_0x4728b0){await updateDoc(doc(db,_0x4e44d4(0x126),_0x4728b0),_0x1c11d8);const _0x3ad886=allPromoCodes[_0x4e44d4(0x3b4)](_0x126336=>_0x126336['id']===_0x4728b0);if(_0x3ad886>-0x1)allPromoCodes[_0x3ad886]={'id':_0x4728b0,..._0x1c11d8};toast(_0x4ff004(0x20a),_0x1c11d8[_0x34a941(0x4cc)],_0x34a941(0x1fe));}else{const _0x5d6ef6={..._0x1c11d8,'createdAt':serverTimestamp()},_0x3c4091=await addDoc(collection(db,_0x4e44d4(0x126)),_0x5d6ef6);_0x331996=_0x3c4091['id'],allPromoCodes[_0x4e44d4(0x1d1)]({'id':_0x331996,..._0x5d6ef6}),$(_0x4e44d4(0x1a9))[_0x4e44d4(0x284)]=String(allPromoCodes[_0x4e44d4(0x109)]),toast(_0x34a941(0x409),_0x1c11d8[_0x4e44d4(0x3d4)],_0x4e44d4(0x2bf));}const _0x1f5258=doc(db,_0x34a941(0x4c6),_0x3bcd41);await setDoc(_0x1f5258,{..._0x150c94,'createdAt':serverTimestamp()},{'merge':!![]});const _0x248a97=allPromoRules[_0x4e44d4(0x3b4)](_0x751d52=>(_0x751d52[_0x4e44d4(0x3d4)]||_0x751d52['id']||'')[_0x4e44d4(0x2d3)]()===_0x3bcd41);_0x248a97>-0x1?allPromoRules[_0x248a97]={...allPromoRules[_0x248a97],..._0x150c94,'id':_0x3bcd41}:allPromoRules[_0x4e44d4(0x1d1)]({'id':_0x3bcd41,..._0x150c94}),(allPromoRules=allPromoRules[_0x34a941(0x28f)]((_0x205ed1,_0x103cec)=>(_0x205ed1[_0x4e44d4(0x3d4)]||_0x205ed1['id']||'')[_0x4e44d4(0x39e)](_0x103cec[_0x34a941(0x4cc)]||_0x103cec['id']||'')),track(_0x4e44d4(0x41b),{'code':_0x1c11d8[_0x4e44d4(0x3d4)],'isEdit':Boolean(_0x4728b0),'type':_0x1c11d8[_0x4ff004(0x275)],'hasWa':_0x1aec3c[_0x34a941(0x2f6)]('wa'),'partners':_0x492238[_0x4e44d4(0x109)]}),location[_0x4e44d4(0xa3)]=_0x4e44d4(0xb8));return;}catch(_0x46b229){console[_0x34a941(0x3e4)](_0x46b229),toast(_0x4e44d4(0x454),_0x4e44d4(0x1c4),_0x4e44d4(0x381));}finally{setButtonLoading(_0x13839a,![]);}}function summarizeBrackets(_0x17021b=[]){const _0x11f68f=_0x1c09bd;if(!Array[_0x11f68f(0x3fb)](_0x17021b)||_0x17021b[_0x11f68f(0x109)]===0x0)return _0x11f68f(0x1de);return _0x17021b[_0x11f68f(0xce)](0x0,0x3)[_0x11f68f(0x287)](_0x1e6b02=>{const _0x455b02=_0x2953,_0x19b6a7=_0x47d2,_0x1072c0=_0x11f68f,_0x5c2bb5=typeof _0x1e6b02[_0x1072c0(0x306)]===_0x19b6a7(0x341)?_0x1e6b02[_0x1072c0(0x306)]:0x0,_0xa68a5f=typeof _0x1e6b02[_0x1072c0(0x3f1)]===_0x1072c0(0x392)?_0x1e6b02[_0x1072c0(0x3f1)]:null,_0x4f3118=typeof _0x1e6b02[_0x1072c0(0x2f2)]===_0x455b02(0x35c)?fmtXOF[_0x1072c0(0x347)](_0x1e6b02[_0x1072c0(0x2f2)]):'-',_0x35fcdb=typeof _0x1e6b02[_0x1072c0(0x3de)]===_0x1072c0(0x392)?fmtXOF[_0x1072c0(0x347)](_0x1e6b02[_0x1072c0(0x3de)]):'-';return _0x5c2bb5+'-'+(_0xa68a5f||'+')+_0x19b6a7(0x401)+_0x4f3118+_0x1072c0(0x19a)+_0x35fcdb;})[_0x11f68f(0x12e)](_0x11f68f(0x258));}function renderPromoRuleList(){const _0x1399a4=_0x39c496,_0x174778=_0x247feb,_0x21a36a=_0x37ce72,_0x26fc46=_0x1c09bd,_0x16a24c=(document[_0x174778(0x29d)](_0x1399a4(0x2e3))?.[_0x26fc46(0x1d2)]||'')[_0x26fc46(0xba)](),_0x50bfc3=_0x16a24c?allPromoRules[_0x21a36a(0x52e)](_0x4bfdb7=>{const _0x2b0e9d=_0x21a36a,_0x3fbc9a=_0x26fc46,_0x171dba=(_0x4bfdb7[_0x3fbc9a(0x3d4)]||_0x4bfdb7['id']||'')[_0x3fbc9a(0xba)]()[_0x3fbc9a(0x124)](_0x16a24c),_0x792856=(_0x4bfdb7[_0x3fbc9a(0x30b)]||[])[_0x2b0e9d(0x273)](',')[_0x3fbc9a(0xba)]()[_0x3fbc9a(0x124)](_0x16a24c);return _0x171dba||_0x792856;}):allPromoRules;if(!_0x50bfc3[_0x26fc46(0x109)]){if($promoRulesContent)$promoRulesContent[_0x26fc46(0xfc)]=_0x26fc46(0x419);return;}const _0x3a2349=document[_0x174778(0x1d5)](_0x21a36a(0x413));_0x3a2349[_0x26fc46(0x394)]=_0x26fc46(0x3f3),_0x3a2349[_0x26fc46(0xfc)]=_0x21a36a(0x309);const _0xe064f9=_0x3a2349[_0x26fc46(0x10a)](_0x26fc46(0x282));_0x50bfc3[_0x26fc46(0x335)](_0x37ec1d=>{const _0x2acf91=_0x21a36a,_0x24f591=_0x26fc46,_0x56f0cf=document[_0x24f591(0x259)]('tr');_0x56f0cf[_0x2acf91(0x358)]['id']=_0x37ec1d['id'];const _0x493239=(_0x37ec1d[_0x24f591(0x3a0)]||[])[_0x24f591(0x12e)](',\x20')||_0x24f591(0x308),_0x49159c=summarizeBrackets(_0x37ec1d[_0x24f591(0x1c1)]||DEFAULT_PRICE_BRACKETS);_0x56f0cf[_0x24f591(0xfc)]=_0x24f591(0x447)+escapeHtml(_0x37ec1d[_0x24f591(0x3d4)]||_0x37ec1d['id']||'')+_0x24f591(0x451)+(_0x37ec1d[_0x24f591(0xbd)]!==![]?_0x2acf91(0x55e):'')+_0x2acf91(0x2ba)+escapeHtml(_0x493239)+_0x24f591(0x23e)+escapeHtml(_0x49159c)+_0x24f591(0x3dc),_0x56f0cf[_0x24f591(0x10a)](_0x24f591(0xa9))[_0x24f591(0x453)]=()=>location[_0x24f591(0xa3)]=_0x24f591(0x22a)+_0x37ec1d['id'],_0x56f0cf[_0x24f591(0x10a)](_0x24f591(0x1cc))[_0x24f591(0x453)]=()=>handleDelete(_0x37ec1d['id'],_0x37ec1d[_0x24f591(0x3d4)]||_0x37ec1d['id'],_0x2acf91(0x4c6)),_0x56f0cf[_0x24f591(0x10a)](_0x24f591(0xbe))[_0x24f591(0xdb)]=_0x17284d=>handlePromoRuleStatusToggle(_0x37ec1d['id'],_0x17284d[_0x24f591(0x340)][_0x24f591(0x8d)]),_0xe064f9[_0x24f591(0x385)](_0x56f0cf);}),$promoRulesContent[_0x21a36a(0x29b)]='',$promoRulesContent&&$promoRulesContent[_0x26fc46(0x385)](_0x3a2349),lucide[_0x26fc46(0x38b)]();}async function handlePromoRuleStatusToggle(_0x128bfc,_0x4b1499){const _0x8361f5=_0x247feb,_0x433af6=_0x37ce72,_0x108183=_0x1c09bd;try{await updateDoc(doc(db,_0x108183(0x257),_0x128bfc),{'isActive':_0x4b1499});const _0x5ed927=allPromoRules[_0x108183(0x326)](_0x551b28=>_0x551b28['id']===_0x128bfc);if(_0x5ed927)_0x5ed927[_0x108183(0xbd)]=_0x4b1499;toast(_0x433af6(0x3ea),_0x433af6(0x539)+(_0x4b1499?_0x8361f5(0x373):_0x433af6(0x3d2))+'.',_0x108183(0x2bf));}catch(_0x4f9d85){console[_0x433af6(0x3e4)](_0x108183(0x130),_0x4f9d85),toast(_0x108183(0x454),_0x8361f5(0x171),_0x433af6(0x3e4)),renderPromoRuleList();}}async function renderPromoRuleFormPage(_0x2bb99b){const _0x377066=_0x39c496,_0x32f050=_0x247feb,_0x56fe21=_0x37ce72,_0x2d7670=_0x1c09bd;let _0x5e1594={};if(_0x2bb99b){_0x5e1594=allPromoRules[_0x2d7670(0x326)](_0x3bd11f=>_0x3bd11f['id']===_0x2bb99b)||await getDoc(doc(db,_0x56fe21(0x4c6),_0x2bb99b))[_0x2d7670(0x422)](_0x49a6ac=>_0x49a6ac[_0x2d7670(0x371)]()?{'id':_0x49a6ac['id'],..._0x49a6ac[_0x2d7670(0x2d9)]()}:null);if(!_0x5e1594){$promoRulesContent[_0x2d7670(0xfc)]=_0x2d7670(0x199);return;}}const _0x3a4791=_0x5e1594[_0x56fe21(0x4ca)]&&_0x5e1594[_0x2d7670(0x1c1)][_0x2d7670(0x109)]?_0x5e1594[_0x2d7670(0x1c1)]:DEFAULT_PRICE_BRACKETS,_0xa04c10=(_0x5e1594[_0x2d7670(0x3a0)]&&_0x5e1594[_0x2d7670(0x3a0)][_0x2d7670(0x109)]?_0x5e1594[_0x2d7670(0x3a0)]:[_0x2d7670(0x25d),_0x2d7670(0x3ba),'wa','qr','bo'])[_0x56fe21(0x1ee)](_0x564669=>String(_0x564669)[_0x2d7670(0xba)]()),_0x21a483=(_0x5e1594[_0x32f050(0x2c0)]||[])[_0x2d7670(0x12e)](','),_0x329745=document[_0x2d7670(0x259)](_0x2d7670(0x99));_0x329745[_0x2d7670(0x394)]=_0x56fe21(0x27f),_0x329745[_0x2d7670(0xfc)]=_0x2d7670(0xdd)+(_0x2bb99b?_0x2d7670(0x297):_0x2d7670(0x364))+_0x32f050(0x381)+escapeAttr(_0x5e1594[_0x2d7670(0x3d4)]||_0x5e1594['id']||'')+'\x22\x20'+(_0x2bb99b?_0x2d7670(0x28b):'')+_0x56fe21(0x2bd)+(_0x5e1594[_0x2d7670(0xbd)]!==![]?_0x2d7670(0x8d):'')+_0x2d7670(0x44c)+escapeAttr(_0x21a483)+_0x2d7670(0x361)+(_0x5e1594[_0x32f050(0x46f)]?_0x2d7670(0x8d):'')+_0x2d7670(0x11a)+escapeAttr(toInputDateValue(_0x5e1594[_0x2d7670(0x1ef)]))+_0x2d7670(0x42f)+escapeAttr(toInputDateValue(_0x5e1594[_0x2d7670(0x1db)]))+_0x2d7670(0x24c)+(_0x2bb99b?_0x377066(0x1fc):_0x2d7670(0x2f9))+_0x2d7670(0x3e0),$promoRulesContent[_0x2d7670(0xfc)]='',$promoRulesContent[_0x2d7670(0x385)](_0x329745),renderChannelCheckboxes(_0x2d7670(0x176),_0xa04c10),renderBracketRows(_0x3a4791),document[_0x2d7670(0x362)](_0x56fe21(0x2a8))?.[_0x56fe21(0x4f9)](_0x2d7670(0x42e),()=>{const _0x282f2a=_0x2d7670,_0x3e363c=document[_0x282f2a(0x362)](_0x282f2a(0x2c7));_0x3e363c&&_0x3e363c[_0x282f2a(0x385)](buildBracketRow({'min':0x0,'max':null,'discountValue':0x0,'commissionValue':0x0,'label':''})),lucide[_0x282f2a(0x38b)]();}),document[_0x2d7670(0x362)](_0x2d7670(0x214))?.[_0x2d7670(0x446)](_0x2d7670(0x42e),()=>renderBracketRows(DEFAULT_PRICE_BRACKETS)),_0x329745[_0x2d7670(0x10a)](_0x2d7670(0x1ed))[_0x56fe21(0x370)]=()=>location[_0x2d7670(0xa3)]=_0x2d7670(0x11d),_0x329745[_0x2d7670(0x10a)](_0x2d7670(0x13d))[_0x2d7670(0x276)]=_0x35e8f9=>handlePromoRuleFormSubmit(_0x35e8f9,_0x2bb99b,_0x5e1594[_0x2d7670(0x3d4)]||_0x5e1594['id']);}async function handlePromoRuleFormSubmit(_0x15a949,_0x492818,_0x13d271){const _0x47fc2e=_0x39c496,_0x20c0f2=_0x247feb,_0x1301d7=_0x37ce72,_0x4eef19=_0x1c09bd;_0x15a949[_0x47fc2e(0x27b)]();const _0x45e6e6=_0x15a949[_0x1301d7(0x293)][_0x4eef19(0x10a)](_0x4eef19(0x2cb));setButtonLoading(_0x45e6e6,!![]);const _0x44c696=(_0x13d271||$(_0x4eef19(0x90))[_0x4eef19(0x1d2)]||'')[_0x4eef19(0x408)]()[_0x20c0f2(0x145)]();if(!_0x44c696){toast(_0x4eef19(0x454),_0x4eef19(0x41e),_0x4eef19(0x381)),setButtonLoading(_0x45e6e6,![]);return;}const _0x3bb0c0=readChannelCheckboxes(_0x4eef19(0x176)),_0x2d06a7=$(_0x4eef19(0x292))[_0x4eef19(0x1d2)]||'',_0x3a0eeb=_0x2d06a7[_0x4eef19(0x34f)](',')[_0x1301d7(0x1ee)](_0x1a0859=>_0x1a0859[_0x1301d7(0x519)]())[_0x4eef19(0x43a)](Boolean);let _0x34219c=readBracketRows();!_0x34219c[_0x4eef19(0x109)]&&(_0x34219c=DEFAULT_PRICE_BRACKETS);const _0x582125=$(_0x4eef19(0xb7))[_0x4eef19(0x1d2)],_0x8aa3fe=$(_0x1301d7(0x448))[_0x4eef19(0x1d2)],_0x5b4bea={'code':_0x44c696,'isActive':$(_0x4eef19(0x33f))[_0x4eef19(0x8d)],'allowedChannels':_0x3bb0c0[_0x4eef19(0x109)]?_0x3bb0c0:[_0x4eef19(0x25d),_0x47fc2e(0x271),'wa','qr','bo'],'allowedPartners':_0x3a0eeb,'partnerRefRequired':$(_0x4eef19(0x18d))[_0x20c0f2(0x45b)],'priceBrackets':_0x34219c,'startsAt':_0x582125?new Date(_0x582125):null,'endsAt':_0x8aa3fe?new Date(_0x8aa3fe):null,'updatedAt':serverTimestamp()};try{const _0x289fca=_0x492818||_0x44c696,_0x401602=doc(db,_0x20c0f2(0x2db),_0x289fca);if(!_0x492818)await setDoc(_0x401602,{..._0x5b4bea,'createdAt':serverTimestamp()}),allPromoRules[_0x4eef19(0x1d1)]({'id':_0x289fca,..._0x5b4bea});else{await setDoc(_0x401602,_0x5b4bea,{'merge':!![]});const _0x15f241=allPromoRules[_0x4eef19(0x3b4)](_0x45cee8=>_0x45cee8['id']===_0x289fca);_0x15f241>-0x1?allPromoRules[_0x15f241]={...allPromoRules[_0x15f241],..._0x5b4bea}:allPromoRules[_0x4eef19(0x1d1)]({'id':_0x289fca,..._0x5b4bea});}allPromoRules=allPromoRules[_0x4eef19(0x18a)]((_0x57b806,_0x5f553a)=>(_0x57b806[_0x47fc2e(0x315)]||_0x57b806['id']||'')[_0x4eef19(0x39e)](_0x5f553a[_0x4eef19(0x3d4)]||_0x5f553a['id']||'')),track(_0x4eef19(0x161),{'code':_0x44c696,'isEdit':Boolean(_0x492818),'hasWa':_0x3bb0c0['includes']('wa'),'partners':_0x3a0eeb[_0x1301d7(0x28d)]}),toast(_0x4eef19(0x2be),_0x492818?_0x4eef19(0x1d4):_0x20c0f2(0x14d),_0x4eef19(0x2bf)),location[_0x4eef19(0xa3)]=_0x1301d7(0x54b);return;}catch(_0x5f51c5){console[_0x4eef19(0x381)](_0x5f51c5),toast(_0x4eef19(0x454),_0x4eef19(0x1c4),_0x4eef19(0x381));}finally{setButtonLoading(_0x45e6e6,![]);}}function _0x47d2(_0x549319,_0x66df1b){_0x549319=_0x549319-0x1db;const _0x1db28c=_0x4e27();let _0x188cd0=_0x1db28c[_0x549319];return _0x188cd0;}document[_0x1c09bd(0x446)](_0x37ce72(0x44e),function(_0x3d0f8d){const _0x13c361=_0x37ce72,_0x1a0d78=_0x1c09bd,_0xe4571e=_0x3d0f8d[_0x13c361(0x293)][_0x1a0d78(0x44d)]&&_0x3d0f8d[_0x13c361(0x293)][_0x1a0d78(0x44d)](_0x1a0d78(0x235));if(!_0xe4571e)return;if(location[_0x1a0d78(0xa3)][_0x1a0d78(0x2c3)](_0x1a0d78(0x336))!==0x0)return;const _0x15f2f8=_0xe4571e[_0x1a0d78(0xca)][_0x1a0d78(0x18a)];sortBy[_0x1a0d78(0x413)]===_0x15f2f8?sortBy[_0x1a0d78(0xf8)]=sortBy[_0x13c361(0x35d)]===_0x1a0d78(0x41c)?_0x1a0d78(0x185):_0x13c361(0x5a2):(sortBy[_0x1a0d78(0x413)]=_0x15f2f8,sortBy[_0x1a0d78(0xf8)]=_0x1a0d78(0x41c)),renderProductList();});function _0x1be0(_0x5dadfe,_0xaaaac8){_0x5dadfe=_0x5dadfe-0x8d;const _0x47b29a=_0x3962();let _0x6497c=_0x47b29a[_0x5dadfe];return _0x6497c;}if(!location[_0x37ce72(0x318)])location[_0x1c09bd(0xa3)]=_0x1c09bd(0x336);setTimeout(function(){const _0x76d432=_0x37ce72,_0x2af74a=_0x1c09bd,_0x28a27d=$(_0x2af74a(0x1a8));_0x28a27d&&_0x28a27d[_0x2af74a(0x3ef)](_0x76d432(0x52f),'-1');},0x0);
+// Importe la configuration et les services Firebase depuis le fichier dédié.
+import {
+  auth,
+  db,
+  storage,
+  analytics,
+  logEvent,
+  functions,
+  connectFunctionsEmulator,
+  httpsCallable,
+  multiFactor,
+  TotpMultiFactorGenerator,
+  TotpSecret,
+  getMultiFactorResolver,
+} from './firebase-config.js';
+
+// Importe les fonctions spécifiques de Firebase Auth et Firestore.
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+  orderBy,
+  query,
+  where,
+  limit,
+  serverTimestamp,
+  arrayRemove,
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
+/* ============================ Helpers ============================ */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
+const fmtXOF = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF' });
+const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
+window.addEventListener('unhandledrejection', event => {
+  const error = event && event.reason;
+  const message = typeof error?.message === 'string' ? error.message : '';
+  const code = typeof error?.code === 'string' ? error.code : '';
+  if (code === 'permission-denied' || /permission/i.test(message)) {
+    event.preventDefault();
+    console.error('[Admin Panel] Operation blocked by Firestore security rules.', error);
+    toast('Permissions insuffisantes', "Votre compte n'a pas acc?s ? cette ressource.", 'error');
+  }
+});
+
+function escapeHtml(s = '') {
+  return String(s).replace(/[&<>"']/g, function (m) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+  });
+}
+function escapeAttr(s = '') {
+  return escapeHtml(s).replace(/`/g, '&#96;');
+}
+
+function track(eventName, params = {}) {
+  try {
+    if (analytics && typeof logEvent === 'function') {
+      logEvent(analytics, eventName, params);
+    }
+  } catch (err) {
+    console.warn('Analytics log failed', err);
+  }
+}
+
+function setButtonLoading(button, isLoading) {
+  if (!button) return;
+  if (isLoading) {
+    button.disabled = true;
+    button.dataset.originalText = button.innerHTML;
+    button.innerHTML = '<span class="loader"></span>';
+  } else {
+    button.disabled = false;
+    if (button.dataset.originalText) {
+      button.innerHTML = button.dataset.originalText;
+    }
+  }
+}
+
+function toast(title, msg = '', type = 'success', timeout = 3500) {
+  const host = $('#toasts');
+  const el = document.createElement('div');
+  const icons = { success: 'check-circle-2', error: 'alert-circle', info: 'info' };
+  el.className = 'toast ' + type;
+  el.innerHTML = `
+	<i data-lucide="${icons[type] || 'info'}" class="icon"></i>
+	<div class="grow">
+	  <div class="title">${escapeHtml(title)}</div>
+	  ${msg ? '<div class="msg">' + escapeHtml(msg) + '</div>' : ''}
+	</div>
+	<button class="btn btn-icon btn-small" aria-label="Fermer">
+	  <i data-lucide="x" class="icon"></i>
+	</button>`;
+  host.appendChild(el);
+  lucide.createIcons();
+  const remove = () => {
+    el.style.transform = 'translateX(8px)';
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 180);
+  };
+  el.querySelector('button').addEventListener('click', remove);
+  if (timeout) setTimeout(remove, timeout);
+}
+
+function openModal(opts) {
+  const {
+    title = 'Confirmation',
+    body = '',
+    okText = 'Confirmer',
+    cancelText = 'Annuler',
+    danger = false,
+  } = opts || {};
+  return new Promise(function (resolve) {
+    const modal = $('#modal');
+    const foot = $('#modal-foot');
+    const bodyEl = $('#modal-body');
+    $('#modal-title').textContent = title;
+    bodyEl.innerHTML = body;
+    foot.innerHTML = '';
+    const btnCancel = document.createElement('button');
+    btnCancel.className = 'btn';
+    btnCancel.textContent = cancelText;
+    const btnOk = document.createElement('button');
+    btnOk.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+    btnOk.textContent = okText;
+    foot.appendChild(btnCancel);
+    foot.appendChild(btnOk);
+
+    const close = function (res) {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      resolve(res);
+    };
+    $('#modal-close').onclick = function () {
+      close(false);
+    };
+    btnCancel.onclick = function () {
+      close(false);
+    };
+    btnOk.onclick = function () {
+      close(true);
+    };
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    modal.addEventListener(
+      'click',
+      function (e) {
+        if (e.target === modal) {
+          close(false);
+        }
+      },
+      { once: true }
+    );
+    setTimeout(function () {
+      btnOk.focus();
+    }, 0);
+    function esc(e) {
+      if (e.key === 'Escape') {
+        close(false);
+        document.removeEventListener('keydown', esc);
+      }
+    }
+    document.addEventListener('keydown', esc);
+  });
+}
+
+function setCrumb(name) {
+  $('#crumb-current').textContent = name;
+}
+
+/* ============================ State ============================ */
+let allProducts = [];
+let allMatches = [];
+const matchPredictionsCache = new Map();
+let allPromoCards = [];
+let contestPromoCard = null;
+let allPromoCodes = []; // AJOUT
+let allPromoRules = [];
+let allPromoPayouts = [];
+let allBrands = [];
+let allContests = [];
+const contestCandidates = new Map();
+const CONTEST_SELECTION_STORAGE_KEY = 'admin-selected-contest';
+let selectedContestId = localStorage.getItem(CONTEST_SELECTION_STORAGE_KEY) || '';
+let candidateSearchTerm = '';
+let productSearchTerm = '';
+let productCategoryFilter = '';
+let viewMode = 'table'; // 'table' | 'cards'
+let sortBy = { key: 'name', dir: 'asc' };
+let promoCodePartnerFilter = '';
+let promoPayoutSearchTerm = '';
+let functionsInstance = functions;
+let promoTab = 'codes';
+// Votes Module State
+let allVotes = [];
+let allVoteIntents = [];
+let votesDateFilter = { start: '', end: '' };
+let lostVotesFound = [];
+let votesContestId = '';
+const isLocalhost = ['localhost', '127.0.0.1'].includes(location.hostname);
+if (isLocalhost) {
+  try {
+    connectFunctionsEmulator(functionsInstance, 'localhost', 5001);
+    console.info('[Admin] Functions emulator connected (localhost:5001)');
+  } catch (err) {
+    console.warn('[Admin] Functions emulator connection failed', err);
+  }
+}
+const PREDEFINED_CATEGORIES = ['smartphone', 'tablette', 'portable a touche', 'accessoire'];
+let PREDEFINED_SPECS = [
+  '?cran',
+  'Processeur',
+  'Appareil Photo',
+  'Batterie',
+  'Connectivit?',
+  'Dimensions',
+  'Poids',
+  'Syst?me',
+];
+
+const DEFAULT_PRICE_BRACKETS = [
+  { min: 0, max: 149000, discountValue: 5000, commissionValue: 8000, label: '0-149k' },
+  { min: 149000, max: 249000, discountValue: 10000, commissionValue: 15000, label: '149k-249k' },
+  { min: 249000, max: 399000, discountValue: 15000, commissionValue: 25000, label: '249k-399k' },
+  { min: 399000, max: null, discountValue: 20000, commissionValue: 35000, label: '400k+' },
+];
+const CHANNEL_OPTIONS = [
+  { value: 'web', label: 'Web (site)' },
+  { value: 'app', label: 'App mobile' },
+  { value: 'wa', label: 'WhatsApp' },
+  { value: 'qr', label: 'QR code' },
+  { value: 'bo', label: 'Back-office' },
+];
+
+// --- Features / Flags ---
+let featuresConfig = { promoCardsEnabled: true };
+let topProductsIds = []; // Global state for top products
+let linkTemplates = null;
+const FALLBACK_LINK_TEMPLATES = {
+  webBaseUrl: 'https://africaphone-org.web.app/promo',
+  appLinkDomain: 'https://africaphone-org.web.app/ul',
+  appScheme: 'africaphone://apply-promo',
+  defaultCampaign: 'default',
+  defaultSub: 'cta1',
+  waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
+  whatsappNumber: '',
+};
+
+/* ============================ Brackets Helpers ============================ */
+function renderChannelCheckboxes(targetId, selected = []) {
+  const container = document.getElementById(targetId);
+  if (!container) return;
+  const selectedSet = new Set((selected || []).map(s => String(s).toLowerCase()));
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(150px, 1fr))';
+  container.style.gap = '6px 12px';
+  container.innerHTML = CHANNEL_OPTIONS.map(
+    opt => `
+      <label class="checkbox channel-item" style="display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" value="${opt.value}" ${selectedSet.has(opt.value) ? 'checked' : ''}>
+        <span>${opt.label}</span>
+      </label>
+    `,
+  ).join('');
+}
+
+function readChannelCheckboxes(targetId) {
+  const container = document.getElementById(targetId);
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
+    .map(el => (el.value || '').trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function buildBracketHeaderRow() {
+  const head = document.createElement('div');
+  head.className = 'bracket-head';
+  head.style.display = 'grid';
+  head.style.gridTemplateColumns = '1fr 1fr 1fr 1fr 1.2fr auto';
+  head.style.gap = '6px';
+  head.style.alignItems = 'center';
+  head.style.marginTop = '4px';
+  head.style.fontSize = '12px';
+  head.style.fontWeight = '600';
+  head.style.opacity = '0.85';
+  head.innerHTML = `
+    <div>Min</div>
+    <div>Max</div>
+    <div>Remise</div>
+    <div>Commission</div>
+    <div>Label</div>
+    <div></div>
+  `;
+  return head;
+}
+
+function buildBracketRow(bracket = {}) {
+  const row = document.createElement('div');
+  row.className = 'bracket-row';
+  row.style.display = 'grid';
+  row.style.gridTemplateColumns = '1fr 1fr 1fr 1fr 1.2fr auto';
+  row.style.gap = '6px';
+  row.style.alignItems = 'center';
+  row.style.marginTop = '8px';
+
+  row.innerHTML = `
+    <input type="number" class="input bracket-min" placeholder="Min" min="0" step="1000" value="${bracket.min ?? ''}" />
+    <input type="number" class="input bracket-max" placeholder="Max (vide = +)" min="0" step="1000" value="${bracket.max ?? ''}" />
+    <input type="number" class="input bracket-discount" placeholder="Remise" min="0" step="500" value="${bracket.discountValue ?? ''}" />
+    <input type="number" class="input bracket-commission" placeholder="Commission" min="0" step="500" value="${bracket.commissionValue ?? ''}" />
+    <input type="text" class="input bracket-label" placeholder="Label" value="${escapeAttr(bracket.label || '')}" />
+    <button type="button" class="btn btn-icon btn-small" data-remove-bracket title="Supprimer">
+      <i data-lucide="x" class="icon"></i>
+    </button>
+  `;
+  row.querySelector('[data-remove-bracket]').onclick = () => row.remove();
+  return row;
+}
+
+function renderBracketRows(brackets) {
+  const container = document.getElementById('brackets-rows');
+  if (!container) return;
+  container.innerHTML = '';
+  container.appendChild(buildBracketHeaderRow());
+  const list = Array.isArray(brackets) && brackets.length ? brackets : DEFAULT_PRICE_BRACKETS;
+  list.forEach(b => container.appendChild(buildBracketRow(b)));
+  lucide.createIcons();
+}
+
+function readBracketRows() {
+  const container = document.getElementById('brackets-rows');
+  if (!container) return [];
+  const rows = Array.from(container.querySelectorAll('.bracket-row'));
+  const result = [];
+  rows.forEach(row => {
+    const min = Number(row.querySelector('.bracket-min')?.value || 0);
+    const maxRaw = row.querySelector('.bracket-max')?.value;
+    const max = maxRaw === '' || maxRaw === null || maxRaw === undefined ? null : Number(maxRaw);
+    const discountValue = Number(row.querySelector('.bracket-discount')?.value || 0);
+    const commissionValue = Number(row.querySelector('.bracket-commission')?.value || 0);
+    const label = (row.querySelector('.bracket-label')?.value || '').trim();
+    if (Number.isNaN(discountValue) || Number.isNaN(commissionValue)) {
+      return;
+    }
+    result.push({
+      min: Number.isNaN(min) ? 0 : min,
+      max: Number.isNaN(max) ? null : max,
+      discountValue,
+      commissionValue,
+      label: label || null,
+    });
+  });
+  return result;
+}
+
+async function ensureFeaturesLoaded() {
+  try {
+    const ref = doc(db, 'config', 'features');
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      featuresConfig.promoCardsEnabled = data.promoCardsEnabled !== false;
+    } else {
+      featuresConfig.promoCardsEnabled = true;
+    }
+  } catch (err) {
+    console.error('Settings: unable to load features config', err);
+    featuresConfig.promoCardsEnabled = true;
+  }
+}
+
+function applyLinkTemplatesToSettingsUI() {
+  const data = linkTemplates || FALLBACK_LINK_TEMPLATES;
+  const setInputsValue = (ids = [], value = '') => {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = value || '';
+    });
+  };
+  const setStatus = (ids = [], text) => {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    });
+  };
+  setInputsValue(['lt-webBaseUrl', 'tab-lt-webBaseUrl'], data.webBaseUrl || '');
+  setInputsValue(['lt-appLinkDomain', 'tab-lt-appLinkDomain'], data.appLinkDomain || '');
+  setInputsValue(['lt-appScheme', 'tab-lt-appScheme'], data.appScheme || '');
+  setInputsValue(['lt-defaultCampaign', 'tab-lt-defaultCampaign'], data.defaultCampaign || '');
+  setInputsValue(['lt-defaultSub', 'tab-lt-defaultSub'], data.defaultSub || '');
+  setInputsValue(['lt-waMessageTemplate', 'tab-lt-waMessageTemplate'], data.waMessageTemplate || '');
+  setInputsValue(['lt-waNumber', 'tab-lt-waNumber'], data.whatsappNumber || '');
+  setStatus(['lt-status', 'tab-lt-status'], 'Chargé.');
+}
+
+async function saveLinkTemplates() {
+  const btn = document.getElementById('save-link-templates') || document.getElementById('tab-save-link-templates');
+  setButtonLoading(btn, true);
+  const readVal = ids => {
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el && typeof el.value === 'string') return el.value.trim();
+    }
+    return '';
+  };
+  const webBaseUrl = readVal(['lt-webBaseUrl', 'tab-lt-webBaseUrl']);
+  const appLinkDomain = readVal(['lt-appLinkDomain', 'tab-lt-appLinkDomain']);
+  const appScheme = readVal(['lt-appScheme', 'tab-lt-appScheme']);
+  const defaultCampaign = readVal(['lt-defaultCampaign', 'tab-lt-defaultCampaign']) || 'default';
+  const defaultSub = readVal(['lt-defaultSub', 'tab-lt-defaultSub']) || 'cta1';
+  const waMessageTemplate = readVal(['lt-waMessageTemplate', 'tab-lt-waMessageTemplate']);
+  const whatsappNumber = readVal(['lt-waNumber', 'tab-lt-waNumber']);
+  const payload = {
+    webBaseUrl,
+    appLinkDomain,
+    appScheme,
+    defaultCampaign,
+    defaultSub,
+    waMessageTemplate,
+    whatsappNumber,
+  };
+  try {
+    const ref = doc(db, 'config', 'linkTemplates');
+    await setDoc(ref, payload, { merge: true });
+    linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...payload };
+    applyLinkTemplatesToSettingsUI();
+    track('link_templates_save', { hasWaNumber: Boolean(payload.whatsappNumber) });
+    toast('Enregistr?', 'Templates de liens mis ? jour', 'success');
+  } catch (err) {
+    console.error('Save link templates failed', err);
+    toast('Erreur', 'Impossible de sauvegarder les templates', 'error');
+  } finally {
+    setButtonLoading(btn, false);
+  }
+}
+
+async function ensureLinkTemplatesLoaded() {
+  try {
+    const ref = doc(db, 'config', 'linkTemplates');
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...(snap.data() || {}) };
+    } else {
+      linkTemplates = { ...FALLBACK_LINK_TEMPLATES };
+    }
+  } catch (err) {
+    console.error('Settings: unable to load link templates', err);
+    linkTemplates = { ...FALLBACK_LINK_TEMPLATES };
+  }
+}
+
+function applyFeaturesToSettingsUI() {
+  const el = document.getElementById('toggle-promocards');
+  if (el) {
+    el.checked = !!featuresConfig.promoCardsEnabled;
+  }
+}
+
+/* ============================ Auth ============================ */
+const $login = $('#login'),
+  $loginForm = $('#login-form'),
+  $loginError = $('#login-error');
+const $app = $('#app');
+
+// --- MFA State ---
+let pendingMfaResolver = null;
+let pendingCredentials = { email: '', password: '' };
+let mfaEnrollmentSecret = null;
+
+// --- MFA UI Helpers ---
+function showMfaModal(mode = 'verify') {
+  const modal = document.getElementById('mfa-modal');
+  if (!modal) return;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  const verifySection = document.getElementById('mfa-verify-section');
+  const enrollSection = document.getElementById('mfa-enroll-section');
+
+  if (mode === 'enroll') {
+    verifySection?.classList.add('hide');
+    enrollSection?.classList.remove('hide');
+  } else {
+    verifySection?.classList.remove('hide');
+    enrollSection?.classList.add('hide');
+  }
+}
+
+function hideMfaModal() {
+  const modal = document.getElementById('mfa-modal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  pendingMfaResolver = null;
+  pendingCredentials = { email: '', password: '' };
+  mfaEnrollmentSecret = null;
+}
+
+async function handleMfaVerification(code) {
+  if (!pendingMfaResolver || !code) {
+    toast('Erreur', 'Code TOTP invalide', 'error');
+    return false;
+  }
+
+  try {
+    const mfaAssertion = TotpMultiFactorGenerator.assertionForSignIn(
+      pendingMfaResolver.hints[0].uid,
+      code.trim()
+    );
+    await pendingMfaResolver.resolveSignIn(mfaAssertion);
+    hideMfaModal();
+    toast('Bienvenue', 'Connexion réussie avec 2FA', 'success');
+    return true;
+  } catch (err) {
+    console.error('MFA verification failed:', err);
+    toast('Erreur', 'Code 2FA invalide. Veuillez réessayer.', 'error');
+    return false;
+  }
+}
+
+async function startMfaEnrollment(user) {
+  try {
+    // Re-authenticate user first
+    const credential = EmailAuthProvider.credential(
+      pendingCredentials.email,
+      pendingCredentials.password
+    );
+    await reauthenticateWithCredential(user, credential);
+
+    // Generate TOTP secret
+    const mfaSession = await multiFactor(user).getSession();
+    mfaEnrollmentSecret = await TotpMultiFactorGenerator.generateSecret(mfaSession);
+
+    // Display QR code
+    const qrUrl = mfaEnrollmentSecret.generateQrCodeUrl(
+      pendingCredentials.email,
+      'AfricaPhone Admin'
+    );
+    const qrContainer = document.getElementById('mfa-qr-code');
+    if (qrContainer) {
+      qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}" alt="QR Code 2FA" />`;
+    }
+
+    const secretDisplay = document.getElementById('mfa-secret-key');
+    if (secretDisplay) {
+      secretDisplay.textContent = mfaEnrollmentSecret.secretKey;
+    }
+
+    showMfaModal('enroll');
+    return true;
+  } catch (err) {
+    console.error('MFA enrollment failed:', err);
+    toast('Erreur', 'Impossible de démarrer la configuration 2FA', 'error');
+    return false;
+  }
+}
+
+async function completeMfaEnrollment(code) {
+  if (!mfaEnrollmentSecret || !code) {
+    toast('Erreur', 'Code TOTP invalide', 'error');
+    return false;
+  }
+
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('Utilisateur non connecté');
+    }
+
+    const mfaAssertion = TotpMultiFactorGenerator.assertionForEnrollment(
+      mfaEnrollmentSecret,
+      code.trim()
+    );
+
+    await multiFactor(user).enroll(mfaAssertion, 'Authenticator App');
+    hideMfaModal();
+    toast('Succès', 'Authentification 2FA activée avec succès !', 'success');
+
+    // Now proceed with login
+    $login.classList.add('hide');
+    $app.classList.remove('hide');
+    $app.setAttribute('aria-hidden', 'false');
+    initAfterLogin();
+    return true;
+  } catch (err) {
+    console.error('MFA enrollment completion failed:', err);
+    toast('Erreur', 'Code de vérification invalide. Veuillez réessayer.', 'error');
+    return false;
+  }
+}
+
+$loginForm?.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const submitBtn = $loginForm.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+  const email = $('#email').value.trim();
+  const pass = $('#password').value.trim();
+  $('#email-err').classList.add('hide');
+  $('#password-err').classList.add('hide');
+  $loginError.classList.add('hide');
+  if (!email) {
+    $('#email-err').textContent = 'Email requis.';
+    $('#email-err').classList.remove('hide');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+  if (!pass) {
+    $('#password-err').textContent = 'Mot de passe requis.';
+    $('#password-err').classList.remove('hide');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+
+  // Store credentials for MFA flow
+  pendingCredentials = { email, password: pass };
+
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    toast('Bienvenue', 'Connexion réussie', 'success');
+  } catch (err) {
+    console.error('Login error:', err);
+
+    // Check if MFA is required
+    if (err.code === 'auth/multi-factor-auth-required') {
+      try {
+        pendingMfaResolver = getMultiFactorResolver(auth, err);
+        showMfaModal('verify');
+        toast('2FA requis', 'Veuillez entrer votre code d\'authentification', 'info');
+      } catch (mfaErr) {
+        console.error('MFA resolver error:', mfaErr);
+        $loginError.textContent = 'Erreur de configuration 2FA.';
+        $loginError.classList.remove('hide');
+      }
+    } else {
+      $loginError.textContent = 'Identifiants invalides.';
+      $loginError.classList.remove('hide');
+      toast('Erreur', 'Impossible de se connecter', 'error');
+    }
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+});
+
+onAuthStateChanged(auth, async function (user) {
+  const logged = !!user;
+
+  if (logged) {
+    // Vérifie si l'utilisateur est un administrateur
+    try {
+      const tokenResult = await user.getIdTokenResult(true);
+      if (tokenResult.claims.admin) {
+        // L'utilisateur est un administrateur
+        console.log(`[Admin Panel] Connexion d'un admin réussie. UID: ${user.uid}`);
+
+        // Check if MFA is enrolled
+        const enrolledFactors = multiFactor(user).enrolledFactors;
+        if (enrolledFactors.length === 0) {
+          // MFA not enrolled - force enrollment
+          console.log('[Admin Panel] 2FA non configuré, démarrage de l\'enrôlement obligatoire');
+          toast('Configuration 2FA requise', 'Vous devez configurer l\'authentification à deux facteurs pour accéder au panneau admin.', 'info');
+          await startMfaEnrollment(user);
+          return;
+        }
+
+        // MFA is enrolled, proceed with login
+        $login.classList.add('hide');
+        $app.classList.remove('hide');
+        $app.setAttribute('aria-hidden', 'false');
+        initAfterLogin();
+      } else {
+        // L'utilisateur n'est pas un administrateur, le déconnecte
+        await signOut(auth);
+        toast('Accès refusé', "Vos identifiants ne sont pas ceux d'un administrateur.", 'error');
+        location.reload();
+      }
+    } catch (err) {
+      console.error('Erreur lors de la vérification des revendications:', err);
+      await signOut(auth);
+      location.reload();
+    }
+  } else {
+    // L'utilisateur n'est pas connecté
+    $login.classList.remove('hide');
+    $app.classList.add('hide');
+    $app.setAttribute('aria-hidden', 'true');
+  }
+});
+
+$('#logout').addEventListener('click', async function () {
+  await signOut(auth);
+  toast('D&eacute;connect&eacute;', '', 'success');
+  location.hash = '#/products';
+});
+
+// Drawer mobile
+const drawer = $('#drawer');
+$('#open-drawer').addEventListener('click', function () {
+  drawer.classList.add('open');
+});
+$('[data-close-drawer]')?.addEventListener('click', function () {
+  drawer.classList.remove('open');
+});
+$('#drawer-logout')?.addEventListener('click', async function () {
+  await signOut(auth);
+  drawer.classList.remove('open');
+});
+
+// Drawer links
+$$('#drawer .link-item').forEach(function (a) {
+  a.addEventListener('click', function () {
+    location.hash = a.dataset.route;
+    drawer.classList.remove('open');
+  });
+});
+
+/* ============================ Theme ============================ */
+const themePrefEl = $('#theme-pref');
+function applyTheme(pref) {
+  const root = document.documentElement;
+  if (pref === 'light') {
+    root.setAttribute('data-theme', 'light');
+    if (themePrefEl) {
+      themePrefEl.textContent = 'Clair';
+    }
+  } else if (pref === 'dark') {
+    root.setAttribute('data-theme', 'dark');
+    if (themePrefEl) {
+      themePrefEl.textContent = 'Sombre';
+    }
+  } else {
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', dark ? 'dark' : 'auto');
+    if (themePrefEl) {
+      themePrefEl.textContent = 'Auto';
+    }
+  }
+  localStorage.setItem('theme-pref', pref);
+}
+applyTheme(localStorage.getItem('theme-pref') || 'auto');
+$('#toggle-theme').addEventListener('click', function () {
+  const now = localStorage.getItem('theme-pref') || 'auto';
+  const next = now === 'light' ? 'dark' : now === 'dark' ? 'auto' : 'light';
+  applyTheme(next);
+  toast(
+    'Th&egrave;me',
+    'Pr&eacute;f&eacute;rence: ' + (next === 'light' ? 'Clair' : next === 'dark' ? 'Sombre' : 'Auto'),
+    'info'
+  );
+});
+$('#drawer-theme')?.addEventListener('click', function () {
+  $('#toggle-theme').click();
+});
+$$('#page-settings [data-theme-choice]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    applyTheme(btn.dataset.themeChoice);
+  });
+});
+
+/* ============================ Votes Module ============================ */
+async function initVotesModule() {
+  const contestSelect = $('#votes-contest-select');
+  const refreshBtn = $('#votes-refresh');
+  const generateReportBtn = $('#votes-generate-report');
+  const startDateInput = $('#votes-start-date');
+  const endDateInput = $('#votes-end-date');
+
+  // Load contests into select
+  await ensureContestsLoaded();
+  contestSelect.innerHTML = '<option value="">Sélectionner un concours</option>' +
+    allContests.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+
+  // Set default contest if available
+  if (allContests.length > 0 && !votesContestId) {
+    votesContestId = allContests[0].id;
+    contestSelect.value = votesContestId;
+  }
+
+  // Listeners
+  contestSelect.addEventListener('change', (e) => {
+    votesContestId = e.target.value;
+    loadVotesData();
+  });
+
+  startDateInput.addEventListener('change', (e) => {
+    votesDateFilter.start = e.target.value;
+    loadVotesData(); // Refresh on date change
+  });
+
+  endDateInput.addEventListener('change', (e) => {
+    votesDateFilter.end = e.target.value;
+    loadVotesData(); // Refresh on date change
+  });
+
+  refreshBtn.addEventListener('click', loadVotesData);
+
+  generateReportBtn.addEventListener('click', () => {
+    toast('Info', 'Fonctionnalité de rapport à venir', 'info');
+  });
+
+  // Initial load
+  if (votesContestId) {
+    loadVotesData();
+  }
+}
+
+async function loadVotesData() {
+  if (!votesContestId) return;
+
+  const container = $('#votes-content');
+  const statsContainer = $('#votes-stats');
+  const rankingsContainer = $('#votes-rankings');
+  const alertContainer = $('#votes-lost-alert');
+
+  // Show loading state
+  statsContainer.innerHTML = '<div class="skeleton" style="height:100px;"></div>'.repeat(4);
+  rankingsContainer.innerHTML = '<div class="skeleton" style="height:300px;"></div>';
+
+  try {
+    // 1. Fetch Votes for Contest
+    const votesRef = collection(db, `contests/${votesContestId}/votes`);
+    let q = query(votesRef, orderBy('timestamp', 'desc'));
+
+    // Client-side filtering for dates (since compound queries might need indexes)
+    // We fetch all or a reasonable limit, then filter. For admin stats, we might want all.
+    // WARNING: If thousands of votes, this might be heavy. 
+    // Optimization: Add date range to query if indexes exist. 
+    // For now, let's fetch last 2000 votes to avoid reading too much if no date filter.
+    if (!votesDateFilter.start && !votesDateFilter.end) {
+      q = query(votesRef, orderBy('timestamp', 'desc'), limit(5000));
+    }
+
+    const votesSnap = await getDocs(q);
+    allVotes = votesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Filter by date matches
+    let filteredVotes = allVotes;
+    if (votesDateFilter.start) {
+      const startTs = new Date(votesDateFilter.start).getTime();
+      filteredVotes = filteredVotes.filter(v => v.timestamp?.toMillis() >= startTs);
+    }
+    if (votesDateFilter.end) {
+      // End of day
+      const endTs = new Date(votesDateFilter.end).setHours(23, 59, 59, 999);
+      filteredVotes = filteredVotes.filter(v => v.timestamp?.toMillis() <= endTs);
+    }
+
+    // 2. Fetch Candidates (should be loaded)
+    // const candidates = ... (we need to fetch candidates subcollection or use a map)
+    const candidatesRef = collection(db, `contests/${votesContestId}/candidates`);
+    const candidatesSnap = await getDocs(candidatesRef);
+    const candidatesMap = new Map();
+    candidatesSnap.docs.forEach(d => {
+      candidatesMap.set(d.id, { id: d.id, ...d.data() });
+    });
+
+    // 3. Calculate Stats
+    const totalVotes = filteredVotes.length;
+    const totalAmount = filteredVotes.reduce((sum, v) => sum + (v.amount || 0), 0);
+    const totalTransactions = new Set(filteredVotes.map(v => v.transactionId)).size; // approx
+
+    // 4. Render Stats
+    statsContainer.innerHTML = `
+        <div class="stat-card">
+            <span class="stat-label">Total Votes</span>
+            <span class="stat-value">${totalVotes.toLocaleString()}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Montant Total</span>
+            <span class="stat-value">${fmtXOF.format(totalAmount)}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Transactions (est.)</span>
+            <span class="stat-value">${totalTransactions.toLocaleString()}</span>
+        </div>
+         <div class="stat-card">
+            <span class="stat-label">Candidats</span>
+            <span class="stat-value">${candidatesMap.size}</span>
+        </div>
+    `;
+
+    // 5. Calculate Rankings
+    const rankingMap = new Map();
+    candidatesMap.forEach((c, id) => rankingMap.set(id, { ...c, count: 0, amount: 0 }));
+
+    filteredVotes.forEach(v => {
+      if (v.candidateId && rankingMap.has(v.candidateId)) {
+        const c = rankingMap.get(v.candidateId);
+        c.count += 1;
+        c.amount += (v.amount || 0);
+      }
+    });
+
+    const rankedList = Array.from(rankingMap.values()).sort((a, b) => b.count - a.count);
+
+    // 6. Render Rankings
+    rankingsContainer.innerHTML = `
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Candidat</th>
+                    <th>Votes</th>
+                    <th>Montant</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rankedList.map((c, idx) => `
+                    <tr>
+                        <td><strong>#${idx + 1}</strong></td>
+                        <td>
+                             <div style="display:flex;align-items:center;gap:10px;">
+                                <img src="${c.photoUrl || ''}" class="thumb" style="width:32px;height:32px;border-radius:50%" onerror="this.style.display='none'">
+                                <span>${escapeHtml(c.name)}</span>
+                            </div>
+                        </td>
+                        <td>${c.count}</td>
+                        <td>${fmtXOF.format(c.amount)}</td>
+                        <td>${totalVotes > 0 ? ((c.count / totalVotes) * 100).toFixed(1) + '%' : '0%'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+
+    // 7. Check for Lost Votes logic (simplified: check pending intents vs successful payments)
+    // This requires fetching voteIntents which can be large.
+    // For this specific view, we might only scan properly if we query intents.
+    checkForLostVotes(alertContainer);
+
+  } catch (err) {
+    console.error("Error loading votes data:", err);
+    toast('Erreur', 'Impossible de charger les données de votes', 'error');
+  }
+}
+
+async function checkForLostVotes(container) {
+  if (!votesContestId) return;
+  container.classList.add('hide');
+
+  try {
+    // Query for PENDING intents that are OLDER than 5 minutes (to avoid race conditions with live votes)
+    const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+    // We look for intents that are strictly 'pending'
+    // In a real scenario we'd query by status.
+    const intentsRef = collection(db, 'voteIntents');
+    const q = query(intentsRef, where('contestId', '==', votesContestId), where('status', '==', 'pending'), limit(50));
+    const snap = await getDocs(q);
+
+    const potentialLost = [];
+    // For each pending intent, we ideally verify with Kkiapay (via edge function or simple status check if we had the API key here, but we don't safely).
+    // For this Admin panel, we will rely on a "Scan" button or just display those that seem stuck?
+    // Actually, detecting lost votes requires checking if payment WAS successful. 
+    // We can't easily know if payment was successful from here without Kkiapay API.
+    // BUT, if we assume the user might have run a script or we have a flag, we can show it.
+
+    // Alternative: The user has `scripts/recover_lost_votes.js` for deep analysis.
+    // Here, we can just provide a UI to trigger that analysis OR just show basic "Stuck" intents.
+
+    if (!snap.empty) {
+      container.innerHTML = `
+                <div class="votes-alert-content">
+                    <div class="votes-alert-title">Votes en attente détectés</div>
+                    <div class="votes-alert-msg">Il y a ${snap.size} intentions de vote en statut 'pending'. Cela peut indiquer des votes perdus ou des abandons.</div>
+                </div>
+                <button class="btn btn-small btn-outline" id="btn-scan-lost">Analyser</button>
+             `;
+      container.classList.remove('hide');
+
+      $('#btn-scan-lost').onclick = () => {
+        toast('Info', 'Veuillez utiliser le script de récupération via le terminal pour une analyse précise.', 'info');
+      };
+    }
+
+  } catch (err) {
+    console.warn("Lost votes check failed", err);
+  }
+}
+
+
+/* ============================ Routing ============================ */
+const $navProducts = $('#nav-products'),
+  $navBrands = $('#nav-brands'),
+  $navMatches = $('#nav-matches'),
+  $navContests = $('#nav-contests'),
+  $navSettings = $('#nav-settings'),
+  $navPromoCards = $('#nav-promocards'),
+  $navPromoCodes = $('#nav-promocodes');
+const $toolbarProducts = $('#toolbar-products'),
+  $toolbarBrands = $('#toolbar-brands'),
+  $toolbarMatches = $('#toolbar-matches'),
+  $toolbarContests = $('#toolbar-contests'),
+  $toolbarPromoCards = $('#toolbar-promocards'),
+  $toolbarPromoCodes = $('#toolbar-promocodes');
+const $productsContent = $('#products-content'),
+  $brandsContent = $('#brands-content'),
+  $matchesContent = $('#matches-content'),
+  $contestsContent = $('#contests-content'),
+  $promoCardsContent = $('#promocards-content'),
+  $promoCodesContent = $('#promocodes-content'),
+  $promoRulesContent = document.getElementById('promorules-content'),
+  $promoPayoutsContent = document.getElementById('promopayouts-content'),
+  $promoTemplatesContent = document.getElementById('promo-templates-content');
+
+window.addEventListener('hashchange', handleRoute);
+window.addEventListener('hashchange', async function () {
+  try {
+    const parts = (location.hash || '#/products').split('/');
+    const route = parts[1] || 'products';
+    if (route === 'settings') {
+      await ensureFeaturesLoaded();
+      applyFeaturesToSettingsUI();
+      await ensureLinkTemplatesLoaded();
+      applyLinkTemplatesToSettingsUI();
+    }
+  } catch (e) {
+    console.warn('Settings sync skipped', e);
+  }
+});
+async function handleRoute() {
+  const parts = (location.hash || '#/products').split('/');
+  const route = parts[1] || 'products';
+  const id = parts[2];
+  const childId = parts[3];
+  track('page_view_admin', { route, id: id || null });
+
+  const isContestRoute = route.includes('contest') || route.includes('candidate');
+  const isPromoRoute = route.includes('promocode') || route.includes('promorule') || route.includes('promopayout');
+  const isVotesRoute = route.includes('votes');
+
+  // Nav active
+  $navProducts.classList.toggle('active', route.includes('product'));
+  $navBrands.classList.toggle('active', route.includes('brand'));
+  $navMatches.classList.toggle('active', route.includes('match'));
+  $navContests.classList.toggle('active', isContestRoute);
+  $navPromoCards.classList.toggle('active', route.includes('promocard'));
+  $navPromoCodes.classList.toggle('active', isPromoRoute);
+  if ($navSettings) $navSettings.classList.toggle('active', route === 'settings');
+  // Dynamic Nav for Votes (if element exists)
+  const $navVotes = document.getElementById('nav-votes');
+  if ($navVotes) $navVotes.classList.toggle('active', isVotesRoute);
+
+  // Toolbars affichage
+  $toolbarProducts.classList.toggle('hide', !route.includes('product'));
+  $toolbarBrands.classList.toggle('hide', !route.includes('brand'));
+  $toolbarMatches.classList.toggle('hide', !route.includes('match'));
+  $toolbarContests.classList.toggle('hide', !isContestRoute);
+  $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
+  $toolbarPromoCodes.classList.toggle('hide', !isPromoRoute);
+  const $toolbarVotes = document.getElementById('toolbar-votes');
+  if ($toolbarVotes) $toolbarVotes.classList.toggle('hide', !isVotesRoute);
+
+  // Pages
+  $('#page-products').classList.toggle('hide', !route.includes('product'));
+  $('#page-brands').classList.toggle('hide', !route.includes('brand'));
+  $('#page-matches').classList.toggle('hide', !route.includes('match'));
+  $('#page-contests').classList.toggle('hide', !isContestRoute);
+  $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
+  $('#page-promocodes').classList.toggle('hide', !isPromoRoute);
+  $('#page-settings').classList.toggle('hide', route !== 'settings');
+  const $pageVotes = document.getElementById('page-votes');
+  if ($pageVotes) $pageVotes.classList.toggle('hide', !isVotesRoute);
+
+  if (route === 'products') {
+    setCrumb('Produits');
+    await ensureProductsLoaded();
+    renderProductList();
+  } else if (route === 'votes') {
+    setCrumb('Votes');
+    // Logic is handled by listeners, but we might want to refresh if first load
+    if (!votesContestId && allContests.length > 0) {
+      initVotesModule(); // Ensure init if not done
+    }
+  } else if (route === 'new-product') {
+    setCrumb('Produits');
+    await ensureProductsLoaded();
+    renderProductList();
+  } else if (route === 'new-product') {
+    setCrumb('Nouveau produit');
+    renderProductFormPage();
+  } else if (route === 'edit-product' && id) {
+    setCrumb('?diter produit');
+    await renderProductFormPage(id);
+  } else if (route === 'brands') {
+    setCrumb('Marques');
+    await ensureBrandsLoaded();
+    renderBrandList();
+  } else if (route === 'new-brand') {
+    setCrumb('Nouvelle marque');
+    renderBrandFormPage();
+  } else if (route === 'edit-brand' && id) {
+    setCrumb('?diter marque');
+    await renderBrandFormPage(id);
+  } else if (route === 'matches') {
+    setCrumb('Matchs');
+    await ensureMatchesLoaded();
+    renderMatchList();
+  } else if (route === 'new-match') {
+    setCrumb('Nouveau match');
+    renderMatchFormPage();
+  } else if (route === 'edit-match' && id) {
+    setCrumb('?diter match');
+    await renderMatchFormPage(id);
+  } else if (route === 'match-predictions' && id) {
+    await ensureMatchesLoaded();
+    await renderMatchPredictionsPage(id);
+  } else if (route === 'contests') {
+    setCrumb('Concours');
+    await ensureContestsLoaded();
+    await setSelectedContest(selectedContestId || allContests[0]?.id || '', { force: true });
+  } else if (route === 'new-contest') {
+    setCrumb('Nouveau concours');
+    await ensureContestsLoaded();
+    renderContestFormPage();
+  } else if (route === 'edit-contest' && id) {
+    setCrumb('?diter concours');
+    await ensureContestsLoaded();
+    await renderContestFormPage(id);
+  } else if (route === 'new-candidate') {
+    await ensureContestsLoaded();
+    const contestId = id || selectedContestId || allContests[0]?.id || '';
+    if (!contestId) {
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
+      location.hash = '#/new-contest';
+      return;
+    }
+    await setSelectedContest(contestId, { force: true, skipRender: true });
+    setCrumb('Nouveau candidat');
+    await renderCandidateFormPage(contestId);
+  } else if (route === 'edit-candidate' && id && childId) {
+    await ensureContestsLoaded();
+    await setSelectedContest(id, { force: true, skipRender: true });
+    setCrumb('?diter candidat');
+    await renderCandidateFormPage(id, childId);
+  } else if (route === 'promocards') {
+    setCrumb('Cartes Promo');
+    await ensurePromoCardsLoaded();
+    renderPromoCardList();
+  } else if (route === 'new-promocard') {
+    setCrumb('Nouvelle Carte Promo');
+    renderPromoCardFormPage();
+  } else if (route === 'edit-promocard' && id) {
+    setCrumb('Éditer Carte Promo');
+    await renderPromoCardFormPage(id);
+  } else if (route === 'promocodes') {
+    setCrumb('Codes Promo');
+    const tabFromHash = id && ['codes', 'rules', 'payouts', 'templates'].includes(id) ? id : 'codes';
+    await setPromoTab(tabFromHash);
+  } else if (route === 'new-promocode') {
+    setCrumb('Nouveau Code Promo');
+    await setPromoTab('codes');
+    renderPromoCodeFormPage();
+  } else if (route === 'edit-promocode' && id) {
+    setCrumb('Éditer Code Promo');
+    await setPromoTab('codes');
+    await renderPromoCodeFormPage(id);
+  } else if (route === 'promopayouts') {
+    setCrumb('Versements Promo');
+    await setPromoTab('payouts');
+  } else if (route === 'new-promopayout') {
+    setCrumb('Nouveau versement');
+    await setPromoTab('payouts');
+    renderPromoPayoutFormPage();
+  } else if (route === 'edit-promopayout' && id) {
+    setCrumb('Éditer versement');
+    await setPromoTab('payouts');
+    await renderPromoPayoutFormPage(id);
+  } else if (route === 'promorules') {
+    setCrumb('Règles Promo');
+    await setPromoTab('rules');
+  } else if (route === 'new-promorule') {
+    setCrumb('Nouvelle Règle Promo');
+    await setPromoTab('rules');
+    renderPromoRuleFormPage();
+  } else if (route === 'edit-promorule' && id) {
+    setCrumb('Éditer Règle Promo');
+    await setPromoTab('rules');
+    await renderPromoRuleFormPage(id);
+  } else if (route === 'settings') {
+    setCrumb('Param?tres');
+  } else {
+    location.hash = '#/products';
+  }
+}
+
+async function initAfterLogin() {
+  lucide.createIcons();
+  await ensureFeaturesLoaded();
+  applyFeaturesToSettingsUI();
+  await ensureLinkTemplatesLoaded();
+  applyLinkTemplatesToSettingsUI();
+  document.querySelectorAll('#save-link-templates, #tab-save-link-templates').forEach(btn => {
+    btn.addEventListener('click', saveLinkTemplates);
+  });
+  // Settings: bind promo cards toggle if present
+  const promoToggle = document.getElementById('toggle-promocards');
+  if (promoToggle) {
+    promoToggle.onchange = async e => {
+      const input = e.target;
+      const next = !!input.checked;
+      input.disabled = true;
+      try {
+        const ref = doc(db, 'config', 'features');
+        await setDoc(ref, { promoCardsEnabled: next }, { merge: true });
+        featuresConfig.promoCardsEnabled = next;
+        toast('ParamÃ¨tre enregistrÃ©', next ? 'Cartes promo activÃ©es' : 'Cartes promo dÃ©sactivÃ©es', 'success');
+      } catch (err) {
+        console.error('Settings: unable to update promo cards flag', err);
+        input.checked = !next;
+        toast('Erreur', 'Impossible de mettre Ã  jour le paramÃ¨tre', 'error');
+      } finally {
+        input.disabled = false;
+      }
+    };
+  }
+  // Raccourcis
+  $('#quick-add-product').onclick = function () {
+    location.hash = '#/new-product';
+  };
+  $('#quick-add-brand').onclick = function () {
+    location.hash = '#/new-brand';
+  };
+  $('#quick-add-match').onclick = function () {
+    location.hash = '#/new-match';
+  };
+  $('#quick-add-contest').onclick = function () {
+    location.hash = '#/new-contest';
+  };
+  $('#quick-add-candidate').onclick = function () {
+    if (!allContests.length) {
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
+      location.hash = '#/new-contest';
+      return;
+    }
+    const targetId = selectedContestId || allContests[0].id;
+    location.hash = `#/new-candidate/${targetId}`;
+  };
+  $('#quick-add-promocard').onclick = function () {
+    location.hash = '#/new-promocard';
+  };
+  $('#quick-add-promocode').onclick = function () {
+    location.hash = '#/new-promocode';
+  };
+  const contestFilter = $('#contest-filter');
+  if (contestFilter) {
+    contestFilter.addEventListener('change', async event => {
+      const value = event.target.value;
+      if (value) {
+        await setSelectedContest(value, { force: true });
+      } else {
+        await setSelectedContest(allContests[0]?.id || '', { force: true });
+      }
+    });
+  }
+
+  const candidateSearchInput = $('#search-candidates');
+  if (candidateSearchInput) {
+    candidateSearchInput.addEventListener('input', event => {
+      candidateSearchTerm = event.target.value || '';
+      if (location.hash.includes('contest') || location.hash.includes('candidate')) {
+        renderContestsOverview();
+      }
+    });
+  }
+
+  $('#add-contest')?.addEventListener('click', () => {
+    location.hash = '#/new-contest';
+  });
+  $('#add-candidate')?.addEventListener('click', () => {
+    const targetId = selectedContestId || allContests[0]?.id || '';
+    if (!targetId) {
+      toast('Info', "Créez un concours avant d'ajouter un candidat.", 'info');
+      location.hash = '#/new-contest';
+      return;
+    }
+    location.hash = `#/new-candidate/${targetId}`;
+  });
+
+  // Recherche globale
+  const gSearch = $('#global-search');
+  document.addEventListener('keydown', function (e) {
+    const tag = (document.activeElement && document.activeElement.tagName) || '';
+    const isInput = /input|textarea|select/i.test(tag);
+    if (!isInput && (e.key === '/' || (e.key && e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)))) {
+      e.preventDefault();
+      gSearch.focus();
+    }
+  });
+  handleRoute();
+  // If already on settings, sync feature toggles
+  try {
+    const parts = (location.hash || '#/products').split('/');
+    const route = parts[1] || 'products';
+    if (route === 'settings') {
+      await ensureFeaturesLoaded();
+      applyFeaturesToSettingsUI();
+    }
+  } catch (e) {
+    console.warn('Settings sync skipped', e);
+  }
+  // Initialize Votes Module
+  initVotesModule().catch(err => console.warn('Votes module init failed', err));
+}
+
+/* ============================ Data Fetch ============================ */
+async function ensureProductsLoaded() {
+  if (allProducts.length) return;
+  $productsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
+  const q = query(collection(db, 'products'), orderBy('name', 'asc'));
+  const snap = await getDocs(q);
+  allProducts = snap.docs.map(function (d) {
+    return { id: d.id, ...d.data() };
+  });
+  $('#kpi-products').textContent = String(allProducts.length);
+}
+
+async function ensureBrandsLoaded() {
+  if (allBrands.length) return;
+  $brandsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(4);
+  const q = query(collection(db, 'brands'), orderBy('sortOrder', 'asc'));
+  const snap = await getDocs(q);
+  allBrands = snap.docs.map(function (d) {
+    return { id: d.id, ...d.data() };
+  });
+  $('#kpi-brands').textContent = String(allBrands.length);
+}
+
+async function ensureMatchesLoaded() {
+  if (allMatches.length) return;
+  $matchesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
+  const q = query(collection(db, 'matches'), orderBy('startTime', 'desc'));
+  const snap = await getDocs(q);
+  allMatches = snap.docs.map(function (d) {
+    return { id: d.id, ...d.data() };
+  });
+  $('#kpi-matches').textContent = String(allMatches.length);
+}
+function getPromoSortOrder(card) {
+  if (typeof card?.sortOrder === 'number') {
+    return card.sortOrder;
+  }
+  const parsed = parseInt(card?.sortOrder, 10);
+  return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
+}
+function getPromoCardsForDisplay() {
+  const list = contestPromoCard ? [...allPromoCards, contestPromoCard] : [...allPromoCards];
+  return list.sort((a, b) => getPromoSortOrder(a) - getPromoSortOrder(b));
+}
+function updatePromoCardsKpi() {
+  const total = allPromoCards.length + (contestPromoCard ? 1 : 0);
+  $('#kpi-promocards').textContent = String(total);
+}
+async function refreshContestPromoCard() {
+  try {
+    const contestsRef = collection(db, 'contests');
+    const contestQuery = query(contestsRef, where('status', '==', 'active'), orderBy('endDate', 'asc'), limit(1));
+    const snap = await getDocs(contestQuery);
+    if (snap.empty) {
+      contestPromoCard = null;
+      return;
+    }
+    const docSnap = snap.docs[0];
+    const data = docSnap.data() || {};
+    const fallbackImage =
+      'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1400&auto=format&fit=crop';
+    const image =
+      (typeof data.heroImage === 'string' && data.heroImage) ||
+      (typeof data.bannerImage === 'string' && data.bannerImage) ||
+      (typeof data.image === 'string' && data.image) ||
+      fallbackImage;
+    const status = typeof data.status === 'string' ? data.status : 'draft';
+    const explicitOrder =
+      typeof data.promoCardSortOrder === 'number' && Number.isFinite(data.promoCardSortOrder)
+        ? data.promoCardSortOrder
+        : -1;
+    contestPromoCard = {
+      id: `contest-${docSnap.id}`,
+      contestId: docSnap.id,
+      title: typeof data.title === 'string' ? data.title : 'Concours',
+      subtitle:
+        typeof data.description === 'string' && data.description ? data.description : 'Elisez votre candidat favori.',
+      cta: status === 'ended' ? 'Voir les resultats' : 'Participer',
+      screen: 'Contest',
+      image,
+      sortOrder: explicitOrder,
+      isActive: status === 'active',
+      isContestCard: true,
+    };
+  } catch (error) {
+    console.error('PromoCards: unable to load contest card', error);
+    contestPromoCard = null;
+  }
+}
+async function ensurePromoCardsLoaded(force = false) {
+  if (!force && allPromoCards.length > 0) {
+    await refreshContestPromoCard();
+    updatePromoCardsKpi();
+    return;
+  }
+  $promoCardsContent.innerHTML = '<div class "skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  const q = query(collection(db, 'promoCards'), orderBy('sortOrder', 'asc'));
+  const snap = await getDocs(q);
+  allPromoCards = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  await refreshContestPromoCard();
+  updatePromoCardsKpi();
+}
+async function ensurePromoCodesLoaded() {
+  if (allPromoCodes.length > 0) return;
+  await ensurePromoRulesLoaded().catch(err => console.warn('PromoRules preload skipped', err));
+  $promoCodesContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  const q = query(collection(db, 'promoCodes'), orderBy('createdAt', 'desc'));
+  const snap = await getDocs(q);
+  allPromoCodes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+}
+
+async function ensurePromoRulesLoaded() {
+  if (allPromoRules.length > 0) return;
+  const target = $promoRulesContent || $promoCodesContent;
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  }
+  const q = query(collection(db, 'promoRules'));
+  const snap = await getDocs(q);
+  allPromoRules = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => {
+    return (a.code || a.id || '').localeCompare(b.code || b.id || '');
+  });
+}
+
+async function ensurePromoPayoutsLoaded(force = false) {
+  if (!force && allPromoPayouts.length > 0) return;
+  if ($promoPayoutsContent) {
+    $promoPayoutsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+  }
+  try {
+    const q = query(collection(db, 'promoPayouts'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    allPromoPayouts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (err) {
+    console.error('PromoPayouts load failed', err);
+    allPromoPayouts = [];
+    if ($promoPayoutsContent) {
+      $promoPayoutsContent.innerHTML =
+        '<div class="center" style="padding:32px">Erreur de chargement des versements.</div>';
+    }
+  }
+}
+
+async function setPromoTab(tab = 'codes') {
+  const allowed = ['codes', 'rules', 'payouts', 'templates'];
+  const nextTab = allowed.includes(tab) ? tab : 'codes';
+  promoTab = nextTab;
+  document.querySelectorAll('.promo-tab-btn').forEach(btn => {
+    const isActive = btn.dataset.tab === nextTab;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+  const sections = {
+    codes: $promoCodesContent,
+    rules: $promoRulesContent,
+    payouts: $promoPayoutsContent,
+    templates: $promoTemplatesContent,
+  };
+  Object.entries(sections).forEach(([key, el]) => {
+    if (el) {
+      el.classList.toggle('hide', key !== nextTab);
+    }
+  });
+  // Filters: show search/partner only on codes tab
+  const promoFilters = [document.getElementById('search-promocodes'), document.getElementById('filter-promocode-partner')];
+  promoFilters.forEach(el => {
+    if (el) el.classList.toggle('hide', nextTab !== 'codes');
+  });
+  if (nextTab === 'codes') {
+    await ensurePromoCodesLoaded();
+    renderPromoCodeList();
+  } else if (nextTab === 'rules') {
+    await ensurePromoRulesLoaded();
+    renderPromoRuleList();
+  } else if (nextTab === 'payouts') {
+    await ensurePromoPayoutsLoaded();
+    renderPromoPayoutList();
+  } else if (nextTab === 'templates') {
+    await ensureLinkTemplatesLoaded();
+    applyLinkTemplatesToSettingsUI();
+  }
+}
+
+/* ============================ Products UI ============================ */
+$('#search-products').addEventListener('input', function (e) {
+  productSearchTerm = (e.target.value || '').toLowerCase();
+  if (location.hash.indexOf('#/products') === 0) renderProductList();
+});
+$('#filter-category').addEventListener('change', function (e) {
+  productCategoryFilter = e.target.value || '';
+  if (location.hash.indexOf('#/products') === 0) renderProductList();
+});
+$('#add-product').addEventListener('click', function () {
+  location.hash = '#/new-product';
+});
+$('#view-table').addEventListener('click', function () {
+  viewMode = 'table';
+  $('#view-table').setAttribute('aria-selected', 'true');
+  $('#view-cards').setAttribute('aria-selected', 'false');
+  renderProductList();
+});
+$('#view-cards').addEventListener('click', function () {
+  viewMode = 'cards';
+  $('#view-table').setAttribute('aria-selected', 'false');
+  $('#view-cards').setAttribute('aria-selected', 'true');
+  renderProductList();
+});
+
+function filteredProducts() {
+  let arr = allProducts.slice();
+  if (productSearchTerm) {
+    const t = productSearchTerm;
+    arr = arr.filter(function (p) {
+      return (
+        (p.name || '').toLowerCase().indexOf(t) !== -1 ||
+        (p.brand || '').toLowerCase().indexOf(t) !== -1 ||
+        (p.category || '').toLowerCase().indexOf(t) !== -1
+      );
+    });
+  }
+  if (productCategoryFilter) {
+    arr = arr.filter(function (p) {
+      return (p.category || '') === productCategoryFilter;
+    });
+  }
+  const dir = sortBy.dir === 'asc' ? 1 : -1;
+  arr.sort(function (a, b) {
+    if (['price', 'stock', 'ordreVedette'].includes(sortBy.key)) {
+      const na = Number(a[sortBy.key]);
+      const nb = Number(b[sortBy.key]);
+      const va = Number.isFinite(na) ? na : 0;
+      const vb = Number.isFinite(nb) ? nb : 0;
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase(), 'fr');
+    }
+    const ka = (a[sortBy.key] ?? '').toString().toLowerCase();
+    const kb = (b[sortBy.key] ?? '').toString().toLowerCase();
+    if (ka < kb) return -1 * dir;
+    if (ka > kb) return 1 * dir;
+    return 0;
+  });
+  return arr;
+}
+
+function renderProductList() {
+  const items = filteredProducts();
+  $('#bulk-delete').disabled = true;
+
+  if (!items.length) {
+    $productsContent.innerHTML =
+      '' +
+      '<div class="center" style="padding:32px">' +
+      '  <div>' +
+      '    <div class="login-title" style="text-align:center;margin-bottom:6px">Aucun produit</div>' +
+      '    <div class="muted" style="text-align:center">Ajoutez votre premier produit pour d&eacute;marrer.</div>' +
+      '    <div style="display:flex;justify-content:center;margin-top:10px">' +
+      '      <button id="empty-add-product" class="btn btn-primary"><i data-lucide="plus" class="icon"></i> Nouveau produit</button>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+    $('#empty-add-product').onclick = () => (location.hash = '#/new-product');
+    lucide.createIcons();
+    return;
+  }
+
+  if (viewMode === 'cards') {
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    items.forEach(function (p) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.id = p.id;
+      el.innerHTML = `
+		<img class="thumb" src="${escapeAttr((p.imageUrls && p.imageUrls[0]) || p.imageUrl || '')}" alt="${escapeAttr(p.name || 'Image produit')}" loading="lazy" onerror="this.style.display='none'"/>
+		<div class="grow">
+		  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+			<div style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</div>
+			<label class="chip" style="user-select:none">
+			  <input type="checkbox" data-select id="sel-${p.id}" />
+			  S?lection
+			</label>
+		  </div>
+		  <div class="muted">${escapeHtml(p.brand || '?')} ? ${escapeHtml(p.category || '?')}</div>
+		  ${typeof p.ordreVedette === 'number' && p.ordreVedette > 0 ? '<div class="chip chip-primary" style="margin-top:6px">Top #' + escapeHtml(String(p.ordreVedette)) + '</div>' : ''}
+		  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+			<div style="font-weight:900">${typeof p.price === 'number' ? fmtXOF.format(p.price) : '?'}</div>
+			<div class="actions">
+			  <button class="btn btn-small" data-edit>?diter</button>
+			  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+			</div>
+		  </div>
+		</div>`;
+      el.querySelector('[data-edit]').addEventListener('click', function () {
+        location.hash = '#/edit-product/' + p.id;
+      });
+      el.querySelector('[data-del]').addEventListener('click', function () {
+        handleDelete(p.id, p.name, 'products');
+      });
+      grid.appendChild(el);
+    });
+    $productsContent.innerHTML = '';
+    $productsContent.appendChild(grid);
+  } else {
+    const table = document.createElement('table');
+    table.className = 'table';
+    const sortIcon = key => {
+      if (sortBy.key !== key) return `<i data-lucide="chevrons-up-down" class="icon sort-icon"></i>`;
+      return sortBy.dir === 'asc'
+        ? `<i data-lucide="chevron-up" class="icon sort-icon"></i>`
+        : `<i data-lucide="chevron-down" class="icon sort-icon"></i>`;
+    };
+    table.innerHTML = `
+	  <thead>
+		<tr>
+		  <th style="width:38px"><input id="sel-all" type="checkbox"/></th>
+		  <th style="width:60px">Image</th>
+		  <th class="sortable ${sortBy.key === 'name' ? 'sorted' : ''}" data-sort="name">Nom ${sortIcon('name')}</th>
+		  <th class="sortable ${sortBy.key === 'brand' ? 'sorted' : ''}" data-sort="brand">Marque ${sortIcon('brand')}</th>
+		  <th class="sortable ${sortBy.key === 'category' ? 'sorted' : ''}" data-sort="category">Cat?gorie ${sortIcon('category')}</th>
+		  <th style="width:140px">Prix</th>
+		  <th style="width:90px">Stock</th>
+		  <th style="width:110px" class="sortable ${sortBy.key === 'ordreVedette' ? 'sorted' : ''}" data-sort="ordreVedette">Top ${sortIcon('ordreVedette')}</th>
+		  <th style="width:180px;text-align:right">Actions</th>
+		</tr>
+	  </thead>
+	  <tbody id="tbody-products"></tbody>`;
+    const tb = table.querySelector('#tbody-products');
+    items.forEach(function (p) {
+      const tr = document.createElement('tr');
+      tr.dataset.id = p.id;
+      const mainImage = (p.imageUrls && p.imageUrls[0]) || p.imageUrl || '';
+      tr.innerHTML = `
+		<td><input type="checkbox" data-select /></td>
+		<td>${mainImage ? '<img class="img" src="' + escapeAttr(mainImage) + '" alt="' + escapeAttr(p.name || 'Image produit') + '" onerror="this.style.display=\'none\'" />' : '<div class="img center muted"><i data-lucide="image-off" class="icon"></i></div>'}</td>
+		<td style="font-weight:800">${escapeHtml(p.name || 'Sans nom')}</td>
+		<td>${escapeHtml(p.brand || '?')}</td>
+		<td><span class="chip">${escapeHtml(p.category || '?')}</span></td>
+		<td>
+		  <input type="number" step="1" min="0" class="input" style="max-width:120px" value="${typeof p.price === 'number' ? p.price : ''}" placeholder="0" data-price-update />
+		</td>
+		<td>${typeof p.stock === 'number' ? p.stock : '?'}</td>
+		<td><input type="number" step="1" min="0" class="input" style="max-width:100px" value="${typeof p.ordreVedette === 'number' ? p.ordreVedette : ''}" placeholder="0" data-vedette-update /></td>
+		<td class="actions">
+		  <button class="btn btn-small" data-edit>?diter</button>
+		  <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+		</td>`;
+      const sel = tr.querySelector('[data-select]');
+      const inp = tr.querySelector('[data-price-update]');
+      const vedetteInp = tr.querySelector('[data-vedette-update]');
+      const btnEdit = tr.querySelector('[data-edit]');
+      const btnDel = tr.querySelector('[data-del]');
+      sel.addEventListener('change', updateBulkState);
+      inp.addEventListener('change', function () {
+        handlePriceUpdate(p.id, inp);
+      });
+      if (vedetteInp) {
+        vedetteInp.addEventListener('change', function () {
+          handleVedetteUpdate(p.id, vedetteInp);
+        });
+      }
+      btnEdit.addEventListener('click', function () {
+        location.hash = '#/edit-product/' + p.id;
+      });
+      btnDel.addEventListener('click', function () {
+        handleDelete(p.id, p.name, 'products');
+      });
+      tb.appendChild(tr);
+    });
+    $productsContent.innerHTML = '';
+    $productsContent.appendChild(table);
+    $('#sel-all').addEventListener('change', function (e) {
+      $$('#tbody-products [data-select]').forEach(function (cb) {
+        cb.checked = e.target.checked;
+      });
+      updateBulkState();
+    });
+  }
+  lucide.createIcons();
+}
+
+function updateBulkState() {
+  const any = Array.prototype.slice.call($$('[data-select]')).some(function (cb) {
+    return cb.checked;
+  });
+  $('#bulk-delete').disabled = !any;
+}
+$('#bulk-delete').addEventListener('click', async function () {
+  const ids = Array.prototype.slice
+    .call($$('[data-select]'))
+    .filter(function (cb) {
+      return cb.checked;
+    })
+    .map(function (cb) {
+      return cb.closest('tr,.card').dataset.id;
+    });
+  if (!ids.length) return;
+  const ok = await openModal({
+    title: 'Supprimer la s?lection',
+    body:
+      '?tes-vous s?r de vouloir supprimer <strong>' +
+      ids.length +
+      '</strong> ?l?ment(s) ? Cette action est irr?versible.',
+    okText: 'Supprimer',
+    cancelText: 'Annuler',
+    danger: true,
+  });
+  if (!ok) return;
+  let done = 0,
+    fail = 0;
+  for (const id of ids) {
+    try {
+      await deleteDoc(doc(db, 'products', id));
+      allProducts = allProducts.filter(function (p) {
+        return p.id !== id;
+      });
+      done++;
+    } catch (e) {
+      console.error(e);
+      fail++;
+    }
+  }
+  toast('Suppression termin?e', done + ' succ?s, ' + fail + ' ?chec(s)', fail ? 'error' : 'success');
+  renderProductList();
+  $('#kpi-products').textContent = String(allProducts.length);
+});
+
+async function handlePriceUpdate(id, inputEl) {
+  const val = parseFloat(inputEl.value);
+  if (Number.isNaN(val) || val < 0) {
+    toast('Prix invalide', 'Entrez un nombre positif', 'error');
+    inputEl.focus();
+    return;
+  }
+  inputEl.disabled = true;
+  try {
+    await updateDoc(doc(db, 'products', id), { price: val });
+    const p = allProducts.find(function (x) {
+      return x.id === id;
+    });
+    if (p) p.price = val;
+    toast('Prix mis ? jour', fmtXOF.format(val), 'success');
+  } catch (e) {
+    console.error(e);
+    toast('Erreur', 'Impossible de mettre ? jour le prix', 'error');
+  } finally {
+    inputEl.disabled = false;
+  }
+}
+
+async function handleVedetteUpdate(id, inputEl) {
+  const parsed = parseInt(inputEl.value, 10);
+  const val = Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+  inputEl.value = val || '';
+  inputEl.disabled = true;
+  try {
+    await updateDoc(doc(db, 'products', id), { ordreVedette: val });
+    const product = allProducts.find(x => x.id === id);
+    if (product) {
+      product.ordreVedette = val;
+    }
+    toast(
+      'Ordre mis Ã  jour',
+      val > 0 ? `Produit positionnÃ© #${val}` : 'Produit retirÃ© du top',
+      'success'
+    );
+  } catch (e) {
+    console.error(e);
+    toast('Erreur', "Impossible de mettre Ã  jour l'ordre vedette", 'error');
+  } finally {
+    inputEl.disabled = false;
+  }
+}
+
+async function handleDelete(id, name, type) {
+  const ok = await openModal({
+    title: 'Supprimer',
+    body: 'Supprimer "<strong>' + escapeHtml(name || id) + '</strong>" ?',
+    okText: 'Supprimer',
+    cancelText: 'Annuler',
+    danger: true,
+  });
+  if (!ok) return;
+  try {
+    // --- D?BUT DU PATCH : Rafra?chir le jeton avant l'action privil?gi?e ---
+    if (auth.currentUser) {
+      await auth.currentUser.getIdToken(true);
+    }
+    // --- FIN DU PATCH ---
+    await deleteDoc(doc(db, type, id));
+    if (type === 'products') {
+      allProducts = allProducts.filter(p => p.id !== id);
+      renderProductList();
+      $('#kpi-products').textContent = String(allProducts.length);
+    } else if (type === 'brands') {
+      allBrands = allBrands.filter(b => b.id !== id);
+      renderBrandList();
+      $('#kpi-brands').textContent = String(allBrands.length);
+    } else if (type === 'matches') {
+      allMatches = allMatches.filter(m => m.id !== id);
+      matchPredictionsCache.delete(id);
+      renderMatchList();
+      $('#kpi-matches').textContent = String(allMatches.length);
+    } else if (type === 'promoCards') {
+      allPromoCards = allPromoCards.filter(c => c.id !== id);
+      renderPromoCardList();
+      updatePromoCardsKpi();
+    } else if (type === 'promoCodes') {
+      allPromoCodes = allPromoCodes.filter(c => c.id !== id);
+      renderPromoCodeList();
+      $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+      const codeValue = (name || id || '').toUpperCase();
+      if (codeValue) {
+        try {
+          await deleteDoc(doc(db, 'promoRules', codeValue));
+        } catch (err) {
+          console.warn('Unable to delete linked promoRule', err);
+        }
+        allPromoRules = allPromoRules.filter(r => (r.code || r.id || '').toUpperCase() !== codeValue);
+      }
+    } else if (type === 'promoRules') {
+      allPromoRules = allPromoRules.filter(r => r.id !== id);
+      renderPromoRuleList();
+    } else if (type === 'promoPayouts') {
+      allPromoPayouts = allPromoPayouts.filter(p => p.id !== id);
+      renderPromoPayoutList();
+    }
+    toast('Supprim?', '', 'success');
+  } catch (e) {
+    console.error(e);
+    toast('Erreur', 'Suppression impossible', 'error');
+  }
+}
+
+/* ------------------- Product Form ------------------- */
+function addSpecRow(container, spec = { key: '', value: '' }) {
+  const row = document.createElement('div');
+  row.className = 'spec-row';
+  row.innerHTML = `
+		<input type="text" class="input spec-key" list="specs-suggestions" placeholder="Caract?ristique (ex: ?cran)" value="${escapeAttr(spec.key)}">
+		<input type="text" class="input spec-value" placeholder="Valeur (ex: 6.1 Pouces OLED)" value="${escapeAttr(spec.value)}">
+		<button type="button" class="btn btn-icon btn-danger" data-remove-spec><i data-lucide="trash-2" class="icon"></i></button>
+	`;
+  row.querySelector('[data-remove-spec]').addEventListener('click', () => row.remove());
+  container.appendChild(row);
+  lucide.createIcons();
+}
+
+function updateSpecSuggestions() {
+  const datalist = $('#specs-suggestions');
+  datalist.innerHTML = PREDEFINED_SPECS.map(spec => `<option value="${escapeAttr(spec)}"></option>`).join('');
+}
+
+async function renderProductFormPage(id) {
+  let p = {};
+  if (id) {
+    p =
+      allProducts.find(function (x) {
+        return x.id === id;
+      }) ||
+      (await getDoc(doc(db, 'products', id)).then(function (s) {
+        return s.exists() ? { id: s.id, ...s.data() } : null;
+      }));
+    if (!p) {
+      $productsContent.innerHTML = '<div class="center" style="padding:32px">Produit introuvable.</div>';
+      return;
+    }
+  }
+
+  const categoryOptions = PREDEFINED_CATEGORIES.map(
+    cat => `<option value="${escapeAttr(cat)}">${escapeHtml(cat.charAt(0).toUpperCase() + cat.slice(1))}</option>`
+  ).join('');
+  let existingImagesHtml = (p.imageUrls || [])
+    .map(
+      (url, index) => `
+	<div class="image-preview-item" data-url="${escapeAttr(url)}">
+		<img src="${escapeAttr(url)}" alt="Aper?u ${index + 1}">
+		<button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
+			<i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
+		</button>
+	</div>
+  `
+    )
+    .join('');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+	<div class="form-head">
+	  <div class="form-title">${id ? '?diter' : 'Nouveau'} produit</div>
+	  <div class="kpi">${id ? 'ID: ' + escapeHtml(id) : 'Cr?ation'}</div>
+	</div>
+	<form class="form-main" novalidate>
+	  <div class="twocol">
+		<div class="field">
+		  <label class="label" for="p-name">Nom</label>
+		  <input id="p-name" class="input" type="text" value="${escapeAttr(p.name || '')}" required />
+		  <div class="hint">Nom commercial lisible (ex. "iPhone 13 128 Go").</div>
+		  <div id="err-name" class="error hide"></div>
+		</div>
+		<div class="field">
+		  <label class="label" for="p-brand">Marque</label>
+		  <input id="p-brand" class="input" type="text" value="${escapeAttr(p.brand || '')}" />
+		</div>
+	  </div>
+	  <div class="twocol">
+		<div class="field">
+		  <label class="label" for="p-category">Cat?gorie</label>
+		  <select id="p-category" class="select">
+			<option value="">? s?lectionner</option>
+			${categoryOptions}
+		  </select>
+		</div>
+		<div class="field">
+		  <label class="label" for="p-price">Prix (FCFA)</label>
+		  <input id="p-price" class="input" type="number" min="0" step="1" value="${typeof p.price === 'number' ? p.price : ''}" />
+		  <div id="err-price" class="error hide"></div>
+		</div>
+	  </div>
+	  <div class="twocol">
+		<div class="field">
+			<label class="label" for="p-rom">Stockage</label>
+			<input id="p-rom" class="input" type="number" min="0" step="1" value="${typeof p.rom === 'number' ? p.rom : ''}" />
+		</div>
+		<div class="field">
+			<label class="label" for="p-ram">RAM</label>
+			<input id="p-ram" class="input" type="number" min="0" step="1" value="${typeof p.ram === 'number' ? p.ram : ''}" />
+		</div>
+	  </div>
+	  <div class="field">
+		<label class="label" for="p-desc">Description</label>
+		<textarea id="p-desc" class="textarea" rows="4">${escapeHtml(p.description || '')}</textarea>
+	  </div>
+
+	  <div class="field">
+		<label class="label">Sp?cifications techniques</label>
+		<div id="p-specs-container" class="specs-container">
+		</div>
+		<button type="button" id="add-spec-btn" class="btn btn-small" style="margin-top:10px;"><i data-lucide="plus" class="icon"></i> Ajouter une sp?cification</button>
+	  </div>
+	  
+	  <div class="twocol">
+		<div class="field">
+		  <label class="label" for="p-stock">Stock</label>
+		  <input id="p-stock" class="input" type="number" min="0" step="1" value="${typeof p.stock === 'number' ? p.stock : ''}" />
+		</div>
+		<div class="field">
+		  <label class="label" for="p-vedette">Ordre top produits</label>
+		  <input id="p-vedette" class="input" type="number" min="0" step="1" value="${typeof p.ordreVedette === 'number' ? p.ordreVedette : ''}" />
+		  <div class="hint">1 apparaÃ®t en premiÃ¨re position sur le site. Laissez 0 pour retirer le produit du top.</div>
+		</div>
+	  </div>
+	  <div class="field">
+		<label class="label" for="p-images">Images</label>
+		<input id="p-images-file" class="input" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+		<div class="hint">SÃ©lectionnez une ou plusieurs images. La premiÃ¨re sera l'image principale.</div>
+		<div id="p-images-preview" class="image-preview-grid">
+		  ${existingImagesHtml}
+		</div>
+	  </div>
+	  <div class="form-actions">
+		<button type="button" class="btn" data-cancel>Annuler</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er le produit'}</button>
+	  </div>
+	</form>`;
+  $productsContent.innerHTML = '';
+  $productsContent.appendChild(wrap);
+
+  updateSpecSuggestions();
+  const specsContainer = $('#p-specs-container');
+  if (p.specifications && Array.isArray(p.specifications)) {
+    p.specifications.forEach(spec => addSpecRow(specsContainer, spec));
+  }
+  $('#add-spec-btn').addEventListener('click', () => addSpecRow(specsContainer));
+
+  if (p.category) $('#p-category').value = p.category;
+
+  const fileInput = $('#p-images-file');
+  const previewContainer = $('#p-images-preview');
+
+  previewContainer.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-remove-image-url]');
+    if (!btn || !id) return;
+    e.preventDefault();
+    const url = btn.dataset.removeImageUrl;
+    const confirm = await openModal({
+      title: 'Supprimer cette image ?',
+      body: "Cette action va retirer l'image du produit, mais le fichier restera sur le serveur.",
+      okText: 'Supprimer',
+      cancelText: 'Annuler',
+      danger: true,
+    });
+    if (!confirm) return;
+    try {
+      const updatePayload = { imageUrls: arrayRemove(url) };
+      if (p.imageUrl === url) {
+        const newMain = (p.imageUrls || []).find(u => u !== url) || '';
+        updatePayload.imageUrl = newMain;
+        p.imageUrl = newMain;
+      }
+      await updateDoc(doc(db, 'products', id), updatePayload);
+      p.imageUrls = (p.imageUrls || []).filter(u => u !== url);
+      existingImagesHtml = p.imageUrls
+        .map(
+          (url, index) => `
+        <div class="image-preview-item" data-url="${escapeAttr(url)}">
+                <img src="${escapeAttr(url)}" alt="Aper?u ${index + 1}">
+                <button type="button" class="remove-btn" data-remove-image-url="${escapeAttr(url)}">
+                        <i data-lucide="x" class="icon" style="width:16px;height:16px"></i>
+                </button>
+        </div>
+  `
+        )
+        .join('');
+      btn.closest('.image-preview-item').remove();
+      toast('Image supprim?e du produit', 'Le fichier reste sur le serveur.', 'success');
+    } catch (err) {
+      console.error(err);
+      toast('Erreur', "Impossible de supprimer l'image du produit", 'error');
+    }
+    lucide.createIcons();
+  });
+
+  fileInput.addEventListener('change', () => {
+    previewContainer.innerHTML = existingImagesHtml;
+    if (fileInput.files) {
+      Array.from(fileInput.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const div = document.createElement('div');
+          div.className = 'image-preview-item';
+          div.innerHTML = `<img src="${e.target.result}" alt="${escapeAttr(file.name)}">`;
+          previewContainer.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    lucide.createIcons();
+  });
+
+  wrap.querySelector('[data-cancel]').addEventListener('click', function () {
+    if (history.length > 1) {
+      history.back();
+    } else {
+      location.hash = '#/products';
+    }
+  });
+  wrap.querySelector('form').addEventListener('submit', function (e) {
+    handleProductFormSubmit(e, id);
+  });
+  lucide.createIcons();
+}
+
+async function handleProductFormSubmit(e, id) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  const name = $('#p-name').value.trim();
+  if (!name) {
+    toast('Erreur', 'Le nom du produit est obligatoire.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+
+  const specifications = [];
+  $$('#p-specs-container .spec-row').forEach(row => {
+    const key = row.querySelector('.spec-key').value.trim();
+    const value = row.querySelector('.spec-value').value.trim();
+    if (key && value) {
+      specifications.push({ key, value });
+      if (!PREDEFINED_SPECS.includes(key)) {
+        PREDEFINED_SPECS.push(key);
+      }
+    }
+  });
+
+  const vedetteInput = parseInt($('#p-vedette').value, 10);
+  const normalizedVedette = Number.isFinite(vedetteInput) && vedetteInput > 0 ? vedetteInput : 0;
+
+  try {
+    let productId = id;
+    const productData = {
+      name: name,
+      brand: $('#p-brand').value.trim(),
+      category: $('#p-category').value.trim() || '',
+      price: parseFloat($('#p-price').value) || null,
+      stock: parseInt($('#p-stock').value, 10) || null,
+      ram: parseInt($('#p-ram').value, 10) || null,
+      rom: parseInt($('#p-rom').value, 10) || null,
+      ordreVedette: normalizedVedette,
+      description: $('#p-desc').value.trim(),
+      specifications: specifications,
+      updatedAt: serverTimestamp(),
+    };
+
+    if (productId) {
+      await updateDoc(doc(db, 'products', productId), productData);
+    } else {
+      const newDocRef = await addDoc(collection(db, 'products'), {
+        ...productData,
+        imageUrls: [],
+        createdAt: serverTimestamp(),
+      });
+      productId = newDocRef.id;
+    }
+
+    const files = $('#p-images-file').files;
+    if (files && files.length > 0) {
+      toast('Envoi des images...', `${files.length} fichier(s) en cours de traitement.`, 'info');
+      for (const file of files) {
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        const ext = file.name.split('.').pop() || 'jpg';
+        const fileName = `${timestamp}_${randomSuffix}.${ext}`;
+        const filePath = `product-images/${productId}/${fileName}`;
+        const storageRef = ref(storage, filePath);
+        await uploadBytes(storageRef, file);
+      }
+    }
+
+    toast('Succ?s', `Produit ${id ? 'mis ? jour' : 'cr??'} avec succ?s.`, 'success');
+    allProducts = [];
+    await ensureProductsLoaded();
+    location.hash = '#/products';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Une erreur est survenue lors de la sauvegarde.', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Contests UI ============================ */
+const getSelectedContest = () => allContests.find(contest => contest.id === selectedContestId) || null;
+
+const CONTEST_STATUS_LABELS = {
+  draft: 'Brouillon',
+  active: 'Actif',
+  ended: 'Termin?',
+};
+
+const formatContestStatus = status =>
+  CONTEST_STATUS_LABELS[status] || (status ? status.charAt(0).toUpperCase() + status.slice(1) : '');
+
+const toInputDateValue = value => {
+  if (!value) {
+    return '';
+  }
+  const dt = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+  if (Number.isNaN(dt.getTime())) {
+    return '';
+  }
+  dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+  return dt.toISOString().slice(0, 16);
+};
+
+const toDisplayDate = value => {
+  if (!value) {
+    return '?';
+  }
+  const dt = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(dt.getTime())) {
+    return '?';
+  }
+  return fmtDate(dt);
+};
+
+const updateContestFilterOptions = () => {
+  const select = $('#contest-filter');
+  if (!select) {
+    return;
+  }
+  const currentValue = selectedContestId;
+  const options = allContests
+    .map(
+      contest =>
+        `<option value="${escapeAttr(contest.id)}"${contest.id === currentValue ? ' selected' : ''}>${escapeHtml(contest.title || contest.id)}</option>`
+    )
+    .join('');
+  select.innerHTML = allContests.length
+    ? `<option value="">S?lectionner un concours</option>${options}`
+    : '<option value="">Aucun concours disponible</option>';
+  if (currentValue && select.value !== currentValue) {
+    select.value = currentValue;
+  }
+};
+
+const updateKpiContests = () => {
+  const el = $('#kpi-contests');
+  if (el) {
+    el.textContent = allContests.length ? String(allContests.length) : '?';
+  }
+};
+
+const updateKpiCandidates = count => {
+  const el = $('#kpi-candidates');
+  if (el) {
+    el.textContent = typeof count === 'number' && count >= 0 ? String(count) : '?';
+  }
+};
+
+const normalizeSearch = value => (value ? value.trim().toLowerCase() : '');
+
+async function ensureContestsLoaded(force = false) {
+  if (!force && allContests.length) {
+    updateContestFilterOptions();
+    updateKpiContests();
+    return;
+  }
+  if (!$contestsContent.classList.contains('hide')) {
+    $contestsContent.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(6);
+  }
+  const contestsQuery = query(collection(db, 'contests'), orderBy('endDate', 'asc'));
+  const snapshot = await getDocs(contestsQuery);
+  allContests = snapshot.docs.map(docSnap => {
+    const data = docSnap.data() || {};
+    const rawEndDate =
+      data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function'
+        ? data.endDate.toDate()
+        : data.endDate
+          ? new Date(data.endDate)
+          : null;
+    return {
+      id: docSnap.id,
+      title: typeof data.title === 'string' ? data.title : 'Concours',
+      description: typeof data.description === 'string' ? data.description : '',
+      status: typeof data.status === 'string' ? data.status : 'draft',
+      endDate: rawEndDate,
+      totalParticipants: Number.isFinite(data.totalParticipants)
+        ? data.totalParticipants
+        : Number.isFinite(data.totalCandidates)
+          ? data.totalCandidates
+          : 0,
+      totalVotes: Number.isFinite(data.totalVotes)
+        ? data.totalVotes
+        : Number.isFinite(data.voteCount)
+          ? data.voteCount
+          : 0,
+    };
+  });
+  updateContestFilterOptions();
+  updateKpiContests();
+  if (selectedContestId && !allContests.some(contest => contest.id === selectedContestId)) {
+    selectedContestId = '';
+    localStorage.removeItem(CONTEST_SELECTION_STORAGE_KEY);
+  }
+  if (!selectedContestId && allContests.length) {
+    selectedContestId = allContests[0].id;
+    localStorage.setItem(CONTEST_SELECTION_STORAGE_KEY, selectedContestId);
+  }
+}
+
+async function ensureContestCandidatesLoaded(contestId, force = false) {
+  if (!contestId) {
+    updateKpiCandidates(0);
+    return [];
+  }
+  if (!force && contestCandidates.has(contestId)) {
+    if (contestId === selectedContestId) {
+      updateKpiCandidates(contestCandidates.get(contestId).length);
+    }
+    return contestCandidates.get(contestId);
+  }
+  const candidatesCollection = collection(db, 'contests', contestId, 'candidates');
+  const candidatesQuery = query(candidatesCollection, orderBy('voteCount', 'desc'));
+  const snapshot = await getDocs(candidatesQuery);
+  const candidates = snapshot.docs.map(docSnap => {
+    const data = docSnap.data() || {};
+    return {
+      id: docSnap.id,
+      contestId,
+      name: typeof data.name === 'string' ? data.name : 'Candidat',
+      media: typeof data.media === 'string' ? data.media : '',
+      photoUrl: typeof data.photoUrl === 'string' ? data.photoUrl : '',
+      voteCount: Number.isFinite(data.voteCount) ? data.voteCount : Number.isFinite(data.votes) ? data.votes : 0,
+    };
+  });
+  contestCandidates.set(contestId, candidates);
+  if (contestId === selectedContestId) {
+    updateKpiCandidates(candidates.length);
+  }
+  return candidates;
+}
+
+async function setSelectedContest(contestId, options = {}) {
+  const { force = false, skipRender = false } = options;
+  const normalizedId = contestId || '';
+  const changed = normalizedId !== selectedContestId;
+  selectedContestId = normalizedId;
+  if (selectedContestId) {
+    localStorage.setItem(CONTEST_SELECTION_STORAGE_KEY, selectedContestId);
+  } else {
+    localStorage.removeItem(CONTEST_SELECTION_STORAGE_KEY);
+  }
+  if (changed) {
+    candidateSearchTerm = '';
+    const searchInput = $('#search-candidates');
+    if (searchInput) {
+      searchInput.value = '';
+    }
+  }
+  updateContestFilterOptions();
+  if (selectedContestId) {
+    await ensureContestCandidatesLoaded(selectedContestId, force || changed);
+  } else {
+    updateKpiCandidates(0);
+  }
+  if (!skipRender) {
+    renderContestsOverview();
+  }
+}
+
+function renderContestsOverview() {
+  if (!$contestsContent) {
+    return;
+  }
+  if (!allContests.length) {
+    updateKpiCandidates(0);
+    $contestsContent.innerHTML = `
+      <div class="empty-state">
+        <p>Aucun concours disponible.</p>
+        <button class="btn btn-primary" type="button" data-create-first-contest><i data-lucide="plus" class="icon"></i> Cr?er un concours</button>
+      </div>`;
+    $contestsContent.querySelector('[data-create-first-contest]')?.addEventListener('click', () => {
+      location.hash = '#/new-contest';
+    });
+    lucide.createIcons();
+    return;
+  }
+
+  const select = $('#contest-filter');
+  if (select && select.value !== (selectedContestId || '')) {
+    select.value = selectedContestId || '';
+  }
+  const searchInput = $('#search-candidates');
+  if (searchInput && searchInput.value !== candidateSearchTerm) {
+    searchInput.value = candidateSearchTerm;
+  }
+
+  const contest = getSelectedContest();
+  if (!contest) {
+    updateKpiCandidates(0);
+    $contestsContent.innerHTML = `<div class="empty-state"><p>S?lectionnez un concours pour voir ses candidats.</p></div>`;
+    lucide.createIcons();
+    return;
+  }
+
+  const candidates = contestCandidates.get(contest.id) || [];
+  const searchTerm = normalizeSearch(candidateSearchTerm);
+  const visibleCandidates = searchTerm
+    ? candidates.filter(candidate => `${candidate.name} ${candidate.media}`.toLowerCase().includes(searchTerm))
+    : candidates;
+  updateKpiCandidates(candidates.length);
+
+  const rows = visibleCandidates
+    .map(
+      (candidate, index) => `
+        <tr>
+          <td class="muted">${index + 1}</td>
+          <td>
+            <div class="candidate-cell" style="display:flex;align-items:center;gap:12px;">
+              ${candidate.photoUrl ? `<img src="${escapeAttr(candidate.photoUrl)}" alt="${escapeAttr(candidate.name)}" style="width:40px;height:40px;border-radius:20px;object-fit:cover;" />` : ''}
+              <div>
+                <div class="candidate-name">${escapeHtml(candidate.name)}</div>
+                ${candidate.media ? `<div class="muted">${escapeHtml(candidate.media)}</div>` : ''}
+              </div>
+            </div>
+          </td>
+          <td class="muted">${escapeHtml(candidate.id)}</td>
+          <td class="strong">${Number(candidate.voteCount || 0).toLocaleString('fr-FR')}</td>
+          <td class="actions">
+            <button class="btn btn-small" type="button" data-edit-candidate="${escapeAttr(candidate.id)}"><i data-lucide="edit-3" class="icon"></i> ?diter</button>
+            <button class="btn btn-danger btn-small" type="button" data-delete-candidate="${escapeAttr(candidate.id)}"><i data-lucide="trash-2" class="icon"></i></button>
+          </td>
+        </tr>`
+    )
+    .join('');
+
+  const tableHtml = visibleCandidates.length
+    ? `
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Candidat</th>
+                <th>ID</th>
+                <th>Votes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        </div>`
+    : `<div class="empty-state"><p>${searchTerm ? 'Aucun candidat ne correspond ? cette recherche.' : 'Aucun candidat n?est encore enregistr? pour ce concours.'}</p></div>`;
+
+  $contestsContent.innerHTML = `
+    <div class="contest-layout">
+      <div class="card contest-summary">
+        <div class="card-head">
+          <div>
+            <h2>${escapeHtml(contest.title || 'Concours')}</h2>
+            <div class="muted">Identifiant : ${escapeHtml(contest.id)}</div>
+          </div>
+          <div class="actions">
+            <span class="badge status-${escapeAttr(contest.status)}">${formatContestStatus(contest.status)}</span>
+            <button class="btn btn-icon btn-small" type="button" data-delete-current-contest title="Supprimer"><i data-lucide="trash-2" class="icon"></i></button>
+            <button class="btn btn-outline btn-small" type="button" data-edit-current-contest><i data-lucide="edit-3" class="icon"></i> ?diter</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <dl class="meta-grid">
+            <div>
+              <dt>Date de fin</dt>
+              <dd>${toDisplayDate(contest.endDate)}</dd>
+            </div>
+            <div>
+              <dt>Total votes</dt>
+              <dd>${Number(contest.totalVotes || 0).toLocaleString('fr-FR')}</dd>
+            </div>
+            <div>
+              <dt>Participants</dt>
+              <dd>${Number(contest.totalParticipants || candidates.length).toLocaleString('fr-FR')}</dd>
+            </div>
+          </dl>
+          <p class="muted">${contest.description ? escapeHtml(contest.description) : 'Aucune description fournie.'}</p>
+        </div>
+      </div>
+      <div class="card candidate-list">
+        <div class="card-head">
+          <div>
+            <h3>Candidats</h3>
+            <div class="muted">${visibleCandidates.length} sur ${candidates.length} candidat(s)</div>
+          </div>
+          <button class="btn btn-primary btn-small" type="button" data-add-candidate><i data-lucide="plus" class="icon"></i> Ajouter</button>
+        </div>
+        <div class="card-body">
+          ${tableHtml}
+        </div>
+      </div>
+    </div>`;
+
+  const editButton = $contestsContent.querySelector('[data-edit-current-contest]');
+  editButton?.addEventListener('click', () => {
+    location.hash = `#/edit-contest/${contest.id}`;
+  });
+
+  const deleteButton = $contestsContent.querySelector('[data-delete-current-contest]');
+  deleteButton?.addEventListener('click', () => {
+    handleContestDeletion(contest.id, contest.title || 'ce concours');
+  });
+
+  const addCandidateButton = $contestsContent.querySelector('[data-add-candidate]');
+  addCandidateButton?.addEventListener('click', () => {
+    location.hash = `#/new-candidate/${contest.id}`;
+  });
+
+  $contestsContent.querySelectorAll('[data-edit-candidate]').forEach(button => {
+    button.addEventListener('click', () => {
+      const candidateId = button.getAttribute('data-edit-candidate');
+      if (candidateId) {
+        location.hash = `#/edit-candidate/${contest.id}/${candidateId}`;
+      }
+    });
+  });
+
+  $contestsContent.querySelectorAll('[data-delete-candidate]').forEach(button => {
+    button.addEventListener('click', () => {
+      const candidateId = button.getAttribute('data-delete-candidate');
+      const candidate = candidates.find(item => item.id === candidateId);
+      if (candidateId) {
+        handleCandidateDeletion(contest.id, candidateId, candidate?.name || 'ce candidat');
+      }
+    });
+  });
+
+  lucide.createIcons();
+}
+
+async function handleCandidateDeletion(contestId, candidateId, label) {
+  const confirmed = await openModal({
+    title: 'Supprimer',
+    body: `Confirmer la suppression de <strong>${escapeHtml(label)}</strong> ?`,
+    okText: 'Supprimer',
+    danger: true,
+  });
+  if (!confirmed) {
+    return;
+  }
+  try {
+    await deleteDoc(doc(db, 'contests', contestId, 'candidates', candidateId));
+    const list = contestCandidates.get(contestId) || [];
+    contestCandidates.set(
+      contestId,
+      list.filter(candidate => candidate.id !== candidateId)
+    );
+    toast('Candidat supprim?', label, 'success');
+    if (contestId === selectedContestId) {
+      updateKpiCandidates((contestCandidates.get(contestId) || []).length);
+      renderContestsOverview();
+    }
+  } catch (error) {
+    console.error(error);
+    toast('Erreur', 'Suppression impossible pour le moment.', 'error');
+  }
+}
+
+async function handleContestDeletion(contestId, label) {
+  const confirmed = await openModal({
+    title: 'Supprimer',
+    body: `Confirmer la suppression du concours <strong>${escapeHtml(label || 'ce concours')}</strong> ?`,
+    okText: 'Supprimer',
+    cancelText: 'Annuler',
+    danger: true,
+  });
+  if (!confirmed) {
+    return;
+  }
+  try {
+    await ensureContestCandidatesLoaded(contestId, true);
+    const candidates = [...(contestCandidates.get(contestId) || [])];
+    for (const candidate of candidates) {
+      await deleteDoc(doc(db, 'contests', contestId, 'candidates', candidate.id));
+    }
+    await deleteDoc(doc(db, 'contests', contestId));
+    contestCandidates.delete(contestId);
+    allContests = allContests.filter(item => item.id !== contestId);
+    updateContestFilterOptions();
+    updateKpiContests();
+    const wasSelected = selectedContestId === contestId;
+    if (wasSelected) {
+      const nextId = allContests[0]?.id || '';
+      await setSelectedContest(nextId, { force: true });
+    } else {
+      renderContestsOverview();
+    }
+    await refreshContestPromoCard();
+    renderPromoCardList();
+    updatePromoCardsKpi();
+    toast('Concours supprime', label || 'ce concours', 'success');
+  } catch (error) {
+    console.error('Contest deletion failed', error);
+    toast('Erreur', 'Suppression impossible pour le moment.', 'error');
+  }
+}
+
+async function renderContestFormPage(id) {
+  const isEdition = Boolean(id);
+  let contest = null;
+  if (isEdition) {
+    contest = getSelectedContest() || allContests.find(item => item.id === id) || null;
+    if (!contest) {
+      const snap = await getDoc(doc(db, 'contests', id));
+      if (snap.exists()) {
+        const data = snap.data() || {};
+        contest = {
+          id: snap.id,
+          title: typeof data.title === 'string' ? data.title : 'Concours',
+          description: typeof data.description === 'string' ? data.description : '',
+          status: typeof data.status === 'string' ? data.status : 'draft',
+          endDate:
+            data.endDate && typeof data.endDate === 'object' && typeof data.endDate.toDate === 'function'
+              ? data.endDate.toDate()
+              : data.endDate
+                ? new Date(data.endDate)
+                : null,
+          totalParticipants: Number.isFinite(data.totalParticipants) ? data.totalParticipants : 0,
+          totalVotes: Number.isFinite(data.totalVotes) ? data.totalVotes : 0,
+        };
+      }
+    }
+    if (!contest) {
+      $contestsContent.innerHTML = '<div class="empty-state"><p>Concours introuvable.</p></div>';
+      return;
+    }
+  }
+
+  const defaults = contest || {
+    title: '',
+    description: '',
+    status: 'draft',
+    endDate: null,
+    totalParticipants: 0,
+    totalVotes: 0,
+  };
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+    <div class="form-head">
+      <div class="form-title">${isEdition ? '?diter' : 'Nouveau'} concours</div>
+      ${isEdition ? `<div class="kpi">ID : ${escapeHtml(contest.id)}</div>` : ''}
+    </div>
+    <form class="form-main" novalidate>
+      <div class="field">
+        <label class="label" for="contest-title">Titre du concours</label>
+        <input id="contest-title" class="input" type="text" value="${escapeAttr(defaults.title)}" required />
+      </div>
+      <div class="field">
+        <label class="label" for="contest-description">Description</label>
+        <textarea id="contest-description" class="textarea" rows="4" placeholder="D?tails du concours">${escapeHtml(defaults.description)}</textarea>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="contest-status">Statut</label>
+          <select id="contest-status" class="select">
+            <option value="draft" ${defaults.status === 'draft' ? 'selected' : ''}>Brouillon</option>
+            <option value="active" ${defaults.status === 'active' ? 'selected' : ''}>Actif</option>
+            <option value="ended" ${defaults.status === 'ended' ? 'selected' : ''}>Termin?</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label" for="contest-end">Date de fin</label>
+          <input id="contest-end" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(defaults.endDate))}" />
+        </div>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="contest-participants">Participants (optionnel)</label>
+          <input id="contest-participants" class="input" type="number" min="0" step="1" value="${defaults.totalParticipants || ''}" />
+        </div>
+        <div class="field">
+          <label class="label" for="contest-votes">Votes (optionnel)</label>
+          <input id="contest-votes" class="input" type="number" min="0" step="1" value="${defaults.totalVotes || ''}" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" data-cancel>Annuler</button>
+        <button type="submit" class="btn btn-primary">${isEdition ? 'Enregistrer' : 'Cr?er le concours'}</button>
+      </div>
+    </form>`;
+
+  $contestsContent.innerHTML = '';
+  $contestsContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]')?.addEventListener('click', () => {
+    location.hash = '#/contests';
+  });
+  wrap.querySelector('form').onsubmit = e => handleContestFormSubmit(e, isEdition ? contest.id : null);
+  lucide.createIcons();
+}
+
+async function handleContestFormSubmit(e, contestId) {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+  try {
+    const title = form.querySelector('#contest-title').value.trim();
+    if (!title) {
+      toast('Erreur', 'Le titre est requis.', 'error');
+      setButtonLoading(submitBtn, false);
+      return;
+    }
+    const description = form.querySelector('#contest-description').value.trim();
+    const status = form.querySelector('#contest-status').value || 'draft';
+    const endValue = form.querySelector('#contest-end').value;
+    const participants = Number(form.querySelector('#contest-participants').value);
+    const votes = Number(form.querySelector('#contest-votes').value);
+
+    const payload = {
+      title,
+      description,
+      status,
+      updatedAt: serverTimestamp(),
+    };
+    if (endValue) {
+      const endDate = new Date(endValue);
+      if (!Number.isNaN(endDate.getTime())) {
+        payload.endDate = endDate;
+      }
+    } else {
+      payload.endDate = null;
+    }
+    if (Number.isFinite(participants) && participants >= 0) {
+      payload.totalParticipants = participants;
+    }
+    if (Number.isFinite(votes) && votes >= 0) {
+      payload.totalVotes = votes;
+    }
+
+    if (contestId) {
+      await updateDoc(doc(db, 'contests', contestId), payload);
+      const index = allContests.findIndex(contest => contest.id === contestId);
+      if (index > -1) {
+        const merged = { ...allContests[index], ...payload };
+        if (payload.endDate instanceof Date) {
+          merged.endDate = payload.endDate;
+        } else if (payload.endDate === null) {
+          merged.endDate = null;
+        }
+        allContests[index] = merged;
+      }
+      toast('Concours mis ? jour', title, 'success');
+      await ensureContestsLoaded(true);
+      await setSelectedContest(contestId, { force: true });
+    } else {
+      const createdPayload = {
+        ...payload,
+        createdAt: serverTimestamp(),
+        totalVotes: payload.totalVotes || 0,
+        totalParticipants: payload.totalParticipants || 0,
+      };
+      const ref = await addDoc(collection(db, 'contests'), createdPayload);
+      await updateDoc(ref, { id: ref.id });
+      toast('Concours cr??', title, 'success');
+      await ensureContestsLoaded(true);
+      await setSelectedContest(ref.id, { force: true });
+    }
+    location.hash = '#/contests';
+  } catch (error) {
+    console.error(error);
+    toast('Erreur', 'Enregistrement impossible pour le moment.', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+async function renderCandidateFormPage(contestId, candidateId) {
+  if (!contestId) {
+    $contestsContent.innerHTML =
+      "<div class=\"empty-state\"><p>Sélectionnez un concours avant d'ajouter un candidat.</p></div>";
+    return;
+  }
+  const contest = allContests.find(item => item.id === contestId) || null;
+  if (!contest) {
+    await ensureContestsLoaded(true);
+  }
+  const candidates = contestCandidates.get(contestId) || [];
+  let candidate = null;
+  if (candidateId) {
+    candidate = candidates.find(item => item.id === candidateId) || null;
+    if (!candidate) {
+      const snap = await getDoc(doc(db, 'contests', contestId, 'candidates', candidateId));
+      if (snap.exists()) {
+        const data = snap.data() || {};
+        candidate = {
+          id: snap.id,
+          name: data.name || 'Candidat',
+          media: data.media || '',
+          photoUrl: data.photoUrl || '',
+          voteCount: Number.isFinite(data.voteCount) ? data.voteCount : 0,
+        };
+      }
+    }
+    if (!candidate) {
+      $contestsContent.innerHTML = '<div class="empty-state"><p>Candidat introuvable.</p></div>';
+      return;
+    }
+  }
+
+  const defaults = candidate || { name: '', media: '', photoUrl: '', voteCount: 0 };
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+    <div class="form-head">
+      <div class="form-title">${candidateId ? '?diter' : 'Nouveau'} candidat</div>
+      <div class="muted">Concours : ${escapeHtml((getSelectedContest() || {}).title || contestId)}</div>
+    </div>
+    <form class="form-main" novalidate>
+      <div class="field">
+        <label class="label" for="candidate-name">Nom</label>
+        <input id="candidate-name" class="input" type="text" value="${escapeAttr(defaults.name)}" required />
+      </div>
+      <div class="field">
+        <label class="label" for="candidate-media">M?dia / Organisation</label>
+        <input id="candidate-media" class="input" type="text" value="${escapeAttr(defaults.media)}" placeholder="Cha?ne, journal..." />
+      </div>
+      <div class="field">
+        <label class="label" for="candidate-photo">Photo (URL)</label>
+        <input id="candidate-photo" class="input" type="url" value="${escapeAttr(defaults.photoUrl)}" placeholder="https://" />
+        <div class="hint">Utilisez une URL publique ou importez l'image depuis un stockage d?j? autoris?.</div>
+      </div>
+      <div class="field">
+        <label class="label" for="candidate-votes">Votes initiaux</label>
+        <input id="candidate-votes" class="input" type="number" min="0" step="1" value="${Number(defaults.voteCount || 0)}" />
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" data-cancel>Annuler</button>
+        <button type="submit" class="btn btn-primary">${candidateId ? 'Enregistrer' : 'Ajouter le candidat'}</button>
+      </div>
+    </form>`;
+
+  $contestsContent.innerHTML = '';
+  $contestsContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]')?.addEventListener('click', () => {
+    location.hash = '#/contests';
+  });
+  wrap.querySelector('form').onsubmit = e => handleCandidateFormSubmit(e, contestId, candidateId || null);
+  lucide.createIcons();
+}
+
+async function handleCandidateFormSubmit(e, contestId, candidateId) {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+  try {
+    const name = form.querySelector('#candidate-name').value.trim();
+    if (!name) {
+      toast('Erreur', 'Le nom du candidat est requis.', 'error');
+      setButtonLoading(submitBtn, false);
+      return;
+    }
+    const media = form.querySelector('#candidate-media').value.trim();
+    const photoUrl = form.querySelector('#candidate-photo').value.trim();
+    const votes = Number(form.querySelector('#candidate-votes').value);
+    const base = {
+      name,
+      media,
+      photoUrl,
+      voteCount: Number.isFinite(votes) && votes >= 0 ? votes : 0,
+      updatedAt: serverTimestamp(),
+    };
+
+    if (candidateId) {
+      await updateDoc(doc(db, 'contests', contestId, 'candidates', candidateId), base);
+      const list = contestCandidates.get(contestId) || [];
+      const index = list.findIndex(candidate => candidate.id === candidateId);
+      if (index > -1) {
+        list[index] = { ...list[index], ...base };
+      }
+      contestCandidates.set(contestId, list);
+      toast('Candidat mis ? jour', name, 'success');
+    } else {
+      const ref = await addDoc(collection(db, 'contests', contestId, 'candidates'), {
+        ...base,
+        contestId,
+        createdAt: serverTimestamp(),
+      });
+      await updateDoc(ref, { id: ref.id });
+      const list = contestCandidates.get(contestId) || [];
+      contestCandidates.set(contestId, [{ id: ref.id, contestId, ...base }, ...list]);
+      toast('Candidat ajout?', name, 'success');
+    }
+
+    await setSelectedContest(contestId, { force: true });
+    location.hash = '#/contests';
+  } catch (error) {
+    console.error(error);
+    toast('Erreur', 'Impossible d?enregistrer le candidat.', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Brands UI ============================ */
+$('#add-brand').addEventListener('click', () => (location.hash = '#/new-brand'));
+$('#search-brands').addEventListener('input', () => renderBrandList());
+
+function renderBrandList() {
+  const term = ($('#search-brands').value || '').toLowerCase();
+  const arr = term ? allBrands.filter(b => (b.name || '').toLowerCase().includes(term)) : allBrands;
+
+  if (!arr.length) {
+    $brandsContent.innerHTML = `<div class="center" style="padding:32px">Aucune marque.</div>`;
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+        <thead>
+            <tr>
+                <th style="width:60px">Logo</th>
+                <th>Nom</th>
+                <th>Ordre</th>
+                <th style="width:180px;text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-brands"></tbody>
+    `;
+  const tb = table.querySelector('#tbody-brands');
+  arr.forEach(brand => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = brand.id;
+    tr.innerHTML = `
+            <td>${brand.logoUrl ? `<img class="img" src="${escapeAttr(brand.logoUrl)}" alt="Logo ${escapeAttr(brand.name)}"/>` : ''}</td>
+            <td style="font-weight:800">${escapeHtml(brand.name || 'Sans nom')}</td>
+            <td><span class="badge">${brand.sortOrder || 'N/A'}</span></td>
+            <td class="actions">
+                <button class="btn btn-small" data-edit>?diter</button>
+                <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+            </td>
+        `;
+    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-brand/${brand.id}`);
+    tr.querySelector('[data-del]').onclick = () => handleDelete(brand.id, brand.name, 'brands');
+    tb.appendChild(tr);
+  });
+  $brandsContent.innerHTML = '';
+  $brandsContent.appendChild(table);
+  lucide.createIcons();
+}
+
+async function renderBrandFormPage(id) {
+  let brand = {};
+  if (id) {
+    brand =
+      allBrands.find(b => b.id === id) ||
+      (await getDoc(doc(db, 'brands', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!brand) {
+      $brandsContent.innerHTML = '<div class="center" style="padding:32px">Marque introuvable.</div>';
+      return;
+    }
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+        <div class="form-head"><div class="form-title">${id ? '?diter' : 'Nouvelle'} marque</div></div>
+        <form class="form-main" novalidate>
+            <div class="twocol">
+                <div class="field">
+                    <label class="label" for="b-name">Nom de la marque</label>
+                    <input id="b-name" class="input" type="text" value="${escapeAttr(brand.name || '')}" required />
+                </div>
+                <div class="field">
+                    <label class="label" for="b-sortOrder">Ordre d'affichage</label>
+                    <input id="b-sortOrder" class="input" type="number" min="1" step="1" value="${brand.sortOrder || ''}" required />
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="b-logoUrl">URL du logo</label>
+                <input id="b-logoUrl" class="input" type="url" value="${escapeAttr(brand.logoUrl || '')}" />
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" data-cancel>Annuler</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la marque'}</button>
+            </div>
+        </form>
+    `;
+  $brandsContent.innerHTML = '';
+  $brandsContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/brands');
+  wrap.querySelector('form').onsubmit = e => handleBrandFormSubmit(e, id);
+}
+
+async function handleBrandFormSubmit(e, id) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  const name = $('#b-name').value.trim();
+  const sortOrder = parseInt($('#b-sortOrder').value, 10);
+  const logoUrl = $('#b-logoUrl').value.trim();
+
+  if (!name || isNaN(sortOrder)) {
+    toast('Erreur', "Le nom et l'ordre sont requis.", 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+
+  const data = { name, sortOrder, logoUrl };
+
+  try {
+    if (id) {
+      await updateDoc(doc(db, 'brands', id), data);
+      const i = allBrands.findIndex(b => b.id === id);
+      if (i > -1) allBrands[i] = { id, ...data };
+      toast('Marque mise ? jour', name, 'success');
+    } else {
+      const refDoc = await addDoc(collection(db, 'brands'), data);
+      allBrands.push({ id: refDoc.id, ...data });
+      $('#kpi-brands').textContent = String(allBrands.length);
+      toast('Marque cr??e', name, 'success');
+    }
+    allBrands.sort((a, b) => a.sortOrder - b.sortOrder);
+    location.hash = '#/brands';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Matches UI ============================ */
+$('#add-match').addEventListener('click', function () {
+  location.hash = '#/new-match';
+});
+$('#search-matches').addEventListener('input', function () {
+  renderMatchList();
+});
+
+function renderMatchList() {
+  const term = ($('#search-matches').value || '').toLowerCase();
+  const arr = term
+    ? allMatches.filter(function (m) {
+      return (
+        (m.teamA || '').toLowerCase().indexOf(term) !== -1 ||
+        (m.teamB || '').toLowerCase().indexOf(term) !== -1 ||
+        (m.competition || '').toLowerCase().indexOf(term) !== -1
+      );
+    })
+    : allMatches.slice();
+
+  if (!arr.length) {
+    $matchesContent.innerHTML = '<div class="center" style="padding:32px">Aucun match.</div>';
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+	<thead>
+	  <tr>
+		<th>Affiche</th>
+		<th>Comp?tition</th>
+		<th>Date</th>
+		<th style="width:180px;text-align:right">Actions</th>
+	  </tr>
+	</thead>
+	<tbody id="tbody-matches"></tbody>`;
+  const tb = table.querySelector('#tbody-matches');
+
+  arr.forEach(function (m) {
+    const date = m.startTime && m.startTime.toDate ? m.startTime.toDate() : m.startTime ? new Date(m.startTime) : null;
+    const finalScore =
+      typeof m.finalScoreA === 'number' && typeof m.finalScoreB === 'number'
+        ? m.finalScoreA + ' - ' + m.finalScoreB
+        : '';
+    const tr = document.createElement('tr');
+    tr.dataset.id = m.id;
+    tr.innerHTML = `
+	  <td style="font-weight:800">${escapeHtml(m.teamA || '?quipe A')} vs ${escapeHtml(m.teamB || '?quipe B')}</td>
+	  <td>${escapeHtml(m.competition || '?')}</td>
+	  <td>${date ? fmtDate(date) : '?'}</td>
+	  <td class="actions">
+		<span class="badge ${finalScore ? 'success' : ''}">${finalScore || '? jouer'}</span>
+		<button class="btn btn-small" data-view>Pronostics</button>
+		<button class="btn btn-small" data-edit>?diter</button>
+		<button class="btn btn-danger btn-small" data-del>Supprimer</button>
+	  </td>`;
+    tr.querySelector('[data-view]').addEventListener('click', function () {
+      location.hash = '#/match-predictions/' + m.id;
+    });
+    tr.querySelector('[data-edit]').addEventListener('click', function () {
+      location.hash = '#/edit-match/' + m.id;
+    });
+    tr.querySelector('[data-del]').addEventListener('click', function () {
+      handleDelete(m.id, (m.teamA || '') + ' vs ' + (m.teamB || ''), 'matches');
+    });
+    tb.appendChild(tr);
+  });
+  $matchesContent.innerHTML = '';
+  $matchesContent.appendChild(table);
+}
+
+async function loadMatchPredictions(matchId, options = {}) {
+  const force = options.force === true;
+  if (!force && matchPredictionsCache.has(matchId)) {
+    return matchPredictionsCache.get(matchId);
+  }
+  if (force) {
+    matchPredictionsCache.delete(matchId);
+  }
+  const q = query(collection(db, 'predictions'), where('matchId', '==', matchId));
+  const snap = await getDocs(q);
+  const items = snap.docs.map(docSnap => {
+    const data = docSnap.data() || {};
+    const createdAt =
+      data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate()
+        : data.createdAt
+          ? new Date(data.createdAt)
+          : null;
+    const updatedAt =
+      data.updatedAt && typeof data.updatedAt.toDate === 'function'
+        ? data.updatedAt.toDate()
+        : data.updatedAt
+          ? new Date(data.updatedAt)
+          : null;
+    const contactFirstName = typeof data.contactFirstName === 'string' ? data.contactFirstName : '';
+    const contactLastName = typeof data.contactLastName === 'string' ? data.contactLastName : '';
+    const contactName = `${contactFirstName} ${contactLastName}`.trim();
+    const contactPhone =
+      typeof data.contactPhoneNormalized === 'string' && data.contactPhoneNormalized
+        ? data.contactPhoneNormalized
+        : typeof data.contactPhone === 'string'
+          ? data.contactPhone
+          : '';
+    const searchPieces = [
+      data.userName,
+      contactFirstName,
+      contactLastName,
+      contactPhone,
+      data.userId,
+      data.transactionId,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return {
+      id: docSnap.id,
+      userName: typeof data.userName === 'string' && data.userName ? data.userName : 'Participant',
+      userId: typeof data.userId === 'string' ? data.userId : '',
+      scoreA: typeof data.scoreA === 'number' ? data.scoreA : null,
+      scoreB: typeof data.scoreB === 'number' ? data.scoreB : null,
+      isWinner: data.isWinner === true,
+      featuredWinner: data.featuredWinner === true,
+      contactName,
+      contactPhone,
+      createdAt,
+      updatedAt,
+      searchIndex: searchPieces,
+    };
+  });
+  items.sort((a, b) => {
+    const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+    const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+    return bTime - aTime;
+  });
+  matchPredictionsCache.set(matchId, items);
+  return items;
+}
+
+async function renderMatchPredictionsPage(matchId) {
+  let match =
+    allMatches.find(function (m) {
+      return m.id === matchId;
+    }) ||
+    (await getDoc(doc(db, 'matches', matchId)).then(function (snap) {
+      return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    }));
+  if (!match) {
+    $matchesContent.innerHTML = '<div class="center" style="padding:32px">Match introuvable.</div>';
+    return;
+  }
+
+  const matchDate =
+    match.startTime && typeof match.startTime.toDate === 'function'
+      ? match.startTime.toDate()
+      : match.startTime
+        ? new Date(match.startTime)
+        : null;
+  const finalScore =
+    typeof match.finalScoreA === 'number' && typeof match.finalScoreB === 'number'
+      ? `${match.finalScoreA} - ${match.finalScoreB}`
+      : '';
+
+  setCrumb(
+    'Pronostics \u00b7 ' +
+    (match.teamA || '?quipe A') +
+    ' vs ' +
+    (match.teamB || '?quipe B')
+  );
+
+  const container = document.createElement('div');
+  container.className = 'match-detail';
+  container.innerHTML = `
+    <div class="card match-summary">
+      <div class="summary-info">
+        <div class="match-title">${escapeHtml(match.teamA || '?quipe A')} <span class="muted">vs</span> ${escapeHtml(match.teamB || '?quipe B')}</div>
+        <div class="match-meta">
+          ${match.competition ? `<span class="chip">${escapeHtml(match.competition)}</span>` : ''}
+          <span class="muted">${matchDate ? fmtDate(matchDate) : 'Date &agrave; confirmer'}</span>
+        </div>
+        ${finalScore ? `<div class="match-score">Score final : <strong>${finalScore}</strong></div>` : ''}
+      </div>
+      <div class="match-actions">
+        <button class="btn btn-small" type="button" id="match-back"><i data-lucide="arrow-left" class="icon"></i> Retour</button>
+        <button class="btn btn-small" type="button" id="match-refresh"><i data-lucide="refresh-cw" class="icon"></i> Rafra&icirc;chir</button>
+      </div>
+    </div>
+    <div class="card predictions-toolbar">
+      <div class="field predictions-search">
+        <label class="label" for="pred-search">Recherche</label>
+        <input id="pred-search" class="input" type="search" placeholder="Nom, t&eacute;l&eacute;phone ou identifiant" />
+      </div>
+      <label class="toggle predictions-toggle">
+        <span class="toggle-switch">
+          <input type="checkbox" id="pred-winners-only" />
+          <span class="toggle-slider"></span>
+        </span>
+        <span>Gagnants uniquement</span>
+      </label>
+      <div class="kpi-counters">
+        <div class="kpi-card">
+          <div class="kpi-label">Pronostics</div>
+          <div class="kpi-value" id="pred-total">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Gagnants</div>
+          <div class="kpi-value" id="pred-winners">0</div>
+        </div>
+      </div>
+    </div>
+    <div id="predictions-table-wrap" class="predictions-card">
+      <div class="predictions-empty muted">Chargement des pronostics...</div>
+    </div>
+  `;
+
+  $matchesContent.innerHTML = '';
+  $matchesContent.appendChild(container);
+  lucide.createIcons();
+
+  const backBtn = container.querySelector('#match-back');
+  const refreshBtn = container.querySelector('#match-refresh');
+  const searchInput = container.querySelector('#pred-search');
+  const winnersToggle = container.querySelector('#pred-winners-only');
+  const tableWrap = container.querySelector('#predictions-table-wrap');
+  const totalEl = container.querySelector('#pred-total');
+  const winnersEl = container.querySelector('#pred-winners');
+
+  const state = {
+    items: [],
+    search: '',
+    winnersOnly: false,
+  };
+
+  function applyFilters() {
+    const term = normalizeSearch(state.search);
+    const winnersOnly = state.winnersOnly;
+    const total = state.items.length;
+    const winnersCount = state.items.filter(function (item) {
+      return item.isWinner;
+    }).length;
+    totalEl.textContent = String(total);
+    winnersEl.textContent = String(winnersCount);
+    let list = state.items;
+    if (term) {
+      list = list.filter(function (item) {
+        return item.searchIndex.includes(term);
+      });
+    }
+    if (winnersOnly) {
+      list = list.filter(function (item) {
+        return item.isWinner;
+      });
+    }
+    renderPredictionRows(list);
+  }
+
+  function renderPredictionRows(list) {
+    if (!list.length) {
+      tableWrap.innerHTML =
+        '<div class="predictions-empty">Aucun pronostic correspondant.</div>';
+      return;
+    }
+    const rows = list
+      .map(function (item) {
+        const statusPieces = [];
+        if (item.isWinner) {
+          statusPieces.push('<span class="badge">Gagnant</span>');
+        } else {
+          statusPieces.push('<span class="chip chip-muted">En attente</span>');
+        }
+        if (item.featuredWinner) {
+          statusPieces.push('<span class="chip chip-info">Mis en avant</span>');
+        }
+        const scoreLabel =
+          item.scoreA === null || item.scoreB === null ? '?' : `${item.scoreA} - ${item.scoreB}`;
+        const contactBits = [];
+        if (item.contactName) {
+          contactBits.push(escapeHtml(item.contactName));
+        }
+        if (item.contactPhone) {
+          contactBits.push('<span class="muted">' + escapeHtml(item.contactPhone) + '</span>');
+        }
+        const userIdLabel = item.userId ? '<div class="muted">ID: ' + escapeHtml(item.userId) + '</div>' : '';
+        const createdLabel = item.createdAt instanceof Date ? fmtDate(item.createdAt) : '?';
+        return `
+          <tr class="${item.isWinner ? 'winner-row' : ''}">
+            <td>
+              <div class="pred-name">${escapeHtml(item.userName || 'Participant')}</div>
+              ${userIdLabel}
+            </td>
+            <td class="pred-score">${scoreLabel}</td>
+            <td>${contactBits.length ? contactBits.join('<br/>') : '<span class="muted">?</span>'}</td>
+            <td class="pred-status">${statusPieces.join(' ')}</td>
+            <td>${createdLabel}</td>
+          </tr>`;
+      })
+      .join('');
+    tableWrap.innerHTML = `
+      <table class="table predictions-table">
+        <thead>
+          <tr>
+            <th>Participant</th>
+            <th>Pronostic</th>
+            <th>Contact</th>
+            <th>Statut</th>
+            <th>Enregistr&eacute; le</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+    lucide.createIcons();
+  }
+
+  async function fetchPredictions(force = false) {
+    if (force) {
+      tableWrap.innerHTML = '<div class="predictions-empty muted">Rafra&icirc;chissement...</div>';
+    }
+    try {
+      const data = await loadMatchPredictions(matchId, { force });
+      state.items = data;
+      applyFilters();
+      if (force) {
+        toast('Pronostics mis ? jour', '', 'success');
+      }
+    } catch (error) {
+      console.error('Match predictions load failed', error);
+      tableWrap.innerHTML =
+        '<div class="predictions-empty">Impossible de charger les pronostics pour le moment.</div>';
+      toast('Erreur', 'Lecture des pronostics impossible.', 'error');
+    }
+  }
+
+  backBtn?.addEventListener('click', function () {
+    location.hash = '#/matches';
+  });
+  refreshBtn?.addEventListener('click', async function () {
+    refreshBtn.disabled = true;
+    try {
+      await fetchPredictions(true);
+    } finally {
+      refreshBtn.disabled = false;
+    }
+  });
+  searchInput?.addEventListener('input', function (e) {
+    state.search = e.target.value || '';
+    applyFilters();
+  });
+  winnersToggle?.addEventListener('change', function (e) {
+    state.winnersOnly = !!e.target.checked;
+    applyFilters();
+  });
+
+  await fetchPredictions();
+}
+
+async function renderMatchFormPage(id) {
+  let m = {};
+  if (id) {
+    m =
+      allMatches.find(function (x) {
+        return x.id === id;
+      }) ||
+      (await getDoc(doc(db, 'matches', id)).then(function (s) {
+        return s.exists() ? { id: s.id, ...s.data() } : null;
+      }));
+    if (!m) {
+      $matchesContent.innerHTML = '<div class="center" style="padding:32px">Match introuvable.</div>';
+      return;
+    }
+  }
+  const start = m.startTime && m.startTime.toDate ? m.startTime.toDate() : m.startTime ? new Date(m.startTime) : null;
+  const startVal = start
+    ? new Date(start.getTime() - start.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+    : '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+	<div class="form-head">
+	  <div class="form-title">${id ? '?diter' : 'Nouveau'} match</div>
+	</div>
+	<form class="form-main" novalidate>
+	  <div class="twocol">
+		<div class="field">
+		  <label class="label" for="m-competition">Comp?tition</label>
+		  <input id="m-competition" class="input" type="text" value="${escapeAttr(m.competition || '')}" />
+		</div>
+		<div class="field">
+		  <label class="label" for="m-startTime">Date &amp; heure</label>
+		  <input id="m-startTime" class="input" type="datetime-local" value="${startVal}" required />
+		  <div id="err-mstart" class="error hide"></div>
+		</div>
+	  </div>
+	  <div class="twocol">
+		<div class="field">
+		  <label class="label" for="m-teamA">?quipe A</label>
+		  <input id="m-teamA" class="input" type="text" value="${escapeAttr(m.teamA || '')}" required />
+		</div>
+		<div class="field">
+		  <label class="label" for="m-teamB">?quipe B</label>
+		  <input id="m-teamB" class="input" type="text" value="${escapeAttr(m.teamB || '')}" required />
+		</div>
+	  </div>
+	  <div class="twocol">
+		<div class="field">
+		  <label class="label" for="m-logoA">Logo &eacute;quipe A (URL)</label>
+		  <input id="m-logoA" class="input" type="url" value="${escapeAttr(m.teamALogo || '')}" />
+		</div>
+		<div class="field">
+		  <label class="label" for="m-logoB">Logo &eacute;quipe B (URL)</label>
+		  <input id="m-logoB" class="input" type="url" value="${escapeAttr(m.teamBLogo || '')}" />
+		</div>
+	  </div>
+	  <div class="twocol">
+		<div class="field">
+		  <label class="label" for="m-scoreA">Score A (final)</label>
+		  <input id="m-scoreA" class="input" type="number" min="0" step="1" value="${typeof m.finalScoreA === 'number' ? m.finalScoreA : ''}" />
+		</div>
+		<div class="field">
+		  <label class="label" for="m-scoreB">Score B (final)</label>
+		  <input id="m-scoreB" class="input" type="number" min="0" step="1" value="${typeof m.finalScoreB === 'number' ? m.finalScoreB : ''}" />
+		</div>
+	  </div>
+	  <div class="form-actions">
+		<button type="button" class="btn" data-cancel>Annuler</button>
+		<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er le match'}</button>
+	  </div>
+	</form>`;
+  $matchesContent.innerHTML = '';
+  $matchesContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]').addEventListener('click', function () {
+    if (history.length > 1) {
+      history.back();
+    } else {
+      location.hash = '#/matches';
+    }
+  });
+  wrap.querySelector('form').addEventListener('submit', function (e) {
+    handleMatchFormSubmit(e, id);
+  });
+}
+
+async function handleMatchFormSubmit(e, id) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  const competition = $('#m-competition').value.trim();
+  const teamA = $('#m-teamA').value.trim();
+  const teamB = $('#m-teamB').value.trim();
+  const teamALogo = $('#m-logoA').value.trim() || null;
+  const teamBLogo = $('#m-logoB').value.trim() || null;
+  const scoreA = $('#m-scoreA').value === '' ? null : parseInt($('#m-scoreA').value, 10);
+  const scoreB = $('#m-scoreB').value === '' ? null : parseInt($('#m-scoreB').value, 10);
+  const startVal = $('#m-startTime').value;
+  $('#err-mstart').classList.add('hide');
+  if (!startVal) {
+    $('#err-mstart').textContent = 'La date/heure est requise.';
+    $('#err-mstart').classList.remove('hide');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+
+  try {
+    const data = {
+      competition,
+      teamA,
+      teamB,
+      teamALogo,
+      teamBLogo,
+      finalScoreA: Number.isNaN(scoreA) ? null : scoreA,
+      finalScoreB: Number.isNaN(scoreB) ? null : scoreB,
+      startTime: new Date(startVal),
+    };
+    if (id) {
+      await updateDoc(doc(db, 'matches', id), data);
+      const m = allMatches.find(function (x) {
+        return x.id === id;
+      });
+      if (m) Object.assign(m, data);
+      toast('Match mis ? jour', teamA + ' vs ' + teamB, 'success');
+      location.hash = '#/matches';
+    } else {
+      const refDoc = await addDoc(collection(db, 'matches'), data);
+      allMatches.unshift({ id: refDoc.id, ...data });
+      toast('Match cr??', teamA + ' vs ' + teamB, 'success');
+      location.hash = '#/matches';
+      $('#kpi-matches').textContent = String(allMatches.length);
+    }
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Promo Cards UI ============================ */
+$('#add-promocard').addEventListener('click', () => (location.hash = '#/new-promocard'));
+$('#search-promocards').addEventListener('input', () => renderPromoCardList());
+
+function renderPromoCardList() {
+  const term = normalizeSearch($('#search-promocards').value || '');
+
+  const cards = getPromoCardsForDisplay();
+
+  const arr = term
+    ? cards.filter(card => `${card.title || ''} ${card.subtitle || ''}`.toLowerCase().includes(term))
+    : cards;
+
+  if (!arr.length) {
+    $promoCardsContent.innerHTML = '<div class="center" style="padding:32px">Aucune carte promo.</div>';
+
+    return;
+  }
+
+  const table = document.createElement('table');
+
+  table.className = 'table';
+
+  table.innerHTML = `
+
+        <thead>
+
+            <tr>
+
+                <th style="width:60px">Image</th>
+
+                <th>Titre</th>
+
+                <th>Destination</th>
+
+                <th>Ordre</th>
+
+                <th>Statut</th>
+
+                <th style="width:180px;text-align:right">Actions</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="tbody-promocards"></tbody>`;
+
+  const tb = table.querySelector('#tbody-promocards');
+
+  arr.forEach((card, index) => {
+    const isContestCard = card.isContestCard === true;
+
+    const tr = document.createElement('tr');
+
+    tr.dataset.id = card.id;
+
+    const sortLabel = isContestCard
+      ? card.sortOrder < 0
+        ? 'Auto'
+        : (card.sortOrder ?? 'N/A')
+      : (card.sortOrder ?? 'N/A');
+
+    const destination = card.screen || (isContestCard ? 'Contest' : 'Aucune');
+
+    const statusCell = isContestCard
+      ? `<span class="chip">${card.isActive ? 'Active (auto)' : 'Inactif'}</span>`
+      : `<label class="toggle">
+
+          <span class="toggle-switch">
+
+            <input type="checkbox" data-active-toggle ${card.isActive ? 'checked' : ''} />
+
+            <span class="toggle-slider"></span>
+
+          </span>
+
+        </label>`;
+
+    const actionsCell = isContestCard
+      ? '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
+      '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+      '<button class="btn btn-small" data-edit>Editer</button>' +
+      '<button class="btn btn-danger btn-small" data-del>Supprimer</button>'
+      : '<button class="btn btn-icon btn-small" type="button" data-move-up title="Monter"><i data-lucide="arrow-up" class="icon"></i></button>' +
+      '<button class="btn btn-icon btn-small" type="button" data-move-down title="Descendre"><i data-lucide="arrow-down" class="icon"></i></button>' +
+      '<button class="btn btn-small" data-edit>Editer</button>' +
+      '<button class="btn btn-danger btn-small" data-del>Supprimer</button>';
+
+    tr.innerHTML = `
+
+        <td>${card.image ? `<img class="img" src="${escapeAttr(card.image)}" />` : ''}</td>
+
+        <td style="font-weight:800">${escapeHtml(card.title || 'Sans titre')}</td>
+
+        <td><span class="chip">${escapeHtml(destination)}</span></td>
+
+        <td><span class="badge">${escapeHtml(String(sortLabel))}</span></td>
+
+        <td>${statusCell}</td>
+
+        <td class="actions">${actionsCell}</td>`;
+
+    const moveUpBtn = tr.querySelector('[data-move-up]');
+
+    const moveDownBtn = tr.querySelector('[data-move-down]');
+
+    if (moveUpBtn) {
+      moveUpBtn.disabled = index === 0;
+
+      moveUpBtn.onclick = () => handlePromoCardMove(card.id, 'up');
+    }
+
+    if (moveDownBtn) {
+      moveDownBtn.disabled = index === arr.length - 1;
+
+      moveDownBtn.onclick = () => handlePromoCardMove(card.id, 'down');
+    }
+
+    if (isContestCard) {
+      tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-contest/${card.contestId}`);
+      tr.querySelector('[data-del]').onclick = () => handleContestDeletion(card.contestId, card.title);
+    } else {
+      tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocard/${card.id}`);
+      tr.querySelector('[data-del]').onclick = () => handleDelete(card.id, card.title, 'promoCards');
+      tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCardStatusToggle(card.id, e.target.checked);
+    }
+
+    tb.appendChild(tr);
+  });
+
+  $promoCardsContent.innerHTML = '';
+
+  $promoCardsContent.appendChild(table);
+
+  lucide.createIcons();
+}
+
+async function handlePromoCardStatusToggle(id, isActive) {
+  try {
+    await updateDoc(doc(db, 'promoCards', id), { isActive: isActive });
+    const card = allPromoCards.find(c => c.id === id);
+    if (card) card.isActive = isActive;
+    toast('Statut mis ? jour', `La carte est maintenant ${isActive ? 'active' : 'inactif'}.`, 'success');
+  } catch (error) {
+    console.error('Erreur de mise ? jour du statut:', error);
+    toast('Erreur', 'Impossible de changer le statut.', 'error');
+    renderPromoCardList();
+  }
+}
+
+async function handlePromoCardMove(id, direction) {
+  const list = getPromoCardsForDisplay();
+  const currentIndex = list.findIndex(card => card.id === id);
+  if (currentIndex === -1) {
+    return;
+  }
+  const offset = direction === 'up' ? -1 : 1;
+  const targetIndex = currentIndex + offset;
+  if (targetIndex < 0 || targetIndex >= list.length) {
+    return;
+  }
+  const [movedCard] = list.splice(currentIndex, 1);
+  list.splice(targetIndex, 0, movedCard);
+  try {
+    const updates = [];
+    const rebuilt = [];
+    list.forEach((card, idx) => {
+      const newOrder = (idx + 1) * 10;
+      if (card.isContestCard) {
+        if (card.sortOrder !== newOrder) {
+          card.sortOrder = newOrder;
+          updates.push(updateDoc(doc(db, 'contests', card.contestId), { promoCardSortOrder: newOrder }));
+        }
+        if (contestPromoCard && contestPromoCard.id === card.id) {
+          contestPromoCard.sortOrder = newOrder;
+        }
+      } else {
+        if (card.sortOrder !== newOrder) {
+          card.sortOrder = newOrder;
+          updates.push(updateDoc(doc(db, 'promoCards', card.id), { sortOrder: newOrder }));
+        }
+        const { isContestCard, contestId, ...rest } = card;
+        rebuilt.push(rest);
+      }
+    });
+    if (updates.length) {
+      await Promise.all(updates);
+    }
+    allPromoCards = rebuilt.sort((a, b) => getPromoSortOrder(a) - getPromoSortOrder(b));
+    renderPromoCardList();
+    toast('Ordre mis a jour', movedCard.title || 'Carte promo', 'success');
+  } catch (error) {
+    console.error('Promo card reorder failed', error);
+    toast('Erreur', 'Impossible de reordonner la carte.', 'error');
+    await ensurePromoCardsLoaded(true);
+    renderPromoCardList();
+  }
+}
+
+async function renderPromoCardFormPage(id) {
+  let card = {};
+  if (id) {
+    card =
+      allPromoCards.find(c => c.id === id) ||
+      (await getDoc(doc(db, 'promoCards', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!card) {
+      $promoCardsContent.innerHTML = '<div class="center" style="padding:32px">Carte introuvable.</div>';
+      return;
+    }
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+		<div class="form-head"><div class="form-title">${id ? '?diter' : 'Nouvelle'} Carte Promo</div></div>
+		<form class="form-main" novalidate>
+			<div class="twocol">
+				<div class="field">
+					<label class="label" for="pc-title">Titre</label>
+					<input id="pc-title" class="input" type="text" value="${escapeAttr(card.title || '')}" required />
+				</div>
+				<div class="field">
+					<label class="label" for="pc-subtitle">Sous-titre (optionnel)</label>
+					<input id="pc-subtitle" class="input" type="text" value="${escapeAttr(card.subtitle || '')}" />
+				</div>
+			</div>
+			<div class="twocol">
+				<div class="field">
+					<label class="label" for="pc-cta">Texte du bouton (CTA)</label>
+					<input id="pc-cta" class="input" type="text" value="${escapeAttr(card.cta || '')}" />
+				</div>
+				<div class="field">
+					<label class="label" for="pc-screen">?cran de destination</label>
+					<input id="pc-screen" class="input" type="text" value="${escapeAttr(card.screen || '')}" placeholder="Ex: MatchList, Store..." />
+				</div>
+			</div>
+			<div class="twocol">
+				<div class="field">
+				  <label class="label" for="pc-image">URL de l'image</label>
+				  <input id="pc-image" class="input" type="url" value="${escapeAttr(card.image || '')}" />
+				</div>
+				<div class="field">
+					<label class="label" for="pc-sortOrder">Ordre d'affichage</label>
+					<input id="pc-sortOrder" class="input" type="number" min="1" step="1" value="${card.sortOrder || ''}" required />
+				</div>
+			</div>
+			<div class="field">
+				<label class="toggle">
+					<span class="toggle-switch">
+						<input id="pc-isActive" type="checkbox" ${card.isActive !== false ? 'checked' : ''}>
+						<span class="toggle-slider"></span>
+					</span>
+					<span>Active (visible dans l'application)</span>
+				</label>
+			</div>
+			<div class="form-actions">
+				<button type="button" class="btn" data-cancel>Annuler</button>
+				<button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la carte'}</button>
+			</div>
+		</form>`;
+  $promoCardsContent.innerHTML = '';
+  $promoCardsContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocards');
+  wrap.querySelector('form').onsubmit = e => handlePromoCardFormSubmit(e, id);
+}
+
+async function handlePromoCardFormSubmit(e, id) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  const sortOrder = parseInt($('#pc-sortOrder').value, 10);
+  const data = {
+    title: $('#pc-title').value.trim(),
+    subtitle: $('#pc-subtitle').value.trim(),
+    cta: $('#pc-cta').value.trim(),
+    screen: $('#pc-screen').value.trim(),
+    image: $('#pc-image').value.trim(),
+    sortOrder: isNaN(sortOrder) ? 0 : sortOrder,
+    isActive: $('#pc-isActive').checked,
+  };
+  if (!data.title) {
+    toast('Erreur', 'Le titre est requis.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+  try {
+    if (id) {
+      await updateDoc(doc(db, 'promoCards', id), data);
+      const i = allPromoCards.findIndex(c => c.id === id);
+      if (i > -1) allPromoCards[i] = { id, ...data };
+      toast('Carte mise ? jour', data.title, 'success');
+    } else {
+      const refDoc = await addDoc(collection(db, 'promoCards'), data);
+      allPromoCards.push({ id: refDoc.id, ...data });
+      updatePromoCardsKpi();
+      toast('Carte cr??e', data.title, 'success');
+    }
+    allPromoCards.sort((a, b) => a.sortOrder - b.sortOrder);
+    location.hash = '#/promocards';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Promo Payouts UI ============================ */
+function renderPromoPayoutList() {
+  if (!$promoPayoutsContent) return;
+  const term = (promoPayoutSearchTerm || '').toLowerCase();
+  const arr = term
+    ? allPromoPayouts.filter(p =>
+      `${p.code || ''} ${p.status || ''} ${p.mode || ''}`.toLowerCase().includes(term.toLowerCase()),
+    )
+    : allPromoPayouts;
+  if (!arr.length) {
+    $promoPayoutsContent.innerHTML = '<div class="center" style="padding:32px">Aucun versement.</div>';
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Montant</th>
+                <th>Statut</th>
+                <th>Mode</th>
+                <th>Date</th>
+                <th style="width:180px;text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-promopayouts"></tbody>`;
+  const tb = table.querySelector('#tbody-promopayouts');
+  arr.forEach(p => {
+    const createdAt =
+      p.createdAt && typeof p.createdAt.toDate === 'function'
+        ? p.createdAt.toDate()
+        : p.createdAt
+          ? new Date(p.createdAt)
+          : null;
+    const dateText = createdAt && !Number.isNaN(createdAt.valueOf()) ? fmtDate(createdAt) : '-';
+    const status = (p.status || 'pending').toLowerCase();
+    const statusLabel = status === 'paid' ? 'Payé' : status === 'cancelled' ? 'Annulé' : 'En attente';
+    const statusClass = status === 'paid' ? 'success' : status === 'cancelled' ? 'danger' : 'warning';
+    const tr = document.createElement('tr');
+    tr.dataset.id = p.id;
+    tr.innerHTML = `
+            <td style="font-weight:800"><span class="chip">${escapeHtml(p.code || '')}</span></td>
+            <td>${fmtXOF.format(p.amount || 0)}</td>
+            <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+            <td>${escapeHtml(p.mode || '-')}</td>
+            <td>${escapeHtml(dateText)}</td>
+            <td class="actions">
+                <button class="btn btn-small" data-edit>Éditer</button>
+                <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+            </td>`;
+    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promopayout/${p.id}`);
+    tr.querySelector('[data-del]').onclick = () => handleDelete(p.id, p.code, 'promoPayouts');
+    tb.appendChild(tr);
+  });
+  $promoPayoutsContent.innerHTML = '';
+  $promoPayoutsContent.appendChild(table);
+  lucide.createIcons();
+}
+
+async function renderPromoPayoutFormPage(id) {
+  let payout = {};
+  if (id) {
+    payout =
+      allPromoPayouts.find(p => p.id === id) ||
+      (await getDoc(doc(db, 'promoPayouts', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!payout) {
+      if ($promoPayoutsContent) {
+        $promoPayoutsContent.innerHTML = '<div class="center" style="padding:32px">Versement introuvable.</div>';
+      }
+      return;
+    }
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouveau'} versement</div></div>
+        <form class="form-main" novalidate>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pp-code">Code</label>
+                <input id="pp-code" class="input" type="text" value="${escapeAttr(payout.code || '')}" required placeholder="EX: JOYFUL-AP" />
+                <div class="hint">Code promo concerné.</div>
+              </div>
+              <div class="field">
+                <label class="label" for="pp-amount">Montant</label>
+                <input id="pp-amount" class="input" type="number" min="0" step="1000" value="${payout.amount ?? ''}" required />
+                <div class="hint">Montant versé (FCFA).</div>
+              </div>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pp-mode">Mode</label>
+                <select id="pp-mode" class="select">
+                  <option value="momo" ${payout.mode === 'momo' ? 'selected' : ''}>Mobile Money</option>
+                  <option value="virement" ${payout.mode === 'virement' ? 'selected' : ''}>Virement bancaire</option>
+                  <option value="cash" ${payout.mode === 'cash' ? 'selected' : ''}>Cash</option>
+                  <option value="autre" ${payout.mode === 'autre' ? 'selected' : ''}>Autre</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="pp-status">Statut</label>
+                <select id="pp-status" class="select">
+                  <option value="paid" ${payout.status === 'paid' ? 'selected' : ''}>Payé</option>
+                  <option value="pending" ${!payout.status || payout.status === 'pending' ? 'selected' : ''}>En attente</option>
+                  <option value="cancelled" ${payout.status === 'cancelled' ? 'selected' : ''}>Annulé</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="pp-date">Date</label>
+              <input id="pp-date" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(payout.createdAt))}" />
+            </div>
+            <div class="field">
+              <label class="label" for="pp-ref">Référence paiement</label>
+              <input id="pp-ref" class="input" type="text" value="${escapeAttr(payout.ref || '')}" placeholder="TxID, ref bancaire..." />
+            </div>
+            <div class="field">
+              <label class="label" for="pp-note">Note (optionnel)</label>
+              <textarea id="pp-note" class="textarea" rows="3" placeholder="Détail ou commentaire">${escapeHtml(payout.note || '')}</textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" data-cancel>Annuler</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Enregistrer le versement'}</button>
+            </div>
+        </form>`;
+  if ($promoPayoutsContent) {
+    $promoPayoutsContent.innerHTML = '';
+    $promoPayoutsContent.appendChild(wrap);
+  }
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes/payouts');
+  wrap.querySelector('form').onsubmit = e => handlePromoPayoutFormSubmit(e, id, payout);
+}
+
+async function handlePromoPayoutFormSubmit(e, id, existing = {}) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+  const code = ($('#pp-code').value || '').trim().toUpperCase();
+  const amount = Number($('#pp-amount').value);
+  const mode = $('#pp-mode').value || 'momo';
+  const status = $('#pp-status').value || 'pending';
+  const note = ($('#pp-note').value || '').trim();
+  const ref = ($('#pp-ref').value || '').trim();
+  const dateVal = $('#pp-date').value;
+  if (!code || Number.isNaN(amount)) {
+    toast('Erreur', 'Code et montant requis.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+  const payload = {
+    code,
+    amount,
+    mode,
+    status,
+    note: note || null,
+    ref: ref || null,
+  };
+  if (dateVal) {
+    payload.createdAt = new Date(dateVal);
+  } else if (!id) {
+    payload.createdAt = serverTimestamp();
+  }
+  try {
+    if (id) {
+      await updateDoc(doc(db, 'promoPayouts', id), payload);
+      const i = allPromoPayouts.findIndex(p => p.id === id);
+      if (i > -1) {
+        allPromoPayouts[i] = { ...allPromoPayouts[i], ...payload };
+      }
+      toast('Versement mis à jour', code, 'success');
+    } else {
+      const refDoc = await addDoc(collection(db, 'promoPayouts'), payload);
+      const fresh = await getDoc(refDoc);
+      const saved = fresh.exists() ? { id: refDoc.id, ...fresh.data() } : { id: refDoc.id, ...payload };
+      allPromoPayouts.unshift(saved);
+      toast('Versement enregistré', code, 'success');
+    }
+    renderPromoPayoutList();
+    location.hash = '#/promocodes/payouts';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Promo Codes UI (AJOUT) ============================ */
+$('#add-promocode').addEventListener('click', () => (location.hash = '#/new-promocode'));
+$('#search-promocodes').addEventListener('input', () => renderPromoCodeList());
+$('#filter-promocode-partner')?.addEventListener('input', e => {
+  promoCodePartnerFilter = (e.target.value || '').toLowerCase();
+  renderPromoCodeList();
+});
+$('#add-promorule')?.addEventListener('click', () => (location.hash = '#/new-promorule'));
+$('#search-promorules')?.addEventListener('input', () => renderPromoRuleList());
+$('#add-promopayout')?.addEventListener('click', () => (location.hash = '#/new-promopayout'));
+document.querySelectorAll('.promo-tab-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const tab = btn.dataset.tab || 'codes';
+    await setPromoTab(tab);
+    const base = '#/promocodes';
+    const hash = tab === 'codes' ? base : `${base}/${tab}`;
+    location.hash = hash;
+  });
+});
+
+function renderPromoCodeList() {
+  ensurePromoRulesLoaded().catch(err => console.warn('PromoRules load skipped', err));
+  const term = ($('#search-promocodes').value || '').toLowerCase();
+  const partnerFilter = promoCodePartnerFilter || '';
+  let arr = allPromoCodes.slice();
+  if (term) {
+    arr = arr.filter(c => {
+      const codeMatch = (c.code || '').toLowerCase().includes(term);
+      const partnerMatch = (c.assignedTo || '').toLowerCase().includes(term);
+      return codeMatch || partnerMatch;
+    });
+  }
+  if (partnerFilter) {
+    arr = arr.filter(c => (c.assignedTo || '').toLowerCase().includes(partnerFilter));
+  }
+
+  if (!arr.length) {
+    $promoCodesContent.innerHTML = `<div class="center" style="padding:32px">Aucun code promo.</div>`;
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Type</th>
+                <th>Valeur</th>
+                <th>Partenaire</th>
+                <th>Statut / Règle</th>
+                <th style="width:220px;text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-promocodes"></tbody>`;
+  const tb = table.querySelector('#tbody-promocodes');
+  arr.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = c.id;
+    const valText = c.type === 'percentage' ? `${c.value}%` : fmtXOF.format(c.value);
+    const rule = allPromoRules.find(r => (r.code || r.id || '').toLowerCase() === (c.code || '').toLowerCase());
+    const channels = rule?.allowedChannels?.join(', ') || 'tous';
+    const bracketsText = summarizeBrackets(rule?.priceBrackets || DEFAULT_PRICE_BRACKETS);
+    tr.innerHTML = `
+            <td style="font-weight:800"><span class="chip">${escapeHtml(c.code || 'Sans code')}</span></td>
+            <td>${escapeHtml(c.type === 'percentage' ? 'Pourcentage' : 'Montant Fixe')}</td>
+            <td><span class="badge success">${valText}</span></td>
+            <td>${escapeHtml(c.assignedTo || '-')}</td>
+            <td>
+                <label class="toggle">
+                    <span class="toggle-switch">
+                        <input type="checkbox" data-active-toggle ${c.isActive ? 'checked' : ''} />
+                        <span class="toggle-slider"></span>
+                    </span>
+                </label>
+                <div class="muted small">${escapeHtml(channels)}</div>
+                <div class="muted small">${escapeHtml(bracketsText)}</div>
+            </td>
+            <td class="actions">
+                <button class="btn btn-outline btn-small" data-preview>Tester liens</button>
+                <button class="btn btn-small" data-edit>Éditer</button>
+                <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+            </td>`;
+    tr.querySelector('[data-preview]').onclick = () => previewPromoLinks(c.code, c.assignedTo);
+    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promocode/${c.id}`);
+    tr.querySelector('[data-del]').onclick = () => handleDelete(c.id, c.code, 'promoCodes');
+    tr.querySelector('[data-active-toggle]').onchange = e => handlePromoCodeStatusToggle(c.id, e.target.checked);
+    tb.appendChild(tr);
+  });
+  $promoCodesContent.innerHTML = '';
+  $promoCodesContent.appendChild(table);
+  lucide.createIcons();
+}
+
+async function previewPromoLinks(code, ref) {
+  const normalized = (code || '').trim();
+  if (!normalized) return;
+  try {
+    const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
+    const res = await callable({ code: normalized, ref });
+    const data = res.data || {};
+    const body = `
+      <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
+      <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
+      <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
+    `;
+    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
+  } catch (error) {
+    console.error('Preview promo links failed', error);
+    toast('Erreur', 'Impossible de générer les liens.', 'error');
+  }
+}
+
+async function handlePromoCodeStatusToggle(id, isActive) {
+  try {
+    await updateDoc(doc(db, 'promoCodes', id), { isActive: isActive });
+    const code = allPromoCodes.find(c => c.id === id);
+    if (code) code.isActive = isActive;
+    toast('Statut mis ? jour', `Le code est maintenant ${isActive ? 'actif' : 'inactif'}.`, 'success');
+  } catch (error) {
+    console.error('Erreur de mise ? jour du statut:', error);
+    toast('Erreur', 'Impossible de changer le statut.', 'error');
+    renderPromoCodeList();
+  }
+}
+
+
+async function renderPromoCodeFormPage(id) {
+  let code = {};
+  let rule = null;
+  if (id) {
+    code =
+      allPromoCodes.find(c => c.id === id) ||
+      (await getDoc(doc(db, 'promoCodes', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!code) {
+      $promoCodesContent.innerHTML = '<div class="center" style="padding:32px">Code introuvable.</div>';
+      return;
+    }
+  }
+  const ruleId = (code.code || code.id || id || '').toUpperCase();
+  if (ruleId) {
+    rule =
+      allPromoRules.find(r => (r.code || r.id || '').toUpperCase() === ruleId) ||
+      (await getDoc(doc(db, 'promoRules', ruleId)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+  }
+  const ruleData = rule || {
+    code: ruleId,
+    isActive: code.isActive !== false,
+    allowedChannels: ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: [],
+    partnerRefRequired: false,
+    priceBrackets: DEFAULT_PRICE_BRACKETS,
+    startsAt: null,
+    endsAt: null,
+  };
+  const channelsSelected =
+    (ruleData.allowedChannels && ruleData.allowedChannels.length
+      ? ruleData.allowedChannels
+      : ['web', 'app', 'wa', 'qr', 'bo']
+    ).map(c => String(c).toLowerCase());
+  const partnersValue = (ruleData.allowedPartners || []).join(',');
+  const initialBrackets = ruleData.priceBrackets && ruleData.priceBrackets.length ? ruleData.priceBrackets : DEFAULT_PRICE_BRACKETS;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+        <div class="form-head"><div class="form-title">${id ? 'Éditer' : 'Nouveau'} Code Promo</div></div>
+        <form class="form-main" novalidate>
+            <div class="twocol">
+                <div class="field">
+                    <label class="label" for="pc-code">Le Code</label>
+                    <input id="pc-code" class="input" type="text" value="${escapeAttr(code.code || '')}" ${id ? 'disabled' : ''} required placeholder="ex: BIENVENUE10" />
+                </div>
+                <div class="field">
+                    <label class="label" for="pc-type">Type de réduction</label>
+                    <select id="pc-type" class="select">
+                        <option value="percentage" ${code.type === 'percentage' ? 'selected' : ''}>Pourcentage (%)</option>
+                        <option value="fixed" ${code.type === 'fixed' ? 'selected' : ''}>Montant Fixe (FCFA)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="pc-value">Valeur de la réduction</label>
+                <input id="pc-value" class="input" type="number" min="0" step="1" value="${code.value || ''}" required />
+                <div class="hint">Ex: "10" pour 10% ou "5000" pour 5000 FCFA.</div>
+            </div>
+            <div class="field">
+                <label class="label" for="pc-partner">Partenaire attribué</label>
+                <input id="pc-partner" class="input" type="text" value="${escapeAttr(code.assignedTo || '')}" placeholder="Orange Money, Canal+, etc." />
+                <div class="hint">Optionnel. Permet d'identifier le partenaire ou la campagne associée à ce code.</div>
+            </div>
+            <div class="field">
+                <label class="toggle">
+                    <span class="toggle-switch">
+                        <input id="pc-isActive" type="checkbox" ${code.isActive !== false ? 'checked' : ''}>
+                        <span class="toggle-slider"></span>
+                    </span>
+                    <span>Actif (utilisable dans l'application)</span>
+                </label>
+            </div>
+            <div class="divider"></div>
+            <div class="field">
+              <label class="label">Règle promo (validation)</label>
+              <div class="hint">Canaux autorisés, partenaires et tranches de remise/commission</div>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label">Canaux autorisés</label>
+                <div id="pc-channels-group" class="channel-checks"></div>
+                <div class="hint">Coche les canaux où ce code peut être utilisé.</div>
+              </div>
+              <div class="field">
+                <label class="label" for="pc-partners">Partenaires autorisés</label>
+                <input id="pc-partners" class="input" type="text" value="${escapeAttr(partnersValue)}" placeholder="PART-001,PART-002" />
+                <div class="hint">Laisse vide pour tous les partenaires.</div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="toggle">
+                <span class="toggle-switch">
+                  <input id="pc-partnerRequired" type="checkbox" ${ruleData.partnerRefRequired ? 'checked' : ''}>
+                  <span class="toggle-slider"></span>
+                </span>
+                <span>Ref partenaire obligatoire</span>
+              </label>
+            </div>
+            <div class="twocol">
+              <div class="field">
+                <label class="label" for="pc-start">Début</label>
+                <input id="pc-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(ruleData.startsAt))}" />
+              </div>
+              <div class="field">
+                <label class="label" for="pc-end">Fin</label>
+                <input id="pc-end" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(ruleData.endsAt))}" />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Tranches (remise / commission)</label>
+              <div id="brackets-rows" class="brackets-rows"></div>
+              <div class="top-actions" style="margin-top:8px; gap:8px;">
+                <button id="add-bracket" type="button" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Ajouter une tranche</button>
+                <button id="reset-brackets" type="button" class="btn btn-small"><i data-lucide="rotate-ccw" class="icon"></i> Valeurs par défaut</button>
+              </div>
+              <div class="hint">Ex: 0-149 000 => remise 5 000 / commission 8 000. Laissez Max vide pour une tranche ouverte.</div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" data-cancel>Annuler</button>
+                <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Créer le code'}</button>
+            </div>
+        </form>`;
+  $promoCodesContent.innerHTML = '';
+  $promoCodesContent.appendChild(wrap);
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes');
+  wrap.querySelector('form').onsubmit = e => handlePromoCodeFormSubmit(e, id || ruleId);
+
+  renderChannelCheckboxes('pc-channels-group', channelsSelected);
+  renderBracketRows(initialBrackets);
+  document.getElementById('add-bracket')?.addEventListener('click', () => {
+    const container = document.getElementById('brackets-rows');
+    if (container) {
+      container.appendChild(buildBracketRow({ min: 0, max: null, discountValue: 0, commissionValue: 0, label: '' }));
+    }
+    lucide.createIcons();
+  });
+  document.getElementById('reset-brackets')?.addEventListener('click', () => renderBracketRows(DEFAULT_PRICE_BRACKETS));
+}
+
+
+async function handlePromoCodeFormSubmit(e, id) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  const codeValue = ($('#pc-code').value || '').trim().toUpperCase();
+  const value = parseFloat($('#pc-value').value);
+
+  if (!codeValue || isNaN(value)) {
+    toast('Erreur', 'Le code et la valeur sont requis.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+
+  const data = {
+    code: codeValue,
+    type: $('#pc-type').value,
+    value: value,
+    assignedTo: $('#pc-partner').value.trim(),
+    isActive: $('#pc-isActive').checked,
+  };
+
+  const allowedChannels = readChannelCheckboxes('pc-channels-group');
+  const partnersRaw = $('#pc-partners').value || '';
+  const allowedPartners = partnersRaw
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  let priceBrackets = readBracketRows();
+  if (!priceBrackets.length) {
+    priceBrackets = DEFAULT_PRICE_BRACKETS;
+  }
+
+  const startsAtVal = $('#pc-start').value;
+  const endsAtVal = $('#pc-end').value;
+  const rulePayload = {
+    code: codeValue,
+    isActive: $('#pc-isActive').checked,
+    allowedChannels: allowedChannels.length ? allowedChannels : ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: allowedPartners,
+    partnerRefRequired: $('#pc-partnerRequired').checked,
+    priceBrackets: priceBrackets,
+    startsAt: startsAtVal ? new Date(startsAtVal) : null,
+    endsAt: endsAtVal ? new Date(endsAtVal) : null,
+    updatedAt: serverTimestamp(),
+  };
+
+  try {
+    let promoCodeId = id;
+    if (id) {
+      await updateDoc(doc(db, 'promoCodes', id), data);
+      const i = allPromoCodes.findIndex(c => c.id === id);
+      if (i > -1) allPromoCodes[i] = { id, ...data };
+      toast('Code mis ? jour', data.code, 'success');
+    } else {
+      const finalData = { ...data, createdAt: serverTimestamp() };
+      const refDoc = await addDoc(collection(db, 'promoCodes'), finalData);
+      promoCodeId = refDoc.id;
+      allPromoCodes.unshift({ id: promoCodeId, ...finalData });
+      $('#kpi-promocodes').textContent = String(allPromoCodes.length);
+      toast('Code cr??', data.code, 'success');
+    }
+
+    const ruleRef = doc(db, 'promoRules', codeValue);
+    await setDoc(ruleRef, { ...rulePayload, createdAt: serverTimestamp() }, { merge: true });
+    const idx = allPromoRules.findIndex(r => (r.code || r.id || '').toUpperCase() === codeValue);
+    if (idx > -1) {
+      allPromoRules[idx] = { ...allPromoRules[idx], ...rulePayload, id: codeValue };
+    } else {
+      allPromoRules.unshift({ id: codeValue, ...rulePayload });
+    }
+    allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
+
+    track('promo_code_save', { code: data.code, isEdit: Boolean(id), type: data.type, hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
+    location.hash = '#/promocodes';
+    return;
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Promo Rules UI ============================ */
+function summarizeBrackets(brackets = []) {
+  if (!Array.isArray(brackets) || brackets.length === 0) return 'Aucune tranche';
+  return brackets
+    .slice(0, 3)
+    .map(b => {
+      const min = typeof b.min === 'number' ? b.min : 0;
+      const max = typeof b.max === 'number' ? b.max : null;
+      const discount = typeof b.discountValue === 'number' ? fmtXOF.format(b.discountValue) : '-';
+      const commission = typeof b.commissionValue === 'number' ? fmtXOF.format(b.commissionValue) : '-';
+      return `${min}-${max || '+'}: -${discount} / +${commission}`;
+    })
+    .join(' | ');
+}
+
+function renderPromoRuleList() {
+  const term = (document.getElementById('search-promorules')?.value || '').toLowerCase();
+  const arr = term
+    ? allPromoRules.filter(r => {
+      const codeMatch = (r.code || r.id || '').toLowerCase().includes(term);
+      const partnerMatch = (r.allowedPartners || []).join(',').toLowerCase().includes(term);
+      return codeMatch || partnerMatch;
+    })
+    : allPromoRules;
+
+  if (!arr.length) {
+    if ($promoRulesContent) $promoRulesContent.innerHTML = `<div class="center" style="padding:32px">Aucune rÃ¨gle promo.</div>`;
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Actif</th>
+        <th>Canaux</th>
+        <th>Tranches</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-promorules"></tbody>`;
+  const tb = table.querySelector('#tbody-promorules');
+  arr.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = r.id;
+    const channels = (r.allowedChannels || []).join(', ') || 'tous';
+    const bracketsText = summarizeBrackets(r.priceBrackets || DEFAULT_PRICE_BRACKETS);
+    tr.innerHTML = `
+      <td style="font-weight:700">${escapeHtml(r.code || r.id || '')}</td>
+      <td>
+        <label class="toggle">
+          <span class="toggle-switch">
+            <input type="checkbox" data-active-toggle ${r.isActive !== false ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </span>
+        </label>
+      </td>
+      <td>${escapeHtml(channels)}</td>
+      <td>${escapeHtml(bracketsText)}</td>
+      <td class="actions">
+        <button class="btn btn-small" data-edit>?diter</button>
+        <button class="btn btn-danger btn-small" data-del>Supprimer</button>
+      </td>`;
+    tr.querySelector('[data-edit]').onclick = () => (location.hash = `#/edit-promorule/${r.id}`);
+    tr.querySelector('[data-del]').onclick = () => handleDelete(r.id, r.code || r.id, 'promoRules');
+    tr.querySelector('[data-active-toggle]').onchange = e => handlePromoRuleStatusToggle(r.id, e.target.checked);
+    tb.appendChild(tr);
+  });
+  $promoRulesContent.innerHTML = '';
+  if ($promoRulesContent) {
+    $promoRulesContent.appendChild(table);
+  }
+  lucide.createIcons();
+}
+
+async function handlePromoRuleStatusToggle(id, isActive) {
+  try {
+    await updateDoc(doc(db, 'promoRules', id), { isActive: isActive });
+    const rule = allPromoRules.find(r => r.id === id);
+    if (rule) rule.isActive = isActive;
+    toast('Statut mis ? jour', `La r?gle est maintenant ${isActive ? 'active' : 'inactive'}.`, 'success');
+  } catch (error) {
+    console.error('PromoRule status update failed', error);
+    toast('Erreur', 'Impossible de changer le statut.', 'error');
+    renderPromoRuleList();
+  }
+}
+
+async function renderPromoRuleFormPage(id) {
+  let rule = {};
+  if (id) {
+    rule =
+      allPromoRules.find(r => r.id === id) ||
+      (await getDoc(doc(db, 'promoRules', id)).then(s => (s.exists() ? { id: s.id, ...s.data() } : null)));
+    if (!rule) {
+      $promoRulesContent.innerHTML = '<div class="center" style="padding:32px">R?gle introuvable.</div>';
+      return;
+    }
+  }
+
+  const initialBrackets = rule.priceBrackets && rule.priceBrackets.length ? rule.priceBrackets : DEFAULT_PRICE_BRACKETS;
+  const channelsSelected =
+    (rule.allowedChannels && rule.allowedChannels.length
+      ? rule.allowedChannels
+      : ['web', 'app', 'wa', 'qr', 'bo']
+    ).map(c => String(c).toLowerCase());
+  const partners = (rule.allowedPartners || []).join(',');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'form-wrap';
+  wrap.innerHTML = `
+    <div class="form-head"><div class="form-title">${id ? '?diter R?gle' : 'Nouvelle R?gle Promo'}</div></div>
+    <form class="form-main" novalidate>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="pr-code">Code</label>
+          <input id="pr-code" class="input" type="text" value="${escapeAttr(rule.code || rule.id || '')}" ${id ? 'disabled' : ''
+    } required />
+          <div class="hint">Utilise des lettres/chiffres, ex: JOYFUL-AP</div>
+        </div>
+        <div class="field">
+          <label class="label">Actif</label>
+          <label class="toggle">
+            <span class="toggle-switch">
+              <input id="pr-active" type="checkbox" ${rule.isActive !== false ? 'checked' : ''}>
+              <span class="toggle-slider"></span>
+            </span>
+            <span>Code utilisable</span>
+          </label>
+        </div>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label">Canaux autorises</label>
+          <div id="pr-channels-group" class="channel-checks"></div>
+          <div class="hint">Coche les canaux ou la regle peut s'appliquer.</div>
+        </div>
+        <div class="field">
+          <label class="label" for="pr-partners">Partenaires autorises</label>
+          <input id="pr-partners" class="input" type="text" value="${escapeAttr(partners)}" placeholder="PART-001,PART-002" />
+          <div class="hint">Laisse vide pour tous les partenaires.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="toggle">
+          <span class="toggle-switch">
+            <input id="pr-partnerRequired" type="checkbox" ${rule.partnerRefRequired ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </span>
+          <span>Ref partenaire obligatoire</span>
+        </label>
+      </div>
+      <div class="twocol">
+        <div class="field">
+          <label class="label" for="pr-start">D?but</label>
+          <input id="pr-start" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(rule.startsAt))}" />
+        </div>
+        <div class="field">
+          <label class="label" for="pr-end">Fin</label>
+          <input id="pr-end" class="input" type="datetime-local" value="${escapeAttr(toInputDateValue(rule.endsAt))}" />
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Tranches (visuel)</label>
+        <div id="pr-brackets-rows" class="brackets-rows"></div>
+        <div class="top-actions" style="margin-top:8px; gap:8px;">
+          <button id="pr-add-bracket" type="button" class="btn btn-outline btn-small"><i data-lucide="plus" class="icon"></i> Ajouter une tranche</button>
+          <button id="pr-reset-brackets" type="button" class="btn btn-small"><i data-lucide="rotate-ccw" class="icon"></i> Valeurs par défaut</button>
+        </div>
+        <div class="hint">Chaque tranche: { min, max, discountValue, commissionValue, label }. Laisse Max vide pour une tranche ouverte.</div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" data-cancel>Annuler</button>
+        <button type="submit" class="btn btn-primary">${id ? 'Enregistrer' : 'Cr?er la r?gle'}</button>
+      </div>
+    </form>`;
+  $promoRulesContent.innerHTML = '';
+  $promoRulesContent.appendChild(wrap);
+  renderChannelCheckboxes('pr-channels-group', channelsSelected);
+  renderBracketRows(initialBrackets);
+  document.getElementById('pr-add-bracket')?.addEventListener('click', () => {
+    const container = document.getElementById('pr-brackets-rows');
+    if (container) {
+      container.appendChild(buildBracketRow({ min: 0, max: null, discountValue: 0, commissionValue: 0, label: '' }));
+    }
+    lucide.createIcons();
+  });
+  document.getElementById('pr-reset-brackets')?.addEventListener('click', () => renderBracketRows(DEFAULT_PRICE_BRACKETS));
+  wrap.querySelector('[data-cancel]').onclick = () => (location.hash = '#/promocodes/rules');
+  wrap.querySelector('form').onsubmit = e => handlePromoRuleFormSubmit(e, id, rule.code || rule.id);
+}
+
+async function handlePromoRuleFormSubmit(e, id, existingCode) {
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  const code = (existingCode || $('#pr-code').value || '').trim().toUpperCase();
+  if (!code) {
+    toast('Erreur', 'Le code est requis.', 'error');
+    setButtonLoading(submitBtn, false);
+    return;
+  }
+
+  const allowedChannels = readChannelCheckboxes('pr-channels-group');
+  const partnersRaw = $('#pr-partners').value || '';
+  const allowedPartners = partnersRaw
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  let priceBrackets = readBracketRows();
+  if (!priceBrackets.length) {
+    priceBrackets = DEFAULT_PRICE_BRACKETS;
+  }
+
+  const startsAtVal = $('#pr-start').value;
+  const endsAtVal = $('#pr-end').value;
+  const payload = {
+    code,
+    isActive: $('#pr-active').checked,
+    allowedChannels: allowedChannels.length ? allowedChannels : ['web', 'app', 'wa', 'qr', 'bo'],
+    allowedPartners: allowedPartners,
+    partnerRefRequired: $('#pr-partnerRequired').checked,
+    priceBrackets: priceBrackets,
+    startsAt: startsAtVal ? new Date(startsAtVal) : null,
+    endsAt: endsAtVal ? new Date(endsAtVal) : null,
+    updatedAt: serverTimestamp(),
+  };
+
+  try {
+    const docId = id || code;
+    const ref = doc(db, 'promoRules', docId);
+    if (!id) {
+      await setDoc(ref, { ...payload, createdAt: serverTimestamp() });
+      allPromoRules.unshift({ id: docId, ...payload });
+    } else {
+      await setDoc(ref, payload, { merge: true });
+      const idx = allPromoRules.findIndex(r => r.id === docId);
+      if (idx > -1) {
+        allPromoRules[idx] = { ...allPromoRules[idx], ...payload };
+      } else {
+        allPromoRules.unshift({ id: docId, ...payload });
+      }
+    }
+    allPromoRules = allPromoRules.sort((a, b) => (a.code || a.id || '').localeCompare(b.code || b.id || ''));
+    track('promo_rule_save', { code: code, isEdit: Boolean(id), hasWa: allowedChannels.includes('wa'), partners: allowedPartners.length });
+    toast('Succ?s', id ? 'R?gle mise ? jour' : 'R?gle cr??e', 'success');
+    location.hash = '#/promocodes/rules';
+    return;
+  } catch (err) {
+    console.error(err);
+    toast('Erreur', 'Enregistrement impossible', 'error');
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+/* ============================ Sorting (click header) ============================ */
+document.addEventListener('click', function (e) {
+  const th = e.target.closest && e.target.closest('th[data-sort]');
+  if (!th) return;
+  if (location.hash.indexOf('#/products') !== 0) return;
+  const key = th.dataset.sort;
+  if (sortBy.key === key) {
+    sortBy.dir = sortBy.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortBy.key = key;
+    sortBy.dir = 'asc';
+  }
+  renderProductList();
+});
+
+/* ============================ Kickoff ============================ */
+if (!location.hash) location.hash = '#/products';
+setTimeout(function () {
+  const content = $('#content');
+  if (content) {
+    content.setAttribute('tabindex', '-1');
+  }
+}, 0);
+
+// Expose MFA functions globally for HTML onclick handlers
+window.handleMfaVerification = handleMfaVerification;
+window.completeMfaEnrollment = completeMfaEnrollment;
+
+/* ============================ Top Products Manager ============================ */
+async function openTopProductsModal() {
+  const modal = document.getElementById('top-products-modal');
+  const sourceList = document.getElementById('tpm-source-list');
+  const targetList = document.getElementById('tpm-target-list');
+  const searchInput = document.getElementById('tpm-search-source');
+  const saveBtn = document.getElementById('tpm-save');
+  const closeBtn = document.getElementById('tpm-close');
+  const statusEl = document.getElementById('tpm-status');
+
+  // Helper to load Config
+  async function loadTopProductsConfig() {
+    try {
+      const snap = await getDoc(doc(db, 'config', 'topProducts'));
+      if (snap.exists()) {
+        const data = snap.data();
+        topProductsIds = Array.isArray(data.productIds) ? data.productIds : [];
+      } else {
+        topProductsIds = [];
+      }
+    } catch (e) {
+      console.error('Error loading top products config', e);
+      toast('Erreur', 'Impossible de charger la configuration Top Produits', 'error');
+    }
+  }
+
+  // Ensure fresh data
+  setButtonLoading(saveBtn, true);
+  await Promise.all([ensureProductsLoaded(), loadTopProductsConfig()]);
+  setButtonLoading(saveBtn, false);
+
+  let currentSourceFilter = '';
+
+  function renderLists() {
+    // 1. Filter Source List (All products NOT in topProductsIds)
+    const availableProducts = allProducts.filter(p => !topProductsIds.includes(p.id));
+
+    // Apply search filter
+    const filteredSource = availableProducts.filter(p => {
+      const term = currentSourceFilter.toLowerCase();
+      return (p.name || '').toLowerCase().includes(term) || (p.brand || '').toLowerCase().includes(term);
+    });
+
+    sourceList.innerHTML = '';
+    filteredSource.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'tpm-item source';
+      item.style.padding = '8px';
+      item.style.border = '1px solid var(--color-border)';
+      item.style.borderRadius = '4px';
+      item.style.marginBottom = '4px';
+      item.style.background = 'var(--color-bg)';
+      item.style.display = 'flex';
+      item.style.alignItems = 'center';
+      item.style.justifyContent = 'space-between';
+
+      item.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
+          <div>
+            <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
+            <div style="font-size:11px; color:var(--color-muted);">${escapeHtml(p.brand)}</div>
+          </div>
+        </div>
+        <button class="btn btn-small btn-icon" title="Ajouter">
+          <i data-lucide="plus" class="icon"></i>
+        </button>
+      `;
+      item.querySelector('button').onclick = () => {
+        topProductsIds.push(p.id);
+        renderLists();
+      };
+      sourceList.appendChild(item);
+    });
+
+    // 2. Render Target List (topProductsIds in order)
+    targetList.innerHTML = '';
+    if (topProductsIds.length === 0) {
+      targetList.innerHTML = '<div style="padding:16px; text-align:center; color:var(--color-muted); font-size:13px;">Aucun produit sélectionné.</div>';
+    } else {
+      topProductsIds.forEach((pid, index) => {
+        const p = allProducts.find(x => x.id === pid);
+        if (!p) return; // Should not happen if data is consistent
+
+        const item = document.createElement('div');
+        item.className = 'tpm-item target';
+        item.style.padding = '8px';
+        item.style.border = '1px solid var(--color-border)';
+        item.style.borderRadius = '4px';
+        item.style.marginBottom = '4px';
+        item.style.background = 'var(--color-bg)';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'space-between';
+
+        item.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="font-weight:bold; color:var(--color-primary); width:20px;">#${index + 1}</div>
+            ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
+            <div>
+              <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <button class="btn btn-small btn-icon" data-action="up" ${index === 0 ? 'disabled' : ''} title="Monter">
+              <i data-lucide="chevron-up" class="icon"></i>
+            </button>
+            <button class="btn btn-small btn-icon" data-action="down" ${index === topProductsIds.length - 1 ? 'disabled' : ''} title="Descendre">
+              <i data-lucide="chevron-down" class="icon"></i>
+            </button>
+            <button class="btn btn-small btn-icon btn-danger" data-action="remove" title="Retirer">
+              <i data-lucide="trash-2" class="icon"></i>
+            </button>
+          </div>
+        `;
+
+        item.querySelector('[data-action="up"]').onclick = () => {
+          if (index > 0) {
+            [topProductsIds[index], topProductsIds[index - 1]] = [topProductsIds[index - 1], topProductsIds[index]];
+            renderLists();
+          }
+        };
+        item.querySelector('[data-action="down"]').onclick = () => {
+          if (index < topProductsIds.length - 1) {
+            [topProductsIds[index], topProductsIds[index + 1]] = [topProductsIds[index + 1], topProductsIds[index]];
+            renderLists();
+          }
+        };
+        item.querySelector('[data-action="remove"]').onclick = () => {
+          topProductsIds.splice(index, 1);
+          renderLists();
+        };
+
+        targetList.appendChild(item);
+      });
+    }
+    lucide.createIcons();
+  }
+
+  // Event Listeners
+  searchInput.oninput = (e) => {
+    currentSourceFilter = e.target.value;
+    renderLists();
+  };
+
+  saveBtn.onclick = async () => {
+    setButtonLoading(saveBtn, true);
+    try {
+      await setDoc(doc(db, 'config', 'topProducts'), {
+        productIds: topProductsIds,
+        updatedAt: serverTimestamp()
+      });
+      toast('Succès', 'Liste des Top Produits mise à jour !', 'success');
+      closeModal();
+    } catch (e) {
+      console.error(e);
+      toast('Erreur', 'Impossible de sauvegarder la liste.', 'error');
+    } finally {
+      setButtonLoading(saveBtn, false);
+    }
+  };
+
+  function closeModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  closeBtn.onclick = closeModal;
+
+  // Open Modal UI
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  // Initial Render
+  renderLists();
+}
+
+// Attach Top Products button listener
+const topProductsBtn = document.getElementById('manage-top-products');
+if (topProductsBtn) {
+  topProductsBtn.addEventListener('click', openTopProductsModal);
+}
