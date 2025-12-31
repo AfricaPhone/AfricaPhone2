@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport Général du Concours - Vote Artistes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            background: white;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #1a365d;
+            font-size: 28px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3182ce;
+            padding-bottom: 15px;
+        }
+        .meta {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3182ce;
+        }
+        .meta p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .meta strong {
+            color: #2d3748;
+        }
+        h2 {
+            color: #2d3748;
+            font-size: 20px;
+            margin: 25px 0 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            display: block;
+        }
+        .stat-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        th {
+            background: #2d3748;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+        }
+        th:first-child {
+            border-radius: 8px 0 0 0;
+        }
+        th:last-child {
+            border-radius: 0 8px 0 0;
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        tr:nth-child(even) {
+            background: #f7fafc;
+        }
+        tr:hover {
+            background: #edf2f7;
+        }
+        .rank {
+            font-weight: bold;
+            color: #3182ce;
+            text-align: center;
+        }
+        .rank-1 { color: #d69e2e; font-size: 16px; }
+        .rank-2 { color: #718096; font-size: 15px; }
+        .rank-3 { color: #c05621; font-size: 14px; }
+        .name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .phone {
+            font-family: monospace;
+            color: #4a5568;
+        }
+        .votes {
+            font-weight: bold;
+            color: #38a169;
+            text-align: center;
+        }
+        .amount {
+            text-align: right;
+            font-weight: 500;
+        }
+        .transactions {
+            text-align: center;
+            color: #718096;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 11px;
+            color: #a0aec0;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        @media print {
+            body { padding: 20px; }
+            .stat-card { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 RAPPORT GÉNÉRAL DU CONCOURS</h1>
+    
+    <div class="meta">
+        <p><strong>Concours :</strong> Concours Vote des Artistes</p>
+        <p><strong>Période :</strong> Du 14 décembre au 29 décembre 2025</p>
+        <p><strong>Date du rapport :</strong> 31/12/2025</p>
+    </div>
+    
+    <h2>📈 Statistiques Globales</h2>
+    <div class="stats">
+        <div class="stat-card">
+            <span class="value">24</span>
+            <span class="label">Candidats</span>
+        </div>
+        <div class="stat-card">
+            <span class="value">664</span>
+            <span class="label">Transactions</span>
+        </div>
+        <div class="stat-card">
+            <span class="value">7 846</span>
+            <span class="label">Votes</span>
+        </div>
+        <div class="stat-card">
+            <span class="value">784 600</span>
+            <span class="label">FCFA Collectés</span>
+        </div>
+    </div>
+    
+    <h2>🏆 Récapitulatif par Candidat</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width:50px">Rang</th>
+                <th>Candidat</th>
+                <th>Téléphone</th>
+                <th style="width:80px">Trans.</th>
+                <th style="width:80px">Votes</th>
+                <th style="width:120px">Montant</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="rank rank-1">1</td><td class="name">MOUKOUNKOUN MAYASOU</td><td class="phone">+2290157303249</td><td class="transactions">173</td><td class="votes">2 778</td><td class="amount">277 800 FCFA</td></tr>
+            <tr><td class="rank rank-2">2</td><td class="name">OGNIBO AZIZ</td><td class="phone">+2290162580982</td><td class="transactions">111</td><td class="votes">2 013</td><td class="amount">201 300 FCFA</td></tr>
+            <tr><td class="rank rank-3">3</td><td class="name">AMOUSSOU Adechinan Ola Thierry</td><td class="phone">+2290197418037</td><td class="transactions">163</td><td class="votes">1 240</td><td class="amount">124 000 FCFA</td></tr>
+            <tr><td class="rank">4</td><td class="name">Worou Roland</td><td class="phone">+0161711534</td><td class="transactions">88</td><td class="votes">855</td><td class="amount">85 500 FCFA</td></tr>
+            <tr><td class="rank">5</td><td class="name">Bassongui Mohamed</td><td class="phone">+22994832000</td><td class="transactions">51</td><td class="votes">570</td><td class="amount">57 000 FCFA</td></tr>
+            <tr><td class="rank">6</td><td class="name">GBAGUIDI Sègla Wilfried</td><td class="phone">+2290159732350</td><td class="transactions">21</td><td class="votes">114</td><td class="amount">11 400 FCFA</td></tr>
+            <tr><td class="rank">7</td><td class="name">Bakari Abdoul Hamid</td><td class="phone">+0163858286</td><td class="transactions">8</td><td class="votes">94</td><td class="amount">9 400 FCFA</td></tr>
+            <tr><td class="rank">8</td><td class="name">MASSENON Mahouhlin Jonas</td><td class="phone">+0157500966</td><td class="transactions">8</td><td class="votes">50</td><td class="amount">5 000 FCFA</td></tr>
+            <tr><td class="rank">9</td><td class="name">CHABI FAÏSOLATH</td><td class="phone">+2290163028803</td><td class="transactions">12</td><td class="votes">37</td><td class="amount">3 700 FCFA</td></tr>
+            <tr><td class="rank">10</td><td class="name">BARASSOUNON Sabi Gningo</td><td class="phone">+2290195450703</td><td class="transactions">13</td><td class="votes">36</td><td class="amount">3 600 FCFA</td></tr>
+            <tr><td class="rank">11</td><td class="name">AKOMINAN Moussibaou</td><td class="phone">+22969219084</td><td class="transactions">5</td><td class="votes">25</td><td class="amount">2 500 FCFA</td></tr>
+            <tr><td class="rank">12</td><td class="name">Brou Franck Allen F.</td><td class="phone">+66648817</td><td class="transactions">4</td><td class="votes">17</td><td class="amount">1 700 FCFA</td></tr>
+            <tr><td class="rank">13</td><td class="name">AKAKPO Ezéckiel</td><td class="phone">+0152079526</td><td class="transactions">2</td><td class="votes">11</td><td class="amount">1 100 FCFA</td></tr>
+            <tr><td class="rank">14</td><td class="name">Gbadou eritie</td><td class="phone">+2290150569349</td><td class="transactions">2</td><td class="votes">3</td><td class="amount">300 FCFA</td></tr>
+            <tr><td class="rank">15</td><td class="name">Ballogun PROSPER</td><td class="phone">+22969550781</td><td class="transactions">3</td><td class="votes">3</td><td class="amount">300 FCFA</td></tr>
+            <tr><td class="rank">16</td><td class="name">Zoulkif</td><td class="phone">+2290156726888</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+            <tr><td class="rank">17</td><td class="name">Touhan godonou junior G.</td><td class="phone">+66602132</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+            <tr><td class="rank">18</td><td class="name">MALAM MOUSSA Abdoul-Aziz</td><td class="phone">+22963020279</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+            <tr><td class="rank">19</td><td class="name">Affokpate tchegoun dieu donne</td><td class="phone">+2290196463836</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+            <tr><td class="rank">20</td><td class="name">Fataï adjibi</td><td class="phone">+0142463465</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+            <tr><td class="rank">21</td><td class="name">Bassongui Mohamed</td><td class="phone">+0194832000</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+            <tr><td class="rank">22</td><td class="name">Adjakidje Rodrigue</td><td class="phone">+22997413735</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+            <tr><td class="rank">23</td><td class="name">SONOUNAMETO CREPIN</td><td class="phone">+2290152130192</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+            <tr><td class="rank">24</td><td class="name">ADILEHOU Grégoire</td><td class="phone">+2290194941991</td><td class="transactions">0</td><td class="votes">0</td><td class="amount">0 FCFA</td></tr>
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Rapport généré le 31/12/2025 - AfricaPhone © 2025</p>
+    </div>
+
+    <script>
+        // Auto-print when opened
+        window.onload = function() {
+            // Uncomment to auto-print: window.print();
+        }
+    </script>
+</body>
+</html>

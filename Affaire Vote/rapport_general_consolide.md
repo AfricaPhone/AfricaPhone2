@@ -15,7 +15,7 @@
 
 | Rang | Candidat | Téléphone | Transactions | Votes | Montant |
 | :---: | :--- | :--- | :---: | :---: | ---: |
-| 1 | **MOUKOUNKOUN MAYASOU** | +57303249 | 173 | **2 778** | 277 800 FCFA |
+| 1 | **MOUKOUNKOUN MAYASOU** | +2290157303249 | 173 | **2 778** | 277 800 FCFA |
 | 2 | **OGNIBO AZIZ** | +2290162580982 | 111 | **2 013** | 201 300 FCFA |
 | 3 | **AMOUSSOU Adechinan Ola Thierry** | +2290197418037 | 163 | **1 240** | 124 000 FCFA |
 | 4 | **Worou Roland** | +0161711534 | 88 | **855** | 85 500 FCFA |
