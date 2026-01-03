@@ -187,6 +187,7 @@ export default function PartnerDashboardPage() {
     }
   }, [refInput, rangeType, customStart, customEnd]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [linkTemplates, setLinkTemplates] = useState<any>(null);
 
   // Load Link Templates config
