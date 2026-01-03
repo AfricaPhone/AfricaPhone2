@@ -4097,20 +4097,55 @@ function renderPromoCodeList() {
 async function previewPromoLinks(code, ref) {
   const normalized = (code || '').trim();
   if (!normalized) return;
-  try {
-    const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
-    const res = await callable({ code: normalized, ref });
-    const data = res.data || {};
-    const body = `
-      <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
-      <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
-      <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
-    `;
-    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
-  } catch (error) {
-    console.error('Preview promo links failed', error);
-    toast('Erreur', 'Impossible de générer les liens.', 'error');
+
+  // Ensure templates are loaded
+  if (!linkTemplates) {
+    await ensureLinkTemplatesLoaded();
   }
+
+  const tmpl = linkTemplates || FALLBACK_LINK_TEMPLATES;
+  const baseUrl = tmpl.webBaseUrl.replace(/\/$/, ''); // Remove trailing slash
+
+  // Generate links locally based on Templates
+  // Web: [BaseURL]/[Code]?[Ref]
+  const webLink = `${baseUrl}/${normalized}${ref ? '?ref=' + encodeURIComponent(ref) : ''}`;
+
+  // Dashboard: [Origin]/d/[Code] (Assuming deployed on same domain)
+  const dashboardLink = `${window.location.origin}/d/${normalized}`;
+
+  // App Deep Link
+  // africaphone://apply-promo?code=...
+  const appLink = `${tmpl.appScheme}?code=${normalized}${ref ? '&ref=' + encodeURIComponent(ref) : ''}&channel=app&campaign=${tmpl.defaultCampaign}&sub=${tmpl.defaultSub}`;
+
+  // WhatsApp
+  // Replace {code} and {link} in template
+  let waMsg = tmpl.waMessageTemplate
+    .replace('{code}', normalized)
+    .replace('{link}', webLink)
+    .replace('{ref}', ref || '');
+
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+
+  // Password retrieval (simulated/check)
+  // Check if we have the code object to see if there is a password field (legacy)
+  const codeObj = allPromoCodes.find(c => c.code === normalized || c.id === normalized);
+  const passwordDisplay = codeObj?.password ?
+    `<div class="field"><div class="label">Mot de passe</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(codeObj.password)}'); toast('Copié', 'Mot de passe copié')">${escapeHtml(codeObj.password)} <i data-lucide="copy" class="icon-small"></i></div></div>` :
+    `<div class="field"><div class="label">Mot de passe</div><div class="muted small">Non requis pour la version V2 (accès via lien unique)</div></div>`;
+
+  const body = `
+    <div class="field"><div class="label">Tableau de Bord (Partenaire)</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(dashboardLink)}'); toast('Copié', 'Lien dashboard copié')">${escapeHtml(dashboardLink)} <i data-lucide="copy" class="icon-small"></i></div></div>
+    <div class="field"><div class="label">Web (Client)</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(webLink)}'); toast('Copié', 'Lien Web copié')">${escapeHtml(webLink)} <i data-lucide="copy" class="icon-small"></i></div></div>
+    <div class="field"><div class="label">App (Deep Link)</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(appLink)}'); toast('Copié', 'Lien App copié')">${escapeHtml(appLink)} <i data-lucide="copy" class="icon-small"></i></div></div>
+    <div class="field"><div class="label">WhatsApp (Partage)</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(waMsg)}'); toast('Copié', 'Message WhatsApp copié')">${escapeHtml(waMsg)} <i data-lucide="copy" class="icon-small"></i></div></div>
+    ${passwordDisplay}
+    <div style="margin-top:16px; font-size: 0.85em; opacity: 0.7;">
+        Note: Les liens sont générés selon la configuration "Templates".
+    </div>
+  `;
+
+  await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: null });
+  lucide.createIcons();
 }
 
 async function handlePromoCodeStatusToggle(id, isActive) {
