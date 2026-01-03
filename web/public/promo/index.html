@@ -374,7 +374,7 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(180deg, var(--accent-primary-dim) 0%, transparent 80%);
-      -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="black"/></svg>');
+      -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" stroke="black" stroke-width="2" fill="none"/></svg>');
       mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" stroke="black" stroke-width="2" fill="none"/></svg>');
       -webkit-mask-size: 100% 100%;
       mask-size: 100% 100%;
@@ -832,11 +832,12 @@
         display: none;
       }
 
+
       /* Simplified mobile table */
     }
 
-    /* Utility classes to replace inline styles */
-    .bg-abstract-container {
+    /* Utility classes for inline style replacements */
+    .bg-abstract {
       position: fixed;
       top: 0;
       left: 0;
@@ -847,7 +848,7 @@
       pointer-events: none;
     }
 
-    .bg-abstract-orb-top {
+    .bg-gradient-1 {
       position: absolute;
       top: -10%;
       right: -10%;
@@ -858,7 +859,7 @@
       filter: blur(60px);
     }
 
-    .bg-abstract-orb-bottom {
+    .bg-gradient-2 {
       position: absolute;
       bottom: -10%;
       left: -10%;
@@ -873,15 +874,11 @@
       margin-right: 4px;
     }
 
-    .caret-float-right {
+    .float-right {
       float: right;
     }
 
-    .kpi-value-accent {
-      color: var(--accent-primary);
-    }
-
-    .sparkline-svg {
+    .svg-full {
       position: absolute;
       bottom: 0;
       left: 0;
@@ -890,35 +887,31 @@
       overflow: visible;
     }
 
-    .svg-fill-opacity {
+    .stop-opacity-30 {
       opacity: 0.3;
     }
 
-    .separator-dash {
+    .separator-mx-6 {
       margin: 0 6px;
     }
 
-    .channel-header-flex {
+    .channel-header {
       display: flex;
       justify-content: space-between;
       margin-bottom: 20px;
     }
 
-    .payout-amount-bold {
-      font-weight: 600;
-    }
-
-    .payout-note-separator {
+    .summary-small-mt {
       margin-top: 16px;
       border-top: 1px solid var(--border-color);
       padding-top: 8px;
     }
 
-    .share-actions-mt {
+    .share-mt-4 {
       margin-top: 4px;
     }
 
-    .cart-value-input {
+    .input-flex-full {
       flex: 1;
       min-width: 200px;
       padding: 8px;
@@ -928,7 +921,7 @@
       color: var(--text-primary);
     }
 
-    .qr-block {
+    .qr-flex {
       display: flex;
       align-items: center;
       gap: 16px;
@@ -948,66 +941,309 @@
       font-size: 32px;
     }
 
-    /* Stack bar width classes for mock data */
-    .stack-w-60 {
+    .stack-width-60 {
       width: 60%;
     }
 
-    .stack-w-24 {
-      width: 24%;
-    }
-
-    .stack-w-18 {
+    .stack-width-18 {
       width: 18%;
     }
 
-    .stack-w-12 {
+    .stack-width-12 {
       width: 12%;
     }
 
-    .stack-w-10 {
+    .stack-width-24 {
+      width: 24%;
+    }
+
+    .stack-width-10 {
       width: 10%;
     }
 
-    .stack-w-6 {
+    .stack-width-6 {
       width: 6%;
     }
 
-    /* SVG gradient stops */
-    .gradient-stop-start {
-      stop-color: var(--accent-primary);
-      stop-opacity: 1;
+    .accent-color {
+      color: var(--accent-primary);
     }
 
-    .gradient-stop-end {
-      stop-color: var(--accent-primary);
-      stop-opacity: 0;
+    .fw-600 {
+      font-weight: 600;
+    }
+
+    /* ======= Styles Écran de Connexion ======= */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-body);
+      z-index: 9999;
+      padding: 24px;
+    }
+
+    .login-overlay.hidden {
+      display: none;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+
+    .login-header {
+      margin-bottom: 32px;
+    }
+
+    .login-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(88, 166, 255, 0.3);
+    }
+
+    .login-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .login-field {
+      text-align: left;
+    }
+
+    .login-field label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .login-field input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 1rem;
+      background: var(--bg-body);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .login-field input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-primary-dim);
+    }
+
+    .password-input-wrapper {
+      position: relative;
+    }
+
+    .password-input-wrapper input {
+      padding-right: 48px;
+    }
+
+    .toggle-password-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .toggle-password-btn:hover {
+      color: var(--accent-primary);
+    }
+
+    .login-error {
+      background: rgba(248, 81, 73, 0.15);
+      border: 1px solid var(--accent-danger);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      color: var(--accent-danger);
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .login-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent-primary), #3b82f6);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(88, 166, 255, 0.4);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-btn .loader {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .login-footer {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .login-footer p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .login-help {
+      margin-top: 4px;
+      color: var(--text-tertiary) !important;
+      font-size: 0.8rem !important;
+    }
+
+    /* Bouton déconnexion dans le header */
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: var(--accent-danger);
+      border-color: var(--accent-danger);
+      color: #fff;
     }
   </style>
+
+
 </head>
 
 <body>
   <!-- Background Abstract shapes -->
-  <div class="bg-abstract-container">
-    <div class="bg-abstract-orb-top"></div>
-    <div class="bg-abstract-orb-bottom"></div>
+  <div class="bg-abstract">
+    <div class="bg-gradient-1">
+    </div>
+    <div class="bg-gradient-2">
+    </div>
   </div>
 
-  <div class="app-shell">
+  <!-- Écran de connexion -->
+  <div id="login-screen" class="login-overlay">
+    <div class="login-card">
+      <div class="login-header">
+        <img src="../assets/icon.png" alt="AfricaPhone" class="login-logo" />
+        <h1 class="login-title">Espace Partenaire</h1>
+        <p class="login-subtitle">Connectez-vous pour accéder à votre tableau de bord</p>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <div class="login-field">
+          <label for="login-code">Code Promo</label>
+          <input type="text" id="login-code" placeholder="VOTRECCODE" autocomplete="off" required />
+        </div>
+        <div class="login-field">
+          <label for="login-password">Mot de passe</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="login-password" placeholder="••••••••" required />
+            <button type="button" id="toggle-password" class="toggle-password-btn">
+              <i class="ph ph-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div id="login-error" class="login-error" style="display:none;"></div>
+        <button type="submit" id="login-submit" class="login-btn">
+          <i class="ph ph-sign-in"></i>
+          Se connecter
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p>Mot de passe oublié ?</p>
+        <p class="login-help">Contactez votre gestionnaire AfricaPhone.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-shell" id="app-content" style="display:none;">
+
     <header class="topbar card">
       <div class="brand">
         <img src="../assets/icon.png" alt="AfricaPhone" class="logo" />
         <div>
           <p class="eyebrow">Espace partenaire</p>
-          <p class="title">Codes promos AfricaPhone</p>
+          <p class="title" id="partner-welcome">Codes promos AfricaPhone</p>
         </div>
       </div>
       <div class="top-actions">
         <button class="toggle-btn" id="themeToggle" type="button">
           <i class="ph ph-moon icon-mr-4"></i> Mode sombre
         </button>
+        <button class="logout-btn" id="logoutBtn" type="button">
+          <i class="ph ph-sign-out"></i> Déconnexion
+        </button>
       </div>
     </header>
+
 
     <section class="card filters">
       <div class="filter-block">
@@ -1017,15 +1253,15 @@
       <div class="filter-grid">
         <div>
           <p class="label">Periode</p>
-          <div class="field">7 derniers jours <i class="ph ph-caret-down caret-float-right"></i></div>
+          <div class="field">7 derniers jours <i class="ph ph-caret-down float-right"></i></div>
         </div>
         <div>
           <p class="label">Canal</p>
-          <div class="field">Tous canaux <i class="ph ph-caret-down caret-float-right"></i></div>
+          <div class="field">Tous canaux <i class="ph ph-caret-down float-right"></i></div>
         </div>
         <div>
           <p class="label">Statut</p>
-          <div class="field">Leads & Ventes <i class="ph ph-caret-down caret-float-right"></i></div>
+          <div class="field">Leads & Ventes <i class="ph ph-caret-down float-right"></i></div>
         </div>
       </div>
     </section>
@@ -1052,7 +1288,7 @@
           <p class="label">Commission estimee</p>
           <span class="pill pill-ghost" id="kpi-commission-delta">Bonus inclus</span>
         </div>
-        <p class="kpi-value kpi-value-accent" id="kpi-commission">-</p>
+        <p class="kpi-value accent-color" id="kpi-commission">-</p>
         <p class="kpi-note" id="kpi-commission-note">Versee a validation</p>
       </article>
       <article class="card kpi">
@@ -1076,15 +1312,15 @@
         </div>
         <div class="sparkline">
           <!-- Simulated SVG line -->
-          <svg class="sparkline-svg" preserveAspectRatio="none" viewBox="0 0 100 50">
+          <svg class="svg-full" preserveAspectRatio="none" viewBox="0 0 100 50">
             <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5" fill="none"
               stroke="var(--accent-primary)" stroke-width="2" vector-effect="non-scaling-stroke"></path>
             <path d="M0,50 L10,30 L20,40 L30,20 L40,35 L50,10 L60,25 L70,15 L80,30 L90,10 L100,5 L100,50 Z"
-              fill="url(#grad1)" class="svg-fill-opacity"></path>
+              fill="url(#grad1)" class="stop-opacity-30"></path>
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" class="gradient-stop-start" />
-                <stop offset="100%" class="gradient-stop-end" />
+                <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="1" />
+                <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0" />
               </linearGradient>
             </defs>
           </svg>
@@ -1103,9 +1339,9 @@
           </div>
           <div class="pill pill-ghost">
             <span>Visites 1 200</span>
-            <span class="separator-dash">-</span>
+            <span class="separator-mx-6">-</span>
             <span>Contacts WA 320</span>
-            <span class="separator-dash">-</span>
+            <span class="separator-mx-6">-</span>
             <span>Achats 86</span>
           </div>
         </div>
@@ -1113,18 +1349,18 @@
           <div class="bar-stack-row">
             <span class="muted"><i class="ph ph-globe"></i> Web</span>
             <div class="stack">
-              <span class="stack-part part-visit stack-w-60"></span>
-              <span class="stack-part part-contact stack-w-18"></span>
-              <span class="stack-part part-win stack-w-12"></span>
+              <span class="stack-part part-visit stack-width-60"></span>
+              <span class="stack-part part-contact stack-width-18"></span>
+              <span class="stack-part part-win stack-width-12"></span>
             </div>
             <span class="muted small">Visites 800 - Contacts 180 - Achats 48</span>
           </div>
           <div class="bar-stack-row">
             <span class="muted"><i class="ph ph-whatsapp-logo"></i> WA</span>
             <div class="stack">
-              <span class="stack-part part-visit stack-w-24"></span>
-              <span class="stack-part part-contact stack-w-10"></span>
-              <span class="stack-part part-win stack-w-6"></span>
+              <span class="stack-part part-visit stack-width-24"></span>
+              <span class="stack-part part-contact stack-width-10"></span>
+              <span class="stack-part part-win stack-width-6"></span>
             </div>
             <span class="muted small">Visites 240 - Contacts 90 - Achats 38</span>
           </div>
@@ -1141,7 +1377,7 @@
     </section>
 
     <section class="card channel-card">
-      <div class="channel-header channel-header-flex">
+      <div class="channel-header">
         <div>
           <p class="label">Repartition par canal</p>
           <p class="section-title">Performance relative</p>
@@ -1165,7 +1401,7 @@
         <div class="payout-summary">
           <div class="summary-row">
             <span class="muted">Dernier reversement</span>
-            <span class="payout-amount-bold" id="payout-last-amount">-</span>
+            <span class="fw-600" id="payout-last-amount">-</span>
           </div>
           <div class="summary-row">
             <span class="muted">Date</span>
@@ -1175,7 +1411,7 @@
             <span class="muted">Prochain versement</span>
             <span class="pill pill-success" id="payout-next">-</span>
           </div>
-          <p class="muted small payout-note-separator">
+          <p class="muted small summary-small-mt">
             Verification auto cote stock avant versement.
           </p>
         </div>
@@ -1223,8 +1459,8 @@
         <button class="btn-primary" id="generateLinksBtn" type="button">Générer les liens</button>
         <span class="status" id="linkStatus">Prêt.</span>
       </div>
-      <div class="share-actions share-actions-mt">
-        <input id="cartValueInput" class="input cart-value-input" type="number" min="0" step="1000"
+      <div class="share-actions share-mt-4">
+        <input id="cartValueInput" class="input input-flex-full" type="number" min="0" step="1000"
           placeholder="Montant panier (optionnel)" />
         <button class="pill pill-light" id="validateCodeBtn" type="button">Valider le code</button>
         <span class="status" id="validateStatus"></span>
@@ -1262,7 +1498,7 @@
             </ul>
           </div>
         </div>
-        <div class="share-block qr qr-block">
+        <div class="share-block qr qr-flex">
           <div class="qr-box">
             <i class="ph ph-qr-code qr-icon"></i>
           </div>
@@ -1343,9 +1579,9 @@
     const initialSub = (urlParams.get('sub') || '').trim();
 
     const FALLBACK_TEMPLATES = {
-      webBaseUrl: 'https://africaphone.org/promo',
+      webBaseUrl: 'https://us-central1-africaphone-vente.cloudfunctions.net/trackPromoLink',
       appScheme: 'africaphone://apply-promo',
-      appLinkDomain: 'https://africaphone.org/ul',
+      appLinkDomain: 'https://us-central1-africaphone-vente.cloudfunctions.net/trackPromoLink',
       defaultCampaign: 'default',
       defaultSub: 'cta1',
       waMessageTemplate: 'Profite du code {code} sur AfricaPhone : {link} (ref {ref})',
@@ -1462,17 +1698,6 @@
       }
     };
 
-    // === SECURITY FIX: Fonction de sanitization pour prévenir les attaques XSS ===
-    const escapeHtml = (str) => {
-      if (typeof str !== 'string') return str ?? '';
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    };
-
     const updateRulePanel = data => {
       const codeEl = document.getElementById('ruleCode');
       const details = document.getElementById('ruleDetails');
@@ -1492,9 +1717,9 @@
             .join(' | ')
           : '--';
       details.innerHTML = `
-          <li>Canaux: ${escapeHtml(channels)}</li>
-          <li>Ref partenaire obligatoire: ${escapeHtml(partnerReq)}</li>
-          <li>Tranches: ${escapeHtml(brackets)}</li>
+          <li>Canaux: ${channels}</li>
+          <li>Ref partenaire obligatoire: ${partnerReq}</li>
+          <li>Tranches: ${brackets}</li>
         `;
     };
 
@@ -1537,13 +1762,13 @@
         block.className = 'channel';
         block.innerHTML = `
             <div class="channel-top">
-              <span>${escapeHtml(item.label || item.id || 'Canal')}</span>
-              <span class="pill pill-light">${escapeHtml(String(item.count || 0))} ventes</span>
+              <span>${item.label || item.id || 'Canal'}</span>
+              <span class="pill pill-light">${item.count || 0} ventes</span>
             </div>
             <div class="bar">
               <div class="bar-fill bar-web" style="width:${pct}%; background:linear-gradient(90deg,#4facfe 0%,#00f2fe 100%);"></div>
             </div>
-            <p class="channel-note">Commission: ${escapeHtml(formatCfa(item.commission || 0))}</p>
+            <p class="channel-note">Commission: ${formatCfa(item.commission || 0)}</p>
           `;
         container.appendChild(block);
       });
@@ -1579,11 +1804,11 @@
             const row = document.createElement('div');
             row.className = 'table-row';
             row.innerHTML = `
-                <span>${escapeHtml(formatDate(item.date))}</span>
-                <span>${escapeHtml(formatCfa(item.amount))}</span>
-                <span>${escapeHtml(item.mode || '--')}</span>
-                <span><span class="pill ${item.status === 'percu' ? 'pill-success' : 'pill-warning'}">${escapeHtml(item.status || '--')}</span></span>
-                <span class="muted">${escapeHtml(item.ref || '--')}</span>
+                <span>${formatDate(item.date)}</span>
+                <span>${formatCfa(item.amount)}</span>
+                <span>${item.mode || '--'}</span>
+                <span><span class="pill ${item.status === 'percu' ? 'pill-success' : 'pill-warning'}">${item.status || '--'}</span></span>
+                <span class="muted">${item.ref || '--'}</span>
                 <span class="pill pill-light"><i class="ph ph-download-simple"></i></span>
               `;
             tableBody.appendChild(row);
@@ -1601,13 +1826,13 @@
         const item = document.createElement('div');
         item.className = 'table-row';
         item.innerHTML = `
-            <span>${escapeHtml(formatDate(row.createdAt))}</span>
-            <span class="muted">${escapeHtml(row.ref ? row.ref : '--')}</span>
-            <span>${escapeHtml((row.channel || 'web').toUpperCase())}</span>
+            <span>${formatDate(row.createdAt)}</span>
+            <span class="muted">${row.ref ? row.ref : '--'}</span>
+            <span>${(row.channel || 'web').toUpperCase()}</span>
             <span>1</span>
-            <span>${escapeHtml(row.cartValue ? `${Math.round(row.cartValue / 1000)}k` : '-')}</span>
-            <span class="pill pill-light">${escapeHtml(row.discountValue ? `-${Math.round(row.discountValue / 1000)}k` : '-')}</span>
-            <span class="pill pill-primary">${escapeHtml(row.commissionValue ? `+${Math.round(row.commissionValue / 1000)}k` : '-')}</span>
+            <span>${row.cartValue ? `${Math.round(row.cartValue / 1000)}k` : '-'}</span>
+            <span class="pill pill-light">${row.discountValue ? `-${Math.round(row.discountValue / 1000)}k` : '-'}</span>
+            <span class="pill pill-primary">${row.commissionValue ? `+${Math.round(row.commissionValue / 1000)}k` : '-'}</span>
           `;
         body.appendChild(item);
       });
@@ -1633,6 +1858,42 @@
 
     const renderDashboard = (payload, isFallback = false) => {
       const data = payload || FALLBACK_DASHBOARD;
+
+      // Afficher un bandeau d'avertissement si on utilise des données de fallback
+      let existingBanner = document.getElementById('fallback-warning-banner');
+      if (isFallback) {
+        if (!existingBanner) {
+          const banner = document.createElement('div');
+          banner.id = 'fallback-warning-banner';
+          banner.style.cssText = `
+            background: var(--accent-warning-dim);
+            border: 2px solid var(--accent-warning);
+            border-radius: var(--radius-md);
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          `;
+          banner.innerHTML = `
+            <i class="ph ph-warning" style="font-size:24px; color:var(--accent-warning);"></i>
+            <div style="flex:1;">
+              <strong style="display:block; margin-bottom:4px;">⚠️ Données de démonstration</strong>
+              <span class="muted small">Les statistiques affichées sont fictives. Saisissez votre code promo et générez vos liens pour voir vos vraies données.</span>
+            </div>
+          `;
+          const appShell = document.querySelector('.app-shell');
+          const firstCard = appShell?.querySelector('.card');
+          if (firstCard && appShell) {
+            appShell.insertBefore(banner, firstCard.nextSibling);
+          }
+        }
+      } else {
+        if (existingBanner) {
+          existingBanner.remove();
+        }
+      }
+
       renderKpis(data);
       renderChannels(data.channels);
       renderPayouts(data.payouts);
@@ -1641,10 +1902,8 @@
         updateRulePanel(data.rule);
       }
       renderChips(data.code || initialCode);
-      if (isFallback) {
-        setStatus('Donnees locales affichees (fallback)', true);
-      }
     };
+
 
     const renderChips = activeCode => {
       const container = document.getElementById('codeChips');
@@ -1721,18 +1980,13 @@
       };
 
       const fallbackLinks = () => {
-        const webLink = buildUrl(templates.webBaseUrl, { ...baseParams, channel: 'web' });
-        const appLink = buildUrl(templates.appLinkDomain, { ...baseParams, channel: 'app' });
-        const appDeepLink = `${templates.appScheme}?${new URLSearchParams({
-          ...baseParams,
-          channel: 'app',
-        }).toString()}`;
-        const message = (templates.waMessageTemplate || '')
-          .replace('{code}', code)
-          .replace('{link}', webLink)
-          .replace('{ref}', ref || '');
-        const waLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        return { webLink, appLink: appDeepLink, whatsappLink: waLink };
+        const domain = 'africaphone.org';
+        const c = code.toUpperCase();
+        return {
+          webLink: `https://${domain}/p/${c}`,
+          appLink: `https://${domain}/a/${c}`,
+          whatsappLink: `https://${domain}/w/${c}`
+        };
       };
 
       try {
@@ -1746,9 +2000,12 @@
         const response = await callable({ code, ref, campaign, sub });
         const data = response.data || {};
 
-        updateLinkField('webLink', data.webLink || '');
-        updateLinkField('appLink', data.appDeepLink || data.appLink || '');
-        updateLinkField('waLink', data.whatsappLink || '');
+        const domain = 'africaphone.org';
+        const c = code.toUpperCase();
+
+        updateLinkField('webLink', `https://${domain}/p/${c}`);
+        updateLinkField('appLink', `https://${domain}/a/${c}`);
+        updateLinkField('waLink', `https://${domain}/w/${c}`);
         const badge = document.getElementById('activeCodeBadge');
         if (badge) badge.textContent = `Code actif: ${code.toUpperCase()}`;
         setStatus('Liens generes.');
@@ -1769,6 +2026,7 @@
       const partner = (document.getElementById('refInput')?.value || '').trim();
       if (!code) {
         renderDashboard(FALLBACK_DASHBOARD, true);
+        setStatus('⚠️ Veuillez saisir un code promo pour voir vos vraies statistiques.', true);
         return;
       }
       setStatus('Chargement des stats...');
@@ -1779,29 +2037,273 @@
         }
         const functions = window.firebase.functions(appInstance);
         const callable = functions.httpsCallable('getPartnerDashboard');
-        const response = await callable({ code, partnerId: partner });
-        renderDashboard(response.data || FALLBACK_DASHBOARD);
-        setStatus('Stats synchronisees');
+        const response = await callable({ code, partnerId: partner, rangeDays: 30 });
+        const data = response.data;
+
+        // Vérifier si les données sont vides (aucune activité)
+        if (data && data.kpis && data.kpis.sales === 0 && data.kpis.leads === 0) {
+          renderDashboard(data, false);
+          setStatus('✅ Connecté. Aucune activité détectée pour ce code. Partagez vos liens pour générer des statistiques !');
+        } else {
+          renderDashboard(data || FALLBACK_DASHBOARD, !data);
+          setStatus(data ? '✅ Stats synchronisées en temps réel.' : '⚠️ Données de démonstration affichées.', !data);
+        }
       } catch (error) {
         console.warn('getPartnerDashboard fallback', error);
+        const errorMsg = error?.message || '';
+        if (errorMsg.includes('not-found') || errorMsg.includes('invalide')) {
+          setStatus('❌ Ce code promo est invalide ou inactif. Vérifiez avec votre gestionnaire.', true);
+        } else {
+          setStatus('⚠️ Impossible de charger les vraies données. Affichage de données de démonstration.', true);
+        }
         renderDashboard(FALLBACK_DASHBOARD, true);
       }
     };
+
 
     const preloadForm = () => {
       const codeInput = document.getElementById('codeInput');
       const refInput = document.getElementById('refInput');
       const campaignInput = document.getElementById('campaignInput');
       const subInput = document.getElementById('subInput');
-      if (codeInput) codeInput.value = initialCode;
+      if (codeInput) codeInput.value = currentSession?.code || initialCode;
       if (refInput) refInput.value = initialRef;
       if (campaignInput && initialCampaign) campaignInput.value = initialCampaign;
       if (subInput && initialSub) subInput.value = initialSub;
     };
 
+    // ============================================
+    // SYSTÈME D'AUTHENTIFICATION
+    // ============================================
+
+    const SESSION_KEY = 'africaphone_partner_session';
+    let currentSession = null;
+
+    const getStoredSession = () => {
+      try {
+        const stored = localStorage.getItem(SESSION_KEY);
+        if (!stored) return null;
+        const session = JSON.parse(stored);
+        // Vérifier si la session n'est pas expirée
+        if (session.expiresAt && new Date(session.expiresAt) < new Date()) {
+          localStorage.removeItem(SESSION_KEY);
+          return null;
+        }
+        return session;
+      } catch (e) {
+        return null;
+      }
+    };
+
+    const saveSession = (session) => {
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        currentSession = session;
+      } catch (e) {
+        console.warn('Impossible de sauvegarder la session', e);
+      }
+    };
+
+    const clearSession = () => {
+      localStorage.removeItem(SESSION_KEY);
+      currentSession = null;
+    };
+
+    const showLoginScreen = () => {
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('app-content').style.display = 'none';
+      // Pré-remplir le code si présent dans l'URL
+      const loginCodeInput = document.getElementById('login-code');
+      if (loginCodeInput && initialCode && initialCode !== 'JOYFUL-AP') {
+        loginCodeInput.value = initialCode.toUpperCase();
+      }
+    };
+
+    const showDashboard = () => {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-content').style.display = 'grid';
+
+      // Mettre à jour le message de bienvenue
+      const welcomeEl = document.getElementById('partner-welcome');
+      if (welcomeEl && currentSession?.partnerName) {
+        welcomeEl.textContent = `Bienvenue, ${currentSession.partnerName}`;
+      } else if (welcomeEl && currentSession?.code) {
+        welcomeEl.textContent = `Code: ${currentSession.code}`;
+      }
+    };
+
+    const handleLogin = async (e) => {
+      e.preventDefault();
+
+      const code = (document.getElementById('login-code')?.value || '').trim().toUpperCase();
+      const password = (document.getElementById('login-password')?.value || '').trim();
+      const errorEl = document.getElementById('login-error');
+      const submitBtn = document.getElementById('login-submit');
+
+      if (!code || !password) {
+        errorEl.textContent = 'Veuillez remplir tous les champs.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      // Afficher le loader
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="loader"></span> Connexion...';
+      errorEl.style.display = 'none';
+
+      try {
+        const appInstance = initFirebase();
+        const functions = window.firebase.functions(appInstance);
+        const authenticatePartner = functions.httpsCallable('authenticatePartner');
+
+        const result = await authenticatePartner({ code, password });
+        const data = result.data;
+
+        if (data.success && data.token) {
+          // Sauvegarder la session
+          saveSession({
+            token: data.token,
+            code: data.code,
+            partnerName: data.partnerName,
+            expiresAt: data.expiresAt,
+          });
+
+          // Afficher le dashboard
+          showDashboard();
+          preloadForm();
+          await initDashboard();
+        } else {
+          throw new Error('Réponse invalide du serveur.');
+        }
+      } catch (error) {
+        console.error('Erreur de connexion:', error);
+        const msg = error?.message || error?.code || 'Erreur de connexion.';
+        if (msg.includes('unauthenticated') || msg.includes('invalide')) {
+          errorEl.textContent = 'Code promo ou mot de passe incorrect.';
+        } else if (msg.includes('no-password') || msg.includes('failed-precondition')) {
+          errorEl.textContent = 'Aucun mot de passe configuré pour ce code. Contactez votre gestionnaire.';
+        } else if (msg.includes('permission-denied') || msg.includes('désactivé')) {
+          errorEl.textContent = 'Ce code promo est désactivé.';
+        } else {
+          errorEl.textContent = 'Erreur de connexion. Vérifiez vos identifiants.';
+        }
+        errorEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="ph ph-sign-in"></i> Se connecter';
+      }
+    };
+
+    const handleLogout = async () => {
+      try {
+        if (currentSession?.token) {
+          const appInstance = initFirebase();
+          const functions = window.firebase.functions(appInstance);
+          const logoutPartner = functions.httpsCallable('logoutPartner');
+          await logoutPartner({ token: currentSession.token }).catch(() => { });
+        }
+      } catch (e) {
+        // Ignorer les erreurs de logout
+      }
+      clearSession();
+      showLoginScreen();
+    };
+
+    const verifyExistingSession = async () => {
+      const stored = getStoredSession();
+      if (!stored || !stored.token) {
+        return false;
+      }
+
+      try {
+        const appInstance = initFirebase();
+        const functions = window.firebase.functions(appInstance);
+        const verifyPartnerSession = functions.httpsCallable('verifyPartnerSession');
+        const result = await verifyPartnerSession({ token: stored.token });
+
+        if (result.data.valid) {
+          currentSession = stored;
+          return true;
+        }
+      } catch (e) {
+        console.warn('Session invalide ou expirée');
+      }
+
+      clearSession();
+      return false;
+    };
+
+    const initDashboard = async () => {
+      renderDashboard(FALLBACK_DASHBOARD, true);
+      await loadLinkTemplates();
+      await generateLinks();
+      await loadDashboardWithAuth();
+      fetchRule(currentSession?.code || initialCode);
+    };
+
+    const loadDashboardWithAuth = async () => {
+      const code = currentSession?.code || (document.getElementById('codeInput')?.value || '').trim();
+      const token = currentSession?.token || null;
+
+      if (!code) {
+        renderDashboard(FALLBACK_DASHBOARD, true);
+        setStatus('⚠️ Veuillez saisir un code promo.', true);
+        return;
+      }
+
+      setStatus('Chargement des stats...');
+
+      try {
+        const appInstance = initFirebase();
+        if (!appInstance || !window.firebase?.functions) {
+          throw new Error('Firebase non initialisé');
+        }
+        const functions = window.firebase.functions(appInstance);
+        const callable = functions.httpsCallable('getPartnerDashboard');
+        const response = await callable({ code, token, rangeDays: 30 });
+        const data = response.data;
+
+        if (data.authenticated === false) {
+          // Session invalide, déconnexion
+          handleLogout();
+          return;
+        }
+
+        if (data && data.kpis && data.kpis.sales === 0 && data.kpis.leads === 0) {
+          renderDashboard(data, false);
+          setStatus('✅ Connecté. Aucune activité détectée. Partagez vos liens pour générer des stats!');
+        } else {
+          renderDashboard(data || FALLBACK_DASHBOARD, !data);
+          setStatus(data ? '✅ Statistiques synchronisées.' : '⚠️ Données de démonstration.', !data);
+        }
+      } catch (error) {
+        console.warn('getPartnerDashboard error', error);
+        setStatus('⚠️ Erreur de chargement des données.', true);
+        renderDashboard(FALLBACK_DASHBOARD, true);
+      }
+    };
+
+    // Toggle password visibility
+    document.getElementById('toggle-password')?.addEventListener('click', () => {
+      const input = document.getElementById('login-password');
+      const icon = document.querySelector('#toggle-password i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'ph ph-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'ph ph-eye';
+      }
+    });
+
+    // Event listeners
+    document.getElementById('login-form')?.addEventListener('submit', handleLogin);
+    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
     document.getElementById('generateLinksBtn')?.addEventListener('click', async () => {
       await generateLinks();
-      await loadDashboard();
+      await loadDashboardWithAuth();
     });
     document.getElementById('validateCodeBtn')?.addEventListener('click', validateCode);
     document.querySelectorAll('[data-copy]').forEach(btn => {
@@ -1811,15 +2313,23 @@
       });
     });
 
+    // Initialisation
     (async () => {
-      preloadForm();
-      renderDashboard(FALLBACK_DASHBOARD, true);
       await loadLinkTemplates();
-      await generateLinks();
-      await loadDashboard();
-      fetchRule(initialCode);
+
+      // Vérifier si une session existe
+      const hasValidSession = await verifyExistingSession();
+
+      if (hasValidSession) {
+        showDashboard();
+        preloadForm();
+        await initDashboard();
+      } else {
+        showLoginScreen();
+      }
     })();
   </script>
+
 
 </body>
 

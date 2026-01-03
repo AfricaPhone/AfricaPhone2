@@ -12,7 +12,7 @@ import {
   TotpMultiFactorGenerator,
   TotpSecret,
   getMultiFactorResolver,
-} from './firebase-config.js';
+} from '/admin/assets/js/firebase-config.js';
 
 // Importe les fonctions spécifiques de Firebase Auth et Firestore.
 import {
