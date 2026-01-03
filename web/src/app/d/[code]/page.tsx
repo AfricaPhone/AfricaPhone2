@@ -186,34 +186,71 @@ export default function PartnerDashboardPage() {
     }
   }, [refInput, rangeType, customStart, customEnd]);
 
-  // Generate links
-  const generateLinks = useCallback(async () => {
+  // Load Link Templates config
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const app = getFirebaseApp();
+        const db = getFirestore(app);
+        const snap = await getDoc(doc(db, 'config', 'linkTemplates'));
+        if (snap.exists()) {
+          setLinkTemplates(snap.data());
+        }
+      } catch (e) {
+        console.error('Config load error', e);
+      }
+    };
+    loadConfig();
+  }, []);
+
+  // Generate links LOCALLY
+  const generateLinks = useCallback(() => {
     if (!codeInput.trim()) {
-      setStatus('Veuillez saisir un code promo.');
+      setStatus('Code requis.');
       return;
     }
 
-    setStatus('Génération des liens...');
+    // Default / Fallback configuration
+    const tmpl = linkTemplates || {
+      webBaseUrl: 'https://africaphone.org/p',
+      appScheme: 'africaphone://apply-promo',
+      defaultCampaign: 'default',
+      defaultSub: 'cta1',
+      waMessageTemplate: 'Profite du code {code} : {link} (ref {ref})',
+    };
 
-    try {
-      const app = getFirebaseApp();
-      const functions = getFunctions(app);
-      const generatePromoLinks = httpsCallable<
-        { code: string; ref?: string; campaign?: string; sub?: string },
-        GeneratedLinks
-      >(functions, 'generatePromoLinks');
-      // Removed campaign/sub inputs from call as they are not in UI
-      const result = await generatePromoLinks({
-        code: codeInput.trim(),
-        ref: refInput || undefined,
-      });
-      setLinks(result.data);
-      setStatus('Liens générés.');
-    } catch (error) {
-      console.error('generatePromoLinks error:', error);
-      setStatus('Erreur lors de la génération des liens.');
-    }
-  }, [codeInput, refInput]);
+    const code = codeInput.trim();
+    const ref = refInput || '';
+
+    // Web Link
+    // Handle specific case where user put a full URL in admin without trailing slash
+    let baseUrl = (tmpl.webBaseUrl || 'https://africaphone.org/p').replace(/\/$/, '');
+    // If baseUrl is the main domain (e.g. .org), append /p/CODE. If it is a full path (e.g. .../p), just append CODE.
+    // Admin example placeholder was ".../promo". We assume simple concatenation with slash.
+    const webLink = `${baseUrl}/${code}${ref ? '?ref=' + encodeURIComponent(ref) : ''}`;
+
+    // App Link (Deep Link)
+    const appScheme = tmpl.appScheme || 'africaphone://apply-promo';
+    const appLink = `${appScheme}?code=${code}${ref ? '&ref=' + encodeURIComponent(ref) : ''}&campaign=${tmpl.defaultCampaign}&sub=${tmpl.defaultSub}`;
+
+    // WhatsApp
+    const waTmpl = tmpl.waMessageTemplate || 'Profite du code {code} : {link} (ref {ref})';
+    const waMsg = waTmpl
+      .replace('{code}', code)
+      .replace('{link}', webLink)
+      .replace('{ref}', ref);
+
+    const waLink = `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+
+    setLinks({
+      webLink,
+      appLink: appLink, // Using same logic for simplicity or specific app link if needed
+      appDeepLink: appLink,
+      whatsappLink: waLink
+    });
+    setStatus('Liens générés (config à jour).');
+
+  }, [codeInput, refInput, linkTemplates]); // Re-run when templates loaded
 
   // Copy to clipboard
   const copyToClipboard = (text: string) => {
