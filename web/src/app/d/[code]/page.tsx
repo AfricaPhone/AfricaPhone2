@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import styles from './dashboard.module.css';
 
 // Firebase config
@@ -186,6 +187,8 @@ export default function PartnerDashboardPage() {
     }
   }, [refInput, rangeType, customStart, customEnd]);
 
+  const [linkTemplates, setLinkTemplates] = useState<any>(null);
+
   // Load Link Templates config
   useEffect(() => {
     const loadConfig = async () => {
@@ -224,7 +227,7 @@ export default function PartnerDashboardPage() {
 
     // Web Link
     // Handle specific case where user put a full URL in admin without trailing slash
-    let baseUrl = (tmpl.webBaseUrl || 'https://africaphone.org/p').replace(/\/$/, '');
+    const baseUrl = (tmpl.webBaseUrl || 'https://africaphone.org/p').replace(/\/$/, '');
     // If baseUrl is the main domain (e.g. .org), append /p/CODE. If it is a full path (e.g. .../p), just append CODE.
     // Admin example placeholder was ".../promo". We assume simple concatenation with slash.
     const webLink = `${baseUrl}/${code}${ref ? '?ref=' + encodeURIComponent(ref) : ''}`;
