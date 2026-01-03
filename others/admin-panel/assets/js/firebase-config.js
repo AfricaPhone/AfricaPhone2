@@ -28,13 +28,32 @@ const firebaseConfig = {
 };
 
 const appFB = initializeApp(firebaseConfig);
-const analytics = getAnalytics(appFB);
 
+// Initialisation des services critiques AVANT Analytics
+// pour éviter qu'une erreur Analytics ne bloque Firestore
 export const auth = getAuth(appFB);
 export const db = getFirestore(appFB);
 export const storage = getStorage(appFB);
 export const functions = getFunctions(appFB);
 export const connectFunctionsEmulator = connectFunctionsEmulatorV9;
-export { analytics, multiFactor, TotpMultiFactorGenerator, TotpSecret, getMultiFactorResolver };
-export const logEvent = (...args) => firebaseLogEvent(analytics, ...args);
+export { multiFactor, TotpMultiFactorGenerator, TotpSecret, getMultiFactorResolver };
 export { httpsCallable };
+
+// Analytics est optionnel - on le protège avec try-catch
+let analytics = null;
+try {
+  analytics = getAnalytics(appFB);
+} catch (err) {
+  console.warn('[Firebase] Analytics initialization failed (non-blocking):', err.message);
+}
+
+export { analytics };
+export const logEvent = (...args) => {
+  if (analytics) {
+    try {
+      firebaseLogEvent(analytics, ...args);
+    } catch (err) {
+      console.warn('[Firebase] Analytics logEvent failed:', err.message);
+    }
+  }
+};
