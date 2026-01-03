@@ -453,7 +453,11 @@ async function saveLinkTemplates(e) {
 
   try {
     const ref = doc(db, 'config', 'linkTemplates');
-    await setDoc(ref, payload, { merge: true });
+    // Add timeout to prevent infinite loading
+    const saveOp = setDoc(ref, payload, { merge: true });
+    const timeoutOp = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: Sauvegarde trop longue (réseau?)')), 10000));
+
+    await Promise.race([saveOp, timeoutOp]);
 
     // Update global state
     linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...payload };
@@ -465,7 +469,8 @@ async function saveLinkTemplates(e) {
     toast('Enregistré', 'Templates de liens mis à jour', 'success');
   } catch (err) {
     console.error('Save link templates failed', err);
-    toast('Erreur', 'Impossible de sauvegarder les templates', 'error');
+    const msg = err.message && err.message.includes('Timeout') ? 'La sauvegarde prend trop de temps. Vérifiez votre connexion.' : 'Impossible de sauvegarder les templates';
+    toast('Erreur', msg, 'error');
   } finally {
     setButtonLoading(btn, false);
   }
