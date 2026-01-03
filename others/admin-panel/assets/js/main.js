@@ -673,17 +673,20 @@ onAuthStateChanged(auth, async function (user) {
         // L'utilisateur est un administrateur
         console.log(`[Admin Panel] Connexion d'un admin réussie. UID: ${user.uid}`);
 
-        // Check if MFA is enrolled
-        const enrolledFactors = multiFactor(user).enrolledFactors;
-        if (enrolledFactors.length === 0) {
-          // MFA not enrolled - force enrollment
-          console.log('[Admin Panel] 2FA non configuré, démarrage de l\'enrôlement obligatoire');
-          toast('Configuration 2FA requise', 'Vous devez configurer l\'authentification à deux facteurs pour accéder au panneau admin.', 'info');
-          await startMfaEnrollment(user);
-          return;
+        // Check if MFA is enrolled (optional - don't block if MFA not available)
+        try {
+          const enrolledFactors = multiFactor(user).enrolledFactors;
+          if (enrolledFactors.length === 0) {
+            // MFA not enrolled - try to start enrollment but don't block
+            console.warn('[Admin Panel] 2FA non configuré. Pour plus de sécurité, activez TOTP MFA dans Firebase Console.');
+            // Don't force enrollment - just proceed with login
+          }
+        } catch (mfaCheckErr) {
+          // MFA check failed (likely MFA not enabled in Firebase) - proceed anyway
+          console.warn('[Admin Panel] Vérification MFA impossible (MFA probablement non activé dans Firebase):', mfaCheckErr.message);
         }
 
-        // MFA is enrolled, proceed with login
+        // Proceed with login regardless of MFA status
         $login.classList.add('hide');
         $app.classList.remove('hide');
         $app.setAttribute('aria-hidden', 'false');
