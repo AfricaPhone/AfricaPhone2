@@ -1,0 +1,13 @@
+{
+    "name": "admin-panel",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Panneau d'administration AfricaPhone",
+    "scripts": {
+        "build": "node build.js",
+        "obfuscate": "javascript-obfuscator assets/js/main.js --output assets/js/main.obfuscated.js --compact true --string-array true --rotate-string-array true --string-array-threshold 0.75 --identifier-names-generator hexadecimal --disable-console-output true"
+    },
+    "devDependencies": {
+        "javascript-obfuscator": "^4.1.1"
+    }
+}
