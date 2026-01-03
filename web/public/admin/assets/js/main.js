@@ -412,23 +412,35 @@ function applyLinkTemplatesToSettingsUI() {
   setStatus(['lt-status', 'tab-lt-status'], 'Chargé.');
 }
 
-async function saveLinkTemplates() {
-  const btn = document.getElementById('save-link-templates') || document.getElementById('tab-save-link-templates');
+async function saveLinkTemplates(e) {
+  // Determine context based on clicked button
+  let prefix = 'lt-';
+  let btn = document.getElementById('save-link-templates'); // Default button (Settings)
+
+  if (e && e.currentTarget && e.currentTarget.id === 'tab-save-link-templates') {
+    prefix = 'tab-lt-';
+    btn = document.getElementById('tab-save-link-templates');
+  } else if (!btn && document.getElementById('tab-save-link-templates')) {
+    // Fallback if settings button missing but tab exists
+    prefix = 'tab-lt-';
+    btn = document.getElementById('tab-save-link-templates');
+  }
+
   setButtonLoading(btn, true);
-  const readVal = ids => {
-    for (const id of ids) {
-      const el = document.getElementById(id);
-      if (el && typeof el.value === 'string') return el.value.trim();
-    }
-    return '';
+
+  const readVal = (suffix) => {
+    const el = document.getElementById(prefix + suffix);
+    return (el && typeof el.value === 'string') ? el.value.trim() : '';
   };
-  const webBaseUrl = readVal(['lt-webBaseUrl', 'tab-lt-webBaseUrl']);
-  const appLinkDomain = readVal(['lt-appLinkDomain', 'tab-lt-appLinkDomain']);
-  const appScheme = readVal(['lt-appScheme', 'tab-lt-appScheme']);
-  const defaultCampaign = readVal(['lt-defaultCampaign', 'tab-lt-defaultCampaign']) || 'default';
-  const defaultSub = readVal(['lt-defaultSub', 'tab-lt-defaultSub']) || 'cta1';
-  const waMessageTemplate = readVal(['lt-waMessageTemplate', 'tab-lt-waMessageTemplate']);
-  const whatsappNumber = readVal(['lt-waNumber', 'tab-lt-waNumber']);
+
+  const webBaseUrl = readVal('webBaseUrl');
+  const appLinkDomain = readVal('appLinkDomain');
+  const appScheme = readVal('appScheme');
+  const defaultCampaign = readVal('defaultCampaign') || 'default';
+  const defaultSub = readVal('defaultSub') || 'cta1';
+  const waMessageTemplate = readVal('waMessageTemplate');
+  const whatsappNumber = readVal('waNumber');
+
   const payload = {
     webBaseUrl,
     appLinkDomain,
@@ -438,13 +450,19 @@ async function saveLinkTemplates() {
     waMessageTemplate,
     whatsappNumber,
   };
+
   try {
     const ref = doc(db, 'config', 'linkTemplates');
     await setDoc(ref, payload, { merge: true });
+
+    // Update global state
     linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...payload };
+
+    // Update UI in BOTH places to keep them in sync
     applyLinkTemplatesToSettingsUI();
+
     track('link_templates_save', { hasWaNumber: Boolean(payload.whatsappNumber) });
-    toast('Enregistr?', 'Templates de liens mis ? jour', 'success');
+    toast('Enregistré', 'Templates de liens mis à jour', 'success');
   } catch (err) {
     console.error('Save link templates failed', err);
     toast('Erreur', 'Impossible de sauvegarder les templates', 'error');
@@ -452,6 +470,13 @@ async function saveLinkTemplates() {
     setButtonLoading(btn, false);
   }
 }
+
+// Bind events explicitly to handle context correctly
+const btnSaveTmpl = document.getElementById('save-link-templates');
+if (btnSaveTmpl) btnSaveTmpl.onclick = saveLinkTemplates;
+
+const btnSaveTabTmpl = document.getElementById('tab-save-link-templates');
+if (btnSaveTabTmpl) btnSaveTabTmpl.onclick = saveLinkTemplates;
 
 async function ensureLinkTemplatesLoaded() {
   try {
