@@ -12,7 +12,7 @@ import {
   TotpMultiFactorGenerator,
   TotpSecret,
   getMultiFactorResolver,
-} from '/admin/assets/js/firebase-config.js';
+} from './firebase-config.js';
 
 // Importe les fonctions spécifiques de Firebase Auth et Firestore.
 import {
@@ -412,35 +412,23 @@ function applyLinkTemplatesToSettingsUI() {
   setStatus(['lt-status', 'tab-lt-status'], 'Chargé.');
 }
 
-async function saveLinkTemplates(e) {
-  // Determine context based on clicked button
-  let prefix = 'lt-';
-  let btn = document.getElementById('save-link-templates'); // Default button (Settings)
-
-  if (e && e.currentTarget && e.currentTarget.id === 'tab-save-link-templates') {
-    prefix = 'tab-lt-';
-    btn = document.getElementById('tab-save-link-templates');
-  } else if (!btn && document.getElementById('tab-save-link-templates')) {
-    // Fallback if settings button missing but tab exists
-    prefix = 'tab-lt-';
-    btn = document.getElementById('tab-save-link-templates');
-  }
-
+async function saveLinkTemplates() {
+  const btn = document.getElementById('save-link-templates') || document.getElementById('tab-save-link-templates');
   setButtonLoading(btn, true);
-
-  const readVal = (suffix) => {
-    const el = document.getElementById(prefix + suffix);
-    return (el && typeof el.value === 'string') ? el.value.trim() : '';
+  const readVal = ids => {
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el && typeof el.value === 'string') return el.value.trim();
+    }
+    return '';
   };
-
-  const webBaseUrl = readVal('webBaseUrl');
-  const appLinkDomain = readVal('appLinkDomain');
-  const appScheme = readVal('appScheme');
-  const defaultCampaign = readVal('defaultCampaign') || 'default';
-  const defaultSub = readVal('defaultSub') || 'cta1';
-  const waMessageTemplate = readVal('waMessageTemplate');
-  const whatsappNumber = readVal('waNumber');
-
+  const webBaseUrl = readVal(['lt-webBaseUrl', 'tab-lt-webBaseUrl']);
+  const appLinkDomain = readVal(['lt-appLinkDomain', 'tab-lt-appLinkDomain']);
+  const appScheme = readVal(['lt-appScheme', 'tab-lt-appScheme']);
+  const defaultCampaign = readVal(['lt-defaultCampaign', 'tab-lt-defaultCampaign']) || 'default';
+  const defaultSub = readVal(['lt-defaultSub', 'tab-lt-defaultSub']) || 'cta1';
+  const waMessageTemplate = readVal(['lt-waMessageTemplate', 'tab-lt-waMessageTemplate']);
+  const whatsappNumber = readVal(['lt-waNumber', 'tab-lt-waNumber']);
   const payload = {
     webBaseUrl,
     appLinkDomain,
@@ -450,38 +438,20 @@ async function saveLinkTemplates(e) {
     waMessageTemplate,
     whatsappNumber,
   };
-
   try {
     const ref = doc(db, 'config', 'linkTemplates');
-    // Add timeout to prevent infinite loading
-    const saveOp = setDoc(ref, payload, { merge: true });
-    const timeoutOp = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: Sauvegarde trop longue (réseau?)')), 10000));
-
-    await Promise.race([saveOp, timeoutOp]);
-
-    // Update global state
+    await setDoc(ref, payload, { merge: true });
     linkTemplates = { ...FALLBACK_LINK_TEMPLATES, ...payload };
-
-    // Update UI in BOTH places to keep them in sync
     applyLinkTemplatesToSettingsUI();
-
     track('link_templates_save', { hasWaNumber: Boolean(payload.whatsappNumber) });
-    toast('Enregistré', 'Templates de liens mis à jour', 'success');
+    toast('Enregistr?', 'Templates de liens mis ? jour', 'success');
   } catch (err) {
     console.error('Save link templates failed', err);
-    const msg = err.message && err.message.includes('Timeout') ? 'La sauvegarde prend trop de temps. Vérifiez votre connexion.' : 'Impossible de sauvegarder les templates';
-    toast('Erreur', msg, 'error');
+    toast('Erreur', 'Impossible de sauvegarder les templates', 'error');
   } finally {
     setButtonLoading(btn, false);
   }
 }
-
-// Bind events explicitly to handle context correctly
-const btnSaveTmpl = document.getElementById('save-link-templates');
-if (btnSaveTmpl) btnSaveTmpl.onclick = saveLinkTemplates;
-
-const btnSaveTabTmpl = document.getElementById('tab-save-link-templates');
-if (btnSaveTabTmpl) btnSaveTabTmpl.onclick = saveLinkTemplates;
 
 async function ensureLinkTemplatesLoaded() {
   try {
@@ -703,9 +673,6 @@ onAuthStateChanged(auth, async function (user) {
         // L'utilisateur est un administrateur
         console.log(`[Admin Panel] Connexion d'un admin réussie. UID: ${user.uid}`);
 
-        // NOTE: 2FA désactivé pour le site de test (TOTP not enabled in Firebase Console)
-        // Pour réactiver le 2FA, décommenter le bloc ci-dessous et activer TOTP dans Firebase Console
-        /*
         // Check if MFA is enrolled
         const enrolledFactors = multiFactor(user).enrolledFactors;
         if (enrolledFactors.length === 0) {
@@ -715,9 +682,8 @@ onAuthStateChanged(auth, async function (user) {
           await startMfaEnrollment(user);
           return;
         }
-        */
 
-        // Proceed with login
+        // MFA is enrolled, proceed with login
         $login.classList.add('hide');
         $app.classList.remove('hide');
         $app.setAttribute('aria-hidden', 'false');
@@ -4127,55 +4093,20 @@ function renderPromoCodeList() {
 async function previewPromoLinks(code, ref) {
   const normalized = (code || '').trim();
   if (!normalized) return;
-
-  // Ensure templates are loaded
-  if (!linkTemplates) {
-    await ensureLinkTemplatesLoaded();
+  try {
+    const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
+    const res = await callable({ code: normalized, ref });
+    const data = res.data || {};
+    const body = `
+      <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
+      <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
+      <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
+    `;
+    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
+  } catch (error) {
+    console.error('Preview promo links failed', error);
+    toast('Erreur', 'Impossible de générer les liens.', 'error');
   }
-
-  const tmpl = linkTemplates || FALLBACK_LINK_TEMPLATES;
-  const baseUrl = tmpl.webBaseUrl.replace(/\/$/, ''); // Remove trailing slash
-
-  // Generate links locally based on Templates
-  // Web: [BaseURL]/[Code]?[Ref]
-  const webLink = `${baseUrl}/${normalized}${ref ? '?ref=' + encodeURIComponent(ref) : ''}`;
-
-  // Dashboard: [Origin]/d/[Code] (Assuming deployed on same domain)
-  const dashboardLink = `${window.location.origin}/d/${normalized}`;
-
-  // App Deep Link
-  // africaphone://apply-promo?code=...
-  const appLink = `${tmpl.appScheme}?code=${normalized}${ref ? '&ref=' + encodeURIComponent(ref) : ''}&channel=app&campaign=${tmpl.defaultCampaign}&sub=${tmpl.defaultSub}`;
-
-  // WhatsApp
-  // Replace {code} and {link} in template
-  let waMsg = tmpl.waMessageTemplate
-    .replace('{code}', normalized)
-    .replace('{link}', webLink)
-    .replace('{ref}', ref || '');
-
-  const waUrl = `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
-
-  // Password retrieval (simulated/check)
-  // Check if we have the code object to see if there is a password field (legacy)
-  const codeObj = allPromoCodes.find(c => c.code === normalized || c.id === normalized);
-  const passwordDisplay = codeObj?.password ?
-    `<div class="field"><div class="label">Mot de passe</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(codeObj.password)}'); toast('Copié', 'Mot de passe copié')">${escapeHtml(codeObj.password)} <i data-lucide="copy" class="icon-small"></i></div></div>` :
-    `<div class="field"><div class="label">Mot de passe</div><div class="muted small">Non requis pour la version V2 (accès via lien unique)</div></div>`;
-
-  const body = `
-    <div class="field"><div class="label">Tableau de Bord (Partenaire)</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(dashboardLink)}'); toast('Copié', 'Lien dashboard copié')">${escapeHtml(dashboardLink)} <i data-lucide="copy" class="icon-small"></i></div></div>
-    <div class="field"><div class="label">Web (Client)</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(webLink)}'); toast('Copié', 'Lien Web copié')">${escapeHtml(webLink)} <i data-lucide="copy" class="icon-small"></i></div></div>
-    <div class="field"><div class="label">App (Deep Link)</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(appLink)}'); toast('Copié', 'Lien App copié')">${escapeHtml(appLink)} <i data-lucide="copy" class="icon-small"></i></div></div>
-    <div class="field"><div class="label">WhatsApp (Partage)</div><div class="chip copy-chip" title="Copier" onclick="navigator.clipboard.writeText('${escapeAttr(waMsg)}'); toast('Copié', 'Message WhatsApp copié')">${escapeHtml(waMsg)} <i data-lucide="copy" class="icon-small"></i></div></div>
-    ${passwordDisplay}
-    <div style="margin-top:16px; font-size: 0.85em; opacity: 0.7;">
-        Note: Les liens sont générés selon la configuration "Templates".
-    </div>
-  `;
-
-  await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: null });
-  lucide.createIcons();
 }
 
 async function handlePromoCodeStatusToggle(id, isActive) {
@@ -4706,7 +4637,8 @@ setTimeout(function () {
 window.handleMfaVerification = handleMfaVerification;
 window.completeMfaEnrollment = completeMfaEnrollment;
 
-/* ============================ Top Products Manager ============================ */
+
+/* ============================ Top Products Manager (Studio) ============================ */
 async function openTopProductsModal() {
   const modal = document.getElementById('top-products-modal');
   const sourceList = document.getElementById('tpm-source-list');
@@ -4714,7 +4646,22 @@ async function openTopProductsModal() {
   const searchInput = document.getElementById('tpm-search-source');
   const saveBtn = document.getElementById('tpm-save');
   const closeBtn = document.getElementById('tpm-close');
-  const statusEl = document.getElementById('tpm-status');
+  const createNewBtn = document.getElementById('tpm-create-new');
+
+  // Badge Counts
+  const sourceCountEl = document.getElementById('tpm-source-count');
+  const targetCountEl = document.getElementById('tpm-target-count');
+
+  // Quick Create Elements
+  const qcOverlay = document.getElementById('tpm-quick-create-overlay');
+  const qcCancel = document.getElementById('tpm-qc-cancel');
+  const qcSave = document.getElementById('tpm-qc-save');
+  const qcName = document.getElementById('tpm-qc-name');
+  const qcPrice = document.getElementById('tpm-qc-price');
+  const qcBrand = document.getElementById('tpm-qc-brand');
+  const qcImage = document.getElementById('tpm-qc-image');
+  const brandsDatalist = document.getElementById('brands-datalist');
+
 
   // Helper to load Config
   async function loadTopProductsConfig() {
@@ -4737,6 +4684,11 @@ async function openTopProductsModal() {
   await Promise.all([ensureProductsLoaded(), loadTopProductsConfig()]);
   setButtonLoading(saveBtn, false);
 
+  // Populate brands datalist for quick create
+  const uniqueBrands = [...new Set(allProducts.map(p => p.brand).filter(Boolean))].sort();
+  brandsDatalist.innerHTML = uniqueBrands.map(b => `<option value="${escapeAttr(b)}">`).join('');
+
+
   let currentSourceFilter = '';
 
   function renderLists() {
@@ -4748,6 +4700,11 @@ async function openTopProductsModal() {
       const term = currentSourceFilter.toLowerCase();
       return (p.name || '').toLowerCase().includes(term) || (p.brand || '').toLowerCase().includes(term);
     });
+
+    // Update Counts
+    sourceCountEl.textContent = filteredSource.length;
+    targetCountEl.textContent = topProductsIds.length;
+
 
     sourceList.innerHTML = '';
     filteredSource.forEach(p => {
@@ -4788,7 +4745,27 @@ async function openTopProductsModal() {
     } else {
       topProductsIds.forEach((pid, index) => {
         const p = allProducts.find(x => x.id === pid);
-        if (!p) return; // Should not happen if data is consistent
+        if (!p) {
+          // Handle case where product might have been deleted but ID remains in config
+          // We render a placeholder allowing removal
+          const item = document.createElement('div');
+          item.className = 'tpm-item target';
+          item.style.padding = '8px';
+          item.style.border = '1px dashed var(--color-danger)';
+          item.style.borderRadius = '4px';
+          item.style.marginBottom = '4px';
+          item.style.color = 'var(--color-danger)';
+          item.innerHTML = `
+              <div style="font-size:12px;">Produit introuvable (ID: ${pid})</div>
+               <button class="btn btn-small btn-icon btn-danger" data-action="remove"><i data-lucide="trash-2" class="icon"></i></button>
+             `;
+          item.querySelector('[data-action="remove"]').onclick = () => {
+            topProductsIds.splice(index, 1);
+            renderLists();
+          };
+          targetList.appendChild(item);
+          return;
+        }
 
         const item = document.createElement('div');
         item.className = 'tpm-item target';
@@ -4807,6 +4784,7 @@ async function openTopProductsModal() {
             ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
             <div>
               <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
+              <div style="font-size:11px; color:var(--color-muted);">${escapeHtml(p.brand)} &bull; ${fmtXOF.format(p.price || 0)}</div>
             </div>
           </div>
           <div style="display:flex; gap:4px;">
@@ -4845,7 +4823,65 @@ async function openTopProductsModal() {
     lucide.createIcons();
   }
 
-  // Event Listeners
+  // --- Quick Create Logic ---
+
+  function closeQuickCreate() {
+    qcOverlay.classList.add('hide');
+    qcName.value = '';
+    qcPrice.value = '';
+    qcBrand.value = '';
+    qcImage.value = '';
+  }
+
+  createNewBtn.onclick = () => {
+    qcOverlay.classList.remove('hide');
+    qcName.focus();
+  };
+
+  qcCancel.onclick = closeQuickCreate;
+
+  qcSave.onclick = async () => {
+    const name = qcName.value.trim();
+    if (!name) return toast('Erreur', 'Le nom est requis', 'error');
+
+    setButtonLoading(qcSave, true);
+
+    try {
+      const payload = {
+        name: name,
+        price: Number(qcPrice.value) || 0,
+        brand: qcBrand.value.trim(),
+        imageUrl: qcImage.value.trim() || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=500&auto=format&fit=crop', // Fallback image
+        imageUrls: qcImage.value.trim() ? [qcImage.value.trim()] : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=500&auto=format&fit=crop'],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        isActive: true, // Default to active
+        source: 'admin-quick-add'
+      };
+
+      const docRef = await addDoc(collection(db, 'products'), payload);
+
+      // Add to local allProducts cache immediately
+      const newProduct = { id: docRef.id, ...payload, price: payload.price }; // use number for price in local cache
+      allProducts.push(newProduct);
+
+      // Auto-add to Top Products
+      topProductsIds.push(docRef.id);
+
+      toast('Succès', 'Produit créé et ajouté !', 'success');
+      closeQuickCreate();
+      renderLists();
+
+    } catch (e) {
+      console.error('Quick create failed', e);
+      toast('Erreur', 'Impossible de créer le produit', 'error');
+    } finally {
+      setButtonLoading(qcSave, false);
+    }
+  };
+
+
+  // Main Event Listeners
   searchInput.oninput = (e) => {
     currentSourceFilter = e.target.value;
     renderLists();
@@ -4858,7 +4894,10 @@ async function openTopProductsModal() {
         productIds: topProductsIds,
         updatedAt: serverTimestamp()
       });
-      toast('Succès', 'Liste des Top Produits mise à jour !', 'success');
+      toast('Succès', 'Vitrine mise à jour avec succès !', 'success');
+      // No need to close modal immediately, user might want to keep editing
+      // But let's close it for better feedback feel or just stay? Studio feel -> stay.
+      // But current UX is modal -> close. Let's close.
       closeModal();
     } catch (e) {
       console.error(e);
@@ -4872,6 +4911,9 @@ async function openTopProductsModal() {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    // Reset
+    sourceList.innerHTML = '';
+    targetList.innerHTML = '';
   }
 
   closeBtn.onclick = closeModal;
