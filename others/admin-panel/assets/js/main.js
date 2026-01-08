@@ -675,6 +675,8 @@ onAuthStateChanged(auth, async function (user) {
 
         // Check if MFA is enrolled
         const enrolledFactors = multiFactor(user).enrolledFactors;
+        /*
+        // 2FA TEMPORARILY DISABLED
         if (enrolledFactors.length === 0) {
           // MFA not enrolled - force enrollment
           console.log('[Admin Panel] 2FA non configuré, démarrage de l\'enrôlement obligatoire');
@@ -682,6 +684,7 @@ onAuthStateChanged(auth, async function (user) {
           await startMfaEnrollment(user);
           return;
         }
+        */
 
         // MFA is enrolled, proceed with login
         $login.classList.add('hide');
@@ -4637,8 +4640,7 @@ setTimeout(function () {
 window.handleMfaVerification = handleMfaVerification;
 window.completeMfaEnrollment = completeMfaEnrollment;
 
-
-/* ============================ Top Products Manager (Studio) ============================ */
+/* ============================ Top Products Manager ============================ */
 async function openTopProductsModal() {
   const modal = document.getElementById('top-products-modal');
   const sourceList = document.getElementById('tpm-source-list');
@@ -4646,22 +4648,7 @@ async function openTopProductsModal() {
   const searchInput = document.getElementById('tpm-search-source');
   const saveBtn = document.getElementById('tpm-save');
   const closeBtn = document.getElementById('tpm-close');
-  const createNewBtn = document.getElementById('tpm-create-new');
-
-  // Badge Counts
-  const sourceCountEl = document.getElementById('tpm-source-count');
-  const targetCountEl = document.getElementById('tpm-target-count');
-
-  // Quick Create Elements
-  const qcOverlay = document.getElementById('tpm-quick-create-overlay');
-  const qcCancel = document.getElementById('tpm-qc-cancel');
-  const qcSave = document.getElementById('tpm-qc-save');
-  const qcName = document.getElementById('tpm-qc-name');
-  const qcPrice = document.getElementById('tpm-qc-price');
-  const qcBrand = document.getElementById('tpm-qc-brand');
-  const qcImage = document.getElementById('tpm-qc-image');
-  const brandsDatalist = document.getElementById('brands-datalist');
-
+  const statusEl = document.getElementById('tpm-status');
 
   // Helper to load Config
   async function loadTopProductsConfig() {
@@ -4684,11 +4671,6 @@ async function openTopProductsModal() {
   await Promise.all([ensureProductsLoaded(), loadTopProductsConfig()]);
   setButtonLoading(saveBtn, false);
 
-  // Populate brands datalist for quick create
-  const uniqueBrands = [...new Set(allProducts.map(p => p.brand).filter(Boolean))].sort();
-  brandsDatalist.innerHTML = uniqueBrands.map(b => `<option value="${escapeAttr(b)}">`).join('');
-
-
   let currentSourceFilter = '';
 
   function renderLists() {
@@ -4700,11 +4682,6 @@ async function openTopProductsModal() {
       const term = currentSourceFilter.toLowerCase();
       return (p.name || '').toLowerCase().includes(term) || (p.brand || '').toLowerCase().includes(term);
     });
-
-    // Update Counts
-    sourceCountEl.textContent = filteredSource.length;
-    targetCountEl.textContent = topProductsIds.length;
-
 
     sourceList.innerHTML = '';
     filteredSource.forEach(p => {
@@ -4745,27 +4722,7 @@ async function openTopProductsModal() {
     } else {
       topProductsIds.forEach((pid, index) => {
         const p = allProducts.find(x => x.id === pid);
-        if (!p) {
-          // Handle case where product might have been deleted but ID remains in config
-          // We render a placeholder allowing removal
-          const item = document.createElement('div');
-          item.className = 'tpm-item target';
-          item.style.padding = '8px';
-          item.style.border = '1px dashed var(--color-danger)';
-          item.style.borderRadius = '4px';
-          item.style.marginBottom = '4px';
-          item.style.color = 'var(--color-danger)';
-          item.innerHTML = `
-              <div style="font-size:12px;">Produit introuvable (ID: ${pid})</div>
-               <button class="btn btn-small btn-icon btn-danger" data-action="remove"><i data-lucide="trash-2" class="icon"></i></button>
-             `;
-          item.querySelector('[data-action="remove"]').onclick = () => {
-            topProductsIds.splice(index, 1);
-            renderLists();
-          };
-          targetList.appendChild(item);
-          return;
-        }
+        if (!p) return; // Should not happen if data is consistent
 
         const item = document.createElement('div');
         item.className = 'tpm-item target';
@@ -4784,7 +4741,6 @@ async function openTopProductsModal() {
             ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
             <div>
               <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
-              <div style="font-size:11px; color:var(--color-muted);">${escapeHtml(p.brand)} &bull; ${fmtXOF.format(p.price || 0)}</div>
             </div>
           </div>
           <div style="display:flex; gap:4px;">
@@ -4823,65 +4779,7 @@ async function openTopProductsModal() {
     lucide.createIcons();
   }
 
-  // --- Quick Create Logic ---
-
-  function closeQuickCreate() {
-    qcOverlay.classList.add('hide');
-    qcName.value = '';
-    qcPrice.value = '';
-    qcBrand.value = '';
-    qcImage.value = '';
-  }
-
-  createNewBtn.onclick = () => {
-    qcOverlay.classList.remove('hide');
-    qcName.focus();
-  };
-
-  qcCancel.onclick = closeQuickCreate;
-
-  qcSave.onclick = async () => {
-    const name = qcName.value.trim();
-    if (!name) return toast('Erreur', 'Le nom est requis', 'error');
-
-    setButtonLoading(qcSave, true);
-
-    try {
-      const payload = {
-        name: name,
-        price: Number(qcPrice.value) || 0,
-        brand: qcBrand.value.trim(),
-        imageUrl: qcImage.value.trim() || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=500&auto=format&fit=crop', // Fallback image
-        imageUrls: qcImage.value.trim() ? [qcImage.value.trim()] : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=500&auto=format&fit=crop'],
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        isActive: true, // Default to active
-        source: 'admin-quick-add'
-      };
-
-      const docRef = await addDoc(collection(db, 'products'), payload);
-
-      // Add to local allProducts cache immediately
-      const newProduct = { id: docRef.id, ...payload, price: payload.price }; // use number for price in local cache
-      allProducts.push(newProduct);
-
-      // Auto-add to Top Products
-      topProductsIds.push(docRef.id);
-
-      toast('Succès', 'Produit créé et ajouté !', 'success');
-      closeQuickCreate();
-      renderLists();
-
-    } catch (e) {
-      console.error('Quick create failed', e);
-      toast('Erreur', 'Impossible de créer le produit', 'error');
-    } finally {
-      setButtonLoading(qcSave, false);
-    }
-  };
-
-
-  // Main Event Listeners
+  // Event Listeners
   searchInput.oninput = (e) => {
     currentSourceFilter = e.target.value;
     renderLists();
@@ -4894,10 +4792,7 @@ async function openTopProductsModal() {
         productIds: topProductsIds,
         updatedAt: serverTimestamp()
       });
-      toast('Succès', 'Vitrine mise à jour avec succès !', 'success');
-      // No need to close modal immediately, user might want to keep editing
-      // But let's close it for better feedback feel or just stay? Studio feel -> stay.
-      // But current UX is modal -> close. Let's close.
+      toast('Succès', 'Liste des Top Produits mise à jour !', 'success');
       closeModal();
     } catch (e) {
       console.error(e);
@@ -4911,9 +4806,6 @@ async function openTopProductsModal() {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
-    // Reset
-    sourceList.innerHTML = '';
-    targetList.innerHTML = '';
   }
 
   closeBtn.onclick = closeModal;
