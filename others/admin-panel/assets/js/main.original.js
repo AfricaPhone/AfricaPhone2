@@ -675,6 +675,8 @@ onAuthStateChanged(auth, async function (user) {
 
         // Check if MFA is enrolled
         const enrolledFactors = multiFactor(user).enrolledFactors;
+        /*
+        // 2FA TEMPORARILY DISABLED
         if (enrolledFactors.length === 0) {
           // MFA not enrolled - force enrollment
           console.log('[Admin Panel] 2FA non configuré, démarrage de l\'enrôlement obligatoire');
@@ -682,6 +684,7 @@ onAuthStateChanged(auth, async function (user) {
           await startMfaEnrollment(user);
           return;
         }
+        */
 
         // MFA is enrolled, proceed with login
         $login.classList.add('hide');
