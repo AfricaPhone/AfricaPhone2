@@ -4100,17 +4100,81 @@ async function previewPromoLinks(code, ref) {
     const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
     const res = await callable({ code: normalized, ref });
     const data = res.data || {};
+
+    const dashboardLink = `https://africaphone.org/d/${encodeURIComponent(normalized)}`;
+    
+    // Récupérer infos partenaire pour le mot de passe
+    let partnerHtml = '<div class="hint">Aucun partenaire associé ou mot de passe non disponible.</div>';
+    if(ref) {
+        // Simple tentative de récupération (à adapter selon structure réelle)
+        partnerHtml = `
+            <div class="field" style="margin-top:16px; border-top:1px solid #eee; padding-top:16px;">
+                <div class="label" style="margin-bottom:8px;">Compte Partenaire (${escapeHtml(ref)})</div>
+                <div class="row" style="gap:8px; align-items:center;">
+                    <div class="chip" id="partner-pwd-display">********</div>
+                    <button class="btn btn-small btn-outline" onclick="copyPartnerPassword('${escapeHtml(ref)}')">
+                        <i data-lucide="copy" class="icon" style="width:14px"></i> Copier
+                    </button>
+                    <button class="btn btn-small btn-danger" onclick="regeneratePartnerPassword('${escapeHtml(ref)}')">
+                        <i data-lucide="refresh-cw" class="icon" style="width:14px"></i> Régénérer
+                    </button>
+                </div>
+            </div>`;
+    }
+
     const body = `
-      <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
-      <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
-      <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
+      <div class="field">
+        <div class="label">Tableau de Bord Influenceur</div>
+        <div class="row" style="gap:8px;">
+            <input class="input" readonly value="${escapeHtml(dashboardLink)}" onclick="this.select()">
+            <a href="${escapeHtml(dashboardLink)}" target="_blank" class="btn btn-small btn-primary">Ouvrir</a>
+        </div>
+      </div>
+
+      <div class="field"><div class="label">Lien Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
+      <div class="field"><div class="label">Lien App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
+      <div class="field"><div class="label">WhatsApp</div><div class="chip" style="white-space:normal; word-break:break-all; font-size:11px;">${escapeHtml(data.whatsappLink || '-')}</div></div>
+
+      ${partnerHtml}
     `;
-    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
+
+    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: null });
+    lucide.createIcons();
   } catch (error) {
     console.error('Preview promo links failed', error);
     toast('Erreur', 'Impossible de générer les liens.', 'error');
   }
 }
+
+// Fonction globale pour copier le mot de passe (à implémenter plus proprement avec fetch si besoin)
+window.copyPartnerPassword = async (partnerId) => {
+    try {
+        const docRef = doc(db, 'promoPartners', partnerId); // Vérifier collection exacte
+        const snap = await getDoc(docRef);
+        if(snap.exists() && snap.data().password) {
+            await navigator.clipboard.writeText(snap.data().password);
+            toast('Succès', 'Mot de passe copié', 'success');
+        } else {
+             toast('Info', 'Mot de passe non visible ou non défini.', 'info');
+        }
+    } catch(e) { console.error(e); toast('Erreur', 'Echec copie', 'error'); }
+};
+
+window.regeneratePartnerPassword = async (partnerId) => {
+    if(!confirm("Voulez-vous vraiment régénérer le mot de passe de ce partenaire ? L'ancien ne fonctionnera plus.")) return;
+    try {
+        const callable = httpsCallable(functionsInstance, 'regeneratePartnerPassword');
+        const res = await callable({ partnerId });
+        if(res.data && res.data.password) {
+            const el = document.getElementById('partner-pwd-display');
+            if(el) el.textContent = res.data.password;
+            toast('Succès', `Nouveau mot de passe : ${res.data.password}`, 'success');
+        }
+    } catch(e) {
+        console.error(e);
+        toast('Erreur', 'Impossible de régénérer le mot de passe', 'error');
+    }
+};
 
 async function handlePromoCodeStatusToggle(id, isActive) {
   try {
