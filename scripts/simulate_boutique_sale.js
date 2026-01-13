@@ -60,4 +60,10 @@ async function testSale(code, amount) {
 // Test avec un code qui (probablement) n'existe pas pour vérifier la 404,
 // ou remplacez 'CODE_TEST' par un vrai code de votre base pour tester le succès (ex: 'NOEL2024').
 console.log("--- DÉBUT DU TEST ---");
-testSale('TEST_BOUTIQUE', 50000);
+// Récupération des arguments ligne de commande (ex: node script.js MON_CODE 10000)
+const args = process.argv.slice(2);
+const code = args[0] || 'TEST_BOUTIQUE';
+const amount = parseInt(args[1], 10) || 50000;
+
+console.log(`--- DÉBUT DU TEST AVEC: ${code} / ${amount} FCFA ---`);
+testSale(code, amount);

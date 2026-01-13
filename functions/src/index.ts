@@ -2226,3 +2226,95 @@ export const logoutPartner = onCall(async request => {
   return { success: true };
 });
 
+export const api_record_sale = onRequest(async (req, res) => {
+  // 1. CORS Headers
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
+  // 2. Auth: API Key
+  const apiKey = req.headers['x-api-key'];
+  if (!apiKey || apiKey !== 'sk_boutique_test_123456') {
+    res.status(401).json({ error: 'Unauthorized', message: 'Clé API invalide ou manquante.' });
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method Not Allowed', message: 'Seul POST est autorisé.' });
+    return;
+  }
+
+  try {
+    // 3. Validation Body
+    const { code, amount, ref, transactionId } = req.body;
+
+    if (!code || typeof code !== 'string') {
+      res.status(400).json({ error: 'Bad Request', message: 'Le champ "code" est requis.' });
+      return;
+    }
+    if (!amount || typeof amount !== 'number') {
+      res.status(400).json({ error: 'Bad Request', message: 'Le champ "amount" (numérique) est requis.' });
+      return;
+    }
+
+    const normalizedCode = code.trim().toUpperCase();
+    const rule = await fetchPromoRule(normalizedCode);
+
+    if (!rule) {
+      res.status(400).json({ error: 'Invalid Code', message: 'Code promo introuvable.' });
+      return;
+    }
+    if (!rule.isActive) {
+      res.status(400).json({ error: 'Inactive Code', message: 'Ce code promo est inactif.' });
+      return;
+    }
+
+    const finalRef = ref || 'BOUTIQUE_API';
+
+    const saleData = {
+      code: normalizedCode,
+      amount,
+      ref: finalRef,
+      transactionId: transactionId || `tx_${Date.now()}`,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      source: 'API_BOUTIQUE'
+    };
+
+    // 4. Update Metrics
+    await incrementPromoMetrics({
+      code: normalizedCode,
+      channel: 'bo',
+      ref: finalRef,
+      sale: {
+        amount: amount,
+        commissionValue: 0,
+        discountValue: 0
+      }
+    });
+
+    // 5. Log Event
+    await logPromoEvent('promoSalesLogs', saleData);
+
+    logger.info(`[API Boutique] Vente enregistrée: ${normalizedCode} / ${amount}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Vente enregistrée avec succès.',
+      data: {
+        code: normalizedCode,
+        amount,
+        transactionId: saleData.transactionId
+      }
+    });
+
+  } catch (error) {
+    logger.error('Erreur API Boutique', error);
+    res.status(500).json({ error: 'Internal Server Error', message: 'Une erreur interne est survenue.' });
+  }
+});
+

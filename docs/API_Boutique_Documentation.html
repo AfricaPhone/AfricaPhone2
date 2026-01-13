@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation API Boutique - AfricaPhone</title>
+    <style>
+        @page {
+            margin: 2cm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #fff;
+        }
+
+        .header {
+            border-bottom: 3px solid #14d5c2;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #14d5c2;
+        }
+
+        .logo span {
+            color: #333;
+        }
+
+        h1 {
+            color: #142933;
+            font-size: 24px;
+            margin-top: 30px;
+        }
+
+        h2 {
+            color: #16786c;
+            font-size: 18px;
+            border-left: 4px solid #14d5c2;
+            padding-left: 12px;
+            margin-top: 30px;
+        }
+
+        .meta {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .meta strong {
+            color: #16786c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #14d5c2;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+        }
+
+        pre {
+            background: #1e3b48;
+            color: #f2e6c4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 10px 15px;
+            margin: 10px 0;
+        }
+
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 10px 15px;
+            margin: 10px 0;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">Africa<span>Phone</span></div>
+        <div style="color: #666; font-size: 14px;">Documentation Technique Interne</div>
+    </div>
+
+    <h1>📡 API Connecteur Boutique</h1>
+    <p>Documentation pour l'intégration du logiciel de caisse avec le système de codes promo.</p>
+
+    <div class="meta">
+        <strong>Version API :</strong> v1.0<br>
+        <strong>Mise à jour :</strong> 12 Janvier 2026<br>
+        <strong>Statut :</strong> ✅ Production Ready
+    </div>
+
+    <h2>1. Vue d'ensemble</h2>
+    <p>Ce point de terminaison HTTP permet à votre logiciel de caisse d'envoyer les notifications de ventes en temps
+        réel vers la plateforme centrale AfricaPhone.</p>
+    <p><strong>Objectif :</strong> Alimenter les tableaux de bord des partenaires/influenceurs instantanément après un
+        achat en boutique.</p>
+
+    <h2>2. Accès & Authentification</h2>
+
+    <table>
+        <tr>
+            <th>Paramètre</th>
+            <th>Valeur</th>
+        </tr>
+        <tr>
+            <td><strong>URL de Base</strong></td>
+            <td><code>https://us-central1-africaphone-vente.cloudfunctions.net/api_record_sale</code></td>
+        </tr>
+        <tr>
+            <td><strong>Méthode HTTP</strong></td>
+            <td><code>POST</code></td>
+        </tr>
+        <tr>
+            <td><strong>Content-Type</strong></td>
+            <td><code>application/json</code></td>
+        </tr>
+        <tr>
+            <td><strong>Authentification</strong></td>
+            <td>Header <code>x-api-key</code></td>
+        </tr>
+    </table>
+
+    <div class="warning">
+        <strong>⚠️ Sécurité :</strong> Ne partagez jamais la clé API publiquement. Pour obtenir la clé de production
+        définitive, contactez l'administrateur système.
+    </div>
+
+    <h2>3. Format de la Requête</h2>
+    <p>Le corps de la requête doit être un objet JSON valide :</p>
+
+    <pre><code>{
+  "code": "ZIDANE1",
+  "amount": 150000,
+  "ref": "CAISSE_01",
+  "transactionId": "POS_TX_987654"
+}</code></pre>
+
+    <h3>Détail des champs</h3>
+    <table>
+        <tr>
+            <th>Champ</th>
+            <th>Type</th>
+            <th>Requis</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><code>code</code></td>
+            <td>String</td>
+            <td><strong>OUI</strong></td>
+            <td>Le code promo présenté par le client (ex: PROMO123). Insensible à la casse.</td>
+        </tr>
+        <tr>
+            <td><code>amount</code></td>
+            <td>Number</td>
+            <td><strong>OUI</strong></td>
+            <td>Montant total de la vente en FCFA (ex: 50000). Utilisé pour le calcul de commission.</td>
+        </tr>
+        <tr>
+            <td><code>transactionId</code></td>
+            <td>String</td>
+            <td>Non</td>
+            <td>ID unique de la vente dans votre système. Recommandé pour éviter les doublons.</td>
+        </tr>
+        <tr>
+            <td><code>ref</code></td>
+            <td>String</td>
+            <td>Non</td>
+            <td>Identifiant du point de vente ou du caissier (ex: boutique_cotonou).</td>
+        </tr>
+    </table>
+
+    <h2>4. Réponses de l'API</h2>
+
+    <div class="success">
+        <strong>✅ Succès (HTTP 200)</strong> — La vente a été enregistrée.
+    </div>
+    <pre><code>{
+  "success": true,
+  "data": {
+    "code": "ZIDANE1",
+    "commission": 15000,
+    "discount": 10000,
+    "savedAt": "2026-01-12T10:00:00.000Z"
+  }
+}</code></pre>
+
+    <div class="error">
+        <strong>❌ Code Invalide (HTTP 404)</strong> — Le code n'existe pas ou n'est plus actif.
+    </div>
+    <pre><code>{
+  "error": "Not Found",
+  "message": "Code promo introuvable ou inactif."
+}</code></pre>
+
+    <div class="error">
+        <strong>❌ Non Autorisé (HTTP 401)</strong> — Clé API manquante ou incorrecte.
+    </div>
+    <pre><code>{
+  "error": "Unauthorized",
+  "message": "Clé API invalide."
+}</code></pre>
+
+    <h2>5. Exemple d'intégration (cURL)</h2>
+    <pre><code>curl -X POST https://us-central1-africaphone-vente.cloudfunctions.net/api_record_sale \
+     -H "Content-Type: application/json" \
+     -H "x-api-key: VOTRE_CLE_API_ICI" \
+     -d '{
+           "code": "ZIDANE1",
+           "amount": 50000,
+           "transactionId": "test_001"
+         }'</code></pre>
+
+    <h2>6. Checklist d'Intégration</h2>
+    <table>
+        <tr>
+            <th>Étape</th>
+            <th>Action</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>Récupérer la clé API de production auprès de l'admin</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Configurer l'appel POST dans le logiciel de caisse</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Envoyer un appel de test avec un code promo actif</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Vérifier la réponse (code 200 = succès)</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Confirmer que la vente apparaît dans le Panneau Admin</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <strong>Support Technique :</strong> En cas de problème, vérifiez que le code promo est actif dans le Panneau
+        Admin.<br>
+        Document généré le 12 Janvier 2026 — AfricaPhone © 2026
+    </div>
+</body>
+
+</html>

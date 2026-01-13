@@ -4100,17 +4100,81 @@ async function previewPromoLinks(code, ref) {
     const callable = httpsCallable(functionsInstance, 'generatePromoLinks');
     const res = await callable({ code: normalized, ref });
     const data = res.data || {};
+
+    const dashboardLink = `https://africaphone.org/d/${encodeURIComponent(normalized)}`;
+
+    // Récupérer infos partenaire pour le mot de passe
+    let partnerHtml = '<div class="hint">Aucun partenaire associé ou mot de passe non disponible.</div>';
+    if (ref) {
+      // Simple tentative de récupération (à adapter selon structure réelle)
+      partnerHtml = `
+            <div class="field" style="margin-top:16px; border-top:1px solid #eee; padding-top:16px;">
+                <div class="label" style="margin-bottom:8px;">Compte Partenaire (${escapeHtml(ref)})</div>
+                <div class="row" style="gap:8px; align-items:center;">
+                    <div class="chip" id="partner-pwd-display">********</div>
+                    <button class="btn btn-small btn-outline" onclick="copyPartnerPassword('${escapeHtml(ref)}')">
+                        <i data-lucide="copy" class="icon" style="width:14px"></i> Copier
+                    </button>
+                    <button class="btn btn-small btn-danger" onclick="regeneratePartnerPassword('${escapeHtml(ref)}')">
+                        <i data-lucide="refresh-cw" class="icon" style="width:14px"></i> Régénérer
+                    </button>
+                </div>
+            </div>`;
+    }
+
     const body = `
-      <div class="field"><div class="label">Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
-      <div class="field"><div class="label">App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
-      <div class="field"><div class="label">WhatsApp</div><div class="chip">${escapeHtml(data.whatsappLink || '-')}</div></div>
+      <div class="field">
+        <div class="label">Tableau de Bord Influenceur</div>
+        <div class="row" style="gap:8px;">
+            <input class="input" readonly value="${escapeHtml(dashboardLink)}" onclick="this.select()">
+            <a href="${escapeHtml(dashboardLink)}" target="_blank" class="btn btn-small btn-primary">Ouvrir</a>
+        </div>
+      </div>
+
+      <div class="field"><div class="label">Lien Web</div><div class="chip">${escapeHtml(data.webLink || '-')}</div></div>
+      <div class="field"><div class="label">Lien App</div><div class="chip">${escapeHtml(data.appDeepLink || data.appLink || '-')}</div></div>
+      <div class="field"><div class="label">WhatsApp</div><div class="chip" style="white-space:normal; word-break:break-all; font-size:11px;">${escapeHtml(data.whatsappLink || '-')}</div></div>
+
+      ${partnerHtml}
     `;
-    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: 'Fermer' });
+
+    await openModal({ title: `Liens pour ${escapeHtml(normalized)}`, body, okText: 'Fermer', cancelText: null });
+    lucide.createIcons();
   } catch (error) {
     console.error('Preview promo links failed', error);
     toast('Erreur', 'Impossible de générer les liens.', 'error');
   }
 }
+
+// Fonction globale pour copier le mot de passe (à implémenter plus proprement avec fetch si besoin)
+window.copyPartnerPassword = async (partnerId) => {
+  try {
+    const docRef = doc(db, 'promoPartners', partnerId); // Vérifier collection exacte
+    const snap = await getDoc(docRef);
+    if (snap.exists() && snap.data().password) {
+      await navigator.clipboard.writeText(snap.data().password);
+      toast('Succès', 'Mot de passe copié', 'success');
+    } else {
+      toast('Info', 'Mot de passe non visible ou non défini.', 'info');
+    }
+  } catch (e) { console.error(e); toast('Erreur', 'Echec copie', 'error'); }
+};
+
+window.regeneratePartnerPassword = async (partnerId) => {
+  if (!confirm("Voulez-vous vraiment régénérer le mot de passe de ce partenaire ? L'ancien ne fonctionnera plus.")) return;
+  try {
+    const callable = httpsCallable(functionsInstance, 'regeneratePartnerPassword');
+    const res = await callable({ partnerId });
+    if (res.data && res.data.password) {
+      const el = document.getElementById('partner-pwd-display');
+      if (el) el.textContent = res.data.password;
+      toast('Succès', `Nouveau mot de passe : ${res.data.password}`, 'success');
+    }
+  } catch (e) {
+    console.error(e);
+    toast('Erreur', 'Impossible de régénérer le mot de passe', 'error');
+  }
+};
 
 async function handlePromoCodeStatusToggle(id, isActive) {
   try {
@@ -4824,3 +4888,91 @@ const topProductsBtn = document.getElementById('manage-top-products');
 if (topProductsBtn) {
   topProductsBtn.addEventListener('click', openTopProductsModal);
 }
+
+/* ============================ Promo Link Templates Tab ============================ */
+async function initPromoLinkTemplatesTab() {
+  const saveBtn = document.getElementById('tab-save-link-templates');
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      setButtonLoading(saveBtn, true);
+      const data = {
+        webBaseUrl: $('#tab-lt-webBaseUrl').value || '',
+        appLinkDomain: $('#tab-lt-appLinkDomain').value || '',
+        appScheme: $('#tab-lt-appScheme').value || '',
+        defaultCampaign: $('#tab-lt-defaultCampaign').value || '',
+        defaultSub: $('#tab-lt-defaultSub').value || '',
+        whatsappNumber: $('#tab-lt-waNumber').value || '',
+        waMessageTemplate: $('#tab-lt-waMessageTemplate').value || '',
+      };
+
+      try {
+        await setDoc(doc(db, 'config', 'linkTemplates'), data, { merge: true });
+        toast('Succès', 'Templates sauvegardés', 'success');
+        // Mettre à jour la variable globale locale pour refléter les changements sans refresh
+        if (typeof linkTemplates !== 'undefined') {
+          Object.assign(linkTemplates, data);
+        }
+      } catch (e) {
+        console.error(e);
+        toast('Erreur', 'Echec sauvegarde', 'error');
+      } finally {
+        setButtonLoading(saveBtn, false);
+      }
+    };
+  }
+}
+
+async function loadPromoLinkTemplates() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'linkTemplates'));
+    const data = snap.exists() ? snap.data() : {};
+
+    // Remplir le formulaire
+    const setVal = (id, val) => { const el = $(id); if (el) el.value = val || ''; };
+    setVal('#tab-lt-webBaseUrl', data.webBaseUrl);
+    setVal('#tab-lt-appLinkDomain', data.appLinkDomain);
+    setVal('#tab-lt-appScheme', data.appScheme);
+    setVal('#tab-lt-defaultCampaign', data.defaultCampaign);
+    setVal('#tab-lt-defaultSub', data.defaultSub);
+    setVal('#tab-lt-waNumber', data.whatsappNumber);
+    setVal('#tab-lt-waMessageTemplate', data.waMessageTemplate);
+
+  } catch (error) {
+    console.warn('Impossible de charger les templates de liens', error);
+  }
+}
+
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded', () => {
+  // Gestion des onglets Promo Code
+  const tabs = document.querySelectorAll('.promo-tab-btn');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Active state
+      tabs.forEach(t => t.classList.remove('active', 'btn-primary'));
+      tabs.forEach(t => t.classList.add('btn-small')); // Reset style
+      btn.classList.add('active', 'btn-primary');
+      btn.classList.remove('btn-small'); // Highlight
+
+      const target = btn.dataset.tab;
+
+      // Hide all content
+      const areas = ['promocodes-content', 'promorules-content', 'promopayouts-content', 'promo-templates-content'];
+      areas.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hide');
+      });
+
+      // Show target
+      if (target === 'codes') $('#promocodes-content').classList.remove('hide');
+      if (target === 'rules') $('#promorules-content').classList.remove('hide');
+      if (target === 'payouts') $('#promopayouts-content').classList.remove('hide');
+      if (target === 'templates') {
+        $('#promo-templates-content').classList.remove('hide');
+        loadPromoLinkTemplates();
+      }
+    });
+  });
+
+  initPromoLinkTemplatesTab();
+});
