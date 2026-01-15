@@ -1739,7 +1739,7 @@ export const redirectWhatsApp = onRequest(async (req, res) => {
     const data = templateSnap.exists ? templateSnap.data() || {} : {};
 
     // Par défaut, numéro générique si non configuré
-    const waNumber = data.whatsappNumber || '2290154151522';
+    const waNumber = data.whatsappNumber || '2290152921586';
 
     // Template par défaut
     // Note: {code} sera remplacé par le code promo
@@ -1763,7 +1763,7 @@ export const redirectWhatsApp = onRequest(async (req, res) => {
   } catch (error) {
     logger.error('redirectWhatsApp failed', error);
     // Fallback sécurité
-    res.redirect(302, `https://wa.me/2290154151522?text=Code%20promo%20${code}`);
+    res.redirect(302, `https://wa.me/2290152921586?text=Code%20promo%20${code}`);
   }
 });
 

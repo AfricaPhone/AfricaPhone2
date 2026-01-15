@@ -252,7 +252,7 @@ const ProductCard = ({ p, onPress }: { p: Product; onPress: () => void }) => {
 
   const handleWhatsApp = () => {
     const message = encodeURIComponent(`Bonjour, je souhaite plus d'informations sur ${p.title}.`);
-    Linking.openURL(`https://wa.me/2290154151522?text=${message}`).catch(() => undefined);
+    Linking.openURL(`https://wa.me/2290152921586?text=${message}`).catch(() => undefined);
   };
 
   return (
@@ -299,7 +299,7 @@ const ProductPostCard = ({ post, onOpen }: { post: ProductPost; onOpen: () => vo
     {!!post.caption && <Text style={styles.caption}>{post.caption}</Text>}
     <ProductCard p={post.product} onPress={onOpen} />
     <Counts likes={post.likes} comments={post.comments} shares={post.shares} />
-    <Toolbar onLike={() => {}} onComment={() => {}} onShare={() => {}} />
+    <Toolbar onLike={() => { }} onComment={() => { }} onShare={() => { }} />
   </View>
 );
 
@@ -314,7 +314,7 @@ const ArticlePostCard = ({ post }: { post: ArticlePost }) => (
       {post.excerpt}
     </Text>
     <Counts likes={post.likes} comments={post.comments} shares={post.shares} />
-    <Toolbar onLike={() => {}} onComment={() => {}} onShare={() => {}} />
+    <Toolbar onLike={() => { }} onComment={() => { }} onShare={() => { }} />
   </View>
 );
 
@@ -330,7 +330,7 @@ const CollectionPostCard = ({ post, onOpen }: { post: CollectionPost; onOpen: (p
       ))}
     </View>
     <Counts likes={post.likes} comments={post.comments} shares={post.shares} />
-    <Toolbar onLike={() => {}} onComment={() => {}} onShare={() => {}} />
+    <Toolbar onLike={() => { }} onComment={() => { }} onShare={() => { }} />
   </View>
 );
 
@@ -350,7 +350,7 @@ const HeroPostCard = ({ post }: { post: HeroPost }) => (
       </View>
     </ImageBackground>
     <Counts likes={post.likes} comments={post.comments} shares={post.shares} />
-    <Toolbar onLike={() => {}} onComment={() => {}} onShare={() => {}} />
+    <Toolbar onLike={() => { }} onComment={() => { }} onShare={() => { }} />
   </View>
 );
 
@@ -365,7 +365,7 @@ const TipPostCard = ({ post }: { post: TipPost }) => (
       </View>
     </View>
     <Counts likes={post.likes} comments={post.comments} shares={post.shares} />
-    <Toolbar onLike={() => {}} onComment={() => {}} onShare={() => {}} />
+    <Toolbar onLike={() => { }} onComment={() => { }} onShare={() => { }} />
   </View>
 );
 
@@ -390,7 +390,7 @@ const ShopLookPostCard = ({ post, onOpen }: { post: ShopLookPost; onOpen: (p: Pr
       )}
     />
     <Counts likes={post.likes} comments={post.comments} shares={post.shares} />
-    <Toolbar onLike={() => {}} onComment={() => {}} onShare={() => {}} />
+    <Toolbar onLike={() => { }} onComment={() => { }} onShare={() => { }} />
   </View>
 );
 
@@ -414,7 +414,7 @@ const PollPostCard = ({ post }: { post: PollPost }) => {
       </View>
       <Text style={styles.pollMeta}>{post.totalVotes} votes</Text>
       <Counts likes={post.likes} comments={post.comments} shares={post.shares} />
-      <Toolbar onLike={() => {}} onComment={() => {}} onShare={() => {}} />
+      <Toolbar onLike={() => { }} onComment={() => { }} onShare={() => { }} />
     </View>
   );
 };

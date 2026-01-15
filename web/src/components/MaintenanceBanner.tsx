@@ -27,7 +27,7 @@ export default function MaintenanceBanner() {
                     Veuillez nous excuser pour la gêne occasionnée.
                 </p>
                 <a
-                    href="https://wa.me/2290154151522"
+                    href="https://wa.me/2290152921586"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#1EBE5D]"

@@ -67,7 +67,7 @@ type FirestoreProductPayload = {
 
 type AlgoliaHit = AlgoliaProductHit;
 
-const PRODUCTS_PHONE_NUMBER = '2290154151522';
+const PRODUCTS_PHONE_NUMBER = '2290152921586';
 const INITIAL_PAGE_SIZE = 24;
 const LOAD_MORE_PAGE_SIZE = 34;
 const TOP_PRODUCTS_FETCH_LIMIT = 20;

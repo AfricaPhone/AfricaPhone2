@@ -34,7 +34,7 @@ const ProductGridCard: React.FC<Props> = ({ product, promoted, onPress }) => {
 
   const handleWhatsApp = () => {
     const message = encodeURIComponent(`Bonjour, je suis interesse par ${product.title}.`);
-    Linking.openURL(`https://wa.me/2290154151522?text=${message}`).catch(() => undefined);
+    Linking.openURL(`https://wa.me/2290152921586?text=${message}`).catch(() => undefined);
   };
 
   return (

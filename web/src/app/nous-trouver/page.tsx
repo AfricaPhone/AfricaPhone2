@@ -35,8 +35,8 @@ const DEFAULT_PAGE_DATA: BoutiquePageData = {
   avatarImage: '/logo.png',
   address: 'Immeuble AfricaPhone, Rue 352, Ganhi - Cotonou, Bénin',
   contactDisplay: '+229 0154151522',
-  contactTelHref: 'tel:+2290154151522',
-  whatsappLink: 'https://wa.me/2290154151522',
+  contactTelHref: 'tel:+2290152921586',
+  whatsappLink: 'https://wa.me/2290152921586',
   mapLink: 'https://goo.gl/maps/oMaa8b2oZ9cQmRBN9?g_st=am',
 };
 

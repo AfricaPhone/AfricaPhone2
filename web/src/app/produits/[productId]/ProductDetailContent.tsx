@@ -12,7 +12,7 @@ import { getProductDetail } from '@/data/product-details';
 import { db, getAnalyticsClient } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
-const PRODUCTS_PHONE_NUMBER = '2290154151522';
+const PRODUCTS_PHONE_NUMBER = '2290152921586';
 const WEBSITE_HOME_URL = process.env.NEXT_PUBLIC_WEB_HOME_URL ?? 'https://africaphone-org.web.app/';
 const DEFAULT_DELIVERY_NOTES = [
   'Retrait express en boutique AfricaPhone ou livraison sous 24 h sur Grand Cotonou.',
