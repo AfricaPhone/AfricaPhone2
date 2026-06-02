@@ -32,6 +32,7 @@ import {
   MIN_ALGOLIA_TERM_LENGTH,
   type AlgoliaProductHit,
 } from '@/lib/algoliaClient';
+import { addCartItem } from '@/lib/cart';
 
 type ProductCardData = {
   id: string;
@@ -1123,39 +1124,52 @@ function TopProductCard({ product, isDuplicate = false }: { product: ProductCard
     setImageErrored(false);
   }, [product.image]);
 
+  const handleChoose = () => {
+    addCartItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      tagline: product.tagline,
+    });
+  };
+
   return (
-    <Link
-      href={detailHref}
+    <article
       aria-hidden={isDuplicate || undefined}
-      tabIndex={isDuplicate ? -1 : undefined}
       className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#059669] focus-visible:ring-offset-0 sm:min-w-[160px] sm:max-w-[160px] h-[252px] sm:h-[268px]"
     >
-      <div className="relative flex-[0_0_60%] w-full overflow-hidden bg-slate-50">
-        {!imageErrored && product.image ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 28vw, 190px"
-            className="object-cover object-center"
-            onError={() => setImageErrored(true)}
-          />
-        ) : null}
-      </div>
-      <div className="flex flex-[0_0_40%] flex-col gap-1.5 px-2 pb-2 pt-2 text-left sm:px-3 sm:pb-3">
-        <p className="truncate text-[11px] font-semibold text-slate-900 sm:text-xs">{product.name}</p>
-        <p className="line-clamp-2 text-[10px] font-semibold text-slate-800">
-          {product.tagline}
-        </p>
-        <div className="mt-auto space-y-1">
-          <p className="text-[13px] font-extrabold text-[#059669] sm:text-sm">{priceLabel}</p>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F97316] px-2.5 py-1 text-[10px] font-semibold text-white transition group-hover:bg-[#EA580C] sm:text-xs">
-            <WhatsAppIcon className="h-3 w-3 text-white" />
-            Commandez
-          </span>
+      <Link href={detailHref} tabIndex={isDuplicate ? -1 : undefined} className="flex min-h-0 flex-1 flex-col">
+        <div className="relative flex-[0_0_60%] w-full overflow-hidden bg-slate-50">
+          {!imageErrored && product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 28vw, 190px"
+              className="object-cover object-center"
+              onError={() => setImageErrored(true)}
+            />
+          ) : null}
         </div>
-      </div>
-    </Link>
+        <div className="flex flex-1 flex-col gap-1.5 px-2 pb-1 pt-2 text-left sm:px-3">
+          <p className="truncate text-[11px] font-semibold text-slate-900 sm:text-xs">{product.name}</p>
+          <p className="line-clamp-2 text-[10px] font-semibold text-slate-800">
+            {product.tagline}
+          </p>
+          <p className="text-[13px] font-extrabold text-[#059669] sm:text-sm">{priceLabel}</p>
+        </div>
+      </Link>
+      <button
+        type="button"
+        onClick={handleChoose}
+        tabIndex={isDuplicate ? -1 : undefined}
+        className="mx-2 mb-2 inline-flex items-center justify-center gap-1.5 rounded-full bg-[#F97316] px-2.5 py-1 text-[10px] font-semibold text-white transition hover:bg-[#EA580C] sm:mx-3 sm:mb-3 sm:text-xs"
+      >
+        <CartMiniIcon className="h-3 w-3 text-white" />
+        Choisir
+      </button>
+    </article>
   );
 }
 
@@ -1182,6 +1196,16 @@ function ProductCard({ product }: { product: ProductCardData }) {
     setImageErrored(false);
   }, [product.image]);
 
+  const handleChoose = () => {
+    addCartItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      tagline: product.tagline,
+    });
+  };
+
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <Link
@@ -1204,14 +1228,16 @@ function ProductCard({ product }: { product: ProductCardData }) {
           <p className="text-base font-extrabold text-[#059669] sm:text-lg">{priceLabel}</p>
           <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
           <p className="text-xs font-semibold text-slate-800 sm:text-sm">{product.tagline}</p>
-          <div className="mt-auto">
-            <span className="inline-flex max-w-fit items-center gap-2 rounded-full bg-[#F97316] px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-[#EA580C] sm:text-sm">
-              <WhatsAppIcon className="h-3.5 w-3.5 text-white" />
-              Commandez
-            </span>
-          </div>
         </div>
       </Link>
+      <button
+        type="button"
+        onClick={handleChoose}
+        className="mx-4 mb-4 inline-flex max-w-fit items-center gap-2 rounded-full bg-[#F97316] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#EA580C] sm:mx-5 sm:mb-5 sm:text-sm"
+      >
+        <CartMiniIcon className="h-3.5 w-3.5 text-white" />
+        Choisir
+      </button>
     </article>
   );
 }
@@ -1292,10 +1318,17 @@ function HeadsetIcon({ className }: { className?: string }) {
   );
 }
 
-function WhatsAppIcon({ className }: { className?: string }) {
+function CartMiniIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M12 .5A11.5 11.5 0 002.2 18.8L.5 23.5l4.8-1.7A11.5 11.5 0 1012 .5zm6.6 16.4c-.3.9-1.7 1.6-2.4 1.7-.6.1-1.3.1-2.1-.1a19 19 0 01-3.3-1.2 11.5 11.5 0 01-3.6-2.9 6.5 6.5 0 01-1.4-2.3c-.1-.6-.1-1.1.2-1.5.2-.4.5-.6.9-.9l.2-.1c.3-.2.5-.2.6 0l.4.6c.1.2.3.4.4.6.2.4.1.6 0 .8l-.2.3c-.1.1-.1.2 0 .3a7 7 0 001.8 2.2 7 7 0 002.5 1.4c.1 0 .2 0 .3-.1l.5-.6c.2-.2.4-.2.7-.1l.8.4.6.3c.1.1.2.1.3.2.1.2 0 .4 0 .6z" />
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M3 4h2l2.1 11.2a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 1.9-1.5L21 8H7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M10 21h.01M18 21h.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
     </svg>
   );
 }

@@ -9,6 +9,7 @@ import { logEvent } from 'firebase/analytics';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import type { ProductDetail as StaticProductDetail } from '@/data/product-details';
 import { getProductDetail } from '@/data/product-details';
+import { addCartItem } from '@/lib/cart';
 import { db, getAnalyticsClient } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
@@ -215,13 +216,6 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     return () => clearTimeout(timeout);
   }, [promoNotice]);
 
-  const whatsappLinkWithPromo = useMemo(() => {
-    if (!product) {
-      return '#';
-    }
-    return appendPromoToWhatsappLink(product.whatsappLink, appliedPromo);
-  }, [appliedPromo, product]);
-
   const promoBenefitText = useMemo(
     () => (appliedPromo ? buildPromoBenefitSentence(appliedPromo) : null),
     [appliedPromo]
@@ -284,6 +278,22 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
 
   const shareTitle = product?.name ?? 'AfricaPhone';
   const shareText = product?.tagline ?? product?.name ?? 'Decouvrez ce produit AfricaPhone';
+
+  const handleChooseProduct = useCallback(() => {
+    if (!product) {
+      return;
+    }
+
+    addCartItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.gallery[0] ?? null,
+      tagline: product.tagline,
+    });
+    router.push('/panier');
+  }, [product, router]);
+
   const handleBack = useCallback(() => {
     if (typeof window !== 'undefined') {
       window.location.href = WEBSITE_HOME_URL;
@@ -632,37 +642,35 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
               </p>
             ) : null}
 
-            <a
-              href={whatsappLinkWithPromo}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-12 hidden h-12 items-center gap-2.5 rounded-full bg-[#26D367] px-5 text-white transition hover:bg-[#1fb358] lg:flex"
+            <button
+              type="button"
+              onClick={handleChooseProduct}
+              className="mt-12 hidden h-12 items-center gap-2.5 rounded-full bg-[#F97316] px-5 text-white transition hover:bg-[#EA580C] lg:flex"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
-                <WhatsAppGlyph className="h-5 w-5 text-[#26D367]" />
+                <CartDetailIcon className="h-5 w-5 text-[#F97316]" />
               </span>
               <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
-                Commander via WhatsApp
+                Choisir
               </span>
-            </a>
+            </button>
           </div>
         </div>
       </main>
       <div className="fixed inset-x-0 bottom-0 z-30 flex justify-center bg-[#FFFFFFF2] pb-[calc(env(safe-area-inset-bottom,0)+16px)] pt-3 shadow-[0_-18px_28px_-16px_rgba(17,17,17,0.18)] backdrop-blur lg:hidden">
         <div className="w-full max-w-[540px] px-3">
-          <a
-            href={whatsappLinkWithPromo}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex h-12 items-center gap-2.5 rounded-full bg-[#26D367] px-5 text-white transition hover:bg-[#1fb358]"
+          <button
+            type="button"
+            onClick={handleChooseProduct}
+            className="flex h-12 w-full items-center gap-2.5 rounded-full bg-[#F97316] px-5 text-white transition hover:bg-[#EA580C]"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
-              <WhatsAppGlyph className="h-5 w-5 text-[#26D367]" />
+              <CartDetailIcon className="h-5 w-5 text-[#F97316]" />
             </span>
             <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
-              Commander via WhatsApp
+              Choisir
             </span>
-          </a>
+          </button>
         </div>
       </div>
       <PromoCodeModal
@@ -1035,29 +1043,6 @@ function buildWhatsappLink({
   return `https://wa.me/${PRODUCTS_PHONE_NUMBER}?text=${encoded}`;
 }
 
-function appendPromoToWhatsappLink(baseLink: string, promo?: ValidatedPromo | null) {
-  if (!promo || !baseLink) {
-    return baseLink;
-  }
-  try {
-    const url = new URL(baseLink);
-    const current = url.searchParams.get('text') ?? '';
-    const lines = [];
-    if (current) {
-      lines.push(current);
-    }
-    lines.push(`Mon code promo est : ${promo.code}`);
-    const benefit = buildPromoBenefitSentence(promo);
-    if (benefit) {
-      lines.push(benefit);
-    }
-    url.searchParams.set('text', lines.join('\n'));
-    return url.toString();
-  } catch {
-    return baseLink;
-  }
-}
-
 function formatPromoValue(promo: ValidatedPromo) {
   if (promo.type === 'percentage') {
     return `${promo.value}%`;
@@ -1080,16 +1065,21 @@ function extractErrorMessage(error: unknown) {
   return 'Impossible de valider ce code pour le moment. Veuillez réessayer.';
 }
 
-function WhatsAppGlyph({ className }: { className?: string }) {
+function CartDetailIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
       <path
-        d="M12 2C6.46 2 2 6.22 2 11.56c0 1.77.5 3.43 1.36 4.86L2 22l5.39-1.39c1.45.8 3.09 1.23 4.61 1.23 5.54 0 10-4.22 10-9.56S17.54 2 12 2Z"
-        fill="currentColor"
+        d="M6.4 7.25h14.35l-1.58 7.15a2.25 2.25 0 0 1-2.2 1.76H8.83a2.25 2.25 0 0 1-2.22-1.9L5.28 4.96H3.5"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
-        d="M16.04 14.59c-.2-.11-1.15-.62-1.33-.69-.18-.07-.31-.11-.44.11-.13.21-.5.69-.61.83-.11.13-.21.15-.4.06-.19-.1-.8-.3-1.51-.92-.56-.5-.93-1.09-1.04-1.28-.11-.19-.01-.3.09-.41.09-.09.21-.22.31-.33.1-.11.13-.18.19-.3.06-.12.02-.23-.02-.33-.05-.1-.37-.92-.5-1.26-.13-.32-.26-.28-.37-.29-.09-.01-.22-.01-.33-.01-.11 0-.3.04-.46.22-.16.18-.6.59-.6 1.43 0 .84.62 1.65.71 1.77.09.12 1.26 2 3.11 2.72.78.29 1.31.47 1.78.3.27-.11.86-.43.98-.85.11-.42.11-.77.08-.85-.04-.08-.16-.14-.34-.23Z"
-        fill="#FFFFFF"
+        d="M9.25 20.25h.01M17.25 20.25h.01"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
       />
     </svg>
   );

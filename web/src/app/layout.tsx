@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 
-const interSans = localFont({
-  variable: '--font-inter-sans',
+const manropeSans = localFont({
+  variable: '--font-manrope-sans',
   display: 'swap',
   src: [
     {
-      path: '../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
+      path: '../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2',
       style: 'normal',
       weight: '100 900',
     },
@@ -43,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={`${interSans.variable} ${robotoMono.variable} antialiased bg-slate-50 text-slate-900`}>
+      <body className={`${manropeSans.variable} ${robotoMono.variable} antialiased bg-slate-50 text-slate-900`}>
         {children}
       </body>
     </html>

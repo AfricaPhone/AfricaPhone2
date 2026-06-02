@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { getCartCount, subscribeToCart } from '@/lib/cart';
 
 type NavItem = {
   label: string;
@@ -16,7 +18,7 @@ type IconProps = {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Catalogue', href: '/', icon: HomeIcon },
-  { label: 'Panier', href: '/#panier', icon: CartIcon },
+  { label: 'Panier', href: '/panier', icon: CartIcon },
   { label: 'Commandes', href: '/#commandes', icon: PackageSearchIcon },
   { label: 'Notifs', href: '/#notifications', icon: BellIcon, badge: '2' },
   { label: 'Compte', href: '/#compte', icon: UserIcon },
@@ -24,6 +26,12 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    setCartCount(getCartCount());
+    return subscribeToCart(() => setCartCount(getCartCount()));
+  }, []);
 
   return (
     <nav
@@ -33,7 +41,8 @@ export default function MobileBottomNav() {
       <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
         {NAV_ITEMS.map(item => {
           const Icon = item.icon;
-          const isActive = item.href === '/' ? pathname === '/' : false;
+          const isActive = item.href === '/' ? pathname === '/' : pathname === item.href;
+          const badge = item.label === 'Panier' && cartCount > 0 ? String(cartCount) : item.badge;
 
           return (
             <Link
@@ -45,9 +54,9 @@ export default function MobileBottomNav() {
             >
               <span className="relative flex h-6 w-6 items-center justify-center">
                 <Icon className="h-[22px] w-[22px]" />
-                {item.badge ? (
+                {badge ? (
                   <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#EF4444] px-1 text-[10px] font-extrabold leading-none text-white shadow-sm ring-2 ring-white">
-                    {item.badge}
+                    {badge}
                   </span>
                 ) : null}
               </span>
