@@ -969,6 +969,9 @@ export default function ProductGridSection({
       <h2 id="all-products" className="sr-only">
         Tous les produits
       </h2>
+      {!selectedBrand && !brandAsCategoryKey && (topProductsLoading || topProducts.length > 0) ? (
+        <TopProductsRail products={topProducts} loading={topProductsLoading} />
+      ) : null}
       {showSegments ? (
         <div className="relative rounded-2xl border border-slate-200 bg-white px-2 py-2 shadow-sm shadow-slate-200/70 sm:px-3">
             <div className={`${SEGMENT_SCROLL_CLASSNAME} overflow-x-auto -mx-1 px-1`}>
@@ -998,9 +1001,6 @@ export default function ProductGridSection({
         </div>
       ) : null}
       {!selectedBrand ? <BrandsCarousel segment={activeSegment} activeBrandId={activeBrandId} /> : null}
-      {!selectedBrand && !brandAsCategoryKey && (topProductsLoading || topProducts.length > 0) ? (
-        <TopProductsRail products={topProducts} loading={topProductsLoading} />
-      ) : null}
       <div className="grid grid-cols-2 gap-x-2 gap-y-[0.375rem] sm:gap-x-3 sm:gap-y-[0.5625rem] md:grid-cols-3 md:gap-x-3 md:gap-y-3 lg:grid-cols-4 lg:gap-x-3.5 lg:gap-y-3.5 xl:grid-cols-5 xl:gap-x-4 xl:gap-y-4">
         {content}
       </div>
@@ -1039,114 +1039,82 @@ export default function ProductGridSection({
 
 function TopProductsRail({ products, loading }: { products: ProductCardData[]; loading: boolean }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
-
-  const updateArrowVisibility = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) {
-      return;
-    }
-    const { scrollLeft, scrollWidth, clientWidth } = el;
-    setCanScrollPrev(scrollLeft > 4);
-    setCanScrollNext(scrollLeft + clientWidth < scrollWidth - 4);
-  }, []);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) {
-      return;
-    }
-
-    updateArrowVisibility();
-    const handleScroll = () => updateArrowVisibility();
-    const resizeObserver = new ResizeObserver(() => updateArrowVisibility());
-
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    resizeObserver.observe(el);
-
-    return () => {
-      el.removeEventListener('scroll', handleScroll);
-      resizeObserver.disconnect();
-    };
-  }, [updateArrowVisibility]);
-
-  useEffect(() => {
-    updateArrowVisibility();
-  }, [products.length, updateArrowVisibility]);
-
-  const scrollByAmount = useCallback((direction: 'prev' | 'next') => {
-    const el = scrollRef.current;
-    if (!el) {
-      return;
-    }
-    const amount = Math.max(el.clientWidth * 0.8, 200);
-    el.scrollBy({
-      left: direction === 'next' ? amount : -amount,
-      behavior: 'smooth',
-    });
-  }, []);
-
   const showSkeleton = loading && products.length === 0;
+  const shouldAnimate = products.length > 1;
+
+  useEffect(() => {
+    if (!shouldAnimate || showSkeleton) {
+      return;
+    }
+
+    const el = scrollRef.current;
+    if (!el) {
+      return;
+    }
+
+    let frame = 0;
+    let lastTime = performance.now();
+    const speed = 34;
+
+    const tick = (time: number) => {
+      const delta = time - lastTime;
+      lastTime = time;
+
+      el.scrollLeft += (delta / 1000) * speed;
+
+      const resetAt = el.scrollWidth / 2;
+      if (resetAt > 0 && el.scrollLeft >= resetAt) {
+        el.scrollLeft -= resetAt;
+      }
+
+      frame = window.requestAnimationFrame(tick);
+    };
+
+    frame = window.requestAnimationFrame(tick);
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [shouldAnimate, showSkeleton, products.length]);
+
   if (!showSkeleton && products.length === 0) {
     return null;
   }
 
   const items = showSkeleton
     ? Array.from({ length: 4 }).map((_, index) => <TopProductSkeleton key={`top-skeleton-${index}`} />)
-    : products.map(product => <TopProductCard key={`top-${product.id}`} product={product} />);
+    : shouldAnimate
+      ? [...products, ...products].map((product, index) => (
+        <TopProductCard
+          key={`top-${product.id}-${index}`}
+          product={product}
+          isDuplicate={index >= products.length}
+        />
+      ))
+      : products.map(product => <TopProductCard key={`top-${product.id}`} product={product} />);
 
   return (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="text-lg font-bold text-slate-900">Top produits</h3>
       </div>
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white py-3 shadow-sm shadow-slate-200/70">
+        {!showSkeleton ? (
+          <>
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-white via-white/90 to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-white via-white/90 to-transparent" />
+          </>
+        ) : null}
         <div
           ref={scrollRef}
-          className={`${TOP_PRODUCTS_SCROLL_CLASSNAME} flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-x-contain px-1 pb-3 pe-8 sm:gap-3 sm:px-1.5 sm:pe-12 lg:gap-4 lg:px-2 lg:pe-16`}
+          className={`${TOP_PRODUCTS_SCROLL_CLASSNAME} flex gap-2.5 px-3 sm:gap-3 sm:px-4 lg:gap-4 ${shouldAnimate ? 'overflow-x-hidden' : 'overflow-x-auto'}`}
         >
           {items}
         </div>
-        {canScrollPrev ? <TopProductsArrowButton direction="prev" onClick={() => scrollByAmount('prev')} /> : null}
-        {canScrollNext ? <TopProductsArrowButton direction="next" onClick={() => scrollByAmount('next')} /> : null}
       </div>
     </div>
   );
 }
 
-type TopProductsArrowButtonProps = {
-  direction: 'prev' | 'next';
-  onClick: () => void;
-};
-
-function TopProductsArrowButton({ direction, onClick }: TopProductsArrowButtonProps) {
-  const isNext = direction === 'next';
-  const alignmentClasses = isNext ? 'right-0 justify-end' : 'left-0 justify-start';
-
-  return (
-    <>
-      <div className={`pointer-events-none absolute inset-y-0 ${alignmentClasses} flex items-center`}>
-        <div
-          className={`h-full w-8 ${isNext ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-white via-white to-transparent opacity-80`}
-        />
-      </div>
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={isNext ? 'Afficher les prochains produits' : 'Afficher les produits precedents'}
-        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#059669] bg-[#059669] text-white shadow-lg shadow-[#059669]/25 transition hover:bg-[#047857] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#059669] ${isNext ? 'right-2' : 'left-2'
-          }`}
-      >
-        <svg className={`h-5 w-5 ${isNext ? '' : 'rotate-180'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
-    </>
-  );
-}
-
-function TopProductCard({ product }: { product: ProductCardData }) {
+function TopProductCard({ product, isDuplicate = false }: { product: ProductCardData; isDuplicate?: boolean }) {
   const detailHref = `/produits/${product.id}`;
   const priceLabel = formatPrice(product.price);
   const [imageErrored, setImageErrored] = useState(false);
@@ -1158,6 +1126,8 @@ function TopProductCard({ product }: { product: ProductCardData }) {
   return (
     <Link
       href={detailHref}
+      aria-hidden={isDuplicate || undefined}
+      tabIndex={isDuplicate ? -1 : undefined}
       className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#059669] focus-visible:ring-offset-0 sm:min-w-[160px] sm:max-w-[160px] h-[252px] sm:h-[268px]"
     >
       <div className="relative flex-[0_0_60%] w-full overflow-hidden bg-slate-50">
@@ -1179,7 +1149,7 @@ function TopProductCard({ product }: { product: ProductCardData }) {
         </p>
         <div className="mt-auto space-y-1">
           <p className="text-[13px] font-extrabold text-[#059669] sm:text-sm">{priceLabel}</p>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-2.5 py-1 text-[10px] font-semibold text-white transition group-hover:bg-[#1EBE5D] sm:text-xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F97316] px-2.5 py-1 text-[10px] font-semibold text-white transition group-hover:bg-[#EA580C] sm:text-xs">
             <WhatsAppIcon className="h-3 w-3 text-white" />
             Commandez
           </span>
@@ -1235,7 +1205,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
           <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
           <p className="text-xs font-semibold text-slate-800 sm:text-sm">{product.tagline}</p>
           <div className="mt-auto">
-            <span className="inline-flex max-w-fit items-center gap-2 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-[#1EBE5D] sm:text-sm">
+            <span className="inline-flex max-w-fit items-center gap-2 rounded-full bg-[#F97316] px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-[#EA580C] sm:text-sm">
               <WhatsAppIcon className="h-3.5 w-3.5 text-white" />
               Commandez
             </span>

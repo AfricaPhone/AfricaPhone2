@@ -4,7 +4,6 @@ import { ChangeEvent, FormEvent, useCallback, useEffect, useId, useState } from 
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import CommunityPromotionRow from '@/components/CommunityPromotionRow';
 import MaintenanceBanner from '@/components/MaintenanceBanner';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ProductGridSection from '@/components/ProductGridSection';
@@ -40,7 +39,6 @@ export default function HomePageClient() {
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
       <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} onClearSearch={handleClearSearch} />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 overflow-x-hidden px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
-        <CommunityPromotionRow />
         <ProductGridSection enableStaticFallbacks={false} />
       </main>
       <SiteFooter />
