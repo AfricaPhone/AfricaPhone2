@@ -928,7 +928,7 @@ export default function ProductGridSection({
             <button
               type="button"
               onClick={handleRetry}
-              className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
+              className="rounded-full bg-[#059669] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#047857]"
             >
               Reessayer
             </button>
@@ -936,7 +936,7 @@ export default function ProductGridSection({
               href={`https://wa.me/${PRODUCTS_PHONE_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-orange-400 hover:text-orange-500"
+              className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#059669] hover:text-[#059669]"
             >
               Contacter WhatsApp
             </a>
@@ -970,8 +970,7 @@ export default function ProductGridSection({
         Tous les produits
       </h2>
       {showSegments ? (
-        <div className="relative rounded-xl bg-gradient-to-r from-orange-500 via-rose-500 to-purple-600 p-0.5 shadow-md shadow-orange-500/20">
-          <div className="rounded-[10px] bg-white/95 backdrop-blur-sm px-2 py-2 sm:px-3">
+        <div className="relative rounded-2xl border border-slate-200 bg-white px-2 py-2 shadow-sm shadow-slate-200/70 sm:px-3">
             <div className={`${SEGMENT_SCROLL_CLASSNAME} overflow-x-auto -mx-1 px-1`}>
               <div className="flex min-w-max items-center justify-center gap-1.5 sm:gap-2" role="group" aria-label="Filtrer les produits">
                 {SEGMENTS.map(segment => {
@@ -983,12 +982,12 @@ export default function ProductGridSection({
                       onClick={() => handleSegmentChange(segment.key)}
                       aria-pressed={String(isActive) as 'true' | 'false'}
                       className={`group flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200 sm:px-3.5 sm:py-2 sm:text-sm ${isActive
-                        ? 'border-orange-500 bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-md shadow-orange-500/30'
-                        : 'border-slate-200 bg-white text-slate-600 shadow-sm hover:border-orange-400 hover:bg-orange-50 hover:text-orange-600 hover:shadow-md active:scale-95'
+                        ? 'border-[#059669] bg-[#059669] text-white shadow-md shadow-[#059669]/25'
+                        : 'border-slate-200 bg-slate-50 text-slate-600 shadow-sm hover:border-[#059669]/40 hover:bg-[#ECFDF5] hover:text-[#059669] hover:shadow-md active:scale-95'
                         }`}
                     >
                       <segment.icon
-                        className={`h-4 w-4 transition-all duration-200 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-orange-500'}`}
+                        className={`h-4 w-4 transition-all duration-200 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-[#059669]'}`}
                       />
                       {segment.label}
                     </button>
@@ -996,7 +995,6 @@ export default function ProductGridSection({
                 })}
               </div>
             </div>
-          </div>
         </div>
       ) : null}
       {!selectedBrand ? <BrandsCarousel segment={activeSegment} activeBrandId={activeBrandId} /> : null}
@@ -1012,7 +1010,7 @@ export default function ProductGridSection({
             type="button"
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className="rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-full bg-[#059669] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#047857] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loadingMore ? 'Chargement...' : 'Afficher plus'}
           </button>
@@ -1137,7 +1135,7 @@ function TopProductsArrowButton({ direction, onClick }: TopProductsArrowButtonPr
         type="button"
         onClick={onClick}
         aria-label={isNext ? 'Afficher les prochains produits' : 'Afficher les produits precedents'}
-        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-orange-500 bg-orange-500 text-white shadow-lg transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${isNext ? 'right-2' : 'left-2'
+        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#059669] bg-[#059669] text-white shadow-lg shadow-[#059669]/25 transition hover:bg-[#047857] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#059669] ${isNext ? 'right-2' : 'left-2'
           }`}
       >
         <svg className={`h-5 w-5 ${isNext ? '' : 'rotate-180'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1160,7 +1158,7 @@ function TopProductCard({ product }: { product: ProductCardData }) {
   return (
     <Link
       href={detailHref}
-      className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0 sm:min-w-[160px] sm:max-w-[160px] h-[252px] sm:h-[268px]"
+      className="group flex min-w-[140px] max-w-[140px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#059669] focus-visible:ring-offset-0 sm:min-w-[160px] sm:max-w-[160px] h-[252px] sm:h-[268px]"
     >
       <div className="relative flex-[0_0_60%] w-full overflow-hidden bg-slate-50">
         {!imageErrored && product.image ? (
@@ -1180,7 +1178,7 @@ function TopProductCard({ product }: { product: ProductCardData }) {
           {product.tagline}
         </p>
         <div className="mt-auto space-y-1">
-          <p className="text-[13px] font-extrabold text-rose-600 sm:text-sm">{priceLabel}</p>
+          <p className="text-[13px] font-extrabold text-[#059669] sm:text-sm">{priceLabel}</p>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-2.5 py-1 text-[10px] font-semibold text-white transition group-hover:bg-[#1EBE5D] sm:text-xs">
             <WhatsAppIcon className="h-3 w-3 text-white" />
             Commandez
@@ -1218,7 +1216,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <Link
         href={detailHref}
-        className="group flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-0"
+        className="group flex flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[#059669] focus-visible:ring-offset-0"
       >
         <div className="relative aspect-[3/4] w-full overflow-hidden sm:aspect-[4/5] lg:aspect-[3/4]">
           {!imageErrored && product.image ? (
@@ -1233,7 +1231,7 @@ function ProductCard({ product }: { product: ProductCardData }) {
           ) : null}
         </div>
         <div className="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3 text-left sm:px-5 sm:pb-5 sm:pt-4">
-          <p className="text-base font-extrabold text-rose-600 sm:text-lg">{priceLabel}</p>
+          <p className="text-base font-extrabold text-[#059669] sm:text-lg">{priceLabel}</p>
           <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{product.name}</h3>
           <p className="text-xs font-semibold text-slate-800 sm:text-sm">{product.tagline}</p>
           <div className="mt-auto">

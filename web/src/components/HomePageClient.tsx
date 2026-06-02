@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CommunityPromotionRow from '@/components/CommunityPromotionRow';
 import MaintenanceBanner from '@/components/MaintenanceBanner';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import ProductGridSection from '@/components/ProductGridSection';
 import ScrollToTopButton from '@/components/ScrollToTopButton';
 import SiteFooter from '@/components/SiteFooter';
@@ -43,7 +44,8 @@ export default function HomePageClient() {
         <ProductGridSection enableStaticFallbacks={false} />
       </main>
       <SiteFooter />
-      <ScrollToTopButton />
+      <ScrollToTopButton mobileBottomOffset />
+      <MobileBottomNav />
     </div>
   );
 }
@@ -56,7 +58,7 @@ type HeaderProps = {
 
 export function Header({ searchQuery, onSubmitSearch, onClearSearch }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 bg-white text-slate-900 shadow-sm shadow-slate-900/10">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 text-slate-900 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.55)] backdrop-blur">
       <TopNav searchQuery={searchQuery} onSubmitSearch={onSubmitSearch} onClearSearch={onClearSearch} />
     </header>
   );
@@ -165,11 +167,11 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
   const hasActiveQuery = displayQuery.length > 0;
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 sm:gap-4 lg:px-8">
-      <div className="flex w-full items-center gap-3">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-3 py-2.5 sm:px-4 sm:py-3 lg:px-8">
+      <div className="flex w-full items-center gap-2">
         <Link
           href="/"
-          className="flex items-center gap-2 whitespace-nowrap text-xl font-extrabold tracking-tight text-slate-900"
+          className="flex min-w-0 flex-1 items-center gap-2 whitespace-nowrap text-lg font-extrabold tracking-tight text-slate-950 sm:text-xl"
         >
           <Image
             src="/logo.png"
@@ -177,54 +179,56 @@ export function TopNav({ searchQuery, onSubmitSearch, onClearSearch }: TopNavPro
             width={40}
             height={40}
             priority
-            className="h-10 w-10 rounded-lg shadow-sm shadow-orange-500/30"
+            className="h-10 w-10 rounded-xl shadow-sm shadow-[#059669]/25"
           />
-          <span>AfricaPhone</span>
+          <span className="truncate">AfricaPhone</span>
         </Link>
-        <div className="ml-auto">
+        <div className="ml-auto shrink-0">
           <Link
             href="/nous-trouver"
-            className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700"
+            className="inline-flex h-10 items-center gap-1.5 rounded-full bg-slate-950 px-3 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/30 sm:px-4 sm:text-sm"
           >
-            <MapPinIcon className="h-6 w-6 text-red-500" />
-            Où nous trouver ?
+            <MapPinIcon className="h-4 w-4 text-[#059669]" />
+            <span className="sm:hidden">Boutique</span>
+            <span className="hidden sm:inline">Ou nous trouver ?</span>
           </Link>
         </div>
       </div>
 
-      <div className="flex w-full flex-wrap items-center gap-2">
+      <div className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-2">
         <button
           type="button"
           onClick={handleShareClick}
-          className="inline-flex shrink-0 items-center justify-center text-[#111111] transition hover:text-[#0f172a]"
+          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#059669]/35 hover:bg-[#ECFDF5] hover:text-[#059669] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669]/30"
           aria-label="Partager AfricaPhone"
         >
-          <ShareIcon className="h-9 w-9" />
+          <ShareIcon className="h-5 w-5" />
         </button>
 
-        <div className="flex-[1_1_140px]">
+        <div className="min-w-0">
           <button
             type="button"
             onClick={handleOpenSearch}
-            className="flex h-11 w-full items-center justify-between gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 text-left text-xs font-medium text-slate-500 transition hover:border-slate-900 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/40"
+            className="flex h-12 w-full min-w-0 items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 text-left text-sm font-semibold text-slate-500 shadow-inner shadow-white transition hover:border-[#059669]/35 hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669]/30"
             aria-haspopup="dialog"
             aria-expanded={isSearchOpen}
             aria-controls={searchModalId}
           >
-            <span className={hasActiveQuery ? 'truncate text-slate-900' : 'truncate'}>
+            <SearchIcon className="h-5 w-5 shrink-0 text-slate-400" />
+            <span className={hasActiveQuery ? 'truncate text-slate-950' : 'truncate'}>
               {hasActiveQuery ? displayQuery : 'Rechercher un produit'}
             </span>
-            <span className="text-[0.625rem] uppercase tracking-wide text-slate-400">Ouvrir</span>
           </button>
         </div>
 
         <button
           type="button"
           onClick={handleFilterClick}
-          className="inline-flex shrink-0 h-11 items-center justify-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#059669]/35 hover:bg-[#ECFDF5] hover:text-[#059669] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669]/30 sm:w-auto sm:px-4"
           aria-label="Ouvrir les filtres"
         >
-          Filtrer
+          <SlidersIcon className="h-5 w-5" />
+          <span className="hidden text-xs font-bold uppercase sm:inline">Filtrer</span>
         </button>
       </div>
 
@@ -602,6 +606,33 @@ function SearchModal({
   );
 }
 
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="m21 21-4.35-4.35M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SlidersIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path d="M4 7h10M18 7h2M4 17h2M10 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M16 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM8 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}
+
 function ShareIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
@@ -628,14 +659,12 @@ function MapPinIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
         d="M12 21s7-5.25 7-11a7 7 0 1 0-14 0c0 5.75 7 11 7 11Z"
-        fill="#EA4335"
-        stroke="#D93025"
-        strokeWidth="1.4"
+        stroke="currentColor"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="12" cy="10" r="2.6" fill="#FCE8E6" />
-      <circle cx="12" cy="10" r="1.35" fill="#D93025" />
+      <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }

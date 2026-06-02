@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 /**
  * Floating button that appears after scrolling and returns the page to the top.
  */
-export default function ScrollToTopButton() {
+export default function ScrollToTopButton({ mobileBottomOffset = false }: { mobileBottomOffset?: boolean }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -28,7 +28,9 @@ export default function ScrollToTopButton() {
       type="button"
       aria-label="Revenir en haut de la page"
       onClick={scrollToTop}
-      className={`fixed bottom-6 right-4 rounded-full bg-orange-500 p-3 text-white shadow-lg transition-all duration-300 hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 sm:bottom-8 sm:right-8 ${
+      className={`fixed right-4 rounded-full bg-[#059669] p-3 text-white shadow-lg shadow-[#059669]/25 transition-all duration-300 hover:bg-[#047857] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669]/30 sm:bottom-8 sm:right-8 ${
+        mobileBottomOffset ? 'bottom-24' : 'bottom-6'
+      } ${
         isVisible ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
       }`}
     >

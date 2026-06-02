@@ -275,7 +275,7 @@ function BrandLogoButton({ brand, isActive, onSelect }: BrandLogoButtonProps) {
     >
       <span
         className={`relative grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-white shadow-sm shadow-slate-900/15 transition-transform duration-150 ${isActive
-          ? '-translate-y-1 ring-2 ring-orange-400 ring-offset-2 ring-offset-slate-100'
+          ? '-translate-y-1 ring-2 ring-[#059669] ring-offset-2 ring-offset-slate-100'
           : 'hover:-translate-y-1'
           }`}
       >
@@ -316,7 +316,7 @@ function ScrollArrowButton({ direction, onClick }: ScrollArrowButtonProps) {
         type="button"
         onClick={onClick}
         aria-label={isNext ? 'Afficher les prochaines marques' : 'Afficher les marques precedentes'}
-        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-orange-500 bg-orange-500 text-white shadow-lg transition hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ${isNext ? 'right-2' : 'left-2'
+        className={`absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#059669] bg-[#059669] text-white shadow-lg shadow-[#059669]/25 transition hover:bg-[#047857] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#059669] ${isNext ? 'right-2' : 'left-2'
           }`}
       >
         <svg className={`h-5 w-5 ${isNext ? '' : 'rotate-180'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
