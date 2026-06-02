@@ -423,7 +423,35 @@ export const serviceHighlights: ServiceHighlight[] = [
   },
 ] as const;
 
-export const footerColumns: Array<{ title: string; links: Array<{ label: string; href: string }> }> = [];
+export const footerColumns: Array<{ title: string; links: Array<{ label: string; href: string }> }> = [
+  {
+    title: 'Catalogue',
+    links: [
+      { label: 'Top produits', href: '/' },
+      { label: 'Filtrer les produits', href: '/filtrer' },
+      { label: 'Marques disponibles', href: '/marques' },
+      { label: 'Panier', href: '/panier' },
+    ],
+  },
+  {
+    title: 'Services',
+    links: [
+      { label: 'Configuration offerte', href: '/nous-trouver' },
+      { label: 'Livraison & retrait', href: '/nous-trouver' },
+      { label: 'Financement flexible', href: '/nous-trouver' },
+      { label: 'Pronostics & jeux', href: '/pronostics' },
+    ],
+  },
+  {
+    title: 'Assistance',
+    links: [
+      { label: 'Nous trouver', href: '/nous-trouver' },
+      { label: 'WhatsApp boutique', href: 'https://wa.me/22954151522' },
+      { label: 'Support client', href: 'mailto:support@africaphone.com' },
+      { label: 'Espace vote', href: '/votes' },
+    ],
+  },
+];
 
 export const footerLegal = [
   { label: 'Conditions generales de vente', href: '#cgv' },

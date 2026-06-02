@@ -59,18 +59,19 @@ export const storeOverview: StoreOverview = {
   catalogLabel: 'https://africaphone-africaphone.web.app/',
   coverImage: 'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=2000&q=80',
   logo: '/logo.png',
-  contactLine: 'Appel & WhatsApp : +229 54 15 15 22',
-  address: 'Immeuble AfricaPhone, Rue 352, Ganhi - Cotonou, Benin',
-  mapLink: 'https://maps.google.com/?q=Immeuble+AfricaPhone+Ganhi',
+  contactLine: 'Appel & WhatsApp : +229 01 54 15 15 22',
+  address: 'Abomey-Calavi, voie pavee Parana vers SOS, pres de la Chapelle des Vainqueurs, Benin',
+  mapLink:
+    'https://maps.google.com/?q=voie+pavee+Parana+Chapelle+des+Vainqueurs+Abomey-Calavi+Benin',
   contact: {
-    phone: '+229 54 15 15 22',
-    whatsapp: '+229 54 15 15 22',
-    whatsappLink: 'https://wa.me/22954151522',
+    phone: '+229 01 54 15 15 22',
+    whatsapp: '+229 01 54 15 15 22',
+    whatsappLink: 'https://wa.me/2290154151522',
     email: 'support@africaphone.com',
   },
   openingHours: [
-    { label: 'Lundi - Samedi', value: '09:00 - 19:00' },
-    { label: 'Dimanche', value: '10:00 - 17:00 (assistance distante)' },
+    { label: 'Tous les jours', value: '08:00 - 00:00' },
+    { label: 'Assistance', value: 'WhatsApp disponible avant visite' },
   ],
   description: [
     'Notre showroom AfricaPhone Ganhi vous accueille pour decouvrir les dernieres nouveautes mobiles, comparer les gammes et profiter de conseils personnalises de nos experts.',
@@ -119,5 +120,5 @@ export const storeOverview: StoreOverview = {
     },
   ],
   mapEmbed:
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.479638142375!2d2.432964375831585!3d6.462064623576394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1023574372053ac7%3A0x7d4f4f667a212f2d!2sGanhi%2C%20Cotonou%2C%20Benin!5e0!3m2!1sen!2sbj!4v1718035200000!5m2!1sen!2sbj',
+    'https://maps.google.com/maps?q=voie%20pavee%20Parana%20Chapelle%20des%20Vainqueurs%20Abomey-Calavi%20Benin&z=16&output=embed',
 };

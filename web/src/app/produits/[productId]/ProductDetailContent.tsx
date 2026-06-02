@@ -435,16 +435,16 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           {orderedSpecs.map((spec, index) => (
             <div
               key={`${spec.label}-${spec.value}`}
-              className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-[#111111] ${index < orderedSpecs.length - 1 ? 'border-b border-[#ECEDEF] pb-2' : ''
+              className={`flex items-baseline justify-between gap-3 text-[13px] leading-5 text-slate-900 ${index < orderedSpecs.length - 1 ? 'border-b border-slate-200 pb-2' : ''
                 }`}
             >
-              <span className="text-[#7A7C80]">{spec.label}</span>
-              <span className="max-w-[55%] text-right font-semibold">{spec.value}</span>
+              <span className="text-slate-500">{spec.label}</span>
+              <span className="max-w-[55%] text-right font-extrabold">{spec.value}</span>
             </div>
           ))}
         </div>
-        <div className="rounded-2xl border border-[#E6E9F0] bg-[#F7F9FC] px-4 py-3 text-[12px] text-[#48505C]">
-          <p className="font-semibold text-[#111111]">Livraison &amp; horaires</p>
+        <div className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] px-4 py-3 text-[12px] text-slate-600">
+          <p className="font-extrabold text-[#059669]">Livraison &amp; horaires</p>
           <p>
             Livraison partout au B&eacute;nin. Nous sommes ouverts tous les jours du Lundi au Dimanche.
           </p>
@@ -455,13 +455,13 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
     );
 
   const descriptionContent = (
-    <div className="space-y-4 text-[13px] leading-relaxed text-[#4B5563]">
-      <p className="font-medium text-[#111111]">{product.description}</p>
+    <div className="space-y-4 text-[13px] leading-relaxed text-slate-600">
+      <p className="font-semibold text-slate-900">{product.description}</p>
       {product.highlights.length ? (
         <ul className="space-y-2">
           {product.highlights.map(highlight => (
             <li key={highlight} className="flex items-start gap-2">
-              <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#111111]" />
+              <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#059669]" />
               <span>{highlight}</span>
             </li>
           ))}
@@ -469,14 +469,14 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       ) : null}
       {product.services.length ? (
         <div className="space-y-1.5">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Services inclus</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-[#059669]">Services inclus</p>
           <ul className="space-y-1.5">
             {product.services.map(service => (
               <li
                 key={service.title}
-                className="rounded-[14px] border border-[#F3F4F7] bg-[#FAFBFD] px-3 py-2 text-[13px] text-[#4B5563]"
+                className="rounded-[14px] border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-600 shadow-sm shadow-slate-200/60"
               >
-                <p className="font-semibold text-[#111111]">{service.title}</p>
+                <p className="font-extrabold text-slate-950">{service.title}</p>
                 <p>{service.description}</p>
               </li>
             ))}
@@ -485,11 +485,11 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
       ) : null}
       {product.deliveryNotes.length ? (
         <div className="space-y-1.5">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#111111]">Livraison &amp; suivi</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-[#059669]">Livraison &amp; suivi</p>
           <ul className="space-y-1.5">
             {product.deliveryNotes.map(note => (
               <li key={note} className="flex items-start gap-2">
-                <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#111111]" />
+                <span className="mt-2 inline-block h-[6px] w-[6px] rounded-full bg-[#F97316]" />
                 <span>{note}</span>
               </li>
             ))}
@@ -509,18 +509,18 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
           {shareMessage}
         </div>
       ) : null}
-      <main className="flex w-full justify-center bg-[#FFFFFF] pb-[108px] lg:pb-12">
-        <div className="flex min-h-screen w-full max-w-[540px] flex-col bg-[#FFFFFF] text-[#111111]">
-          <header className="flex h-[64px] items-center justify-between px-3 sm:h-[76px]">
+      <main className="flex w-full justify-center bg-slate-50 pb-[108px] lg:pb-12">
+        <div className="flex min-h-screen w-full max-w-[540px] flex-col bg-slate-50 text-slate-950">
+          <header className="sticky top-0 z-40 flex h-[68px] items-center justify-between border-b border-slate-200/80 bg-white/95 px-3 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.55)] backdrop-blur sm:h-[76px]">
             <button
               type="button"
               onClick={handleBack}
               aria-label="Retour"
-              className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-full border border-[#1111111a] text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-[54px] sm:w-[54px]"
+              className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#059669]/40 hover:bg-[#ECFDF5] hover:text-[#059669] sm:h-[54px] sm:w-[54px]"
             >
               <ArrowLeftIcon className="h-5 w-5" />
             </button>
-            <h1 className="min-w-0 flex-1 truncate pl-3 pr-2 text-[19px] font-semibold leading-[21px] text-[#111111] sm:text-[20px]">
+            <h1 className="min-w-0 flex-1 truncate pl-3 pr-2 text-[19px] font-extrabold leading-[21px] text-slate-950 sm:text-[20px]">
               {product.name}
             </h1>
             <div className="flex items-center gap-[14px]">
@@ -529,7 +529,7 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 onClick={toggleFavorite}
                 aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 aria-pressed={String(isFavorite) as 'true' | 'false'}
-                className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-[#111111] transition sm:h-[48px] sm:w-[48px] ${isFavorite ? 'bg-[#111111] text-white' : 'bg-white text-[#111111]'
+                className={`inline-flex h-[42px] w-[42px] items-center justify-center rounded-2xl border transition sm:h-[48px] sm:w-[48px] ${isFavorite ? 'border-[#059669] bg-[#059669] text-white shadow-sm shadow-[#059669]/25' : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:border-[#059669]/40 hover:bg-[#ECFDF5] hover:text-[#059669]'
                   }`}
               >
                 <HeartIcon className="h-5 w-5" />
@@ -538,36 +538,49 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 type="button"
                 onClick={handleShare}
                 aria-label="Partager"
-                className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-full border border-[#111111] bg-white text-[#111111] transition hover:bg-[#111111] hover:text-white sm:h-[54px] sm:w-[54px]"
+                className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#059669]/40 hover:bg-[#ECFDF5] hover:text-[#059669] sm:h-[54px] sm:w-[54px]"
               >
                 <ShareIcon className="h-5 w-5" />
               </button>
             </div>
           </header>
 
-          <section className="relative flex h-[320px] w-full items-center justify-center overflow-hidden bg-[#F5F7FA] sm:h-[380px]">
-            {activeImage ? (
-              <Image
-                src={activeImage}
-                alt={product.name}
-                fill
-                sizes="540px"
-                className="object-contain"
-                priority
-              />
-            ) : (
-              <p className="px-6 text-center text-sm font-medium text-[#4B5563]">Image non disponible pour ce produit.</p>
-            )}
+          <section className="px-3 pt-4">
+            <div className="relative flex h-[278px] w-full items-center justify-center overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-sm shadow-slate-200/80 sm:h-[360px]">
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(5,150,105,0.13),transparent_42%),linear-gradient(180deg,rgba(236,253,245,0.45),rgba(255,255,255,0))]" />
+              {activeImage ? (
+                <Image
+                  src={activeImage}
+                  alt={product.name}
+                  fill
+                  sizes="540px"
+                  className="object-contain p-3"
+                  priority
+                />
+              ) : (
+                <p className="px-6 text-center text-sm font-medium text-slate-500">Image non disponible pour ce produit.</p>
+              )}
+              <div className="absolute left-4 top-4 rounded-full border border-[#059669]/20 bg-white/90 px-3 py-1.5 text-xs font-extrabold text-[#059669] shadow-sm backdrop-blur">
+                Stock boutique
+              </div>
+              {product.badge ? (
+                <div className="absolute bottom-4 left-4 rounded-full bg-[#F97316] px-3 py-1.5 text-xs font-extrabold text-white shadow-sm shadow-orange-500/25">
+                  {product.badge}
+                </div>
+              ) : null}
+            </div>
           </section>
 
           <div className="flex flex-1 flex-col px-3 pb-12">
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+              <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[18px] font-semibold leading-[22px] tracking-[-0.2px] text-[#111111]">
+                <p className="text-[11px] font-extrabold uppercase text-[#059669]">Prix boutique</p>
+                <p className="mt-1 text-[24px] font-black leading-[28px] tracking-[-0.2px] text-[#059669]">
                   {product.formattedPrice}
                 </p>
                 {product.oldPriceLabel ? (
-                  <span className="mt-1 inline-block text-[11px] font-semibold text-[#929497] line-through decoration-[#929497] decoration-2">
+                  <span className="mt-1 inline-block text-[11px] font-semibold text-slate-400 line-through decoration-slate-400 decoration-2">
                     {product.oldPriceLabel}
                   </span>
                 ) : null}
@@ -576,43 +589,52 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                 type="button"
                 onClick={() => setIsPromoModalOpen(true)}
                 aria-label="Ajouter un code promo"
-                className="inline-flex h-9 items-center gap-2 rounded-full bg-[#111111] px-4 text-white transition hover:bg-[#2c2c2c]"
+                className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#059669] px-4 text-white transition hover:bg-[#047857]"
               >
                 <span className="flex h-5 w-5 items-center justify-center">
                   <GiftIcon className="h-5 w-5 text-white" />
                 </span>
-                <span className="text-[13px] font-semibold leading-none">Code Promo</span>
+                <span className="text-[13px] font-extrabold leading-none">Code Promo</span>
               </button>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] px-3 py-2">
+                  <p className="text-[10px] font-bold uppercase text-[#059669]">Service</p>
+                  <p className="text-xs font-extrabold text-slate-950">Configuration incluse</p>
+                </div>
+                <div className="rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2">
+                  <p className="text-[10px] font-bold uppercase text-[#F97316]">Retrait</p>
+                  <p className="text-xs font-extrabold text-slate-950">Boutique ou livraison</p>
+                </div>
+              </div>
             </div>
             {appliedPromo ? (
               <div className="mt-3 space-y-2">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#BEE3F8] bg-[#E0F2FE]/80 px-3 py-1 text-[12px] font-semibold text-[#0B5ED7]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#059669]/20 bg-[#ECFDF5] px-3 py-1 text-[12px] font-extrabold text-[#059669]">
                   <span>Code&nbsp;: {appliedPromo.code}</span>
                   <button
                     type="button"
                     onClick={handleRemovePromoCode}
-                    className="text-[#0B5ED7] transition hover:text-[#063970]"
+                    className="text-[#059669] transition hover:text-[#047857]"
                     aria-label="Retirer le code promo"
                   >
                     &times;
                   </button>
                 </div>
                 {promoBenefitText ? (
-                  <p className="text-[12px] font-medium leading-5 text-[#0F172A]">{promoBenefitText}</p>
+                  <p className="text-[12px] font-medium leading-5 text-slate-600">{promoBenefitText}</p>
                 ) : null}
               </div>
             ) : null}
             {promoNotice ? <p className="mt-2 text-[12px] font-medium text-[#059669]">{promoNotice}</p> : null}
 
-            <div className="mt-3 h-px w-full bg-[#ECEDEF]" />
-
-            <div className="mt-3 flex w-full justify-center">
+            <div className="mt-4 flex w-full justify-center">
               <div className="w-full max-w-[460px]">
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm shadow-slate-200/60">
                   <button
                     type="button"
                     onClick={() => setActiveTab('specs')}
-                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${activeTab === 'specs' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                    className={`rounded-xl py-2 text-center text-[14px] font-extrabold transition ${activeTab === 'specs' ? 'bg-[#059669] text-white shadow-sm shadow-[#059669]/25' : 'text-slate-500 hover:bg-[#ECFDF5] hover:text-[#059669]'
                       }`}
                   >
                     Specifications
@@ -620,21 +642,18 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
                   <button
                     type="button"
                     onClick={() => setActiveTab('description')}
-                    className={`flex-1 py-1.5 text-center text-[16px] font-semibold ${activeTab === 'description' ? 'text-[#111111]' : 'text-[#7A7C80]'
+                    className={`rounded-xl py-2 text-center text-[14px] font-extrabold transition ${activeTab === 'description' ? 'bg-[#059669] text-white shadow-sm shadow-[#059669]/25' : 'text-slate-500 hover:bg-[#ECFDF5] hover:text-[#059669]'
                       }`}
                   >
                     Description
                   </button>
                 </div>
-                <div className="relative mt-2 h-[2px] w-full bg-[#ECEDEF]">
-                  <span
-                    className={`absolute top-0 h-[2px] rounded-full bg-[#111111] transition-all duration-200 tab-indicator ${activeTab === 'specs' ? 'tab-indicator-specs' : 'tab-indicator-description'}`}
-                  />
-                </div>
               </div>
             </div>
 
-            <div className="mt-4">{activeTab === 'specs' ? specsContent : descriptionContent}</div>
+            <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+              {activeTab === 'specs' ? specsContent : descriptionContent}
+            </div>
 
             {error ? (
               <p className="mt-6 rounded-[24px] bg-[#FFF6E6] px-4 py-4 text-[14px] font-medium text-[#C05621]">
@@ -645,29 +664,29 @@ export default function ProductDetailContent({ productId, initialProduct }: Prod
             <button
               type="button"
               onClick={handleChooseProduct}
-              className="mt-12 hidden h-12 items-center gap-2.5 rounded-full bg-[#F97316] px-5 text-white transition hover:bg-[#EA580C] lg:flex"
+              className="mt-8 hidden h-12 items-center gap-2.5 rounded-2xl bg-[#F97316] px-5 text-white shadow-sm shadow-orange-500/25 transition hover:bg-[#EA580C] lg:flex"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white">
                 <CartDetailIcon className="h-5 w-5 text-[#F97316]" />
               </span>
-              <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
+              <span className="flex-1 text-center text-[16px] font-extrabold leading-[19px]">
                 Choisir
               </span>
             </button>
           </div>
         </div>
       </main>
-      <div className="fixed inset-x-0 bottom-0 z-30 flex justify-center bg-[#FFFFFFF2] pb-[calc(env(safe-area-inset-bottom,0)+16px)] pt-3 shadow-[0_-18px_28px_-16px_rgba(17,17,17,0.18)] backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-slate-200 bg-white/95 pb-[calc(env(safe-area-inset-bottom,0)+16px)] pt-3 shadow-[0_-18px_28px_-16px_rgba(15,23,42,0.2)] backdrop-blur lg:hidden">
         <div className="w-full max-w-[540px] px-3">
           <button
             type="button"
             onClick={handleChooseProduct}
-            className="flex h-12 w-full items-center gap-2.5 rounded-full bg-[#F97316] px-5 text-white transition hover:bg-[#EA580C]"
+            className="flex h-12 w-full items-center gap-2.5 rounded-2xl bg-[#F97316] px-5 text-white shadow-sm shadow-orange-500/25 transition hover:bg-[#EA580C]"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white">
               <CartDetailIcon className="h-5 w-5 text-[#F97316]" />
             </span>
-            <span className="flex-1 text-center text-[16px] font-semibold leading-[19px]">
+            <span className="flex-1 text-center text-[16px] font-extrabold leading-[19px]">
               Choisir
             </span>
           </button>
