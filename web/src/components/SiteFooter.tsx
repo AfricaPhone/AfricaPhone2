@@ -12,25 +12,25 @@ const locationTitle = storeOverview.address.split(',')[0] || 'Boutique AfricaPho
 export default function SiteFooter() {
   return (
     <footer className="mt-8 border-t border-slate-200 bg-gradient-to-b from-white to-[#ECFDF5] text-slate-950">
-      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
-          <div className="flex flex-col justify-between gap-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70 sm:p-7">
-            <div className="space-y-4">
-              <Link href="/" className="inline-flex items-center gap-3 text-2xl font-extrabold tracking-tight">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#059669] text-base font-black text-white shadow-sm shadow-[#059669]/25">
+      <div className="mx-auto w-full max-w-7xl px-3 py-6 sm:px-6 lg:px-8 lg:py-10">
+        <div className="grid grid-cols-2 gap-3 lg:gap-5">
+          <div className="flex min-w-0 flex-col justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-200/70 sm:p-5 lg:p-7">
+            <div className="space-y-2 sm:space-y-4">
+              <Link href="/" className="inline-flex min-w-0 items-center gap-2 text-lg font-extrabold tracking-tight sm:gap-3 sm:text-2xl">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#059669] text-sm font-black text-white shadow-sm shadow-[#059669]/25 sm:h-11 sm:w-11 sm:text-base">
                   AP
                 </span>
-                <span>
+                <span className="min-w-0 truncate">
                   Africa<span className="text-[#059669]">Phone</span>
                 </span>
               </Link>
-              <p className="max-w-xl text-sm font-medium leading-6 text-slate-600">
+              <p className="hidden max-w-xl text-sm font-medium leading-6 text-slate-600 sm:block">
                 Smartphones, tablettes et accessoires disponibles avec conseil en boutique, configuration et assistance
                 locale.
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-2 xl:grid-cols-2">
               <InfoBlock icon={<PinIcon className="h-5 w-5" />} label="Adresse" value={storeOverview.address}>
                 <Link
                   href={storeOverview.mapLink}
@@ -61,32 +61,32 @@ export default function SiteFooter() {
               </InfoBlock>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2 xl:grid-cols-2">
               {storeOverview.openingHours.map(item => (
-                <div key={item.label} className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] px-4 py-3">
-                  <p className="text-xs font-bold uppercase text-[#059669]">{item.label}</p>
-                  <p className="mt-1 text-sm font-extrabold text-slate-950">{item.value}</p>
+                <div key={item.label} className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] px-3 py-2 sm:px-4 sm:py-3">
+                  <p className="text-[10px] font-bold uppercase text-[#059669] sm:text-xs">{item.label}</p>
+                  <p className="mt-1 text-xs font-extrabold text-slate-950 sm:text-sm">{item.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
-            <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
+          <div className="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-3 py-3 sm:px-5 sm:py-4">
               <div>
-                <p className="text-xs font-extrabold uppercase text-[#059669]">Showroom</p>
-                <h2 className="text-lg font-extrabold">{locationTitle}</h2>
+                <p className="text-[10px] font-extrabold uppercase text-[#059669] sm:text-xs">Showroom</p>
+                <h2 className="text-sm font-extrabold sm:text-lg">{locationTitle}</h2>
               </div>
               <Link
                 href={storeOverview.mapLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 rounded-full border border-[#059669]/20 bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669] transition hover:border-[#059669]/40 hover:bg-white"
+                className="shrink-0 rounded-full border border-[#059669]/20 bg-[#ECFDF5] px-2.5 py-1.5 text-[10px] font-extrabold text-[#059669] transition hover:border-[#059669]/40 hover:bg-white sm:px-3 sm:py-2 sm:text-xs"
               >
                 Itineraire
               </Link>
             </div>
-            <div className="relative h-72 bg-slate-200 sm:h-80 lg:h-full lg:min-h-[360px]">
+            <div className="relative h-full min-h-[250px] bg-slate-200 sm:min-h-[300px] lg:min-h-[360px]">
               <iframe
                 title="Carte AfricaPhone Cotonou"
                 src={storeOverview.mapEmbed}
@@ -100,11 +100,11 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-8 border-t border-slate-200 pt-8 md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_1.1fr]">
+        <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-200 pt-3 sm:mt-5 sm:gap-5 sm:pt-5 lg:grid-cols-[1fr_1fr_1fr_1.1fr]">
           {footerColumns.map(column => (
-            <div key={column.title}>
-              <h3 className="text-sm font-extrabold uppercase text-slate-950">{column.title}</h3>
-              <ul className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
+            <div key={column.title} className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-200/60 sm:p-5">
+              <h3 className="text-xs font-extrabold uppercase text-slate-950 sm:text-sm">{column.title}</h3>
+              <ul className="mt-3 space-y-2 text-xs font-semibold text-slate-600 sm:mt-4 sm:space-y-3 sm:text-sm">
                 {column.links.map(link => {
                   const external = isExternalHref(link.href);
                   return (
@@ -124,9 +124,9 @@ export default function SiteFooter() {
             </div>
           ))}
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
-            <p className="text-sm font-extrabold uppercase text-slate-950">Services inclus</p>
-            <ul className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
+          <div className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-200/70 sm:p-5">
+            <p className="text-xs font-extrabold uppercase text-slate-950 sm:text-sm">Services inclus</p>
+            <ul className="mt-3 space-y-2 text-xs font-semibold text-slate-600 sm:mt-4 sm:space-y-3 sm:text-sm">
               {storeOverview.services.map(service => (
                 <li key={service.title} className="flex gap-3">
                   <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#F97316]" />
@@ -166,14 +166,14 @@ function InfoBlock({
   children?: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <div className="flex gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ECFDF5] text-[#059669]">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+      <div className="flex gap-2 sm:gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#ECFDF5] text-[#059669] sm:h-10 sm:w-10">
           {icon}
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase text-slate-500">{label}</p>
-          <p className="mt-1 text-sm font-extrabold leading-5 text-slate-950">{value}</p>
+          <p className="text-[10px] font-bold uppercase text-slate-500 sm:text-xs">{label}</p>
+          <p className="mt-1 line-clamp-3 text-xs font-extrabold leading-4 text-slate-950 sm:text-sm sm:leading-5">{value}</p>
           {children ? <div className="mt-3">{children}</div> : null}
         </div>
       </div>
