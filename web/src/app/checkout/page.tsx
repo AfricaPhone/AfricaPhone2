@@ -13,6 +13,15 @@ import {
   saveCheckoutDraft,
   updateCheckoutDraftOrderSync,
 } from '@/lib/checkoutDraft';
+import {
+  buildCustomerProfileFromCheckout,
+  type CustomerProfileDraft,
+  getCustomerProfileReadiness,
+  getCustomerProfileDraft,
+  INITIAL_CUSTOMER_PROFILE,
+  mergeCustomerProfileIntoCheckout,
+  saveCustomerProfileDraft,
+} from '@/lib/customerProfile';
 import { formatPrice } from '@/utils/formatPrice';
 
 const PAYMENT_MODES: Array<{
@@ -90,8 +99,23 @@ export default function CheckoutPage() {
   const [contractName, setContractName] = useState('');
   const [representativeIdName, setRepresentativeIdName] = useState('');
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [storedCustomerProfile, setStoredCustomerProfile] = useState<CustomerProfileDraft | null>(null);
+  const [profileLoadedFromAccount, setProfileLoadedFromAccount] = useState(false);
 
   useEffect(() => subscribeToCart(setItems), []);
+
+  useEffect(() => {
+    const savedProfile = getCustomerProfileDraft();
+    if (!savedProfile) {
+      return;
+    }
+
+    setStoredCustomerProfile(savedProfile);
+    setProfile(prev => mergeCustomerProfileIntoCheckout(prev, savedProfile));
+    setIdDocumentName(prev => prev || savedProfile.idDocumentName);
+    setContractName(prev => prev || savedProfile.contractName);
+    setProfileLoadedFromAccount(true);
+  }, []);
 
   const totalQty = useMemo(() => items.reduce((sum, item) => sum + item.qty, 0), [items]);
   const totalPrice = useMemo(
@@ -152,6 +176,20 @@ export default function CheckoutPage() {
 
   const missingRequirements = requirements.filter(requirement => !requirement.done);
   const canPrepareOrder = items.length > 0 && missingRequirements.length === 0;
+  const checkoutCustomerProfile = useMemo(
+    () =>
+      buildCustomerProfileFromCheckout({
+        checkoutProfile: profile,
+        previousProfile: storedCustomerProfile ?? INITIAL_CUSTOMER_PROFILE,
+        idDocumentName,
+        contractName,
+      }),
+    [contractName, idDocumentName, profile, storedCustomerProfile]
+  );
+  const checkoutProfileReadiness = useMemo(
+    () => getCustomerProfileReadiness(checkoutCustomerProfile),
+    [checkoutCustomerProfile]
+  );
 
   const updateProfile = (field: keyof CheckoutProfile) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfile(prev => ({ ...prev, [field]: event.target.value }));
@@ -172,6 +210,10 @@ export default function CheckoutPage() {
     }
 
     setIsCreatingOrder(true);
+    const savedProfile = saveCustomerProfileDraft(checkoutCustomerProfile);
+    setStoredCustomerProfile(savedProfile);
+    setProfileLoadedFromAccount(true);
+
     const draft = saveCheckoutDraft({
       paymentMode,
       fulfillmentMode,
@@ -196,6 +238,7 @@ export default function CheckoutPage() {
       const responseBody = (await response.json().catch(() => null)) as {
         orderId?: string;
         createdAt?: string;
+        profileRequired?: boolean;
         message?: string;
       } | null;
 
@@ -205,6 +248,7 @@ export default function CheckoutPage() {
           orderId: null,
           createdAt: null,
           error: responseBody?.message || 'Creation de commande indisponible.',
+          profileRequired: false,
         });
       } else {
         updateCheckoutDraftOrderSync(draft, {
@@ -212,6 +256,7 @@ export default function CheckoutPage() {
           orderId: responseBody.orderId,
           createdAt: responseBody.createdAt || new Date().toISOString(),
           error: null,
+          profileRequired: responseBody.profileRequired === true,
         });
       }
     } catch (error) {
@@ -221,6 +266,7 @@ export default function CheckoutPage() {
         orderId: null,
         createdAt: null,
         error: 'Creation de commande indisponible.',
+        profileRequired: false,
       });
     } finally {
       setIsCreatingOrder(false);
@@ -307,9 +353,16 @@ export default function CheckoutPage() {
                   <p className="text-xs font-extrabold uppercase text-[#059669]">Identite</p>
                   <h2 className="mt-1 text-xl font-black">Informations client</h2>
                 </div>
-                <span className="rounded-full bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]">
-                  {needsFullProfile ? 'Profil complet' : 'Profil leger'}
-                </span>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]">
+                    {needsFullProfile ? 'Profil complet' : 'Profil leger'}
+                  </span>
+                  {profileLoadedFromAccount ? (
+                    <span className="rounded-full bg-orange-50 px-3 py-2 text-xs font-extrabold text-orange-700">
+                      Profil compte repris
+                    </span>
+                  ) : null}
+                </div>
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -407,6 +460,21 @@ export default function CheckoutPage() {
 
             <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
               <p className="text-xs font-extrabold uppercase text-[#059669]">Validation avant paiement</p>
+              <div className="mt-4 rounded-2xl bg-slate-50 px-3 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-extrabold uppercase text-slate-500">Profil local</p>
+                  <p className="text-sm font-black text-[#059669]">{checkoutProfileReadiness.completion}%</p>
+                </div>
+                <p className="mt-1 text-xs font-bold leading-5 text-slate-500">
+                  {checkoutProfileReadiness.cotisationReady
+                    ? 'Pret pour cotisation'
+                    : checkoutProfileReadiness.fullReady
+                      ? 'Pret pour paiement Kkiapay'
+                      : checkoutProfileReadiness.lightReady
+                        ? 'Pret pour paiement a la livraison'
+                        : 'Identite minimale encore incomplete'}
+                </p>
+              </div>
               <div className="mt-4 space-y-2">
                 {requirements.map(requirement => (
                   <div key={requirement.label} className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">

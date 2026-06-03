@@ -1,16 +1,18 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import {
+  type CustomerProfileDraft,
+  getCustomerProfileDraft,
+  getCustomerProfileReadiness,
+  INITIAL_CUSTOMER_PROFILE,
+  saveCustomerProfileDraft,
+} from '@/lib/customerProfile';
 
-type DraftProfile = {
-  fullName: string;
-  email: string;
-  whatsapp: string;
-  address: string;
-  city: string;
-};
+type ProfileTextField = 'fullName' | 'email' | 'whatsapp' | 'address' | 'city';
+type ProfileFileField = 'photoName' | 'idDocumentName' | 'contractName';
 
 const PROFILE_LEVELS = [
   {
@@ -31,36 +33,32 @@ const PROFILE_LEVELS = [
 ];
 
 export default function AccountPage() {
-  const [profile, setProfile] = useState<DraftProfile>({
-    fullName: '',
-    email: '',
-    whatsapp: '',
-    address: '',
-    city: '',
-  });
-  const [photoName, setPhotoName] = useState('');
-  const [idDocumentName, setIdDocumentName] = useState('');
-  const [contractName, setContractName] = useState('');
+  const [profile, setProfile] = useState<CustomerProfileDraft>(INITIAL_CUSTOMER_PROFILE);
   const [saved, setSaved] = useState(false);
 
-  const profileCompletion = useMemo(() => {
-    const values = Object.values(profile);
-    const filled = values.filter(value => value.trim().length > 0).length;
-    return Math.round((filled / values.length) * 100);
-  }, [profile]);
+  useEffect(() => {
+    const savedProfile = getCustomerProfileDraft();
+    if (savedProfile) {
+      setProfile(savedProfile);
+      setSaved(true);
+    }
+  }, []);
 
-  const updateField = (field: keyof DraftProfile) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const profileReadiness = useMemo(() => getCustomerProfileReadiness(profile), [profile]);
+
+  const updateField = (field: ProfileTextField) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSaved(false);
     setProfile(prev => ({ ...prev, [field]: event.target.value }));
   };
 
-  const handleFile = (setter: (value: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFile = (field: ProfileFileField) => (event: ChangeEvent<HTMLInputElement>) => {
     setSaved(false);
-    setter(event.target.files?.[0]?.name ?? '');
+    setProfile(prev => ({ ...prev, [field]: event.target.files?.[0]?.name ?? '' }));
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setProfile(saveCustomerProfileDraft(profile));
     setSaved(true);
   };
 
@@ -111,9 +109,9 @@ export default function AccountPage() {
             </label>
 
             <div className="grid gap-3 sm:grid-cols-3">
-              <FileField label="Photo profil" fileName={photoName} onChange={handleFile(setPhotoName)} />
-              <FileField label="Piece d identite" fileName={idDocumentName} onChange={handleFile(setIdDocumentName)} />
-              <FileField label="Contrat signe" fileName={contractName} onChange={handleFile(setContractName)} />
+              <FileField label="Photo profil" fileName={profile.photoName} onChange={handleFile('photoName')} />
+              <FileField label="Piece d identite" fileName={profile.idDocumentName} onChange={handleFile('idDocumentName')} />
+              <FileField label="Contrat signe" fileName={profile.contractName} onChange={handleFile('contractName')} />
             </div>
 
             <button
@@ -124,7 +122,7 @@ export default function AccountPage() {
             </button>
             {saved ? (
               <p className="rounded-2xl bg-[#ECFDF5] px-3 py-2 text-sm font-extrabold text-[#059669]">
-                Brouillon pret pour validation. Le branchement Firebase viendra apres validation de l ecran.
+                Profil local enregistre. Il sera repris automatiquement dans le checkout.
               </p>
             ) : null}
           </form>
@@ -134,17 +132,22 @@ export default function AccountPage() {
             <div className="mt-4 rounded-3xl bg-slate-50 p-4">
               <div className="flex items-end justify-between">
                 <span className="text-sm font-bold text-slate-500">Completion</span>
-                <span className="text-3xl font-black text-[#059669]">{profileCompletion}%</span>
+                <span className="text-3xl font-black text-[#059669]">{profileReadiness.completion}%</span>
               </div>
               <div className="mt-3 h-2 rounded-full bg-slate-200">
-                <div className="h-2 rounded-full bg-[#059669]" style={{ width: `${profileCompletion}%` }} />
+                <div className="h-2 rounded-full bg-[#059669]" style={{ width: `${profileReadiness.completion}%` }} />
               </div>
             </div>
             <ul className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
-              <li>Compte non obligatoire pour visiter le catalogue.</li>
-              <li>Paiement Kkiapay : profil complet requis.</li>
-              <li>Cotisation : piece d identite et contrat signe requis.</li>
+              <ReadinessItem ready={profileReadiness.lightReady} label="Profil leger : nom et WhatsApp" />
+              <ReadinessItem ready={profileReadiness.fullReady} label="Paiement Kkiapay : profil complet" />
+              <ReadinessItem ready={profileReadiness.cotisationReady} label="Cotisation : identite et contrat" />
             </ul>
+            {profile.updatedAt ? (
+              <p className="mt-4 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
+                Derniere sauvegarde locale : {new Date(profile.updatedAt).toLocaleString('fr-FR')}
+              </p>
+            ) : null}
           </aside>
         </div>
       </main>
@@ -197,5 +200,20 @@ function FileField({
         {fileName || 'Importer'}
       </span>
     </label>
+  );
+}
+
+function ReadinessItem({ ready, label }: { ready: boolean; label: string }) {
+  return (
+    <li className="flex items-center gap-2">
+      <span
+        className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black ${
+          ready ? 'bg-[#059669] text-white' : 'bg-slate-200 text-slate-500'
+        }`}
+      >
+        {ready ? 'OK' : '!'}
+      </span>
+      <span>{label}</span>
+    </li>
   );
 }

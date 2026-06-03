@@ -119,12 +119,13 @@ Regles attendues plus tard:
 ## Ordre de branchement recommande
 
 1. Creation de `orders` depuis le checkout via `POST /api/orders`.
-2. Authentification/profil client minimal.
-3. Page confirmation basee sur la vraie commande.
-4. Upload documents vers `customer-documents`.
-5. Creation de `orderPayments` puis ouverture Kkiapay.
-6. Webhook Kkiapay qui verifie le paiement et met a jour `orderPayments` + `orders`.
-7. Backoffice client: commandes, paiements, documents, cotisations, notifications.
+2. Profil client local partage entre Compte et Checkout.
+3. Authentification/profil client Firebase Auth.
+4. Page confirmation basee sur la vraie commande.
+5. Upload documents vers `customer-documents`.
+6. Creation de `orderPayments` puis ouverture Kkiapay.
+7. Webhook Kkiapay qui verifie le paiement et met a jour `orderPayments` + `orders`.
+8. Backoffice client: commandes, paiements, documents, cotisations, notifications.
 
 ## API locale ajoutee
 
@@ -141,9 +142,25 @@ Statuts actuels:
 - Kkiapay, cotisation ou representant sans compte: `profile_required`;
 - paiement Kkiapay/cotisation: `paymentStatus` reste `pending`, mais aucun widget Kkiapay n est ouvert.
 
+## Profil local ajoute
+
+### `localStorage.africaphone_customer_profile`
+
+Role:
+- conserve le profil saisi dans le menu Compte;
+- pre-remplit le checkout sans obliger le visiteur a creer un compte;
+- garde uniquement les noms des fichiers importes pour l instant, pas les fichiers eux-memes;
+- sert de preparation avant le vrai profil Firebase Auth.
+
+Niveaux valides:
+- profil leger: nom complet et WhatsApp, suffisant pour payer a la livraison;
+- profil complet: nom, WhatsApp, email, ville et adresse, requis avant Kkiapay;
+- cotisation: profil complet, piece d identite et contrat signe.
+
 ## Hypotheses validees
 
 - La creation de compte n est pas obligatoire pour consulter le catalogue.
 - Le profil complet devient obligatoire avant paiement Kkiapay, cotisation ou document sensible.
 - La cotisation exige piece d identite valide et contrat signe.
 - Le paiement produit doit rester separe du systeme de votes/pronostics.
+- Les fichiers importes ne sont pas encore envoyes a Firebase Storage dans cette etape.

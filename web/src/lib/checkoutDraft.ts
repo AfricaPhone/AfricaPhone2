@@ -33,6 +33,7 @@ export type CheckoutDraft = {
     orderId: string | null;
     createdAt: string | null;
     error: string | null;
+    profileRequired: boolean;
   };
 };
 
@@ -78,6 +79,7 @@ export const saveCheckoutDraft = (
       orderId: null,
       createdAt: null,
       error: null,
+      profileRequired: false,
     },
   };
 
@@ -124,7 +126,12 @@ export const getCheckoutDraft = (): CheckoutDraft | null => {
         orderId: null,
         createdAt: null,
         error: null,
+        profileRequired: false,
       };
+    }
+
+    if (typeof draft.orderSync.profileRequired !== 'boolean') {
+      draft.orderSync.profileRequired = false;
     }
 
     return draft;

@@ -47,7 +47,11 @@ export default function CheckoutConfirmationPage() {
                       draft.orderSync.status === 'created' ? 'text-[#059669]' : 'text-orange-700'
                     }`}
                   >
-                    {draft.orderSync.status === 'created' ? 'Commande Firestore creee' : 'Synchro backend a verifier'}
+                    {draft.orderSync.status === 'created'
+                      ? draft.orderSync.profileRequired
+                        ? 'Commande creee - profil requis'
+                        : 'Commande Firestore creee'
+                      : 'Synchro backend a verifier'}
                   </span>
                 </div>
                 <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
@@ -58,6 +62,11 @@ export default function CheckoutConfirmationPage() {
                     <p className="text-[10px] font-extrabold uppercase text-slate-500">Commande Firestore</p>
                     <p className="mt-1 break-all text-sm font-black text-[#059669]">{draft.orderSync.orderId}</p>
                   </div>
+                ) : null}
+                {draft.orderSync.status === 'created' && draft.orderSync.profileRequired ? (
+                  <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
+                    Cette commande existe, mais le paiement ou la cotisation doit attendre un profil client identifie.
+                  </p>
                 ) : null}
                 {draft.orderSync.status === 'failed' ? (
                   <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">

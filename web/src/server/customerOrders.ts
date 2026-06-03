@@ -177,6 +177,7 @@ export const validateCreateOrderDraft = (payload: unknown): CreateOrderValidatio
         orderId: null,
         createdAt: null,
         error: null,
+        profileRequired: false,
       },
     },
   };
