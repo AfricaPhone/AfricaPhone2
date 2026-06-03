@@ -19,9 +19,9 @@ type IconProps = {
 const NAV_ITEMS: NavItem[] = [
   { label: 'Catalogue', href: '/', icon: HomeIcon },
   { label: 'Panier', href: '/panier', icon: CartIcon },
-  { label: 'Commandes', href: '/#commandes', icon: PackageSearchIcon },
-  { label: 'Notifs', href: '/#notifications', icon: BellIcon, badge: '2' },
-  { label: 'Compte', href: '/#compte', icon: UserIcon },
+  { label: 'Commandes', href: '/commandes', icon: PackageSearchIcon },
+  { label: 'Notifs', href: '/notifs', icon: BellIcon, badge: '2' },
+  { label: 'Compte', href: '/compte', icon: UserIcon },
 ];
 
 export default function MobileBottomNav() {
