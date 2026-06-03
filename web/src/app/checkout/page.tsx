@@ -1,27 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { type CartItem, subscribeToCart } from '@/lib/cart';
+import {
+  type CheckoutFulfillmentMode,
+  type CheckoutPaymentMode,
+  type CheckoutProfile,
+  saveCheckoutDraft,
+} from '@/lib/checkoutDraft';
 import { formatPrice } from '@/utils/formatPrice';
 
-type PaymentMode = 'delivery' | 'kkiapay' | 'pickup' | 'cotisation';
-type FulfillmentMode = 'delivery' | 'shop' | 'representative';
-
-type CheckoutProfile = {
-  fullName: string;
-  email: string;
-  whatsapp: string;
-  city: string;
-  address: string;
-  representativeName: string;
-  representativePhone: string;
-};
-
 const PAYMENT_MODES: Array<{
-  id: PaymentMode;
+  id: CheckoutPaymentMode;
   title: string;
   tag: string;
   description: string;
@@ -53,7 +47,7 @@ const PAYMENT_MODES: Array<{
 ];
 
 const FULFILLMENT_MODES: Array<{
-  id: FulfillmentMode;
+  id: CheckoutFulfillmentMode;
   title: string;
   description: string;
 }> = [
@@ -74,13 +68,6 @@ const FULFILLMENT_MODES: Array<{
   },
 ];
 
-const NEXT_STEP_MESSAGES: Record<PaymentMode, string> = {
-  delivery: 'Demande prete. Prochaine etape : confirmer la disponibilite, la zone et le montant de livraison.',
-  kkiapay: 'Demande prete. Prochaine etape : creer la commande puis lancer le paiement Kkiapay securise.',
-  pickup: 'Demande prete. Prochaine etape : confirmer le stock et organiser le passage en boutique.',
-  cotisation: 'Dossier prete. Prochaine etape : verifier les documents, valider le contrat et definir l echeancier.',
-};
-
 const initialProfile: CheckoutProfile = {
   fullName: '',
   email: '',
@@ -92,15 +79,15 @@ const initialProfile: CheckoutProfile = {
 };
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
-  const [paymentMode, setPaymentMode] = useState<PaymentMode>('delivery');
-  const [fulfillmentMode, setFulfillmentMode] = useState<FulfillmentMode>('delivery');
+  const [paymentMode, setPaymentMode] = useState<CheckoutPaymentMode>('delivery');
+  const [fulfillmentMode, setFulfillmentMode] = useState<CheckoutFulfillmentMode>('delivery');
   const [profile, setProfile] = useState<CheckoutProfile>(initialProfile);
   const [acceptDeliveryFee, setAcceptDeliveryFee] = useState(false);
   const [idDocumentName, setIdDocumentName] = useState('');
   const [contractName, setContractName] = useState('');
   const [representativeIdName, setRepresentativeIdName] = useState('');
-  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => subscribeToCart(setItems), []);
 
@@ -165,18 +152,38 @@ export default function CheckoutPage() {
   const canPrepareOrder = items.length > 0 && missingRequirements.length === 0;
 
   const updateProfile = (field: keyof CheckoutProfile) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setSubmitted(false);
     setProfile(prev => ({ ...prev, [field]: event.target.value }));
   };
 
   const handleFile = (setter: (value: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
-    setSubmitted(false);
     setter(event.target.files?.[0]?.name ?? '');
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(canPrepareOrder);
+    handlePrepareOrder();
+  };
+
+  const handlePrepareOrder = () => {
+    if (!canPrepareOrder) {
+      return;
+    }
+
+    saveCheckoutDraft({
+      paymentMode,
+      fulfillmentMode,
+      profile,
+      items,
+      totalQty,
+      totalPrice,
+      acceptedDeliveryFee: acceptDeliveryFee,
+      documents: {
+        idDocumentName,
+        contractName,
+        representativeIdName,
+      },
+    });
+    router.push('/checkout/confirmation');
   };
 
   return (
@@ -197,7 +204,6 @@ export default function CheckoutPage() {
               tag={mode.tag}
               description={mode.description}
               onClick={() => {
-                setSubmitted(false);
                 setPaymentMode(mode.id);
               }}
             />
@@ -224,7 +230,6 @@ export default function CheckoutPage() {
                     type="button"
                     aria-pressed={fulfillmentMode === mode.id}
                     onClick={() => {
-                      setSubmitted(false);
                       setFulfillmentMode(mode.id);
                     }}
                     className={`rounded-2xl border px-3 py-3 text-left transition ${
@@ -245,7 +250,6 @@ export default function CheckoutPage() {
                     type="checkbox"
                     checked={acceptDeliveryFee}
                     onChange={event => {
-                      setSubmitted(false);
                       setAcceptDeliveryFee(event.target.checked);
                     }}
                     className="mt-1"
@@ -378,18 +382,14 @@ export default function CheckoutPage() {
 
               <button
                 type="button"
-                onClick={() => setSubmitted(canPrepareOrder)}
+                onClick={handlePrepareOrder}
                 disabled={!canPrepareOrder}
                 className="mt-5 h-12 w-full rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 Preparer la demande
               </button>
 
-              {submitted ? (
-                <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-sm font-extrabold text-[#059669]">
-                  {NEXT_STEP_MESSAGES[paymentMode]}
-                </p>
-              ) : missingRequirements.length > 0 ? (
+              {missingRequirements.length > 0 ? (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
                   Completez les conditions restantes pour activer la demande.
                 </p>
