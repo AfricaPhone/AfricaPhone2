@@ -63,6 +63,28 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin']);
     }
 
+    function isCustomerDocumentType(type) {
+      return type in [
+        'profile_photo',
+        'identity_card',
+        'signed_contract',
+        'representative_identity_card'
+      ];
+    }
+
+    function isCustomerDocumentCreate() {
+      return matchesOwner(request.resource.data) &&
+        isCustomerDocumentType(request.resource.data.type) &&
+        request.resource.data.status == 'under_review' &&
+        request.resource.data.storagePath is string &&
+        request.resource.data.fileName is string &&
+        request.resource.data.contentType is string &&
+        request.resource.data.size is number &&
+        request.resource.data.size > 0 &&
+        request.resource.data.size < 10 * 1024 * 1024 &&
+        request.resource.data.createdAt == request.time;
+    }
+
     match /products/{productId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
@@ -132,6 +154,12 @@ service cloud.firestore {
       // Seuls les admins peuvent modifier le champ isAdmin
       allow update: if isAdmin() || (isOwner(userId) && !isModifyingAdminField());
       allow delete: if isAdmin() || isOwner(userId);
+    }
+
+    match /customerDocuments/{documentId} {
+      allow read: if isAdmin() || matchesOwner(resource.data);
+      allow create: if isAdmin() || isCustomerDocumentCreate();
+      allow update, delete: if isAdmin();
     }
 
     match /config/{docId} {

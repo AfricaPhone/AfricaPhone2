@@ -25,8 +25,11 @@ export type CheckoutDraft = {
   acceptedDeliveryFee: boolean;
   documents: {
     idDocumentName: string;
+    idDocumentId?: string | null;
     contractName: string;
+    contractDocumentId?: string | null;
     representativeIdName: string;
+    representativeIdDocumentId?: string | null;
   };
   orderSync: {
     status: 'not_attempted' | 'created' | 'failed';
@@ -98,10 +101,8 @@ export const persistCheckoutDraft = (draft: CheckoutDraft) => {
   return draft;
 };
 
-export const updateCheckoutDraftOrderSync = (
-  draft: CheckoutDraft,
-  orderSync: CheckoutDraft['orderSync']
-) => persistCheckoutDraft({ ...draft, orderSync });
+export const updateCheckoutDraftOrderSync = (draft: CheckoutDraft, orderSync: CheckoutDraft['orderSync']) =>
+  persistCheckoutDraft({ ...draft, orderSync });
 
 export const getCheckoutDraft = (): CheckoutDraft | null => {
   if (!isBrowser()) {

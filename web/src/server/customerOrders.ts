@@ -9,9 +9,7 @@ import type {
   FirestoreTimestampLike,
 } from '@/types/customerOrders';
 
-type CreateOrderValidationResult =
-  | { ok: true; draft: CheckoutDraft }
-  | { ok: false; message: string; status: number };
+type CreateOrderValidationResult = { ok: true; draft: CheckoutDraft } | { ok: false; message: string; status: number };
 
 const CHECKOUT_PAYMENT_TO_ORDER_PAYMENT: Record<CheckoutDraft['paymentMode'], CustomerPaymentMode> = {
   delivery: 'pay_on_delivery',
@@ -124,8 +122,11 @@ export const validateCreateOrderDraft = (payload: unknown): CreateOrderValidatio
 
   const documents = isRecord(payload.documents) ? payload.documents : {};
   const idDocumentName = toCleanString(documents.idDocumentName);
+  const idDocumentId = toCleanString(documents.idDocumentId);
   const contractName = toCleanString(documents.contractName);
+  const contractDocumentId = toCleanString(documents.contractDocumentId);
   const representativeIdName = toCleanString(documents.representativeIdName);
+  const representativeIdDocumentId = toCleanString(documents.representativeIdDocumentId);
 
   if (paymentMode === 'cotisation' && (!idDocumentName || !contractName)) {
     return { ok: false, message: 'Piece d identite et contrat signe requis pour la cotisation.', status: 400 };
@@ -169,8 +170,11 @@ export const validateCreateOrderDraft = (payload: unknown): CreateOrderValidatio
       acceptedDeliveryFee: payload.acceptedDeliveryFee === true,
       documents: {
         idDocumentName,
+        idDocumentId: idDocumentId || null,
         contractName,
+        contractDocumentId: contractDocumentId || null,
         representativeIdName,
+        representativeIdDocumentId: representativeIdDocumentId || null,
       },
       orderSync: {
         status: 'not_attempted',
@@ -194,9 +198,7 @@ export const buildCustomerOrderFromDraft = (params: {
   const paymentMode = CHECKOUT_PAYMENT_TO_ORDER_PAYMENT[draft.paymentMode];
   const fulfillmentMode = CHECKOUT_FULFILLMENT_TO_ORDER_FULFILLMENT[draft.fulfillmentMode];
   const profileRequired =
-    draft.paymentMode === 'kkiapay' ||
-    draft.paymentMode === 'cotisation' ||
-    draft.fulfillmentMode === 'representative';
+    draft.paymentMode === 'kkiapay' || draft.paymentMode === 'cotisation' || draft.fulfillmentMode === 'representative';
   const status: CustomerOrderStatus = profileRequired && !userId ? 'profile_required' : 'pending_review';
   const paymentStatus: CustomerPaymentStatus =
     draft.paymentMode === 'kkiapay' || draft.paymentMode === 'cotisation' ? 'pending' : 'not_required';
@@ -224,10 +226,15 @@ export const buildCustomerOrderFromDraft = (params: {
         ? {
             fullName: draft.profile.representativeName,
             whatsapp: toNullableString(draft.profile.representativePhone),
-            identityDocumentId: null,
+            identityDocumentId: toNullableString(draft.documents.representativeIdDocumentId),
             confirmationMode: draft.documents.representativeIdName ? 'pending' : 'phone_call',
           }
         : null,
+    documentIds: {
+      identityDocumentId: toNullableString(draft.documents.idDocumentId),
+      signedContractDocumentId: toNullableString(draft.documents.contractDocumentId),
+      representativeIdentityDocumentId: toNullableString(draft.documents.representativeIdDocumentId),
+    },
     delivery: {
       acceptedDeliveryFee: draft.acceptedDeliveryFee,
       city: toNullableString(draft.profile.city),

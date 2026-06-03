@@ -162,7 +162,7 @@ Role:
 - conserve le profil saisi dans le menu Compte;
 - pre-remplit le checkout sans obliger le visiteur a creer un compte;
 - synchronise `users/{uid}` quand le client cree ou connecte un compte Firebase Auth;
-- garde uniquement les noms des fichiers importes pour l instant, pas les fichiers eux-memes;
+- upload les documents vers Storage quand le client est connecte;
 - sert de preparation avant le vrai profil Firebase Auth.
 
 Niveaux valides:
@@ -177,7 +177,29 @@ Role:
 
 - stocke le profil client connecte;
 - conserve `role: customer`, `source: web`, `email`, `emailVerified` et `customerProfile`;
+- conserve les IDs de documents deja envoyes dans `customerDocuments`;
 - reste compatible avec les regles Firestore existantes: le client ne peut pas ecrire `isAdmin`.
+
+## Upload documents ajoute
+
+### `customer-documents/{userId}/{documentType}/{documentId}-{fileName}`
+
+Role:
+
+- stocker les photos, pieces d identite, contrats signes et pieces de representants;
+- limiter l ecriture au client connecte proprietaire du dossier;
+- limiter les fichiers a 10 Mo, sauf photo profil a 5 Mo cote interface;
+- autoriser images JPG/PNG/WebP et PDF pour les documents;
+- garder les fichiers prives: lecture proprietaire ou admin seulement.
+
+### `customerDocuments/{documentId}`
+
+Role:
+
+- creer un index Firestore du document envoye;
+- stocker `userId`, `type`, `status`, `storagePath`, `fileName`, `contentType` et `size`;
+- placer les documents en `under_review` avant validation admin;
+- associer les IDs au profil local et aux brouillons checkout.
 
 ## Hypotheses validees
 
@@ -185,5 +207,5 @@ Role:
 - Le profil complet devient obligatoire avant paiement Kkiapay, cotisation ou document sensible.
 - La cotisation exige piece d identite valide et contrat signe.
 - Le paiement produit doit rester separe du systeme de votes/pronostics.
-- Les fichiers importes ne sont pas encore envoyes a Firebase Storage dans cette etape.
 - L authentification email/mot de passe doit etre activee dans Firebase pour que la creation de compte fonctionne.
+- Les regles Firestore/Storage modifiees localement doivent etre deployees explicitement avant upload reel en production.

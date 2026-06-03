@@ -15,6 +15,11 @@ import {
   updateCheckoutDraftOrderSync,
 } from '@/lib/checkoutDraft';
 import {
+  getCustomerDocumentAccept,
+  uploadCustomerDocument,
+  type CustomerDocumentUploadResult,
+} from '@/lib/customerDocuments';
+import {
   buildCustomerProfileFromCheckout,
   type CustomerProfileDraft,
   getCustomerProfileReadiness,
@@ -25,7 +30,76 @@ import {
   syncCustomerProfileToFirestore,
 } from '@/lib/customerProfile';
 import { auth } from '@/lib/firebaseClient';
+import type { CustomerDocumentType } from '@/types/customerOrders';
 import { formatPrice } from '@/utils/formatPrice';
+
+type CheckoutDocumentField = 'idDocument' | 'contract' | 'representativeId';
+type UploadStatus = 'idle' | 'selected' | 'uploading' | 'uploaded' | 'failed';
+type UploadState = {
+  status: UploadStatus;
+  message: string;
+};
+
+type CheckoutDocumentRefs = {
+  idDocumentId: string;
+  contractDocumentId: string;
+  representativeIdDocumentId: string;
+};
+
+const CHECKOUT_DOCUMENT_CONFIG: Record<
+  CheckoutDocumentField,
+  {
+    documentType: CustomerDocumentType;
+    selectedMessage: string;
+  }
+> = {
+  idDocument: {
+    documentType: 'identity_card',
+    selectedMessage: 'Piece selectionnee, upload avant commande.',
+  },
+  contract: {
+    documentType: 'signed_contract',
+    selectedMessage: 'Contrat selectionne, upload avant commande.',
+  },
+  representativeId: {
+    documentType: 'representative_identity_card',
+    selectedMessage: 'Piece selectionnee, upload avant commande.',
+  },
+};
+
+const INITIAL_CHECKOUT_DOCUMENT_FILES: Record<CheckoutDocumentField, File | null> = {
+  idDocument: null,
+  contract: null,
+  representativeId: null,
+};
+
+const INITIAL_CHECKOUT_UPLOAD_STATES: Record<CheckoutDocumentField, UploadState> = {
+  idDocument: { status: 'idle', message: '' },
+  contract: { status: 'idle', message: '' },
+  representativeId: { status: 'idle', message: '' },
+};
+
+const INITIAL_CHECKOUT_DOCUMENT_REFS: CheckoutDocumentRefs = {
+  idDocumentId: '',
+  contractDocumentId: '',
+  representativeIdDocumentId: '',
+};
+
+const applyCheckoutUploadResult = (
+  refs: CheckoutDocumentRefs,
+  field: CheckoutDocumentField,
+  result: CustomerDocumentUploadResult
+): CheckoutDocumentRefs => {
+  if (field === 'idDocument') {
+    return { ...refs, idDocumentId: result.id };
+  }
+
+  if (field === 'contract') {
+    return { ...refs, contractDocumentId: result.id };
+  }
+
+  return { ...refs, representativeIdDocumentId: result.id };
+};
 
 const PAYMENT_MODES: Array<{
   id: CheckoutPaymentMode;
@@ -107,6 +181,12 @@ export default function CheckoutPage() {
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
+  const [documentFiles, setDocumentFiles] = useState<Record<CheckoutDocumentField, File | null>>(
+    INITIAL_CHECKOUT_DOCUMENT_FILES
+  );
+  const [documentUploadStates, setDocumentUploadStates] =
+    useState<Record<CheckoutDocumentField, UploadState>>(INITIAL_CHECKOUT_UPLOAD_STATES);
+  const [documentRefs, setDocumentRefs] = useState<CheckoutDocumentRefs>(INITIAL_CHECKOUT_DOCUMENT_REFS);
 
   useEffect(() => subscribeToCart(setItems), []);
 
@@ -129,6 +209,11 @@ export default function CheckoutPage() {
     setProfile(prev => mergeCustomerProfileIntoCheckout(prev, savedProfile));
     setIdDocumentName(prev => prev || savedProfile.idDocumentName);
     setContractName(prev => prev || savedProfile.contractName);
+    setDocumentRefs(prev => ({
+      ...prev,
+      idDocumentId: prev.idDocumentId || savedProfile.idDocumentId || '',
+      contractDocumentId: prev.contractDocumentId || savedProfile.contractDocumentId || '',
+    }));
     setProfileLoadedFromAccount(true);
   }, []);
 
@@ -143,6 +228,8 @@ export default function CheckoutPage() {
   const needsRepresentative = fulfillmentMode === 'representative';
   const needsDeliveryFee = fulfillmentMode === 'delivery';
   const needsAuthenticatedProfile = paymentMode === 'kkiapay' || paymentMode === 'cotisation';
+  const hasIdentityDocument = Boolean(idDocumentName || documentRefs.idDocumentId || documentFiles.idDocument);
+  const hasSignedContract = Boolean(contractName || documentRefs.contractDocumentId || documentFiles.contract);
 
   const requirements = useMemo(() => {
     const base = [
@@ -172,8 +259,8 @@ export default function CheckoutPage() {
 
     const cotisation = needsCotisationDocuments
       ? [
-          { label: 'Piece d identite valide', done: idDocumentName.length > 0 },
-          { label: 'Contrat signe importe', done: contractName.length > 0 },
+          { label: 'Piece d identite valide', done: hasIdentityDocument },
+          { label: 'Contrat signe importe', done: hasSignedContract },
         ]
       : [];
 
@@ -182,6 +269,12 @@ export default function CheckoutPage() {
     acceptDeliveryFee,
     authUser,
     contractName,
+    documentFiles.contract,
+    documentFiles.idDocument,
+    documentRefs.contractDocumentId,
+    documentRefs.idDocumentId,
+    hasIdentityDocument,
+    hasSignedContract,
     idDocumentName,
     needsCotisationDocuments,
     needsDeliveryFee,
@@ -198,9 +291,18 @@ export default function CheckoutPage() {
         checkoutProfile: profile,
         previousProfile: storedCustomerProfile ?? INITIAL_CUSTOMER_PROFILE,
         idDocumentName,
+        idDocumentId: documentRefs.idDocumentId,
         contractName,
+        contractDocumentId: documentRefs.contractDocumentId,
       }),
-    [contractName, idDocumentName, profile, storedCustomerProfile]
+    [
+      contractName,
+      documentRefs.contractDocumentId,
+      documentRefs.idDocumentId,
+      idDocumentName,
+      profile,
+      storedCustomerProfile,
+    ]
   );
   const checkoutProfileReadiness = useMemo(
     () => getCustomerProfileReadiness(checkoutCustomerProfile),
@@ -212,8 +314,72 @@ export default function CheckoutPage() {
       setProfile(prev => ({ ...prev, [field]: event.target.value }));
     };
 
-  const handleFile = (setter: (value: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
-    setter(event.target.files?.[0]?.name ?? '');
+  const handleDocumentFile =
+    (field: CheckoutDocumentField, setter: (value: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0] ?? null;
+      setter(file?.name ?? '');
+      setDocumentFiles(prev => ({ ...prev, [field]: file }));
+      setDocumentUploadStates(prev => ({
+        ...prev,
+        [field]: file
+          ? { status: 'selected', message: CHECKOUT_DOCUMENT_CONFIG[field].selectedMessage }
+          : { status: 'idle', message: '' },
+      }));
+      if (!file) {
+        setDocumentRefs(prev =>
+          applyCheckoutUploadResult(prev, field, {
+            id: '',
+            type: CHECKOUT_DOCUMENT_CONFIG[field].documentType,
+            status: 'under_review',
+            fileName: '',
+            storagePath: '',
+            contentType: '',
+            size: 0,
+          })
+        );
+      }
+    };
+
+  const uploadCheckoutDocuments = async (user: User) => {
+    let nextRefs = documentRefs;
+
+    for (const field of Object.keys(CHECKOUT_DOCUMENT_CONFIG) as CheckoutDocumentField[]) {
+      const file = documentFiles[field];
+      if (!file) {
+        continue;
+      }
+
+      setDocumentUploadStates(prev => ({
+        ...prev,
+        [field]: { status: 'uploading', message: 'Upload Firebase en cours...' },
+      }));
+
+      try {
+        const result = await uploadCustomerDocument({
+          user,
+          file,
+          documentType: CHECKOUT_DOCUMENT_CONFIG[field].documentType,
+        });
+
+        nextRefs = applyCheckoutUploadResult(nextRefs, field, result);
+        setDocumentUploadStates(prev => ({
+          ...prev,
+          [field]: { status: 'uploaded', message: 'Document envoye pour verification.' },
+        }));
+      } catch (error) {
+        setDocumentUploadStates(prev => ({
+          ...prev,
+          [field]: {
+            status: 'failed',
+            message: error instanceof Error ? error.message : 'Upload impossible pour ce document.',
+          },
+        }));
+        throw error;
+      }
+    }
+
+    setDocumentRefs(nextRefs);
+    return nextRefs;
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -234,26 +400,46 @@ export default function CheckoutPage() {
 
     setIsCreatingOrder(true);
     setCheckoutError('');
-    const savedProfile = saveCustomerProfileDraft(checkoutCustomerProfile);
-    setStoredCustomerProfile(savedProfile);
-    setProfileLoadedFromAccount(true);
-
-    const draft = saveCheckoutDraft({
-      paymentMode,
-      fulfillmentMode,
-      profile,
-      items,
-      totalQty,
-      totalPrice,
-      acceptedDeliveryFee: acceptDeliveryFee,
-      documents: {
-        idDocumentName,
-        contractName,
-        representativeIdName,
-      },
-    });
+    let draft: ReturnType<typeof saveCheckoutDraft> | null = null;
 
     try {
+      const uploadedRefs = currentAuthUser ? await uploadCheckoutDocuments(currentAuthUser) : documentRefs;
+
+      if (needsCotisationDocuments && (!uploadedRefs.idDocumentId || !uploadedRefs.contractDocumentId)) {
+        setCheckoutError('La cotisation exige une piece d identite et un contrat vraiment envoyes.');
+        return;
+      }
+
+      const profileForOrder = buildCustomerProfileFromCheckout({
+        checkoutProfile: profile,
+        previousProfile: storedCustomerProfile ?? INITIAL_CUSTOMER_PROFILE,
+        idDocumentName,
+        idDocumentId: uploadedRefs.idDocumentId,
+        contractName,
+        contractDocumentId: uploadedRefs.contractDocumentId,
+      });
+      const savedProfile = saveCustomerProfileDraft(profileForOrder);
+      setStoredCustomerProfile(savedProfile);
+      setProfileLoadedFromAccount(true);
+
+      draft = saveCheckoutDraft({
+        paymentMode,
+        fulfillmentMode,
+        profile,
+        items,
+        totalQty,
+        totalPrice,
+        acceptedDeliveryFee: acceptDeliveryFee,
+        documents: {
+          idDocumentName,
+          idDocumentId: uploadedRefs.idDocumentId || null,
+          contractName,
+          contractDocumentId: uploadedRefs.contractDocumentId || null,
+          representativeIdName,
+          representativeIdDocumentId: uploadedRefs.representativeIdDocumentId || null,
+        },
+      });
+
       let idToken: string | null = null;
       if (currentAuthUser) {
         const syncedProfile = await syncCustomerProfileToFirestore(savedProfile, currentAuthUser);
@@ -293,19 +479,26 @@ export default function CheckoutPage() {
           profileRequired: responseBody.profileRequired === true,
         });
       }
+      router.push('/checkout/confirmation');
     } catch (error) {
       console.error('checkout: order creation failed', error);
-      setCheckoutError('Creation de commande indisponible. Reessayez apres verification du serveur.');
-      updateCheckoutDraftOrderSync(draft, {
-        status: 'failed',
-        orderId: null,
-        createdAt: null,
-        error: 'Creation de commande indisponible.',
-        profileRequired: false,
-      });
+      setCheckoutError(
+        error instanceof Error
+          ? error.message
+          : 'Creation de commande indisponible. Reessayez apres verification du serveur.'
+      );
+      if (draft) {
+        updateCheckoutDraftOrderSync(draft, {
+          status: 'failed',
+          orderId: null,
+          createdAt: null,
+          error: 'Creation de commande indisponible.',
+          profileRequired: false,
+        });
+        router.push('/checkout/confirmation');
+      }
     } finally {
       setIsCreatingOrder(false);
-      router.push('/checkout/confirmation');
     }
   };
 
@@ -469,7 +662,9 @@ export default function CheckoutPage() {
                   <FileField
                     label="Piece du representant optionnelle"
                     fileName={representativeIdName}
-                    onChange={handleFile(setRepresentativeIdName)}
+                    accept={getCustomerDocumentAccept('representative_identity_card')}
+                    uploadState={documentUploadStates.representativeId}
+                    onChange={handleDocumentFile('representativeId', setRepresentativeIdName)}
                   />
                 </div>
                 <p className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
@@ -486,9 +681,17 @@ export default function CheckoutPage() {
                   <FileField
                     label="Piece d identite valide"
                     fileName={idDocumentName}
-                    onChange={handleFile(setIdDocumentName)}
+                    accept={getCustomerDocumentAccept('identity_card')}
+                    uploadState={documentUploadStates.idDocument}
+                    onChange={handleDocumentFile('idDocument', setIdDocumentName)}
                   />
-                  <FileField label="Contrat signe" fileName={contractName} onChange={handleFile(setContractName)} />
+                  <FileField
+                    label="Contrat signe"
+                    fileName={contractName}
+                    accept={getCustomerDocumentAccept('signed_contract')}
+                    uploadState={documentUploadStates.contract}
+                    onChange={handleDocumentFile('contract', setContractName)}
+                  />
                 </div>
                 <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold text-[#059669]">
                   Les paiements Kkiapay successifs seront branches apres validation du modele de contrat.
@@ -669,17 +872,34 @@ function Field({
 function FileField({
   label,
   fileName,
+  accept,
+  uploadState,
   onChange,
 }: {
   label: string;
   fileName: string;
+  accept: string;
+  uploadState: UploadState;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <label className="block rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-3 py-3">
       <span className="text-xs font-extrabold uppercase text-slate-500">{label}</span>
-      <input type="file" onChange={onChange} className="sr-only" />
+      <input type="file" accept={accept} onChange={onChange} className="sr-only" />
       <span className="mt-2 block truncate text-sm font-extrabold text-slate-950">{fileName || 'Importer'}</span>
+      {uploadState.message ? (
+        <span
+          className={`mt-2 block text-[11px] font-bold ${
+            uploadState.status === 'failed'
+              ? 'text-orange-700'
+              : uploadState.status === 'uploaded'
+                ? 'text-[#059669]'
+                : 'text-slate-500'
+          }`}
+        >
+          {uploadState.message}
+        </span>
+      ) : null}
     </label>
   );
 }

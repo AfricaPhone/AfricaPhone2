@@ -5,6 +5,24 @@ service firebase.storage {
       return request.auth != null && request.auth.token.admin == true;
     }
 
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isCustomerDocumentUpload(userId, documentType) {
+      return isOwner(userId) &&
+        request.resource != null &&
+        resource == null &&
+        documentType.matches('^(profile_photo|identity_card|signed_contract|representative_identity_card)$') &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        (
+          (documentType == 'profile_photo' && request.resource.contentType.matches('^image/(jpeg|jpg|png|webp)$')) ||
+          (documentType != 'profile_photo' && request.resource.contentType.matches('^(image/(jpeg|jpg|png|webp)|application/pdf)$'))
+        ) &&
+        request.resource.metadata.source == 'web-customer' &&
+        request.resource.metadata.userId == userId;
+    }
+
     match /public/{allPaths=**} {
       allow get: if true;
       allow list, create, update, delete: if isAdmin();
@@ -27,6 +45,13 @@ service firebase.storage {
       allow list: if false;
       allow create: if isContestPhotoUpload(contestId, fileName);
       allow update, delete: if false;
+    }
+
+    match /customer-documents/{userId}/{documentType}/{fileName} {
+      allow get: if isAdmin() || isOwner(userId);
+      allow list: if false;
+      allow create: if isAdmin() || isCustomerDocumentUpload(userId, documentType);
+      allow update, delete: if isAdmin();
     }
 
     match /{allPaths=**} {

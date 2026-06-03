@@ -11,6 +11,11 @@ import {
 } from 'firebase/auth';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import {
+  getCustomerDocumentAccept,
+  uploadCustomerDocument,
+  type CustomerDocumentUploadResult,
+} from '@/lib/customerDocuments';
 import { auth } from '@/lib/firebaseClient';
 import {
   type CustomerProfileDraft,
@@ -21,9 +26,79 @@ import {
   saveCustomerProfileDraft,
   syncCustomerProfileToFirestore,
 } from '@/lib/customerProfile';
+import type { CustomerDocumentType } from '@/types/customerOrders';
 
 type ProfileTextField = 'fullName' | 'email' | 'whatsapp' | 'address' | 'city';
 type ProfileFileField = 'photoName' | 'idDocumentName' | 'contractName';
+type UploadStatus = 'idle' | 'selected' | 'uploading' | 'uploaded' | 'failed';
+type UploadState = {
+  status: UploadStatus;
+  message: string;
+};
+
+const PROFILE_FILE_CONFIG: Record<
+  ProfileFileField,
+  {
+    documentType: CustomerDocumentType;
+    selectedMessage: string;
+  }
+> = {
+  photoName: {
+    documentType: 'profile_photo',
+    selectedMessage: 'Photo selectionnee, upload apres connexion.',
+  },
+  idDocumentName: {
+    documentType: 'identity_card',
+    selectedMessage: 'Piece selectionnee, upload apres connexion.',
+  },
+  contractName: {
+    documentType: 'signed_contract',
+    selectedMessage: 'Contrat selectionne, upload apres connexion.',
+  },
+};
+
+const INITIAL_PROFILE_FILES: Record<ProfileFileField, File | null> = {
+  photoName: null,
+  idDocumentName: null,
+  contractName: null,
+};
+
+const INITIAL_UPLOAD_STATES: Record<ProfileFileField, UploadState> = {
+  photoName: { status: 'idle', message: '' },
+  idDocumentName: { status: 'idle', message: '' },
+  contractName: { status: 'idle', message: '' },
+};
+
+const applyProfileUploadResult = (
+  profile: CustomerProfileDraft,
+  field: ProfileFileField,
+  result: CustomerDocumentUploadResult
+): CustomerProfileDraft => {
+  if (field === 'photoName') {
+    return {
+      ...profile,
+      photoName: result.fileName,
+      photoDocumentId: result.id,
+      photoStoragePath: result.storagePath,
+    };
+  }
+
+  if (field === 'idDocumentName') {
+    return {
+      ...profile,
+      idDocumentName: result.fileName,
+      idDocumentId: result.id,
+      idDocumentStoragePath: result.storagePath,
+    };
+  }
+
+  return {
+    ...profile,
+    contractName: result.fileName,
+    contractDocumentId: result.id,
+    contractDocumentStoragePath: result.storagePath,
+  };
+};
 
 const PROFILE_LEVELS = [
   {
@@ -54,6 +129,8 @@ export default function AccountPage() {
   const [authError, setAuthError] = useState('');
   const [isAuthWorking, setIsAuthWorking] = useState(false);
   const [isSyncingProfile, setIsSyncingProfile] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<Record<ProfileFileField, File | null>>(INITIAL_PROFILE_FILES);
+  const [uploadStates, setUploadStates] = useState<Record<ProfileFileField, UploadState>>(INITIAL_UPLOAD_STATES);
 
   useEffect(() => {
     const savedProfile = getCustomerProfileDraft();
@@ -112,15 +189,66 @@ export default function AccountPage() {
   };
 
   const handleFile = (field: ProfileFileField) => (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
     setSaved(false);
-    setProfile(prev => ({ ...prev, [field]: event.target.files?.[0]?.name ?? '' }));
+    setSelectedFiles(prev => ({ ...prev, [field]: file }));
+    setUploadStates(prev => ({
+      ...prev,
+      [field]: file
+        ? { status: 'selected', message: PROFILE_FILE_CONFIG[field].selectedMessage }
+        : { status: 'idle', message: '' },
+    }));
+    setProfile(prev => ({ ...prev, [field]: file?.name ?? '' }));
+  };
+
+  const uploadSelectedDocuments = async (user: User, baseProfile: CustomerProfileDraft) => {
+    let nextProfile = baseProfile;
+
+    for (const field of Object.keys(PROFILE_FILE_CONFIG) as ProfileFileField[]) {
+      const file = selectedFiles[field];
+      if (!file) {
+        continue;
+      }
+
+      setUploadStates(prev => ({
+        ...prev,
+        [field]: { status: 'uploading', message: 'Upload Firebase en cours...' },
+      }));
+
+      try {
+        const result = await uploadCustomerDocument({
+          user,
+          file,
+          documentType: PROFILE_FILE_CONFIG[field].documentType,
+        });
+
+        nextProfile = applyProfileUploadResult(nextProfile, field, result);
+        setUploadStates(prev => ({
+          ...prev,
+          [field]: { status: 'uploaded', message: 'Document envoye pour verification.' },
+        }));
+      } catch (error) {
+        setUploadStates(prev => ({
+          ...prev,
+          [field]: {
+            status: 'failed',
+            message: error instanceof Error ? error.message : 'Upload impossible pour ce document.',
+          },
+        }));
+        throw error;
+      }
+    }
+
+    return nextProfile;
   };
 
   const syncProfile = async (user: User, nextProfile = profile) => {
     setIsSyncingProfile(true);
     try {
-      const syncedProfile = await syncCustomerProfileToFirestore(nextProfile, user);
+      const profileWithUploads = await uploadSelectedDocuments(user, nextProfile);
+      const syncedProfile = await syncCustomerProfileToFirestore(profileWithUploads, user);
       setProfile(syncedProfile);
+      setSelectedFiles(INITIAL_PROFILE_FILES);
       setSaved(true);
       setAuthMessage('Profil synchronise avec le compte client.');
       setAuthError('');
@@ -137,7 +265,11 @@ export default function AccountPage() {
     const localProfile = saveCustomerProfileDraft(profile);
     setProfile(localProfile);
     setSaved(true);
-    setAuthMessage(authUser ? 'Profil local enregistre. Synchronisation en cours...' : 'Profil local enregistre.');
+    setAuthMessage(
+      authUser
+        ? 'Profil local enregistre. Synchronisation en cours...'
+        : 'Profil local enregistre. Connectez le compte pour envoyer les documents.'
+    );
 
     if (authUser) {
       await syncProfile(authUser, localProfile);
@@ -274,13 +406,27 @@ export default function AccountPage() {
             </label>
 
             <div className="grid gap-3 sm:grid-cols-3">
-              <FileField label="Photo profil" fileName={profile.photoName} onChange={handleFile('photoName')} />
+              <FileField
+                label="Photo profil"
+                fileName={profile.photoName}
+                accept={getCustomerDocumentAccept('profile_photo')}
+                uploadState={uploadStates.photoName}
+                onChange={handleFile('photoName')}
+              />
               <FileField
                 label="Piece d identite"
                 fileName={profile.idDocumentName}
+                accept={getCustomerDocumentAccept('identity_card')}
+                uploadState={uploadStates.idDocumentName}
                 onChange={handleFile('idDocumentName')}
               />
-              <FileField label="Contrat signe" fileName={profile.contractName} onChange={handleFile('contractName')} />
+              <FileField
+                label="Contrat signe"
+                fileName={profile.contractName}
+                accept={getCustomerDocumentAccept('signed_contract')}
+                uploadState={uploadStates.contractName}
+                onChange={handleFile('contractName')}
+              />
             </div>
 
             <button
@@ -414,6 +560,13 @@ export default function AccountPage() {
                   Synchronise Firebase : {new Date(profile.firestoreSyncedAt).toLocaleString('fr-FR')}
                 </p>
               ) : null}
+              {profile.idDocumentId || profile.contractDocumentId || profile.photoDocumentId ? (
+                <div className="mt-3 space-y-2 rounded-2xl bg-slate-50 px-3 py-3 text-xs font-bold text-slate-600">
+                  {profile.photoDocumentId ? <p>Photo envoyee : {profile.photoDocumentId}</p> : null}
+                  {profile.idDocumentId ? <p>Piece envoyee : {profile.idDocumentId}</p> : null}
+                  {profile.contractDocumentId ? <p>Contrat envoye : {profile.contractDocumentId}</p> : null}
+                </div>
+              ) : null}
             </section>
           </aside>
         </div>
@@ -453,17 +606,34 @@ function Field({
 function FileField({
   label,
   fileName,
+  accept,
+  uploadState,
   onChange,
 }: {
   label: string;
   fileName: string;
+  accept: string;
+  uploadState: UploadState;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <label className="block rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-3 py-3">
       <span className="text-xs font-extrabold uppercase text-slate-500">{label}</span>
-      <input type="file" onChange={onChange} className="sr-only" />
+      <input type="file" accept={accept} onChange={onChange} className="sr-only" />
       <span className="mt-2 block truncate text-sm font-extrabold text-slate-950">{fileName || 'Importer'}</span>
+      {uploadState.message ? (
+        <span
+          className={`mt-2 block text-[11px] font-bold ${
+            uploadState.status === 'failed'
+              ? 'text-orange-700'
+              : uploadState.status === 'uploaded'
+                ? 'text-[#059669]'
+                : 'text-slate-500'
+          }`}
+        >
+          {uploadState.message}
+        </span>
+      ) : null}
     </label>
   );
 }

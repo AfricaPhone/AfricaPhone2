@@ -113,6 +113,11 @@ export type CustomerOrder = {
   customer: CustomerProfileSnapshot;
   representative: CustomerRepresentativeSnapshot | null;
   delivery: CustomerOrderDelivery;
+  documentIds: {
+    identityDocumentId: string | null;
+    signedContractDocumentId: string | null;
+    representativeIdentityDocumentId: string | null;
+  };
   items: CustomerOrderItemSnapshot[];
   totals: CustomerOrderTotals;
   source: 'web';

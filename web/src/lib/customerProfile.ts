@@ -12,6 +12,12 @@ export type CustomerProfileDraft = {
   photoName: string;
   idDocumentName: string;
   contractName: string;
+  photoDocumentId: string | null;
+  photoStoragePath: string | null;
+  idDocumentId: string | null;
+  idDocumentStoragePath: string | null;
+  contractDocumentId: string | null;
+  contractDocumentStoragePath: string | null;
   userId: string | null;
   emailVerified: boolean;
   firestoreSyncedAt: string | null;
@@ -39,6 +45,12 @@ export const INITIAL_CUSTOMER_PROFILE: CustomerProfileDraft = {
   photoName: '',
   idDocumentName: '',
   contractName: '',
+  photoDocumentId: null,
+  photoStoragePath: null,
+  idDocumentId: null,
+  idDocumentStoragePath: null,
+  contractDocumentId: null,
+  contractDocumentStoragePath: null,
   userId: null,
   emailVerified: false,
   firestoreSyncedAt: null,
@@ -61,6 +73,12 @@ const normalizeCustomerProfile = (profile: Partial<CustomerProfileDraft> | null 
   photoName: readString(profile?.photoName),
   idDocumentName: readString(profile?.idDocumentName),
   contractName: readString(profile?.contractName),
+  photoDocumentId: readString(profile?.photoDocumentId) || null,
+  photoStoragePath: readString(profile?.photoStoragePath) || null,
+  idDocumentId: readString(profile?.idDocumentId) || null,
+  idDocumentStoragePath: readString(profile?.idDocumentStoragePath) || null,
+  contractDocumentId: readString(profile?.contractDocumentId) || null,
+  contractDocumentStoragePath: readString(profile?.contractDocumentStoragePath) || null,
   userId: readString(profile?.userId) || null,
   emailVerified: readBoolean(profile?.emailVerified),
   firestoreSyncedAt: readString(profile?.firestoreSyncedAt) || null,
@@ -118,6 +136,12 @@ export const loadCustomerProfileFromFirestore = async (user: User) => {
     photoName: customerProfile.photoName,
     idDocumentName: customerProfile.idDocumentName,
     contractName: customerProfile.contractName,
+    photoDocumentId: customerProfile.photoDocumentId,
+    photoStoragePath: customerProfile.photoStoragePath,
+    idDocumentId: customerProfile.idDocumentId,
+    idDocumentStoragePath: customerProfile.idDocumentStoragePath,
+    contractDocumentId: customerProfile.contractDocumentId,
+    contractDocumentStoragePath: customerProfile.contractDocumentStoragePath,
     userId: user.uid,
     emailVerified: user.emailVerified,
     firestoreSyncedAt: new Date().toISOString(),
@@ -153,7 +177,18 @@ export const syncCustomerProfileToFirestore = async (profile: CustomerProfileDra
         photoName: normalizedProfile.photoName,
         idDocumentName: normalizedProfile.idDocumentName,
         contractName: normalizedProfile.contractName,
+        photoDocumentId: normalizedProfile.photoDocumentId,
+        photoStoragePath: normalizedProfile.photoStoragePath,
+        idDocumentId: normalizedProfile.idDocumentId,
+        idDocumentStoragePath: normalizedProfile.idDocumentStoragePath,
+        contractDocumentId: normalizedProfile.contractDocumentId,
+        contractDocumentStoragePath: normalizedProfile.contractDocumentStoragePath,
         updatedAt: serverTimestamp(),
+      },
+      customerDocuments: {
+        profilePhotoDocumentId: normalizedProfile.photoDocumentId,
+        identityDocumentId: normalizedProfile.idDocumentId,
+        signedContractDocumentId: normalizedProfile.contractDocumentId,
       },
       updatedAt: serverTimestamp(),
       ...(snapshot.exists() ? {} : { createdAt: serverTimestamp() }),
@@ -171,8 +206,8 @@ export const getCustomerProfileReadiness = (profile: CustomerProfileDraft): Cust
     email: profile.email.includes('@') && profile.email.includes('.'),
     city: profile.city.length >= 2,
     address: profile.address.length >= 6,
-    idDocumentName: profile.idDocumentName.length > 0,
-    contractName: profile.contractName.length > 0,
+    idDocumentName: profile.idDocumentName.length > 0 || Boolean(profile.idDocumentId),
+    contractName: profile.contractName.length > 0 || Boolean(profile.contractDocumentId),
   };
 
   const missingLight = [
@@ -232,6 +267,10 @@ export const buildCustomerProfileFromCheckout = (params: {
   previousProfile?: CustomerProfileDraft | null;
   idDocumentName?: string;
   contractName?: string;
+  idDocumentId?: string | null;
+  idDocumentStoragePath?: string | null;
+  contractDocumentId?: string | null;
+  contractDocumentStoragePath?: string | null;
 }) =>
   normalizeCustomerProfile({
     ...(params.previousProfile ?? INITIAL_CUSTOMER_PROFILE),
@@ -242,4 +281,9 @@ export const buildCustomerProfileFromCheckout = (params: {
     address: params.checkoutProfile.address,
     idDocumentName: params.idDocumentName || params.previousProfile?.idDocumentName || '',
     contractName: params.contractName || params.previousProfile?.contractName || '',
+    idDocumentId: params.idDocumentId || params.previousProfile?.idDocumentId || null,
+    idDocumentStoragePath: params.idDocumentStoragePath || params.previousProfile?.idDocumentStoragePath || null,
+    contractDocumentId: params.contractDocumentId || params.previousProfile?.contractDocumentId || null,
+    contractDocumentStoragePath:
+      params.contractDocumentStoragePath || params.previousProfile?.contractDocumentStoragePath || null,
   });
