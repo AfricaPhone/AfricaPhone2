@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { footerColumns, footerLegal } from '@/data/storefront';
@@ -17,8 +18,14 @@ export default function SiteFooter() {
           <div className="flex min-w-0 flex-col justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-200/70 sm:p-5 lg:p-7">
             <div className="space-y-2 sm:space-y-4">
               <Link href="/" className="inline-flex min-w-0 items-center gap-2 text-lg font-extrabold tracking-tight sm:gap-3 sm:text-2xl">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#059669] text-sm font-black text-white shadow-sm shadow-[#059669]/25 sm:h-11 sm:w-11 sm:text-base">
-                  AP
+                <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70 sm:h-11 sm:w-11">
+                  <Image
+                    src="/logo.png"
+                    alt="Logo AfricaPhone"
+                    fill
+                    className="object-contain p-1"
+                    sizes="44px"
+                  />
                 </span>
                 <span className="min-w-0 truncate">
                   Africa<span className="text-[#059669]">Phone</span>
