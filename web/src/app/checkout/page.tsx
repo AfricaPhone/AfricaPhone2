@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { type CartItem, subscribeToCart } from '@/lib/cart';
@@ -21,7 +22,9 @@ import {
   INITIAL_CUSTOMER_PROFILE,
   mergeCustomerProfileIntoCheckout,
   saveCustomerProfileDraft,
+  syncCustomerProfileToFirestore,
 } from '@/lib/customerProfile';
+import { auth } from '@/lib/firebaseClient';
 import { formatPrice } from '@/utils/formatPrice';
 
 const PAYMENT_MODES: Array<{
@@ -101,8 +104,20 @@ export default function CheckoutPage() {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [storedCustomerProfile, setStoredCustomerProfile] = useState<CustomerProfileDraft | null>(null);
   const [profileLoadedFromAccount, setProfileLoadedFromAccount] = useState(false);
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
 
   useEffect(() => subscribeToCart(setItems), []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setAuthUser(user);
+      setAuthReady(true);
+    });
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     const savedProfile = getCustomerProfileDraft();
@@ -127,6 +142,7 @@ export default function CheckoutPage() {
   const needsCotisationDocuments = paymentMode === 'cotisation';
   const needsRepresentative = fulfillmentMode === 'representative';
   const needsDeliveryFee = fulfillmentMode === 'delivery';
+  const needsAuthenticatedProfile = paymentMode === 'kkiapay' || paymentMode === 'cotisation';
 
   const requirements = useMemo(() => {
     const base = [
@@ -136,6 +152,7 @@ export default function CheckoutPage() {
 
     const fullProfile = needsFullProfile
       ? [
+          { label: 'Compte client connecte', done: Boolean(authUser) },
           { label: 'Email complet et fonctionnel', done: profile.email.includes('@') },
           { label: 'Ville ou quartier', done: profile.city.trim().length >= 2 },
           { label: 'Adresse complete', done: profile.address.trim().length >= 6 },
@@ -144,9 +161,7 @@ export default function CheckoutPage() {
 
     const delivery = needsDeliveryFee
       ? [
-          ...(!needsFullProfile
-            ? [{ label: 'Adresse de livraison', done: profile.address.trim().length >= 6 }]
-            : []),
+          ...(!needsFullProfile ? [{ label: 'Adresse de livraison', done: profile.address.trim().length >= 6 }] : []),
           { label: 'Acceptation des frais de livraison', done: acceptDeliveryFee },
         ]
       : [];
@@ -165,6 +180,7 @@ export default function CheckoutPage() {
     return [...base, ...fullProfile, ...delivery, ...representative, ...cotisation];
   }, [
     acceptDeliveryFee,
+    authUser,
     contractName,
     idDocumentName,
     needsCotisationDocuments,
@@ -191,9 +207,10 @@ export default function CheckoutPage() {
     [checkoutCustomerProfile]
   );
 
-  const updateProfile = (field: keyof CheckoutProfile) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setProfile(prev => ({ ...prev, [field]: event.target.value }));
-  };
+  const updateProfile =
+    (field: keyof CheckoutProfile) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setProfile(prev => ({ ...prev, [field]: event.target.value }));
+    };
 
   const handleFile = (setter: (value: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
     setter(event.target.files?.[0]?.name ?? '');
@@ -209,7 +226,14 @@ export default function CheckoutPage() {
       return;
     }
 
+    const currentAuthUser = auth.currentUser || authUser;
+    if (needsAuthenticatedProfile && !currentAuthUser) {
+      setCheckoutError('Connectez ou creez un compte client avant paiement Kkiapay ou cotisation.');
+      return;
+    }
+
     setIsCreatingOrder(true);
+    setCheckoutError('');
     const savedProfile = saveCustomerProfileDraft(checkoutCustomerProfile);
     setStoredCustomerProfile(savedProfile);
     setProfileLoadedFromAccount(true);
@@ -230,9 +254,19 @@ export default function CheckoutPage() {
     });
 
     try {
+      let idToken: string | null = null;
+      if (currentAuthUser) {
+        const syncedProfile = await syncCustomerProfileToFirestore(savedProfile, currentAuthUser);
+        setStoredCustomerProfile(syncedProfile);
+        idToken = await currentAuthUser.getIdToken();
+      }
+
       const response = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+        },
         body: JSON.stringify(draft),
       });
       const responseBody = (await response.json().catch(() => null)) as {
@@ -261,6 +295,7 @@ export default function CheckoutPage() {
       }
     } catch (error) {
       console.error('checkout: order creation failed', error);
+      setCheckoutError('Creation de commande indisponible. Reessayez apres verification du serveur.');
       updateCheckoutDraftOrderSync(draft, {
         status: 'failed',
         orderId: null,
@@ -362,14 +397,41 @@ export default function CheckoutPage() {
                       Profil compte repris
                     </span>
                   ) : null}
+                  {authUser ? (
+                    <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-extrabold text-slate-600">
+                      Compte connecte
+                    </span>
+                  ) : null}
                 </div>
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Field label="Nom complet" value={profile.fullName} onChange={updateProfile('fullName')} placeholder="Ex : Aline Hounkpe" />
-                <Field label="Numero WhatsApp" value={profile.whatsapp} onChange={updateProfile('whatsapp')} placeholder="+229 01..." type="tel" />
-                <Field label="Email" value={profile.email} onChange={updateProfile('email')} placeholder="nom@email.com" type="email" />
-                <Field label="Ville / quartier" value={profile.city} onChange={updateProfile('city')} placeholder="Cotonou, Calavi..." />
+                <Field
+                  label="Nom complet"
+                  value={profile.fullName}
+                  onChange={updateProfile('fullName')}
+                  placeholder="Ex : Aline Hounkpe"
+                />
+                <Field
+                  label="Numero WhatsApp"
+                  value={profile.whatsapp}
+                  onChange={updateProfile('whatsapp')}
+                  placeholder="+229 01..."
+                  type="tel"
+                />
+                <Field
+                  label="Email"
+                  value={profile.email}
+                  onChange={updateProfile('email')}
+                  placeholder="nom@email.com"
+                  type="email"
+                />
+                <Field
+                  label="Ville / quartier"
+                  value={profile.city}
+                  onChange={updateProfile('city')}
+                  placeholder="Cotonou, Calavi..."
+                />
               </div>
 
               <label className="mt-3 block">
@@ -404,7 +466,11 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div className="mt-3">
-                  <FileField label="Piece du representant optionnelle" fileName={representativeIdName} onChange={handleFile(setRepresentativeIdName)} />
+                  <FileField
+                    label="Piece du representant optionnelle"
+                    fileName={representativeIdName}
+                    onChange={handleFile(setRepresentativeIdName)}
+                  />
                 </div>
                 <p className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
                   Alternative conservee : le client peut appeler AfricaPhone pour confirmer le representant.
@@ -417,7 +483,11 @@ export default function CheckoutPage() {
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Cotisation</p>
                 <h2 className="mt-1 text-xl font-black">Documents avant activation du contrat</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <FileField label="Piece d identite valide" fileName={idDocumentName} onChange={handleFile(setIdDocumentName)} />
+                  <FileField
+                    label="Piece d identite valide"
+                    fileName={idDocumentName}
+                    onChange={handleFile(setIdDocumentName)}
+                  />
                   <FileField label="Contrat signe" fileName={contractName} onChange={handleFile(setContractName)} />
                 </div>
                 <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold text-[#059669]">
@@ -433,7 +503,10 @@ export default function CheckoutPage() {
               {items.length === 0 ? (
                 <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center">
                   <p className="text-sm font-extrabold text-slate-950">Aucun article choisi.</p>
-                  <Link href="/" className="mt-3 inline-flex rounded-full bg-[#059669] px-4 py-2 text-xs font-extrabold text-white">
+                  <Link
+                    href="/"
+                    className="mt-3 inline-flex rounded-full bg-[#059669] px-4 py-2 text-xs font-extrabold text-white"
+                  >
                     Choisir des produits
                   </Link>
                 </div>
@@ -466,13 +539,17 @@ export default function CheckoutPage() {
                   <p className="text-sm font-black text-[#059669]">{checkoutProfileReadiness.completion}%</p>
                 </div>
                 <p className="mt-1 text-xs font-bold leading-5 text-slate-500">
-                  {checkoutProfileReadiness.cotisationReady
-                    ? 'Pret pour cotisation'
-                    : checkoutProfileReadiness.fullReady
-                      ? 'Pret pour paiement Kkiapay'
-                      : checkoutProfileReadiness.lightReady
-                        ? 'Pret pour paiement a la livraison'
-                        : 'Identite minimale encore incomplete'}
+                  {!authReady
+                    ? 'Verification du compte client...'
+                    : needsAuthenticatedProfile && !authUser
+                      ? 'Compte client requis avant paiement'
+                      : checkoutProfileReadiness.cotisationReady
+                        ? 'Pret pour cotisation'
+                        : checkoutProfileReadiness.fullReady
+                          ? 'Pret pour paiement Kkiapay'
+                          : checkoutProfileReadiness.lightReady
+                            ? 'Pret pour paiement a la livraison'
+                            : 'Identite minimale encore incomplete'}
                 </p>
               </div>
               <div className="mt-4 space-y-2">
@@ -493,15 +570,29 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handlePrepareOrder}
-                disabled={!canPrepareOrder || isCreatingOrder}
+                disabled={!authReady || !canPrepareOrder || isCreatingOrder}
                 className="mt-5 h-12 w-full rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 {isCreatingOrder ? 'Creation de la commande...' : 'Preparer la demande'}
               </button>
 
+              {checkoutError ? (
+                <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
+                  {checkoutError}
+                </p>
+              ) : null}
+
               {missingRequirements.length > 0 ? (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
                   Completez les conditions restantes pour activer la demande.
+                  {needsAuthenticatedProfile && !authUser ? (
+                    <>
+                      {' '}
+                      <Link href="/compte" className="font-extrabold text-[#059669]">
+                        Ouvrir Compte
+                      </Link>
+                    </>
+                  ) : null}
                 </p>
               ) : (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">

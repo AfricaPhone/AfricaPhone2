@@ -1,4 +1,5 @@
 import { getApps, initializeApp, cert, applicationDefault, type AppOptions, type App } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 
@@ -20,10 +21,9 @@ const parseServiceAccount = (): ServiceAccount | null => {
   const inlineCredential = process.env.FIREBASE_ADMIN_CREDENTIALS;
   if (inlineCredential) {
     try {
-      const decoded =
-        inlineCredential.trim().startsWith('{') ?
-          inlineCredential :
-          Buffer.from(inlineCredential, 'base64').toString('utf8');
+      const decoded = inlineCredential.trim().startsWith('{')
+        ? inlineCredential
+        : Buffer.from(inlineCredential, 'base64').toString('utf8');
       const parsed = JSON.parse(decoded);
       if (!parsed.project_id || !parsed.client_email || !parsed.private_key) {
         throw new Error('Invalid FIREBASE_ADMIN_CREDENTIALS payload.');
@@ -74,7 +74,10 @@ const createAppOptions = (): AppOptions => {
       storageBucket: DEFAULT_STORAGE_BUCKET,
     };
   } catch (error) {
-    console.error('firebaseAdmin: unable to use application default credentials. Set FIREBASE_ADMIN_* env vars.', error);
+    console.error(
+      'firebaseAdmin: unable to use application default credentials. Set FIREBASE_ADMIN_* env vars.',
+      error
+    );
     throw error;
   }
 };
@@ -98,5 +101,6 @@ const getOrInitApp = () => {
 };
 
 export const getAdminDb = () => getFirestore(getOrInitApp());
+export const getAdminAuth = () => getAuth(getOrInitApp());
 export const getAdminStorage = () => getStorage(getOrInitApp());
 export const getAdminBucket = () => getAdminStorage().bucket(DEFAULT_STORAGE_BUCKET);

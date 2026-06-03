@@ -1,4 +1,7 @@
+import type { User } from 'firebase/auth';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import type { CheckoutProfile } from './checkoutDraft';
+import { db } from './firebaseClient';
 
 export type CustomerProfileDraft = {
   fullName: string;
@@ -9,6 +12,9 @@ export type CustomerProfileDraft = {
   photoName: string;
   idDocumentName: string;
   contractName: string;
+  userId: string | null;
+  emailVerified: boolean;
+  firestoreSyncedAt: string | null;
   updatedAt: string | null;
 };
 
@@ -33,12 +39,18 @@ export const INITIAL_CUSTOMER_PROFILE: CustomerProfileDraft = {
   photoName: '',
   idDocumentName: '',
   contractName: '',
+  userId: null,
+  emailVerified: false,
+  firestoreSyncedAt: null,
   updatedAt: null,
 };
 
 const isBrowser = () => typeof window !== 'undefined';
 
 const readString = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+const readBoolean = (value: unknown) => value === true;
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const normalizeCustomerProfile = (profile: Partial<CustomerProfileDraft> | null | undefined): CustomerProfileDraft => ({
   fullName: readString(profile?.fullName),
@@ -49,6 +61,9 @@ const normalizeCustomerProfile = (profile: Partial<CustomerProfileDraft> | null 
   photoName: readString(profile?.photoName),
   idDocumentName: readString(profile?.idDocumentName),
   contractName: readString(profile?.contractName),
+  userId: readString(profile?.userId) || null,
+  emailVerified: readBoolean(profile?.emailVerified),
+  firestoreSyncedAt: readString(profile?.firestoreSyncedAt) || null,
   updatedAt: readString(profile?.updatedAt) || null,
 });
 
@@ -81,6 +96,72 @@ export const saveCustomerProfileDraft = (profile: Partial<CustomerProfileDraft>)
   }
 
   return nextProfile;
+};
+
+export const loadCustomerProfileFromFirestore = async (user: User) => {
+  const userRef = doc(db, 'users', user.uid);
+  const snapshot = await getDoc(userRef);
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  const data = snapshot.data();
+  const customerProfile = isRecord(data.customerProfile) ? data.customerProfile : data;
+
+  return normalizeCustomerProfile({
+    fullName: customerProfile.fullName,
+    email: user.email || customerProfile.email,
+    whatsapp: customerProfile.whatsapp,
+    city: customerProfile.city,
+    address: customerProfile.address,
+    photoName: customerProfile.photoName,
+    idDocumentName: customerProfile.idDocumentName,
+    contractName: customerProfile.contractName,
+    userId: user.uid,
+    emailVerified: user.emailVerified,
+    firestoreSyncedAt: new Date().toISOString(),
+  });
+};
+
+export const syncCustomerProfileToFirestore = async (profile: CustomerProfileDraft, user: User) => {
+  const normalizedProfile = normalizeCustomerProfile({
+    ...profile,
+    userId: user.uid,
+    email: user.email || profile.email,
+    emailVerified: user.emailVerified,
+    firestoreSyncedAt: new Date().toISOString(),
+  });
+  const userRef = doc(db, 'users', user.uid);
+  const snapshot = await getDoc(userRef);
+
+  await setDoc(
+    userRef,
+    {
+      uid: user.uid,
+      email: user.email || normalizedProfile.email,
+      emailVerified: user.emailVerified,
+      displayName: normalizedProfile.fullName,
+      role: 'customer',
+      source: 'web',
+      customerProfile: {
+        fullName: normalizedProfile.fullName,
+        email: user.email || normalizedProfile.email,
+        whatsapp: normalizedProfile.whatsapp,
+        city: normalizedProfile.city,
+        address: normalizedProfile.address,
+        photoName: normalizedProfile.photoName,
+        idDocumentName: normalizedProfile.idDocumentName,
+        contractName: normalizedProfile.contractName,
+        updatedAt: serverTimestamp(),
+      },
+      updatedAt: serverTimestamp(),
+      ...(snapshot.exists() ? {} : { createdAt: serverTimestamp() }),
+    },
+    { merge: true }
+  );
+
+  return saveCustomerProfileDraft(normalizedProfile);
 };
 
 export const getCustomerProfileReadiness = (profile: CustomerProfileDraft): CustomerProfileReadiness => {

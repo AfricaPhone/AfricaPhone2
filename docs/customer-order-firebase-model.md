@@ -11,6 +11,7 @@ Ce document decrit le modele cible. Il ne deploie rien et ne branche pas encore 
 Commande client principale.
 
 Champs importants:
+
 - `userId`: identifiant Firebase Auth du client, obligatoire des qu il y a paiement, contrat ou document.
 - `guestId`: identifiant local temporaire possible pour les demandes sans compte.
 - `status`: `draft`, `pending_review`, `profile_required`, `payment_pending`, `paid`, `ready_for_pickup`, `out_for_delivery`, `delivered`, `cancelled`.
@@ -31,6 +32,7 @@ Pourquoi une copie des infos produit et client: une commande doit rester lisible
 Paiements lies aux commandes produits uniquement.
 
 Champs importants:
+
 - `orderId`
 - `userId`
 - `provider`: `kkiapay`
@@ -48,6 +50,7 @@ Decision: ne pas reutiliser `payments`, car cette collection existe deja pour le
 Dossier de cotisation pour achat plus tard.
 
 Champs importants:
+
 - `orderId`
 - `userId`
 - `status`: `draft`, `documents_required`, `contract_review`, `active`, `late`, `completed`, `cancelled`.
@@ -63,12 +66,14 @@ Champs importants:
 Documents sensibles client.
 
 Types:
+
 - `profile_photo`
 - `identity_card`
 - `signed_contract`
 - `representative_identity_card`
 
 Champs importants:
+
 - `userId`
 - `orderId`
 - `installmentPlanId`
@@ -85,6 +90,7 @@ Champs importants:
 Notifications visibles dans le futur espace client.
 
 Types:
+
 - creation de commande
 - profil requis
 - paiement requis
@@ -110,6 +116,7 @@ customer-documents/uid123/signed_contract/doc790-contrat.pdf
 ```
 
 Regles attendues plus tard:
+
 - le client authentifie peut creer ses propres fichiers;
 - il peut lire uniquement ses propres fichiers;
 - les admins peuvent lire, valider, rejeter ou supprimer;
@@ -132,14 +139,18 @@ Regles attendues plus tard:
 ### `POST /api/orders`
 
 Role:
+
 - valide le brouillon checkout;
 - cree un document `orders/{orderId}` avec Firebase Admin;
+- associe `userId` quand le checkout envoie un token Firebase Auth valide;
 - ne lance aucun paiement Kkiapay;
-- retourne `orderId`, `status`, `paymentStatus` et `profileRequired`.
+- retourne `orderId`, `status`, `paymentStatus`, `profileRequired` et `authenticated`.
 
 Statuts actuels:
+
 - paiement livraison ou confirmation boutique: `pending_review`;
 - Kkiapay, cotisation ou representant sans compte: `profile_required`;
+- Kkiapay ou cotisation avec compte Firebase connecte: `pending_review`;
 - paiement Kkiapay/cotisation: `paymentStatus` reste `pending`, mais aucun widget Kkiapay n est ouvert.
 
 ## Profil local ajoute
@@ -147,15 +158,26 @@ Statuts actuels:
 ### `localStorage.africaphone_customer_profile`
 
 Role:
+
 - conserve le profil saisi dans le menu Compte;
 - pre-remplit le checkout sans obliger le visiteur a creer un compte;
+- synchronise `users/{uid}` quand le client cree ou connecte un compte Firebase Auth;
 - garde uniquement les noms des fichiers importes pour l instant, pas les fichiers eux-memes;
 - sert de preparation avant le vrai profil Firebase Auth.
 
 Niveaux valides:
+
 - profil leger: nom complet et WhatsApp, suffisant pour payer a la livraison;
 - profil complet: nom, WhatsApp, email, ville et adresse, requis avant Kkiapay;
 - cotisation: profil complet, piece d identite et contrat signe.
+
+### `users/{uid}`
+
+Role:
+
+- stocke le profil client connecte;
+- conserve `role: customer`, `source: web`, `email`, `emailVerified` et `customerProfile`;
+- reste compatible avec les regles Firestore existantes: le client ne peut pas ecrire `isAdmin`.
 
 ## Hypotheses validees
 
@@ -164,3 +186,4 @@ Niveaux valides:
 - La cotisation exige piece d identite valide et contrat signe.
 - Le paiement produit doit rester separe du systeme de votes/pronostics.
 - Les fichiers importes ne sont pas encore envoyes a Firebase Storage dans cette etape.
+- L authentification email/mot de passe doit etre activee dans Firebase pour que la creation de compte fonctionne.

@@ -1,4 +1,5 @@
 import { getApps, initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
@@ -53,6 +54,7 @@ const firebaseConfig = resolveConfig();
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 
 export const firebaseApp = app;
+export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 let analyticsPromise: Promise<Analytics | null> | null = null;
