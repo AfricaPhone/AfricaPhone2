@@ -40,9 +40,9 @@ const PAYMENT_MODES: Array<{
   },
   {
     id: 'pickup',
-    title: 'Payer ou retirer en boutique',
-    tag: 'Retrait',
-    description: 'Le client peut payer en avance ou confirmer le retrait avec AfricaPhone.',
+    title: 'Confirmer en boutique',
+    tag: 'Sans paiement en ligne',
+    description: 'AfricaPhone confirme le stock, puis le client paie ou retire en boutique.',
   },
   {
     id: 'cotisation',
@@ -73,6 +73,13 @@ const FULFILLMENT_MODES: Array<{
     description: 'Nom du representant et controle de son identite.',
   },
 ];
+
+const NEXT_STEP_MESSAGES: Record<PaymentMode, string> = {
+  delivery: 'Demande prete. Prochaine etape : confirmer la disponibilite, la zone et le montant de livraison.',
+  kkiapay: 'Demande prete. Prochaine etape : creer la commande puis lancer le paiement Kkiapay securise.',
+  pickup: 'Demande prete. Prochaine etape : confirmer le stock et organiser le passage en boutique.',
+  cotisation: 'Dossier prete. Prochaine etape : verifier les documents, valider le contrat et definir l echeancier.',
+};
 
 const initialProfile: CheckoutProfile = {
   fullName: '',
@@ -124,7 +131,9 @@ export default function CheckoutPage() {
 
     const delivery = needsDeliveryFee
       ? [
-          { label: 'Adresse de livraison', done: profile.address.trim().length >= 6 },
+          ...(!needsFullProfile
+            ? [{ label: 'Adresse de livraison', done: profile.address.trim().length >= 6 }]
+            : []),
           { label: 'Acceptation des frais de livraison', done: acceptDeliveryFee },
         ]
       : [];
@@ -378,7 +387,7 @@ export default function CheckoutPage() {
 
               {submitted ? (
                 <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-sm font-extrabold text-[#059669]">
-                  Brouillon pret. Prochaine etape : brancher creation de commande et paiement Kkiapay.
+                  {NEXT_STEP_MESSAGES[paymentMode]}
                 </p>
               ) : missingRequirements.length > 0 ? (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
