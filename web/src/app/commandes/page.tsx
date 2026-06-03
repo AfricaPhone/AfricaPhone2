@@ -173,9 +173,12 @@ export default function OrdersPage() {
                   <span className="font-black text-[#059669]">{formatPrice(totalPrice)}</span>
                 </div>
               </div>
-              <button className="mt-5 h-12 w-full rounded-2xl bg-[#F97316] text-sm font-extrabold text-white">
+              <Link
+                href="/checkout"
+                className="mt-5 flex h-12 w-full items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white"
+              >
                 Continuer le checkout
-              </button>
+              </Link>
               <p className="mt-2 text-xs font-semibold text-slate-500">
                 Le paiement reel sera branche apres validation du parcours.
               </p>

@@ -159,13 +159,19 @@ export default function CartPage() {
                 ) : null}
               </div>
 
+              <Link
+                href="/checkout"
+                className="mt-5 flex h-12 items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition hover:bg-[#EA580C]"
+              >
+                Continuer le checkout
+              </Link>
               <a
                 href={whatsappMessage}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 flex h-12 items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition hover:bg-[#EA580C]"
+                className="mt-3 flex h-11 items-center justify-center rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] text-sm font-extrabold text-[#059669] transition hover:border-[#059669]/40"
               >
-                Envoyer la selection
+                Envoyer sur WhatsApp
               </a>
               <button
                 type="button"
