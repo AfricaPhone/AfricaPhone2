@@ -118,13 +118,28 @@ Regles attendues plus tard:
 
 ## Ordre de branchement recommande
 
-1. Authentification/profil client minimal.
-2. Creation de `orders` depuis le checkout.
+1. Creation de `orders` depuis le checkout via `POST /api/orders`.
+2. Authentification/profil client minimal.
 3. Page confirmation basee sur la vraie commande.
 4. Upload documents vers `customer-documents`.
 5. Creation de `orderPayments` puis ouverture Kkiapay.
 6. Webhook Kkiapay qui verifie le paiement et met a jour `orderPayments` + `orders`.
 7. Backoffice client: commandes, paiements, documents, cotisations, notifications.
+
+## API locale ajoutee
+
+### `POST /api/orders`
+
+Role:
+- valide le brouillon checkout;
+- cree un document `orders/{orderId}` avec Firebase Admin;
+- ne lance aucun paiement Kkiapay;
+- retourne `orderId`, `status`, `paymentStatus` et `profileRequired`.
+
+Statuts actuels:
+- paiement livraison ou confirmation boutique: `pending_review`;
+- Kkiapay, cotisation ou representant sans compte: `profile_required`;
+- paiement Kkiapay/cotisation: `paymentStatus` reste `pending`, mais aucun widget Kkiapay n est ouvert.
 
 ## Hypotheses validees
 

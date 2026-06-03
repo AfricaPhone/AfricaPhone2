@@ -28,6 +28,12 @@ export type CheckoutDraft = {
     contractName: string;
     representativeIdName: string;
   };
+  orderSync: {
+    status: 'not_attempted' | 'created' | 'failed';
+    orderId: string | null;
+    createdAt: string | null;
+    error: string | null;
+  };
 };
 
 export const CHECKOUT_DRAFT_STORAGE_KEY = 'africaphone_checkout_draft';
@@ -60,11 +66,19 @@ const createDraftId = () => {
   return `AFP-${datePart}-${randomPart}`;
 };
 
-export const saveCheckoutDraft = (draft: Omit<CheckoutDraft, 'id' | 'createdAt'>) => {
+export const saveCheckoutDraft = (
+  draft: Omit<CheckoutDraft, 'id' | 'createdAt' | 'orderSync'> & Partial<Pick<CheckoutDraft, 'orderSync'>>
+) => {
   const nextDraft: CheckoutDraft = {
     ...draft,
     id: createDraftId(),
     createdAt: new Date().toISOString(),
+    orderSync: draft.orderSync ?? {
+      status: 'not_attempted',
+      orderId: null,
+      createdAt: null,
+      error: null,
+    },
   };
 
   if (isBrowser()) {
@@ -73,6 +87,19 @@ export const saveCheckoutDraft = (draft: Omit<CheckoutDraft, 'id' | 'createdAt'>
 
   return nextDraft;
 };
+
+export const persistCheckoutDraft = (draft: CheckoutDraft) => {
+  if (isBrowser()) {
+    window.localStorage.setItem(CHECKOUT_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+  }
+
+  return draft;
+};
+
+export const updateCheckoutDraftOrderSync = (
+  draft: CheckoutDraft,
+  orderSync: CheckoutDraft['orderSync']
+) => persistCheckoutDraft({ ...draft, orderSync });
 
 export const getCheckoutDraft = (): CheckoutDraft | null => {
   if (!isBrowser()) {
@@ -90,7 +117,17 @@ export const getCheckoutDraft = (): CheckoutDraft | null => {
       return null;
     }
 
-    return parsed as CheckoutDraft;
+    const draft = parsed as CheckoutDraft;
+    if (!draft.orderSync) {
+      draft.orderSync = {
+        status: 'not_attempted',
+        orderId: null,
+        createdAt: null,
+        error: null,
+      };
+    }
+
+    return draft;
   } catch {
     return null;
   }

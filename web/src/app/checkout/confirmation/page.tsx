@@ -42,13 +42,28 @@ export default function CheckoutConfirmationPage() {
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Numero provisoire</p>
                 <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
                   <h2 className="text-2xl font-black tracking-tight text-slate-950">{draft.id}</h2>
-                  <span className="rounded-full bg-white px-3 py-2 text-xs font-extrabold text-[#059669]">
-                    Non envoye au backend
+                  <span
+                    className={`rounded-full bg-white px-3 py-2 text-xs font-extrabold ${
+                      draft.orderSync.status === 'created' ? 'text-[#059669]' : 'text-orange-700'
+                    }`}
+                  >
+                    {draft.orderSync.status === 'created' ? 'Commande Firestore creee' : 'Synchro backend a verifier'}
                   </span>
                 </div>
                 <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-                  Cette reference sert a valider le parcours local. La vraie commande sera creee apres branchement Firebase.
+                  Cette reference garde le brouillon local pour reprendre le parcours si necessaire.
                 </p>
+                {draft.orderSync.status === 'created' && draft.orderSync.orderId ? (
+                  <div className="mt-3 rounded-2xl bg-white px-3 py-3">
+                    <p className="text-[10px] font-extrabold uppercase text-slate-500">Commande Firestore</p>
+                    <p className="mt-1 break-all text-sm font-black text-[#059669]">{draft.orderSync.orderId}</p>
+                  </div>
+                ) : null}
+                {draft.orderSync.status === 'failed' ? (
+                  <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
+                    {draft.orderSync.error || 'La demande reste sauvegardee localement. Reessayez apres verification du serveur.'}
+                  </p>
+                ) : null}
               </article>
 
               <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
@@ -132,7 +147,7 @@ export default function CheckoutConfirmationPage() {
                   {NEXT_STEP_MESSAGES[draft.paymentMode]}
                 </p>
                 <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
-                  Aucun paiement reel n est lance dans cette version locale.
+                  Aucun paiement Kkiapay n est lance dans cette version.
                 </p>
               </section>
 

@@ -11,6 +11,7 @@ import {
   type CheckoutPaymentMode,
   type CheckoutProfile,
   saveCheckoutDraft,
+  updateCheckoutDraftOrderSync,
 } from '@/lib/checkoutDraft';
 import { formatPrice } from '@/utils/formatPrice';
 
@@ -88,6 +89,7 @@ export default function CheckoutPage() {
   const [idDocumentName, setIdDocumentName] = useState('');
   const [contractName, setContractName] = useState('');
   const [representativeIdName, setRepresentativeIdName] = useState('');
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
   useEffect(() => subscribeToCart(setItems), []);
 
@@ -164,12 +166,13 @@ export default function CheckoutPage() {
     handlePrepareOrder();
   };
 
-  const handlePrepareOrder = () => {
-    if (!canPrepareOrder) {
+  const handlePrepareOrder = async () => {
+    if (!canPrepareOrder || isCreatingOrder) {
       return;
     }
 
-    saveCheckoutDraft({
+    setIsCreatingOrder(true);
+    const draft = saveCheckoutDraft({
       paymentMode,
       fulfillmentMode,
       profile,
@@ -183,7 +186,46 @@ export default function CheckoutPage() {
         representativeIdName,
       },
     });
-    router.push('/checkout/confirmation');
+
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      });
+      const responseBody = (await response.json().catch(() => null)) as {
+        orderId?: string;
+        createdAt?: string;
+        message?: string;
+      } | null;
+
+      if (!response.ok || !responseBody?.orderId) {
+        updateCheckoutDraftOrderSync(draft, {
+          status: 'failed',
+          orderId: null,
+          createdAt: null,
+          error: responseBody?.message || 'Creation de commande indisponible.',
+        });
+      } else {
+        updateCheckoutDraftOrderSync(draft, {
+          status: 'created',
+          orderId: responseBody.orderId,
+          createdAt: responseBody.createdAt || new Date().toISOString(),
+          error: null,
+        });
+      }
+    } catch (error) {
+      console.error('checkout: order creation failed', error);
+      updateCheckoutDraftOrderSync(draft, {
+        status: 'failed',
+        orderId: null,
+        createdAt: null,
+        error: 'Creation de commande indisponible.',
+      });
+    } finally {
+      setIsCreatingOrder(false);
+      router.push('/checkout/confirmation');
+    }
   };
 
   return (
@@ -383,10 +425,10 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handlePrepareOrder}
-                disabled={!canPrepareOrder}
+                disabled={!canPrepareOrder || isCreatingOrder}
                 className="mt-5 h-12 w-full rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                Preparer la demande
+                {isCreatingOrder ? 'Creation de la commande...' : 'Preparer la demande'}
               </button>
 
               {missingRequirements.length > 0 ? (
