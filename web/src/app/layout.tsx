@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import KeyboardScrollHandler from '@/components/KeyboardScrollHandler';
 import './globals.css';
 
 const manropeSans = localFont({
@@ -44,6 +45,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${manropeSans.variable} ${robotoMono.variable} antialiased bg-slate-50 text-slate-900`}>
+        <KeyboardScrollHandler />
         {children}
       </body>
     </html>
