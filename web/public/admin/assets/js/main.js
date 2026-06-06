@@ -187,6 +187,132 @@ function setCrumb(name) {
   $('#crumb-current').textContent = name;
 }
 
+function normalizeDateValue(value) {
+  if (!value) return null;
+  if (value && typeof value.toDate === 'function') return value.toDate();
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.valueOf()) ? null : date;
+}
+
+function formatDateValue(value) {
+  const date = normalizeDateValue(value);
+  return date ? fmtDate(date) : '-';
+}
+
+function formatMoneyValue(value) {
+  const amount = Number(value || 0);
+  return Number.isFinite(amount) ? fmtXOF.format(amount) : fmtXOF.format(0);
+}
+
+function getNestedValue(source, path, fallback = '') {
+  return String(path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), source) ?? fallback);
+}
+
+function renderMiniStat(label, value, icon = 'circle') {
+  return `
+    <div class="commerce-stat">
+      <i data-lucide="${icon}" class="icon"></i>
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(String(value))}</strong>
+    </div>`;
+}
+
+function renderCommerceShell(statsHtml, bodyHtml) {
+  return `
+    <div class="commerce-shell">
+      <div class="commerce-stats">${statsHtml}</div>
+      <div class="commerce-panel">${bodyHtml}</div>
+    </div>`;
+}
+
+function renderCommerceEmpty(title, action = '') {
+  return `
+    <div class="commerce-empty">
+      <i data-lucide="inbox" class="icon"></i>
+      <strong>${escapeHtml(title)}</strong>
+      ${action ? `<span>${escapeHtml(action)}</span>` : ''}
+    </div>`;
+}
+
+function renderCommerceError(target, title = 'Lecture impossible') {
+  if (!target) return;
+  target.innerHTML = renderCommerceShell(
+    renderMiniStat('Etat', 'Bloque', 'shield-alert'),
+    renderCommerceEmpty(title, 'Verifier le compte admin ou passer par une API dediee.')
+  );
+  lucide.createIcons();
+}
+
+function makeStatusBadge(value, type = 'neutral') {
+  const className = type === 'danger' ? 'danger' : type === 'warning' ? 'warning' : type === 'success' ? 'success' : 'chip-muted';
+  return `<span class="badge ${className}">${escapeHtml(value || '-')}</span>`;
+}
+
+const ORDER_STATUS_LABELS = {
+  draft: 'Brouillon',
+  pending_review: 'A traiter',
+  profile_required: 'Profil requis',
+  payment_pending: 'Paiement attendu',
+  paid: 'Payee',
+  ready_for_pickup: 'Retrait pret',
+  out_for_delivery: 'En livraison',
+  delivered: 'Livree',
+  cancelled: 'Annulee',
+};
+
+const PAYMENT_MODE_LABELS = {
+  pay_on_delivery: 'Livraison',
+  kkiapay_now: 'Kkiapay',
+  shop_confirmation: 'Boutique',
+  installment_plan: 'Cotisation',
+};
+
+const PAYMENT_STATUS_LABELS = {
+  not_required: 'Non requis',
+  pending: 'En attente',
+  provider_opened: 'Ouvert',
+  succeeded: 'Reussi',
+  failed: 'Echoue',
+  cancelled: 'Annule',
+  refunded: 'Rembourse',
+};
+
+const FULFILLMENT_LABELS = {
+  delivery: 'Livraison',
+  shop_pickup: 'Boutique',
+  representative_pickup: 'Representant',
+};
+
+const DOCUMENT_TYPE_LABELS = {
+  profile_photo: 'Photo',
+  identity_card: 'Piece',
+  signed_contract: 'Contrat',
+  representative_identity_card: 'Representant',
+};
+
+const DOCUMENT_STATUS_LABELS = {
+  uploaded: 'Recu',
+  under_review: 'A verifier',
+  approved: 'Valide',
+  rejected: 'Rejete',
+  expired: 'Expire',
+};
+
+const INSTALLMENT_STATUS_LABELS = {
+  draft: 'Brouillon',
+  documents_required: 'Docs requis',
+  contract_review: 'Contrat',
+  active: 'Active',
+  late: 'Retard',
+  completed: 'Terminee',
+  cancelled: 'Annulee',
+};
+
+const ORDER_STATUS_OPTIONS = Object.keys(ORDER_STATUS_LABELS);
+const PAYMENT_STATUS_OPTIONS = Object.keys(PAYMENT_STATUS_LABELS);
+const DOCUMENT_STATUS_OPTIONS = Object.keys(DOCUMENT_STATUS_LABELS);
+const INSTALLMENT_STATUS_OPTIONS = Object.keys(INSTALLMENT_STATUS_LABELS);
+
 /* ============================ State ============================ */
 let allProducts = [];
 let allMatches = [];
@@ -216,6 +342,23 @@ let allVoteIntents = [];
 let votesDateFilter = { start: '', end: '' };
 let lostVotesFound = [];
 let votesContestId = '';
+let allCustomerOrders = [];
+let allOrderPayments = [];
+let allInstallmentPlans = [];
+let allCustomerDocuments = [];
+let allCustomerNotifications = [];
+let orderSearchTerm = '';
+let orderStatusFilter = '';
+let orderPaymentFilter = '';
+let paymentSearchTerm = '';
+let paymentStatusFilter = '';
+let installmentSearchTerm = '';
+let installmentStatusFilter = '';
+let documentSearchTerm = '';
+let documentStatusFilter = '';
+let documentTypeFilter = '';
+let notificationSearchTerm = '';
+let notificationReadFilter = '';
 const isLocalhost = ['localhost', '127.0.0.1'].includes(location.hostname);
 if (isLocalhost) {
   try {
@@ -1007,13 +1150,23 @@ const $navProducts = $('#nav-products'),
   $navContests = $('#nav-contests'),
   $navSettings = $('#nav-settings'),
   $navPromoCards = $('#nav-promocards'),
-  $navPromoCodes = $('#nav-promocodes');
+  $navPromoCodes = $('#nav-promocodes'),
+  $navOrders = $('#nav-orders'),
+  $navPayments = $('#nav-payments'),
+  $navInstallments = $('#nav-installments'),
+  $navDocuments = $('#nav-documents'),
+  $navNotifications = $('#nav-notifications');
 const $toolbarProducts = $('#toolbar-products'),
   $toolbarBrands = $('#toolbar-brands'),
   $toolbarMatches = $('#toolbar-matches'),
   $toolbarContests = $('#toolbar-contests'),
   $toolbarPromoCards = $('#toolbar-promocards'),
-  $toolbarPromoCodes = $('#toolbar-promocodes');
+  $toolbarPromoCodes = $('#toolbar-promocodes'),
+  $toolbarOrders = $('#toolbar-orders'),
+  $toolbarPayments = $('#toolbar-payments'),
+  $toolbarInstallments = $('#toolbar-installments'),
+  $toolbarDocuments = $('#toolbar-documents'),
+  $toolbarNotifications = $('#toolbar-notifications');
 const $productsContent = $('#products-content'),
   $brandsContent = $('#brands-content'),
   $matchesContent = $('#matches-content'),
@@ -1022,7 +1175,12 @@ const $productsContent = $('#products-content'),
   $promoCodesContent = $('#promocodes-content'),
   $promoRulesContent = document.getElementById('promorules-content'),
   $promoPayoutsContent = document.getElementById('promopayouts-content'),
-  $promoTemplatesContent = document.getElementById('promo-templates-content');
+  $promoTemplatesContent = document.getElementById('promo-templates-content'),
+  $ordersContent = $('#orders-content'),
+  $paymentsContent = $('#payments-content'),
+  $installmentsContent = $('#installments-content'),
+  $documentsContent = $('#documents-content'),
+  $notificationsContent = $('#notifications-content');
 
 window.addEventListener('hashchange', handleRoute);
 window.addEventListener('hashchange', async function () {
@@ -1049,6 +1207,11 @@ async function handleRoute() {
   const isContestRoute = route.includes('contest') || route.includes('candidate');
   const isPromoRoute = route.includes('promocode') || route.includes('promorule') || route.includes('promopayout');
   const isVotesRoute = route.includes('votes');
+  const isOrdersRoute = route === 'orders';
+  const isPaymentsRoute = route === 'payments';
+  const isInstallmentsRoute = route === 'installments';
+  const isDocumentsRoute = route === 'documents';
+  const isNotificationsRoute = route === 'notifications';
 
   // Nav active
   $navProducts.classList.toggle('active', route.includes('product'));
@@ -1057,6 +1220,11 @@ async function handleRoute() {
   $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
   $navPromoCodes.classList.toggle('active', isPromoRoute);
+  $navOrders?.classList.toggle('active', isOrdersRoute);
+  $navPayments?.classList.toggle('active', isPaymentsRoute);
+  $navInstallments?.classList.toggle('active', isInstallmentsRoute);
+  $navDocuments?.classList.toggle('active', isDocumentsRoute);
+  $navNotifications?.classList.toggle('active', isNotificationsRoute);
   if ($navSettings) $navSettings.classList.toggle('active', route === 'settings');
   // Dynamic Nav for Votes (if element exists)
   const $navVotes = document.getElementById('nav-votes');
@@ -1069,6 +1237,11 @@ async function handleRoute() {
   $toolbarContests.classList.toggle('hide', !isContestRoute);
   $toolbarPromoCards.classList.toggle('hide', !route.includes('promocard'));
   $toolbarPromoCodes.classList.toggle('hide', !isPromoRoute);
+  $toolbarOrders?.classList.toggle('hide', !isOrdersRoute);
+  $toolbarPayments?.classList.toggle('hide', !isPaymentsRoute);
+  $toolbarInstallments?.classList.toggle('hide', !isInstallmentsRoute);
+  $toolbarDocuments?.classList.toggle('hide', !isDocumentsRoute);
+  $toolbarNotifications?.classList.toggle('hide', !isNotificationsRoute);
   const $toolbarVotes = document.getElementById('toolbar-votes');
   if ($toolbarVotes) $toolbarVotes.classList.toggle('hide', !isVotesRoute);
 
@@ -1079,6 +1252,11 @@ async function handleRoute() {
   $('#page-contests').classList.toggle('hide', !isContestRoute);
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
   $('#page-promocodes').classList.toggle('hide', !isPromoRoute);
+  $('#page-orders')?.classList.toggle('hide', !isOrdersRoute);
+  $('#page-payments')?.classList.toggle('hide', !isPaymentsRoute);
+  $('#page-installments')?.classList.toggle('hide', !isInstallmentsRoute);
+  $('#page-documents')?.classList.toggle('hide', !isDocumentsRoute);
+  $('#page-notifications')?.classList.toggle('hide', !isNotificationsRoute);
   $('#page-settings').classList.toggle('hide', route !== 'settings');
   const $pageVotes = document.getElementById('page-votes');
   if ($pageVotes) $pageVotes.classList.toggle('hide', !isVotesRoute);
@@ -1198,6 +1376,26 @@ async function handleRoute() {
     setCrumb('Éditer Règle Promo');
     await setPromoTab('rules');
     await renderPromoRuleFormPage(id);
+  } else if (route === 'orders') {
+    setCrumb('Commandes');
+    await ensureCustomerOrdersLoaded();
+    renderCustomerOrderList();
+  } else if (route === 'payments') {
+    setCrumb('Paiements');
+    await ensureOrderPaymentsLoaded();
+    renderOrderPaymentList();
+  } else if (route === 'installments') {
+    setCrumb('Cotisations');
+    await ensureInstallmentPlansLoaded();
+    renderInstallmentPlanList();
+  } else if (route === 'documents') {
+    setCrumb('Documents');
+    await ensureCustomerDocumentsLoaded();
+    renderCustomerDocumentList();
+  } else if (route === 'notifications') {
+    setCrumb('Notifs');
+    await ensureCustomerNotificationsLoaded();
+    renderCustomerNotificationList();
   } else if (route === 'settings') {
     setCrumb('Param?tres');
   } else {
@@ -1507,6 +1705,572 @@ async function setPromoTab(tab = 'codes') {
     applyLinkTemplatesToSettingsUI();
   }
 }
+
+/* ============================ Commerce Admin UI ============================ */
+async function readCommerceCollection(collectionName, target) {
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(5);
+  }
+  try {
+    const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'), limit(100));
+    const snap = await getDocs(q);
+    return snap.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+  } catch (err) {
+    console.error(`${collectionName}: load failed`, err);
+    renderCommerceError(target);
+    return null;
+  }
+}
+
+async function ensureCustomerOrdersLoaded(force = false) {
+  if (!force && allCustomerOrders.length > 0) return;
+  const rows = await readCommerceCollection('orders', $ordersContent);
+  if (rows) allCustomerOrders = rows;
+}
+
+async function ensureOrderPaymentsLoaded(force = false) {
+  if (!force && allOrderPayments.length > 0) return;
+  const rows = await readCommerceCollection('orderPayments', $paymentsContent);
+  if (rows) allOrderPayments = rows;
+}
+
+async function ensureInstallmentPlansLoaded(force = false) {
+  if (!force && allInstallmentPlans.length > 0) return;
+  const rows = await readCommerceCollection('installmentPlans', $installmentsContent);
+  if (rows) allInstallmentPlans = rows;
+}
+
+async function ensureCustomerDocumentsLoaded(force = false) {
+  if (!force && allCustomerDocuments.length > 0) return;
+  const rows = await readCommerceCollection('customerDocuments', $documentsContent);
+  if (rows) allCustomerDocuments = rows;
+}
+
+async function ensureCustomerNotificationsLoaded(force = false) {
+  if (!force && allCustomerNotifications.length > 0) return;
+  const rows = await readCommerceCollection('customerNotifications', $notificationsContent);
+  if (rows) allCustomerNotifications = rows;
+}
+
+function matchesCommerceSearch(row, term, fields) {
+  if (!term) return true;
+  const haystack = fields
+    .map(field => (typeof field === 'function' ? field(row) : getNestedValue(row, field)))
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(term.toLowerCase());
+}
+
+function statusTone(value) {
+  if (['paid', 'delivered', 'succeeded', 'approved', 'completed', 'active', 'ready_for_pickup'].includes(value)) {
+    return 'success';
+  }
+  if (['cancelled', 'failed', 'rejected', 'expired', 'late'].includes(value)) {
+    return 'danger';
+  }
+  if (['pending_review', 'profile_required', 'payment_pending', 'pending', 'under_review', 'documents_required', 'contract_review'].includes(value)) {
+    return 'warning';
+  }
+  return 'neutral';
+}
+
+function renderStatusSelect(value, options, labels, attrName) {
+  const opts = options
+    .map(option => `<option value="${escapeAttr(option)}" ${option === value ? 'selected' : ''}>${escapeHtml(labels[option] || option)}</option>`)
+    .join('');
+  return `<select class="select select-compact" ${attrName}>${opts}</select>`;
+}
+
+function orderTotal(order) {
+  return Number(order?.totals?.totalDue ?? order?.totals?.itemsSubtotal ?? 0);
+}
+
+function orderCustomer(order) {
+  return order?.customer?.fullName || order?.customerName || 'Client';
+}
+
+function orderWhatsapp(order) {
+  return order?.customer?.whatsapp || order?.whatsapp || '-';
+}
+
+function orderItemsLabel(order) {
+  const items = Array.isArray(order?.items) ? order.items : [];
+  if (!items.length) return '-';
+  const first = items[0]?.name || 'Article';
+  const more = items.length > 1 ? ` +${items.length - 1}` : '';
+  return `${first}${more}`;
+}
+
+function renderOrderStats(items) {
+  const pending = items.filter(item => ['pending_review', 'profile_required', 'payment_pending'].includes(item.status)).length;
+  const kkiapay = items.filter(item => item.paymentMode === 'kkiapay_now').length;
+  const delivery = items.filter(item => item.fulfillmentMode === 'delivery').length;
+  const total = items.reduce((sum, item) => sum + orderTotal(item), 0);
+  return [
+    renderMiniStat('Commandes', items.length, 'shopping-bag'),
+    renderMiniStat('A traiter', pending, 'timer'),
+    renderMiniStat('Kkiapay', kkiapay, 'credit-card'),
+    renderMiniStat('Livraison', delivery, 'truck'),
+    renderMiniStat('Volume', fmtXOF.format(total), 'banknote'),
+  ].join('');
+}
+
+function filteredCustomerOrders() {
+  return allCustomerOrders.filter(order => {
+    if (orderStatusFilter && order.status !== orderStatusFilter) return false;
+    if (orderPaymentFilter && order.paymentMode !== orderPaymentFilter) return false;
+    return matchesCommerceSearch(order, orderSearchTerm, [
+      'id',
+      'status',
+      'paymentMode',
+      'fulfillmentMode',
+      row => orderCustomer(row),
+      row => orderWhatsapp(row),
+      row => orderItemsLabel(row),
+    ]);
+  });
+}
+
+function showOrderDetails(order) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  const rows = items.length
+    ? items
+      .map(item => `
+        <tr>
+          <td>${escapeHtml(item.name || 'Article')}</td>
+          <td>${escapeHtml(String(item.quantity || 1))}</td>
+          <td>${formatMoneyValue(item.unitPrice)}</td>
+          <td>${formatMoneyValue(item.subtotal)}</td>
+        </tr>`)
+      .join('')
+    : '<tr><td colspan="4">Aucun article.</td></tr>';
+  const body = `
+    <div class="commerce-detail">
+      <div class="commerce-detail-grid">
+        <div><span>Client</span><strong>${escapeHtml(orderCustomer(order))}</strong></div>
+        <div><span>WhatsApp</span><strong>${escapeHtml(orderWhatsapp(order))}</strong></div>
+        <div><span>Paiement</span><strong>${escapeHtml(PAYMENT_MODE_LABELS[order.paymentMode] || order.paymentMode || '-')}</strong></div>
+        <div><span>Reception</span><strong>${escapeHtml(FULFILLMENT_LABELS[order.fulfillmentMode] || order.fulfillmentMode || '-')}</strong></div>
+      </div>
+      <table class="table commerce-detail-table">
+        <thead><tr><th>Article</th><th>Qt&eacute;</th><th>Prix</th><th>Total</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${order.representative ? `<div class="commerce-note">Representant : ${escapeHtml(order.representative.fullName || '-')} - ${escapeHtml(order.representative.whatsapp || '-')}</div>` : ''}
+      ${order.delivery?.address ? `<div class="commerce-note">Adresse : ${escapeHtml(order.delivery.address)}</div>` : ''}
+    </div>`;
+  openModal({ title: `Commande ${order.id}`, body, okText: 'Fermer', cancelText: 'Retour' });
+}
+
+function renderCustomerOrderList() {
+  if (!$ordersContent) return;
+  const items = filteredCustomerOrders();
+  const statsHtml = renderOrderStats(allCustomerOrders);
+  if (!items.length) {
+    $ordersContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucune commande', 'Ajuster les filtres ou attendre une nouvelle demande.'));
+    lucide.createIcons();
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table commerce-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Articles</th>
+        <th>Total</th>
+        <th>Statut</th>
+        <th>Paiement</th>
+        <th>Reception</th>
+        <th>Date</th>
+        <th style="width:120px;text-align:right">Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>`;
+  const tbody = table.querySelector('tbody');
+  items.forEach(order => {
+    const status = order.status || 'pending_review';
+    const paymentStatus = order.paymentStatus || 'not_required';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <strong>${escapeHtml(orderCustomer(order))}</strong>
+        <div class="small">${escapeHtml(orderWhatsapp(order))}</div>
+      </td>
+      <td>${escapeHtml(orderItemsLabel(order))}</td>
+      <td><strong>${formatMoneyValue(orderTotal(order))}</strong></td>
+      <td>${renderStatusSelect(status, ORDER_STATUS_OPTIONS, ORDER_STATUS_LABELS, 'data-order-status')}</td>
+      <td>
+        <div>${makeStatusBadge(PAYMENT_MODE_LABELS[order.paymentMode] || order.paymentMode || '-', statusTone(paymentStatus))}</div>
+        <div style="margin-top:6px">${renderStatusSelect(paymentStatus, PAYMENT_STATUS_OPTIONS, PAYMENT_STATUS_LABELS, 'data-order-payment-status')}</div>
+      </td>
+      <td>${escapeHtml(FULFILLMENT_LABELS[order.fulfillmentMode] || order.fulfillmentMode || '-')}</td>
+      <td>${escapeHtml(formatDateValue(order.createdAt))}</td>
+      <td class="actions"><button class="btn btn-small" data-detail>D&eacute;tail</button></td>`;
+    tr.querySelector('[data-detail]').onclick = () => showOrderDetails(order);
+    tr.querySelector('[data-order-status]').onchange = event => {
+      updateCommerceField(event.target, 'orders', order.id, 'status', event.target.value, allCustomerOrders, renderCustomerOrderList);
+    };
+    tr.querySelector('[data-order-payment-status]').onchange = event => {
+      updateCommerceField(event.target, 'orders', order.id, 'paymentStatus', event.target.value, allCustomerOrders, renderCustomerOrderList);
+    };
+    tbody.appendChild(tr);
+  });
+  const wrap = document.createElement('div');
+  wrap.innerHTML = renderCommerceShell(statsHtml, '');
+  wrap.querySelector('.commerce-panel').appendChild(table);
+  $ordersContent.innerHTML = '';
+  $ordersContent.appendChild(wrap.firstElementChild);
+  lucide.createIcons();
+}
+
+function filteredOrderPayments() {
+  return allOrderPayments.filter(payment => {
+    if (paymentStatusFilter && payment.status !== paymentStatusFilter) return false;
+    return matchesCommerceSearch(payment, paymentSearchTerm, ['id', 'orderId', 'userId', 'status', 'providerReference', 'providerTransactionId']);
+  });
+}
+
+function renderOrderPaymentList() {
+  if (!$paymentsContent) return;
+  const items = filteredOrderPayments();
+  const succeeded = allOrderPayments.filter(item => item.status === 'succeeded').length;
+  const pending = allOrderPayments.filter(item => item.status === 'pending' || item.status === 'provider_opened').length;
+  const total = allOrderPayments.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const statsHtml = [
+    renderMiniStat('Paiements', allOrderPayments.length, 'credit-card'),
+    renderMiniStat('Reussis', succeeded, 'check-circle-2'),
+    renderMiniStat('Attente', pending, 'timer'),
+    renderMiniStat('Montant', fmtXOF.format(total), 'banknote'),
+  ].join('');
+  if (!items.length) {
+    $paymentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucun paiement', 'Kkiapay sera branche via API/Cloud Function.'));
+    lucide.createIcons();
+    return;
+  }
+  const rows = items
+    .map(payment => `
+      <tr>
+        <td><strong>${escapeHtml(payment.orderId || '-')}</strong><div class="small">${escapeHtml(payment.provider || 'kkiapay')}</div></td>
+        <td>${formatMoneyValue(payment.amount)}</td>
+        <td>${makeStatusBadge(PAYMENT_STATUS_LABELS[payment.status] || payment.status || '-', statusTone(payment.status))}</td>
+        <td>${escapeHtml(payment.providerReference || payment.providerTransactionId || '-')}</td>
+        <td>${escapeHtml(formatDateValue(payment.createdAt))}</td>
+      </tr>`)
+    .join('');
+  $paymentsContent.innerHTML = renderCommerceShell(
+    statsHtml,
+    `<table class="table commerce-table">
+      <thead><tr><th>Commande</th><th>Montant</th><th>Statut</th><th>Reference</th><th>Date</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`
+  );
+  lucide.createIcons();
+}
+
+function filteredInstallmentPlans() {
+  return allInstallmentPlans.filter(plan => {
+    if (installmentStatusFilter && plan.status !== installmentStatusFilter) return false;
+    return matchesCommerceSearch(plan, installmentSearchTerm, ['id', 'orderId', 'userId', 'status']);
+  });
+}
+
+function renderInstallmentPlanList() {
+  if (!$installmentsContent) return;
+  const items = filteredInstallmentPlans();
+  const active = allInstallmentPlans.filter(item => item.status === 'active').length;
+  const late = allInstallmentPlans.filter(item => item.status === 'late').length;
+  const balance = allInstallmentPlans.reduce((sum, item) => sum + Number(item.balanceRemaining || 0), 0);
+  const statsHtml = [
+    renderMiniStat('Dossiers', allInstallmentPlans.length, 'calendar-clock'),
+    renderMiniStat('Actifs', active, 'play-circle'),
+    renderMiniStat('Retard', late, 'alert-triangle'),
+    renderMiniStat('Solde', fmtXOF.format(balance), 'banknote'),
+  ].join('');
+  if (!items.length) {
+    $installmentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucune cotisation', 'Les dossiers apparaitront apres creation du parcours Kkiapay.'));
+    lucide.createIcons();
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table commerce-table';
+  table.innerHTML = `
+    <thead><tr><th>Dossier</th><th>Produit</th><th>Paye</th><th>Solde</th><th>Statut</th><th>Date</th></tr></thead>
+    <tbody></tbody>`;
+  const tbody = table.querySelector('tbody');
+  items.forEach(plan => {
+    const status = plan.status || 'draft';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(plan.orderId || plan.id)}</strong><div class="small">${escapeHtml(plan.userId || '-')}</div></td>
+      <td>${formatMoneyValue(plan.productTotal)}</td>
+      <td>${formatMoneyValue(plan.amountPaid)}</td>
+      <td><strong>${formatMoneyValue(plan.balanceRemaining)}</strong></td>
+      <td>${renderStatusSelect(status, INSTALLMENT_STATUS_OPTIONS, INSTALLMENT_STATUS_LABELS, 'data-installment-status')}</td>
+      <td>${escapeHtml(formatDateValue(plan.createdAt))}</td>`;
+    tr.querySelector('[data-installment-status]').onchange = event => {
+      updateCommerceField(event.target, 'installmentPlans', plan.id, 'status', event.target.value, allInstallmentPlans, renderInstallmentPlanList);
+    };
+    tbody.appendChild(tr);
+  });
+  const wrap = document.createElement('div');
+  wrap.innerHTML = renderCommerceShell(statsHtml, '');
+  wrap.querySelector('.commerce-panel').appendChild(table);
+  $installmentsContent.innerHTML = '';
+  $installmentsContent.appendChild(wrap.firstElementChild);
+  lucide.createIcons();
+}
+
+function formatFileSize(size) {
+  const bytes = Number(size || 0);
+  if (!Number.isFinite(bytes) || bytes <= 0) return '-';
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} Ko`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+}
+
+function filteredCustomerDocuments() {
+  return allCustomerDocuments.filter(documentItem => {
+    if (documentStatusFilter && documentItem.status !== documentStatusFilter) return false;
+    if (documentTypeFilter && documentItem.type !== documentTypeFilter) return false;
+    return matchesCommerceSearch(documentItem, documentSearchTerm, ['id', 'userId', 'orderId', 'fileName', 'status', 'type']);
+  });
+}
+
+async function openCustomerDocument(documentItem) {
+  try {
+    let url = documentItem.downloadUrl;
+    if (!url && documentItem.storagePath) {
+      url = await getDownloadURL(ref(storage, documentItem.storagePath));
+    }
+    if (!url) {
+      toast('Document indisponible', 'Aucun lien de lecture trouve.', 'error');
+      return;
+    }
+    window.open(url, '_blank', 'noopener');
+  } catch (err) {
+    console.error('Document open failed', err);
+    toast('Lecture bloquee', 'Utiliser une Cloud Function/API si les regles refusent la lecture directe.', 'error');
+  }
+}
+
+function renderCustomerDocumentList() {
+  if (!$documentsContent) return;
+  const items = filteredCustomerDocuments();
+  const review = allCustomerDocuments.filter(item => item.status === 'under_review').length;
+  const approved = allCustomerDocuments.filter(item => item.status === 'approved').length;
+  const rejected = allCustomerDocuments.filter(item => item.status === 'rejected').length;
+  const statsHtml = [
+    renderMiniStat('Documents', allCustomerDocuments.length, 'folder-check'),
+    renderMiniStat('A verifier', review, 'timer'),
+    renderMiniStat('Valides', approved, 'check-circle-2'),
+    renderMiniStat('Rejetes', rejected, 'x-circle'),
+  ].join('');
+  if (!items.length) {
+    $documentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucun document', 'Les pieces client apparaitront apres upload.'));
+    lucide.createIcons();
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table commerce-table';
+  table.innerHTML = `
+    <thead><tr><th>Fichier</th><th>Type</th><th>Client</th><th>Commande</th><th>Taille</th><th>Statut</th><th style="width:110px;text-align:right">Action</th></tr></thead>
+    <tbody></tbody>`;
+  const tbody = table.querySelector('tbody');
+  items.forEach(documentItem => {
+    const status = documentItem.status || 'under_review';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(documentItem.fileName || documentItem.id)}</strong><div class="small">${escapeHtml(formatDateValue(documentItem.createdAt))}</div></td>
+      <td>${escapeHtml(DOCUMENT_TYPE_LABELS[documentItem.type] || documentItem.type || '-')}</td>
+      <td>${escapeHtml(documentItem.userId || '-')}</td>
+      <td>${escapeHtml(documentItem.orderId || '-')}</td>
+      <td>${escapeHtml(formatFileSize(documentItem.size))}</td>
+      <td>${renderStatusSelect(status, DOCUMENT_STATUS_OPTIONS, DOCUMENT_STATUS_LABELS, 'data-document-status')}</td>
+      <td class="actions"><button class="btn btn-small" data-open>Ouvrir</button></td>`;
+    tr.querySelector('[data-open]').onclick = () => openCustomerDocument(documentItem);
+    tr.querySelector('[data-document-status]').onchange = event => {
+      updateCommerceField(
+        event.target,
+        'customerDocuments',
+        documentItem.id,
+        'status',
+        event.target.value,
+        allCustomerDocuments,
+        renderCustomerDocumentList,
+        { reviewedAt: serverTimestamp(), reviewedBy: auth.currentUser?.uid || null }
+      );
+    };
+    tbody.appendChild(tr);
+  });
+  const wrap = document.createElement('div');
+  wrap.innerHTML = renderCommerceShell(statsHtml, '');
+  wrap.querySelector('.commerce-panel').appendChild(table);
+  $documentsContent.innerHTML = '';
+  $documentsContent.appendChild(wrap.firstElementChild);
+  lucide.createIcons();
+}
+
+function filteredCustomerNotifications() {
+  return allCustomerNotifications.filter(notification => {
+    if (notificationReadFilter === 'read' && notification.read !== true) return false;
+    if (notificationReadFilter === 'unread' && notification.read === true) return false;
+    return matchesCommerceSearch(notification, notificationSearchTerm, ['id', 'userId', 'orderId', 'type', 'title', 'message']);
+  });
+}
+
+function renderCustomerNotificationList() {
+  if (!$notificationsContent) return;
+  const items = filteredCustomerNotifications();
+  const unread = allCustomerNotifications.filter(item => item.read !== true).length;
+  const statsHtml = [
+    renderMiniStat('Notifs', allCustomerNotifications.length, 'bell'),
+    renderMiniStat('Non lues', unread, 'circle-alert'),
+  ].join('');
+  if (!items.length) {
+    $notificationsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucune notification', 'Les messages client apparaitront ici.'));
+    lucide.createIcons();
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table commerce-table';
+  table.innerHTML = `
+    <thead><tr><th>Message</th><th>Client</th><th>Commande</th><th>Date</th><th style="width:120px;text-align:right">Action</th></tr></thead>
+    <tbody></tbody>`;
+  const tbody = table.querySelector('tbody');
+  items.forEach(notification => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(notification.title || notification.type || 'Notification')}</strong><div class="small">${escapeHtml(notification.message || '')}</div></td>
+      <td>${escapeHtml(notification.userId || '-')}</td>
+      <td>${escapeHtml(notification.orderId || '-')}</td>
+      <td>${escapeHtml(formatDateValue(notification.createdAt))}</td>
+      <td class="actions"><button class="btn btn-small" data-read>${notification.read ? 'Non lue' : 'Lue'}</button></td>`;
+    tr.querySelector('[data-read]').onclick = event => {
+      updateCommerceField(event.target, 'customerNotifications', notification.id, 'read', !notification.read, allCustomerNotifications, renderCustomerNotificationList);
+    };
+    tbody.appendChild(tr);
+  });
+  const wrap = document.createElement('div');
+  wrap.innerHTML = renderCommerceShell(statsHtml, '');
+  wrap.querySelector('.commerce-panel').appendChild(table);
+  $notificationsContent.innerHTML = '';
+  $notificationsContent.appendChild(wrap.firstElementChild);
+  lucide.createIcons();
+}
+
+async function updateCommerceField(control, collectionName, id, field, value, cache, renderFn, extra = {}) {
+  const currentItem = cache.find(item => item.id === id);
+  const previousValue = currentItem ? currentItem[field] : null;
+  const canSwapLabel = control && control.tagName === 'BUTTON';
+  if (canSwapLabel) {
+    setButtonLoading(control, true);
+  } else if (control) {
+    control.disabled = true;
+  }
+  try {
+    const payload = { [field]: value, updatedAt: serverTimestamp(), ...extra };
+    await updateDoc(doc(db, collectionName, id), payload);
+    const index = cache.findIndex(item => item.id === id);
+    if (index > -1) {
+      cache[index] = { ...cache[index], [field]: value, ...extra };
+    }
+    renderFn();
+    toast('Mis a jour', 'Changement enregistre.', 'success');
+  } catch (err) {
+    console.error(`${collectionName}: update failed`, err);
+    if (control && previousValue !== null && 'value' in control) control.value = previousValue;
+    toast('Action bloquee', 'Verifier les permissions ou passer par une API admin.', 'error');
+  } finally {
+    if (canSwapLabel) {
+      setButtonLoading(control, false);
+    } else if (control) {
+      control.disabled = false;
+    }
+  }
+}
+
+function bindCommerceFilters() {
+  $('#search-orders')?.addEventListener('input', event => {
+    orderSearchTerm = event.target.value || '';
+    renderCustomerOrderList();
+  });
+  $('#filter-order-status')?.addEventListener('change', event => {
+    orderStatusFilter = event.target.value || '';
+    renderCustomerOrderList();
+  });
+  $('#filter-order-payment')?.addEventListener('change', event => {
+    orderPaymentFilter = event.target.value || '';
+    renderCustomerOrderList();
+  });
+  $('#refresh-orders')?.addEventListener('click', async event => {
+    setButtonLoading(event.currentTarget, true);
+    await ensureCustomerOrdersLoaded(true);
+    renderCustomerOrderList();
+    setButtonLoading(event.currentTarget, false);
+  });
+  $('#search-payments')?.addEventListener('input', event => {
+    paymentSearchTerm = event.target.value || '';
+    renderOrderPaymentList();
+  });
+  $('#filter-payment-status')?.addEventListener('change', event => {
+    paymentStatusFilter = event.target.value || '';
+    renderOrderPaymentList();
+  });
+  $('#refresh-payments')?.addEventListener('click', async event => {
+    setButtonLoading(event.currentTarget, true);
+    await ensureOrderPaymentsLoaded(true);
+    renderOrderPaymentList();
+    setButtonLoading(event.currentTarget, false);
+  });
+  $('#search-installments')?.addEventListener('input', event => {
+    installmentSearchTerm = event.target.value || '';
+    renderInstallmentPlanList();
+  });
+  $('#filter-installment-status')?.addEventListener('change', event => {
+    installmentStatusFilter = event.target.value || '';
+    renderInstallmentPlanList();
+  });
+  $('#refresh-installments')?.addEventListener('click', async event => {
+    setButtonLoading(event.currentTarget, true);
+    await ensureInstallmentPlansLoaded(true);
+    renderInstallmentPlanList();
+    setButtonLoading(event.currentTarget, false);
+  });
+  $('#search-documents')?.addEventListener('input', event => {
+    documentSearchTerm = event.target.value || '';
+    renderCustomerDocumentList();
+  });
+  $('#filter-document-status')?.addEventListener('change', event => {
+    documentStatusFilter = event.target.value || '';
+    renderCustomerDocumentList();
+  });
+  $('#filter-document-type')?.addEventListener('change', event => {
+    documentTypeFilter = event.target.value || '';
+    renderCustomerDocumentList();
+  });
+  $('#refresh-documents')?.addEventListener('click', async event => {
+    setButtonLoading(event.currentTarget, true);
+    await ensureCustomerDocumentsLoaded(true);
+    renderCustomerDocumentList();
+    setButtonLoading(event.currentTarget, false);
+  });
+  $('#search-notifications')?.addEventListener('input', event => {
+    notificationSearchTerm = event.target.value || '';
+    renderCustomerNotificationList();
+  });
+  $('#filter-notification-read')?.addEventListener('change', event => {
+    notificationReadFilter = event.target.value || '';
+    renderCustomerNotificationList();
+  });
+  $('#refresh-notifications')?.addEventListener('click', async event => {
+    setButtonLoading(event.currentTarget, true);
+    await ensureCustomerNotificationsLoaded(true);
+    renderCustomerNotificationList();
+    setButtonLoading(event.currentTarget, false);
+  });
+}
+
+bindCommerceFilters();
 
 /* ============================ Products UI ============================ */
 $('#search-products').addEventListener('input', function (e) {
@@ -4637,8 +5401,7 @@ setTimeout(function () {
 window.handleMfaVerification = handleMfaVerification;
 window.completeMfaEnrollment = completeMfaEnrollment;
 
-
-/* ============================ Top Products Manager (Studio) ============================ */
+/* ============================ Top Products Manager ============================ */
 async function openTopProductsModal() {
   const modal = document.getElementById('top-products-modal');
   const sourceList = document.getElementById('tpm-source-list');
@@ -4646,22 +5409,7 @@ async function openTopProductsModal() {
   const searchInput = document.getElementById('tpm-search-source');
   const saveBtn = document.getElementById('tpm-save');
   const closeBtn = document.getElementById('tpm-close');
-  const createNewBtn = document.getElementById('tpm-create-new');
-
-  // Badge Counts
-  const sourceCountEl = document.getElementById('tpm-source-count');
-  const targetCountEl = document.getElementById('tpm-target-count');
-
-  // Quick Create Elements
-  const qcOverlay = document.getElementById('tpm-quick-create-overlay');
-  const qcCancel = document.getElementById('tpm-qc-cancel');
-  const qcSave = document.getElementById('tpm-qc-save');
-  const qcName = document.getElementById('tpm-qc-name');
-  const qcPrice = document.getElementById('tpm-qc-price');
-  const qcBrand = document.getElementById('tpm-qc-brand');
-  const qcImage = document.getElementById('tpm-qc-image');
-  const brandsDatalist = document.getElementById('brands-datalist');
-
+  const statusEl = document.getElementById('tpm-status');
 
   // Helper to load Config
   async function loadTopProductsConfig() {
@@ -4684,11 +5432,6 @@ async function openTopProductsModal() {
   await Promise.all([ensureProductsLoaded(), loadTopProductsConfig()]);
   setButtonLoading(saveBtn, false);
 
-  // Populate brands datalist for quick create
-  const uniqueBrands = [...new Set(allProducts.map(p => p.brand).filter(Boolean))].sort();
-  brandsDatalist.innerHTML = uniqueBrands.map(b => `<option value="${escapeAttr(b)}">`).join('');
-
-
   let currentSourceFilter = '';
 
   function renderLists() {
@@ -4700,11 +5443,6 @@ async function openTopProductsModal() {
       const term = currentSourceFilter.toLowerCase();
       return (p.name || '').toLowerCase().includes(term) || (p.brand || '').toLowerCase().includes(term);
     });
-
-    // Update Counts
-    sourceCountEl.textContent = filteredSource.length;
-    targetCountEl.textContent = topProductsIds.length;
-
 
     sourceList.innerHTML = '';
     filteredSource.forEach(p => {
@@ -4745,27 +5483,7 @@ async function openTopProductsModal() {
     } else {
       topProductsIds.forEach((pid, index) => {
         const p = allProducts.find(x => x.id === pid);
-        if (!p) {
-          // Handle case where product might have been deleted but ID remains in config
-          // We render a placeholder allowing removal
-          const item = document.createElement('div');
-          item.className = 'tpm-item target';
-          item.style.padding = '8px';
-          item.style.border = '1px dashed var(--color-danger)';
-          item.style.borderRadius = '4px';
-          item.style.marginBottom = '4px';
-          item.style.color = 'var(--color-danger)';
-          item.innerHTML = `
-              <div style="font-size:12px;">Produit introuvable (ID: ${pid})</div>
-               <button class="btn btn-small btn-icon btn-danger" data-action="remove"><i data-lucide="trash-2" class="icon"></i></button>
-             `;
-          item.querySelector('[data-action="remove"]').onclick = () => {
-            topProductsIds.splice(index, 1);
-            renderLists();
-          };
-          targetList.appendChild(item);
-          return;
-        }
+        if (!p) return; // Should not happen if data is consistent
 
         const item = document.createElement('div');
         item.className = 'tpm-item target';
@@ -4784,7 +5502,6 @@ async function openTopProductsModal() {
             ${p.imageUrls && p.imageUrls[0] ? `<img src="${escapeAttr(p.imageUrls[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">` : '<div style="width:32px;height:32px;background:#eee;border-radius:4px;"></div>'}
             <div>
               <div style="font-weight:500; font-size:13px;">${escapeHtml(p.name)}</div>
-              <div style="font-size:11px; color:var(--color-muted);">${escapeHtml(p.brand)} &bull; ${fmtXOF.format(p.price || 0)}</div>
             </div>
           </div>
           <div style="display:flex; gap:4px;">
@@ -4823,65 +5540,7 @@ async function openTopProductsModal() {
     lucide.createIcons();
   }
 
-  // --- Quick Create Logic ---
-
-  function closeQuickCreate() {
-    qcOverlay.classList.add('hide');
-    qcName.value = '';
-    qcPrice.value = '';
-    qcBrand.value = '';
-    qcImage.value = '';
-  }
-
-  createNewBtn.onclick = () => {
-    qcOverlay.classList.remove('hide');
-    qcName.focus();
-  };
-
-  qcCancel.onclick = closeQuickCreate;
-
-  qcSave.onclick = async () => {
-    const name = qcName.value.trim();
-    if (!name) return toast('Erreur', 'Le nom est requis', 'error');
-
-    setButtonLoading(qcSave, true);
-
-    try {
-      const payload = {
-        name: name,
-        price: Number(qcPrice.value) || 0,
-        brand: qcBrand.value.trim(),
-        imageUrl: qcImage.value.trim() || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=500&auto=format&fit=crop', // Fallback image
-        imageUrls: qcImage.value.trim() ? [qcImage.value.trim()] : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=500&auto=format&fit=crop'],
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        isActive: true, // Default to active
-        source: 'admin-quick-add'
-      };
-
-      const docRef = await addDoc(collection(db, 'products'), payload);
-
-      // Add to local allProducts cache immediately
-      const newProduct = { id: docRef.id, ...payload, price: payload.price }; // use number for price in local cache
-      allProducts.push(newProduct);
-
-      // Auto-add to Top Products
-      topProductsIds.push(docRef.id);
-
-      toast('Succès', 'Produit créé et ajouté !', 'success');
-      closeQuickCreate();
-      renderLists();
-
-    } catch (e) {
-      console.error('Quick create failed', e);
-      toast('Erreur', 'Impossible de créer le produit', 'error');
-    } finally {
-      setButtonLoading(qcSave, false);
-    }
-  };
-
-
-  // Main Event Listeners
+  // Event Listeners
   searchInput.oninput = (e) => {
     currentSourceFilter = e.target.value;
     renderLists();
@@ -4894,10 +5553,7 @@ async function openTopProductsModal() {
         productIds: topProductsIds,
         updatedAt: serverTimestamp()
       });
-      toast('Succès', 'Vitrine mise à jour avec succès !', 'success');
-      // No need to close modal immediately, user might want to keep editing
-      // But let's close it for better feedback feel or just stay? Studio feel -> stay.
-      // But current UX is modal -> close. Let's close.
+      toast('Succès', 'Liste des Top Produits mise à jour !', 'success');
       closeModal();
     } catch (e) {
       console.error(e);
@@ -4911,9 +5567,6 @@ async function openTopProductsModal() {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
-    // Reset
-    sourceList.innerHTML = '';
-    targetList.innerHTML = '';
   }
 
   closeBtn.onclick = closeModal;
