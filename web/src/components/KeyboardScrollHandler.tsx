@@ -4,6 +4,42 @@ import { useEffect } from 'react';
 
 const EDITABLE_SELECTORS = 'input, textarea, select, [contenteditable="true"]';
 const ACTION_SELECTORS = `${EDITABLE_SELECTORS}, button, a, [role="button"], [role="link"]`;
+const SCROLLABLE_OVERFLOW_VALUES = new Set(['auto', 'scroll', 'overlay']);
+
+const normalizeWheelDelta = (event: WheelEvent) => {
+  if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+    return event.deltaY * 40;
+  }
+
+  if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+    return event.deltaY * window.innerHeight;
+  }
+
+  return event.deltaY;
+};
+
+const canScrollVertically = (element: HTMLElement) => {
+  const style = window.getComputedStyle(element);
+  return SCROLLABLE_OVERFLOW_VALUES.has(style.overflowY) && element.scrollHeight > element.clientHeight + 1;
+};
+
+const findVerticalScrollContainer = (target: EventTarget | null) => {
+  if (!(target instanceof HTMLElement)) {
+    return null;
+  }
+
+  let element: HTMLElement | null = target;
+
+  while (element && element !== document.body && element !== document.documentElement) {
+    if (canScrollVertically(element)) {
+      return element;
+    }
+
+    element = element.parentElement;
+  }
+
+  return null;
+};
 
 export default function KeyboardScrollHandler() {
   useEffect(() => {
@@ -71,12 +107,47 @@ export default function KeyboardScrollHandler() {
       }
     };
 
+    const handleWheel = (event: WheelEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.ctrlKey ||
+        event.metaKey ||
+        Math.abs(event.deltaY) < Math.abs(event.deltaX)
+      ) {
+        return;
+      }
+
+      const deltaY = normalizeWheelDelta(event);
+      if (Math.abs(deltaY) < 1) {
+        return;
+      }
+
+      const scrollContainer = findVerticalScrollContainer(event.target);
+      const pageBefore = window.scrollY;
+      const elementBefore = scrollContainer?.scrollTop ?? null;
+
+      requestAnimationFrame(() => {
+        if (scrollContainer) {
+          if (scrollContainer.scrollTop === elementBefore) {
+            scrollContainer.scrollBy({ top: deltaY, behavior: 'auto' });
+          }
+          return;
+        }
+
+        if (window.scrollY === pageBefore) {
+          window.scrollBy({ top: deltaY, behavior: 'auto' });
+        }
+      });
+    };
+
     document.addEventListener('pointerdown', handlePointerDown, { capture: true });
     document.addEventListener('keydown', handleKeyDown, { capture: true, passive: false });
+    document.addEventListener('wheel', handleWheel, { capture: true, passive: true });
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, { capture: true });
       document.removeEventListener('keydown', handleKeyDown, { capture: true });
+      document.removeEventListener('wheel', handleWheel, { capture: true });
     };
   }, []);
 
