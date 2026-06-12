@@ -6,7 +6,7 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { type CartItem, subscribeToCart } from '@/lib/cart';
+import { clearCart, type CartItem, subscribeToCart } from '@/lib/cart';
 import {
   type CheckoutFulfillmentMode,
   type CheckoutPaymentMode,
@@ -478,6 +478,7 @@ export default function CheckoutPage() {
           error: null,
           profileRequired: responseBody.profileRequired === true,
         });
+        clearCart();
       }
       router.push('/checkout/confirmation');
     } catch (error) {
