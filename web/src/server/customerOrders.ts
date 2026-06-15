@@ -2,6 +2,7 @@ import type { CheckoutDraft } from '@/lib/checkoutDraft';
 import type {
   CustomerFulfillmentMode,
   CustomerOrder,
+  CustomerOrderClientView,
   CustomerOrderItemSnapshot,
   CustomerOrderStatus,
   CustomerPaymentMode,
@@ -31,6 +32,36 @@ const toCleanString = (value: unknown) => (typeof value === 'string' ? value.tri
 const toNullableString = (value: unknown) => {
   const cleaned = toCleanString(value);
   return cleaned.length > 0 ? cleaned : null;
+};
+
+const toIsoString = (value: FirestoreTimestampLike): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.valueOf()) ? null : value.toISOString();
+  }
+
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    return Number.isNaN(date.valueOf()) ? null : date.toISOString();
+  }
+
+  if (typeof value === 'object' && value !== null) {
+    const timestamp = value as { toDate?: () => Date; seconds?: number; _seconds?: number };
+    if (typeof timestamp.toDate === 'function') {
+      const date = timestamp.toDate();
+      return Number.isNaN(date.valueOf()) ? null : date.toISOString();
+    }
+
+    const seconds = typeof timestamp.seconds === 'number' ? timestamp.seconds : timestamp._seconds;
+    if (typeof seconds === 'number') {
+      return new Date(seconds * 1000).toISOString();
+    }
+  }
+
+  return null;
 };
 
 const isFiniteCoordinate = (value: unknown, min: number, max: number): value is number =>
@@ -288,3 +319,25 @@ export const buildCustomerOrderFromDraft = (params: {
     updatedAt: now,
   };
 };
+
+export const serializeCustomerOrderForClient = (
+  order: CustomerOrder,
+  fallbackId?: string
+): CustomerOrderClientView => ({
+  id: order.id || fallbackId || '',
+  status: order.status,
+  paymentMode: order.paymentMode,
+  paymentStatus: order.paymentStatus,
+  fulfillmentMode: order.fulfillmentMode,
+  profileRequired: order.profileRequired === true,
+  customer: order.customer,
+  representative: order.representative,
+  delivery: order.delivery,
+  documentIds: order.documentIds,
+  items: Array.isArray(order.items) ? order.items : [],
+  totals: order.totals,
+  source: 'web',
+  localDraftId: toNullableString(order.localDraftId),
+  createdAt: toIsoString(order.createdAt),
+  updatedAt: toIsoString(order.updatedAt),
+});

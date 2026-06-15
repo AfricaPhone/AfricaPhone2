@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useMemo, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { auth } from '@/lib/firebaseClient';
 import {
   type CheckoutDraft,
   FULFILLMENT_MODE_LABELS,
@@ -12,6 +14,13 @@ import {
   NEXT_STEP_MESSAGES,
   PAYMENT_MODE_LABELS,
 } from '@/lib/checkoutDraft';
+import type {
+  CustomerFulfillmentMode,
+  CustomerOrderClientView,
+  CustomerOrderStatus,
+  CustomerPaymentMode,
+  CustomerPaymentStatus,
+} from '@/types/customerOrders';
 import { formatPrice } from '@/utils/formatPrice';
 
 type OrderStatusView = {
@@ -20,7 +29,118 @@ type OrderStatusView = {
   className: string;
 };
 
-const formatDate = (value: string) => {
+type DisplayOrderItem = {
+  id: string;
+  name: string;
+  quantity: number;
+  subtotal: number | null;
+};
+
+type DisplayOrder = {
+  key: string;
+  source: 'remote' | 'local';
+  reference: string;
+  createdAt: string | null;
+  status: OrderStatusView;
+  items: DisplayOrderItem[];
+  paymentLabel: string;
+  paymentStatusLabel: string | null;
+  fulfillmentLabel: string;
+  totalQty: number;
+  totalPrice: number;
+  deliveryMapUrl: string | null;
+  nextStep: string;
+};
+
+type OrdersApiResponse = {
+  authenticated?: boolean;
+  orders?: CustomerOrderClientView[];
+  message?: string;
+};
+
+const REMOTE_PAYMENT_MODE_LABELS: Record<CustomerPaymentMode, string> = {
+  pay_on_delivery: 'Payer a la livraison',
+  kkiapay_now: 'Payer maintenant avec Kkiapay',
+  shop_confirmation: 'Confirmer en boutique',
+  installment_plan: 'Acheter par cotisation',
+};
+
+const REMOTE_FULFILLMENT_LABELS: Record<CustomerFulfillmentMode, string> = {
+  delivery: 'Livraison',
+  shop_pickup: 'Retrait client en boutique',
+  representative_pickup: 'Retrait par representant',
+};
+
+const PAYMENT_STATUS_LABELS: Record<CustomerPaymentStatus, string> = {
+  not_required: 'Non requis',
+  pending: 'En attente',
+  provider_opened: 'Paiement ouvert',
+  succeeded: 'Paiement confirme',
+  failed: 'Echec paiement',
+  cancelled: 'Paiement annule',
+  refunded: 'Rembourse',
+};
+
+const REMOTE_NEXT_STEP_MESSAGES: Record<CustomerPaymentMode, string> = {
+  pay_on_delivery: 'AfricaPhone confirme la disponibilite, la zone et le montant de livraison.',
+  kkiapay_now: 'Le paiement Kkiapay sera lance apres validation de la commande.',
+  shop_confirmation: 'AfricaPhone confirme le stock avant le passage en boutique.',
+  installment_plan: 'AfricaPhone verifie les documents et prepare l echeancier de cotisation.',
+};
+
+const REMOTE_STATUS_VIEWS: Record<CustomerOrderStatus, OrderStatusView> = {
+  draft: {
+    label: 'Brouillon',
+    detail: 'La demande doit encore etre finalisee.',
+    className: 'bg-slate-100 text-slate-600',
+  },
+  pending_review: {
+    label: 'En verification',
+    detail: 'AfricaPhone verifie le stock, la livraison ou le retrait.',
+    className: 'bg-[#ECFDF5] text-[#059669]',
+  },
+  profile_required: {
+    label: 'Profil requis',
+    detail: 'Un compte client complet est requis avant paiement, cotisation ou retrait par representant.',
+    className: 'bg-orange-50 text-orange-700',
+  },
+  payment_pending: {
+    label: 'Paiement attendu',
+    detail: 'Le paiement doit etre finalise avant la suite du traitement.',
+    className: 'bg-orange-50 text-orange-700',
+  },
+  paid: {
+    label: 'Paiement confirme',
+    detail: 'Le paiement est confirme, AfricaPhone prepare la suite.',
+    className: 'bg-[#ECFDF5] text-[#059669]',
+  },
+  ready_for_pickup: {
+    label: 'Pret au retrait',
+    detail: 'La commande est prete pour le passage en boutique.',
+    className: 'bg-[#ECFDF5] text-[#059669]',
+  },
+  out_for_delivery: {
+    label: 'En livraison',
+    detail: 'La commande est avec l equipe de livraison.',
+    className: 'bg-[#ECFDF5] text-[#059669]',
+  },
+  delivered: {
+    label: 'Livree',
+    detail: 'La commande est terminee.',
+    className: 'bg-slate-100 text-slate-600',
+  },
+  cancelled: {
+    label: 'Annulee',
+    detail: 'Cette commande a ete annulee.',
+    className: 'bg-rose-50 text-rose-700',
+  },
+};
+
+const formatDate = (value: string | null) => {
+  if (!value) {
+    return 'Date inconnue';
+  }
+
   const date = new Date(value);
   if (Number.isNaN(date.valueOf())) {
     return 'Date inconnue';
@@ -32,7 +152,7 @@ const formatDate = (value: string) => {
   }).format(date);
 };
 
-const getStatusView = (draft: CheckoutDraft): OrderStatusView => {
+const getLocalStatusView = (draft: CheckoutDraft): OrderStatusView => {
   if (draft.orderSync.status === 'created') {
     if (draft.orderSync.profileRequired) {
       return {
@@ -64,7 +184,7 @@ const getStatusView = (draft: CheckoutDraft): OrderStatusView => {
   };
 };
 
-const getUniqueOrders = (orders: CheckoutDraft[]) => {
+const getUniqueLocalOrders = (orders: CheckoutDraft[]) => {
   const seen = new Set<string>();
   return orders.filter(order => {
     if (seen.has(order.id)) {
@@ -75,23 +195,150 @@ const getUniqueOrders = (orders: CheckoutDraft[]) => {
   });
 };
 
+const uniqueStrings = (values: Array<string | null | undefined>) =>
+  Array.from(new Set(values.filter((value): value is string => Boolean(value))));
+
+const buildOrdersUrl = (localOrders: CheckoutDraft[]) => {
+  const params = new URLSearchParams();
+  const orderIds = uniqueStrings(localOrders.map(order => order.orderSync.orderId));
+  const localDraftIds = uniqueStrings(localOrders.map(order => order.id));
+
+  if (orderIds.length > 0) {
+    params.set('orderIds', orderIds.join(','));
+  }
+
+  if (localDraftIds.length > 0) {
+    params.set('localDraftIds', localDraftIds.join(','));
+  }
+
+  const query = params.toString();
+  return query ? `/api/orders?${query}` : '/api/orders';
+};
+
+const mapRemoteOrder = (order: CustomerOrderClientView): DisplayOrder => {
+  const items = order.items.map(item => ({
+    id: item.productId,
+    name: item.name,
+    quantity: item.quantity,
+    subtotal: item.subtotal,
+  }));
+  const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  return {
+    key: `remote-${order.id}`,
+    source: 'remote',
+    reference: order.localDraftId || order.id,
+    createdAt: order.createdAt,
+    status: REMOTE_STATUS_VIEWS[order.status] ?? REMOTE_STATUS_VIEWS.pending_review,
+    items,
+    paymentLabel: REMOTE_PAYMENT_MODE_LABELS[order.paymentMode] ?? order.paymentMode,
+    paymentStatusLabel: PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus,
+    fulfillmentLabel: REMOTE_FULFILLMENT_LABELS[order.fulfillmentMode] ?? order.fulfillmentMode,
+    totalQty,
+    totalPrice: order.totals.totalDue ?? order.totals.itemsSubtotal ?? 0,
+    deliveryMapUrl: order.delivery.location?.mapUrl ?? null,
+    nextStep: REMOTE_NEXT_STEP_MESSAGES[order.paymentMode] ?? 'AfricaPhone traite la demande.',
+  };
+};
+
+const mapLocalOrder = (order: CheckoutDraft): DisplayOrder => ({
+  key: `local-${order.id}`,
+  source: 'local',
+  reference: order.id,
+  createdAt: order.createdAt,
+  status: getLocalStatusView(order),
+  items: order.items.map(item => ({
+    id: item.id,
+    name: item.name,
+    quantity: item.qty,
+    subtotal: typeof item.price === 'number' ? item.price * item.qty : null,
+  })),
+  paymentLabel: PAYMENT_MODE_LABELS[order.paymentMode],
+  paymentStatusLabel: null,
+  fulfillmentLabel: FULFILLMENT_MODE_LABELS[order.fulfillmentMode],
+  totalQty: order.totalQty,
+  totalPrice: order.totalPrice,
+  deliveryMapUrl: order.fulfillmentMode === 'delivery' ? order.deliveryLocation?.mapUrl ?? null : null,
+  nextStep: NEXT_STEP_MESSAGES[order.paymentMode],
+});
+
+const mergeOrders = (remoteOrders: CustomerOrderClientView[], localOrders: CheckoutDraft[]) => {
+  const remoteOrderIds = new Set(remoteOrders.map(order => order.id));
+  const remoteLocalDraftIds = new Set(uniqueStrings(remoteOrders.map(order => order.localDraftId)));
+  const remoteDisplayOrders = remoteOrders.map(mapRemoteOrder);
+  const localDisplayOrders = localOrders
+    .filter(order => !order.orderSync.orderId || !remoteOrderIds.has(order.orderSync.orderId))
+    .filter(order => !remoteLocalDraftIds.has(order.id))
+    .map(mapLocalOrder);
+
+  return [...remoteDisplayOrders, ...localDisplayOrders].sort(
+    (a, b) => Date.parse(b.createdAt ?? '') - Date.parse(a.createdAt ?? '')
+  );
+};
+
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<CheckoutDraft[]>([]);
+  const [localOrders, setLocalOrders] = useState<CheckoutDraft[]>([]);
+  const [remoteOrders, setRemoteOrders] = useState<CustomerOrderClientView[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [remoteError, setRemoteError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const latestDraft = getCheckoutDraft();
     const history = getCheckoutHistory();
-    setOrders(getUniqueOrders(latestDraft ? [latestDraft, ...history] : history));
-    setLoaded(true);
+    const nextLocalOrders = getUniqueLocalOrders(latestDraft ? [latestDraft, ...history] : history);
+    let cancelled = false;
+
+    setLocalOrders(nextLocalOrders);
+
+    const unsubscribe = onAuthStateChanged(auth, async user => {
+      setLoaded(false);
+      setRemoteError('');
+
+      try {
+        const idToken = user ? await user.getIdToken() : null;
+        const response = await fetch(buildOrdersUrl(nextLocalOrders), {
+          headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
+        });
+        const body = (await response.json().catch(() => null)) as OrdersApiResponse | null;
+
+        if (!response.ok) {
+          throw new Error(body?.message || 'Chargement des commandes indisponible.');
+        }
+
+        if (!cancelled) {
+          setRemoteOrders(Array.isArray(body?.orders) ? body.orders : []);
+          setIsAuthenticated(body?.authenticated === true);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setRemoteOrders([]);
+          setRemoteError(error instanceof Error ? error.message : 'Chargement des commandes indisponible.');
+          setIsAuthenticated(Boolean(user));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoaded(true);
+        }
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
-  const stats = useMemo(() => {
-    const created = orders.filter(order => order.orderSync.status === 'created').length;
-    const failed = orders.filter(order => order.orderSync.status === 'failed').length;
-    const total = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+  const orders = useMemo(() => mergeOrders(remoteOrders, localOrders), [localOrders, remoteOrders]);
 
-    return { created, failed, total };
+  const stats = useMemo(() => {
+    const synced = orders.filter(order => order.source === 'remote').length;
+    const total = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+    const needsAction = orders.filter(order =>
+      ['Profil requis', 'Paiement attendu', 'A verifier', 'Brouillon'].includes(order.status.label)
+    ).length;
+
+    return { synced, needsAction, total };
   }, [orders]);
 
   return (
@@ -100,18 +347,18 @@ export default function OrdersPage() {
         <CustomerPageHeader
           eyebrow="Commandes"
           title="Mes demandes"
-          description="Retrouvez vos demandes lancees depuis ce telephone, avec la prochaine action attendue par AfricaPhone."
+          description="Suivi des commandes enregistrees chez AfricaPhone, avec reprise locale si le compte client n est pas encore connecte."
         />
 
         <section className="grid gap-3 sm:grid-cols-3">
           <StatCard label="Demandes" value={orders.length.toString()} />
-          <StatCard label="Envoyees" value={stats.created.toString()} tone="green" />
+          <StatCard label="Chez AfricaPhone" value={stats.synced.toString()} tone="green" />
           <StatCard label="Total indicatif" value={formatPrice(stats.total)} tone="orange" />
         </section>
 
         {!loaded ? (
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
-            <p className="text-sm font-bold text-slate-500">Chargement des demandes...</p>
+            <p className="text-sm font-bold text-slate-500">Chargement des commandes...</p>
           </section>
         ) : orders.length === 0 ? (
           <EmptyOrders />
@@ -119,7 +366,7 @@ export default function OrdersPage() {
           <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
             <section className="space-y-3">
               {orders.map(order => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard key={order.key} order={order} />
               ))}
             </section>
 
@@ -143,11 +390,18 @@ export default function OrdersPage() {
               </section>
 
               <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
-                <p className="text-xs font-extrabold uppercase text-[#059669]">A surveiller</p>
+                <p className="text-xs font-extrabold uppercase text-[#059669]">Suivi</p>
                 <div className="mt-4 space-y-3">
-                  <SmallStatus label="Commandes creees" value={`${stats.created} demande(s)`} />
-                  <SmallStatus label="A verifier" value={`${stats.failed} synchronisation(s)`} warning={stats.failed > 0} />
-                  <SmallStatus label="Paiement" value="Kkiapay non lance pour l instant" />
+                  <SmallStatus
+                    label="Compte client"
+                    value={isAuthenticated ? 'Connecte, suivi multi-appareil actif' : 'Non connecte, suivi limite a ce telephone'}
+                  />
+                  <SmallStatus label="A traiter" value={`${stats.needsAction} demande(s)`} warning={stats.needsAction > 0} />
+                  <SmallStatus
+                    label="Synchronisation"
+                    value={remoteError || `${stats.synced} commande(s) chargee(s) depuis AfricaPhone`}
+                    warning={Boolean(remoteError)}
+                  />
                 </div>
               </section>
             </aside>
@@ -159,8 +413,7 @@ export default function OrdersPage() {
   );
 }
 
-function OrderCard({ order }: { order: CheckoutDraft }) {
-  const status = getStatusView(order);
+function OrderCard({ order }: { order: DisplayOrder }) {
   const visibleItems = order.items.slice(0, 3);
   const hiddenCount = Math.max(0, order.items.length - visibleItems.length);
 
@@ -169,23 +422,23 @@ function OrderCard({ order }: { order: CheckoutDraft }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-extrabold uppercase text-[#059669]">{formatDate(order.createdAt)}</p>
-          <h2 className="mt-1 break-all text-xl font-black tracking-tight text-slate-950">{order.id}</h2>
+          <h2 className="mt-1 break-all text-xl font-black tracking-tight text-slate-950">{order.reference}</h2>
         </div>
-        <span className={`rounded-full px-3 py-2 text-xs font-extrabold ${status.className}`}>{status.label}</span>
+        <span className={`rounded-full px-3 py-2 text-xs font-extrabold ${order.status.className}`}>
+          {order.status.label}
+        </span>
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-[1fr_220px]">
         <div className="space-y-2">
           {visibleItems.map(item => (
-            <div key={`${order.id}-${item.id}`} className="rounded-2xl bg-slate-50 px-3 py-3">
+            <div key={`${order.key}-${item.id}`} className="rounded-2xl bg-slate-50 px-3 py-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="line-clamp-2 text-sm font-extrabold text-slate-950">{item.name}</p>
-                  <p className="text-xs font-semibold text-slate-500">Quantite : {item.qty}</p>
+                  <p className="text-xs font-semibold text-slate-500">Quantite : {item.quantity}</p>
                 </div>
-                <p className="shrink-0 text-sm font-black text-[#059669]">
-                  {formatPrice(typeof item.price === 'number' ? item.price * item.qty : null)}
-                </p>
+                <p className="shrink-0 text-sm font-black text-[#059669]">{formatPrice(item.subtotal)}</p>
               </div>
             </div>
           ))}
@@ -195,13 +448,14 @@ function OrderCard({ order }: { order: CheckoutDraft }) {
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-          <SummaryLine label="Paiement" value={PAYMENT_MODE_LABELS[order.paymentMode]} />
-          <SummaryLine label="Reception" value={FULFILLMENT_MODE_LABELS[order.fulfillmentMode]} />
+          <SummaryLine label="Paiement" value={order.paymentLabel} />
+          {order.paymentStatusLabel ? <SummaryLine label="Etat paiement" value={order.paymentStatusLabel} /> : null}
+          <SummaryLine label="Reception" value={order.fulfillmentLabel} />
           <SummaryLine label="Articles" value={`${order.totalQty}`} />
           <SummaryLine label="Total" value={formatPrice(order.totalPrice)} strong />
-          {order.fulfillmentMode === 'delivery' && order.deliveryLocation?.mapUrl ? (
+          {order.deliveryMapUrl ? (
             <a
-              href={order.deliveryLocation.mapUrl}
+              href={order.deliveryMapUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-3 flex h-10 items-center justify-center rounded-full bg-white text-xs font-extrabold text-[#059669]"
@@ -214,8 +468,8 @@ function OrderCard({ order }: { order: CheckoutDraft }) {
 
       <div className="mt-4 rounded-2xl bg-orange-50 px-3 py-3">
         <p className="text-xs font-extrabold uppercase text-orange-700">Prochaine etape</p>
-        <p className="mt-1 text-sm font-bold leading-6 text-slate-700">{status.detail}</p>
-        <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{NEXT_STEP_MESSAGES[order.paymentMode]}</p>
+        <p className="mt-1 text-sm font-bold leading-6 text-slate-700">{order.status.detail}</p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{order.nextStep}</p>
       </div>
     </article>
   );
@@ -225,7 +479,7 @@ function EmptyOrders() {
   return (
     <section className="flex min-h-[360px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
       <p className="text-xs font-extrabold uppercase text-[#059669]">Aucune demande</p>
-      <h2 className="mt-2 text-2xl font-black">Pas encore de commande locale</h2>
+      <h2 className="mt-2 text-2xl font-black">Pas encore de commande</h2>
       <p className="mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
         Choisissez un produit, passez par le checkout, puis la demande apparaitra ici automatiquement.
       </p>

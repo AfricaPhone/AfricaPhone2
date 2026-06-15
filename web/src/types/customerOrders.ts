@@ -136,6 +136,25 @@ export type CustomerOrder = {
   updatedAt: FirestoreTimestampLike;
 };
 
+export type CustomerOrderClientView = {
+  id: string;
+  status: CustomerOrderStatus;
+  paymentMode: CustomerPaymentMode;
+  paymentStatus: CustomerPaymentStatus;
+  fulfillmentMode: CustomerFulfillmentMode;
+  profileRequired: boolean;
+  customer: CustomerProfileSnapshot;
+  representative: CustomerRepresentativeSnapshot | null;
+  delivery: CustomerOrderDelivery;
+  documentIds: CustomerOrder['documentIds'];
+  items: CustomerOrderItemSnapshot[];
+  totals: CustomerOrderTotals;
+  source: 'web';
+  localDraftId: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
 export type OrderPaymentProvider = 'kkiapay';
 
 export type OrderPayment = {
