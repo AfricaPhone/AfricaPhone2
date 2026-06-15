@@ -1801,6 +1801,20 @@ function orderItemsLabel(order) {
   return `${first}${more}`;
 }
 
+function orderDeliveryLocation(order) {
+  const locationValue = order?.delivery?.location || order?.deliveryLocation;
+  const latitude = Number(locationValue?.latitude);
+  const longitude = Number(locationValue?.longitude);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+  return {
+    latitude,
+    longitude,
+    accuracy: Number.isFinite(Number(locationValue?.accuracy)) ? Math.round(Number(locationValue.accuracy)) : null,
+    mapUrl: locationValue?.mapUrl || `https://www.google.com/maps?q=${latitude},${longitude}`,
+  };
+}
+
 function renderOrderStats(items) {
   const pending = items.filter(item => ['pending_review', 'profile_required', 'payment_pending'].includes(item.status)).length;
   const kkiapay = items.filter(item => item.paymentMode === 'kkiapay_now').length;
@@ -1827,12 +1841,15 @@ function filteredCustomerOrders() {
       row => orderCustomer(row),
       row => orderWhatsapp(row),
       row => orderItemsLabel(row),
+      row => row?.delivery?.address || '',
+      row => orderDeliveryLocation(row)?.mapUrl || '',
     ]);
   });
 }
 
 function showOrderDetails(order) {
   const items = Array.isArray(order.items) ? order.items : [];
+  const deliveryLocation = orderDeliveryLocation(order);
   const rows = items.length
     ? items
       .map(item => `
@@ -1858,6 +1875,7 @@ function showOrderDetails(order) {
       </table>
       ${order.representative ? `<div class="commerce-note">Representant : ${escapeHtml(order.representative.fullName || '-')} - ${escapeHtml(order.representative.whatsapp || '-')}</div>` : ''}
       ${order.delivery?.address ? `<div class="commerce-note">Adresse : ${escapeHtml(order.delivery.address)}</div>` : ''}
+      ${deliveryLocation ? `<div class="commerce-note">Localisation : <a href="${escapeAttr(deliveryLocation.mapUrl)}" target="_blank" rel="noopener noreferrer">Ouvrir dans Maps</a>${deliveryLocation.accuracy ? ` <span class="small">Precision env. ${escapeHtml(String(deliveryLocation.accuracy))} m</span>` : ''}</div>` : ''}
     </div>`;
   openModal({ title: `Commande ${order.id}`, body, okText: 'Fermer', cancelText: 'Retour' });
 }

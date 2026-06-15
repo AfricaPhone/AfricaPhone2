@@ -13,6 +13,15 @@ export type CheckoutProfile = {
   representativePhone: string;
 };
 
+export type CheckoutDeliveryLocation = {
+  latitude: number;
+  longitude: number;
+  accuracy: number | null;
+  capturedAt: string | null;
+  mapUrl: string;
+  source: 'browser_geolocation';
+};
+
 export type CheckoutDraft = {
   id: string;
   createdAt: string;
@@ -23,6 +32,7 @@ export type CheckoutDraft = {
   totalQty: number;
   totalPrice: number;
   acceptedDeliveryFee: boolean;
+  deliveryLocation: CheckoutDeliveryLocation | null;
   documents: {
     idDocumentName: string;
     idDocumentId?: string | null;
@@ -72,13 +82,45 @@ const createDraftId = () => {
   return `AFP-${datePart}-${randomPart}`;
 };
 
-export const saveCheckoutDraft = (
-  draft: Omit<CheckoutDraft, 'id' | 'createdAt' | 'orderSync'> & Partial<Pick<CheckoutDraft, 'orderSync'>>
-) => {
+const isFiniteCoordinate = (value: unknown, min: number, max: number): value is number =>
+  typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+
+const normalizeDeliveryLocation = (value: unknown): CheckoutDeliveryLocation | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const location = value as Partial<CheckoutDeliveryLocation>;
+  if (!isFiniteCoordinate(location.latitude, -90, 90) || !isFiniteCoordinate(location.longitude, -180, 180)) {
+    return null;
+  }
+
+  const latitude = Number(location.latitude.toFixed(7));
+  const longitude = Number(location.longitude.toFixed(7));
+  const accuracy =
+    typeof location.accuracy === 'number' && Number.isFinite(location.accuracy) && location.accuracy >= 0
+      ? Math.round(location.accuracy)
+      : null;
+
+  return {
+    latitude,
+    longitude,
+    accuracy,
+    capturedAt: typeof location.capturedAt === 'string' && location.capturedAt ? location.capturedAt : null,
+    mapUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
+    source: 'browser_geolocation',
+  };
+};
+
+type CheckoutDraftInput = Omit<CheckoutDraft, 'id' | 'createdAt' | 'orderSync' | 'deliveryLocation'> &
+  Partial<Pick<CheckoutDraft, 'orderSync' | 'deliveryLocation'>>;
+
+export const saveCheckoutDraft = (draft: CheckoutDraftInput) => {
   const nextDraft: CheckoutDraft = {
     ...draft,
     id: createDraftId(),
     createdAt: new Date().toISOString(),
+    deliveryLocation: normalizeDeliveryLocation(draft.deliveryLocation),
     orderSync: draft.orderSync ?? {
       status: 'not_attempted',
       orderId: null,
@@ -110,6 +152,7 @@ const normalizeCheckoutDraft = (draft: CheckoutDraft): CheckoutDraft => {
   if (!draft.orderSync) {
     return {
       ...draft,
+      deliveryLocation: normalizeDeliveryLocation(draft.deliveryLocation),
       orderSync: {
         status: 'not_attempted',
         orderId: null,
@@ -122,6 +165,7 @@ const normalizeCheckoutDraft = (draft: CheckoutDraft): CheckoutDraft => {
 
   return {
     ...draft,
+    deliveryLocation: normalizeDeliveryLocation(draft.deliveryLocation),
     orderSync: {
       status: draft.orderSync.status,
       orderId: draft.orderSync.orderId ?? null,

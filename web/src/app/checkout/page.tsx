@@ -8,6 +8,7 @@ import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { clearCart, type CartItem, subscribeToCart } from '@/lib/cart';
 import {
+  type CheckoutDeliveryLocation,
   type CheckoutFulfillmentMode,
   type CheckoutPaymentMode,
   type CheckoutProfile,
@@ -84,6 +85,20 @@ const INITIAL_CHECKOUT_DOCUMENT_REFS: CheckoutDocumentRefs = {
   idDocumentId: '',
   contractDocumentId: '',
   representativeIdDocumentId: '',
+};
+
+const buildDeliveryLocation = (position: GeolocationPosition): CheckoutDeliveryLocation => {
+  const latitude = Number(position.coords.latitude.toFixed(7));
+  const longitude = Number(position.coords.longitude.toFixed(7));
+
+  return {
+    latitude,
+    longitude,
+    accuracy: Number.isFinite(position.coords.accuracy) ? Math.round(position.coords.accuracy) : null,
+    capturedAt: new Date(position.timestamp || Date.now()).toISOString(),
+    mapUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
+    source: 'browser_geolocation',
+  };
 };
 
 const applyCheckoutUploadResult = (
@@ -176,6 +191,9 @@ export default function CheckoutPage() {
   const [idDocumentName, setIdDocumentName] = useState('');
   const [contractName, setContractName] = useState('');
   const [representativeIdName, setRepresentativeIdName] = useState('');
+  const [deliveryLocation, setDeliveryLocation] = useState<CheckoutDeliveryLocation | null>(null);
+  const [deliveryLocationMessage, setDeliveryLocationMessage] = useState('');
+  const [isCapturingLocation, setIsCapturingLocation] = useState(false);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [storedCustomerProfile, setStoredCustomerProfile] = useState<CustomerProfileDraft | null>(null);
   const [profileLoadedFromAccount, setProfileLoadedFromAccount] = useState(false);
@@ -388,6 +406,38 @@ export default function CheckoutPage() {
     handlePrepareOrder();
   };
 
+  const handleCaptureDeliveryLocation = () => {
+    if (!navigator.geolocation) {
+      setDeliveryLocationMessage('Localisation indisponible sur ce navigateur.');
+      return;
+    }
+
+    setIsCapturingLocation(true);
+    setDeliveryLocationMessage('Recherche de votre position...');
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const nextLocation = buildDeliveryLocation(position);
+        setDeliveryLocation(nextLocation);
+        setDeliveryLocationMessage('Position ajoutee a la demande de livraison.');
+        setIsCapturingLocation(false);
+      },
+      error => {
+        setDeliveryLocationMessage(
+          error.code === error.PERMISSION_DENIED
+            ? 'Autorisez la localisation ou gardez une adresse detaillee.'
+            : 'Position impossible a obtenir. Gardez une adresse detaillee.'
+        );
+        setIsCapturingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 60000,
+        timeout: 15000,
+      }
+    );
+  };
+
   const handlePrepareOrder = async () => {
     if (!canPrepareOrder || isCreatingOrder) {
       return;
@@ -431,6 +481,7 @@ export default function CheckoutPage() {
         totalQty,
         totalPrice,
         acceptedDeliveryFee: acceptDeliveryFee,
+        deliveryLocation: fulfillmentMode === 'delivery' ? deliveryLocation : null,
         documents: {
           idDocumentName,
           idDocumentId: uploadedRefs.idDocumentId || null,
@@ -566,17 +617,51 @@ export default function CheckoutPage() {
               </div>
 
               {fulfillmentMode === 'delivery' ? (
-                <label className="mt-4 flex items-start gap-3 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={acceptDeliveryFee}
-                    onChange={event => {
-                      setAcceptDeliveryFee(event.target.checked);
-                    }}
-                    className="mt-1"
-                  />
-                  J accepte que les frais de livraison soient ajoutes selon ma zone.
-                </label>
+                <div className="mt-4 space-y-3">
+                  <label className="flex items-start gap-3 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={acceptDeliveryFee}
+                      onChange={event => {
+                        setAcceptDeliveryFee(event.target.checked);
+                      }}
+                      className="mt-1"
+                    />
+                    J accepte que les frais de livraison soient ajoutes selon ma zone.
+                  </label>
+
+                  <div className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-extrabold uppercase text-[#059669]">Position de livraison</p>
+                        <p className="mt-1 text-xs font-bold leading-5 text-slate-600">
+                          Optionnel, mais utile pour guider le livreur.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleCaptureDeliveryLocation}
+                        disabled={isCapturingLocation}
+                        className="rounded-full bg-[#059669] px-4 py-2 text-xs font-extrabold text-white transition enabled:hover:bg-[#047857] disabled:cursor-not-allowed disabled:bg-slate-300"
+                      >
+                        {isCapturingLocation ? 'Recherche...' : 'Utiliser ma position'}
+                      </button>
+                    </div>
+                    {deliveryLocation ? (
+                      <a
+                        href={deliveryLocation.mapUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex rounded-full bg-white px-3 py-2 text-xs font-extrabold text-[#059669]"
+                      >
+                        Ouvrir la position
+                      </a>
+                    ) : null}
+                    {deliveryLocationMessage ? (
+                      <p className="mt-2 text-xs font-bold leading-5 text-slate-600">{deliveryLocationMessage}</p>
+                    ) : null}
+                  </div>
+                </div>
               ) : null}
             </section>
 

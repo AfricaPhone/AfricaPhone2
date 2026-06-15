@@ -33,8 +33,37 @@ const toNullableString = (value: unknown) => {
   return cleaned.length > 0 ? cleaned : null;
 };
 
+const isFiniteCoordinate = (value: unknown, min: number, max: number): value is number =>
+  typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const normalizeDeliveryLocation = (value: unknown): CheckoutDraft['deliveryLocation'] => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  if (!isFiniteCoordinate(value.latitude, -90, 90) || !isFiniteCoordinate(value.longitude, -180, 180)) {
+    return null;
+  }
+
+  const latitude = Number(value.latitude.toFixed(7));
+  const longitude = Number(value.longitude.toFixed(7));
+  const accuracy =
+    typeof value.accuracy === 'number' && Number.isFinite(value.accuracy) && value.accuracy >= 0
+      ? Math.round(value.accuracy)
+      : null;
+
+  return {
+    latitude,
+    longitude,
+    accuracy,
+    capturedAt: toNullableString(value.capturedAt),
+    mapUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
+    source: 'browser_geolocation',
+  };
+};
 
 const normalizeItems = (items: unknown): CustomerOrderItemSnapshot[] => {
   if (!Array.isArray(items)) {
@@ -138,6 +167,8 @@ export const validateCreateOrderDraft = (payload: unknown): CreateOrderValidatio
   }
 
   const localDraftId = toCleanString(payload.id);
+  const deliveryLocation =
+    fulfillmentMode === 'delivery' ? normalizeDeliveryLocation(payload.deliveryLocation) : null;
   const totalQty = normalizedItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = normalizedItems.reduce((sum, item) => sum + (item.subtotal ?? 0), 0);
 
@@ -168,6 +199,7 @@ export const validateCreateOrderDraft = (payload: unknown): CreateOrderValidatio
       totalQty,
       totalPrice,
       acceptedDeliveryFee: payload.acceptedDeliveryFee === true,
+      deliveryLocation,
       documents: {
         idDocumentName,
         idDocumentId: idDocumentId || null,
@@ -239,6 +271,7 @@ export const buildCustomerOrderFromDraft = (params: {
       acceptedDeliveryFee: draft.acceptedDeliveryFee,
       city: toNullableString(draft.profile.city),
       address: toNullableString(draft.profile.address),
+      location: draft.fulfillmentMode === 'delivery' ? normalizeDeliveryLocation(draft.deliveryLocation) : null,
       feeStatus: draft.fulfillmentMode === 'delivery' ? 'accepted_pending_amount' : 'not_applicable',
     },
     items,

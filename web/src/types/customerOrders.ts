@@ -94,10 +94,20 @@ export type CustomerOrderTotals = {
   currency: 'XOF';
 };
 
+export type CustomerOrderDeliveryLocation = {
+  latitude: number;
+  longitude: number;
+  accuracy: number | null;
+  capturedAt: string | null;
+  mapUrl: string;
+  source: 'browser_geolocation';
+};
+
 export type CustomerOrderDelivery = {
   acceptedDeliveryFee: boolean;
   city: string | null;
   address: string | null;
+  location: CustomerOrderDeliveryLocation | null;
   feeStatus: 'not_applicable' | 'accepted_pending_amount' | 'quoted' | 'paid';
 };
 

@@ -10,6 +10,7 @@ describe('buildSecurityHeaders', () => {
     expect(headers['Strict-Transport-Security']).toBe('max-age=63072000; includeSubDomains; preload');
     expect(headers['X-Frame-Options']).toBe('DENY');
     expect(headers['X-Content-Type-Options']).toBe('nosniff');
+    expect(headers['Permissions-Policy']).toContain('geolocation=(self)');
   });
 
   it('relaxes policies for localhost development', () => {

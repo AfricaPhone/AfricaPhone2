@@ -55,7 +55,7 @@ export const buildSecurityHeaders = (options: SecurityHeadersOptions): Record<st
     'X-Frame-Options': 'DENY',
     'X-Content-Type-Options': 'nosniff',
     'Permissions-Policy':
-      'accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()',
+      'accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(self), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()',
     'Cross-Origin-Opener-Policy': 'same-origin',
     'Cross-Origin-Resource-Policy': 'cross-origin',
     'X-Permitted-Cross-Domain-Policies': 'none',

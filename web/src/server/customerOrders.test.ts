@@ -1,0 +1,77 @@
+import { buildCustomerOrderFromDraft, validateCreateOrderDraft } from './customerOrders';
+
+const validDeliveryPayload = {
+  id: 'AFP-20260615-TEST',
+  createdAt: '2026-06-15T10:00:00.000Z',
+  paymentMode: 'delivery',
+  fulfillmentMode: 'delivery',
+  profile: {
+    fullName: 'Client Test',
+    email: '',
+    whatsapp: '+2290100000000',
+    city: 'Abomey-Calavi',
+    address: 'Maison test, voie pavee, proche repere',
+    representativeName: '',
+    representativePhone: '',
+  },
+  items: [
+    {
+      id: 'product-1',
+      name: 'Telephone test',
+      price: 100000,
+      image: null,
+      tagline: 'Produit test',
+      qty: 1,
+    },
+  ],
+  totalQty: 1,
+  totalPrice: 100000,
+  acceptedDeliveryFee: true,
+  documents: {
+    idDocumentName: '',
+    idDocumentId: null,
+    contractName: '',
+    contractDocumentId: null,
+    representativeIdName: '',
+    representativeIdDocumentId: null,
+  },
+};
+
+describe('customer order creation', () => {
+  it('normalizes delivery location and stores a Maps link for the admin team', () => {
+    const validation = validateCreateOrderDraft({
+      ...validDeliveryPayload,
+      deliveryLocation: {
+        latitude: 6.370292812,
+        longitude: 2.391236212,
+        accuracy: 12.4,
+        capturedAt: '2026-06-15T10:01:00.000Z',
+        mapUrl: 'https://example.com/unsafe-client-link',
+        source: 'browser_geolocation',
+      },
+    });
+
+    expect(validation.ok).toBe(true);
+    if (!validation.ok) {
+      return;
+    }
+
+    expect(validation.draft.deliveryLocation).toEqual({
+      latitude: 6.3702928,
+      longitude: 2.3912362,
+      accuracy: 12,
+      capturedAt: '2026-06-15T10:01:00.000Z',
+      mapUrl: 'https://www.google.com/maps?q=6.3702928,2.3912362',
+      source: 'browser_geolocation',
+    });
+
+    const order = buildCustomerOrderFromDraft({
+      draft: validation.draft,
+      orderId: 'order-1',
+      now: null,
+      userId: null,
+    });
+
+    expect(order.delivery.location?.mapUrl).toBe('https://www.google.com/maps?q=6.3702928,2.3912362');
+  });
+});

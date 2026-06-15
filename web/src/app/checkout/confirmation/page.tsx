@@ -27,8 +27,8 @@ export default function CheckoutConfirmationPage() {
       <main className="mx-auto flex max-w-6xl flex-col gap-4 px-3 py-4 sm:px-4">
         <CustomerPageHeader
           eyebrow="Confirmation"
-          title="Demande provisoire"
-          description="Recapitulatif local avant creation reelle de la commande, verification boutique, paiement Kkiapay ou activation de cotisation."
+          title="Demande recue"
+          description="Recapitulatif de votre demande avant confirmation du stock, de la livraison, du retrait ou de la cotisation."
         />
 
         {!loaded ? (
@@ -50,19 +50,13 @@ export default function CheckoutConfirmationPage() {
                     {draft.orderSync.status === 'created'
                       ? draft.orderSync.profileRequired
                         ? 'Commande creee - profil requis'
-                        : 'Commande Firestore creee'
-                      : 'Synchro backend a verifier'}
+                        : 'Demande envoyee a AfricaPhone'
+                      : 'Enregistrement a reprendre'}
                   </span>
                 </div>
                 <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-                  Cette reference garde le brouillon local pour reprendre le parcours si necessaire.
+                  Cette reference permet de reprendre ou suivre la demande avec l equipe AfricaPhone.
                 </p>
-                {draft.orderSync.status === 'created' && draft.orderSync.orderId ? (
-                  <div className="mt-3 rounded-2xl bg-white px-3 py-3">
-                    <p className="text-[10px] font-extrabold uppercase text-slate-500">Commande Firestore</p>
-                    <p className="mt-1 break-all text-sm font-black text-[#059669]">{draft.orderSync.orderId}</p>
-                  </div>
-                ) : null}
                 {draft.orderSync.status === 'created' && draft.orderSync.profileRequired ? (
                   <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
                     Cette commande existe, mais le paiement ou la cotisation doit attendre un profil client identifie.
@@ -106,6 +100,16 @@ export default function CheckoutConfirmationPage() {
                   <div className="mt-3">
                     <SummaryItem label="Adresse" value={draft.profile.address} />
                   </div>
+                ) : null}
+                {draft.fulfillmentMode === 'delivery' && draft.deliveryLocation?.mapUrl ? (
+                  <a
+                    href={draft.deliveryLocation.mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex rounded-full bg-[#ECFDF5] px-4 py-2 text-xs font-extrabold text-[#059669]"
+                  >
+                    Ouvrir la position de livraison
+                  </a>
                 ) : null}
               </article>
 

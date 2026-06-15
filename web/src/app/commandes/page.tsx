@@ -100,12 +100,12 @@ export default function OrdersPage() {
         <CustomerPageHeader
           eyebrow="Commandes"
           title="Mes demandes"
-          description="Suivi local des demandes preparees depuis ce telephone. Le compte client permettra ensuite le suivi multi-appareil."
+          description="Retrouvez vos demandes lancees depuis ce telephone, avec la prochaine action attendue par AfricaPhone."
         />
 
         <section className="grid gap-3 sm:grid-cols-3">
           <StatCard label="Demandes" value={orders.length.toString()} />
-          <StatCard label="Creees" value={stats.created.toString()} tone="green" />
+          <StatCard label="Envoyees" value={stats.created.toString()} tone="green" />
           <StatCard label="Total indicatif" value={formatPrice(stats.total)} tone="orange" />
         </section>
 
@@ -170,9 +170,6 @@ function OrderCard({ order }: { order: CheckoutDraft }) {
         <div className="min-w-0">
           <p className="text-xs font-extrabold uppercase text-[#059669]">{formatDate(order.createdAt)}</p>
           <h2 className="mt-1 break-all text-xl font-black tracking-tight text-slate-950">{order.id}</h2>
-          {order.orderSync.orderId ? (
-            <p className="mt-1 break-all text-xs font-black text-[#059669]">Firestore : {order.orderSync.orderId}</p>
-          ) : null}
         </div>
         <span className={`rounded-full px-3 py-2 text-xs font-extrabold ${status.className}`}>{status.label}</span>
       </div>
@@ -202,6 +199,16 @@ function OrderCard({ order }: { order: CheckoutDraft }) {
           <SummaryLine label="Reception" value={FULFILLMENT_MODE_LABELS[order.fulfillmentMode]} />
           <SummaryLine label="Articles" value={`${order.totalQty}`} />
           <SummaryLine label="Total" value={formatPrice(order.totalPrice)} strong />
+          {order.fulfillmentMode === 'delivery' && order.deliveryLocation?.mapUrl ? (
+            <a
+              href={order.deliveryLocation.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 flex h-10 items-center justify-center rounded-full bg-white text-xs font-extrabold text-[#059669]"
+            >
+              Position livraison
+            </a>
+          ) : null}
         </div>
       </div>
 
