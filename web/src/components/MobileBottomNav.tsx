@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Catalogue', href: '/', icon: HomeIcon },
   { label: 'Panier', href: '/panier', icon: CartIcon },
   { label: 'Commandes', href: '/commandes', icon: PackageSearchIcon },
-  { label: 'Notifs', href: '/notifs', icon: BellIcon, badge: '2' },
+  { label: 'Notifs', href: '/notifs', icon: BellIcon },
   { label: 'Compte', href: '/compte', icon: UserIcon },
 ];
 
