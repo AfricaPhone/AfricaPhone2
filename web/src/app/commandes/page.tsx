@@ -4,226 +4,263 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { type CartItem, subscribeToCart } from '@/lib/cart';
+import {
+  type CheckoutDraft,
+  FULFILLMENT_MODE_LABELS,
+  getCheckoutDraft,
+  getCheckoutHistory,
+  NEXT_STEP_MESSAGES,
+  PAYMENT_MODE_LABELS,
+} from '@/lib/checkoutDraft';
 import { formatPrice } from '@/utils/formatPrice';
 
-const PAYMENT_CHOICES = [
-  {
-    title: 'Payer a la livraison',
-    description: 'Le client confirme son identite minimale, son WhatsApp et son adresse. Pas de compte complet obligatoire.',
-    tag: 'Profil leger',
-  },
-  {
-    title: 'Payer maintenant',
-    description: 'Kkiapay sera lance apres creation du profil complet pour identifier clairement le payeur.',
-    tag: 'Profil obligatoire',
-  },
-  {
-    title: 'Retrait ou representant',
-    description: 'Le client peut passer lui-meme, envoyer un representant identifie ou appeler AfricaPhone pour confirmer.',
-    tag: 'Controle retrait',
-  },
-  {
-    title: 'Cotisation',
-    description: 'Contrat signe, piece d identite, echeancier et paiements Kkiapay successifs.',
-    tag: 'Dossier complet',
-  },
-];
+type OrderStatusView = {
+  label: string;
+  detail: string;
+  className: string;
+};
 
-const ORDER_STATUSES = [
-  { label: 'En preparation', value: 'Commande recue, disponibilite a confirmer' },
-  { label: 'Paiement attendu', value: 'Kkiapay ou paiement livraison selon choix' },
-  { label: 'Pret au retrait', value: 'Client ou representant autorise peut passer' },
-  { label: 'Livre', value: 'Livraison terminee et archivee' },
-];
+const formatDate = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) {
+    return 'Date inconnue';
+  }
+
+  return new Intl.DateTimeFormat('fr-FR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+};
+
+const getStatusView = (draft: CheckoutDraft): OrderStatusView => {
+  if (draft.orderSync.status === 'created') {
+    if (draft.orderSync.profileRequired) {
+      return {
+        label: 'Profil requis',
+        detail: 'La demande existe, mais un compte client reste necessaire avant paiement ou cotisation.',
+        className: 'bg-orange-50 text-orange-700',
+      };
+    }
+
+    return {
+      label: 'Commande recue',
+      detail: 'AfricaPhone doit confirmer disponibilite, livraison ou retrait.',
+      className: 'bg-[#ECFDF5] text-[#059669]',
+    };
+  }
+
+  if (draft.orderSync.status === 'failed') {
+    return {
+      label: 'A verifier',
+      detail: draft.orderSync.error || 'La demande est sauvegardee localement, mais la synchronisation doit etre reprise.',
+      className: 'bg-rose-50 text-rose-700',
+    };
+  }
+
+  return {
+    label: 'Brouillon',
+    detail: 'La demande est locale et doit etre finalisee dans le checkout.',
+    className: 'bg-slate-100 text-slate-600',
+  };
+};
+
+const getUniqueOrders = (orders: CheckoutDraft[]) => {
+  const seen = new Set<string>();
+  return orders.filter(order => {
+    if (seen.has(order.id)) {
+      return false;
+    }
+    seen.add(order.id);
+    return true;
+  });
+};
 
 export default function OrdersPage() {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [deliveryMode, setDeliveryMode] = useState('delivery');
-  const [representative, setRepresentative] = useState('');
-  const [acceptDeliveryFee, setAcceptDeliveryFee] = useState(false);
+  const [orders, setOrders] = useState<CheckoutDraft[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => subscribeToCart(setItems), []);
+  useEffect(() => {
+    const latestDraft = getCheckoutDraft();
+    const history = getCheckoutHistory();
+    setOrders(getUniqueOrders(latestDraft ? [latestDraft, ...history] : history));
+    setLoaded(true);
+  }, []);
 
-  const totalQty = useMemo(() => items.reduce((sum, item) => sum + item.qty, 0), [items]);
-  const totalPrice = useMemo(
-    () => items.reduce((sum, item) => sum + (typeof item.price === 'number' ? item.price * item.qty : 0), 0),
-    [items]
-  );
+  const stats = useMemo(() => {
+    const created = orders.filter(order => order.orderSync.status === 'created').length;
+    const failed = orders.filter(order => order.orderSync.status === 'failed').length;
+    const total = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+
+    return { created, failed, total };
+  }, [orders]);
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-950">
       <main className="mx-auto flex max-w-6xl flex-col gap-4 px-3 py-4 sm:px-4">
         <CustomerPageHeader
           eyebrow="Commandes"
-          title="Suivi et choix de paiement"
-          description="Cet espace prepare le futur checkout : livraison, paiement a la livraison, paiement Kkiapay, retrait boutique, representant et cotisation."
+          title="Mes demandes"
+          description="Suivi local des demandes preparees depuis ce telephone. Le compte client permettra ensuite le suivi multi-appareil."
         />
 
-        <section className="grid gap-3 md:grid-cols-4">
-          {PAYMENT_CHOICES.map(choice => (
-            <article key={choice.title} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
-              <p className="text-xs font-extrabold uppercase text-[#059669]">{choice.tag}</p>
-              <h2 className="mt-2 text-base font-black text-slate-950">{choice.title}</h2>
-              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{choice.description}</p>
-            </article>
-          ))}
+        <section className="grid gap-3 sm:grid-cols-3">
+          <StatCard label="Demandes" value={orders.length.toString()} />
+          <StatCard label="Creees" value={stats.created.toString()} tone="green" />
+          <StatCard label="Total indicatif" value={formatPrice(stats.total)} tone="orange" />
         </section>
 
-        <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
-          <section className="space-y-4">
-            <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-extrabold uppercase text-[#059669]">Panier courant</p>
-                  <h2 className="mt-1 text-xl font-black">Preparation de commande</h2>
-                </div>
-                <Link
-                  href="/panier"
-                  className="rounded-full border border-[#059669]/20 bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]"
-                >
-                  Modifier
-                </Link>
-              </div>
+        {!loaded ? (
+          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
+            <p className="text-sm font-bold text-slate-500">Chargement des demandes...</p>
+          </section>
+        ) : orders.length === 0 ? (
+          <EmptyOrders />
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+            <section className="space-y-3">
+              {orders.map(order => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+            </section>
 
-              {items.length === 0 ? (
-                <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center">
-                  <p className="text-sm font-extrabold text-slate-950">Aucune selection en attente.</p>
-                  <Link href="/" className="mt-3 inline-flex rounded-full bg-[#059669] px-4 py-2 text-xs font-extrabold text-white">
-                    Choisir des produits
+            <aside className="space-y-4">
+              <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+                <p className="text-xs font-extrabold uppercase text-[#059669]">Actions</p>
+                <div className="mt-4 grid gap-3">
+                  <Link
+                    href="/"
+                    className="flex h-11 items-center justify-center rounded-2xl bg-[#059669] text-sm font-extrabold text-white"
+                  >
+                    Nouvelle selection
+                  </Link>
+                  <Link
+                    href="/checkout"
+                    className="flex h-11 items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white"
+                  >
+                    Reprendre checkout
                   </Link>
                 </div>
-              ) : (
+              </section>
+
+              <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+                <p className="text-xs font-extrabold uppercase text-[#059669]">A surveiller</p>
                 <div className="mt-4 space-y-3">
-                  {items.map(item => (
-                    <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-extrabold text-slate-950">{item.name}</p>
-                        <p className="text-xs font-semibold text-slate-500">Quantite : {item.qty}</p>
-                      </div>
-                      <p className="text-sm font-black text-[#059669]">{formatPrice(item.price)}</p>
-                    </div>
-                  ))}
+                  <SmallStatus label="Commandes creees" value={`${stats.created} demande(s)`} />
+                  <SmallStatus label="A verifier" value={`${stats.failed} synchronisation(s)`} warning={stats.failed > 0} />
+                  <SmallStatus label="Paiement" value="Kkiapay non lance pour l instant" />
                 </div>
-              )}
-            </article>
-
-            <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
-              <p className="text-xs font-extrabold uppercase text-[#059669]">Livraison et retrait</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <OptionCard
-                  active={deliveryMode === 'delivery'}
-                  title="Livraison"
-                  description="Le client accepte les frais selon la zone."
-                  onClick={() => setDeliveryMode('delivery')}
-                />
-                <OptionCard
-                  active={deliveryMode === 'pickup'}
-                  title="Retrait client"
-                  description="Le client passe en boutique apres confirmation."
-                  onClick={() => setDeliveryMode('pickup')}
-                />
-                <OptionCard
-                  active={deliveryMode === 'representative'}
-                  title="Representant"
-                  description="Identite du representant a confirmer."
-                  onClick={() => setDeliveryMode('representative')}
-                />
-              </div>
-
-              {deliveryMode === 'delivery' ? (
-                <label className="mt-4 flex items-start gap-3 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={acceptDeliveryFee}
-                    onChange={event => setAcceptDeliveryFee(event.target.checked)}
-                    className="mt-1"
-                  />
-                  J accepte que les frais de livraison soient ajoutes selon ma zone.
-                </label>
-              ) : null}
-
-              {deliveryMode === 'representative' ? (
-                <label className="mt-4 block">
-                  <span className="text-xs font-extrabold uppercase text-slate-500">Nom du representant</span>
-                  <input
-                    value={representative}
-                    onChange={event => setRepresentative(event.target.value)}
-                    placeholder="Nom complet et telephone si possible"
-                    className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold outline-none focus:border-[#059669] focus:bg-white"
-                  />
-                  <span className="mt-2 block text-xs font-semibold text-slate-500">
-                    L import de sa piece d identite sera ajoute au moment du branchement documents.
-                  </span>
-                </label>
-              ) : null}
-            </article>
-          </section>
-
-          <aside className="space-y-4">
-            <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
-              <p className="text-xs font-extrabold uppercase text-[#059669]">Resume</p>
-              <div className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
-                <div className="flex justify-between">
-                  <span>Articles</span>
-                  <span className="font-black text-slate-950">{totalQty}</span>
-                </div>
-                <div className="flex justify-between border-t border-slate-200 pt-3">
-                  <span>Total indicatif</span>
-                  <span className="font-black text-[#059669]">{formatPrice(totalPrice)}</span>
-                </div>
-              </div>
-              <Link
-                href="/checkout"
-                className="mt-5 flex h-12 w-full items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white"
-              >
-                Continuer le checkout
-              </Link>
-              <p className="mt-2 text-xs font-semibold text-slate-500">
-                Le paiement reel sera branche apres validation du parcours.
-              </p>
-            </section>
-
-            <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
-              <p className="text-xs font-extrabold uppercase text-[#059669]">Statuts prevus</p>
-              <div className="mt-3 space-y-2">
-                {ORDER_STATUSES.map(status => (
-                  <div key={status.label} className="rounded-2xl bg-slate-50 px-3 py-3">
-                    <p className="text-sm font-black text-slate-950">{status.label}</p>
-                    <p className="text-xs font-semibold text-slate-500">{status.value}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </aside>
-        </div>
+              </section>
+            </aside>
+          </div>
+        )}
       </main>
       <MobileBottomNav />
     </div>
   );
 }
 
-function OptionCard({
-  active,
-  title,
-  description,
-  onClick,
-}: {
-  active: boolean;
-  title: string;
-  description: string;
-  onClick: () => void;
-}) {
+function OrderCard({ order }: { order: CheckoutDraft }) {
+  const status = getStatusView(order);
+  const visibleItems = order.items.slice(0, 3);
+  const hiddenCount = Math.max(0, order.items.length - visibleItems.length);
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-2xl border px-3 py-3 text-left transition ${
-        active ? 'border-[#059669] bg-[#ECFDF5] text-[#059669]' : 'border-slate-200 bg-slate-50 text-slate-600'
-      }`}
-    >
-      <span className="block text-sm font-black">{title}</span>
-      <span className="mt-1 block text-xs font-semibold leading-5">{description}</span>
-    </button>
+    <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-extrabold uppercase text-[#059669]">{formatDate(order.createdAt)}</p>
+          <h2 className="mt-1 break-all text-xl font-black tracking-tight text-slate-950">{order.id}</h2>
+          {order.orderSync.orderId ? (
+            <p className="mt-1 break-all text-xs font-black text-[#059669]">Firestore : {order.orderSync.orderId}</p>
+          ) : null}
+        </div>
+        <span className={`rounded-full px-3 py-2 text-xs font-extrabold ${status.className}`}>{status.label}</span>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-[1fr_220px]">
+        <div className="space-y-2">
+          {visibleItems.map(item => (
+            <div key={`${order.id}-${item.id}`} className="rounded-2xl bg-slate-50 px-3 py-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="line-clamp-2 text-sm font-extrabold text-slate-950">{item.name}</p>
+                  <p className="text-xs font-semibold text-slate-500">Quantite : {item.qty}</p>
+                </div>
+                <p className="shrink-0 text-sm font-black text-[#059669]">
+                  {formatPrice(typeof item.price === 'number' ? item.price * item.qty : null)}
+                </p>
+              </div>
+            </div>
+          ))}
+          {hiddenCount > 0 ? (
+            <p className="px-3 text-xs font-bold text-slate-500">+{hiddenCount} autre(s) article(s)</p>
+          ) : null}
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <SummaryLine label="Paiement" value={PAYMENT_MODE_LABELS[order.paymentMode]} />
+          <SummaryLine label="Reception" value={FULFILLMENT_MODE_LABELS[order.fulfillmentMode]} />
+          <SummaryLine label="Articles" value={`${order.totalQty}`} />
+          <SummaryLine label="Total" value={formatPrice(order.totalPrice)} strong />
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl bg-orange-50 px-3 py-3">
+        <p className="text-xs font-extrabold uppercase text-orange-700">Prochaine etape</p>
+        <p className="mt-1 text-sm font-bold leading-6 text-slate-700">{status.detail}</p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{NEXT_STEP_MESSAGES[order.paymentMode]}</p>
+      </div>
+    </article>
+  );
+}
+
+function EmptyOrders() {
+  return (
+    <section className="flex min-h-[360px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
+      <p className="text-xs font-extrabold uppercase text-[#059669]">Aucune demande</p>
+      <h2 className="mt-2 text-2xl font-black">Pas encore de commande locale</h2>
+      <p className="mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
+        Choisissez un produit, passez par le checkout, puis la demande apparaitra ici automatiquement.
+      </p>
+      <Link href="/" className="mt-5 rounded-full bg-[#059669] px-5 py-2.5 text-sm font-extrabold text-white">
+        Voir le catalogue
+      </Link>
+    </section>
+  );
+}
+
+function StatCard({ label, value, tone = 'slate' }: { label: string; value: string; tone?: 'slate' | 'green' | 'orange' }) {
+  const toneClass =
+    tone === 'green'
+      ? 'border-[#059669]/20 bg-[#ECFDF5] text-[#059669]'
+      : tone === 'orange'
+        ? 'border-orange-200 bg-orange-50 text-orange-700'
+        : 'border-slate-200 bg-white text-slate-950';
+
+  return (
+    <article className={`rounded-3xl border p-4 shadow-sm shadow-slate-200/70 ${toneClass}`}>
+      <p className="text-xs font-extrabold uppercase opacity-80">{label}</p>
+      <p className="mt-2 text-2xl font-black">{value}</p>
+    </article>
+  );
+}
+
+function SummaryLine({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className="flex items-start justify-between gap-3 border-b border-slate-200 py-2 last:border-b-0">
+      <span className="text-xs font-bold text-slate-500">{label}</span>
+      <span className={`text-right text-xs ${strong ? 'font-black text-[#059669]' : 'font-extrabold text-slate-950'}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function SmallStatus({ label, value, warning = false }: { label: string; value: string; warning?: boolean }) {
+  return (
+    <div className={`rounded-2xl px-3 py-3 ${warning ? 'bg-rose-50' : 'bg-slate-50'}`}>
+      <p className={`text-sm font-black ${warning ? 'text-rose-700' : 'text-slate-950'}`}>{label}</p>
+      <p className="mt-1 text-xs font-semibold text-slate-500">{value}</p>
+    </div>
   );
 }

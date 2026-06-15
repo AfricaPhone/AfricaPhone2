@@ -13,6 +13,7 @@ import {
   type CheckoutProfile,
   saveCheckoutDraft,
   updateCheckoutDraftOrderSync,
+  upsertCheckoutHistory,
 } from '@/lib/checkoutDraft';
 import {
   getCustomerDocumentAccept,
@@ -463,21 +464,23 @@ export default function CheckoutPage() {
       } | null;
 
       if (!response.ok || !responseBody?.orderId) {
-        updateCheckoutDraftOrderSync(draft, {
+        const syncedDraft = updateCheckoutDraftOrderSync(draft, {
           status: 'failed',
           orderId: null,
           createdAt: null,
           error: responseBody?.message || 'Creation de commande indisponible.',
           profileRequired: false,
         });
+        upsertCheckoutHistory(syncedDraft);
       } else {
-        updateCheckoutDraftOrderSync(draft, {
+        const syncedDraft = updateCheckoutDraftOrderSync(draft, {
           status: 'created',
           orderId: responseBody.orderId,
           createdAt: responseBody.createdAt || new Date().toISOString(),
           error: null,
           profileRequired: responseBody.profileRequired === true,
         });
+        upsertCheckoutHistory(syncedDraft);
         clearCart();
       }
       router.push('/checkout/confirmation');
@@ -489,13 +492,14 @@ export default function CheckoutPage() {
           : 'Creation de commande indisponible. Reessayez apres verification du serveur.'
       );
       if (draft) {
-        updateCheckoutDraftOrderSync(draft, {
+        const syncedDraft = updateCheckoutDraftOrderSync(draft, {
           status: 'failed',
           orderId: null,
           createdAt: null,
           error: 'Creation de commande indisponible.',
           profileRequired: false,
         });
+        upsertCheckoutHistory(syncedDraft);
         router.push('/checkout/confirmation');
       }
     } finally {

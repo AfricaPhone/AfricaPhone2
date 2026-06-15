@@ -41,6 +41,8 @@ export type CheckoutDraft = {
 };
 
 export const CHECKOUT_DRAFT_STORAGE_KEY = 'africaphone_checkout_draft';
+export const CHECKOUT_HISTORY_STORAGE_KEY = 'africaphone_checkout_history';
+const CHECKOUT_HISTORY_LIMIT = 30;
 
 export const PAYMENT_MODE_LABELS: Record<CheckoutPaymentMode, string> = {
   delivery: 'Payer a la livraison',
@@ -104,6 +106,83 @@ export const persistCheckoutDraft = (draft: CheckoutDraft) => {
 export const updateCheckoutDraftOrderSync = (draft: CheckoutDraft, orderSync: CheckoutDraft['orderSync']) =>
   persistCheckoutDraft({ ...draft, orderSync });
 
+const normalizeCheckoutDraft = (draft: CheckoutDraft): CheckoutDraft => {
+  if (!draft.orderSync) {
+    return {
+      ...draft,
+      orderSync: {
+        status: 'not_attempted',
+        orderId: null,
+        createdAt: null,
+        error: null,
+        profileRequired: false,
+      },
+    };
+  }
+
+  return {
+    ...draft,
+    orderSync: {
+      status: draft.orderSync.status,
+      orderId: draft.orderSync.orderId ?? null,
+      createdAt: draft.orderSync.createdAt ?? null,
+      error: draft.orderSync.error ?? null,
+      profileRequired: draft.orderSync.profileRequired === true,
+    },
+  };
+};
+
+const isStoredCheckoutDraft = (value: unknown): value is CheckoutDraft => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as CheckoutDraft).id === 'string' &&
+    typeof (value as CheckoutDraft).createdAt === 'string' &&
+    Array.isArray((value as CheckoutDraft).items)
+  );
+};
+
+export const getCheckoutHistory = (): CheckoutDraft[] => {
+  if (!isBrowser()) {
+    return [];
+  }
+
+  try {
+    const raw = window.localStorage.getItem(CHECKOUT_HISTORY_STORAGE_KEY);
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .filter(isStoredCheckoutDraft)
+      .map(normalizeCheckoutDraft)
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(0, CHECKOUT_HISTORY_LIMIT);
+  } catch {
+    return [];
+  }
+};
+
+export const upsertCheckoutHistory = (draft: CheckoutDraft) => {
+  if (!isBrowser()) {
+    return normalizeCheckoutDraft(draft);
+  }
+
+  const normalizedDraft = normalizeCheckoutDraft(draft);
+  const nextHistory = [
+    normalizedDraft,
+    ...getCheckoutHistory().filter(historyDraft => historyDraft.id !== normalizedDraft.id),
+  ].slice(0, CHECKOUT_HISTORY_LIMIT);
+
+  window.localStorage.setItem(CHECKOUT_HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
+  return normalizedDraft;
+};
+
 export const getCheckoutDraft = (): CheckoutDraft | null => {
   if (!isBrowser()) {
     return null;
@@ -120,22 +199,7 @@ export const getCheckoutDraft = (): CheckoutDraft | null => {
       return null;
     }
 
-    const draft = parsed as CheckoutDraft;
-    if (!draft.orderSync) {
-      draft.orderSync = {
-        status: 'not_attempted',
-        orderId: null,
-        createdAt: null,
-        error: null,
-        profileRequired: false,
-      };
-    }
-
-    if (typeof draft.orderSync.profileRequired !== 'boolean') {
-      draft.orderSync.profileRequired = false;
-    }
-
-    return draft;
+    return normalizeCheckoutDraft(parsed as CheckoutDraft);
   } catch {
     return null;
   }
