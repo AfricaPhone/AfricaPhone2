@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import {
   createUserWithEmailAndPassword,
@@ -31,6 +32,7 @@ import type { CustomerDocumentType } from '@/types/customerOrders';
 type ProfileTextField = 'fullName' | 'email' | 'whatsapp' | 'address' | 'city';
 type ProfileFileField = 'photoName' | 'idDocumentName' | 'contractName';
 type UploadStatus = 'idle' | 'selected' | 'uploading' | 'uploaded' | 'failed';
+type StatusTone = 'green' | 'orange' | 'slate';
 type UploadState = {
   status: UploadStatus;
   message: string;
@@ -100,23 +102,89 @@ const applyProfileUploadResult = (
   };
 };
 
-const PROFILE_LEVELS = [
-  {
-    title: 'Visiteur libre',
-    description: 'Catalogue, panier et demande WhatsApp restent accessibles sans compte.',
-    required: 'Aucune creation de compte',
-  },
-  {
-    title: 'Achat avec paiement',
-    description: 'Profil obligatoire avant Kkiapay pour identifier clairement le payeur.',
-    required: 'Identite, email, WhatsApp, adresse',
-  },
-  {
-    title: 'Cotisation',
-    description: 'Profil complet et documents obligatoires avant activation du contrat.',
-    required: 'Piece d identite et contrat signe',
-  },
-];
+const getInitials = (name: string) => {
+  const parts = name
+    .split(' ')
+    .map(part => part.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) {
+    return 'AP';
+  }
+
+  return parts
+    .slice(0, 2)
+    .map(part => part[0]?.toUpperCase() ?? '')
+    .join('');
+};
+
+const getProfileStage = (profileReadiness: ReturnType<typeof getCustomerProfileReadiness>) => {
+  if (profileReadiness.cotisationReady) {
+    return {
+      title: 'Pret cotisation',
+      description: 'Profil complet, piece et contrat disponibles.',
+      tone: 'green' as const,
+    };
+  }
+
+  if (profileReadiness.fullReady) {
+    return {
+      title: 'Pret Kkiapay',
+      description: 'Identite complete pour paiement en ligne.',
+      tone: 'green' as const,
+    };
+  }
+
+  if (profileReadiness.lightReady) {
+    return {
+      title: 'Profil leger',
+      description: 'Suffisant pour payer a la livraison.',
+      tone: 'orange' as const,
+    };
+  }
+
+  return {
+    title: 'A completer',
+    description: 'Nom et WhatsApp sont requis pour demarrer.',
+    tone: 'slate' as const,
+  };
+};
+
+const getNextProfileStep = (profileReadiness: ReturnType<typeof getCustomerProfileReadiness>) => {
+  if (!profileReadiness.lightReady) {
+    return {
+      title: 'Identite minimale',
+      items: profileReadiness.missingLight,
+      actionHref: '#profile-form',
+      actionLabel: 'Completer',
+    };
+  }
+
+  if (!profileReadiness.fullReady) {
+    return {
+      title: 'Paiement Kkiapay',
+      items: profileReadiness.missingFull,
+      actionHref: '#profile-form',
+      actionLabel: 'Completer',
+    };
+  }
+
+  if (!profileReadiness.cotisationReady) {
+    return {
+      title: 'Cotisation',
+      items: profileReadiness.missingCotisation,
+      actionHref: '#profile-documents',
+      actionLabel: 'Documents',
+    };
+  }
+
+  return {
+    title: 'Profil complet',
+    items: [],
+    actionHref: '/checkout',
+    actionLabel: 'Checkout',
+  };
+};
 
 export default function AccountPage() {
   const [profile, setProfile] = useState<CustomerProfileDraft>(INITIAL_CUSTOMER_PROFILE);
@@ -182,6 +250,14 @@ export default function AccountPage() {
   }, []);
 
   const profileReadiness = useMemo(() => getCustomerProfileReadiness(profile), [profile]);
+  const profileStage = useMemo(() => getProfileStage(profileReadiness), [profileReadiness]);
+  const nextProfileStep = useMemo(() => getNextProfileStep(profileReadiness), [profileReadiness]);
+  const documentsReadyCount = [
+    profile.photoName || profile.photoDocumentId,
+    profile.idDocumentName || profile.idDocumentId,
+    profile.contractName || profile.contractDocumentId,
+  ].filter(Boolean).length;
+  const sessionLabel = !authReady ? 'Verification' : authUser ? 'Connecte' : 'Local';
 
   const updateField = (field: ProfileTextField) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSaved(false);
@@ -337,32 +413,45 @@ export default function AccountPage() {
         <CustomerPageHeader
           eyebrow="Compte"
           title="Profil client"
-          description="La creation du profil reste progressive : elle devient obligatoire seulement quand un paiement, une cotisation, un document ou un retrait par representant entre en jeu."
+          description="Identite, documents et statut du compte pour achat, Kkiapay, livraison et cotisation."
         />
 
-        <section className="grid gap-3 md:grid-cols-3">
-          {PROFILE_LEVELS.map(level => (
-            <article
-              key={level.title}
-              className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70"
-            >
-              <p className="text-xs font-extrabold uppercase text-[#059669]">{level.title}</p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{level.description}</p>
-              <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]">
-                {level.required}
-              </p>
-            </article>
-          ))}
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatusCard eyebrow="Profil" title={profileStage.title} description={profileStage.description} tone={profileStage.tone} />
+          <StatusCard
+            eyebrow="Kkiapay"
+            title={profileReadiness.fullReady ? 'Autorise' : 'Bloque'}
+            description={profileReadiness.fullReady ? 'Identite complete disponible.' : 'Email, ville et adresse requis.'}
+            tone={profileReadiness.fullReady ? 'green' : 'orange'}
+          />
+          <StatusCard
+            eyebrow="Cotisation"
+            title={profileReadiness.cotisationReady ? 'Pret' : 'Documents'}
+            description={`${documentsReadyCount}/3 element(s) client disponibles.`}
+            tone={profileReadiness.cotisationReady ? 'green' : 'slate'}
+          />
+          <StatusCard
+            eyebrow="Session"
+            title={sessionLabel}
+            description={authUser ? 'Suivi multi-appareil actif.' : 'Profil conserve sur ce telephone.'}
+            tone={authUser ? 'green' : 'slate'}
+          />
         </section>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
           <form
+            id="profile-form"
             onSubmit={handleSubmit}
             className="space-y-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70"
           >
-            <div>
-              <p className="text-xs font-extrabold uppercase text-[#059669]">Identite du client</p>
-              <h2 className="mt-1 text-xl font-black">Informations a valider avant paiement</h2>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#059669] text-lg font-black text-white">
+                {getInitials(profile.fullName)}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-extrabold uppercase text-[#059669]">Identite du client</p>
+                <h2 className="mt-1 text-xl font-black">Informations a valider</h2>
+              </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -405,7 +494,7 @@ export default function AccountPage() {
               />
             </label>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div id="profile-documents" className="grid gap-3 sm:grid-cols-3">
               <FileField
                 label="Photo profil"
                 fileName={profile.photoName}
@@ -550,6 +639,26 @@ export default function AccountPage() {
                 <ReadinessItem ready={profileReadiness.fullReady} label="Paiement Kkiapay : profil complet" />
                 <ReadinessItem ready={profileReadiness.cotisationReady} label="Cotisation : identite et contrat" />
               </ul>
+              <div className="mt-4 rounded-2xl bg-orange-50 px-3 py-3">
+                <p className="text-xs font-extrabold uppercase text-orange-700">{nextProfileStep.title}</p>
+                {nextProfileStep.items.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {nextProfileStep.items.map(item => (
+                      <span key={item} className="rounded-full bg-white px-3 py-1.5 text-xs font-extrabold text-orange-700">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm font-bold text-slate-700">Toutes les informations importantes sont disponibles.</p>
+                )}
+                <Link
+                  href={nextProfileStep.actionHref}
+                  className="mt-3 inline-flex rounded-full bg-[#F97316] px-4 py-2 text-xs font-extrabold text-white"
+                >
+                  {nextProfileStep.actionLabel}
+                </Link>
+              </div>
               {profile.updatedAt ? (
                 <p className="mt-4 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
                   Derniere sauvegarde locale : {new Date(profile.updatedAt).toLocaleString('fr-FR')}
@@ -560,19 +669,62 @@ export default function AccountPage() {
                   Synchronise Firebase : {new Date(profile.firestoreSyncedAt).toLocaleString('fr-FR')}
                 </p>
               ) : null}
-              {profile.idDocumentId || profile.contractDocumentId || profile.photoDocumentId ? (
-                <div className="mt-3 space-y-2 rounded-2xl bg-slate-50 px-3 py-3 text-xs font-bold text-slate-600">
-                  {profile.photoDocumentId ? <p>Photo envoyee : {profile.photoDocumentId}</p> : null}
-                  {profile.idDocumentId ? <p>Piece envoyee : {profile.idDocumentId}</p> : null}
-                  {profile.contractDocumentId ? <p>Contrat envoye : {profile.contractDocumentId}</p> : null}
-                </div>
-              ) : null}
+              <div className="mt-4 grid gap-2">
+                <DocumentStatus label="Photo" ready={Boolean(profile.photoName || profile.photoDocumentId)} />
+                <DocumentStatus label="Piece d identite" ready={Boolean(profile.idDocumentName || profile.idDocumentId)} />
+                <DocumentStatus label="Contrat signe" ready={Boolean(profile.contractName || profile.contractDocumentId)} />
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-[#059669]/15 bg-[#ECFDF5] p-4">
+              <p className="text-xs font-extrabold uppercase text-[#059669]">Acces rapides</p>
+              <div className="mt-4 grid gap-2">
+                <Link
+                  href="/checkout"
+                  className="flex h-11 items-center justify-center rounded-2xl bg-[#059669] text-sm font-extrabold text-white"
+                >
+                  Checkout
+                </Link>
+                <Link
+                  href="/commandes"
+                  className="flex h-11 items-center justify-center rounded-2xl bg-white text-sm font-extrabold text-[#059669]"
+                >
+                  Commandes
+                </Link>
+              </div>
             </section>
           </aside>
         </div>
       </main>
       <MobileBottomNav />
     </div>
+  );
+}
+
+function StatusCard({
+  eyebrow,
+  title,
+  description,
+  tone,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  tone: StatusTone;
+}) {
+  const toneClass =
+    tone === 'green'
+      ? 'border-[#059669]/20 bg-[#ECFDF5] text-[#059669]'
+      : tone === 'orange'
+        ? 'border-orange-200 bg-orange-50 text-orange-700'
+        : 'border-slate-200 bg-white text-slate-950';
+
+  return (
+    <article className={`rounded-3xl border p-4 shadow-sm shadow-slate-200/70 ${toneClass}`}>
+      <p className="text-xs font-extrabold uppercase opacity-80">{eyebrow}</p>
+      <p className="mt-2 text-xl font-black">{title}</p>
+      <p className="mt-2 text-xs font-bold leading-5 opacity-80">{description}</p>
+    </article>
   );
 }
 
@@ -635,6 +787,17 @@ function FileField({
         </span>
       ) : null}
     </label>
+  );
+}
+
+function DocumentStatus({ label, ready }: { label: string; ready: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-3">
+      <span className="text-xs font-extrabold text-slate-600">{label}</span>
+      <span className={`rounded-full px-3 py-1.5 text-[11px] font-black ${ready ? 'bg-[#ECFDF5] text-[#059669]' : 'bg-slate-200 text-slate-500'}`}>
+        {ready ? 'Disponible' : 'Manquant'}
+      </span>
+    </div>
   );
 }
 
