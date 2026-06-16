@@ -47,15 +47,15 @@ const PROFILE_FILE_CONFIG: Record<
 > = {
   photoName: {
     documentType: 'profile_photo',
-    selectedMessage: 'Photo selectionnee, upload apres connexion.',
+    selectedMessage: 'Photo selectionnee, envoi apres connexion.',
   },
   idDocumentName: {
     documentType: 'identity_card',
-    selectedMessage: 'Piece selectionnee, upload apres connexion.',
+    selectedMessage: 'Piece selectionnee, envoi apres connexion.',
   },
   contractName: {
     documentType: 'signed_contract',
-    selectedMessage: 'Contrat selectionne, upload apres connexion.',
+    selectedMessage: 'Contrat selectionne, envoi apres connexion.',
   },
 };
 
@@ -129,8 +129,8 @@ const getProfileStage = (profileReadiness: ReturnType<typeof getCustomerProfileR
 
   if (profileReadiness.fullReady) {
     return {
-      title: 'Pret Kkiapay',
-      description: 'Identite complete pour paiement en ligne.',
+      title: 'Pret paiement',
+      description: 'Informations completes pour payer en ligne.',
       tone: 'green' as const,
     };
   }
@@ -162,7 +162,7 @@ const getNextProfileStep = (profileReadiness: ReturnType<typeof getCustomerProfi
 
   if (!profileReadiness.fullReady) {
     return {
-      title: 'Paiement Kkiapay',
+      title: 'Paiement en ligne',
       items: profileReadiness.missingFull,
       actionHref: '#profile-form',
       actionLabel: 'Completer',
@@ -233,12 +233,12 @@ export default function AccountPage() {
           setProfile(prev => ({ ...prev, ...remoteProfile }));
           saveCustomerProfileDraft(remoteProfile);
           setSaved(true);
-          setAuthMessage('Profil Firestore charge.');
+          setAuthMessage('Profil du compte charge.');
         }
       } catch (error) {
         console.error('account: unable to load customer profile', error);
         if (active) {
-          setAuthError('Compte connecte, mais le profil distant n a pas pu etre charge.');
+          setAuthError('Compte connecte, mais les informations du profil n ont pas pu etre chargees.');
         }
       }
     });
@@ -252,12 +252,7 @@ export default function AccountPage() {
   const profileReadiness = useMemo(() => getCustomerProfileReadiness(profile), [profile]);
   const profileStage = useMemo(() => getProfileStage(profileReadiness), [profileReadiness]);
   const nextProfileStep = useMemo(() => getNextProfileStep(profileReadiness), [profileReadiness]);
-  const documentsReadyCount = [
-    profile.photoName || profile.photoDocumentId,
-    profile.idDocumentName || profile.idDocumentId,
-    profile.contractName || profile.contractDocumentId,
-  ].filter(Boolean).length;
-  const sessionLabel = !authReady ? 'Verification' : authUser ? 'Connecte' : 'Local';
+  const accountLabel = !authReady ? 'Verification' : authUser ? 'Connecte' : 'A connecter';
 
   const updateField = (field: ProfileTextField) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSaved(false);
@@ -288,7 +283,7 @@ export default function AccountPage() {
 
       setUploadStates(prev => ({
         ...prev,
-        [field]: { status: 'uploading', message: 'Upload Firebase en cours...' },
+        [field]: { status: 'uploading', message: 'Envoi du document...' },
       }));
 
       try {
@@ -308,7 +303,7 @@ export default function AccountPage() {
           ...prev,
           [field]: {
             status: 'failed',
-            message: error instanceof Error ? error.message : 'Upload impossible pour ce document.',
+            message: error instanceof Error ? error.message : 'Envoi impossible pour ce document.',
           },
         }));
         throw error;
@@ -326,11 +321,11 @@ export default function AccountPage() {
       setProfile(syncedProfile);
       setSelectedFiles(INITIAL_PROFILE_FILES);
       setSaved(true);
-      setAuthMessage('Profil synchronise avec le compte client.');
+      setAuthMessage('Profil enregistre dans votre compte.');
       setAuthError('');
     } catch (error) {
       console.error('account: unable to sync customer profile', error);
-      setAuthError('Profil local enregistre, mais synchronisation Firebase impossible pour le moment.');
+      setAuthError('Profil local enregistre, mais mise a jour du compte impossible pour le moment.');
     } finally {
       setIsSyncingProfile(false);
     }
@@ -343,7 +338,7 @@ export default function AccountPage() {
     setSaved(true);
     setAuthMessage(
       authUser
-        ? 'Profil local enregistre. Synchronisation en cours...'
+        ? 'Profil enregistre. Mise a jour du compte en cours...'
         : 'Profil local enregistre. Connectez le compte pour envoyer les documents.'
     );
 
@@ -380,12 +375,12 @@ export default function AccountPage() {
       const localProfile = saveCustomerProfileDraft({ ...profile, email });
       setProfile(localProfile);
       await syncProfile(credential.user, localProfile);
-      setAuthMessage(authMode === 'sign_up' ? 'Compte client cree et profil synchronise.' : 'Compte client connecte.');
+      setAuthMessage(authMode === 'sign_up' ? 'Compte client cree et profil enregistre.' : 'Compte client connecte.');
     } catch (error) {
       console.error('account: auth failed', error);
       setAuthError(
         authMode === 'sign_up'
-          ? 'Creation du compte impossible. Verifiez que Firebase Auth email/mot de passe est active.'
+          ? 'Creation du compte impossible. Verifiez votre email et votre mot de passe.'
           : 'Connexion impossible. Verifiez email et mot de passe.'
       );
     } finally {
@@ -413,27 +408,31 @@ export default function AccountPage() {
         <CustomerPageHeader
           eyebrow="Compte"
           title="Profil client"
-          description="Identite, documents et statut du compte pour achat, Kkiapay, livraison et cotisation."
+          description="Vos informations utiles pour achat, paiement en ligne, livraison et cotisation."
         />
 
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatusCard eyebrow="Profil" title={profileStage.title} description={profileStage.description} tone={profileStage.tone} />
           <StatusCard
-            eyebrow="Kkiapay"
-            title={profileReadiness.fullReady ? 'Autorise' : 'Bloque'}
-            description={profileReadiness.fullReady ? 'Identite complete disponible.' : 'Email, ville et adresse requis.'}
+            eyebrow="Paiement"
+            title={profileReadiness.fullReady ? 'Disponible' : 'A completer'}
+            description={profileReadiness.fullReady ? 'Vous pouvez payer en ligne.' : 'Email, ville et adresse a ajouter.'}
             tone={profileReadiness.fullReady ? 'green' : 'orange'}
           />
           <StatusCard
-            eyebrow="Cotisation"
-            title={profileReadiness.cotisationReady ? 'Pret' : 'Documents'}
-            description={`${documentsReadyCount}/3 element(s) client disponibles.`}
+            eyebrow="Documents"
+            title={profileReadiness.cotisationReady ? 'Complets' : 'A completer'}
+            description={
+              profileReadiness.cotisationReady
+                ? 'Piece et contrat disponibles.'
+                : 'Piece et contrat requis pour cotisation.'
+            }
             tone={profileReadiness.cotisationReady ? 'green' : 'slate'}
           />
           <StatusCard
-            eyebrow="Session"
-            title={sessionLabel}
-            description={authUser ? 'Suivi multi-appareil actif.' : 'Profil conserve sur ce telephone.'}
+            eyebrow="Compte"
+            title={accountLabel}
+            description={authUser ? 'Suivi possible sur plusieurs appareils.' : 'Connectez-vous pour retrouver vos demandes.'}
             tone={authUser ? 'green' : 'slate'}
           />
         </section>
@@ -538,14 +537,14 @@ export default function AccountPage() {
             <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
               <p className="text-xs font-extrabold uppercase text-[#059669]">Compte client</p>
               {!authReady ? (
-                <p className="mt-3 text-sm font-bold text-slate-500">Verification de session...</p>
+                <p className="mt-3 text-sm font-bold text-slate-500">Verification du compte...</p>
               ) : authUser ? (
                 <div className="mt-4 space-y-3">
                   <div className="rounded-3xl bg-[#ECFDF5] p-4">
-                    <p className="text-sm font-black text-[#059669]">Compte connecte</p>
+                    <p className="text-sm font-black text-[#059669]">Compte client connecte</p>
                     <p className="mt-1 break-all text-xs font-bold text-slate-600">{authUser.email}</p>
                     <p className="mt-2 text-xs font-bold text-slate-500">
-                      {authUser.emailVerified ? 'Email verifie' : 'Email non verifie dans Firebase'}
+                      {authUser.emailVerified ? 'Email confirme' : 'Email a confirmer'}
                     </p>
                   </div>
                   <button
@@ -636,7 +635,7 @@ export default function AccountPage() {
               </div>
               <ul className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
                 <ReadinessItem ready={profileReadiness.lightReady} label="Profil leger : nom et WhatsApp" />
-                <ReadinessItem ready={profileReadiness.fullReady} label="Paiement Kkiapay : profil complet" />
+                <ReadinessItem ready={profileReadiness.fullReady} label="Paiement en ligne : profil complet" />
                 <ReadinessItem ready={profileReadiness.cotisationReady} label="Cotisation : identite et contrat" />
               </ul>
               <div className="mt-4 rounded-2xl bg-orange-50 px-3 py-3">
@@ -661,12 +660,12 @@ export default function AccountPage() {
               </div>
               {profile.updatedAt ? (
                 <p className="mt-4 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
-                  Derniere sauvegarde locale : {new Date(profile.updatedAt).toLocaleString('fr-FR')}
+                  Derniere mise a jour : {new Date(profile.updatedAt).toLocaleString('fr-FR')}
                 </p>
               ) : null}
               {profile.firestoreSyncedAt ? (
                 <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold text-[#059669]">
-                  Synchronise Firebase : {new Date(profile.firestoreSyncedAt).toLocaleString('fr-FR')}
+                  Compte mis a jour : {new Date(profile.firestoreSyncedAt).toLocaleString('fr-FR')}
                 </p>
               ) : null}
               <div className="mt-4 grid gap-2">
