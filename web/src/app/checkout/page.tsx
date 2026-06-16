@@ -57,15 +57,15 @@ const CHECKOUT_DOCUMENT_CONFIG: Record<
 > = {
   idDocument: {
     documentType: 'identity_card',
-    selectedMessage: 'Piece selectionnee, upload avant commande.',
+    selectedMessage: 'Piece selectionnee, envoi avant commande.',
   },
   contract: {
     documentType: 'signed_contract',
-    selectedMessage: 'Contrat selectionne, upload avant commande.',
+    selectedMessage: 'Contrat selectionne, envoi avant commande.',
   },
   representativeId: {
     documentType: 'representative_identity_card',
-    selectedMessage: 'Piece selectionnee, upload avant commande.',
+    selectedMessage: 'Piece selectionnee, envoi avant commande.',
   },
 };
 
@@ -133,7 +133,7 @@ const PAYMENT_MODES: Array<{
     id: 'kkiapay',
     title: 'Payer maintenant',
     tag: 'Profil obligatoire',
-    description: 'Kkiapay sera lance seulement apres profil complet pour identifier le payeur.',
+    description: 'Le paiement en ligne sera propose apres profil complet pour identifier le payeur.',
   },
   {
     id: 'pickup',
@@ -145,7 +145,7 @@ const PAYMENT_MODES: Array<{
     id: 'cotisation',
     title: 'Acheter par cotisation',
     tag: 'Contrat',
-    description: 'Piece d identite, contrat signe et echeancier avant paiements Kkiapay.',
+    description: 'Piece d identite, contrat signe et echeancier avant paiements.',
   },
 ];
 
@@ -370,7 +370,7 @@ export default function CheckoutPage() {
 
       setDocumentUploadStates(prev => ({
         ...prev,
-        [field]: { status: 'uploading', message: 'Upload Firebase en cours...' },
+        [field]: { status: 'uploading', message: 'Envoi du document...' },
       }));
 
       try {
@@ -385,15 +385,15 @@ export default function CheckoutPage() {
           ...prev,
           [field]: { status: 'uploaded', message: 'Document envoye pour verification.' },
         }));
-      } catch (error) {
+      } catch {
         setDocumentUploadStates(prev => ({
           ...prev,
           [field]: {
             status: 'failed',
-            message: error instanceof Error ? error.message : 'Upload impossible pour ce document.',
+            message: 'Envoi impossible pour ce document.',
           },
         }));
-        throw error;
+        throw new Error('Envoi impossible pour ce document.');
       }
     }
 
@@ -445,7 +445,7 @@ export default function CheckoutPage() {
 
     const currentAuthUser = auth.currentUser || authUser;
     if (needsAuthenticatedProfile && !currentAuthUser) {
-      setCheckoutError('Connectez ou creez un compte client avant paiement Kkiapay ou cotisation.');
+      setCheckoutError('Connectez ou creez un compte client avant paiement en ligne ou cotisation.');
       return;
     }
 
@@ -538,9 +538,7 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error('checkout: order creation failed', error);
       setCheckoutError(
-        error instanceof Error
-          ? error.message
-          : 'Creation de commande indisponible. Reessayez apres verification du serveur.'
+        'Creation de commande indisponible. Reessayez ou contactez AfricaPhone.'
       );
       if (draft) {
         const syncedDraft = updateCheckoutDraftOrderSync(draft, {
@@ -562,9 +560,9 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-950">
       <main className="mx-auto flex max-w-6xl flex-col gap-4 px-3 py-4 sm:px-4">
         <CustomerPageHeader
-          eyebrow="Checkout"
+          eyebrow="Achat"
           title="Choix de paiement et retrait"
-          description="Brouillon local du futur parcours d achat : le profil devient obligatoire uniquement quand un paiement, un contrat ou un document entre en jeu."
+          description="Choisissez la livraison, le retrait, le paiement ou la cotisation. Le compte devient obligatoire seulement si un paiement ou un contrat est necessaire."
         />
 
         <section className="grid gap-3 md:grid-cols-4">
@@ -784,7 +782,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold text-[#059669]">
-                  Les paiements Kkiapay successifs seront branches apres validation du modele de contrat.
+                  Les paiements seront proposes apres validation du modele de contrat.
                 </p>
               </section>
             ) : null}
@@ -828,7 +826,7 @@ export default function CheckoutPage() {
               <p className="text-xs font-extrabold uppercase text-[#059669]">Validation avant paiement</p>
               <div className="mt-4 rounded-2xl bg-slate-50 px-3 py-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-extrabold uppercase text-slate-500">Profil local</p>
+                  <p className="text-xs font-extrabold uppercase text-slate-500">Profil client</p>
                   <p className="text-sm font-black text-[#059669]">{checkoutProfileReadiness.completion}%</p>
                 </div>
                 <p className="mt-1 text-xs font-bold leading-5 text-slate-500">
@@ -839,7 +837,7 @@ export default function CheckoutPage() {
                       : checkoutProfileReadiness.cotisationReady
                         ? 'Pret pour cotisation'
                         : checkoutProfileReadiness.fullReady
-                          ? 'Pret pour paiement Kkiapay'
+                          ? 'Pret pour paiement en ligne'
                           : checkoutProfileReadiness.lightReady
                             ? 'Pret pour paiement a la livraison'
                             : 'Identite minimale encore incomplete'}
@@ -889,7 +887,7 @@ export default function CheckoutPage() {
                 </p>
               ) : (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
-                  Aucun paiement reel n est lance dans cette version locale.
+                  La demande sera verifiee avant tout paiement.
                 </p>
               )}
             </section>

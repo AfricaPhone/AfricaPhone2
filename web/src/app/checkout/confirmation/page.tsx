@@ -7,6 +7,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import {
   type CheckoutDraft,
   FULFILLMENT_MODE_LABELS,
+  formatCheckoutReference,
   getCheckoutDraft,
   NEXT_STEP_MESSAGES,
   PAYMENT_MODE_LABELS,
@@ -41,7 +42,9 @@ export default function CheckoutConfirmationPage() {
               <article className="rounded-3xl border border-[#059669]/20 bg-[#ECFDF5] p-4 shadow-sm shadow-[#059669]/10">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Numero provisoire</p>
                 <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
-                  <h2 className="text-2xl font-black tracking-tight text-slate-950">{draft.id}</h2>
+                  <h2 className="text-2xl font-black tracking-tight text-slate-950">
+                    {formatCheckoutReference(draft.id)}
+                  </h2>
                   <span
                     className={`rounded-full bg-white px-3 py-2 text-xs font-extrabold ${
                       draft.orderSync.status === 'created' ? 'text-[#059669]' : 'text-orange-700'
@@ -64,7 +67,7 @@ export default function CheckoutConfirmationPage() {
                 ) : null}
                 {draft.orderSync.status === 'failed' ? (
                   <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
-                    {draft.orderSync.error || 'La demande reste sauvegardee localement. Reessayez apres verification du serveur.'}
+                    La demande n a pas pu etre transmise. Reessayez ou contactez AfricaPhone.
                   </p>
                 ) : null}
               </article>
@@ -160,7 +163,7 @@ export default function CheckoutConfirmationPage() {
                   {NEXT_STEP_MESSAGES[draft.paymentMode]}
                 </p>
                 <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
-                  Aucun paiement Kkiapay n est lance dans cette version.
+                  Le paiement sera propose apres validation par AfricaPhone.
                 </p>
               </section>
 
@@ -185,10 +188,10 @@ export default function CheckoutConfirmationPage() {
             <p className="text-xs font-extrabold uppercase text-[#059669]">Aucune demande</p>
             <h2 className="mt-2 text-2xl font-black">Aucune confirmation en attente</h2>
             <p className="mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
-              Preparez une demande depuis le checkout pour afficher son recapitulatif ici.
+              Preparez une demande d achat pour afficher son recapitulatif ici.
             </p>
             <Link href="/checkout" className="mt-5 rounded-full bg-[#059669] px-5 py-2.5 text-sm font-extrabold text-white">
-              Ouvrir le checkout
+              Preparer une demande
             </Link>
           </section>
         )}

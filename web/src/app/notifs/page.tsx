@@ -5,8 +5,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useMemo, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { type CheckoutDraft, formatCheckoutReference, getCheckoutDraft, getCheckoutHistory } from '@/lib/checkoutDraft';
 import { auth } from '@/lib/firebaseClient';
-import { type CheckoutDraft, getCheckoutDraft, getCheckoutHistory } from '@/lib/checkoutDraft';
 import type { CustomerOrderClientView, CustomerOrderStatus, CustomerPaymentStatus } from '@/types/customerOrders';
 
 type OrdersApiResponse = {
@@ -121,7 +121,7 @@ const PAYMENT_STATUS_NOTIFICATIONS: Partial<
 > = {
   provider_opened: {
     title: 'Paiement ouvert',
-    message: 'Un paiement Kkiapay a ete initialise et doit etre finalise.',
+    message: 'Un paiement en ligne a ete initialise et doit etre finalise.',
     status: 'Paiement',
     tone: 'orange',
     needsAction: true,
@@ -201,12 +201,13 @@ const sortNotifications = (items: NotificationItem[]) =>
 const buildRemoteNotifications = (orders: CustomerOrderClientView[]) =>
   orders.flatMap(order => {
     const reference = order.localDraftId || order.id;
+    const referenceLabel = formatCheckoutReference(reference);
     const statusTemplate = REMOTE_STATUS_NOTIFICATIONS[order.status] ?? REMOTE_STATUS_NOTIFICATIONS.pending_review;
     const notifications: NotificationItem[] = [
       {
         id: `order-${order.id}-${order.status}`,
         title: statusTemplate.title,
-        message: `${statusTemplate.message} Ref. ${reference}`,
+        message: `${statusTemplate.message} ${referenceLabel}.`,
         status: statusTemplate.status,
         tone: statusTemplate.tone,
         createdAt: order.updatedAt || order.createdAt,
@@ -221,7 +222,7 @@ const buildRemoteNotifications = (orders: CustomerOrderClientView[]) =>
       notifications.push({
         id: `payment-${order.id}-${order.paymentStatus}`,
         title: paymentTemplate.title,
-        message: `${paymentTemplate.message} Ref. ${reference}`,
+        message: `${paymentTemplate.message} ${referenceLabel}.`,
         status: paymentTemplate.status,
         tone: paymentTemplate.tone,
         createdAt: order.updatedAt || order.createdAt,
@@ -242,11 +243,13 @@ const buildLocalNotifications = (orders: CheckoutDraft[], remoteOrders: Customer
     .filter(order => !order.orderSync.orderId || !remoteOrderIds.has(order.orderSync.orderId))
     .filter(order => !remoteLocalDraftIds.has(order.id))
     .map((order): NotificationItem => {
+      const referenceLabel = formatCheckoutReference(order.id);
+
       if (order.orderSync.status === 'failed') {
         return {
           id: `local-failed-${order.id}`,
           title: 'Commande a reprendre',
-          message: order.orderSync.error || `La demande ${order.id} doit etre renvoyee.`,
+          message: `${referenceLabel} doit etre renvoyee.`,
           status: 'A verifier',
           tone: 'rose',
           createdAt: order.createdAt,
@@ -261,8 +264,8 @@ const buildLocalNotifications = (orders: CheckoutDraft[], remoteOrders: Customer
           id: `local-created-${order.id}`,
           title: order.orderSync.profileRequired ? 'Profil client requis' : 'Commande envoyee',
           message: order.orderSync.profileRequired
-            ? `Completez le compte pour continuer la demande ${order.id}.`
-            : `AfricaPhone traite la demande ${order.id}.`,
+            ? `Completez le compte pour continuer ${referenceLabel}.`
+            : `AfricaPhone traite ${referenceLabel}.`,
           status: order.orderSync.profileRequired ? 'Action' : 'Suivi',
           tone: order.orderSync.profileRequired ? 'orange' : 'green',
           createdAt: order.orderSync.createdAt || order.createdAt,
@@ -275,7 +278,7 @@ const buildLocalNotifications = (orders: CheckoutDraft[], remoteOrders: Customer
       return {
         id: `local-draft-${order.id}`,
         title: 'Demande non finalisee',
-        message: `La demande ${order.id} reste a terminer dans le checkout.`,
+        message: `${referenceLabel} reste a terminer avant envoi.`,
         status: 'Brouillon',
         tone: 'slate',
         createdAt: order.createdAt,
@@ -320,10 +323,10 @@ export default function NotificationsPage() {
           setRemoteOrders(Array.isArray(body?.orders) ? body.orders : []);
           setIsAuthenticated(body?.authenticated === true);
         }
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setRemoteOrders([]);
-          setRemoteError(error instanceof Error ? error.message : 'Chargement des alertes indisponible.');
+          setRemoteError('Alertes indisponibles pour le moment.');
           setIsAuthenticated(Boolean(user));
         }
       } finally {
@@ -356,7 +359,7 @@ export default function NotificationsPage() {
         <CustomerPageHeader
           eyebrow="Notifications"
           title="Alertes client"
-          description="Priorites issues des commandes AfricaPhone et des demandes preparees sur ce telephone."
+          description="Priorites issues de vos commandes et demandes en cours."
         />
 
         <section className="grid gap-3 sm:grid-cols-3">
@@ -385,11 +388,11 @@ export default function NotificationsPage() {
                 <div className="mt-4 space-y-3">
                   <SmallStatus
                     label="Compte client"
-                    value={isAuthenticated ? 'Connecte' : 'Limite a ce telephone'}
+                    value={isAuthenticated ? 'Connecte' : 'A connecter'}
                   />
                   <SmallStatus
-                    label="Source"
-                    value={remoteError || `${remoteOrders.length} commande(s) AfricaPhone`}
+                    label="Commandes"
+                    value={remoteError || `${remoteOrders.length} demande(s) suivie(s)`}
                     warning={Boolean(remoteError)}
                   />
                   <SmallStatus label="Actions" value={`${stats.actionCount} priorite(s)`} warning={stats.actionCount > 0} />

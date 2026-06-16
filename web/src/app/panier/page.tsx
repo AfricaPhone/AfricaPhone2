@@ -163,7 +163,7 @@ export default function CartPage() {
                 href="/checkout"
                 className="mt-5 flex h-12 items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition hover:bg-[#EA580C]"
               >
-                Continuer le checkout
+                Choisir paiement et reception
               </Link>
               <a
                 href={whatsappMessage}

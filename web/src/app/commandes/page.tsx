@@ -9,6 +9,7 @@ import { auth } from '@/lib/firebaseClient';
 import {
   type CheckoutDraft,
   FULFILLMENT_MODE_LABELS,
+  formatCheckoutReference,
   getCheckoutDraft,
   getCheckoutHistory,
   NEXT_STEP_MESSAGES,
@@ -60,7 +61,7 @@ type OrdersApiResponse = {
 
 const REMOTE_PAYMENT_MODE_LABELS: Record<CustomerPaymentMode, string> = {
   pay_on_delivery: 'Payer a la livraison',
-  kkiapay_now: 'Payer maintenant avec Kkiapay',
+  kkiapay_now: 'Payer en ligne maintenant',
   shop_confirmation: 'Confirmer en boutique',
   installment_plan: 'Acheter par cotisation',
 };
@@ -83,7 +84,7 @@ const PAYMENT_STATUS_LABELS: Record<CustomerPaymentStatus, string> = {
 
 const REMOTE_NEXT_STEP_MESSAGES: Record<CustomerPaymentMode, string> = {
   pay_on_delivery: 'AfricaPhone confirme la disponibilite, la zone et le montant de livraison.',
-  kkiapay_now: 'Le paiement Kkiapay sera lance apres validation de la commande.',
+  kkiapay_now: 'Le paiement en ligne sera propose apres validation de la commande.',
   shop_confirmation: 'AfricaPhone confirme le stock avant le passage en boutique.',
   installment_plan: 'AfricaPhone verifie les documents et prepare l echeancier de cotisation.',
 };
@@ -172,14 +173,14 @@ const getLocalStatusView = (draft: CheckoutDraft): OrderStatusView => {
   if (draft.orderSync.status === 'failed') {
     return {
       label: 'A verifier',
-      detail: draft.orderSync.error || 'La demande est sauvegardee localement, mais la synchronisation doit etre reprise.',
+      detail: 'La demande n a pas pu etre transmise. Reprenez le parcours pour la renvoyer.',
       className: 'bg-rose-50 text-rose-700',
     };
   }
 
   return {
     label: 'Brouillon',
-    detail: 'La demande est locale et doit etre finalisee dans le checkout.',
+    detail: 'La demande doit etre finalisee avant envoi a AfricaPhone.',
     className: 'bg-slate-100 text-slate-600',
   };
 };
@@ -310,10 +311,10 @@ export default function OrdersPage() {
           setRemoteOrders(Array.isArray(body?.orders) ? body.orders : []);
           setIsAuthenticated(body?.authenticated === true);
         }
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setRemoteOrders([]);
-          setRemoteError(error instanceof Error ? error.message : 'Chargement des commandes indisponible.');
+          setRemoteError('Suivi indisponible pour le moment.');
           setIsAuthenticated(Boolean(user));
         }
       } finally {
@@ -347,7 +348,7 @@ export default function OrdersPage() {
         <CustomerPageHeader
           eyebrow="Commandes"
           title="Mes demandes"
-          description="Suivi des commandes enregistrees chez AfricaPhone, avec reprise locale si le compte client n est pas encore connecte."
+          description="Suivi des commandes et demandes en cours chez AfricaPhone."
         />
 
         <section className="grid gap-3 sm:grid-cols-3">
@@ -384,7 +385,7 @@ export default function OrdersPage() {
                     href="/checkout"
                     className="flex h-11 items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white"
                   >
-                    Reprendre checkout
+                    Finaliser une demande
                   </Link>
                 </div>
               </section>
@@ -394,12 +395,12 @@ export default function OrdersPage() {
                 <div className="mt-4 space-y-3">
                   <SmallStatus
                     label="Compte client"
-                    value={isAuthenticated ? 'Connecte, suivi multi-appareil actif' : 'Non connecte, suivi limite a ce telephone'}
+                    value={isAuthenticated ? 'Connecte, suivi complet actif' : 'Connectez le compte pour retrouver vos demandes'}
                   />
                   <SmallStatus label="A traiter" value={`${stats.needsAction} demande(s)`} warning={stats.needsAction > 0} />
                   <SmallStatus
-                    label="Synchronisation"
-                    value={remoteError || `${stats.synced} commande(s) chargee(s) depuis AfricaPhone`}
+                    label="Commandes"
+                    value={remoteError || `${stats.synced} demande(s) suivie(s) par AfricaPhone`}
                     warning={Boolean(remoteError)}
                   />
                 </div>
@@ -422,7 +423,9 @@ function OrderCard({ order }: { order: DisplayOrder }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-extrabold uppercase text-[#059669]">{formatDate(order.createdAt)}</p>
-          <h2 className="mt-1 break-all text-xl font-black tracking-tight text-slate-950">{order.reference}</h2>
+          <h2 className="mt-1 text-xl font-black tracking-tight text-slate-950">
+            {formatCheckoutReference(order.reference)}
+          </h2>
         </div>
         <span className={`rounded-full px-3 py-2 text-xs font-extrabold ${order.status.className}`}>
           {order.status.label}
@@ -481,7 +484,7 @@ function EmptyOrders() {
       <p className="text-xs font-extrabold uppercase text-[#059669]">Aucune demande</p>
       <h2 className="mt-2 text-2xl font-black">Pas encore de commande</h2>
       <p className="mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
-        Choisissez un produit, passez par le checkout, puis la demande apparaitra ici automatiquement.
+        Choisissez un produit, finalisez la demande, puis elle apparaitra ici automatiquement.
       </p>
       <Link href="/" className="mt-5 rounded-full bg-[#059669] px-5 py-2.5 text-sm font-extrabold text-white">
         Voir le catalogue

@@ -56,7 +56,7 @@ const CHECKOUT_HISTORY_LIMIT = 30;
 
 export const PAYMENT_MODE_LABELS: Record<CheckoutPaymentMode, string> = {
   delivery: 'Payer a la livraison',
-  kkiapay: 'Payer maintenant avec Kkiapay',
+  kkiapay: 'Payer en ligne maintenant',
   pickup: 'Confirmer en boutique',
   cotisation: 'Acheter par cotisation',
 };
@@ -69,9 +69,24 @@ export const FULFILLMENT_MODE_LABELS: Record<CheckoutFulfillmentMode, string> = 
 
 export const NEXT_STEP_MESSAGES: Record<CheckoutPaymentMode, string> = {
   delivery: 'Confirmer la disponibilite, la zone et le montant de livraison.',
-  kkiapay: 'Creer la commande puis lancer le paiement Kkiapay securise.',
+  kkiapay: 'Confirmer la commande puis ouvrir le paiement en ligne.',
   pickup: 'Confirmer le stock et organiser le passage en boutique.',
   cotisation: 'Verifier les documents, valider le contrat et definir l echeancier.',
+};
+
+export const formatCheckoutReference = (reference?: string | null) => {
+  const normalized = reference?.trim();
+  if (!normalized) {
+    return 'Demande';
+  }
+
+  const draftMatch = /^AFP-(\d{8})-([A-Z0-9]+)$/i.exec(normalized);
+  if (draftMatch) {
+    const [, datePart, suffix] = draftMatch;
+    return `Demande ${datePart.slice(6, 8)}/${datePart.slice(4, 6)} #${suffix.toUpperCase()}`;
+  }
+
+  return `Demande #${normalized.slice(-6).toUpperCase()}`;
 };
 
 const isBrowser = () => typeof window !== 'undefined';
