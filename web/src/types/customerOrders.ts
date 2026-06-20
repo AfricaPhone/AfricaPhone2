@@ -128,6 +128,7 @@ export type CustomerOrder = {
     signedContractDocumentId: string | null;
     representativeIdentityDocumentId: string | null;
   };
+  installmentPlanId: string | null;
   items: CustomerOrderItemSnapshot[];
   totals: CustomerOrderTotals;
   source: 'web';
@@ -147,6 +148,7 @@ export type CustomerOrderClientView = {
   representative: CustomerRepresentativeSnapshot | null;
   delivery: CustomerOrderDelivery;
   documentIds: CustomerOrder['documentIds'];
+  installmentPlanId: string | null;
   items: CustomerOrderItemSnapshot[];
   totals: CustomerOrderTotals;
   source: 'web';
@@ -190,7 +192,11 @@ export type InstallmentPlan = {
   id: string;
   orderId: string;
   userId: string;
+  orderReference: string | null;
   status: InstallmentPlanStatus;
+  customer: CustomerProfileSnapshot;
+  targetMode: 'selected_product' | 'open_phone_purchase';
+  selectedProduct: CustomerOrderItemSnapshot | null;
   productTotal: number;
   amountPaid: number;
   balanceRemaining: number;

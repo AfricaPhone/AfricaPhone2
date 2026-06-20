@@ -3,6 +3,7 @@ import { FieldValue, type DocumentData } from 'firebase-admin/firestore';
 import { getAdminAuth, getAdminDb } from '@/lib/firebaseAdmin';
 import {
   buildCustomerOrderFromDraft,
+  buildInitialInstallmentPlanFromOrder,
   serializeCustomerOrderForClient,
   validateCreateOrderDraft,
 } from '@/server/customerOrders';
@@ -137,21 +138,41 @@ export async function POST(request: NextRequest) {
       return errorResponse(authResult.message, 401);
     }
 
+    if ((validation.draft.paymentMode === 'kkiapay' || validation.draft.paymentMode === 'cotisation') && !authResult.userId) {
+      return errorResponse('Compte client requis avant paiement en ligne ou cotisation.', 401);
+    }
+
     const adminDb = getAdminDb();
     const orderRef = adminDb.collection('orders').doc();
+    const installmentPlanRef =
+      validation.draft.paymentMode === 'cotisation' ? adminDb.collection('installmentPlans').doc() : null;
     const now = FieldValue.serverTimestamp();
     const order = buildCustomerOrderFromDraft({
       draft: validation.draft,
       orderId: orderRef.id,
       now,
       userId: authResult.userId,
+      installmentPlanId: installmentPlanRef?.id ?? null,
     });
+    const installmentPlan = installmentPlanRef
+      ? buildInitialInstallmentPlanFromOrder({
+          order,
+          installmentPlanId: installmentPlanRef.id,
+          now,
+        })
+      : null;
 
-    await orderRef.set(order);
+    const batch = adminDb.batch();
+    batch.set(orderRef, order);
+    if (installmentPlanRef && installmentPlan) {
+      batch.set(installmentPlanRef, installmentPlan);
+    }
+    await batch.commit();
 
     return NextResponse.json(
       {
         orderId: orderRef.id,
+        installmentPlanId: installmentPlan?.id ?? null,
         status: order.status,
         paymentStatus: order.paymentStatus,
         profileRequired: order.status === 'profile_required',

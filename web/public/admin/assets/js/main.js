@@ -1783,6 +1783,31 @@ async function readAdminOrders(target) {
   }
 }
 
+async function readAdminInstallments(target) {
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(5);
+  }
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/installments', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(body?.message || 'Chargement admin indisponible.');
+    }
+
+    return Array.isArray(body?.installments) ? body.installments : [];
+  } catch (err) {
+    console.error('installments admin api: load failed', err);
+    renderCommerceError(target, 'Cotisations indisponibles');
+    return null;
+  }
+}
+
 async function ensureCustomerOrdersLoaded(force = false) {
   if (!force && allCustomerOrders.length > 0) return;
   const rows = await readAdminOrders($ordersContent);
@@ -1797,7 +1822,7 @@ async function ensureOrderPaymentsLoaded(force = false) {
 
 async function ensureInstallmentPlansLoaded(force = false) {
   if (!force && allInstallmentPlans.length > 0) return;
-  const rows = await readCommerceCollection('installmentPlans', $installmentsContent);
+  const rows = await readAdminInstallments($installmentsContent);
   if (rows) allInstallmentPlans = rows;
 }
 
@@ -2134,6 +2159,47 @@ async function updateCustomerOrderField(control, orderId, field, value) {
   }
 }
 
+async function updateInstallmentPlanStatus(control, installmentPlanId, status) {
+  const currentItem = allInstallmentPlans.find(item => item.id === installmentPlanId);
+  const previousValue = currentItem ? currentItem.status : null;
+  if (control) {
+    control.disabled = true;
+  }
+
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/installments', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ installmentPlanId, status }),
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok || !body?.installment) {
+      throw new Error(body?.message || 'Mise a jour indisponible.');
+    }
+
+    const index = allInstallmentPlans.findIndex(item => item.id === installmentPlanId);
+    if (index > -1) {
+      allInstallmentPlans[index] = body.installment;
+    }
+
+    renderInstallmentPlanList();
+    toast('Mis a jour', 'Cotisation actualisee.', 'success');
+  } catch (err) {
+    console.error('installments admin api: update failed', err);
+    if (control && previousValue !== null && 'value' in control) control.value = previousValue;
+    toast('Action bloquee', 'Mise a jour admin indisponible.', 'error');
+  } finally {
+    if (control) {
+      control.disabled = false;
+    }
+  }
+}
+
 function filteredOrderPayments() {
   return allOrderPayments.filter(payment => {
     if (paymentStatusFilter && payment.status !== paymentStatusFilter) return false;
@@ -2181,45 +2247,92 @@ function renderOrderPaymentList() {
 function filteredInstallmentPlans() {
   return allInstallmentPlans.filter(plan => {
     if (installmentStatusFilter && plan.status !== installmentStatusFilter) return false;
-    return matchesCommerceSearch(plan, installmentSearchTerm, ['id', 'orderId', 'userId', 'status']);
+    return matchesCommerceSearch(plan, installmentSearchTerm, [
+      'id',
+      'orderId',
+      'orderReference',
+      'userId',
+      'status',
+      row => row?.customer?.fullName || '',
+      row => row?.customer?.whatsapp || '',
+      row => row?.selectedProduct?.name || '',
+    ]);
   });
+}
+
+function installmentCustomer(plan) {
+  return plan?.customer?.fullName || plan?.customerName || 'Client';
+}
+
+function installmentWhatsapp(plan) {
+  return plan?.customer?.whatsapp || plan?.customerWhatsapp || '-';
+}
+
+function installmentProductLabel(plan) {
+  return plan?.selectedProduct?.name || (plan?.targetMode === 'open_phone_purchase' ? 'Telephone a choisir' : 'Produit a confirmer');
+}
+
+function installmentProgress(plan) {
+  const productTotal = Number(plan?.productTotal || 0);
+  const amountPaid = Number(plan?.amountPaid || 0);
+  if (!Number.isFinite(productTotal) || productTotal <= 0) return 0;
+  return Math.max(0, Math.min(100, Math.round((amountPaid / productTotal) * 100)));
 }
 
 function renderInstallmentPlanList() {
   if (!$installmentsContent) return;
   const items = filteredInstallmentPlans();
+  const review = allInstallmentPlans.filter(item => ['documents_required', 'contract_review'].includes(item.status)).length;
   const active = allInstallmentPlans.filter(item => item.status === 'active').length;
   const late = allInstallmentPlans.filter(item => item.status === 'late').length;
   const balance = allInstallmentPlans.reduce((sum, item) => sum + Number(item.balanceRemaining || 0), 0);
   const statsHtml = [
     renderMiniStat('Dossiers', allInstallmentPlans.length, 'calendar-clock'),
+    renderMiniStat('A valider', review, 'file-check-2'),
     renderMiniStat('Actifs', active, 'play-circle'),
     renderMiniStat('Retard', late, 'alert-triangle'),
     renderMiniStat('Solde', fmtXOF.format(balance), 'banknote'),
   ].join('');
   if (!items.length) {
-    $installmentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucune cotisation', 'Les dossiers apparaitront apres creation du parcours de cotisation.'));
+    $installmentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucune cotisation', 'Les dossiers apparaitront apres une demande client avec contrat signe.'));
     lucide.createIcons();
     return;
   }
   const table = document.createElement('table');
   table.className = 'table commerce-table';
   table.innerHTML = `
-    <thead><tr><th>Dossier</th><th>Produit</th><th>Paye</th><th>Solde</th><th>Statut</th><th>Date</th></tr></thead>
+    <thead><tr><th>Dossier</th><th>Client</th><th>Produit cible</th><th>Progression</th><th>Statut</th><th>Date</th></tr></thead>
     <tbody></tbody>`;
   const tbody = table.querySelector('tbody');
   items.forEach(plan => {
     const status = plan.status || 'draft';
+    const whatsapp = installmentWhatsapp(plan);
+    const whatsappLink = normalizeWhatsappLink(whatsapp);
+    const progress = installmentProgress(plan);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${escapeHtml(plan.orderId || plan.id)}</strong><div class="small">${escapeHtml(plan.userId || '-')}</div></td>
-      <td>${formatMoneyValue(plan.productTotal)}</td>
-      <td>${formatMoneyValue(plan.amountPaid)}</td>
-      <td><strong>${formatMoneyValue(plan.balanceRemaining)}</strong></td>
+      <td>
+        <strong>${escapeHtml(formatOrderReference({ id: plan.orderReference || plan.orderId || plan.id }))}</strong>
+        <div class="small">${escapeHtml(plan.id || '-')}</div>
+      </td>
+      <td>
+        <strong>${escapeHtml(installmentCustomer(plan))}</strong>
+        <div class="small">
+          ${whatsappLink ? `<a href="https://wa.me/${escapeAttr(whatsappLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(whatsapp)}</a>` : '-'}
+        </div>
+      </td>
+      <td>
+        <strong>${escapeHtml(installmentProductLabel(plan))}</strong>
+        <div class="small">${escapeHtml(formatMoneyValue(plan.productTotal))}</div>
+      </td>
+      <td>
+        <strong>${escapeHtml(String(progress))}%</strong>
+        <div class="small">${formatMoneyValue(plan.amountPaid)} paye - ${formatMoneyValue(plan.balanceRemaining)} restant</div>
+      </td>
       <td>${renderStatusSelect(status, INSTALLMENT_STATUS_OPTIONS, INSTALLMENT_STATUS_LABELS, 'data-installment-status')}</td>
       <td>${escapeHtml(formatDateValue(plan.createdAt))}</td>`;
     tr.querySelector('[data-installment-status]').onchange = event => {
-      updateCommerceField(event.target, 'installmentPlans', plan.id, 'status', event.target.value, allInstallmentPlans, renderInstallmentPlanList);
+      updateInstallmentPlanStatus(event.target, plan.id, event.target.value);
     };
     tbody.appendChild(tr);
   });

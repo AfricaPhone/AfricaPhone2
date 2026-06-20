@@ -8,6 +8,7 @@ import type {
   CustomerPaymentMode,
   CustomerPaymentStatus,
   FirestoreTimestampLike,
+  InstallmentPlan,
 } from '@/types/customerOrders';
 
 type CreateOrderValidationResult = { ok: true; draft: CheckoutDraft } | { ok: false; message: string; status: number };
@@ -189,8 +190,12 @@ export const validateCreateOrderDraft = (payload: unknown): CreateOrderValidatio
   const representativeIdName = toCleanString(documents.representativeIdName);
   const representativeIdDocumentId = toCleanString(documents.representativeIdDocumentId);
 
-  if (paymentMode === 'cotisation' && (!idDocumentName || !contractName)) {
-    return { ok: false, message: 'Piece d identite et contrat signe requis pour la cotisation.', status: 400 };
+  if (paymentMode === 'cotisation' && (!idDocumentName || !contractName || !idDocumentId || !contractDocumentId)) {
+    return {
+      ok: false,
+      message: 'Piece d identite et contrat signe transmis requis pour la cotisation.',
+      status: 400,
+    };
   }
 
   const normalizedItems = normalizeItems(payload.items);
@@ -256,8 +261,9 @@ export const buildCustomerOrderFromDraft = (params: {
   orderId: string;
   now: FirestoreTimestampLike;
   userId?: string | null;
+  installmentPlanId?: string | null;
 }): CustomerOrder => {
-  const { draft, orderId, now, userId = null } = params;
+  const { draft, orderId, now, userId = null, installmentPlanId = null } = params;
   const items = normalizeItems(draft.items);
   const paymentMode = CHECKOUT_PAYMENT_TO_ORDER_PAYMENT[draft.paymentMode];
   const fulfillmentMode = CHECKOUT_FULFILLMENT_TO_ORDER_FULFILLMENT[draft.fulfillmentMode];
@@ -299,6 +305,7 @@ export const buildCustomerOrderFromDraft = (params: {
       signedContractDocumentId: toNullableString(draft.documents.contractDocumentId),
       representativeIdentityDocumentId: toNullableString(draft.documents.representativeIdDocumentId),
     },
+    installmentPlanId,
     delivery: {
       acceptedDeliveryFee: draft.acceptedDeliveryFee,
       city: toNullableString(draft.profile.city),
@@ -335,6 +342,7 @@ export const serializeCustomerOrderForClient = (
   representative: order.representative,
   delivery: order.delivery,
   documentIds: order.documentIds,
+  installmentPlanId: toNullableString(order.installmentPlanId),
   items: Array.isArray(order.items) ? order.items : [],
   totals: order.totals,
   source: 'web',
@@ -342,3 +350,44 @@ export const serializeCustomerOrderForClient = (
   createdAt: toIsoString(order.createdAt),
   updatedAt: toIsoString(order.updatedAt),
 });
+
+export const buildInitialInstallmentPlanFromOrder = (params: {
+  order: CustomerOrder;
+  installmentPlanId: string;
+  now: FirestoreTimestampLike;
+}): InstallmentPlan => {
+  const { order, installmentPlanId, now } = params;
+  const identityDocumentId = toCleanString(order.documentIds.identityDocumentId);
+  const contractDocumentId = toCleanString(order.documentIds.signedContractDocumentId);
+  const selectedProduct = order.items[0] ?? null;
+  const productTotal = Math.max(0, Math.round(Number(order.totals.totalDue || order.totals.itemsSubtotal || 0)));
+
+  if (order.paymentMode !== 'installment_plan') {
+    throw new Error('La commande ne correspond pas a une cotisation.');
+  }
+
+  if (!order.userId || !identityDocumentId || !contractDocumentId) {
+    throw new Error('Profil et documents requis pour creer le dossier de cotisation.');
+  }
+
+  return {
+    id: installmentPlanId,
+    orderId: order.id,
+    userId: order.userId,
+    orderReference: toNullableString(order.localDraftId),
+    status: 'contract_review',
+    customer: order.customer,
+    targetMode: selectedProduct ? 'selected_product' : 'open_phone_purchase',
+    selectedProduct,
+    productTotal,
+    amountPaid: 0,
+    balanceRemaining: productTotal,
+    currency: 'XOF',
+    contractDocumentId,
+    identityDocumentId,
+    schedule: [],
+    createdAt: now,
+    updatedAt: now,
+    activatedAt: null,
+  };
+};

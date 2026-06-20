@@ -1,4 +1,9 @@
-import { buildCustomerOrderFromDraft, serializeCustomerOrderForClient, validateCreateOrderDraft } from './customerOrders';
+import {
+  buildCustomerOrderFromDraft,
+  buildInitialInstallmentPlanFromOrder,
+  serializeCustomerOrderForClient,
+  validateCreateOrderDraft,
+} from './customerOrders';
 
 const validDeliveryPayload = {
   id: 'AFP-20260615-TEST',
@@ -100,6 +105,81 @@ describe('customer order creation', () => {
       paymentMode: 'kkiapay_now',
       paymentStatus: 'pending',
       profileRequired: true,
+    });
+  });
+
+  it('requires uploaded document ids before creating an installment order', () => {
+    const validation = validateCreateOrderDraft({
+      ...validDeliveryPayload,
+      paymentMode: 'cotisation',
+      profile: {
+        ...validDeliveryPayload.profile,
+        email: 'client@example.com',
+        city: 'Abomey-Calavi',
+      },
+      documents: {
+        ...validDeliveryPayload.documents,
+        idDocumentName: 'piece.pdf',
+        contractName: 'contrat.pdf',
+      },
+    });
+
+    expect(validation).toMatchObject({
+      ok: false,
+      message: 'Piece d identite et contrat signe transmis requis pour la cotisation.',
+    });
+  });
+
+  it('builds an initial installment plan from a cotisation order', () => {
+    const validation = validateCreateOrderDraft({
+      ...validDeliveryPayload,
+      paymentMode: 'cotisation',
+      profile: {
+        ...validDeliveryPayload.profile,
+        email: 'client@example.com',
+        city: 'Abomey-Calavi',
+      },
+      documents: {
+        ...validDeliveryPayload.documents,
+        idDocumentName: 'piece.pdf',
+        idDocumentId: 'document-id-1',
+        contractName: 'contrat.pdf',
+        contractDocumentId: 'contract-id-1',
+      },
+    });
+
+    expect(validation.ok).toBe(true);
+    if (!validation.ok) {
+      return;
+    }
+
+    const order = buildCustomerOrderFromDraft({
+      draft: validation.draft,
+      orderId: 'order-cotisation',
+      installmentPlanId: 'plan-cotisation',
+      now: null,
+      userId: 'user-1',
+    });
+    const plan = buildInitialInstallmentPlanFromOrder({
+      order,
+      installmentPlanId: 'plan-cotisation',
+      now: null,
+    });
+
+    expect(order.installmentPlanId).toBe('plan-cotisation');
+    expect(plan).toMatchObject({
+      id: 'plan-cotisation',
+      orderId: 'order-cotisation',
+      userId: 'user-1',
+      status: 'contract_review',
+      productTotal: 100000,
+      amountPaid: 0,
+      balanceRemaining: 100000,
+      contractDocumentId: 'contract-id-1',
+      identityDocumentId: 'document-id-1',
+      selectedProduct: {
+        name: 'Telephone test',
+      },
     });
   });
 
