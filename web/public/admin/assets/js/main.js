@@ -262,7 +262,7 @@ const ORDER_STATUS_LABELS = {
 
 const PAYMENT_MODE_LABELS = {
   pay_on_delivery: 'Livraison',
-  kkiapay_now: 'Kkiapay',
+  kkiapay_now: 'Paiement en ligne',
   shop_confirmation: 'Boutique',
   installment_plan: 'Cotisation',
 };
@@ -1793,12 +1793,42 @@ function orderWhatsapp(order) {
   return order?.customer?.whatsapp || order?.whatsapp || '-';
 }
 
+function normalizeWhatsappLink(value) {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function orderEmail(order) {
+  return order?.customer?.email || order?.email || '';
+}
+
+function orderAddress(order) {
+  return order?.delivery?.address || order?.customer?.address || order?.address || '';
+}
+
 function orderItemsLabel(order) {
   const items = Array.isArray(order?.items) ? order.items : [];
   if (!items.length) return '-';
   const first = items[0]?.name || 'Article';
   const more = items.length > 1 ? ` +${items.length - 1}` : '';
   return `${first}${more}`;
+}
+
+function orderQuantityLabel(order) {
+  const items = Array.isArray(order?.items) ? order.items : [];
+  const quantity = items.reduce((sum, item) => sum + Number(item?.quantity || 0), 0);
+  if (!quantity) return '-';
+  return `${quantity} article${quantity > 1 ? 's' : ''}`;
+}
+
+function formatOrderReference(order) {
+  const raw = String(order?.localDraftId || order?.guestId || order?.id || '').trim();
+  if (!raw) return 'Demande';
+  const draftMatch = /^AFP-(\d{8})-([A-Z0-9]+)$/i.exec(raw);
+  if (draftMatch) {
+    const [, datePart, suffix] = draftMatch;
+    return `Demande ${datePart.slice(6, 8)}/${datePart.slice(4, 6)} #${suffix.toUpperCase()}`;
+  }
+  return `Demande #${raw.slice(-6).toUpperCase()}`;
 }
 
 function orderDeliveryLocation(order) {
@@ -1815,6 +1845,37 @@ function orderDeliveryLocation(order) {
   };
 }
 
+function orderDocumentChips(order) {
+  const docs = [
+    ['Piece', order?.documentIds?.identityDocumentId],
+    ['Contrat', order?.documentIds?.signedContractDocumentId],
+    ['Representant', order?.documentIds?.representativeIdentityDocumentId],
+  ];
+  return docs
+    .map(([label, value]) => `<span class="commerce-doc-chip ${value ? '' : 'missing'}">${escapeHtml(label)}: ${value ? 'OK' : '-'}</span>`)
+    .join('');
+}
+
+function orderActionItems(order) {
+  const actions = [];
+  const status = order?.status || 'pending_review';
+  const paymentMode = order?.paymentMode || '';
+  const fulfillmentMode = order?.fulfillmentMode || '';
+  const deliveryLocation = orderDeliveryLocation(order);
+
+  if (status === 'pending_review') actions.push('Verifier stock, prix et disponibilite avant confirmation.');
+  if (status === 'profile_required') actions.push('Demander au client de completer son compte avant paiement ou cotisation.');
+  if (status === 'payment_pending') actions.push('Valider la commande puis declencher le paiement en ligne.');
+  if (paymentMode === 'pay_on_delivery') actions.push('Confirmer les frais de livraison et le paiement a la reception.');
+  if (paymentMode === 'installment_plan') actions.push('Verifier la piece, le contrat signe et preparer l echeancier.');
+  if (fulfillmentMode === 'representative_pickup') actions.push('Confirmer le representant et sa piece avant retrait.');
+  if (fulfillmentMode === 'delivery') actions.push(deliveryLocation ? 'Partager la position au livreur apres confirmation.' : 'Confirmer une adresse exploitable pour la livraison.');
+  if (status === 'ready_for_pickup') actions.push('Informer le client que le retrait est disponible.');
+  if (status === 'out_for_delivery') actions.push('Suivre le livreur jusqu a confirmation de reception.');
+
+  return Array.from(new Set(actions)).slice(0, 4);
+}
+
 function renderOrderStats(items) {
   const pending = items.filter(item => ['pending_review', 'profile_required', 'payment_pending'].includes(item.status)).length;
   const kkiapay = items.filter(item => item.paymentMode === 'kkiapay_now').length;
@@ -1823,7 +1884,7 @@ function renderOrderStats(items) {
   return [
     renderMiniStat('Commandes', items.length, 'shopping-bag'),
     renderMiniStat('A traiter', pending, 'timer'),
-    renderMiniStat('Kkiapay', kkiapay, 'credit-card'),
+    renderMiniStat('Paiement en ligne', kkiapay, 'credit-card'),
     renderMiniStat('Livraison', delivery, 'truck'),
     renderMiniStat('Volume', fmtXOF.format(total), 'banknote'),
   ].join('');
@@ -1850,6 +1911,10 @@ function filteredCustomerOrders() {
 function showOrderDetails(order) {
   const items = Array.isArray(order.items) ? order.items : [];
   const deliveryLocation = orderDeliveryLocation(order);
+  const actionItems = orderActionItems(order);
+  const whatsapp = orderWhatsapp(order);
+  const email = orderEmail(order);
+  const address = orderAddress(order);
   const rows = items.length
     ? items
       .map(item => `
@@ -1864,20 +1929,26 @@ function showOrderDetails(order) {
   const body = `
     <div class="commerce-detail">
       <div class="commerce-detail-grid">
+        <div><span>Reference</span><strong>${escapeHtml(formatOrderReference(order))}</strong></div>
         <div><span>Client</span><strong>${escapeHtml(orderCustomer(order))}</strong></div>
-        <div><span>WhatsApp</span><strong>${escapeHtml(orderWhatsapp(order))}</strong></div>
+        <div><span>WhatsApp</span><strong>${escapeHtml(whatsapp)}</strong></div>
+        ${email ? `<div><span>Email</span><strong>${escapeHtml(email)}</strong></div>` : ''}
         <div><span>Paiement</span><strong>${escapeHtml(PAYMENT_MODE_LABELS[order.paymentMode] || order.paymentMode || '-')}</strong></div>
         <div><span>Reception</span><strong>${escapeHtml(FULFILLMENT_LABELS[order.fulfillmentMode] || order.fulfillmentMode || '-')}</strong></div>
+        <div><span>Total</span><strong>${escapeHtml(formatMoneyValue(orderTotal(order)))}</strong></div>
+        <div><span>Date</span><strong>${escapeHtml(formatDateValue(order.createdAt))}</strong></div>
       </div>
       <table class="table commerce-detail-table">
         <thead><tr><th>Article</th><th>Qt&eacute;</th><th>Prix</th><th>Total</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
+      <div class="commerce-doc-row">${orderDocumentChips(order)}</div>
       ${order.representative ? `<div class="commerce-note">Representant : ${escapeHtml(order.representative.fullName || '-')} - ${escapeHtml(order.representative.whatsapp || '-')}</div>` : ''}
-      ${order.delivery?.address ? `<div class="commerce-note">Adresse : ${escapeHtml(order.delivery.address)}</div>` : ''}
+      ${address ? `<div class="commerce-note">Adresse : ${escapeHtml(address)}</div>` : ''}
       ${deliveryLocation ? `<div class="commerce-note">Localisation : <a href="${escapeAttr(deliveryLocation.mapUrl)}" target="_blank" rel="noopener noreferrer">Ouvrir dans Maps</a>${deliveryLocation.accuracy ? ` <span class="small">Precision env. ${escapeHtml(String(deliveryLocation.accuracy))} m</span>` : ''}</div>` : ''}
+      ${actionItems.length ? `<div class="commerce-action-box"><strong>Actions conseillees</strong><ul>${actionItems.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul></div>` : ''}
     </div>`;
-  openModal({ title: `Commande ${order.id}`, body, okText: 'Fermer', cancelText: 'Retour' });
+  openModal({ title: formatOrderReference(order), body, okText: 'Fermer', cancelText: 'Retour' });
 }
 
 function renderCustomerOrderList() {
@@ -1894,13 +1965,12 @@ function renderCustomerOrderList() {
   table.innerHTML = `
     <thead>
       <tr>
+        <th>Demande</th>
         <th>Client</th>
         <th>Articles</th>
-        <th>Total</th>
-        <th>Statut</th>
+        <th>Livraison / retrait</th>
         <th>Paiement</th>
-        <th>Reception</th>
-        <th>Date</th>
+        <th>Statut</th>
         <th style="width:120px;text-align:right">Action</th>
       </tr>
     </thead>
@@ -1909,21 +1979,41 @@ function renderCustomerOrderList() {
   items.forEach(order => {
     const status = order.status || 'pending_review';
     const paymentStatus = order.paymentStatus || 'not_required';
+    const deliveryLocation = orderDeliveryLocation(order);
+    const whatsapp = orderWhatsapp(order);
+    const whatsappLink = normalizeWhatsappLink(whatsapp);
+    const email = orderEmail(order);
+    const address = orderAddress(order);
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>
-        <strong>${escapeHtml(orderCustomer(order))}</strong>
-        <div class="small">${escapeHtml(orderWhatsapp(order))}</div>
+        <strong>${escapeHtml(formatOrderReference(order))}</strong>
+        <div class="small">${escapeHtml(formatDateValue(order.createdAt))}</div>
       </td>
-      <td>${escapeHtml(orderItemsLabel(order))}</td>
-      <td><strong>${formatMoneyValue(orderTotal(order))}</strong></td>
-      <td>${renderStatusSelect(status, ORDER_STATUS_OPTIONS, ORDER_STATUS_LABELS, 'data-order-status')}</td>
+      <td>
+        <strong>${escapeHtml(orderCustomer(order))}</strong>
+        <div class="small">
+          ${whatsappLink ? `<a href="https://wa.me/${escapeAttr(whatsappLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(whatsapp)}</a>` : '-'}
+        </div>
+        ${email ? `<div class="small">${escapeHtml(email)}</div>` : ''}
+      </td>
+      <td>
+        <strong>${escapeHtml(orderItemsLabel(order))}</strong>
+        <div class="small">${escapeHtml(orderQuantityLabel(order))} - ${escapeHtml(formatMoneyValue(orderTotal(order)))}</div>
+      </td>
+      <td>
+        <strong>${escapeHtml(FULFILLMENT_LABELS[order.fulfillmentMode] || order.fulfillmentMode || '-')}</strong>
+        ${address ? `<div class="small line-clamp">${escapeHtml(address)}</div>` : ''}
+        ${deliveryLocation ? `<a class="commerce-map-link" href="${escapeAttr(deliveryLocation.mapUrl)}" target="_blank" rel="noopener noreferrer">Maps</a>` : ''}
+      </td>
       <td>
         <div>${makeStatusBadge(PAYMENT_MODE_LABELS[order.paymentMode] || order.paymentMode || '-', statusTone(paymentStatus))}</div>
         <div style="margin-top:6px">${renderStatusSelect(paymentStatus, PAYMENT_STATUS_OPTIONS, PAYMENT_STATUS_LABELS, 'data-order-payment-status')}</div>
       </td>
-      <td>${escapeHtml(FULFILLMENT_LABELS[order.fulfillmentMode] || order.fulfillmentMode || '-')}</td>
-      <td>${escapeHtml(formatDateValue(order.createdAt))}</td>
+      <td>
+        ${renderStatusSelect(status, ORDER_STATUS_OPTIONS, ORDER_STATUS_LABELS, 'data-order-status')}
+        <div class="commerce-doc-row">${orderDocumentChips(order)}</div>
+      </td>
       <td class="actions"><button class="btn btn-small" data-detail>D&eacute;tail</button></td>`;
     tr.querySelector('[data-detail]').onclick = () => showOrderDetails(order);
     tr.querySelector('[data-order-status]').onchange = event => {
@@ -1962,7 +2052,7 @@ function renderOrderPaymentList() {
     renderMiniStat('Montant', fmtXOF.format(total), 'banknote'),
   ].join('');
   if (!items.length) {
-    $paymentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucun paiement', 'Kkiapay sera branche via API/Cloud Function.'));
+    $paymentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucun paiement', 'Le paiement en ligne sera branche via API ou Cloud Function.'));
     lucide.createIcons();
     return;
   }
@@ -2006,7 +2096,7 @@ function renderInstallmentPlanList() {
     renderMiniStat('Solde', fmtXOF.format(balance), 'banknote'),
   ].join('');
   if (!items.length) {
-    $installmentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucune cotisation', 'Les dossiers apparaitront apres creation du parcours Kkiapay.'));
+    $installmentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucune cotisation', 'Les dossiers apparaitront apres creation du parcours de cotisation.'));
     lucide.createIcons();
     return;
   }
@@ -2084,7 +2174,7 @@ function renderCustomerDocumentList() {
     renderMiniStat('Rejetes', rejected, 'x-circle'),
   ].join('');
   if (!items.length) {
-    $documentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucun document', 'Les pieces client apparaitront apres upload.'));
+    $documentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucun document', 'Les pieces client apparaitront apres envoi.'));
     lucide.createIcons();
     return;
   }
