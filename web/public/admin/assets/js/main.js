@@ -1750,9 +1750,42 @@ async function readCommerceCollection(collectionName, target) {
   }
 }
 
+async function getAdminApiToken() {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('Session admin requise.');
+  }
+  return user.getIdToken(true);
+}
+
+async function readAdminOrders(target) {
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(5);
+  }
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/orders', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(body?.message || 'Chargement admin indisponible.');
+    }
+
+    return Array.isArray(body?.orders) ? body.orders : [];
+  } catch (err) {
+    console.error('orders admin api: load failed', err);
+    renderCommerceError(target, 'Commandes indisponibles');
+    return null;
+  }
+}
+
 async function ensureCustomerOrdersLoaded(force = false) {
   if (!force && allCustomerOrders.length > 0) return;
-  const rows = await readCommerceCollection('orders', $ordersContent);
+  const rows = await readAdminOrders($ordersContent);
   if (rows) allCustomerOrders = rows;
 }
 
@@ -2045,10 +2078,10 @@ function renderCustomerOrderList() {
       <td class="actions"><button class="btn btn-small" data-detail>D&eacute;tail</button></td>`;
     tr.querySelector('[data-detail]').onclick = () => showOrderDetails(order);
     tr.querySelector('[data-order-status]').onchange = event => {
-      updateCommerceField(event.target, 'orders', order.id, 'status', event.target.value, allCustomerOrders, renderCustomerOrderList);
+      updateCustomerOrderField(event.target, order.id, 'status', event.target.value);
     };
     tr.querySelector('[data-order-payment-status]').onchange = event => {
-      updateCommerceField(event.target, 'orders', order.id, 'paymentStatus', event.target.value, allCustomerOrders, renderCustomerOrderList);
+      updateCustomerOrderField(event.target, order.id, 'paymentStatus', event.target.value);
     };
     tbody.appendChild(tr);
   });
@@ -2058,6 +2091,47 @@ function renderCustomerOrderList() {
   $ordersContent.innerHTML = '';
   $ordersContent.appendChild(wrap.firstElementChild);
   lucide.createIcons();
+}
+
+async function updateCustomerOrderField(control, orderId, field, value) {
+  const currentItem = allCustomerOrders.find(item => item.id === orderId);
+  const previousValue = currentItem ? currentItem[field] : null;
+  if (control) {
+    control.disabled = true;
+  }
+
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/orders', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ orderId, [field]: value }),
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok || !body?.order) {
+      throw new Error(body?.message || 'Mise a jour indisponible.');
+    }
+
+    const index = allCustomerOrders.findIndex(item => item.id === orderId);
+    if (index > -1) {
+      allCustomerOrders[index] = body.order;
+    }
+
+    renderCustomerOrderList();
+    toast('Mis a jour', 'Commande actualisee.', 'success');
+  } catch (err) {
+    console.error('orders admin api: update failed', err);
+    if (control && previousValue !== null && 'value' in control) control.value = previousValue;
+    toast('Action bloquee', 'Mise a jour admin indisponible.', 'error');
+  } finally {
+    if (control) {
+      control.disabled = false;
+    }
+  }
 }
 
 function filteredOrderPayments() {
