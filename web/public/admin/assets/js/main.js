@@ -628,6 +628,18 @@ const $app = $('#app');
 let pendingMfaResolver = null;
 let pendingCredentials = { email: '', password: '' };
 let mfaEnrollmentSecret = null;
+let mfaProviderUnavailable = false;
+
+function openAdminApp() {
+  $login.classList.add('hide');
+  $app.classList.remove('hide');
+  $app.setAttribute('aria-hidden', 'false');
+  initAfterLogin();
+}
+
+function hasPendingMfaCredentials() {
+  return Boolean(pendingCredentials.email && pendingCredentials.password);
+}
 
 // --- MFA UI Helpers ---
 function showMfaModal(mode = 'verify') {
@@ -714,7 +726,12 @@ async function startMfaEnrollment(user) {
     return true;
   } catch (err) {
     console.error('MFA enrollment failed:', err);
-    toast('Erreur', 'Impossible de démarrer la configuration 2FA', 'error');
+    if (err?.code === 'auth/operation-not-allowed') {
+      mfaProviderUnavailable = true;
+      toast('2FA non activee', 'Activez TOTP dans Firebase Auth pour imposer la double authentification.', 'info');
+    } else {
+      toast('Erreur', 'Impossible de demarrer la configuration 2FA', 'error');
+    }
     return false;
   }
 }
@@ -741,10 +758,7 @@ async function completeMfaEnrollment(code) {
     toast('Succès', 'Authentification 2FA activée avec succès !', 'success');
 
     // Now proceed with login
-    $login.classList.add('hide');
-    $app.classList.remove('hide');
-    $app.setAttribute('aria-hidden', 'false');
-    initAfterLogin();
+    openAdminApp();
     return true;
   } catch (err) {
     console.error('MFA enrollment completion failed:', err);
@@ -822,15 +836,29 @@ onAuthStateChanged(auth, async function (user) {
           // MFA not enrolled - force enrollment
           console.log('[Admin Panel] 2FA non configuré, démarrage de l\'enrôlement obligatoire');
           toast('Configuration 2FA requise', 'Vous devez configurer l\'authentification à deux facteurs pour accéder au panneau admin.', 'info');
-          await startMfaEnrollment(user);
+          if (!hasPendingMfaCredentials()) {
+            toast('2FA a finaliser', 'Reconnectez-vous pour configurer la 2FA. Acces temporaire avec claim admin.', 'info');
+            openAdminApp();
+            return;
+          }
+
+          const enrollmentStarted = await startMfaEnrollment(user);
+          if (enrollmentStarted) {
+            return;
+          }
+
+          if (mfaProviderUnavailable) {
+            console.warn('[Admin Panel] TOTP MFA is not enabled in Firebase Auth. Admin access allowed with admin claim only.');
+            openAdminApp();
+            return;
+          }
+
+          await signOut(auth);
           return;
         }
 
         // MFA is enrolled, proceed with login
-        $login.classList.add('hide');
-        $app.classList.remove('hide');
-        $app.setAttribute('aria-hidden', 'false');
-        initAfterLogin();
+        openAdminApp();
       } else {
         // L'utilisateur n'est pas un administrateur, le déconnecte
         await signOut(auth);
