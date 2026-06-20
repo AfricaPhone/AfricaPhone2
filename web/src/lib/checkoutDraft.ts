@@ -69,7 +69,7 @@ export const FULFILLMENT_MODE_LABELS: Record<CheckoutFulfillmentMode, string> = 
 
 export const NEXT_STEP_MESSAGES: Record<CheckoutPaymentMode, string> = {
   delivery: 'Confirmer la disponibilite, la zone et le montant de livraison.',
-  kkiapay: 'Confirmer la commande puis ouvrir le paiement en ligne.',
+  kkiapay: 'Ouvrir le paiement securise Kkiapay puis verifier la transaction.',
   pickup: 'Confirmer le stock et organiser le passage en boutique.',
   cotisation: 'Verifier les documents, valider le contrat et definir l echeancier.',
 };

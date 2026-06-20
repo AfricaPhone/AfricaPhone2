@@ -84,7 +84,7 @@ const PAYMENT_STATUS_LABELS: Record<CustomerPaymentStatus, string> = {
 
 const REMOTE_NEXT_STEP_MESSAGES: Record<CustomerPaymentMode, string> = {
   pay_on_delivery: 'AfricaPhone confirme la disponibilite, la zone et le montant de livraison.',
-  kkiapay_now: 'Le paiement en ligne sera propose apres validation de la commande.',
+  kkiapay_now: 'Le paiement Kkiapay est ouvert depuis la confirmation, puis verifie cote serveur.',
   shop_confirmation: 'AfricaPhone confirme le stock avant le passage en boutique.',
   installment_plan: 'AfricaPhone verifie les documents et prepare l echeancier de cotisation.',
 };

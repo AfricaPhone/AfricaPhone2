@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { PAYMENT_CONFIG } from '@/config/payment';
 import {
   type CheckoutDraft,
   FULFILLMENT_MODE_LABELS,
@@ -12,7 +13,37 @@ import {
   NEXT_STEP_MESSAGES,
   PAYMENT_MODE_LABELS,
 } from '@/lib/checkoutDraft';
+import { auth } from '@/lib/firebaseClient';
+import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import { formatPrice } from '@/utils/formatPrice';
+
+type InitiatePaymentResponse = {
+  paymentId: string;
+  providerReference: string;
+  amount: number;
+  currency: 'XOF';
+  publicKey: string;
+  sandbox: boolean;
+  customer: {
+    name: string;
+    email: string | null;
+    phone: string;
+  };
+  message?: string;
+};
+
+type VerifyPaymentResponse = {
+  payment?: {
+    id: string;
+    status: string;
+    amount: number;
+    providerTransactionId: string | null;
+  };
+  message?: string;
+};
+
+const getKkiapayTransactionId = (data?: KkiapayListenerData) =>
+  (data?.transactionId && String(data.transactionId)) || (data?.flwRef && String(data.flwRef)) || null;
 
 export default function CheckoutConfirmationPage() {
   const [draft, setDraft] = useState<CheckoutDraft | null>(null);
@@ -162,9 +193,17 @@ export default function CheckoutConfirmationPage() {
                 <p className="mt-3 text-sm font-extrabold leading-6 text-slate-950">
                   {NEXT_STEP_MESSAGES[draft.paymentMode]}
                 </p>
-                <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
-                  Le paiement sera propose apres validation par AfricaPhone.
-                </p>
+                {draft.paymentMode === 'kkiapay' ? (
+                  <KkiapayPaymentPanel draft={draft} />
+                ) : (
+                  <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
+                    {draft.paymentMode === 'delivery'
+                      ? 'AfricaPhone confirme les frais de livraison avant depart du livreur.'
+                      : draft.paymentMode === 'cotisation'
+                        ? 'Le contrat doit etre verifie avant activation des cotisations.'
+                        : 'AfricaPhone confirme le stock avant votre passage en boutique.'}
+                  </p>
+                )}
               </section>
 
               <div className="grid gap-3">
@@ -206,6 +245,185 @@ function SummaryItem({ label, value, strong = false }: { label: string; value: s
     <div className="rounded-2xl bg-slate-50 px-3 py-3">
       <p className="text-[10px] font-extrabold uppercase text-slate-500">{label}</p>
       <p className={`mt-1 text-sm ${strong ? 'font-black text-[#059669]' : 'font-extrabold text-slate-950'}`}>{value}</p>
+    </div>
+  );
+}
+
+function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
+  const pendingPaymentRef = useRef<{ orderId: string; paymentId: string } | null>(null);
+  const [status, setStatus] = useState<'idle' | 'starting' | 'opened' | 'verifying' | 'succeeded' | 'failed'>('idle');
+  const [message, setMessage] = useState('');
+  const orderId = draft.orderSync.orderId;
+  const canPay = draft.orderSync.status === 'created' && !draft.orderSync.profileRequired && Boolean(orderId);
+
+  const verifyPayment = useCallback(
+    async (data?: KkiapayListenerData) => {
+      const pendingPayment = pendingPaymentRef.current;
+      const transactionId = getKkiapayTransactionId(data);
+
+      if (!pendingPayment || !transactionId) {
+        setStatus('failed');
+        setMessage('Reference Kkiapay manquante. Contactez AfricaPhone avec la capture du paiement.');
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        setStatus('failed');
+        setMessage('Reconnectez votre compte client pour confirmer le paiement.');
+        return;
+      }
+
+      setStatus('verifying');
+      setMessage('Verification securisee du paiement...');
+
+      try {
+        const token = await user.getIdToken();
+        const response = await fetch('/api/payments/kkiapay/verify', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderId: pendingPayment.orderId,
+            paymentId: pendingPayment.paymentId,
+            transactionId,
+          }),
+        });
+        const body = (await response.json().catch(() => null)) as VerifyPaymentResponse | null;
+
+        if (!response.ok || body?.payment?.status !== 'succeeded') {
+          throw new Error(body?.message || 'Paiement non confirme par le serveur.');
+        }
+
+        setStatus('succeeded');
+        setMessage('Paiement confirme. Le recu email sera envoye a l adresse du compte.');
+      } catch (error) {
+        setStatus('failed');
+        setMessage(error instanceof Error ? error.message : 'Verification Kkiapay impossible.');
+      }
+    },
+    []
+  );
+
+  const handlePaymentFailed = useCallback(() => {
+    setStatus('failed');
+    setMessage('Le paiement Kkiapay n a pas abouti.');
+  }, []);
+
+  useEffect(() => {
+    let disposed = false;
+    let moduleInstance: Awaited<ReturnType<typeof loadKkiapay>> | null = null;
+
+    loadKkiapay()
+      .then(instance => {
+        if (disposed) {
+          return;
+        }
+        moduleInstance = instance;
+        instance.addSuccessListener(verifyPayment);
+        instance.addFailedListener(handlePaymentFailed);
+      })
+      .catch(() => {
+        if (!disposed) {
+          setMessage('Module Kkiapay indisponible pour le moment.');
+        }
+      });
+
+    return () => {
+      disposed = true;
+      moduleInstance?.removeKkiapayListener?.('success');
+      moduleInstance?.removeKkiapayListener?.('failed');
+    };
+  }, [handlePaymentFailed, verifyPayment]);
+
+  const startPayment = async () => {
+    if (!canPay || !orderId || status === 'starting' || status === 'verifying') {
+      return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) {
+      setStatus('failed');
+      setMessage('Connectez votre compte client avant le paiement en ligne.');
+      return;
+    }
+
+    setStatus('starting');
+    setMessage('Preparation du paiement securise...');
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/payments/kkiapay/initiate', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId }),
+      });
+      const body = (await response.json().catch(() => null)) as InitiatePaymentResponse | null;
+
+      if (!response.ok || !body?.paymentId || !body.publicKey) {
+        throw new Error(body?.message || 'Preparation du paiement indisponible.');
+      }
+
+      pendingPaymentRef.current = { orderId, paymentId: body.paymentId };
+      const moduleInstance = await loadKkiapay();
+      moduleInstance.openKkiapayWidget({
+        amount: body.amount,
+        publicAPIKey: body.publicKey,
+        sandbox: body.sandbox,
+        theme: PAYMENT_CONFIG.PRODUCT_PAYMENT_THEME,
+        partnerId: body.providerReference,
+        name: body.customer.name,
+        email: body.customer.email || undefined,
+        phone: body.customer.phone,
+        countries: PAYMENT_CONFIG.COUNTRIES ? [...PAYMENT_CONFIG.COUNTRIES] : undefined,
+        paymentMethods: PAYMENT_CONFIG.PAYMENT_METHODS ? [...PAYMENT_CONFIG.PAYMENT_METHODS] : undefined,
+      });
+      setStatus('opened');
+      setMessage('Finalisez le paiement dans la fenetre Kkiapay.');
+    } catch (error) {
+      setStatus('failed');
+      setMessage(error instanceof Error ? error.message : 'Impossible de lancer Kkiapay.');
+    }
+  };
+
+  return (
+    <div className="mt-3 rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] px-3 py-3">
+      <p className="text-xs font-bold leading-5 text-slate-700">
+        Paiement direct par Kkiapay. La commande passe en payee uniquement apres verification serveur.
+      </p>
+      <button
+        type="button"
+        onClick={startPayment}
+        disabled={!canPay || status === 'starting' || status === 'verifying' || status === 'succeeded'}
+        className="mt-3 flex h-11 w-full items-center justify-center rounded-2xl bg-[#059669] text-sm font-extrabold text-white transition enabled:hover:bg-[#047857] disabled:cursor-not-allowed disabled:bg-slate-300"
+      >
+        {status === 'starting'
+          ? 'Preparation...'
+          : status === 'verifying'
+            ? 'Verification...'
+            : status === 'succeeded'
+              ? 'Paiement confirme'
+              : 'Payer maintenant par Kkiapay'}
+      </button>
+      {message ? (
+        <p
+          className={`mt-3 rounded-2xl px-3 py-2 text-xs font-bold leading-5 ${
+            status === 'failed' ? 'bg-orange-50 text-orange-700' : 'bg-white text-slate-600'
+          }`}
+        >
+          {message}
+        </p>
+      ) : null}
+      {!canPay ? (
+        <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
+          La commande doit etre creee avec un compte client complet avant ouverture de Kkiapay.
+        </p>
+      ) : null}
     </div>
   );
 }

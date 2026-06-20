@@ -38,6 +38,71 @@ const validDeliveryPayload = {
 };
 
 describe('customer order creation', () => {
+  it('requires a valid email before direct Kkiapay payment', () => {
+    const validation = validateCreateOrderDraft({
+      ...validDeliveryPayload,
+      paymentMode: 'kkiapay',
+      profile: {
+        ...validDeliveryPayload.profile,
+        email: 'client@example',
+        city: 'Abomey-Calavi',
+      },
+    });
+
+    expect(validation).toMatchObject({
+      ok: false,
+      message: 'Profil complet requis avant paiement ou cotisation.',
+    });
+  });
+
+  it('requires representative phone when another person retrieves the order', () => {
+    const validation = validateCreateOrderDraft({
+      ...validDeliveryPayload,
+      fulfillmentMode: 'representative',
+      profile: {
+        ...validDeliveryPayload.profile,
+        representativeName: 'Jean Test',
+        representativePhone: '',
+      },
+    });
+
+    expect(validation).toMatchObject({
+      ok: false,
+      message: 'Nom et telephone du representant requis.',
+    });
+  });
+
+  it('keeps a direct Kkiapay order pending until provider verification succeeds', () => {
+    const validation = validateCreateOrderDraft({
+      ...validDeliveryPayload,
+      paymentMode: 'kkiapay',
+      profile: {
+        ...validDeliveryPayload.profile,
+        email: 'client@example.com',
+        city: 'Abomey-Calavi',
+      },
+    });
+
+    expect(validation.ok).toBe(true);
+    if (!validation.ok) {
+      return;
+    }
+
+    const order = buildCustomerOrderFromDraft({
+      draft: validation.draft,
+      orderId: 'order-kkiapay',
+      now: null,
+      userId: 'user-1',
+    });
+
+    expect(order).toMatchObject({
+      status: 'pending_review',
+      paymentMode: 'kkiapay_now',
+      paymentStatus: 'pending',
+      profileRequired: true,
+    });
+  });
+
   it('normalizes delivery location and stores a Maps link for the admin team', () => {
     const validation = validateCreateOrderDraft({
       ...validDeliveryPayload,

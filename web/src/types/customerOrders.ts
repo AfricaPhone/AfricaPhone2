@@ -156,6 +156,7 @@ export type CustomerOrderClientView = {
 };
 
 export type OrderPaymentProvider = 'kkiapay';
+export type OrderPaymentReceiptStatus = 'not_requested' | 'not_configured' | 'sent' | 'failed';
 
 export type OrderPayment = {
   id: string;
@@ -169,6 +170,10 @@ export type OrderPayment = {
   providerTransactionId: string | null;
   providerReference: string | null;
   failureReason: string | null;
+  receiptEmail: string | null;
+  receiptStatus: OrderPaymentReceiptStatus;
+  receiptSentAt: FirestoreTimestampLike | null;
+  receiptError: string | null;
   createdAt: FirestoreTimestampLike;
   updatedAt: FirestoreTimestampLike;
   verifiedAt: FirestoreTimestampLike | null;

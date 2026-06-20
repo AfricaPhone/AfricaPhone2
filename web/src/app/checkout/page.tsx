@@ -133,7 +133,7 @@ const PAYMENT_MODES: Array<{
     id: 'kkiapay',
     title: 'Payer maintenant',
     tag: 'Profil obligatoire',
-    description: 'Le paiement en ligne sera propose apres profil complet pour identifier le payeur.',
+    description: 'Le paiement Kkiapay s ouvre apres creation de la commande et verification du profil.',
   },
   {
     id: 'pickup',
@@ -180,6 +180,8 @@ const initialProfile: CheckoutProfile = {
   representativeName: '',
   representativePhone: '',
 };
+
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -259,7 +261,7 @@ export default function CheckoutPage() {
     const fullProfile = needsFullProfile
       ? [
           { label: 'Compte client connecte', done: Boolean(authUser) },
-          { label: 'Email complet et fonctionnel', done: profile.email.includes('@') },
+          { label: 'Email complet et fonctionnel', done: isValidEmail(profile.email) },
           { label: 'Ville ou quartier', done: profile.city.trim().length >= 2 },
           { label: 'Adresse complete', done: profile.address.trim().length >= 6 },
         ]
@@ -273,7 +275,10 @@ export default function CheckoutPage() {
       : [];
 
     const representative = needsRepresentative
-      ? [{ label: 'Nom du representant', done: profile.representativeName.trim().length >= 3 }]
+      ? [
+          { label: 'Nom du representant', done: profile.representativeName.trim().length >= 3 },
+          { label: 'Telephone representant', done: profile.representativePhone.trim().length >= 8 },
+        ]
       : [];
 
     const cotisation = needsCotisationDocuments
@@ -887,7 +892,9 @@ export default function CheckoutPage() {
                 </p>
               ) : (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
-                  La demande sera verifiee avant tout paiement.
+                  {paymentMode === 'kkiapay'
+                    ? 'Le paiement Kkiapay sera ouvert apres creation de la commande.'
+                    : 'La demande sera verifiee avant la suite du traitement.'}
                 </p>
               )}
             </section>

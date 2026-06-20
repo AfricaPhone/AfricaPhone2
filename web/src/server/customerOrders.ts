@@ -69,6 +69,7 @@ const isFiniteCoordinate = (value: unknown, min: number, max: number): value is 
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 const normalizeDeliveryLocation = (value: unknown): CheckoutDraft['deliveryLocation'] => {
   if (!isRecord(value)) {
@@ -164,7 +165,7 @@ export const validateCreateOrderDraft = (payload: unknown): CreateOrderValidatio
   }
 
   const needsFullProfile = paymentMode === 'kkiapay' || paymentMode === 'cotisation';
-  if (needsFullProfile && (!email.includes('@') || city.length < 2 || address.length < 6)) {
+  if (needsFullProfile && (!isValidEmail(email) || city.length < 2 || address.length < 6)) {
     return { ok: false, message: 'Profil complet requis avant paiement ou cotisation.', status: 400 };
   }
 
@@ -176,8 +177,8 @@ export const validateCreateOrderDraft = (payload: unknown): CreateOrderValidatio
     return { ok: false, message: 'Acceptation des frais de livraison requise.', status: 400 };
   }
 
-  if (fulfillmentMode === 'representative' && representativeName.length < 3) {
-    return { ok: false, message: 'Nom du representant requis.', status: 400 };
+  if (fulfillmentMode === 'representative' && (representativeName.length < 3 || representativePhone.length < 8)) {
+    return { ok: false, message: 'Nom et telephone du representant requis.', status: 400 };
   }
 
   const documents = isRecord(payload.documents) ? payload.documents : {};
