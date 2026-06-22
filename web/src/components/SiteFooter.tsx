@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
 import { footerColumns, footerLegal } from '@/data/storefront';
 import { storeOverview } from '@/data/nousTrouver';
 
@@ -12,88 +11,77 @@ const locationTitle = storeOverview.address.split(',')[0] || 'Boutique AfricaPho
 
 export default function SiteFooter() {
   return (
-    <footer className="mt-8 border-t border-slate-200 bg-gradient-to-b from-white to-[#ECFDF5] text-slate-950">
-      <div className="mx-auto w-full max-w-7xl px-3 py-6 sm:px-6 lg:px-8 lg:py-10">
-        <div className="grid grid-cols-2 gap-3 lg:gap-5">
-          <div className="flex min-w-0 flex-col justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-200/70 sm:p-5 lg:p-7">
-            <div className="space-y-2 sm:space-y-4">
-              <Link href="/" className="inline-flex min-w-0 items-center gap-2 text-lg font-extrabold tracking-tight sm:gap-3 sm:text-2xl">
-                <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70 sm:h-11 sm:w-11">
-                  <Image
-                    src="/logo.png"
-                    alt="Logo AfricaPhone"
-                    fill
-                    className="object-contain p-1"
-                    sizes="44px"
-                  />
+    <footer className="mt-8 border-t border-slate-200 bg-slate-950 text-white">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-[0.92fr_1.08fr] lg:gap-4">
+          <section className="flex min-w-0 flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04] p-3 shadow-2xl shadow-slate-950/20 sm:gap-4 sm:rounded-[24px] sm:p-6">
+            <div className="space-y-2.5 sm:space-y-3">
+              <Link href="/" className="inline-flex min-w-0 items-center gap-2 text-lg font-black tracking-tight sm:gap-3 sm:text-2xl">
+                <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-2xl bg-white sm:h-12 sm:w-12">
+                  <Image src="/logo.png" alt="Logo AfricaPhone" fill className="object-contain p-1" sizes="48px" />
                 </span>
                 <span className="min-w-0 truncate">
-                  Africa<span className="text-[#059669]">Phone</span>
+                  Africa<span className="text-[#10B981]">Phone</span>
                 </span>
               </Link>
-              <p className="hidden max-w-xl text-sm font-medium leading-6 text-slate-600 sm:block">
-                Smartphones, tablettes et accessoires disponibles avec conseil en boutique, configuration et assistance
-                locale.
-              </p>
+
+              <div className="space-y-1.5 text-[11px] font-semibold leading-4 text-slate-300 sm:text-sm sm:leading-6">
+                <p className="line-clamp-3">{storeOverview.address}</p>
+                <p className="line-clamp-2">{storeOverview.contactLine}</p>
+              </div>
             </div>
 
-            <div className="grid gap-2 xl:grid-cols-2">
-              <InfoBlock icon={<PinIcon className="h-5 w-5" />} label="Adresse" value={storeOverview.address}>
-                <Link
-                  href={storeOverview.mapLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs font-extrabold text-[#059669] transition hover:text-[#047857]"
-                >
-                  Ouvrir Google Maps
-                </Link>
-              </InfoBlock>
-              <InfoBlock icon={<PhoneIcon className="h-5 w-5" />} label="Contact" value={storeOverview.contact.phone}>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href={phoneHref}
-                    className="rounded-full bg-[#059669] px-3 py-1.5 text-xs font-extrabold text-white transition hover:bg-[#047857]"
-                  >
-                    Appeler
-                  </Link>
-                  <Link
-                    href={storeOverview.contact.whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full bg-[#F97316] px-3 py-1.5 text-xs font-extrabold text-white transition hover:bg-[#EA580C]"
-                  >
-                    WhatsApp
-                  </Link>
-                </div>
-              </InfoBlock>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <Link
+                href={phoneHref}
+                className="inline-flex h-9 items-center justify-center rounded-full bg-[#10B981] px-2 text-[11px] font-extrabold text-slate-950 transition hover:bg-[#34D399] sm:h-11 sm:px-5 sm:text-sm"
+              >
+                Appeler
+              </Link>
+              <Link
+                href={storeOverview.contact.whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-9 items-center justify-center rounded-full bg-[#F97316] px-2 text-[11px] font-extrabold text-white transition hover:bg-[#EA580C] sm:h-11 sm:px-5 sm:text-sm"
+              >
+                WhatsApp
+              </Link>
+              <Link
+                href={storeOverview.mapLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-9 items-center justify-center rounded-full border border-white/15 px-2 text-[11px] font-extrabold text-white transition hover:border-[#10B981]/60 hover:text-[#10B981] sm:h-11 sm:px-5 sm:text-sm"
+              >
+                Itineraire
+              </Link>
             </div>
 
-            <div className="grid gap-2 xl:grid-cols-2">
+            <div className="hidden grid-cols-2 gap-2 sm:grid">
               {storeOverview.openingHours.map(item => (
-                <div key={item.label} className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] px-3 py-2 sm:px-4 sm:py-3">
-                  <p className="text-[10px] font-bold uppercase text-[#059669] sm:text-xs">{item.label}</p>
-                  <p className="mt-1 text-xs font-extrabold text-slate-950 sm:text-sm">{item.value}</p>
+                <div key={item.label} className="rounded-2xl bg-white/[0.06] px-3 py-2.5 sm:px-4 sm:py-3">
+                  <p className="text-xs font-extrabold uppercase text-[#10B981]">{item.label}</p>
+                  <p className="mt-1 text-xs font-bold text-white sm:text-sm">{item.value}</p>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
-            <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-3 py-3 sm:px-5 sm:py-4">
-              <div>
-                <p className="text-[10px] font-extrabold uppercase text-[#059669] sm:text-xs">Showroom</p>
-                <h2 className="text-sm font-extrabold sm:text-lg">{locationTitle}</h2>
+          <section className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04] shadow-2xl shadow-slate-950/20 sm:rounded-[24px]">
+            <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 sm:px-5 sm:py-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-extrabold uppercase text-[#10B981] sm:text-xs">Showroom</p>
+                <h2 className="truncate text-sm font-black text-white sm:text-lg">{locationTitle}</h2>
               </div>
               <Link
                 href={storeOverview.mapLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 rounded-full border border-[#059669]/20 bg-[#ECFDF5] px-2.5 py-1.5 text-[10px] font-extrabold text-[#059669] transition hover:border-[#059669]/40 hover:bg-white sm:px-3 sm:py-2 sm:text-xs"
+                className="shrink-0 rounded-full bg-white px-2.5 py-1.5 text-[10px] font-extrabold text-slate-950 transition hover:bg-[#10B981] sm:px-3 sm:py-2 sm:text-xs"
               >
-                Itineraire
+                Maps
               </Link>
             </div>
-            <div className="relative h-full min-h-[250px] bg-slate-200 sm:min-h-[300px] lg:min-h-[360px]">
+            <div className="h-[220px] bg-slate-200 sm:h-[280px] lg:h-full lg:min-h-[320px]">
               <iframe
                 title="Carte AfricaPhone Cotonou"
                 src={storeOverview.mapEmbed}
@@ -104,14 +92,14 @@ export default function SiteFooter() {
                 allowFullScreen
               />
             </div>
-          </div>
+          </section>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-200 pt-3 sm:mt-5 sm:gap-5 sm:pt-5 lg:grid-cols-[1fr_1fr_1fr_1.1fr]">
+        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-5 lg:grid-cols-4">
           {footerColumns.map(column => (
-            <div key={column.title} className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-200/60 sm:p-5">
-              <h3 className="text-xs font-extrabold uppercase text-slate-950 sm:text-sm">{column.title}</h3>
-              <ul className="mt-3 space-y-2 text-xs font-semibold text-slate-600 sm:mt-4 sm:space-y-3 sm:text-sm">
+            <nav key={column.title} aria-label={column.title}>
+              <h3 className="text-xs font-black uppercase text-white">{column.title}</h3>
+              <ul className="mt-3 space-y-2 text-xs font-semibold leading-5 text-slate-400 sm:text-sm">
                 {column.links.map(link => {
                   const external = isExternalHref(link.href);
                   return (
@@ -120,7 +108,7 @@ export default function SiteFooter() {
                         href={link.href}
                         target={external ? '_blank' : undefined}
                         rel={external ? 'noopener noreferrer' : undefined}
-                        className="transition hover:text-[#059669]"
+                        className="transition hover:text-[#10B981]"
                       >
                         {link.label}
                       </Link>
@@ -128,15 +116,15 @@ export default function SiteFooter() {
                   );
                 })}
               </ul>
-            </div>
+            </nav>
           ))}
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-200/70 sm:p-5">
-            <p className="text-xs font-extrabold uppercase text-slate-950 sm:text-sm">Services inclus</p>
-            <ul className="mt-3 space-y-2 text-xs font-semibold text-slate-600 sm:mt-4 sm:space-y-3 sm:text-sm">
-              {storeOverview.services.map(service => (
-                <li key={service.title} className="flex gap-3">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#F97316]" />
+          <div>
+            <h3 className="text-xs font-black uppercase text-white">Services inclus</h3>
+            <ul className="mt-3 space-y-2 text-xs font-semibold leading-5 text-slate-400 sm:text-sm">
+              {storeOverview.services.slice(0, 3).map(service => (
+                <li key={service.title} className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#F97316]" />
                   <span>{service.title}</span>
                 </li>
               ))}
@@ -145,12 +133,12 @@ export default function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-slate-200 bg-white/70">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 pb-[calc(env(safe-area-inset-bottom,0)+6rem)] pt-5 text-xs font-semibold text-slate-500 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:pb-6">
+      <div className="border-t border-white/10 bg-black/20">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 pb-[calc(env(safe-area-inset-bottom,0)+5.5rem)] pt-4 text-xs font-semibold text-slate-400 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:pb-5">
           <span>&copy; {new Date().getFullYear()} AfricaPhone. Tous droits reserves.</span>
           <div className="flex flex-wrap gap-4">
             {footerLegal.map(item => (
-              <Link key={item.label} href={item.href} className="transition hover:text-[#059669]">
+              <Link key={item.label} href={item.href} className="transition hover:text-[#10B981]">
                 {item.label}
               </Link>
             ))}
@@ -158,65 +146,5 @@ export default function SiteFooter() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function InfoBlock({
-  icon,
-  label,
-  value,
-  children,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
-      <div className="flex gap-2 sm:gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#ECFDF5] text-[#059669] sm:h-10 sm:w-10">
-          {icon}
-        </span>
-        <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase text-slate-500 sm:text-xs">{label}</p>
-          <p className="mt-1 line-clamp-3 text-xs font-extrabold leading-4 text-slate-950 sm:text-sm sm:leading-5">{value}</p>
-          {children ? <div className="mt-3">{children}</div> : null}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PinIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <path
-        d="M12 21s6-5.4 6-11a6 6 0 1 0-12 0c0 5.6 6 11 6 11Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 12.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
-    </svg>
-  );
-}
-
-function PhoneIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <path
-        d="M7.25 4.75 9.4 4a1.5 1.5 0 0 1 1.86.8l.98 2.17a1.5 1.5 0 0 1-.39 1.75l-1.16 1.02a10.8 10.8 0 0 0 4.57 4.57l1.02-1.16a1.5 1.5 0 0 1 1.75-.39l2.17.98a1.5 1.5 0 0 1 .8 1.86l-.75 2.15a2.25 2.25 0 0 1-2.35 1.5C10.06 18.63 4.37 12.94 3.25 5.1a2.25 2.25 0 0 1 1.5-2.35Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

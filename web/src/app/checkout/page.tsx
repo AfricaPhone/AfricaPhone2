@@ -121,53 +121,44 @@ const PAYMENT_MODES: Array<{
   id: CheckoutPaymentMode;
   title: string;
   tag: string;
-  description: string;
 }> = [
   {
     id: 'delivery',
     title: 'Payer a la livraison',
-    tag: 'Profil leger',
-    description: 'Le client paie quand l article arrive. Identite minimale et WhatsApp suffisent.',
+    tag: 'Identite simple',
   },
   {
     id: 'kkiapay',
     title: 'Payer maintenant',
-    tag: 'Profil obligatoire',
-    description: 'Le paiement Kkiapay s ouvre apres creation de la commande et verification du profil.',
+    tag: 'Compte requis',
   },
   {
     id: 'pickup',
     title: 'Confirmer en boutique',
-    tag: 'Sans paiement en ligne',
-    description: 'AfricaPhone confirme le stock, puis le client paie ou retire en boutique.',
+    tag: 'Boutique',
   },
   {
     id: 'cotisation',
     title: 'Acheter par cotisation',
     tag: 'Contrat',
-    description: 'Piece d identite, contrat signe et echeancier avant paiements.',
   },
 ];
 
 const FULFILLMENT_MODES: Array<{
   id: CheckoutFulfillmentMode;
   title: string;
-  description: string;
 }> = [
   {
     id: 'delivery',
     title: 'Livraison',
-    description: 'Frais ajoutes selon la zone et acceptes par le client.',
   },
   {
     id: 'shop',
     title: 'Retrait client',
-    description: 'Le client passe lui-meme apres confirmation de disponibilite.',
   },
   {
     id: 'representative',
     title: 'Representant',
-    description: 'Nom du representant et controle de son identite.',
   },
 ];
 
@@ -567,7 +558,6 @@ export default function CheckoutPage() {
         <CustomerPageHeader
           eyebrow="Achat"
           title="Choix de paiement et retrait"
-          description="Choisissez la livraison, le retrait, le paiement ou la cotisation. Le compte devient obligatoire seulement si un paiement ou un contrat est necessaire."
         />
 
         <section className="grid gap-3 md:grid-cols-4">
@@ -577,7 +567,6 @@ export default function CheckoutPage() {
               active={paymentMode === mode.id}
               title={mode.title}
               tag={mode.tag}
-              description={mode.description}
               onClick={() => {
                 setPaymentMode(mode.id);
               }}
@@ -614,7 +603,6 @@ export default function CheckoutPage() {
                     }`}
                   >
                     <span className="block text-sm font-black">{mode.title}</span>
-                    <span className="mt-1 block text-xs font-semibold leading-5">{mode.description}</span>
                   </button>
                 ))}
               </div>
@@ -637,9 +625,6 @@ export default function CheckoutPage() {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="text-xs font-extrabold uppercase text-[#059669]">Position de livraison</p>
-                        <p className="mt-1 text-xs font-bold leading-5 text-slate-600">
-                          Optionnel, mais utile pour guider le livreur.
-                        </p>
                       </div>
                       <button
                         type="button"
@@ -676,7 +661,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]">
-                    {needsFullProfile ? 'Profil complet' : 'Profil leger'}
+                    {needsFullProfile ? 'Identite complete' : 'Identite simple'}
                   </span>
                   {profileLoadedFromAccount ? (
                     <span className="rounded-full bg-orange-50 px-3 py-2 text-xs font-extrabold text-orange-700">
@@ -761,7 +746,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <p className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
-                  Alternative conservee : le client peut appeler AfricaPhone pour confirmer le representant.
+                  Vous pouvez aussi confirmer le representant par appel.
                 </p>
               </section>
             ) : null}
@@ -786,9 +771,6 @@ export default function CheckoutPage() {
                     onChange={handleDocumentFile('contract', setContractName)}
                   />
                 </div>
-                <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold text-[#059669]">
-                  Les paiements seront proposes apres validation du modele de contrat.
-                </p>
               </section>
             ) : null}
           </form>
@@ -880,7 +862,7 @@ export default function CheckoutPage() {
 
               {missingRequirements.length > 0 ? (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
-                  Completez les conditions restantes pour activer la demande.
+                  Completez les conditions restantes.
                   {needsAuthenticatedProfile && !authUser ? (
                     <>
                       {' '}
@@ -893,8 +875,8 @@ export default function CheckoutPage() {
               ) : (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
                   {paymentMode === 'kkiapay'
-                    ? 'Le paiement Kkiapay sera ouvert apres creation de la commande.'
-                    : 'La demande sera verifiee avant la suite du traitement.'}
+                    ? 'Kkiapay s ouvrira apres creation.'
+                    : 'Pret a envoyer.'}
                 </p>
               )}
             </section>
@@ -910,13 +892,11 @@ function ChoiceCard({
   active,
   title,
   tag,
-  description,
   onClick,
 }: {
   active: boolean;
   title: string;
   tag: string;
-  description: string;
   onClick: () => void;
 }) {
   return (
@@ -932,7 +912,6 @@ function ChoiceCard({
     >
       <span className={`text-xs font-extrabold uppercase ${active ? 'text-[#059669]' : 'text-slate-500'}`}>{tag}</span>
       <span className="mt-2 block text-base font-black text-slate-950">{title}</span>
-      <span className="mt-2 block text-sm font-semibold leading-6 text-slate-600">{description}</span>
     </button>
   );
 }

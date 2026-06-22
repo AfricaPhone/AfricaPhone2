@@ -60,7 +60,6 @@ export default function CheckoutConfirmationPage() {
         <CustomerPageHeader
           eyebrow="Confirmation"
           title="Demande recue"
-          description="Recapitulatif de votre demande avant confirmation du stock, de la livraison, du retrait ou de la cotisation."
         />
 
         {!loaded ? (
@@ -88,9 +87,6 @@ export default function CheckoutConfirmationPage() {
                       : 'Enregistrement a reprendre'}
                   </span>
                 </div>
-                <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-                  Cette reference permet de reprendre ou suivre la demande avec l equipe AfricaPhone.
-                </p>
                 {draft.orderSync.status === 'created' && draft.orderSync.profileRequired ? (
                   <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
                     Cette commande existe, mais le paiement ou la cotisation doit attendre un profil client identifie.
@@ -394,7 +390,7 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
   return (
     <div className="mt-3 rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] px-3 py-3">
       <p className="text-xs font-bold leading-5 text-slate-700">
-        Paiement direct par Kkiapay. La commande passe en payee uniquement apres verification serveur.
+        Paiement Kkiapay securise.
       </p>
       <button
         type="button"
@@ -421,7 +417,7 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
       ) : null}
       {!canPay ? (
         <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
-          La commande doit etre creee avec un compte client complet avant ouverture de Kkiapay.
+          Compte client complet requis avant paiement.
         </p>
       ) : null}
     </div>

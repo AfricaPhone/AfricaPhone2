@@ -5,7 +5,7 @@ import Link from 'next/link';
 type CustomerPageHeaderProps = {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
 };
 
 export default function CustomerPageHeader({ eyebrow, title, description }: CustomerPageHeaderProps) {
@@ -25,10 +25,12 @@ export default function CustomerPageHeader({ eyebrow, title, description }: Cust
         </div>
       </header>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70 sm:p-5">
-        <p className="text-xs font-extrabold uppercase text-[#059669]">{eyebrow}</p>
-        <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">{title}</h1>
-        <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-500">{description}</p>
+      <section className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-3">
+        <div className="min-w-0">
+          <p className="text-xs font-extrabold uppercase text-[#059669]">{eyebrow}</p>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">{title}</h1>
+        </div>
+        {description ? <p className="max-w-xl text-sm font-semibold leading-6 text-slate-500">{description}</p> : null}
       </section>
     </>
   );

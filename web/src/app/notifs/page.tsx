@@ -359,7 +359,6 @@ export default function NotificationsPage() {
         <CustomerPageHeader
           eyebrow="Notifications"
           title="Alertes client"
-          description="Priorites issues de vos commandes et demandes en cours."
         />
 
         <section className="grid gap-3 sm:grid-cols-3">

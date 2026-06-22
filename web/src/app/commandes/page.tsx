@@ -12,7 +12,6 @@ import {
   formatCheckoutReference,
   getCheckoutDraft,
   getCheckoutHistory,
-  NEXT_STEP_MESSAGES,
   PAYMENT_MODE_LABELS,
 } from '@/lib/checkoutDraft';
 import type {
@@ -50,7 +49,6 @@ type DisplayOrder = {
   totalQty: number;
   totalPrice: number;
   deliveryMapUrl: string | null;
-  nextStep: string;
 };
 
 type OrdersApiResponse = {
@@ -80,13 +78,6 @@ const PAYMENT_STATUS_LABELS: Record<CustomerPaymentStatus, string> = {
   failed: 'Echec paiement',
   cancelled: 'Paiement annule',
   refunded: 'Rembourse',
-};
-
-const REMOTE_NEXT_STEP_MESSAGES: Record<CustomerPaymentMode, string> = {
-  pay_on_delivery: 'AfricaPhone confirme la disponibilite, la zone et le montant de livraison.',
-  kkiapay_now: 'Le paiement Kkiapay est ouvert depuis la confirmation, puis verifie cote serveur.',
-  shop_confirmation: 'AfricaPhone confirme le stock avant le passage en boutique.',
-  installment_plan: 'AfricaPhone verifie les documents et prepare l echeancier de cotisation.',
 };
 
 const REMOTE_STATUS_VIEWS: Record<CustomerOrderStatus, OrderStatusView> = {
@@ -238,7 +229,6 @@ const mapRemoteOrder = (order: CustomerOrderClientView): DisplayOrder => {
     totalQty,
     totalPrice: order.totals.totalDue ?? order.totals.itemsSubtotal ?? 0,
     deliveryMapUrl: order.delivery.location?.mapUrl ?? null,
-    nextStep: REMOTE_NEXT_STEP_MESSAGES[order.paymentMode] ?? 'AfricaPhone traite la demande.',
   };
 };
 
@@ -260,7 +250,6 @@ const mapLocalOrder = (order: CheckoutDraft): DisplayOrder => ({
   totalQty: order.totalQty,
   totalPrice: order.totalPrice,
   deliveryMapUrl: order.fulfillmentMode === 'delivery' ? order.deliveryLocation?.mapUrl ?? null : null,
-  nextStep: NEXT_STEP_MESSAGES[order.paymentMode],
 });
 
 const mergeOrders = (remoteOrders: CustomerOrderClientView[], localOrders: CheckoutDraft[]) => {
@@ -348,7 +337,6 @@ export default function OrdersPage() {
         <CustomerPageHeader
           eyebrow="Commandes"
           title="Mes demandes"
-          description="Suivi des commandes et demandes en cours chez AfricaPhone."
         />
 
         <section className="grid gap-3 sm:grid-cols-3">
@@ -395,7 +383,7 @@ export default function OrdersPage() {
                 <div className="mt-4 space-y-3">
                   <SmallStatus
                     label="Compte client"
-                    value={isAuthenticated ? 'Connecte, suivi complet actif' : 'Connectez le compte pour retrouver vos demandes'}
+                    value={isAuthenticated ? 'Connecte' : 'A connecter'}
                   />
                   <SmallStatus label="A traiter" value={`${stats.needsAction} demande(s)`} warning={stats.needsAction > 0} />
                   <SmallStatus
@@ -470,9 +458,8 @@ function OrderCard({ order }: { order: DisplayOrder }) {
       </div>
 
       <div className="mt-4 rounded-2xl bg-orange-50 px-3 py-3">
-        <p className="text-xs font-extrabold uppercase text-orange-700">Prochaine etape</p>
+        <p className="text-xs font-extrabold uppercase text-orange-700">Etat</p>
         <p className="mt-1 text-sm font-bold leading-6 text-slate-700">{order.status.detail}</p>
-        <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{order.nextStep}</p>
       </div>
     </article>
   );

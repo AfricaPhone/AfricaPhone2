@@ -61,9 +61,6 @@ export default function CartPage() {
         <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
           <p className="text-xs font-bold uppercase text-[#059669]">Panier</p>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight">Ma selection</h1>
-          <p className="mt-1 text-sm font-medium text-slate-500">
-            Les articles choisis depuis le catalogue apparaissent ici avec leurs quantites.
-          </p>
         </section>
 
         {items.length === 0 ? (

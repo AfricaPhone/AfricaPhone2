@@ -122,7 +122,6 @@ const getProfileStage = (profileReadiness: ReturnType<typeof getCustomerProfileR
   if (profileReadiness.cotisationReady) {
     return {
       title: 'Pret cotisation',
-      description: 'Profil complet, piece et contrat disponibles.',
       tone: 'green' as const,
     };
   }
@@ -130,22 +129,19 @@ const getProfileStage = (profileReadiness: ReturnType<typeof getCustomerProfileR
   if (profileReadiness.fullReady) {
     return {
       title: 'Pret paiement',
-      description: 'Informations completes pour payer en ligne.',
       tone: 'green' as const,
     };
   }
 
   if (profileReadiness.lightReady) {
     return {
-      title: 'Profil leger',
-      description: 'Suffisant pour payer a la livraison.',
+      title: 'Achat simple',
       tone: 'orange' as const,
     };
   }
 
   return {
     title: 'A completer',
-    description: 'Nom et WhatsApp sont requis pour demarrer.',
     tone: 'slate' as const,
   };
 };
@@ -408,31 +404,23 @@ export default function AccountPage() {
         <CustomerPageHeader
           eyebrow="Compte"
           title="Profil client"
-          description="Vos informations utiles pour achat, paiement en ligne, livraison et cotisation."
         />
 
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatusCard eyebrow="Profil" title={profileStage.title} description={profileStage.description} tone={profileStage.tone} />
+          <StatusCard eyebrow="Profil" title={profileStage.title} tone={profileStage.tone} />
           <StatusCard
             eyebrow="Paiement"
             title={profileReadiness.fullReady ? 'Disponible' : 'A completer'}
-            description={profileReadiness.fullReady ? 'Vous pouvez payer en ligne.' : 'Email, ville et adresse a ajouter.'}
             tone={profileReadiness.fullReady ? 'green' : 'orange'}
           />
           <StatusCard
             eyebrow="Documents"
             title={profileReadiness.cotisationReady ? 'Complets' : 'A completer'}
-            description={
-              profileReadiness.cotisationReady
-                ? 'Piece et contrat disponibles.'
-                : 'Piece et contrat requis pour cotisation.'
-            }
             tone={profileReadiness.cotisationReady ? 'green' : 'slate'}
           />
           <StatusCard
             eyebrow="Compte"
             title={accountLabel}
-            description={authUser ? 'Suivi possible sur plusieurs appareils.' : 'Connectez-vous pour retrouver vos demandes.'}
             tone={authUser ? 'green' : 'slate'}
           />
         </section>
@@ -543,9 +531,6 @@ export default function AccountPage() {
                   <div className="rounded-3xl bg-[#ECFDF5] p-4">
                     <p className="text-sm font-black text-[#059669]">Compte client connecte</p>
                     <p className="mt-1 break-all text-xs font-bold text-slate-600">{authUser.email}</p>
-                    <p className="mt-2 text-xs font-bold text-slate-500">
-                      {authUser.emailVerified ? 'Email confirme' : 'Email a confirmer'}
-                    </p>
                   </div>
                   <button
                     type="button"
@@ -634,9 +619,9 @@ export default function AccountPage() {
                 </div>
               </div>
               <ul className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
-                <ReadinessItem ready={profileReadiness.lightReady} label="Profil leger : nom et WhatsApp" />
-                <ReadinessItem ready={profileReadiness.fullReady} label="Paiement en ligne : profil complet" />
-                <ReadinessItem ready={profileReadiness.cotisationReady} label="Cotisation : identite et contrat" />
+                <ReadinessItem ready={profileReadiness.lightReady} label="Achat simple" />
+                <ReadinessItem ready={profileReadiness.fullReady} label="Paiement en ligne" />
+                <ReadinessItem ready={profileReadiness.cotisationReady} label="Cotisation" />
               </ul>
               <div className="mt-4 rounded-2xl bg-orange-50 px-3 py-3">
                 <p className="text-xs font-extrabold uppercase text-orange-700">{nextProfileStep.title}</p>
@@ -658,16 +643,6 @@ export default function AccountPage() {
                   {nextProfileStep.actionLabel}
                 </Link>
               </div>
-              {profile.updatedAt ? (
-                <p className="mt-4 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
-                  Derniere mise a jour : {new Date(profile.updatedAt).toLocaleString('fr-FR')}
-                </p>
-              ) : null}
-              {profile.firestoreSyncedAt ? (
-                <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold text-[#059669]">
-                  Compte mis a jour : {new Date(profile.firestoreSyncedAt).toLocaleString('fr-FR')}
-                </p>
-              ) : null}
               <div className="mt-4 grid gap-2">
                 <DocumentStatus label="Photo" ready={Boolean(profile.photoName || profile.photoDocumentId)} />
                 <DocumentStatus label="Piece d identite" ready={Boolean(profile.idDocumentName || profile.idDocumentId)} />
@@ -703,12 +678,10 @@ export default function AccountPage() {
 function StatusCard({
   eyebrow,
   title,
-  description,
   tone,
 }: {
   eyebrow: string;
   title: string;
-  description: string;
   tone: StatusTone;
 }) {
   const toneClass =
@@ -722,7 +695,6 @@ function StatusCard({
     <article className={`rounded-3xl border p-4 shadow-sm shadow-slate-200/70 ${toneClass}`}>
       <p className="text-xs font-extrabold uppercase opacity-80">{eyebrow}</p>
       <p className="mt-2 text-xl font-black">{title}</p>
-      <p className="mt-2 text-xs font-bold leading-5 opacity-80">{description}</p>
     </article>
   );
 }
