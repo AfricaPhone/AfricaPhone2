@@ -70,13 +70,16 @@ const readNested = (value: unknown, path: string): unknown => {
 const getKkiapayServerConfig = (): KkiapayServerConfig => {
   const publicKey = (
     process.env.KKIAPAY_PUBLIC_KEY ||
+    process.env.KKIA_PUBLIC_KEY ||
     process.env.NEXT_PUBLIC_KKIAPAY_KEY ||
     ''
   ).trim();
-  const privateKey = (process.env.KKIAPAY_PRIVATE_KEY || '').trim();
-  const secretKey = (process.env.KKIAPAY_SECRET_KEY || '').trim();
+  const privateKey = (process.env.KKIAPAY_PRIVATE_KEY || process.env.KKIA_PRIVATE_KEY || '').trim();
+  const secretKey = (process.env.KKIAPAY_SECRET_KEY || process.env.KKIA_SECRET_KEY || '').trim();
   const sandbox =
-    process.env.KKIAPAY_SANDBOX === 'true' || process.env.NEXT_PUBLIC_KKIAPAY_SANDBOX === 'true';
+    process.env.KKIAPAY_SANDBOX === 'true' ||
+    process.env.KKIA_SANDBOX === 'true' ||
+    process.env.NEXT_PUBLIC_KKIAPAY_SANDBOX === 'true';
 
   if (!publicKey || !privateKey || !secretKey) {
     throw new PaymentFlowError(
@@ -550,7 +553,7 @@ export const markKkiapayWebhookFailure = async (params: {
 };
 
 export const isValidKkiapayWebhookSecret = (secretHeader: string | null) => {
-  const expectedSecret = process.env.KKIAPAY_WEBHOOK_SECRET?.trim();
+  const expectedSecret = (process.env.KKIAPAY_WEBHOOK_SECRET || process.env.KKIA_WEBHOOK_SECRET || '').trim();
   if (!expectedSecret) {
     return false;
   }
