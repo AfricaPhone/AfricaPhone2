@@ -26,7 +26,7 @@ export const departments = [
   { label: 'Reconditionnes', href: '#renewed' },
   { label: 'Services tech', href: '#services' },
   { label: 'Financement', href: '#finance' },
-  { label: 'Reparations', href: '#support' },
+  { label: 'Assistance', href: '#support' },
   { label: 'Ambassadeurs', href: '#community' },
 ] as const;
 
@@ -418,7 +418,7 @@ export const serviceHighlights: ServiceHighlight[] = [
   {
     id: 'support',
     title: 'Support AfricaCare',
-    description: 'Diagnostic WhatsApp, pret de telephone et suivi reparation en temps reel.',
+    description: 'Conseil WhatsApp, aide au choix et accompagnement apres achat.',
     icon: 'support',
   },
 ] as const;
@@ -438,8 +438,8 @@ export const footerColumns: Array<{ title: string; links: Array<{ label: string;
     links: [
       { label: 'Configuration offerte', href: '/nous-trouver' },
       { label: 'Livraison & retrait', href: '/nous-trouver' },
-      { label: 'Financement flexible', href: '/nous-trouver' },
-      { label: 'Pronostics & jeux', href: '/pronostics' },
+      { label: 'Paiement Kkiapay', href: '/checkout' },
+      { label: 'Achat par cotisation', href: '/checkout' },
     ],
   },
   {
@@ -447,8 +447,8 @@ export const footerColumns: Array<{ title: string; links: Array<{ label: string;
     links: [
       { label: 'Nous trouver', href: '/nous-trouver' },
       { label: 'WhatsApp boutique', href: 'https://wa.me/22954151522' },
-      { label: 'Support client', href: 'mailto:support@africaphone.com' },
-      { label: 'Espace vote', href: '/votes' },
+      { label: 'Suivi commandes', href: '/commandes' },
+      { label: 'Compte client', href: '/compte' },
     ],
   },
 ];

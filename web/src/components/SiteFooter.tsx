@@ -13,7 +13,7 @@ export default function SiteFooter() {
   return (
     <footer className="mt-8 border-t border-slate-200 bg-slate-950 text-white">
       <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-[0.92fr_1.08fr] lg:gap-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[0.92fr_1.08fr] lg:gap-4">
           <section className="flex min-w-0 flex-col justify-between gap-3 overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04] p-3 shadow-2xl shadow-slate-950/20 sm:gap-4 sm:rounded-[24px] sm:p-6">
             <div className="space-y-2.5 sm:space-y-3">
               <Link href="/" className="inline-flex min-w-0 items-center gap-2 text-lg font-black tracking-tight sm:gap-3 sm:text-2xl">
@@ -81,7 +81,7 @@ export default function SiteFooter() {
                 Maps
               </Link>
             </div>
-            <div className="h-[220px] bg-slate-200 sm:h-[280px] lg:h-full lg:min-h-[320px]">
+            <div className="h-[150px] bg-slate-200 sm:h-[280px] lg:h-full lg:min-h-[320px]">
               <iframe
                 title="Carte AfricaPhone Cotonou"
                 src={storeOverview.mapEmbed}
@@ -95,7 +95,7 @@ export default function SiteFooter() {
           </section>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-5 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-5 lg:grid-cols-3">
           {footerColumns.map(column => (
             <nav key={column.title} aria-label={column.title}>
               <h3 className="text-xs font-black uppercase text-white">{column.title}</h3>
@@ -118,18 +118,6 @@ export default function SiteFooter() {
               </ul>
             </nav>
           ))}
-
-          <div>
-            <h3 className="text-xs font-black uppercase text-white">Services inclus</h3>
-            <ul className="mt-3 space-y-2 text-xs font-semibold leading-5 text-slate-400 sm:text-sm">
-              {storeOverview.services.slice(0, 3).map(service => (
-                <li key={service.title} className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#F97316]" />
-                  <span>{service.title}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
 

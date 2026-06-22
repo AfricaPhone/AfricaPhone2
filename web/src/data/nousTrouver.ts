@@ -75,7 +75,7 @@ export const storeOverview: StoreOverview = {
   ],
   description: [
     'Notre showroom AfricaPhone Ganhi vous accueille pour decouvrir les dernieres nouveautes mobiles, comparer les gammes et profiter de conseils personnalises de nos experts.',
-    'Chaque visite inclut un diagnostic offert, le transfert de vos donnees et une mise en service complete afin que vous repartiez serein avec votre nouvel appareil.',
+    'Chaque achat peut inclure le transfert de vos donnees et une mise en service complete afin que vous repartiez serein avec votre nouvel appareil.',
   ],
   services: [
     {
@@ -83,12 +83,12 @@ export const storeOverview: StoreOverview = {
       description: 'Transfert de donnees, parametres de securite et installation des applications indispensables en moins de 30 minutes.',
     },
     {
-      title: 'Reparation et garantie',
-      description: 'Atelier sur place pour le remplacement d ecran, de batterie et la gestion de votre garantie AfricaCare.',
+      title: 'Garantie et suivi achat',
+      description: 'Facture, garantie constructeur et accompagnement apres achat selon le produit choisi.',
     },
     {
-      title: 'Financement flexible',
-      description: 'Solutions Kkiapay et partenaires bancaires pour etaler l achat de votre smartphone ou pack entreprise.',
+      title: 'Paiement flexible',
+      description: 'Paiement Kkiapay, retrait boutique, livraison et cotisation selon le parcours choisi.',
     },
   ],
   highlights: [
