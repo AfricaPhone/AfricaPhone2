@@ -10,6 +10,7 @@ import {
   updateProfile,
   type User,
 } from 'firebase/auth';
+import { getDownloadURL, ref } from 'firebase/storage';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import {
@@ -17,7 +18,7 @@ import {
   uploadCustomerDocument,
   type CustomerDocumentUploadResult,
 } from '@/lib/customerDocuments';
-import { auth } from '@/lib/firebaseClient';
+import { auth, storage } from '@/lib/firebaseClient';
 import {
   type CustomerProfileDraft,
   getCustomerProfileDraft,
@@ -351,6 +352,8 @@ export default function AccountPage() {
   const [installmentPayments, setInstallmentPayments] = useState<InstallmentPaymentView[]>([]);
   const [installmentsLoaded, setInstallmentsLoaded] = useState(false);
   const [installmentsError, setInstallmentsError] = useState('');
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
+  const [selectedProfilePhotoUrl, setSelectedProfilePhotoUrl] = useState('');
 
   useEffect(() => {
     const savedProfile = getCustomerProfileDraft();
@@ -456,10 +459,57 @@ export default function AccountPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const selectedPhoto = selectedFiles.photoName;
+
+    if (!selectedPhoto) {
+      setSelectedProfilePhotoUrl('');
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedPhoto);
+    setSelectedProfilePhotoUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [selectedFiles.photoName]);
+
+  useEffect(() => {
+    let active = true;
+
+    if (!profile.photoStoragePath) {
+      setProfilePhotoUrl('');
+      return () => {
+        active = false;
+      };
+    }
+
+    setProfilePhotoUrl('');
+
+    getDownloadURL(ref(storage, profile.photoStoragePath))
+      .then(url => {
+        if (active) {
+          setProfilePhotoUrl(url);
+        }
+      })
+      .catch(error => {
+        console.error('account: unable to load profile photo', error);
+        if (active) {
+          setProfilePhotoUrl('');
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [profile.photoStoragePath]);
+
   const profileReadiness = useMemo(() => getCustomerProfileReadiness(profile), [profile]);
   const profileStage = useMemo(() => getProfileStage(profileReadiness), [profileReadiness]);
   const nextProfileStep = useMemo(() => getNextProfileStep(profileReadiness), [profileReadiness]);
   const accountLabel = !authReady ? 'Verification' : authUser ? 'Connecte' : 'A connecter';
+  const profilePhotoSource = selectedProfilePhotoUrl || profilePhotoUrl;
 
   const updateField = (field: ProfileTextField) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSaved(false);
@@ -643,8 +693,17 @@ export default function AccountPage() {
             className="space-y-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70"
           >
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#059669] text-lg font-black text-white">
-                {getInitials(profile.fullName)}
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#059669] text-lg font-black text-white">
+                {profilePhotoSource ? (
+                  <span
+                    role="img"
+                    aria-label={profile.fullName ? `Photo de ${profile.fullName}` : 'Photo du profil client'}
+                    className="block h-full w-full"
+                    style={{ background: `center / cover no-repeat url(${JSON.stringify(profilePhotoSource)})` }}
+                  />
+                ) : (
+                  getInitials(profile.fullName)
+                )}
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Identite du client</p>
