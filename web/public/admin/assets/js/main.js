@@ -1426,6 +1426,7 @@ async function handleRoute() {
   } else if (route === 'installments') {
     setCrumb('Cotisations');
     await ensureInstallmentPlansLoaded();
+    await ensureCustomerDocumentsLoaded();
     renderInstallmentPlanList();
   } else if (route === 'documents') {
     setCrumb('Documents');
@@ -1820,6 +1821,31 @@ async function readAdminInstallments(target) {
   }
 }
 
+async function readAdminDocuments(target) {
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(5);
+  }
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/documents', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(body?.message || 'Chargement admin indisponible.');
+    }
+
+    return Array.isArray(body?.documents) ? body.documents : [];
+  } catch (err) {
+    console.error('documents admin api: load failed', err);
+    renderCommerceError(target, 'Documents indisponibles');
+    return null;
+  }
+}
+
 async function readAdminContractTemplate() {
   try {
     const token = await getAdminApiToken();
@@ -1862,7 +1888,7 @@ async function ensureInstallmentPlansLoaded(force = false) {
 
 async function ensureCustomerDocumentsLoaded(force = false) {
   if (!force && allCustomerDocuments.length > 0) return;
-  const rows = await readCommerceCollection('customerDocuments', $documentsContent);
+  const rows = await readAdminDocuments($documentsContent);
   if (rows) allCustomerDocuments = rows;
 }
 
@@ -2341,6 +2367,22 @@ function installmentProgress(plan) {
   return Math.max(0, Math.min(100, Math.round((amountPaid / productTotal) * 100)));
 }
 
+function findInstallmentContractDocument(plan) {
+  return allCustomerDocuments.find(documentItem => {
+    if (documentItem.type !== 'signed_contract') return false;
+    return (
+      documentItem.id === plan.contractDocumentId ||
+      documentItem.installmentPlanId === plan.id ||
+      documentItem.orderId === plan.orderId
+    );
+  });
+}
+
+function installmentContractLabel(documentItem) {
+  if (!documentItem) return 'Contrat introuvable';
+  return DOCUMENT_STATUS_LABELS[documentItem.status] || documentItem.status || 'A verifier';
+}
+
 function renderInstallmentPlanList() {
   if (!$installmentsContent) return;
   const items = filteredInstallmentPlans();
@@ -2363,7 +2405,7 @@ function renderInstallmentPlanList() {
   const table = document.createElement('table');
   table.className = 'table commerce-table';
   table.innerHTML = `
-    <thead><tr><th>Dossier</th><th>Client</th><th>Produit cible</th><th>Progression</th><th>Statut</th><th>Date</th></tr></thead>
+    <thead><tr><th>Dossier</th><th>Client</th><th>Produit cible</th><th>Progression</th><th>Statut</th><th>Date</th><th style="width:180px;text-align:right">Actions</th></tr></thead>
     <tbody></tbody>`;
   const tbody = table.querySelector('tbody');
   items.forEach(plan => {
@@ -2371,6 +2413,9 @@ function renderInstallmentPlanList() {
     const whatsapp = installmentWhatsapp(plan);
     const whatsappLink = normalizeWhatsappLink(whatsapp);
     const progress = installmentProgress(plan);
+    const contractDocument = findInstallmentContractDocument(plan);
+    const contractIsApproved = contractDocument?.status === 'approved';
+    const canActivate = contractIsApproved && !['active', 'completed', 'cancelled'].includes(status);
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>
@@ -2390,12 +2435,25 @@ function renderInstallmentPlanList() {
       <td>
         <strong>${escapeHtml(String(progress))}%</strong>
         <div class="small">${formatMoneyValue(plan.amountPaid)} paye - ${formatMoneyValue(plan.balanceRemaining)} restant</div>
-        <div class="small">Contrat: ${escapeHtml(plan.contractApprovedAt ? 'valide admin' : 'validation requise')}${plan.contractReference ? ` - ${escapeHtml(plan.contractReference)}` : ''}</div>
+        <div class="small">
+          Contrat: ${makeStatusBadge(installmentContractLabel(contractDocument), statusTone(contractDocument?.status))}
+          ${plan.contractReference ? ` ${escapeHtml(plan.contractReference)}` : ''}
+        </div>
       </td>
       <td>${renderStatusSelect(status, INSTALLMENT_STATUS_OPTIONS, INSTALLMENT_STATUS_LABELS, 'data-installment-status')}</td>
-      <td>${escapeHtml(formatDateValue(plan.createdAt))}</td>`;
+      <td>${escapeHtml(formatDateValue(plan.createdAt))}</td>
+      <td class="actions">
+        <button class="btn btn-small" data-open-contract ${contractDocument ? '' : 'disabled'}>Contrat</button>
+        <button class="btn btn-primary btn-small" data-activate ${canActivate ? '' : 'disabled'}>Activer</button>
+      </td>`;
     tr.querySelector('[data-installment-status]').onchange = event => {
       updateInstallmentPlanStatus(event.target, plan.id, event.target.value);
+    };
+    tr.querySelector('[data-open-contract]').onclick = () => {
+      if (contractDocument) openCustomerDocument(contractDocument);
+    };
+    tr.querySelector('[data-activate]').onclick = event => {
+      updateInstallmentPlanStatus(event.currentTarget, plan.id, 'active');
     };
     tbody.appendChild(tr);
   });
@@ -2471,16 +2529,16 @@ function renderContractTemplatePanel() {
 
   return `
     <div class="commerce-panel" style="margin-bottom:14px">
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center">
-        <div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:center">
+        <div style="min-width:0">
           <div class="small" style="font-weight:800;text-transform:uppercase;color:#059669">Contrat cotisation client</div>
-          <h3 style="margin:4px 0 6px;font-size:18px">${escapeHtml(fileName)}</h3>
+          <h3 style="margin:4px 0 6px;font-size:18px;overflow-wrap:anywhere">${escapeHtml(fileName)}</h3>
           <div class="small" style="margin-bottom:6px;color:var(--ink-2)">${escapeHtml(helperText)}</div>
           <div class="small">${escapeHtml(updated)} · ${escapeHtml(fileSize)}</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
+        <div style="display:flex;gap:8px;align-items:center;justify-content:flex-start;flex-wrap:wrap">
           ${openButton}
-          <input id="contract-template-file" class="input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="max-width:260px" />
+          <input id="contract-template-file" class="input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="max-width:100%" />
           <button id="upload-contract-template" class="btn btn-primary btn-small" type="button">
             <i data-lucide="upload" class="icon"></i> Publier
           </button>
@@ -2533,6 +2591,52 @@ function bindContractTemplatePanel() {
   });
 }
 
+async function updateCustomerDocumentStatus(control, documentId, status) {
+  const currentItem = allCustomerDocuments.find(item => item.id === documentId);
+  const previousValue = currentItem ? currentItem.status : null;
+  if (control) {
+    control.disabled = true;
+  }
+
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/documents', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ documentId, status }),
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok || !body?.document) {
+      throw new Error(body?.message || 'Mise a jour indisponible.');
+    }
+
+    const index = allCustomerDocuments.findIndex(item => item.id === documentId);
+    if (index > -1) {
+      allCustomerDocuments[index] = body.document;
+    }
+
+    if (body.document.type === 'signed_contract') {
+      await ensureInstallmentPlansLoaded(true);
+      await ensureCustomerNotificationsLoaded(true);
+    }
+
+    renderCustomerDocumentList();
+    toast('Mis a jour', 'Document actualise.', 'success');
+  } catch (err) {
+    console.error('documents admin api: update failed', err);
+    if (control && previousValue !== null && 'value' in control) control.value = previousValue;
+    toast('Action bloquee', err instanceof Error ? err.message : 'Mise a jour admin indisponible.', 'error');
+  } finally {
+    if (control) {
+      control.disabled = false;
+    }
+  }
+}
+
 function renderCustomerDocumentList() {
   if (!$documentsContent) return;
   const items = filteredCustomerDocuments();
@@ -2583,16 +2687,7 @@ function renderCustomerDocumentList() {
       <td class="actions"><button class="btn btn-small" data-open>Ouvrir</button></td>`;
     tr.querySelector('[data-open]').onclick = () => openCustomerDocument(documentItem);
     tr.querySelector('[data-document-status]').onchange = event => {
-      updateCommerceField(
-        event.target,
-        'customerDocuments',
-        documentItem.id,
-        'status',
-        event.target.value,
-        allCustomerDocuments,
-        renderCustomerDocumentList,
-        { reviewedAt: serverTimestamp(), reviewedBy: auth.currentUser?.uid || null }
-      );
+      updateCustomerDocumentStatus(event.target, documentItem.id, event.target.value);
     };
     tbody.appendChild(tr);
   });

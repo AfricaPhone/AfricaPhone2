@@ -844,6 +844,8 @@ main {
   .app {
     grid-template-columns: 1fr;
     grid-template-rows: var(--header-h) auto 1fr;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   .sidebar {
@@ -852,14 +854,29 @@ main {
 
   header.appbar {
     grid-column: 1;
+    grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
+    min-width: 0;
+  }
+
+  header.appbar > .top-actions {
+    display: none;
   }
 
   .breadcrumbs {
     grid-column: 1;
+    min-width: 0;
   }
 
   main {
     grid-column: 1;
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .search {
+    min-width: 0;
   }
 
   .hamburger {
