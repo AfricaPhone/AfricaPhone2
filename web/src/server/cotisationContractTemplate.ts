@@ -1,10 +1,15 @@
 import { FieldValue, type DocumentData } from 'firebase-admin/firestore';
 import { randomUUID } from 'node:crypto';
+import { stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import { getAdminBucket, getAdminDb } from '@/lib/firebaseAdmin';
 
 const CONFIG_COLLECTION = 'config';
 const CONTRACT_TEMPLATE_DOC = 'cotisationContractTemplate';
 const CONTRACT_TEMPLATE_STORAGE_ROOT = 'contract-templates';
+const DEFAULT_CONTRACT_TEMPLATE_FILE_NAME = 'engagement-depot-progressif-africa-phone.docx';
+const DEFAULT_CONTRACT_TEMPLATE_PUBLIC_PATH = `/contracts/${DEFAULT_CONTRACT_TEMPLATE_FILE_NAME}`;
+const DEFAULT_CONTRACT_TEMPLATE_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 const MAX_CONTRACT_TEMPLATE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_CONTRACT_TEMPLATE_TYPES = new Set([
   'application/pdf',
@@ -106,9 +111,29 @@ const serializeTemplate = (data: DocumentData | undefined): CotisationContractTe
   };
 };
 
+const getDefaultCotisationContractTemplate = async (): Promise<CotisationContractTemplate> => {
+  let size = 0;
+  try {
+    const fileStats = await stat(join(process.cwd(), 'public', 'contracts', DEFAULT_CONTRACT_TEMPLATE_FILE_NAME));
+    size = fileStats.size;
+  } catch {
+    size = 0;
+  }
+
+  return {
+    fileName: DEFAULT_CONTRACT_TEMPLATE_FILE_NAME,
+    downloadUrl: DEFAULT_CONTRACT_TEMPLATE_PUBLIC_PATH,
+    storagePath: DEFAULT_CONTRACT_TEMPLATE_PUBLIC_PATH,
+    contentType: DEFAULT_CONTRACT_TEMPLATE_CONTENT_TYPE,
+    size,
+    updatedAt: null,
+    updatedBy: null,
+  };
+};
+
 export const getCotisationContractTemplate = async () => {
   const snapshot = await getAdminDb().collection(CONFIG_COLLECTION).doc(CONTRACT_TEMPLATE_DOC).get();
-  return serializeTemplate(snapshot.data());
+  return serializeTemplate(snapshot.data()) ?? getDefaultCotisationContractTemplate();
 };
 
 export const uploadCotisationContractTemplate = async (params: {

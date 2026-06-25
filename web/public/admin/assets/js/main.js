@@ -2431,9 +2431,17 @@ async function openCustomerDocument(documentItem) {
 
 function renderContractTemplatePanel() {
   const template = cotisationContractTemplate;
+  const isDefaultTemplate = template?.storagePath?.startsWith('/contracts/');
   const fileName = template?.fileName || 'Aucun modele publie';
-  const updated = template?.updatedAt ? formatDateValue(template.updatedAt) : 'Non publie';
+  const updated = template?.updatedAt
+    ? formatDateValue(template.updatedAt)
+    : isDefaultTemplate
+      ? 'Modele integre au site'
+      : 'Non publie';
   const fileSize = template?.size ? formatFileSize(template.size) : '-';
+  const helperText = isDefaultTemplate
+    ? 'Modele AfricaPhone par defaut. Publiez un PDF, DOC ou DOCX pour le remplacer cote client.'
+    : 'Modele publie par un administrateur. Un nouveau fichier remplacera celui-ci cote client.';
   const openButton = template?.downloadUrl
     ? `<a class="btn btn-small" href="${escapeAttr(template.downloadUrl)}" target="_blank" rel="noopener noreferrer">
         <i data-lucide="external-link" class="icon"></i> Ouvrir
@@ -2446,6 +2454,7 @@ function renderContractTemplatePanel() {
         <div>
           <div class="small" style="font-weight:800;text-transform:uppercase;color:#059669">Contrat cotisation client</div>
           <h3 style="margin:4px 0 6px;font-size:18px">${escapeHtml(fileName)}</h3>
+          <div class="small" style="margin-bottom:6px;color:var(--ink-2)">${escapeHtml(helperText)}</div>
           <div class="small">${escapeHtml(updated)} · ${escapeHtml(fileSize)}</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
