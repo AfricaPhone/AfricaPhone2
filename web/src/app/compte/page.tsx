@@ -27,7 +27,8 @@ import {
   saveCustomerProfileDraft,
   syncCustomerProfileToFirestore,
 } from '@/lib/customerProfile';
-import type { CustomerDocumentType } from '@/types/customerOrders';
+import type { CustomerDocumentType, CustomerPaymentStatus } from '@/types/customerOrders';
+import { formatPrice } from '@/utils/formatPrice';
 
 type ProfileTextField = 'fullName' | 'email' | 'whatsapp' | 'address' | 'city';
 type ProfileFileField = 'photoName' | 'idDocumentName' | 'contractName';
@@ -40,6 +41,47 @@ type UploadState = {
 type CotisationContractTemplate = {
   fileName: string;
   downloadUrl: string;
+};
+type InstallmentPlanView = {
+  id: string;
+  orderId: string;
+  orderReference: string | null;
+  status: 'draft' | 'documents_required' | 'contract_review' | 'active' | 'late' | 'completed' | 'cancelled';
+  targetMode: 'selected_product' | 'open_phone_purchase';
+  selectedProduct: {
+    name: string;
+    quantity: number;
+    subtotal: number | null;
+  } | null;
+  productTotal: number;
+  amountPaid: number;
+  balanceRemaining: number;
+  currency: 'XOF';
+  paymentCount?: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+  activatedAt: string | null;
+  lastPaymentAt?: string | null;
+};
+type InstallmentPaymentView = {
+  id: string;
+  orderId: string;
+  installmentPlanId: string | null;
+  status: CustomerPaymentStatus;
+  amount: number;
+  currency: 'XOF';
+  providerReference: string | null;
+  providerTransactionId: string | null;
+  failureReason: string | null;
+  receiptStatus: string;
+  receiptError: string | null;
+  createdAt: string | null;
+  verifiedAt: string | null;
+};
+type InstallmentsApiResponse = {
+  installments?: InstallmentPlanView[];
+  payments?: InstallmentPaymentView[];
+  message?: string;
 };
 
 const PROFILE_FILE_CONFIG: Record<
@@ -74,6 +116,28 @@ const INITIAL_UPLOAD_STATES: Record<ProfileFileField, UploadState> = {
   idDocumentName: { status: 'idle', message: '' },
   contractName: { status: 'idle', message: '' },
 };
+
+const INSTALLMENT_STATUS_LABELS: Record<InstallmentPlanView['status'], string> = {
+  draft: 'Brouillon',
+  documents_required: 'Documents requis',
+  contract_review: 'Contrat en verification',
+  active: 'Active',
+  late: 'Retard',
+  completed: 'Terminee',
+  cancelled: 'Annulee',
+};
+
+const PAYMENT_STATUS_LABELS: Record<CustomerPaymentStatus, string> = {
+  not_required: 'Non requis',
+  pending: 'En attente',
+  provider_opened: 'Paiement ouvert',
+  succeeded: 'Paiement confirme',
+  failed: 'Echec paiement',
+  cancelled: 'Paiement annule',
+  refunded: 'Rembourse',
+};
+
+const CALENDAR_WEEK_DAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
 const applyProfileUploadResult = (
   profile: CustomerProfileDraft,
@@ -186,6 +250,89 @@ const getNextProfileStep = (profileReadiness: ReturnType<typeof getCustomerProfi
   };
 };
 
+const parseDateValue = (value: string | null | undefined) => {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.valueOf()) ? null : date;
+};
+
+const dateKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+const paymentDate = (payment: InstallmentPaymentView) => parseDateValue(payment.verifiedAt || payment.createdAt);
+
+const formatDateLabel = (value: string | null | undefined) => {
+  const date = parseDateValue(value);
+  if (!date) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(date);
+};
+
+const formatMonthLabel = (date: Date) =>
+  new Intl.DateTimeFormat('fr-FR', {
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
+
+const paymentTone = (status: CustomerPaymentStatus) => {
+  if (status === 'succeeded') {
+    return 'green';
+  }
+
+  if (status === 'failed' || status === 'cancelled') {
+    return 'rose';
+  }
+
+  return 'orange';
+};
+
+const getCalendarAnchorDate = (plans: InstallmentPlanView[], payments: InstallmentPaymentView[]) => {
+  const paymentDates = payments
+    .map(paymentDate)
+    .filter((date): date is Date => Boolean(date))
+    .sort((a, b) => b.getTime() - a.getTime());
+
+  if (paymentDates[0]) {
+    return paymentDates[0];
+  }
+
+  const planDates = plans
+    .map(plan => parseDateValue(plan.lastPaymentAt || plan.activatedAt || plan.createdAt))
+    .filter((date): date is Date => Boolean(date))
+    .sort((a, b) => b.getTime() - a.getTime());
+
+  return planDates[0] || new Date();
+};
+
+const buildCalendarDays = (anchor: Date) => {
+  const year = anchor.getFullYear();
+  const month = anchor.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const offset = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days: Array<{ key: string; day: number | null; dateKey: string | null }> = [];
+
+  for (let index = 0; index < offset; index += 1) {
+    days.push({ key: `blank-${index}`, day: null, dateKey: null });
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const date = new Date(year, month, day);
+    days.push({ key: dateKey(date), day, dateKey: dateKey(date) });
+  }
+
+  return days;
+};
+
 export default function AccountPage() {
   const [profile, setProfile] = useState<CustomerProfileDraft>(INITIAL_CUSTOMER_PROFILE);
   const [saved, setSaved] = useState(false);
@@ -200,6 +347,10 @@ export default function AccountPage() {
   const [selectedFiles, setSelectedFiles] = useState<Record<ProfileFileField, File | null>>(INITIAL_PROFILE_FILES);
   const [uploadStates, setUploadStates] = useState<Record<ProfileFileField, UploadState>>(INITIAL_UPLOAD_STATES);
   const [contractTemplate, setContractTemplate] = useState<CotisationContractTemplate | null>(null);
+  const [installmentPlans, setInstallmentPlans] = useState<InstallmentPlanView[]>([]);
+  const [installmentPayments, setInstallmentPayments] = useState<InstallmentPaymentView[]>([]);
+  const [installmentsLoaded, setInstallmentsLoaded] = useState(false);
+  const [installmentsError, setInstallmentsError] = useState('');
 
   useEffect(() => {
     const savedProfile = getCustomerProfileDraft();
@@ -244,10 +395,16 @@ export default function AccountPage() {
       setAuthError('');
 
       if (!user) {
+        setInstallmentPlans([]);
+        setInstallmentPayments([]);
+        setInstallmentsLoaded(true);
+        setInstallmentsError('');
         return;
       }
 
       setAuthForm(prev => ({ ...prev, email: user.email || prev.email, password: '' }));
+      setInstallmentsLoaded(false);
+      setInstallmentsError('');
 
       try {
         const remoteProfile = await loadCustomerProfileFromFirestore(user);
@@ -261,6 +418,34 @@ export default function AccountPage() {
         console.error('account: unable to load customer profile', error);
         if (active) {
           setAuthError('Compte connecte, mais les informations du profil n ont pas pu etre chargees.');
+        }
+      }
+
+      try {
+        const token = await user.getIdToken();
+        const response = await fetch('/api/installments', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const body = (await response.json().catch(() => null)) as InstallmentsApiResponse | null;
+
+        if (!response.ok) {
+          throw new Error(body?.message || 'Suivi cotisation indisponible.');
+        }
+
+        if (active) {
+          setInstallmentPlans(Array.isArray(body?.installments) ? body.installments : []);
+          setInstallmentPayments(Array.isArray(body?.payments) ? body.payments : []);
+          setInstallmentsLoaded(true);
+        }
+      } catch (error) {
+        console.error('account: unable to load installments', error);
+        if (active) {
+          setInstallmentPlans([]);
+          setInstallmentPayments([]);
+          setInstallmentsLoaded(true);
+          setInstallmentsError('Suivi cotisation indisponible pour le moment.');
         }
       }
     });
@@ -720,8 +905,253 @@ export default function AccountPage() {
             </section>
           </aside>
         </div>
+
+        {authUser ? (
+          <AccountInstallmentOverview
+            plans={installmentPlans}
+            payments={installmentPayments}
+            loaded={installmentsLoaded}
+            error={installmentsError}
+          />
+        ) : null}
       </main>
       <MobileBottomNav />
+    </div>
+  );
+}
+
+function AccountInstallmentOverview({
+  plans,
+  payments,
+  loaded,
+  error,
+}: {
+  plans: InstallmentPlanView[];
+  payments: InstallmentPaymentView[];
+  loaded: boolean;
+  error: string;
+}) {
+  const sortedPayments = [...payments].sort((a, b) => {
+    const dateA = paymentDate(a)?.getTime() ?? 0;
+    const dateB = paymentDate(b)?.getTime() ?? 0;
+    return dateB - dateA;
+  });
+  const totalPaid = payments
+    .filter(payment => payment.status === 'succeeded')
+    .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+  const remainingTotal = plans.reduce((sum, plan) => sum + Math.max(0, Number(plan.balanceRemaining || 0)), 0);
+  const anchorDate = getCalendarAnchorDate(plans, payments);
+  const calendarDays = buildCalendarDays(anchorDate);
+  const paymentsByDay = new Map<string, InstallmentPaymentView[]>();
+
+  payments.forEach(payment => {
+    const date = paymentDate(payment);
+    if (!date) {
+      return;
+    }
+
+    const key = dateKey(date);
+    paymentsByDay.set(key, [...(paymentsByDay.get(key) || []), payment]);
+  });
+
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-extrabold uppercase text-[#059669]">Cotisations</p>
+          <h2 className="mt-1 text-xl font-black tracking-tight text-slate-950">Calendrier de paiement</h2>
+        </div>
+        <Link
+          href="/commandes"
+          className="inline-flex h-10 items-center justify-center rounded-2xl bg-[#ECFDF5] px-4 text-xs font-extrabold text-[#059669]"
+        >
+          Dossiers
+        </Link>
+      </div>
+
+      {!loaded ? (
+        <p className="mt-4 rounded-2xl bg-slate-50 px-3 py-3 text-sm font-bold text-slate-500">
+          Chargement des cotisations...
+        </p>
+      ) : error ? (
+        <p className="mt-4 rounded-2xl bg-orange-50 px-3 py-3 text-sm font-bold text-orange-700">{error}</p>
+      ) : plans.length === 0 ? (
+        <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-5">
+          <p className="text-sm font-black text-slate-950">Aucun dossier de cotisation actif.</p>
+          <Link href="/checkout" className="mt-3 inline-flex rounded-full bg-[#F97316] px-4 py-2 text-xs font-extrabold text-white">
+            Demarrer une cotisation
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_360px]">
+          <div className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <SummaryTile label="Dossiers" value={String(plans.length)} />
+              <SummaryTile label="Deja verse" value={formatPrice(totalPaid)} tone="green" />
+              <SummaryTile label="Reste" value={formatPrice(remainingTotal)} tone="orange" />
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              {plans.slice(0, 4).map(plan => (
+                <InstallmentProgressCard key={plan.id} plan={plan} />
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-black capitalize text-slate-950">{formatMonthLabel(anchorDate)}</p>
+                <span className="rounded-full bg-white px-3 py-1.5 text-[11px] font-extrabold text-slate-500">
+                  {sortedPayments.length} point(s)
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-7 gap-1 text-center">
+                {CALENDAR_WEEK_DAYS.map((day, index) => (
+                  <span key={`${day}-${index}`} className="py-1 text-[10px] font-black uppercase text-slate-400">
+                    {day}
+                  </span>
+                ))}
+                {calendarDays.map(day => {
+                  const dayPayments = day.dateKey ? paymentsByDay.get(day.dateKey) || [] : [];
+                  return <CalendarDay key={day.key} day={day.day} payments={dayPayments} />;
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-3">
+              <p className="text-xs font-extrabold uppercase text-[#059669]">Points de paiement</p>
+              {sortedPayments.length === 0 ? (
+                <p className="mt-3 text-sm font-bold text-slate-500">Aucun versement enregistre.</p>
+              ) : (
+                <div className="mt-3 space-y-2">
+                  {sortedPayments.slice(0, 6).map(payment => (
+                    <PaymentPoint key={payment.id} payment={payment} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function SummaryTile({ label, value, tone = 'slate' }: { label: string; value: string; tone?: 'slate' | 'green' | 'orange' }) {
+  const valueClass =
+    tone === 'green' ? 'text-[#059669]' : tone === 'orange' ? 'text-orange-700' : 'text-slate-950';
+
+  return (
+    <div className="rounded-2xl bg-slate-50 px-3 py-3">
+      <p className="text-[10px] font-extrabold uppercase text-slate-500">{label}</p>
+      <p className={`mt-1 text-lg font-black ${valueClass}`}>{value}</p>
+    </div>
+  );
+}
+
+function InstallmentProgressCard({ plan }: { plan: InstallmentPlanView }) {
+  const progress =
+    plan.productTotal > 0 ? Math.max(0, Math.min(100, Math.round((plan.amountPaid / plan.productTotal) * 100))) : 0;
+
+  return (
+    <article className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-extrabold uppercase text-slate-500">{plan.orderReference || plan.orderId}</p>
+          <h3 className="mt-1 line-clamp-2 text-sm font-black text-slate-950">
+            {plan.selectedProduct?.name || 'Telephone a choisir'}
+          </h3>
+        </div>
+        <span className="rounded-full bg-white px-3 py-1.5 text-[11px] font-extrabold text-[#059669]">
+          {INSTALLMENT_STATUS_LABELS[plan.status] || plan.status}
+        </span>
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+        <div className="h-full rounded-full bg-[#059669]" style={{ width: `${progress}%` }} />
+      </div>
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        <SummaryMini label="Objectif" value={formatPrice(plan.productTotal)} />
+        <SummaryMini label="Verse" value={formatPrice(plan.amountPaid)} tone="green" />
+        <SummaryMini label="Reste" value={formatPrice(plan.balanceRemaining)} tone="orange" />
+      </div>
+    </article>
+  );
+}
+
+function SummaryMini({ label, value, tone = 'slate' }: { label: string; value: string; tone?: 'slate' | 'green' | 'orange' }) {
+  const valueClass =
+    tone === 'green' ? 'text-[#059669]' : tone === 'orange' ? 'text-orange-700' : 'text-slate-950';
+
+  return (
+    <div className="rounded-2xl bg-white px-2 py-2">
+      <p className="text-[9px] font-extrabold uppercase text-slate-400">{label}</p>
+      <p className={`mt-1 text-[11px] font-black ${valueClass}`}>{value}</p>
+    </div>
+  );
+}
+
+function CalendarDay({ day, payments }: { day: number | null; payments: InstallmentPaymentView[] }) {
+  if (day === null) {
+    return <span className="h-10 rounded-2xl" />;
+  }
+
+  const hasPayments = payments.length > 0;
+  const tone = payments.some(payment => payment.status === 'succeeded')
+    ? 'green'
+    : payments.some(payment => payment.status === 'failed' || payment.status === 'cancelled')
+      ? 'rose'
+      : 'orange';
+  const dayClass = hasPayments
+    ? tone === 'green'
+      ? 'border-[#059669]/30 bg-[#ECFDF5] text-[#059669]'
+      : tone === 'rose'
+        ? 'border-rose-200 bg-rose-50 text-rose-700'
+        : 'border-orange-200 bg-orange-50 text-orange-700'
+    : 'border-transparent bg-white text-slate-500';
+
+  return (
+    <div className={`flex h-10 flex-col items-center justify-center rounded-2xl border text-xs font-black ${dayClass}`}>
+      <span>{day}</span>
+      {hasPayments ? (
+        <span className="mt-0.5 flex gap-0.5">
+          {payments.slice(0, 3).map(payment => (
+            <span
+              key={payment.id}
+              className={`h-1.5 w-1.5 rounded-full ${
+                paymentTone(payment.status) === 'green'
+                  ? 'bg-[#059669]'
+                  : paymentTone(payment.status) === 'rose'
+                    ? 'bg-rose-600'
+                    : 'bg-[#F97316]'
+              }`}
+            />
+          ))}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function PaymentPoint({ payment }: { payment: InstallmentPaymentView }) {
+  const tone = paymentTone(payment.status);
+  const dotClass = tone === 'green' ? 'bg-[#059669]' : tone === 'rose' ? 'bg-rose-600' : 'bg-[#F97316]';
+
+  return (
+    <div className="grid grid-cols-[auto_1fr] gap-3 rounded-2xl bg-slate-50 px-3 py-3">
+      <span className={`mt-1 h-3 w-3 rounded-full ${dotClass}`} />
+      <div className="min-w-0">
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-sm font-black text-slate-950">{formatPrice(payment.amount)}</p>
+          <span className="shrink-0 rounded-full bg-white px-2 py-1 text-[10px] font-extrabold text-slate-500">
+            {PAYMENT_STATUS_LABELS[payment.status] || payment.status}
+          </span>
+        </div>
+        <p className="mt-1 text-xs font-semibold text-slate-500">{formatDateLabel(payment.verifiedAt || payment.createdAt)}</p>
+        <p className="mt-1 truncate text-[11px] font-bold text-slate-400">
+          {payment.providerTransactionId || payment.providerReference || payment.id}
+        </p>
+      </div>
     </div>
   );
 }
