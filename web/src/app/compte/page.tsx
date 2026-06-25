@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -13,12 +13,14 @@ import {
 import { getDownloadURL, ref } from 'firebase/storage';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { PAYMENT_CONFIG } from '@/config/payment';
 import {
   getCustomerDocumentAccept,
   uploadCustomerDocument,
   type CustomerDocumentUploadResult,
 } from '@/lib/customerDocuments';
 import { auth, storage } from '@/lib/firebaseClient';
+import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import {
   type CustomerProfileDraft,
   getCustomerProfileDraft,
@@ -82,6 +84,40 @@ type InstallmentPaymentView = {
 type InstallmentsApiResponse = {
   installments?: InstallmentPlanView[];
   payments?: InstallmentPaymentView[];
+  message?: string;
+};
+type InstallmentsSnapshot = {
+  plans: InstallmentPlanView[];
+  payments: InstallmentPaymentView[];
+};
+type InstallmentPaymentUiState = {
+  status: 'idle' | 'starting' | 'opened' | 'verifying' | 'succeeded' | 'failed';
+  planId: string | null;
+  message: string;
+};
+type InitiateInstallmentPaymentResponse = {
+  paymentId: string;
+  installmentPlanId: string;
+  providerReference: string;
+  amount: number;
+  currency: 'XOF';
+  publicKey: string;
+  sandbox: boolean;
+  customer: {
+    name: string;
+    email: string | null;
+    phone: string;
+  };
+  message?: string;
+};
+type VerifyInstallmentPaymentResponse = {
+  payment?: {
+    id: string;
+    status: string;
+    amount: number;
+    providerTransactionId: string | null;
+    receiptStatus: string;
+  };
   message?: string;
 };
 
@@ -296,6 +332,37 @@ const paymentTone = (status: CustomerPaymentStatus) => {
   return 'orange';
 };
 
+const getKkiapayTransactionId = (data?: KkiapayListenerData) =>
+  (data?.transactionId && String(data.transactionId)) || (data?.flwRef && String(data.flwRef)) || null;
+
+const enforceKkiapayViewport = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const applyStyle = () => {
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe[src^="https://widget-v3.kkiapay.me"]');
+    if (!iframe) {
+      return false;
+    }
+
+    const style = iframe.style;
+    style.setProperty('height', '100vh', 'important');
+    style.setProperty('width', '100vw', 'important');
+    style.setProperty('maxHeight', '100vh', 'important');
+    style.setProperty('maxWidth', '100vw', 'important');
+    style.setProperty('top', '0');
+    style.setProperty('left', '0');
+    style.setProperty('position', 'fixed');
+
+    return true;
+  };
+
+  if (!applyStyle()) {
+    window.setTimeout(applyStyle, 80);
+  }
+};
+
 const getCalendarAnchorDate = (plans: InstallmentPlanView[], payments: InstallmentPaymentView[]) => {
   const paymentDates = payments
     .map(paymentDate)
@@ -352,6 +419,13 @@ export default function AccountPage() {
   const [installmentPayments, setInstallmentPayments] = useState<InstallmentPaymentView[]>([]);
   const [installmentsLoaded, setInstallmentsLoaded] = useState(false);
   const [installmentsError, setInstallmentsError] = useState('');
+  const [installmentAmounts, setInstallmentAmounts] = useState<Record<string, string>>({});
+  const [installmentPaymentState, setInstallmentPaymentState] = useState<InstallmentPaymentUiState>({
+    status: 'idle',
+    planId: null,
+    message: '',
+  });
+  const pendingInstallmentPaymentRef = useRef<{ installmentPlanId: string; paymentId: string } | null>(null);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
   const [selectedProfilePhotoUrl, setSelectedProfilePhotoUrl] = useState('');
 
@@ -382,6 +456,24 @@ export default function AccountPage() {
 
     return () => {
       disposed = true;
+    };
+  }, []);
+
+  const loadInstallments = useCallback(async (idToken: string): Promise<InstallmentsSnapshot> => {
+    const response = await fetch('/api/installments', {
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+    const body = (await response.json().catch(() => null)) as InstallmentsApiResponse | null;
+
+    if (!response.ok) {
+      throw new Error(body?.message || 'Suivi cotisation indisponible.');
+    }
+
+    return {
+      plans: Array.isArray(body?.installments) ? body.installments : [],
+      payments: Array.isArray(body?.payments) ? body.payments : [],
     };
   }, []);
 
@@ -426,20 +518,11 @@ export default function AccountPage() {
 
       try {
         const token = await user.getIdToken();
-        const response = await fetch('/api/installments', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const body = (await response.json().catch(() => null)) as InstallmentsApiResponse | null;
-
-        if (!response.ok) {
-          throw new Error(body?.message || 'Suivi cotisation indisponible.');
-        }
+        const installments = await loadInstallments(token);
 
         if (active) {
-          setInstallmentPlans(Array.isArray(body?.installments) ? body.installments : []);
-          setInstallmentPayments(Array.isArray(body?.payments) ? body.payments : []);
+          setInstallmentPlans(installments.plans);
+          setInstallmentPayments(installments.payments);
           setInstallmentsLoaded(true);
         }
       } catch (error) {
@@ -457,7 +540,116 @@ export default function AccountPage() {
       active = false;
       unsubscribe();
     };
+  }, [loadInstallments]);
+
+  const verifyInstallmentPayment = useCallback(
+    async (data?: KkiapayListenerData) => {
+      const pendingPayment = pendingInstallmentPaymentRef.current;
+      const transactionId = getKkiapayTransactionId(data);
+
+      if (!pendingPayment || !transactionId) {
+        setInstallmentPaymentState({
+          status: 'failed',
+          planId: pendingPayment?.installmentPlanId || null,
+          message: 'Reference Kkiapay manquante. Contactez AfricaPhone avec la capture du paiement.',
+        });
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        setInstallmentPaymentState({
+          status: 'failed',
+          planId: pendingPayment.installmentPlanId,
+          message: 'Reconnectez votre compte client pour confirmer la cotisation.',
+        });
+        return;
+      }
+
+      setInstallmentPaymentState({
+        status: 'verifying',
+        planId: pendingPayment.installmentPlanId,
+        message: 'Verification securisee de la cotisation...',
+      });
+
+      try {
+        const token = await user.getIdToken();
+        const response = await fetch('/api/installments/kkiapay/verify', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            installmentPlanId: pendingPayment.installmentPlanId,
+            paymentId: pendingPayment.paymentId,
+            transactionId,
+          }),
+        });
+        const body = (await response.json().catch(() => null)) as VerifyInstallmentPaymentResponse | null;
+
+        if (!response.ok || body?.payment?.status !== 'succeeded') {
+          throw new Error(body?.message || 'Cotisation non confirmee par le serveur.');
+        }
+
+        pendingInstallmentPaymentRef.current = null;
+        const installments = await loadInstallments(token);
+        setInstallmentPlans(installments.plans);
+        setInstallmentPayments(installments.payments);
+        setInstallmentsLoaded(true);
+        setInstallmentsError('');
+        setInstallmentPaymentState({
+          status: 'succeeded',
+          planId: pendingPayment.installmentPlanId,
+          message: 'Cotisation confirmee. Le recu sera envoye si la messagerie est configuree.',
+        });
+      } catch (error) {
+        setInstallmentPaymentState({
+          status: 'failed',
+          planId: pendingPayment.installmentPlanId,
+          message: error instanceof Error ? error.message : 'Verification cotisation impossible.',
+        });
+      }
+    },
+    [loadInstallments]
+  );
+
+  const handleInstallmentPaymentFailed = useCallback(() => {
+    setInstallmentPaymentState(prev => ({
+      status: 'failed',
+      planId: prev.planId,
+      message: 'La cotisation Kkiapay n a pas abouti.',
+    }));
   }, []);
+
+  useEffect(() => {
+    let disposed = false;
+    let moduleInstance: Awaited<ReturnType<typeof loadKkiapay>> | null = null;
+
+    loadKkiapay()
+      .then(instance => {
+        if (disposed) {
+          return;
+        }
+        moduleInstance = instance;
+        instance.addSuccessListener(verifyInstallmentPayment);
+        instance.addFailedListener(handleInstallmentPaymentFailed);
+      })
+      .catch(() => {
+        if (!disposed) {
+          setInstallmentPaymentState(prev => ({
+            ...prev,
+            message: prev.message || 'Module Kkiapay indisponible pour le moment.',
+          }));
+        }
+      });
+
+    return () => {
+      disposed = true;
+      moduleInstance?.removeKkiapayListener?.('success');
+      moduleInstance?.removeKkiapayListener?.('failed');
+    };
+  }, [handleInstallmentPaymentFailed, verifyInstallmentPayment]);
 
   useEffect(() => {
     const selectedPhoto = selectedFiles.photoName;
@@ -656,6 +848,77 @@ export default function AccountPage() {
     } catch (error) {
       console.error('account: sign out failed', error);
       setAuthError('Deconnexion impossible pour le moment.');
+    }
+  };
+
+  const startInstallmentPayment = async (plan: InstallmentPlanView) => {
+    if (installmentPaymentState.status === 'starting' || installmentPaymentState.status === 'verifying') {
+      return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) {
+      setInstallmentPaymentState({
+        status: 'failed',
+        planId: plan.id,
+        message: 'Connectez votre compte client avant de cotiser.',
+      });
+      return;
+    }
+
+    const defaultAmount = Math.min(plan.balanceRemaining, Math.max(500, Math.round(plan.balanceRemaining / 4)));
+    const amount = Math.round(Number(installmentAmounts[plan.id] || defaultAmount));
+    setInstallmentPaymentState({
+      status: 'starting',
+      planId: plan.id,
+      message: 'Preparation du versement Kkiapay...',
+    });
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/installments/kkiapay/initiate', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          installmentPlanId: plan.id,
+          amount,
+        }),
+      });
+      const body = (await response.json().catch(() => null)) as InitiateInstallmentPaymentResponse | null;
+
+      if (!response.ok || !body?.paymentId || !body.publicKey) {
+        throw new Error(body?.message || 'Preparation de la cotisation indisponible.');
+      }
+
+      pendingInstallmentPaymentRef.current = { installmentPlanId: plan.id, paymentId: body.paymentId };
+      const moduleInstance = await loadKkiapay();
+      moduleInstance.openKkiapayWidget({
+        amount: body.amount,
+        publicAPIKey: body.publicKey,
+        sandbox: body.sandbox,
+        theme: PAYMENT_CONFIG.PRODUCT_PAYMENT_THEME,
+        partnerId: body.providerReference,
+        name: body.customer.name,
+        email: body.customer.email || undefined,
+        phone: body.customer.phone,
+        countries: PAYMENT_CONFIG.COUNTRIES ? [...PAYMENT_CONFIG.COUNTRIES] : undefined,
+        paymentMethods: PAYMENT_CONFIG.PAYMENT_METHODS ? [...PAYMENT_CONFIG.PAYMENT_METHODS] : undefined,
+      });
+      enforceKkiapayViewport();
+      setInstallmentPaymentState({
+        status: 'opened',
+        planId: plan.id,
+        message: 'Finalisez le versement dans la fenetre Kkiapay.',
+      });
+    } catch (error) {
+      setInstallmentPaymentState({
+        status: 'failed',
+        planId: plan.id,
+        message: error instanceof Error ? error.message : 'Impossible de lancer la cotisation Kkiapay.',
+      });
     }
   };
 
@@ -971,6 +1234,12 @@ export default function AccountPage() {
             payments={installmentPayments}
             loaded={installmentsLoaded}
             error={installmentsError}
+            amounts={installmentAmounts}
+            paymentState={installmentPaymentState}
+            onAmountChange={(planId, value) => {
+              setInstallmentAmounts(prev => ({ ...prev, [planId]: value }));
+            }}
+            onPay={startInstallmentPayment}
           />
         ) : null}
       </main>
@@ -984,11 +1253,19 @@ function AccountInstallmentOverview({
   payments,
   loaded,
   error,
+  amounts,
+  paymentState,
+  onAmountChange,
+  onPay,
 }: {
   plans: InstallmentPlanView[];
   payments: InstallmentPaymentView[];
   loaded: boolean;
   error: string;
+  amounts: Record<string, string>;
+  paymentState: InstallmentPaymentUiState;
+  onAmountChange: (planId: string, value: string) => void;
+  onPay: (plan: InstallmentPlanView) => void;
 }) {
   const sortedPayments = [...payments].sort((a, b) => {
     const dateA = paymentDate(a)?.getTime() ?? 0;
@@ -1051,9 +1328,19 @@ function AccountInstallmentOverview({
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
-              {plans.slice(0, 4).map(plan => (
-                <InstallmentProgressCard key={plan.id} plan={plan} />
-              ))}
+              {plans.slice(0, 4).map(plan => {
+                const defaultAmount = Math.min(plan.balanceRemaining, Math.max(500, Math.round(plan.balanceRemaining / 4)));
+                return (
+                  <InstallmentProgressCard
+                    key={plan.id}
+                    plan={plan}
+                    amountValue={amounts[plan.id] ?? String(defaultAmount)}
+                    paymentState={paymentState}
+                    onAmountChange={onAmountChange}
+                    onPay={onPay}
+                  />
+                );
+              })}
             </div>
           </div>
 
@@ -1109,9 +1396,24 @@ function SummaryTile({ label, value, tone = 'slate' }: { label: string; value: s
   );
 }
 
-function InstallmentProgressCard({ plan }: { plan: InstallmentPlanView }) {
+function InstallmentProgressCard({
+  plan,
+  amountValue,
+  paymentState,
+  onAmountChange,
+  onPay,
+}: {
+  plan: InstallmentPlanView;
+  amountValue: string;
+  paymentState: InstallmentPaymentUiState;
+  onAmountChange: (planId: string, value: string) => void;
+  onPay: (plan: InstallmentPlanView) => void;
+}) {
   const progress =
     plan.productTotal > 0 ? Math.max(0, Math.min(100, Math.round((plan.amountPaid / plan.productTotal) * 100))) : 0;
+  const canPay = ['active', 'late'].includes(plan.status) && plan.balanceRemaining > 0;
+  const isBusy =
+    paymentState.planId === plan.id && (paymentState.status === 'starting' || paymentState.status === 'verifying');
 
   return (
     <article className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
@@ -1134,6 +1436,46 @@ function InstallmentProgressCard({ plan }: { plan: InstallmentPlanView }) {
         <SummaryMini label="Verse" value={formatPrice(plan.amountPaid)} tone="green" />
         <SummaryMini label="Reste" value={formatPrice(plan.balanceRemaining)} tone="orange" />
       </div>
+
+      {canPay ? (
+        <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
+          <label className="block">
+            <span className="text-[10px] font-extrabold uppercase text-slate-500">Montant a verser</span>
+            <input
+              value={amountValue}
+              onChange={event => onAmountChange(plan.id, event.target.value.replace(/[^0-9]/g, ''))}
+              inputMode="numeric"
+              className="mt-1 h-10 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm font-extrabold outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/10"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => onPay(plan)}
+            disabled={isBusy}
+            className="h-10 self-end rounded-2xl bg-[#059669] px-4 text-sm font-extrabold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+          >
+            {isBusy ? 'Traitement...' : 'Cotiser'}
+          </button>
+        </div>
+      ) : (
+        <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
+          {plan.status === 'completed'
+            ? 'Dossier solde.'
+            : plan.status === 'cancelled'
+              ? 'Dossier annule.'
+              : 'Validation AfricaPhone requise avant le premier versement Kkiapay.'}
+        </p>
+      )}
+
+      {paymentState.planId === plan.id && paymentState.message ? (
+        <p
+          className={`mt-3 rounded-2xl px-3 py-2 text-xs font-bold leading-5 ${
+            paymentState.status === 'failed' ? 'bg-rose-50 text-rose-700' : 'bg-white text-slate-600'
+          }`}
+        >
+          {paymentState.message}
+        </p>
+      ) : null}
     </article>
   );
 }
