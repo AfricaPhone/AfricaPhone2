@@ -87,6 +87,19 @@ export const uploadCustomerDocument = async (params: {
   });
 
   const status: CustomerDocumentStatus = 'under_review';
+  const contractVerification =
+    documentType === 'signed_contract'
+      ? {
+          contractReference: null,
+          qrVerification: {
+            status: 'manual_review',
+            extractedReference: null,
+            matchedInstallmentPlanId: installmentPlanId,
+            checkedAt: null,
+            error: 'Controle QR automatique a venir. Validation admin obligatoire.',
+          },
+        }
+      : {};
 
   await setDoc(doc(db, 'customerDocuments', documentId), {
     id: documentId,
@@ -100,6 +113,7 @@ export const uploadCustomerDocument = async (params: {
     fileName: file.name,
     contentType: file.type,
     size: file.size,
+    ...contractVerification,
     rejectionReason: null,
     createdAt: serverTimestamp(),
     reviewedAt: null,

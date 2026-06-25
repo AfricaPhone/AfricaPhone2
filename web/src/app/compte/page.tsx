@@ -512,7 +512,7 @@ export default function AccountPage() {
                 <div>
                   <p className="text-xs font-extrabold uppercase text-[#059669]">Contrat cotisation</p>
                   <p className="mt-1 text-sm font-bold leading-5 text-slate-700">
-                    Telechargez, imprimez, remplissez puis envoyez le contrat signe.
+                    Telechargez le PDF, imprimez, signez puis envoyez le contrat signe.
                   </p>
                 </div>
                 {contractTemplate?.downloadUrl ? (

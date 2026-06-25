@@ -787,7 +787,7 @@ export default function CheckoutPage() {
                     <div>
                       <p className="text-xs font-extrabold uppercase text-[#059669]">Contrat a imprimer</p>
                       <p className="mt-1 text-sm font-bold leading-5 text-slate-700">
-                        Telechargez le contrat, imprimez-le, remplissez-le puis renvoyez la version signee.
+                        Telechargez le PDF, imprimez-le, signez-le puis renvoyez la version signee.
                       </p>
                     </div>
                     {contractTemplate?.downloadUrl ? (

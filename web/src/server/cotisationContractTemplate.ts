@@ -7,9 +7,9 @@ import { getAdminBucket, getAdminDb } from '@/lib/firebaseAdmin';
 const CONFIG_COLLECTION = 'config';
 const CONTRACT_TEMPLATE_DOC = 'cotisationContractTemplate';
 const CONTRACT_TEMPLATE_STORAGE_ROOT = 'contract-templates';
-const DEFAULT_CONTRACT_TEMPLATE_FILE_NAME = 'engagement-depot-progressif-africa-phone.docx';
+const DEFAULT_CONTRACT_TEMPLATE_FILE_NAME = 'engagement-depot-progressif-africa-phone.pdf';
 const DEFAULT_CONTRACT_TEMPLATE_PUBLIC_PATH = `/contracts/${DEFAULT_CONTRACT_TEMPLATE_FILE_NAME}`;
-const DEFAULT_CONTRACT_TEMPLATE_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+const DEFAULT_CONTRACT_TEMPLATE_CONTENT_TYPE = 'application/pdf';
 const MAX_CONTRACT_TEMPLATE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_CONTRACT_TEMPLATE_TYPES = new Set([
   'application/pdf',

@@ -46,6 +46,14 @@ export type CustomerDocumentType =
 
 export type CustomerDocumentStatus = 'uploaded' | 'under_review' | 'approved' | 'rejected' | 'expired';
 
+export type ContractQrVerificationStatus =
+  | 'not_checked'
+  | 'matched'
+  | 'missing'
+  | 'mismatch'
+  | 'unreadable'
+  | 'manual_review';
+
 export type CustomerNotificationType =
   | 'order_created'
   | 'profile_required'
@@ -210,6 +218,10 @@ export type InstallmentPlan = {
   paymentCount?: number;
   lastPaymentId?: string | null;
   lastPaymentAt?: FirestoreTimestampLike | null;
+  contractReference?: string | null;
+  contractQrStatus?: ContractQrVerificationStatus;
+  contractApprovedAt?: FirestoreTimestampLike | null;
+  contractApprovedBy?: string | null;
   contractDocumentId: string;
   identityDocumentId: string;
   schedule: InstallmentPlanScheduleItem[];
@@ -230,6 +242,14 @@ export type CustomerDocument = {
   fileName: string;
   contentType: string;
   size: number;
+  contractReference?: string | null;
+  qrVerification?: {
+    status: ContractQrVerificationStatus;
+    extractedReference: string | null;
+    matchedInstallmentPlanId: string | null;
+    checkedAt: FirestoreTimestampLike | null;
+    error: string | null;
+  } | null;
   rejectionReason: string | null;
   createdAt: FirestoreTimestampLike;
   reviewedAt: FirestoreTimestampLike | null;

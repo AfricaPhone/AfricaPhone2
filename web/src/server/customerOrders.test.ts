@@ -176,11 +176,13 @@ describe('customer order creation', () => {
       amountPaid: 0,
       balanceRemaining: 100000,
       contractDocumentId: 'contract-id-1',
+      contractQrStatus: 'manual_review',
       identityDocumentId: 'document-id-1',
       selectedProduct: {
         name: 'Telephone test',
       },
     });
+    expect(plan.contractReference).toMatch(/^AFPCT1-[A-Z0-9]{18}$/);
   });
 
   it('normalizes delivery location and stores a Maps link for the admin team', () => {

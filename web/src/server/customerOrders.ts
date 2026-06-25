@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import type { CheckoutDraft } from '@/lib/checkoutDraft';
 import type {
   CustomerFulfillmentMode,
@@ -71,6 +72,17 @@ const isFiniteCoordinate = (value: unknown, min: number, max: number): value is 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+const buildContractReference = (installmentPlanId: string, orderId: string) => {
+  const digest = createHash('sha256')
+    .update(`africaphone-cotisation:${installmentPlanId}:${orderId}`)
+    .digest('base64url')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .slice(0, 18)
+    .toUpperCase();
+
+  return `AFPCT1-${digest}`;
+};
 
 const normalizeDeliveryLocation = (value: unknown): CheckoutDraft['deliveryLocation'] => {
   if (!isRecord(value)) {
@@ -383,6 +395,10 @@ export const buildInitialInstallmentPlanFromOrder = (params: {
     amountPaid: 0,
     balanceRemaining: productTotal,
     currency: 'XOF',
+    contractReference: buildContractReference(installmentPlanId, order.id),
+    contractQrStatus: 'manual_review',
+    contractApprovedAt: null,
+    contractApprovedBy: null,
     contractDocumentId,
     identityDocumentId,
     schedule: [],

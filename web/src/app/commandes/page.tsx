@@ -932,7 +932,7 @@ function InstallmentSection({
                     ? 'Dossier solde.'
                     : plan.status === 'cancelled'
                       ? 'Dossier annule.'
-                      : 'Le contrat doit etre valide par AfricaPhone avant le premier versement.'}
+                      : 'Le contrat signe doit etre valide par AfricaPhone avant le premier versement Kkiapay.'}
                 </p>
               )}
 

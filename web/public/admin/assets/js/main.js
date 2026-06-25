@@ -298,6 +298,15 @@ const DOCUMENT_STATUS_LABELS = {
   expired: 'Expire',
 };
 
+const CONTRACT_QR_STATUS_LABELS = {
+  not_checked: 'QR non controle',
+  matched: 'QR coherent',
+  missing: 'QR absent',
+  mismatch: 'QR different',
+  unreadable: 'QR illisible',
+  manual_review: 'Controle manuel',
+};
+
 const INSTALLMENT_STATUS_LABELS = {
   draft: 'Brouillon',
   documents_required: 'Docs requis',
@@ -2223,7 +2232,7 @@ async function updateInstallmentPlanStatus(control, installmentPlanId, status) {
   } catch (err) {
     console.error('installments admin api: update failed', err);
     if (control && previousValue !== null && 'value' in control) control.value = previousValue;
-    toast('Action bloquee', 'Mise a jour admin indisponible.', 'error');
+    toast('Action bloquee', err instanceof Error ? err.message : 'Mise a jour admin indisponible.', 'error');
   } finally {
     if (control) {
       control.disabled = false;
@@ -2381,6 +2390,7 @@ function renderInstallmentPlanList() {
       <td>
         <strong>${escapeHtml(String(progress))}%</strong>
         <div class="small">${formatMoneyValue(plan.amountPaid)} paye - ${formatMoneyValue(plan.balanceRemaining)} restant</div>
+        <div class="small">Contrat: ${escapeHtml(plan.contractApprovedAt ? 'valide admin' : 'validation requise')}${plan.contractReference ? ` - ${escapeHtml(plan.contractReference)}` : ''}</div>
       </td>
       <td>${renderStatusSelect(status, INSTALLMENT_STATUS_OPTIONS, INSTALLMENT_STATUS_LABELS, 'data-installment-status')}</td>
       <td>${escapeHtml(formatDateValue(plan.createdAt))}</td>`;
@@ -2408,7 +2418,18 @@ function filteredCustomerDocuments() {
   return allCustomerDocuments.filter(documentItem => {
     if (documentStatusFilter && documentItem.status !== documentStatusFilter) return false;
     if (documentTypeFilter && documentItem.type !== documentTypeFilter) return false;
-    return matchesCommerceSearch(documentItem, documentSearchTerm, ['id', 'userId', 'orderId', 'fileName', 'status', 'type']);
+    return matchesCommerceSearch(documentItem, documentSearchTerm, [
+      'id',
+      'userId',
+      'orderId',
+      'installmentPlanId',
+      'fileName',
+      'status',
+      'type',
+      'contractReference',
+      row => row?.qrVerification?.status || '',
+      row => row?.qrVerification?.extractedReference || '',
+    ]);
   });
 }
 
@@ -2544,12 +2565,19 @@ function renderCustomerDocumentList() {
   const tbody = table.querySelector('tbody');
   items.forEach(documentItem => {
     const status = documentItem.status || 'under_review';
+    const qrStatus = documentItem.qrVerification?.status || (documentItem.type === 'signed_contract' ? 'not_checked' : '');
+    const qrLabel = qrStatus ? CONTRACT_QR_STATUS_LABELS[qrStatus] || qrStatus : '';
+    const contractReference = documentItem.contractReference || documentItem.qrVerification?.extractedReference || '';
+    const contractMeta =
+      documentItem.type === 'signed_contract'
+        ? `<div class="small">QR: ${escapeHtml(qrLabel)}${contractReference ? ` · ${escapeHtml(contractReference)}` : ''}</div>`
+        : '';
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${escapeHtml(documentItem.fileName || documentItem.id)}</strong><div class="small">${escapeHtml(formatDateValue(documentItem.createdAt))}</div></td>
+      <td><strong>${escapeHtml(documentItem.fileName || documentItem.id)}</strong><div class="small">${escapeHtml(formatDateValue(documentItem.createdAt))}</div>${contractMeta}</td>
       <td>${escapeHtml(DOCUMENT_TYPE_LABELS[documentItem.type] || documentItem.type || '-')}</td>
       <td>${escapeHtml(documentItem.userId || '-')}</td>
-      <td>${escapeHtml(documentItem.orderId || '-')}</td>
+      <td>${escapeHtml(documentItem.installmentPlanId || documentItem.orderId || '-')}</td>
       <td>${escapeHtml(formatFileSize(documentItem.size))}</td>
       <td>${renderStatusSelect(status, DOCUMENT_STATUS_OPTIONS, DOCUMENT_STATUS_LABELS, 'data-document-status')}</td>
       <td class="actions"><button class="btn btn-small" data-open>Ouvrir</button></td>`;

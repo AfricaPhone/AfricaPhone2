@@ -2,6 +2,7 @@ import { kkiapay } from '@kkiapay-org/nodejs-sdk';
 import { FieldValue, type DocumentData } from 'firebase-admin/firestore';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import type {
+  CustomerDocument,
   CustomerNotification,
   CustomerOrder,
   CustomerPaymentStatus,
@@ -215,7 +216,7 @@ const validatePlanForPayment = (plan: InstallmentPlan, userId: string, amount: n
   }
 
   if (!['active', 'late'].includes(plan.status)) {
-    throw new PaymentFlowError('Le contrat doit etre valide par AfricaPhone avant les cotisations.', 409);
+    throw new PaymentFlowError('Le contrat signe doit etre valide par AfricaPhone avant les cotisations Kkiapay.', 409);
   }
 
   const balanceRemaining = Math.max(0, Math.round(Number(plan.balanceRemaining || 0)));
@@ -229,6 +230,26 @@ const validatePlanForPayment = (plan: InstallmentPlan, userId: string, amount: n
 
   if (!plan.customer.email) {
     throw new PaymentFlowError('Adresse email requise pour envoyer le recu de cotisation.', 409);
+  }
+};
+
+const validateApprovedSignedContract = (plan: InstallmentPlan, contract: CustomerDocument | null) => {
+  if (!contract) {
+    throw new PaymentFlowError('Contrat signe introuvable pour ce dossier.', 409);
+  }
+
+  const isLinkedToPlan =
+    contract.installmentPlanId === plan.id ||
+    contract.orderId === plan.orderId ||
+    contract.id === plan.contractDocumentId;
+
+  if (
+    contract.type !== 'signed_contract' ||
+    contract.userId !== plan.userId ||
+    contract.status !== 'approved' ||
+    !isLinkedToPlan
+  ) {
+    throw new PaymentFlowError('Contrat signe non valide par AfricaPhone. Paiement cotisation bloque.', 409);
   }
 };
 
@@ -253,6 +274,12 @@ export const initiateKkiapayInstallmentPayment = async (params: {
 
     const plan = normalizePlan(planSnapshot.id, planSnapshot.data() ?? {});
     validatePlanForPayment(plan, params.userId, amount);
+
+    const contractSnapshot = await transaction.get(adminDb.collection('customerDocuments').doc(plan.contractDocumentId));
+    validateApprovedSignedContract(
+      plan,
+      contractSnapshot.exists ? ({ id: contractSnapshot.id, ...contractSnapshot.data() } as CustomerDocument) : null
+    );
 
     const orderRef = adminDb.collection('orders').doc(plan.orderId);
     const orderSnapshot = await transaction.get(orderRef);

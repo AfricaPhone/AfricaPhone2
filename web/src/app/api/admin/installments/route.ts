@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { FieldValue, type DocumentData } from 'firebase-admin/firestore';
 import { getAdminAuth, getAdminDb } from '@/lib/firebaseAdmin';
 import type {
+  CustomerDocument,
   FirestoreTimestampLike,
   InstallmentPlan,
   InstallmentPlanScheduleItem,
@@ -19,6 +20,15 @@ const INSTALLMENT_STATUSES = new Set<InstallmentPlanStatus>([
 ]);
 
 const errorResponse = (message: string, status = 400) => NextResponse.json({ message }, { status });
+
+class AdminInstallmentError extends Error {
+  status: number;
+
+  constructor(message: string, status = 400) {
+    super(message);
+    this.status = status;
+  }
+}
 
 const toIsoString = (value: FirestoreTimestampLike): string | null => {
   if (!value) {
@@ -66,6 +76,7 @@ const serializeInstallmentPlanForAdmin = (plan: InstallmentPlan, fallbackId?: st
   createdAt: toIsoString(plan.createdAt),
   updatedAt: toIsoString(plan.updatedAt),
   activatedAt: toIsoString(plan.activatedAt),
+  contractApprovedAt: toIsoString(plan.contractApprovedAt ?? null),
   schedule: Array.isArray(plan.schedule) ? plan.schedule.map(serializeScheduleItem) : [],
 });
 
@@ -147,19 +158,63 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const installmentRef = getAdminDb().collection('installmentPlans').doc(installmentPlanId);
+    const adminDb = getAdminDb();
+    const installmentRef = adminDb.collection('installmentPlans').doc(installmentPlanId);
     const updatePayload: Record<string, unknown> = {
       status: body.status,
       updatedAt: FieldValue.serverTimestamp(),
       updatedBy: adminResult.uid,
     };
-    if (body.status === 'active') {
-      updatePayload.activatedAt = FieldValue.serverTimestamp();
-      updatePayload.activatedBy = adminResult.uid;
-    }
-    await installmentRef.update({
-      ...updatePayload,
+
+    await adminDb.runTransaction(async transaction => {
+      const installmentSnapshot = await transaction.get(installmentRef);
+      if (!installmentSnapshot.exists) {
+        throw new AdminInstallmentError('Dossier cotisation introuvable.', 404);
+      }
+
+      const installment = normalizeInstallmentSnapshot(installmentSnapshot.id, installmentSnapshot.data() ?? {});
+
+      if (body.status === 'active') {
+        const contractDocumentId = installment.contractDocumentId?.trim();
+        if (!contractDocumentId) {
+          throw new AdminInstallmentError('Contrat signe introuvable pour ce dossier.', 409);
+        }
+
+        const contractRef = adminDb.collection('customerDocuments').doc(contractDocumentId);
+        const contractSnapshot = await transaction.get(contractRef);
+        if (!contractSnapshot.exists) {
+          throw new AdminInstallmentError('Contrat signe introuvable dans les documents client.', 409);
+        }
+
+        const contract = { id: contractSnapshot.id, ...contractSnapshot.data() } as CustomerDocument;
+        const isLinkedToPlan =
+          contract.installmentPlanId === installment.id ||
+          contract.orderId === installment.orderId ||
+          contract.id === installment.contractDocumentId;
+        if (
+          contract.type !== 'signed_contract' ||
+          contract.userId !== installment.userId ||
+          contract.status !== 'approved' ||
+          !isLinkedToPlan
+        ) {
+          throw new AdminInstallmentError(
+            'Validez d abord le contrat signe dans Documents avant d activer la cotisation.',
+            409
+          );
+        }
+
+        updatePayload.activatedAt = FieldValue.serverTimestamp();
+        updatePayload.activatedBy = adminResult.uid;
+        updatePayload.contractApprovedAt = contract.reviewedAt || FieldValue.serverTimestamp();
+        updatePayload.contractApprovedBy = contract.reviewedBy || adminResult.uid;
+        updatePayload.contractQrStatus = contract.qrVerification?.status || 'manual_review';
+      }
+
+      transaction.update(installmentRef, {
+        ...updatePayload,
+      });
     });
+
     const updatedSnapshot = await installmentRef.get();
 
     if (!updatedSnapshot.exists) {
@@ -174,6 +229,9 @@ export async function PATCH(request: NextRequest) {
     });
   } catch (error) {
     console.error('admin installments: update failed', error);
+    if (error instanceof AdminInstallmentError) {
+      return errorResponse(error.message, error.status);
+    }
     return errorResponse('Impossible de mettre a jour la cotisation.', 500);
   }
 }

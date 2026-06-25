@@ -166,6 +166,24 @@ export async function POST(request: NextRequest) {
     batch.set(orderRef, order);
     if (installmentPlanRef && installmentPlan) {
       batch.set(installmentPlanRef, installmentPlan);
+      batch.update(adminDb.collection('customerDocuments').doc(installmentPlan.identityDocumentId), {
+        orderId: orderRef.id,
+        installmentPlanId: installmentPlan.id,
+        updatedAt: now,
+      });
+      batch.update(adminDb.collection('customerDocuments').doc(installmentPlan.contractDocumentId), {
+        orderId: orderRef.id,
+        installmentPlanId: installmentPlan.id,
+        contractReference: installmentPlan.contractReference ?? null,
+        qrVerification: {
+          status: 'manual_review',
+          extractedReference: null,
+          matchedInstallmentPlanId: installmentPlan.id,
+          checkedAt: now,
+          error: 'Verification QR automatique non executee. Validation admin requise.',
+        },
+        updatedAt: now,
+      });
     }
     await batch.commit();
 
