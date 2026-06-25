@@ -347,6 +347,8 @@ let allOrderPayments = [];
 let allInstallmentPlans = [];
 let allCustomerDocuments = [];
 let allCustomerNotifications = [];
+let cotisationContractTemplate = null;
+let cotisationContractTemplateLoaded = false;
 let orderSearchTerm = '';
 let orderStatusFilter = '';
 let orderPaymentFilter = '';
@@ -1418,6 +1420,7 @@ async function handleRoute() {
     renderInstallmentPlanList();
   } else if (route === 'documents') {
     setCrumb('Documents');
+    await ensureContractTemplateLoaded();
     await ensureCustomerDocumentsLoaded();
     renderCustomerDocumentList();
   } else if (route === 'notifications') {
@@ -1808,6 +1811,28 @@ async function readAdminInstallments(target) {
   }
 }
 
+async function readAdminContractTemplate() {
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/contract-template', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(body?.message || 'Contrat indisponible.');
+    }
+
+    return body?.template || null;
+  } catch (err) {
+    console.error('contract template admin api: load failed', err);
+    toast('Contrat cotisation', 'Lecture du modele impossible.', 'error');
+    return null;
+  }
+}
+
 async function ensureCustomerOrdersLoaded(force = false) {
   if (!force && allCustomerOrders.length > 0) return;
   const rows = await readAdminOrders($ordersContent);
@@ -1830,6 +1855,12 @@ async function ensureCustomerDocumentsLoaded(force = false) {
   if (!force && allCustomerDocuments.length > 0) return;
   const rows = await readCommerceCollection('customerDocuments', $documentsContent);
   if (rows) allCustomerDocuments = rows;
+}
+
+async function ensureContractTemplateLoaded(force = false) {
+  if (!force && cotisationContractTemplateLoaded) return;
+  cotisationContractTemplate = await readAdminContractTemplate();
+  cotisationContractTemplateLoaded = true;
 }
 
 async function ensureCustomerNotificationsLoaded(force = false) {
@@ -2376,6 +2407,80 @@ async function openCustomerDocument(documentItem) {
   }
 }
 
+function renderContractTemplatePanel() {
+  const template = cotisationContractTemplate;
+  const fileName = template?.fileName || 'Aucun modele publie';
+  const updated = template?.updatedAt ? formatDateValue(template.updatedAt) : 'Non publie';
+  const fileSize = template?.size ? formatFileSize(template.size) : '-';
+  const openButton = template?.downloadUrl
+    ? `<a class="btn btn-small" href="${escapeAttr(template.downloadUrl)}" target="_blank" rel="noopener noreferrer">
+        <i data-lucide="external-link" class="icon"></i> Ouvrir
+      </a>`
+    : '';
+
+  return `
+    <div class="commerce-panel" style="margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center">
+        <div>
+          <div class="small" style="font-weight:800;text-transform:uppercase;color:#059669">Contrat cotisation client</div>
+          <h3 style="margin:4px 0 6px;font-size:18px">${escapeHtml(fileName)}</h3>
+          <div class="small">${escapeHtml(updated)} · ${escapeHtml(fileSize)}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
+          ${openButton}
+          <input id="contract-template-file" class="input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="max-width:260px" />
+          <button id="upload-contract-template" class="btn btn-primary btn-small" type="button">
+            <i data-lucide="upload" class="icon"></i> Publier
+          </button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function uploadContractTemplate(button) {
+  const input = $('#contract-template-file');
+  const file = input?.files?.[0];
+  if (!file) {
+    toast('Contrat requis', 'Choisissez le document a publier.', 'error');
+    return;
+  }
+
+  setButtonLoading(button, true);
+  try {
+    const token = await getAdminApiToken();
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch('/api/admin/contract-template', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok || !body?.template) {
+      throw new Error(body?.message || 'Publication impossible.');
+    }
+
+    cotisationContractTemplate = body.template;
+    cotisationContractTemplateLoaded = true;
+    renderCustomerDocumentList();
+    toast('Contrat publie', 'Le modele est disponible cote client.', 'success');
+  } catch (err) {
+    console.error('contract template upload failed', err);
+    toast('Contrat non publie', err instanceof Error ? err.message : 'Verifiez le fichier puis reessayez.', 'error');
+  } finally {
+    setButtonLoading(button, false);
+  }
+}
+
+function bindContractTemplatePanel() {
+  $('#upload-contract-template')?.addEventListener('click', event => {
+    uploadContractTemplate(event.currentTarget);
+  });
+}
+
 function renderCustomerDocumentList() {
   if (!$documentsContent) return;
   const items = filteredCustomerDocuments();
@@ -2388,8 +2493,15 @@ function renderCustomerDocumentList() {
     renderMiniStat('Valides', approved, 'check-circle-2'),
     renderMiniStat('Rejetes', rejected, 'x-circle'),
   ].join('');
+  const wrap = document.createElement('div');
+  wrap.innerHTML = renderCommerceShell(statsHtml, '');
+  const panel = wrap.querySelector('.commerce-panel');
+  panel.insertAdjacentHTML('beforebegin', renderContractTemplatePanel());
   if (!items.length) {
-    $documentsContent.innerHTML = renderCommerceShell(statsHtml, renderCommerceEmpty('Aucun document', 'Les pieces client apparaitront apres envoi.'));
+    panel.innerHTML = renderCommerceEmpty('Aucun document', 'Les pieces client apparaitront apres envoi.');
+    $documentsContent.innerHTML = '';
+    $documentsContent.appendChild(wrap.firstElementChild);
+    bindContractTemplatePanel();
     lucide.createIcons();
     return;
   }
@@ -2425,11 +2537,10 @@ function renderCustomerDocumentList() {
     };
     tbody.appendChild(tr);
   });
-  const wrap = document.createElement('div');
-  wrap.innerHTML = renderCommerceShell(statsHtml, '');
-  wrap.querySelector('.commerce-panel').appendChild(table);
+  panel.appendChild(table);
   $documentsContent.innerHTML = '';
   $documentsContent.appendChild(wrap.firstElementChild);
+  bindContractTemplatePanel();
   lucide.createIcons();
 }
 

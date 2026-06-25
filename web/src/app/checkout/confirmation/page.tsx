@@ -45,6 +45,34 @@ type VerifyPaymentResponse = {
 const getKkiapayTransactionId = (data?: KkiapayListenerData) =>
   (data?.transactionId && String(data.transactionId)) || (data?.flwRef && String(data.flwRef)) || null;
 
+const enforceKkiapayViewport = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const applyStyle = () => {
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe[src^="https://widget-v3.kkiapay.me"]');
+    if (!iframe) {
+      return false;
+    }
+
+    const style = iframe.style;
+    style.setProperty('height', '100vh', 'important');
+    style.setProperty('width', '100vw', 'important');
+    style.setProperty('maxHeight', '100vh', 'important');
+    style.setProperty('maxWidth', '100vw', 'important');
+    style.setProperty('top', '0');
+    style.setProperty('left', '0');
+    style.setProperty('position', 'fixed');
+
+    return true;
+  };
+
+  if (!applyStyle()) {
+    window.setTimeout(applyStyle, 80);
+  }
+};
+
 export default function CheckoutConfirmationPage() {
   const [draft, setDraft] = useState<CheckoutDraft | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -379,6 +407,7 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
         countries: PAYMENT_CONFIG.COUNTRIES ? [...PAYMENT_CONFIG.COUNTRIES] : undefined,
         paymentMethods: PAYMENT_CONFIG.PAYMENT_METHODS ? [...PAYMENT_CONFIG.PAYMENT_METHODS] : undefined,
       });
+      enforceKkiapayViewport();
       setStatus('opened');
       setMessage('Finalisez le paiement dans la fenetre Kkiapay.');
     } catch (error) {

@@ -37,6 +37,10 @@ type UploadState = {
   status: UploadStatus;
   message: string;
 };
+type CotisationContractTemplate = {
+  fileName: string;
+  downloadUrl: string;
+};
 
 const PROFILE_FILE_CONFIG: Record<
   ProfileFileField,
@@ -195,6 +199,7 @@ export default function AccountPage() {
   const [isSyncingProfile, setIsSyncingProfile] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<ProfileFileField, File | null>>(INITIAL_PROFILE_FILES);
   const [uploadStates, setUploadStates] = useState<Record<ProfileFileField, UploadState>>(INITIAL_UPLOAD_STATES);
+  const [contractTemplate, setContractTemplate] = useState<CotisationContractTemplate | null>(null);
 
   useEffect(() => {
     const savedProfile = getCustomerProfileDraft();
@@ -203,6 +208,27 @@ export default function AccountPage() {
       setAuthForm(prev => ({ ...prev, email: savedProfile.email }));
       setSaved(true);
     }
+  }, []);
+
+  useEffect(() => {
+    let disposed = false;
+
+    fetch('/api/contract-template')
+      .then(response => (response.ok ? response.json() : null))
+      .then((body: { template?: CotisationContractTemplate | null } | null) => {
+        if (!disposed) {
+          setContractTemplate(body?.template || null);
+        }
+      })
+      .catch(() => {
+        if (!disposed) {
+          setContractTemplate(null);
+        }
+      });
+
+    return () => {
+      disposed = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -480,6 +506,31 @@ export default function AccountPage() {
                 placeholder="Maison, rue, repere, zone de livraison..."
               />
             </label>
+
+            <div className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] p-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-extrabold uppercase text-[#059669]">Contrat cotisation</p>
+                  <p className="mt-1 text-sm font-bold leading-5 text-slate-700">
+                    Telechargez, imprimez, remplissez puis envoyez le contrat signe.
+                  </p>
+                </div>
+                {contractTemplate?.downloadUrl ? (
+                  <a
+                    href={contractTemplate.downloadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-10 shrink-0 items-center justify-center rounded-2xl bg-[#059669] px-4 text-xs font-extrabold text-white"
+                  >
+                    Telecharger
+                  </a>
+                ) : (
+                  <span className="rounded-full bg-white px-3 py-2 text-xs font-extrabold text-slate-500">
+                    En attente admin
+                  </span>
+                )}
+              </div>
+            </div>
 
             <div id="profile-documents" className="grid gap-3 sm:grid-cols-3">
               <FileField

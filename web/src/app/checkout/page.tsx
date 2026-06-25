@@ -41,6 +41,11 @@ type UploadState = {
   status: UploadStatus;
   message: string;
 };
+type CotisationContractTemplate = {
+  fileName: string;
+  downloadUrl: string;
+  updatedAt: string | null;
+};
 
 type CheckoutDocumentRefs = {
   idDocumentId: string;
@@ -199,8 +204,30 @@ export default function CheckoutPage() {
   const [documentUploadStates, setDocumentUploadStates] =
     useState<Record<CheckoutDocumentField, UploadState>>(INITIAL_CHECKOUT_UPLOAD_STATES);
   const [documentRefs, setDocumentRefs] = useState<CheckoutDocumentRefs>(INITIAL_CHECKOUT_DOCUMENT_REFS);
+  const [contractTemplate, setContractTemplate] = useState<CotisationContractTemplate | null>(null);
 
   useEffect(() => subscribeToCart(setItems), []);
+
+  useEffect(() => {
+    let disposed = false;
+
+    fetch('/api/contract-template')
+      .then(response => (response.ok ? response.json() : null))
+      .then((body: { template?: CotisationContractTemplate | null } | null) => {
+        if (!disposed) {
+          setContractTemplate(body?.template || null);
+        }
+      })
+      .catch(() => {
+        if (!disposed) {
+          setContractTemplate(null);
+        }
+      });
+
+    return () => {
+      disposed = true;
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {
@@ -755,6 +782,30 @@ export default function CheckoutPage() {
               <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Cotisation</p>
                 <h2 className="mt-1 text-xl font-black">Documents avant activation du contrat</h2>
+                <div className="mt-4 rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] p-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs font-extrabold uppercase text-[#059669]">Contrat a imprimer</p>
+                      <p className="mt-1 text-sm font-bold leading-5 text-slate-700">
+                        Telechargez le contrat, imprimez-le, remplissez-le puis renvoyez la version signee.
+                      </p>
+                    </div>
+                    {contractTemplate?.downloadUrl ? (
+                      <a
+                        href={contractTemplate.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-10 shrink-0 items-center justify-center rounded-2xl bg-[#059669] px-4 text-xs font-extrabold text-white"
+                      >
+                        Telecharger
+                      </a>
+                    ) : (
+                      <span className="rounded-full bg-white px-3 py-2 text-xs font-extrabold text-slate-500">
+                        En attente admin
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <FileField
                     label="Piece d identite valide"
