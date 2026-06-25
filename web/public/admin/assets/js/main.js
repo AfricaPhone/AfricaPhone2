@@ -2234,8 +2234,22 @@ async function updateInstallmentPlanStatus(control, installmentPlanId, status) {
 function filteredOrderPayments() {
   return allOrderPayments.filter(payment => {
     if (paymentStatusFilter && payment.status !== paymentStatusFilter) return false;
-    return matchesCommerceSearch(payment, paymentSearchTerm, ['id', 'orderId', 'userId', 'status', 'providerReference', 'providerTransactionId']);
+    return matchesCommerceSearch(payment, paymentSearchTerm, [
+      'id',
+      'orderId',
+      'installmentPlanId',
+      'userId',
+      'status',
+      'channel',
+      'providerReference',
+      'providerTransactionId',
+      'receiptStatus',
+    ]);
   });
+}
+
+function paymentChannelLabel(payment) {
+  return payment?.channel === 'installment_payment' ? 'Cotisation' : 'Achat direct';
 }
 
 function renderOrderPaymentList() {
@@ -2258,17 +2272,25 @@ function renderOrderPaymentList() {
   const rows = items
     .map(payment => `
       <tr>
-        <td><strong>${escapeHtml(payment.orderId || '-')}</strong><div class="small">${escapeHtml(payment.provider || 'kkiapay')}</div></td>
+        <td>
+          <strong>${escapeHtml(payment.orderId || '-')}</strong>
+          <div class="small">${escapeHtml(paymentChannelLabel(payment))}</div>
+          ${payment.installmentPlanId ? `<div class="small">Dossier ${escapeHtml(payment.installmentPlanId)}</div>` : ''}
+        </td>
         <td>${formatMoneyValue(payment.amount)}</td>
         <td>${makeStatusBadge(PAYMENT_STATUS_LABELS[payment.status] || payment.status || '-', statusTone(payment.status))}</td>
-        <td>${escapeHtml(payment.providerReference || payment.providerTransactionId || '-')}</td>
+        <td>
+          <strong>${escapeHtml(payment.providerTransactionId || payment.providerReference || '-')}</strong>
+          <div class="small">${escapeHtml(payment.receiptStatus ? `Recu: ${payment.receiptStatus}` : '')}</div>
+          ${payment.failureReason || payment.receiptError ? `<div class="small" style="color:#be123c">${escapeHtml(payment.failureReason || payment.receiptError)}</div>` : ''}
+        </td>
         <td>${escapeHtml(formatDateValue(payment.createdAt))}</td>
       </tr>`)
     .join('');
   $paymentsContent.innerHTML = renderCommerceShell(
     statsHtml,
     `<table class="table commerce-table">
-      <thead><tr><th>Commande</th><th>Montant</th><th>Statut</th><th>Reference</th><th>Date</th></tr></thead>
+      <thead><tr><th>Commande / dossier</th><th>Montant</th><th>Statut</th><th>Transaction / recu</th><th>Date</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`
   );

@@ -148,10 +148,17 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const installmentRef = getAdminDb().collection('installmentPlans').doc(installmentPlanId);
-    await installmentRef.update({
+    const updatePayload: Record<string, unknown> = {
       status: body.status,
       updatedAt: FieldValue.serverTimestamp(),
       updatedBy: adminResult.uid,
+    };
+    if (body.status === 'active') {
+      updatePayload.activatedAt = FieldValue.serverTimestamp();
+      updatePayload.activatedBy = adminResult.uid;
+    }
+    await installmentRef.update({
+      ...updatePayload,
     });
     const updatedSnapshot = await installmentRef.get();
 

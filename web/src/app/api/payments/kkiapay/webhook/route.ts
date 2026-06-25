@@ -6,6 +6,10 @@ import {
   resolveKkiapayPaymentFromWebhook,
   verifyAndFinalizeKkiapayOrderPayment,
 } from '@/server/kkiapayOrderPayments';
+import {
+  markKkiapayInstallmentWebhookFailure,
+  verifyAndFinalizeKkiapayInstallmentPayment,
+} from '@/server/kkiapayInstallmentPayments';
 
 const jsonResponse = (body: Record<string, unknown>, status = 200) => NextResponse.json(body, { status });
 
@@ -43,20 +47,43 @@ export async function POST(request: NextRequest) {
 
   try {
     if (!isPaymentSuccess) {
-      await markKkiapayWebhookFailure({
-        ...resolvedPayment,
-        transactionId,
-        failureReason:
-          toCleanString(body.failureMessage) || toCleanString(body.failureCode) || 'Paiement non confirme.',
-      });
+      const failureReason =
+        toCleanString(body.failureMessage) || toCleanString(body.failureCode) || 'Paiement non confirme.';
+      if (resolvedPayment.channel === 'installment_payment') {
+        await markKkiapayInstallmentWebhookFailure({
+          paymentId: resolvedPayment.paymentId,
+          transactionId,
+          failureReason,
+        });
+      } else {
+        await markKkiapayWebhookFailure({
+          orderId: resolvedPayment.orderId,
+          paymentId: resolvedPayment.paymentId,
+          transactionId,
+          failureReason,
+        });
+      }
       return jsonResponse({ received: true, status: 'failed' });
     }
 
-    await verifyAndFinalizeKkiapayOrderPayment({
-      ...resolvedPayment,
-      transactionId,
-      userId: null,
-    });
+    if (resolvedPayment.channel === 'installment_payment') {
+      if (!resolvedPayment.installmentPlanId) {
+        throw new PaymentFlowError('Dossier cotisation introuvable pour ce paiement.', 409);
+      }
+      await verifyAndFinalizeKkiapayInstallmentPayment({
+        installmentPlanId: resolvedPayment.installmentPlanId,
+        paymentId: resolvedPayment.paymentId,
+        transactionId,
+        userId: null,
+      });
+    } else {
+      await verifyAndFinalizeKkiapayOrderPayment({
+        orderId: resolvedPayment.orderId,
+        paymentId: resolvedPayment.paymentId,
+        transactionId,
+        userId: null,
+      });
+    }
 
     return jsonResponse({ received: true, status: 'succeeded' });
   } catch (error) {

@@ -159,12 +159,15 @@ export type CustomerOrderClientView = {
 
 export type OrderPaymentProvider = 'kkiapay';
 export type OrderPaymentReceiptStatus = 'not_requested' | 'not_configured' | 'sent' | 'failed';
+export type OrderPaymentChannel = 'product_direct_purchase' | 'installment_payment';
 
 export type OrderPayment = {
   id: string;
   orderId: string;
   userId: string;
   provider: OrderPaymentProvider;
+  channel?: OrderPaymentChannel;
+  installmentPlanId?: string | null;
   status: CustomerPaymentStatus;
   amount: number;
   currency: 'XOF';
@@ -176,6 +179,9 @@ export type OrderPayment = {
   receiptStatus: OrderPaymentReceiptStatus;
   receiptSentAt: FirestoreTimestampLike | null;
   receiptError: string | null;
+  orderReference?: string | null;
+  customerName?: string | null;
+  customerWhatsapp?: string | null;
   createdAt: FirestoreTimestampLike;
   updatedAt: FirestoreTimestampLike;
   verifiedAt: FirestoreTimestampLike | null;
@@ -201,6 +207,9 @@ export type InstallmentPlan = {
   amountPaid: number;
   balanceRemaining: number;
   currency: 'XOF';
+  paymentCount?: number;
+  lastPaymentId?: string | null;
+  lastPaymentAt?: FirestoreTimestampLike | null;
   contractDocumentId: string;
   identityDocumentId: string;
   schedule: InstallmentPlanScheduleItem[];

@@ -5,12 +5,15 @@ import type {
   CustomerNotification,
   CustomerOrder,
   CustomerPaymentStatus,
+  InstallmentPlan,
   OrderPayment,
 } from '@/types/customerOrders';
+import { PaymentFlowError } from './kkiapayOrderPayments';
 import { sendOrderPaymentReceipt } from './receiptMailer';
 
-const ORDER_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
+const INSTALLMENT_PLAN_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
 const PAYMENT_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
+const MIN_INSTALLMENT_AMOUNT = 500;
 
 type KkiapayServerConfig = {
   publicKey: string;
@@ -29,16 +32,6 @@ type KkiapayVerification = {
   account: string | null;
   raw: unknown;
 };
-
-export class PaymentFlowError extends Error {
-  status: number;
-
-  constructor(message: string, status = 400) {
-    super(message);
-    this.name = 'PaymentFlowError';
-    this.status = status;
-  }
-}
 
 const toCleanString = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 const toNullableString = (value: unknown) => {
@@ -104,21 +97,27 @@ const normalizeOrder = (id: string, data: DocumentData): CustomerOrder => ({
   id,
 });
 
+const normalizePlan = (id: string, data: DocumentData): InstallmentPlan => ({
+  ...(data as InstallmentPlan),
+  id,
+});
+
 const normalizePayment = (id: string, data: DocumentData): OrderPayment => ({
   ...(data as OrderPayment),
   id,
+  installmentPlanId: toNullableString(data.installmentPlanId),
   receiptEmail: toNullableString(data.receiptEmail),
   receiptStatus: data.receiptStatus || 'not_requested',
   receiptSentAt: data.receiptSentAt ?? null,
   receiptError: toNullableString(data.receiptError),
 });
 
-const buildProviderReference = (orderId: string, paymentId: string) =>
-  `AFP-ORDER-${orderId.slice(-8).toUpperCase()}-${paymentId.slice(-8).toUpperCase()}`;
+const buildProviderReference = (installmentPlanId: string, paymentId: string) =>
+  `AFP-COT-${installmentPlanId.slice(-8).toUpperCase()}-${paymentId.slice(-8).toUpperCase()}`;
 
-const assertValidOrderId = (orderId: string) => {
-  if (!ORDER_ID_PATTERN.test(orderId)) {
-    throw new PaymentFlowError('Commande invalide.', 400);
+const assertValidInstallmentPlanId = (installmentPlanId: string) => {
+  if (!INSTALLMENT_PLAN_ID_PATTERN.test(installmentPlanId)) {
+    throw new PaymentFlowError('Dossier cotisation invalide.', 400);
   }
 };
 
@@ -126,6 +125,15 @@ const assertValidPaymentId = (paymentId: string) => {
   if (!PAYMENT_ID_PATTERN.test(paymentId)) {
     throw new PaymentFlowError('Paiement invalide.', 400);
   }
+};
+
+const normalizeAmount = (amount: unknown) => {
+  const normalized = Math.round(Number(amount || 0));
+  if (!Number.isFinite(normalized) || normalized < MIN_INSTALLMENT_AMOUNT) {
+    throw new PaymentFlowError(`Le montant minimum de cotisation est ${MIN_INSTALLMENT_AMOUNT} FCFA.`, 400);
+  }
+
+  return normalized;
 };
 
 const normalizeVerification = (transactionId: string, raw: unknown): KkiapayVerification => {
@@ -164,6 +172,18 @@ const normalizeVerification = (transactionId: string, raw: unknown): KkiapayVeri
   };
 };
 
+const verifyKkiapayTransaction = async (transactionId: string) => {
+  const normalizedTransactionId = transactionId.trim();
+  if (!normalizedTransactionId) {
+    throw new PaymentFlowError('Reference transaction Kkiapay manquante.', 400);
+  }
+
+  const config = getKkiapayServerConfig();
+  const client = getKkiapayClient(config);
+  const raw = await client.verify(normalizedTransactionId);
+  return normalizeVerification(normalizedTransactionId, raw);
+};
+
 const createCustomerNotification = (
   order: CustomerOrder,
   type: CustomerNotification['type'],
@@ -189,57 +209,66 @@ const createCustomerNotification = (
   return { notificationRef, notification };
 };
 
-const validateOrderForPayment = (order: CustomerOrder, userId: string) => {
-  if (order.userId !== userId) {
-    throw new PaymentFlowError('Cette commande ne correspond pas au compte connecte.', 403);
+const validatePlanForPayment = (plan: InstallmentPlan, userId: string, amount: number) => {
+  if (plan.userId !== userId) {
+    throw new PaymentFlowError('Ce dossier cotisation ne correspond pas au compte connecte.', 403);
   }
 
-  if (order.paymentMode !== 'kkiapay_now') {
-    throw new PaymentFlowError('Cette commande ne demande pas un paiement Kkiapay direct.', 409);
+  if (!['active', 'late'].includes(plan.status)) {
+    throw new PaymentFlowError('Le contrat doit etre valide par AfricaPhone avant les cotisations.', 409);
   }
 
-  if (order.paymentStatus === 'succeeded' || order.status === 'paid') {
-    throw new PaymentFlowError('Cette commande est deja payee.', 409);
+  const balanceRemaining = Math.max(0, Math.round(Number(plan.balanceRemaining || 0)));
+  if (balanceRemaining <= 0 || plan.status === 'completed') {
+    throw new PaymentFlowError('Cette cotisation est deja soldee.', 409);
   }
 
-  if (order.status === 'cancelled' || order.status === 'delivered') {
-    throw new PaymentFlowError('Cette commande ne peut plus etre payee en ligne.', 409);
+  if (amount > balanceRemaining) {
+    throw new PaymentFlowError('Le montant depasse le solde restant du dossier.', 409);
   }
 
-  const amount = Number(order.totals.totalDue || order.totals.itemsSubtotal || 0);
-  if (!Number.isFinite(amount) || amount <= 0) {
-    throw new PaymentFlowError('Montant de commande invalide.', 409);
+  if (!plan.customer.email) {
+    throw new PaymentFlowError('Adresse email requise pour envoyer le recu de cotisation.', 409);
   }
-
-  if (!order.customer.email) {
-    throw new PaymentFlowError('Adresse email requise pour envoyer le recu de paiement.', 409);
-  }
-
-  return Math.round(amount);
 };
 
-export const initiateKkiapayOrderPayment = async (params: { orderId: string; userId: string }) => {
-  assertValidOrderId(params.orderId);
+export const initiateKkiapayInstallmentPayment = async (params: {
+  installmentPlanId: string;
+  amount: number;
+  userId: string;
+}) => {
+  assertValidInstallmentPlanId(params.installmentPlanId);
+  const amount = normalizeAmount(params.amount);
   const config = getKkiapayServerConfig();
   const adminDb = getAdminDb();
-  const orderRef = adminDb.collection('orders').doc(params.orderId);
+  const planRef = adminDb.collection('installmentPlans').doc(params.installmentPlanId);
   const paymentRef = adminDb.collection('orderPayments').doc();
-  const providerReference = buildProviderReference(params.orderId, paymentRef.id);
+  const providerReference = buildProviderReference(params.installmentPlanId, paymentRef.id);
 
   const result = await adminDb.runTransaction(async transaction => {
-    const orderSnapshot = await transaction.get(orderRef);
-    if (!orderSnapshot.exists) {
-      throw new PaymentFlowError('Commande introuvable.', 404);
+    const planSnapshot = await transaction.get(planRef);
+    if (!planSnapshot.exists) {
+      throw new PaymentFlowError('Dossier cotisation introuvable.', 404);
     }
 
+    const plan = normalizePlan(planSnapshot.id, planSnapshot.data() ?? {});
+    validatePlanForPayment(plan, params.userId, amount);
+
+    const orderRef = adminDb.collection('orders').doc(plan.orderId);
+    const orderSnapshot = await transaction.get(orderRef);
+    if (!orderSnapshot.exists) {
+      throw new PaymentFlowError('Commande cotisation introuvable.', 404);
+    }
     const order = normalizeOrder(orderSnapshot.id, orderSnapshot.data() ?? {});
-    const amount = validateOrderForPayment(order, params.userId);
+
     const now = FieldValue.serverTimestamp();
     const payment: OrderPayment = {
       id: paymentRef.id,
-      orderId: order.id,
+      orderId: plan.orderId,
       userId: params.userId,
       provider: 'kkiapay',
+      channel: 'installment_payment',
+      installmentPlanId: plan.id,
       status: 'provider_opened',
       amount,
       currency: 'XOF',
@@ -247,166 +276,110 @@ export const initiateKkiapayOrderPayment = async (params: { orderId: string; use
       providerTransactionId: null,
       providerReference,
       failureReason: null,
-      receiptEmail: order.customer.email,
+      receiptEmail: plan.customer.email,
       receiptStatus: 'not_requested',
       receiptSentAt: null,
       receiptError: null,
+      orderReference: plan.orderReference || plan.orderId,
+      customerName: plan.customer.fullName,
+      customerWhatsapp: plan.customer.whatsapp,
       createdAt: now,
       updatedAt: now,
       verifiedAt: null,
     };
 
-    transaction.set(paymentRef, {
-      ...payment,
-      channel: 'product_direct_purchase',
-      orderReference: order.localDraftId || order.id,
-      customerName: order.customer.fullName,
-      customerWhatsapp: order.customer.whatsapp,
-    });
-    transaction.update(orderRef, {
-      status: 'payment_pending',
-      paymentStatus: 'provider_opened' satisfies CustomerPaymentStatus,
+    transaction.set(paymentRef, payment);
+    transaction.update(planRef, {
+      lastPaymentId: paymentRef.id,
       updatedAt: now,
     });
 
     const notification = createCustomerNotification(
       order,
       'payment_required',
-      'Paiement ouvert',
-      'La fenetre Kkiapay a ete ouverte pour votre commande.'
+      'Cotisation ouverte',
+      'La fenetre Kkiapay a ete ouverte pour votre versement de cotisation.'
     );
     if (notification) {
       transaction.set(notification.notificationRef, notification.notification);
     }
 
-    return {
-      payment,
-      order,
-    };
+    return { plan, payment };
   });
 
   return {
     paymentId: result.payment.id,
+    installmentPlanId: result.plan.id,
     providerReference: result.payment.providerReference,
     amount: result.payment.amount,
     currency: result.payment.currency,
     publicKey: config.publicKey,
     sandbox: config.sandbox,
     customer: {
-      name: result.order.customer.fullName,
-      email: result.order.customer.email,
-      phone: result.order.customer.whatsapp,
+      name: result.plan.customer.fullName,
+      email: result.plan.customer.email,
+      phone: result.plan.customer.whatsapp,
     },
   };
 };
 
-const verifyKkiapayTransaction = async (transactionId: string) => {
-  const normalizedTransactionId = transactionId.trim();
-  if (!normalizedTransactionId) {
-    throw new PaymentFlowError('Reference transaction Kkiapay manquante.', 400);
-  }
-
-  const config = getKkiapayServerConfig();
-  const client = getKkiapayClient(config);
-  const raw = await client.verify(normalizedTransactionId);
-  return normalizeVerification(normalizedTransactionId, raw);
-};
-
-const markPaymentFailed = async (params: {
-  orderId: string;
+const markInstallmentPaymentFailed = async (params: {
   paymentId: string;
-  failureReason: string;
   transactionId?: string | null;
+  failureReason: string;
 }) => {
+  assertValidPaymentId(params.paymentId);
   const adminDb = getAdminDb();
-  const orderRef = adminDb.collection('orders').doc(params.orderId);
   const paymentRef = adminDb.collection('orderPayments').doc(params.paymentId);
 
-  await adminDb.runTransaction(async transaction => {
-    const [orderSnapshot, paymentSnapshot] = await Promise.all([
-      transaction.get(orderRef),
-      transaction.get(paymentRef),
-    ]);
-
-    if (!orderSnapshot.exists || !paymentSnapshot.exists) {
-      return;
-    }
-
-    const order = normalizeOrder(orderSnapshot.id, orderSnapshot.data() ?? {});
-    const payment = normalizePayment(paymentSnapshot.id, paymentSnapshot.data() ?? {});
-    if (payment.orderId !== order.id) {
-      return;
-    }
-
-    const now = FieldValue.serverTimestamp();
-    transaction.update(paymentRef, {
-      status: 'failed' satisfies CustomerPaymentStatus,
-      providerTransactionId: params.transactionId || payment.providerTransactionId || null,
-      failureReason: params.failureReason,
-      updatedAt: now,
-      verifiedAt: now,
-    });
-
-    if (order.paymentStatus !== 'succeeded') {
-      transaction.update(orderRef, {
-        status: 'payment_pending',
-        paymentStatus: 'failed' satisfies CustomerPaymentStatus,
-        updatedAt: now,
-      });
-    }
-
-    const notification = createCustomerNotification(
-      order,
-      'payment_failed',
-      'Paiement non confirme',
-      'Le paiement Kkiapay de votre commande n a pas abouti.'
-    );
-    if (notification) {
-      transaction.set(notification.notificationRef, notification.notification);
-    }
+  await paymentRef.update({
+    status: 'failed' satisfies CustomerPaymentStatus,
+    providerTransactionId: params.transactionId || null,
+    failureReason: params.failureReason,
+    updatedAt: FieldValue.serverTimestamp(),
+    verifiedAt: FieldValue.serverTimestamp(),
   });
 };
 
-export const verifyAndFinalizeKkiapayOrderPayment = async (params: {
-  orderId: string;
+export const verifyAndFinalizeKkiapayInstallmentPayment = async (params: {
+  installmentPlanId: string;
   paymentId: string;
   transactionId: string;
   userId?: string | null;
 }) => {
-  assertValidOrderId(params.orderId);
+  assertValidInstallmentPlanId(params.installmentPlanId);
   assertValidPaymentId(params.paymentId);
   const verification = await verifyKkiapayTransaction(params.transactionId);
   const adminDb = getAdminDb();
-  const orderRef = adminDb.collection('orders').doc(params.orderId);
+  const planRef = adminDb.collection('installmentPlans').doc(params.installmentPlanId);
   const paymentRef = adminDb.collection('orderPayments').doc(params.paymentId);
 
   const finalized = await adminDb.runTransaction(async transaction => {
-    const [orderSnapshot, paymentSnapshot] = await Promise.all([
-      transaction.get(orderRef),
+    const [planSnapshot, paymentSnapshot] = await Promise.all([
+      transaction.get(planRef),
       transaction.get(paymentRef),
     ]);
 
-    if (!orderSnapshot.exists) {
-      throw new PaymentFlowError('Commande introuvable.', 404);
+    if (!planSnapshot.exists) {
+      throw new PaymentFlowError('Dossier cotisation introuvable.', 404);
     }
 
     if (!paymentSnapshot.exists) {
-      throw new PaymentFlowError('Paiement introuvable.', 404);
+      throw new PaymentFlowError('Paiement cotisation introuvable.', 404);
     }
 
-    const order = normalizeOrder(orderSnapshot.id, orderSnapshot.data() ?? {});
+    const plan = normalizePlan(planSnapshot.id, planSnapshot.data() ?? {});
     const payment = normalizePayment(paymentSnapshot.id, paymentSnapshot.data() ?? {});
-
-    if (payment.orderId !== order.id) {
-      throw new PaymentFlowError('Paiement incoherent avec la commande.', 409);
+    if (payment.channel !== 'installment_payment' || payment.installmentPlanId !== plan.id) {
+      throw new PaymentFlowError('Paiement incoherent avec la cotisation.', 409);
     }
 
     if (params.userId && payment.userId !== params.userId) {
       throw new PaymentFlowError('Ce paiement ne correspond pas au compte connecte.', 403);
     }
 
-    if (payment.status === 'succeeded' && order.paymentStatus === 'succeeded') {
-      return { order, payment };
+    if (payment.status === 'succeeded') {
+      return { plan, payment };
     }
 
     if (verification.partnerId && verification.partnerId !== payment.providerReference) {
@@ -414,13 +387,25 @@ export const verifyAndFinalizeKkiapayOrderPayment = async (params: {
     }
 
     if (verification.amount !== null && Math.round(verification.amount) !== Math.round(payment.amount)) {
-      throw new PaymentFlowError('Montant Kkiapay incoherent avec la commande.', 409);
+      throw new PaymentFlowError('Montant Kkiapay incoherent avec la cotisation.', 409);
     }
 
     if (!verification.success) {
       throw new PaymentFlowError('Paiement Kkiapay non confirme.', 402);
     }
 
+    const orderRef = adminDb.collection('orders').doc(plan.orderId);
+    const orderSnapshot = await transaction.get(orderRef);
+    if (!orderSnapshot.exists) {
+      throw new PaymentFlowError('Commande cotisation introuvable.', 404);
+    }
+    const order = normalizeOrder(orderSnapshot.id, orderSnapshot.data() ?? {});
+
+    const previousPaid = Math.max(0, Math.round(Number(plan.amountPaid || 0)));
+    const productTotal = Math.max(0, Math.round(Number(plan.productTotal || 0)));
+    const nextPaid = previousPaid + Math.round(payment.amount);
+    const nextBalance = Math.max(0, productTotal - nextPaid);
+    const nextStatus = nextBalance <= 0 ? 'completed' : 'active';
     const now = FieldValue.serverTimestamp();
     const nextPayment: OrderPayment = {
       ...payment,
@@ -430,10 +415,14 @@ export const verifyAndFinalizeKkiapayOrderPayment = async (params: {
       updatedAt: now,
       verifiedAt: now,
     };
-    const nextOrder: CustomerOrder = {
-      ...order,
-      status: 'paid',
-      paymentStatus: 'succeeded',
+    const nextPlan: InstallmentPlan = {
+      ...plan,
+      amountPaid: nextPaid,
+      balanceRemaining: nextBalance,
+      status: nextStatus,
+      paymentCount: Number(plan.paymentCount || 0) + 1,
+      lastPaymentId: payment.id,
+      lastPaymentAt: now,
       updatedAt: now,
     };
 
@@ -448,33 +437,50 @@ export const verifyAndFinalizeKkiapayOrderPayment = async (params: {
       updatedAt: now,
       verifiedAt: now,
     });
-    transaction.update(orderRef, {
-      status: nextOrder.status,
-      paymentStatus: nextOrder.paymentStatus,
+    transaction.update(planRef, {
+      amountPaid: nextPaid,
+      balanceRemaining: nextBalance,
+      status: nextStatus,
+      paymentCount: nextPlan.paymentCount,
+      lastPaymentId: payment.id,
+      lastPaymentAt: now,
       updatedAt: now,
     });
 
+    if (nextBalance <= 0) {
+      transaction.update(orderRef, {
+        status: 'paid',
+        paymentStatus: 'succeeded',
+        updatedAt: now,
+      });
+    }
+
     const notification = createCustomerNotification(
-      nextOrder,
+      order,
       'payment_succeeded',
-      'Paiement confirme',
-      'Votre paiement Kkiapay est confirme. AfricaPhone prepare la suite.'
+      nextBalance <= 0 ? 'Cotisation terminee' : 'Cotisation recue',
+      nextBalance <= 0
+        ? 'Votre dossier est solde. AfricaPhone prepare la suite.'
+        : 'Votre versement Kkiapay a ete confirme et ajoute a votre dossier.'
     );
     if (notification) {
       transaction.set(notification.notificationRef, notification.notification);
     }
 
-    return { order: nextOrder, payment: nextPayment };
+    return { plan: nextPlan, payment: nextPayment, order };
   });
 
-  if (!finalized?.order || !finalized.payment) {
-    throw new PaymentFlowError('Paiement non finalise.', 500);
+  if (!finalized?.plan || !finalized.payment) {
+    throw new PaymentFlowError('Cotisation non finalisee.', 500);
   }
 
-  const finalizedOrder = finalized.order;
   const finalizedPayment = finalized.payment;
+  const orderSnapshot = await getAdminDb().collection('orders').doc(finalized.plan.orderId).get();
+  const finalizedOrder = orderSnapshot.exists
+    ? normalizeOrder(orderSnapshot.id, orderSnapshot.data() ?? {})
+    : finalized.order;
 
-  if (finalizedPayment.receiptStatus !== 'sent') {
+  if (finalizedOrder && finalizedPayment.receiptStatus !== 'sent') {
     const receiptResult = await sendOrderPaymentReceipt({
       order: finalizedOrder,
       payment: finalizedPayment,
@@ -491,7 +497,7 @@ export const verifyAndFinalizeKkiapayOrderPayment = async (params: {
   }
 
   return {
-    order: finalizedOrder,
+    installmentPlan: finalized.plan,
     payment: finalizedPayment,
     verification: {
       transactionId: verification.transactionId,
@@ -501,72 +507,14 @@ export const verifyAndFinalizeKkiapayOrderPayment = async (params: {
   };
 };
 
-export const resolveKkiapayPaymentFromWebhook = async (params: {
-  partnerId?: string | null;
-  transactionId?: string | null;
-}) => {
-  const adminDb = getAdminDb();
-  const partnerId = toNullableString(params.partnerId);
-  const transactionId = toNullableString(params.transactionId);
-
-  if (partnerId) {
-    const snapshot = await adminDb
-      .collection('orderPayments')
-      .where('providerReference', '==', partnerId)
-      .limit(1)
-      .get();
-    const paymentSnapshot = snapshot.docs[0];
-    if (paymentSnapshot) {
-      const payment = normalizePayment(paymentSnapshot.id, paymentSnapshot.data());
-      return {
-        orderId: payment.orderId,
-        paymentId: payment.id,
-        channel: payment.channel || 'product_direct_purchase',
-        installmentPlanId: payment.installmentPlanId || null,
-      };
-    }
-  }
-
-  if (transactionId) {
-    const snapshot = await adminDb
-      .collection('orderPayments')
-      .where('providerTransactionId', '==', transactionId)
-      .limit(1)
-      .get();
-    const paymentSnapshot = snapshot.docs[0];
-    if (paymentSnapshot) {
-      const payment = normalizePayment(paymentSnapshot.id, paymentSnapshot.data());
-      return {
-        orderId: payment.orderId,
-        paymentId: payment.id,
-        channel: payment.channel || 'product_direct_purchase',
-        installmentPlanId: payment.installmentPlanId || null,
-      };
-    }
-  }
-
-  return null;
-};
-
-export const markKkiapayWebhookFailure = async (params: {
-  orderId: string;
+export const markKkiapayInstallmentWebhookFailure = async (params: {
   paymentId: string;
   transactionId?: string | null;
   failureReason?: string | null;
 }) => {
-  await markPaymentFailed({
-    orderId: params.orderId,
+  await markInstallmentPaymentFailed({
     paymentId: params.paymentId,
     transactionId: params.transactionId,
-    failureReason: params.failureReason || 'Paiement signale en echec par Kkiapay.',
+    failureReason: params.failureReason || 'Paiement cotisation signale en echec par Kkiapay.',
   });
-};
-
-export const isValidKkiapayWebhookSecret = (secretHeader: string | null) => {
-  const expectedSecret = (process.env.KKIAPAY_WEBHOOK_SECRET || process.env.KKIA_WEBHOOK_SECRET || '').trim();
-  if (!expectedSecret) {
-    return false;
-  }
-
-  return secretHeader === expectedSecret;
 };

@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { PAYMENT_CONFIG } from '@/config/payment';
 import { auth } from '@/lib/firebaseClient';
+import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import {
   type CheckoutDraft,
   FULFILLMENT_MODE_LABELS,
@@ -57,6 +59,77 @@ type OrdersApiResponse = {
   message?: string;
 };
 
+type InstallmentPlanView = {
+  id: string;
+  orderId: string;
+  orderReference: string | null;
+  status: 'draft' | 'documents_required' | 'contract_review' | 'active' | 'late' | 'completed' | 'cancelled';
+  targetMode: 'selected_product' | 'open_phone_purchase';
+  selectedProduct: {
+    name: string;
+    quantity: number;
+    subtotal: number | null;
+  } | null;
+  productTotal: number;
+  amountPaid: number;
+  balanceRemaining: number;
+  currency: 'XOF';
+  paymentCount?: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+  activatedAt: string | null;
+  lastPaymentAt?: string | null;
+};
+
+type InstallmentPaymentView = {
+  id: string;
+  orderId: string;
+  installmentPlanId: string | null;
+  status: CustomerPaymentStatus;
+  amount: number;
+  currency: 'XOF';
+  providerReference: string | null;
+  providerTransactionId: string | null;
+  failureReason: string | null;
+  receiptStatus: string;
+  receiptError: string | null;
+  createdAt: string | null;
+  verifiedAt: string | null;
+};
+
+type InstallmentsApiResponse = {
+  installments?: InstallmentPlanView[];
+  payments?: InstallmentPaymentView[];
+  message?: string;
+};
+
+type InitiateInstallmentPaymentResponse = {
+  paymentId: string;
+  installmentPlanId: string;
+  providerReference: string;
+  amount: number;
+  currency: 'XOF';
+  publicKey: string;
+  sandbox: boolean;
+  customer: {
+    name: string;
+    email: string | null;
+    phone: string;
+  };
+  message?: string;
+};
+
+type VerifyInstallmentPaymentResponse = {
+  payment?: {
+    id: string;
+    status: string;
+    amount: number;
+    providerTransactionId: string | null;
+    receiptStatus: string;
+  };
+  message?: string;
+};
+
 const REMOTE_PAYMENT_MODE_LABELS: Record<CustomerPaymentMode, string> = {
   pay_on_delivery: 'Payer a la livraison',
   kkiapay_now: 'Payer en ligne maintenant',
@@ -78,6 +151,26 @@ const PAYMENT_STATUS_LABELS: Record<CustomerPaymentStatus, string> = {
   failed: 'Echec paiement',
   cancelled: 'Paiement annule',
   refunded: 'Rembourse',
+};
+
+const INSTALLMENT_STATUS_LABELS: Record<InstallmentPlanView['status'], string> = {
+  draft: 'Brouillon',
+  documents_required: 'Documents requis',
+  contract_review: 'Contrat en verification',
+  active: 'Active',
+  late: 'Retard',
+  completed: 'Terminee',
+  cancelled: 'Annulee',
+};
+
+const INSTALLMENT_STATUS_STYLES: Record<InstallmentPlanView['status'], string> = {
+  draft: 'bg-slate-100 text-slate-600',
+  documents_required: 'bg-orange-50 text-orange-700',
+  contract_review: 'bg-orange-50 text-orange-700',
+  active: 'bg-[#ECFDF5] text-[#059669]',
+  late: 'bg-rose-50 text-rose-700',
+  completed: 'bg-[#ECFDF5] text-[#059669]',
+  cancelled: 'bg-slate-100 text-slate-600',
 };
 
 const REMOTE_STATUS_VIEWS: Record<CustomerOrderStatus, OrderStatusView> = {
@@ -142,6 +235,37 @@ const formatDate = (value: string | null) => {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(date);
+};
+
+const getKkiapayTransactionId = (data?: KkiapayListenerData) =>
+  (data?.transactionId && String(data.transactionId)) || (data?.flwRef && String(data.flwRef)) || null;
+
+const enforceKkiapayViewport = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const applyStyle = () => {
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe[src^="https://widget-v3.kkiapay.me"]');
+    if (!iframe) {
+      return false;
+    }
+
+    const style = iframe.style;
+    style.setProperty('height', '100vh', 'important');
+    style.setProperty('width', '100vw', 'important');
+    style.setProperty('maxHeight', '100vh', 'important');
+    style.setProperty('maxWidth', '100vw', 'important');
+    style.setProperty('top', '0');
+    style.setProperty('left', '0');
+    style.setProperty('position', 'fixed');
+
+    return true;
+  };
+
+  if (!applyStyle()) {
+    window.setTimeout(applyStyle, 80);
+  }
 };
 
 const getLocalStatusView = (draft: CheckoutDraft): OrderStatusView => {
@@ -269,9 +393,110 @@ const mergeOrders = (remoteOrders: CustomerOrderClientView[], localOrders: Check
 export default function OrdersPage() {
   const [localOrders, setLocalOrders] = useState<CheckoutDraft[]>([]);
   const [remoteOrders, setRemoteOrders] = useState<CustomerOrderClientView[]>([]);
+  const [installmentPlans, setInstallmentPlans] = useState<InstallmentPlanView[]>([]);
+  const [installmentPayments, setInstallmentPayments] = useState<InstallmentPaymentView[]>([]);
+  const [installmentAmounts, setInstallmentAmounts] = useState<Record<string, string>>({});
+  const [installmentPaymentState, setInstallmentPaymentState] = useState<{
+    status: 'idle' | 'starting' | 'opened' | 'verifying' | 'succeeded' | 'failed';
+    planId: string | null;
+    message: string;
+  }>({ status: 'idle', planId: null, message: '' });
+  const pendingInstallmentPaymentRef = useRef<{ installmentPlanId: string; paymentId: string } | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [remoteError, setRemoteError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const loadInstallments = useCallback(async (idToken: string) => {
+    const response = await fetch('/api/installments', {
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+    const body = (await response.json().catch(() => null)) as InstallmentsApiResponse | null;
+
+    if (!response.ok) {
+      throw new Error(body?.message || 'Chargement des cotisations indisponible.');
+    }
+
+    setInstallmentPlans(Array.isArray(body?.installments) ? body.installments : []);
+    setInstallmentPayments(Array.isArray(body?.payments) ? body.payments : []);
+  }, []);
+
+  const verifyInstallmentPayment = useCallback(
+    async (data?: KkiapayListenerData) => {
+      const pendingPayment = pendingInstallmentPaymentRef.current;
+      const transactionId = getKkiapayTransactionId(data);
+
+      if (!pendingPayment || !transactionId) {
+        setInstallmentPaymentState({
+          status: 'failed',
+          planId: pendingPayment?.installmentPlanId || null,
+          message: 'Reference Kkiapay manquante. Contactez AfricaPhone avec la capture du paiement.',
+        });
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        setInstallmentPaymentState({
+          status: 'failed',
+          planId: pendingPayment.installmentPlanId,
+          message: 'Reconnectez votre compte client pour confirmer la cotisation.',
+        });
+        return;
+      }
+
+      setInstallmentPaymentState({
+        status: 'verifying',
+        planId: pendingPayment.installmentPlanId,
+        message: 'Verification securisee de la cotisation...',
+      });
+
+      try {
+        const token = await user.getIdToken();
+        const response = await fetch('/api/installments/kkiapay/verify', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            installmentPlanId: pendingPayment.installmentPlanId,
+            paymentId: pendingPayment.paymentId,
+            transactionId,
+          }),
+        });
+        const body = (await response.json().catch(() => null)) as VerifyInstallmentPaymentResponse | null;
+
+        if (!response.ok || body?.payment?.status !== 'succeeded') {
+          throw new Error(body?.message || 'Cotisation non confirmee par le serveur.');
+        }
+
+        pendingInstallmentPaymentRef.current = null;
+        await loadInstallments(token);
+        setInstallmentPaymentState({
+          status: 'succeeded',
+          planId: pendingPayment.installmentPlanId,
+          message: 'Cotisation confirmee. Le recu sera envoye si la messagerie est configuree.',
+        });
+      } catch (error) {
+        setInstallmentPaymentState({
+          status: 'failed',
+          planId: pendingPayment.installmentPlanId,
+          message: error instanceof Error ? error.message : 'Verification cotisation impossible.',
+        });
+      }
+    },
+    [loadInstallments]
+  );
+
+  const handleInstallmentPaymentFailed = useCallback(() => {
+    setInstallmentPaymentState(prev => ({
+      status: 'failed',
+      planId: prev.planId,
+      message: 'La cotisation Kkiapay n a pas abouti.',
+    }));
+  }, []);
 
   useEffect(() => {
     const latestDraft = getCheckoutDraft();
@@ -300,6 +525,13 @@ export default function OrdersPage() {
           setRemoteOrders(Array.isArray(body?.orders) ? body.orders : []);
           setIsAuthenticated(body?.authenticated === true);
         }
+
+        if (idToken) {
+          await loadInstallments(idToken);
+        } else if (!cancelled) {
+          setInstallmentPlans([]);
+          setInstallmentPayments([]);
+        }
       } catch {
         if (!cancelled) {
           setRemoteOrders([]);
@@ -317,7 +549,107 @@ export default function OrdersPage() {
       cancelled = true;
       unsubscribe();
     };
-  }, []);
+  }, [loadInstallments]);
+
+  useEffect(() => {
+    let disposed = false;
+    let moduleInstance: Awaited<ReturnType<typeof loadKkiapay>> | null = null;
+
+    loadKkiapay()
+      .then(instance => {
+        if (disposed) {
+          return;
+        }
+        moduleInstance = instance;
+        instance.addSuccessListener(verifyInstallmentPayment);
+        instance.addFailedListener(handleInstallmentPaymentFailed);
+      })
+      .catch(() => {
+        if (!disposed) {
+          setInstallmentPaymentState(prev => ({
+            ...prev,
+            message: prev.message || 'Module Kkiapay indisponible pour le moment.',
+          }));
+        }
+      });
+
+    return () => {
+      disposed = true;
+      moduleInstance?.removeKkiapayListener?.('success');
+      moduleInstance?.removeKkiapayListener?.('failed');
+    };
+  }, [handleInstallmentPaymentFailed, verifyInstallmentPayment]);
+
+  const startInstallmentPayment = async (plan: InstallmentPlanView) => {
+    if (installmentPaymentState.status === 'starting' || installmentPaymentState.status === 'verifying') {
+      return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) {
+      setInstallmentPaymentState({
+        status: 'failed',
+        planId: plan.id,
+        message: 'Connectez votre compte client avant de cotiser.',
+      });
+      return;
+    }
+
+    const defaultAmount = Math.min(plan.balanceRemaining, Math.max(500, Math.round(plan.balanceRemaining / 4)));
+    const amount = Math.round(Number(installmentAmounts[plan.id] || defaultAmount));
+    setInstallmentPaymentState({
+      status: 'starting',
+      planId: plan.id,
+      message: 'Preparation du versement Kkiapay...',
+    });
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/installments/kkiapay/initiate', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          installmentPlanId: plan.id,
+          amount,
+        }),
+      });
+      const body = (await response.json().catch(() => null)) as InitiateInstallmentPaymentResponse | null;
+
+      if (!response.ok || !body?.paymentId || !body.publicKey) {
+        throw new Error(body?.message || 'Preparation de la cotisation indisponible.');
+      }
+
+      pendingInstallmentPaymentRef.current = { installmentPlanId: plan.id, paymentId: body.paymentId };
+      const moduleInstance = await loadKkiapay();
+      moduleInstance.openKkiapayWidget({
+        amount: body.amount,
+        publicAPIKey: body.publicKey,
+        sandbox: body.sandbox,
+        theme: PAYMENT_CONFIG.PRODUCT_PAYMENT_THEME,
+        partnerId: body.providerReference,
+        name: body.customer.name,
+        email: body.customer.email || undefined,
+        phone: body.customer.phone,
+        countries: PAYMENT_CONFIG.COUNTRIES ? [...PAYMENT_CONFIG.COUNTRIES] : undefined,
+        paymentMethods: PAYMENT_CONFIG.PAYMENT_METHODS ? [...PAYMENT_CONFIG.PAYMENT_METHODS] : undefined,
+      });
+      enforceKkiapayViewport();
+      setInstallmentPaymentState({
+        status: 'opened',
+        planId: plan.id,
+        message: 'Finalisez le versement dans la fenetre Kkiapay.',
+      });
+    } catch (error) {
+      setInstallmentPaymentState({
+        status: 'failed',
+        planId: plan.id,
+        message: error instanceof Error ? error.message : 'Impossible de lancer la cotisation Kkiapay.',
+      });
+    }
+  };
 
   const orders = useMemo(() => mergeOrders(remoteOrders, localOrders), [localOrders, remoteOrders]);
 
@@ -357,6 +689,16 @@ export default function OrdersPage() {
               {orders.map(order => (
                 <OrderCard key={order.key} order={order} />
               ))}
+              {isAuthenticated ? (
+                <InstallmentSection
+                  plans={installmentPlans}
+                  payments={installmentPayments}
+                  amounts={installmentAmounts}
+                  paymentState={installmentPaymentState}
+                  onAmountChange={(planId, value) => setInstallmentAmounts(prev => ({ ...prev, [planId]: value }))}
+                  onPay={startInstallmentPayment}
+                />
+              ) : null}
             </section>
 
             <aside className="space-y-4">
@@ -465,6 +807,152 @@ function OrderCard({ order }: { order: DisplayOrder }) {
   );
 }
 
+function InstallmentSection({
+  plans,
+  payments,
+  amounts,
+  paymentState,
+  onAmountChange,
+  onPay,
+}: {
+  plans: InstallmentPlanView[];
+  payments: InstallmentPaymentView[];
+  amounts: Record<string, string>;
+  paymentState: {
+    status: 'idle' | 'starting' | 'opened' | 'verifying' | 'succeeded' | 'failed';
+    planId: string | null;
+    message: string;
+  };
+  onAmountChange: (planId: string, value: string) => void;
+  onPay: (plan: InstallmentPlanView) => void;
+}) {
+  if (plans.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-extrabold uppercase text-[#059669]">Cotisations</p>
+          <h2 className="mt-1 text-xl font-black tracking-tight text-slate-950">Mes dossiers et versements</h2>
+        </div>
+        <span className="rounded-full bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]">
+          Kkiapay uniquement
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        {plans.map(plan => {
+          const planPayments = payments.filter(payment => payment.installmentPlanId === plan.id);
+          const progress =
+            plan.productTotal > 0 ? Math.max(0, Math.min(100, Math.round((plan.amountPaid / plan.productTotal) * 100))) : 0;
+          const canPay = ['active', 'late'].includes(plan.status) && plan.balanceRemaining > 0;
+          const defaultAmount = Math.min(plan.balanceRemaining, Math.max(500, Math.round(plan.balanceRemaining / 4)));
+          const amountValue = amounts[plan.id] ?? String(defaultAmount);
+          const isBusy =
+            paymentState.planId === plan.id &&
+            (paymentState.status === 'starting' || paymentState.status === 'verifying');
+
+          return (
+            <article key={plan.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-extrabold uppercase text-slate-500">
+                    {formatCheckoutReference(plan.orderReference || plan.orderId || plan.id)}
+                  </p>
+                  <h3 className="mt-1 line-clamp-2 text-base font-black text-slate-950">
+                    {plan.selectedProduct?.name || 'Telephone a choisir'}
+                  </h3>
+                </div>
+                <span className={`rounded-full px-3 py-2 text-xs font-extrabold ${INSTALLMENT_STATUS_STYLES[plan.status]}`}>
+                  {INSTALLMENT_STATUS_LABELS[plan.status] || plan.status}
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <SummaryBox label="Objectif" value={formatPrice(plan.productTotal)} />
+                <SummaryBox label="Deja verse" value={formatPrice(plan.amountPaid)} tone="green" />
+                <SummaryBox label="Reste" value={formatPrice(plan.balanceRemaining)} tone="orange" />
+              </div>
+
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white">
+                <div className="h-full rounded-full bg-[#059669]" style={{ width: `${progress}%` }} />
+              </div>
+
+              <div className="mt-4 rounded-2xl bg-white p-3">
+                <p className="text-xs font-extrabold uppercase text-slate-500">Historique paiements</p>
+                {planPayments.length === 0 ? (
+                  <p className="mt-2 text-sm font-bold text-slate-500">Aucun versement confirme ou ouvert pour ce dossier.</p>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    {planPayments.slice(0, 5).map(payment => (
+                      <div key={payment.id} className="grid gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs sm:grid-cols-[1fr_auto]">
+                        <div>
+                          <p className="font-black text-slate-950">{formatPrice(payment.amount)}</p>
+                          <p className="font-semibold text-slate-500">
+                            {payment.providerTransactionId || payment.providerReference || payment.id}
+                          </p>
+                        </div>
+                        <div className="text-left sm:text-right">
+                          <p className="font-extrabold text-slate-700">
+                            {PAYMENT_STATUS_LABELS[payment.status] || payment.status}
+                          </p>
+                          <p className="font-semibold text-slate-500">{formatDate(payment.verifiedAt || payment.createdAt)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {canPay ? (
+                <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
+                  <label className="block">
+                    <span className="text-[10px] font-extrabold uppercase text-slate-500">Montant a verser</span>
+                    <input
+                      value={amountValue}
+                      onChange={event => onAmountChange(plan.id, event.target.value.replace(/[^0-9]/g, ''))}
+                      inputMode="numeric"
+                      className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-extrabold outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/10"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => onPay(plan)}
+                    disabled={isBusy}
+                    className="h-11 self-end rounded-2xl bg-[#059669] px-5 text-sm font-extrabold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    {isBusy ? 'Traitement...' : 'Cotiser'}
+                  </button>
+                </div>
+              ) : (
+                <p className="mt-4 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
+                  {plan.status === 'completed'
+                    ? 'Dossier solde.'
+                    : plan.status === 'cancelled'
+                      ? 'Dossier annule.'
+                      : 'Le contrat doit etre valide par AfricaPhone avant le premier versement.'}
+                </p>
+              )}
+
+              {paymentState.planId === plan.id && paymentState.message ? (
+                <p
+                  className={`mt-3 rounded-2xl px-3 py-2 text-xs font-bold leading-5 ${
+                    paymentState.status === 'failed' ? 'bg-rose-50 text-rose-700' : 'bg-white text-slate-600'
+                  }`}
+                >
+                  {paymentState.message}
+                </p>
+              ) : null}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function EmptyOrders() {
   return (
     <section className="flex min-h-[360px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
@@ -477,6 +965,18 @@ function EmptyOrders() {
         Voir le catalogue
       </Link>
     </section>
+  );
+}
+
+function SummaryBox({ label, value, tone = 'slate' }: { label: string; value: string; tone?: 'slate' | 'green' | 'orange' }) {
+  const valueClass =
+    tone === 'green' ? 'text-[#059669]' : tone === 'orange' ? 'text-orange-700' : 'text-slate-950';
+
+  return (
+    <div className="rounded-2xl bg-white px-3 py-3">
+      <p className="text-[10px] font-extrabold uppercase text-slate-500">{label}</p>
+      <p className={`mt-1 text-sm font-black ${valueClass}`}>{value}</p>
+    </div>
   );
 }
 
