@@ -645,7 +645,9 @@ function openAdminApp() {
   $login.classList.add('hide');
   $app.classList.remove('hide');
   $app.setAttribute('aria-hidden', 'false');
-  initAfterLogin();
+  initAfterLogin().then(() => handleRoute()).catch(err => {
+    console.warn('Admin route refresh failed', err);
+  });
 }
 
 function hasPendingMfaCredentials() {
@@ -1190,6 +1192,7 @@ const $navProducts = $('#nav-products'),
   $navSettings = $('#nav-settings'),
   $navPromoCards = $('#nav-promocards'),
   $navPromoCodes = $('#nav-promocodes'),
+  $navTasks = $('#nav-tasks'),
   $navOrders = $('#nav-orders'),
   $navPayments = $('#nav-payments'),
   $navInstallments = $('#nav-installments'),
@@ -1215,6 +1218,7 @@ const $productsContent = $('#products-content'),
   $promoRulesContent = document.getElementById('promorules-content'),
   $promoPayoutsContent = document.getElementById('promopayouts-content'),
   $promoTemplatesContent = document.getElementById('promo-templates-content'),
+  $tasksContent = $('#tasks-content'),
   $ordersContent = $('#orders-content'),
   $paymentsContent = $('#payments-content'),
   $installmentsContent = $('#installments-content'),
@@ -1246,6 +1250,7 @@ async function handleRoute() {
   const isContestRoute = route.includes('contest') || route.includes('candidate');
   const isPromoRoute = route.includes('promocode') || route.includes('promorule') || route.includes('promopayout');
   const isVotesRoute = route.includes('votes');
+  const isTasksRoute = route === 'tasks';
   const isOrdersRoute = route === 'orders';
   const isPaymentsRoute = route === 'payments';
   const isInstallmentsRoute = route === 'installments';
@@ -1259,6 +1264,7 @@ async function handleRoute() {
   $navContests.classList.toggle('active', isContestRoute);
   $navPromoCards.classList.toggle('active', route.includes('promocard'));
   $navPromoCodes.classList.toggle('active', isPromoRoute);
+  $navTasks?.classList.toggle('active', isTasksRoute);
   $navOrders?.classList.toggle('active', isOrdersRoute);
   $navPayments?.classList.toggle('active', isPaymentsRoute);
   $navInstallments?.classList.toggle('active', isInstallmentsRoute);
@@ -1291,6 +1297,7 @@ async function handleRoute() {
   $('#page-contests').classList.toggle('hide', !isContestRoute);
   $('#page-promocards').classList.toggle('hide', !route.includes('promocard'));
   $('#page-promocodes').classList.toggle('hide', !isPromoRoute);
+  $('#page-tasks')?.classList.toggle('hide', !isTasksRoute);
   $('#page-orders')?.classList.toggle('hide', !isOrdersRoute);
   $('#page-payments')?.classList.toggle('hide', !isPaymentsRoute);
   $('#page-installments')?.classList.toggle('hide', !isInstallmentsRoute);
@@ -1415,6 +1422,10 @@ async function handleRoute() {
     setCrumb('Éditer Règle Promo');
     await setPromoTab('rules');
     await renderPromoRuleFormPage(id);
+  } else if (route === 'tasks') {
+    setCrumb('A traiter');
+    await ensureAdminTasksLoaded();
+    renderAdminTaskDashboard();
   } else if (route === 'orders') {
     setCrumb('Commandes');
     await ensureCustomerOrdersLoaded();
@@ -1904,6 +1915,20 @@ async function ensureCustomerNotificationsLoaded(force = false) {
   if (rows) allCustomerNotifications = rows;
 }
 
+async function ensureAdminTasksLoaded(force = false) {
+  if ($tasksContent) {
+    $tasksContent.innerHTML = '<div class="skeleton" style="height:120px;margin-bottom:12px"></div>'.repeat(3);
+  }
+
+  await Promise.allSettled([
+    ensureCustomerOrdersLoaded(force),
+    ensureOrderPaymentsLoaded(force),
+    ensureInstallmentPlansLoaded(force),
+    ensureCustomerDocumentsLoaded(force),
+    ensureCustomerNotificationsLoaded(force),
+  ]);
+}
+
 function matchesCommerceSearch(row, term, fields) {
   if (!term) return true;
   const haystack = fields
@@ -1920,7 +1945,19 @@ function statusTone(value) {
   if (['cancelled', 'failed', 'rejected', 'expired', 'late'].includes(value)) {
     return 'danger';
   }
-  if (['pending_review', 'profile_required', 'payment_pending', 'pending', 'under_review', 'documents_required', 'contract_review'].includes(value)) {
+  if (
+    [
+      'pending_review',
+      'profile_required',
+      'payment_pending',
+      'pending',
+      'provider_opened',
+      'uploaded',
+      'under_review',
+      'documents_required',
+      'contract_review',
+    ].includes(value)
+  ) {
     return 'warning';
   }
   return 'neutral';
@@ -2040,6 +2077,334 @@ function renderOrderStats(items) {
     renderMiniStat('Livraison', delivery, 'truck'),
     renderMiniStat('Volume', fmtXOF.format(total), 'banknote'),
   ].join('');
+}
+
+function taskDateValue(task) {
+  const date = normalizeDateValue(task.createdAt);
+  return date ? date.getTime() : 0;
+}
+
+function findTaskOrder(orderId) {
+  if (!orderId) return null;
+  return allCustomerOrders.find(order => order.id === orderId || order.localDraftId === orderId || order.guestId === orderId) || null;
+}
+
+function findTaskInstallment(planId, orderId) {
+  if (!planId && !orderId) return null;
+  return (
+    allInstallmentPlans.find(plan => plan.id === planId || plan.orderId === orderId || plan.orderReference === orderId) || null
+  );
+}
+
+function documentCustomerLabel(documentItem) {
+  const plan = findTaskInstallment(documentItem.installmentPlanId, documentItem.orderId);
+  if (plan) return installmentCustomer(plan);
+  const order = findTaskOrder(documentItem.orderId);
+  if (order) return orderCustomer(order);
+  return documentItem.userId || 'Client';
+}
+
+function paymentCustomerLabel(payment) {
+  const order = findTaskOrder(payment.orderId);
+  if (order) return orderCustomer(order);
+  const plan = findTaskInstallment(payment.installmentPlanId, payment.orderId);
+  if (plan) return installmentCustomer(plan);
+  return payment.customerName || payment.userId || 'Client';
+}
+
+function buildAdminTasks() {
+  const tasks = [];
+
+  allCustomerDocuments
+    .filter(documentItem => ['uploaded', 'under_review'].includes(documentItem.status || ''))
+    .forEach(documentItem => {
+      const isContract = documentItem.type === 'signed_contract';
+      const isIdentity = documentItem.type === 'identity_card' || documentItem.type === 'representative_identity_card';
+      tasks.push({
+        id: `document-${documentItem.id}`,
+        group: 'documents',
+        priority: isContract ? 1 : 2,
+        icon: isContract ? 'file-signature' : 'id-card',
+        title: isContract ? 'Contrat a verifier' : isIdentity ? 'Piece a verifier' : 'Document a verifier',
+        meta: documentCustomerLabel(documentItem),
+        detail: documentItem.fileName || DOCUMENT_TYPE_LABELS[documentItem.type] || 'Document',
+        status: DOCUMENT_STATUS_LABELS[documentItem.status] || documentItem.status || 'A verifier',
+        statusValue: documentItem.status,
+        route: 'documents',
+        search: documentItem.id,
+        documentStatus: documentItem.status === 'uploaded' ? '' : documentItem.status,
+        documentType: documentItem.type || '',
+        action: 'Verifier',
+        createdAt: documentItem.createdAt,
+      });
+    });
+
+  allInstallmentPlans
+    .filter(plan => ['documents_required', 'contract_review', 'late'].includes(plan.status || ''))
+    .forEach(plan => {
+      const status = plan.status || 'contract_review';
+      const late = status === 'late';
+      const progress = installmentProgress(plan);
+      tasks.push({
+        id: `installment-${plan.id}`,
+        group: 'installments',
+        priority: late ? 1 : 2,
+        icon: late ? 'alert-triangle' : 'calendar-clock',
+        title: late ? 'Cotisation en retard' : status === 'documents_required' ? 'Documents cotisation' : 'Cotisation a valider',
+        meta: installmentCustomer(plan),
+        detail: `${installmentProductLabel(plan)} - ${progress}%`,
+        status: INSTALLMENT_STATUS_LABELS[status] || status,
+        statusValue: status,
+        route: 'installments',
+        search: plan.id,
+        installmentStatus: status,
+        action: late ? 'Suivre' : 'Ouvrir',
+        createdAt: plan.updatedAt || plan.createdAt,
+      });
+    });
+
+  allCustomerOrders
+    .filter(order => ['pending_review', 'profile_required', 'payment_pending', 'ready_for_pickup', 'out_for_delivery'].includes(order.status || ''))
+    .forEach(order => {
+      const status = order.status || 'pending_review';
+      const deliveryLocation = orderDeliveryLocation(order);
+      const needsDeliveryLocation = order.fulfillmentMode === 'delivery' && !deliveryLocation && ['pending_review', 'paid'].includes(status);
+      tasks.push({
+        id: `order-${order.id}`,
+        group: 'orders',
+        priority: ['pending_review', 'profile_required', 'payment_pending'].includes(status) ? 2 : 3,
+        icon: order.fulfillmentMode === 'delivery' ? 'truck' : 'shopping-bag',
+        title: needsDeliveryLocation ? 'Localisation a confirmer' : ORDER_STATUS_LABELS[status] || 'Commande a traiter',
+        meta: orderCustomer(order),
+        detail: `${orderItemsLabel(order)} - ${formatMoneyValue(orderTotal(order))}`,
+        status: ORDER_STATUS_LABELS[status] || status,
+        statusValue: status,
+        route: 'orders',
+        search: order.id,
+        orderStatus: status,
+        action: 'Voir',
+        createdAt: order.updatedAt || order.createdAt,
+      });
+    });
+
+  allOrderPayments
+    .filter(payment => ['pending', 'provider_opened', 'failed'].includes(payment.status || '') || payment.receiptStatus === 'failed')
+    .forEach(payment => {
+      const status = payment.status || 'pending';
+      tasks.push({
+        id: `payment-${payment.id}`,
+        group: 'payments',
+        priority: status === 'failed' || payment.receiptStatus === 'failed' ? 1 : 3,
+        icon: status === 'failed' ? 'badge-alert' : 'credit-card',
+        title: status === 'failed' ? 'Paiement echoue' : 'Paiement a suivre',
+        meta: paymentCustomerLabel(payment),
+        detail: `${paymentChannelLabel(payment)} - ${formatMoneyValue(payment.amount)}`,
+        status: PAYMENT_STATUS_LABELS[status] || status,
+        statusValue: status,
+        route: 'payments',
+        search: payment.id || payment.providerTransactionId || payment.orderId || '',
+        paymentStatus: status,
+        action: 'Controler',
+        createdAt: payment.updatedAt || payment.createdAt,
+      });
+    });
+
+  allCustomerNotifications
+    .filter(notification => notification.read !== true)
+    .forEach(notification => {
+      const order = findTaskOrder(notification.orderId);
+      tasks.push({
+        id: `notification-${notification.id}`,
+        group: 'notifications',
+        priority: 4,
+        icon: 'bell',
+        title: notification.title || 'Notification client',
+        meta: order ? orderCustomer(order) : notification.userId || 'Client',
+        detail: notification.message || notification.type || '',
+        status: 'Non lue',
+        statusValue: 'pending',
+        route: 'notifications',
+        search: notification.id,
+        notificationRead: 'unread',
+        action: 'Lire',
+        createdAt: notification.createdAt,
+      });
+    });
+
+  return tasks.sort((a, b) => a.priority - b.priority || taskDateValue(b) - taskDateValue(a));
+}
+
+function adminTaskGroupLabel(group) {
+  const labels = {
+    documents: 'Documents',
+    installments: 'Cotisations',
+    orders: 'Commandes',
+    payments: 'Paiements',
+    notifications: 'Notifs',
+  };
+  return labels[group] || group;
+}
+
+function renderAdminTaskItem(task) {
+  return `
+    <div class="task-item">
+      <div class="task-item-main">
+        <div class="task-item-icon"><i data-lucide="${escapeAttr(task.icon)}" class="icon"></i></div>
+        <div class="task-item-copy">
+          <div class="task-item-head">
+            <strong>${escapeHtml(task.title)}</strong>
+            ${makeStatusBadge(task.status, statusTone(task.statusValue))}
+          </div>
+          <div class="task-item-meta">${escapeHtml(task.meta || '-')}</div>
+          <div class="task-item-detail">${escapeHtml(task.detail || '-')}</div>
+        </div>
+      </div>
+      <button
+        class="btn btn-small"
+        type="button"
+        data-task-open="${escapeAttr(task.route)}"
+        data-task-search="${escapeAttr(task.search || '')}"
+        data-task-order-status="${escapeAttr(task.orderStatus || '')}"
+        data-task-payment-status="${escapeAttr(task.paymentStatus || '')}"
+        data-task-installment-status="${escapeAttr(task.installmentStatus || '')}"
+        data-task-document-status="${escapeAttr(task.documentStatus || '')}"
+        data-task-document-type="${escapeAttr(task.documentType || '')}"
+        data-task-notification-read="${escapeAttr(task.notificationRead || '')}"
+      >${escapeHtml(task.action || 'Ouvrir')}</button>
+    </div>`;
+}
+
+function renderAdminTaskGroup(tasks, group) {
+  const items = tasks.filter(task => task.group === group).slice(0, 6);
+  const count = tasks.filter(task => task.group === group).length;
+  const route = group === 'documents' ? 'documents' : group === 'installments' ? 'installments' : group === 'orders' ? 'orders' : group === 'payments' ? 'payments' : 'notifications';
+  const emptyText =
+    group === 'documents'
+      ? 'Aucun document'
+      : group === 'installments'
+        ? 'Aucune cotisation'
+        : group === 'orders'
+          ? 'Aucune commande'
+          : group === 'payments'
+            ? 'Aucun paiement'
+            : 'Aucune notif';
+
+  return `
+    <section class="task-group">
+      <div class="task-group-head">
+        <div>
+          <span>${escapeHtml(adminTaskGroupLabel(group))}</span>
+          <strong>${escapeHtml(String(count))}</strong>
+        </div>
+        <button class="btn btn-small btn-outline" type="button" data-task-open="${escapeAttr(route)}">
+          <i data-lucide="arrow-up-right" class="icon"></i><span class="sr-only">Ouvrir ${escapeHtml(adminTaskGroupLabel(group))}</span>
+        </button>
+      </div>
+      <div class="task-list">
+        ${items.length ? items.map(renderAdminTaskItem).join('') : `<div class="task-empty">${escapeHtml(emptyText)}</div>`}
+      </div>
+    </section>`;
+}
+
+function renderAdminTaskDashboard() {
+  if (!$tasksContent) return;
+  const tasks = buildAdminTasks();
+  const urgent = tasks.filter(task => task.priority <= 1).length;
+  const documents = tasks.filter(task => task.group === 'documents').length;
+  const installments = tasks.filter(task => task.group === 'installments').length;
+  const payments = tasks.filter(task => task.group === 'payments').length;
+  const statsHtml = [
+    renderMiniStat('A traiter', tasks.length, 'list-checks'),
+    renderMiniStat('Urgent', urgent, 'alert-triangle'),
+    renderMiniStat('Documents', documents, 'folder-check'),
+    renderMiniStat('Cotisations', installments, 'calendar-clock'),
+    renderMiniStat('Paiements', payments, 'credit-card'),
+  ].join('');
+  const urgentTasks = tasks.slice(0, 5);
+  const urgentHtml = urgentTasks.length
+    ? urgentTasks.map(renderAdminTaskItem).join('')
+    : '<div class="task-empty">Aucune urgence</div>';
+
+  $tasksContent.innerHTML = `
+    <div class="commerce-shell task-dashboard">
+      <section class="task-hero">
+        <div>
+          <span>Operations</span>
+          <h2>A traiter</h2>
+        </div>
+        <button id="refresh-tasks" class="btn btn-small">
+          <i data-lucide="refresh-cw" class="icon"></i> Actualiser
+        </button>
+      </section>
+      <div class="commerce-stats">${statsHtml}</div>
+      <section class="task-focus">
+        <div class="task-group-head">
+          <div>
+            <span>Priorites</span>
+            <strong>${escapeHtml(String(urgentTasks.length))}</strong>
+          </div>
+        </div>
+        <div class="task-list">${urgentHtml}</div>
+      </section>
+      <div class="task-grid">
+        ${['documents', 'installments', 'orders', 'payments', 'notifications'].map(group => renderAdminTaskGroup(tasks, group)).join('')}
+      </div>
+    </div>`;
+
+  bindAdminTaskDashboard();
+  lucide.createIcons();
+}
+
+function setOptionalFieldValue(selector, value) {
+  const element = $(selector);
+  if (element) element.value = value || '';
+}
+
+function openAdminTaskRoute(button) {
+  const route = button.dataset.taskOpen || 'tasks';
+  if (route === 'orders') {
+    orderSearchTerm = button.dataset.taskSearch || '';
+    orderStatusFilter = button.dataset.taskOrderStatus || '';
+    orderPaymentFilter = '';
+    setOptionalFieldValue('#search-orders', orderSearchTerm);
+    setOptionalFieldValue('#filter-order-status', orderStatusFilter);
+    setOptionalFieldValue('#filter-order-payment', '');
+  } else if (route === 'payments') {
+    paymentSearchTerm = button.dataset.taskSearch || '';
+    paymentStatusFilter = button.dataset.taskPaymentStatus || '';
+    setOptionalFieldValue('#search-payments', paymentSearchTerm);
+    setOptionalFieldValue('#filter-payment-status', paymentStatusFilter);
+  } else if (route === 'installments') {
+    installmentSearchTerm = button.dataset.taskSearch || '';
+    installmentStatusFilter = button.dataset.taskInstallmentStatus || '';
+    setOptionalFieldValue('#search-installments', installmentSearchTerm);
+    setOptionalFieldValue('#filter-installment-status', installmentStatusFilter);
+  } else if (route === 'documents') {
+    documentSearchTerm = button.dataset.taskSearch || '';
+    documentStatusFilter = button.dataset.taskDocumentStatus || '';
+    documentTypeFilter = button.dataset.taskDocumentType || '';
+    setOptionalFieldValue('#search-documents', documentSearchTerm);
+    setOptionalFieldValue('#filter-document-status', documentStatusFilter);
+    setOptionalFieldValue('#filter-document-type', documentTypeFilter);
+  } else if (route === 'notifications') {
+    notificationSearchTerm = button.dataset.taskSearch || '';
+    notificationReadFilter = button.dataset.taskNotificationRead || '';
+    setOptionalFieldValue('#search-notifications', notificationSearchTerm);
+    setOptionalFieldValue('#filter-notification-read', notificationReadFilter);
+  }
+
+  location.hash = `#/${route}`;
+}
+
+function bindAdminTaskDashboard() {
+  $('#refresh-tasks')?.addEventListener('click', async event => {
+    setButtonLoading(event.currentTarget, true);
+    await ensureAdminTasksLoaded(true);
+    renderAdminTaskDashboard();
+  });
+  $tasksContent?.querySelectorAll('[data-task-open]').forEach(button => {
+    button.addEventListener('click', () => openAdminTaskRoute(button));
+  });
 }
 
 function filteredCustomerOrders() {

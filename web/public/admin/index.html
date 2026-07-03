@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/admin/assets/css/style.css?v=20260625-admin-documents" />
+  <link rel="stylesheet" href="/admin/assets/css/style.css?v=20260703-admin-tasks" />
 
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -72,6 +72,7 @@
           Promo</a>
         <a data-route="#/promocodes" class="link-item"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
         <div class="section">Vente</div>
+        <a data-route="#/tasks" class="link-item"><i data-lucide="list-checks" class="icon"></i> A traiter</a>
         <a data-route="#/orders" class="link-item"><i data-lucide="shopping-bag" class="icon"></i> Commandes</a>
         <a data-route="#/payments" class="link-item"><i data-lucide="credit-card" class="icon"></i> Paiements</a>
         <a data-route="#/installments" class="link-item"><i data-lucide="calendar-clock" class="icon"></i>
@@ -109,6 +110,7 @@
         <a id="nav-promocards" href="#/promocards"><i data-lucide="layout-template" class="icon"></i> Cartes Promo</a>
         <a id="nav-promocodes" href="#/promocodes"><i data-lucide="ticket" class="icon"></i> Codes Promo</a>
         <div class="section">Vente</div>
+        <a id="nav-tasks" href="#/tasks"><i data-lucide="list-checks" class="icon"></i> A traiter</a>
         <a id="nav-orders" href="#/orders"><i data-lucide="shopping-bag" class="icon"></i> Commandes</a>
         <a id="nav-payments" href="#/payments"><i data-lucide="credit-card" class="icon"></i> Paiements</a>
         <a id="nav-installments" href="#/installments"><i data-lucide="calendar-clock" class="icon"></i> Cotisations</a>
@@ -467,6 +469,10 @@
 
       <section id="page-orders" class="page hide" aria-labelledby="nav-orders">
         <div id="orders-content"></div>
+      </section>
+
+      <section id="page-tasks" class="page hide" aria-labelledby="nav-tasks">
+        <div id="tasks-content"></div>
       </section>
 
       <section id="page-payments" class="page hide" aria-labelledby="nav-payments">
@@ -844,7 +850,7 @@
 
   <datalist id="specs-suggestions"></datalist>
 
-  <script type="module" src="/admin/assets/js/main.js?v=20260625-admin-documents"></script>
+  <script type="module" src="/admin/assets/js/main.js?v=20260703-admin-tasks"></script>
 </body>
 
 </html>
