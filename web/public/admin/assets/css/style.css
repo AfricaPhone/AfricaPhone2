@@ -1266,6 +1266,147 @@ main {
   overflow-x: auto;
 }
 
+.commerce-list {
+  display: grid;
+  gap: 10px;
+}
+
+.commerce-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
+  gap: 14px;
+  align-items: stretch;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow-1);
+}
+
+.commerce-card-main {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.commerce-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.commerce-card-head p {
+  margin: 0 0 4px;
+  color: var(--ink-3);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.commerce-card-head h3 {
+  margin: 0;
+  color: var(--ink-1);
+  font-size: 16px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.commerce-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.commerce-card-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.commerce-card-meta {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-2);
+}
+
+.commerce-card-meta span,
+.commerce-control span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink-3);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.commerce-card-meta strong {
+  display: grid;
+  gap: 2px;
+  color: var(--ink-1);
+  font-size: 13px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.commerce-card-meta small,
+.commerce-card-message {
+  color: var(--ink-3);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.commerce-card-message {
+  margin: 0;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--card-2);
+}
+
+.commerce-card-side {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+
+.commerce-control {
+  display: grid;
+  gap: 4px;
+}
+
+.commerce-control .select-compact {
+  width: 100%;
+}
+
+.commerce-money {
+  color: var(--success);
+  font-weight: 900;
+}
+
+.commerce-danger-text {
+  color: var(--danger) !important;
+}
+
+.commerce-progress {
+  overflow: hidden;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--card-2);
+}
+
+.commerce-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
 .commerce-table {
   min-width: 1080px;
 }
@@ -1563,6 +1704,17 @@ main {
 
   .commerce-toolbar .top-actions {
     justify-content: flex-start;
+  }
+
+  .commerce-card {
+    grid-template-columns: 1fr;
+  }
+
+  .commerce-card-side {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
   }
 
   .task-hero,

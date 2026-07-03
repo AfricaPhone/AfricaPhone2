@@ -2129,6 +2129,26 @@ function renderOrderStats(items) {
   ].join('');
 }
 
+function renderCommerceList(itemsHtml) {
+  return `<div class="commerce-list">${itemsHtml}</div>`;
+}
+
+function renderCommerceCardMeta(label, valueHtml) {
+  return `
+    <div class="commerce-card-meta">
+      <span>${escapeHtml(label)}</span>
+      <strong>${valueHtml || '-'}</strong>
+    </div>`;
+}
+
+function renderCommerceControl(label, controlHtml) {
+  return `
+    <label class="commerce-control">
+      <span>${escapeHtml(label)}</span>
+      ${controlHtml}
+    </label>`;
+}
+
 function taskDateValue(task) {
   const date = normalizeDateValue(task.createdAt);
   return date ? date.getTime() : 0;
@@ -2527,23 +2547,8 @@ function renderCustomerOrderList() {
     lucide.createIcons();
     return;
   }
-  const table = document.createElement('table');
-  table.className = 'table commerce-table';
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Demande</th>
-        <th>Client</th>
-        <th>Articles</th>
-        <th>Livraison / retrait</th>
-        <th>Paiement</th>
-        <th>Statut</th>
-        <th style="width:120px;text-align:right">Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>`;
-  const tbody = table.querySelector('tbody');
-  items.forEach(order => {
+  const cardsHtml = items
+    .map(order => {
     const status = order.status || 'pending_review';
     const paymentStatus = order.paymentStatus || 'not_required';
     const deliveryLocation = orderDeliveryLocation(order);
@@ -2551,51 +2556,79 @@ function renderCustomerOrderList() {
     const whatsappLink = normalizeWhatsappLink(whatsapp);
     const email = orderEmail(order);
     const address = orderAddress(order);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>
-        <strong>${escapeHtml(formatOrderReference(order))}</strong>
-        <div class="small">${escapeHtml(formatDateValue(order.createdAt))}</div>
-      </td>
-      <td>
-        <strong>${escapeHtml(orderCustomer(order))}</strong>
-        <div class="small">
-          ${whatsappLink ? `<a href="https://wa.me/${escapeAttr(whatsappLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(whatsapp)}</a>` : '-'}
+    const paymentMode = PAYMENT_MODE_LABELS[order.paymentMode] || order.paymentMode || '-';
+    const fulfillment = FULFILLMENT_LABELS[order.fulfillmentMode] || order.fulfillmentMode || '-';
+    const statusSelect = renderStatusSelect(
+      status,
+      ORDER_STATUS_OPTIONS,
+      ORDER_STATUS_LABELS,
+      `data-order-field="status" data-order-id="${escapeAttr(order.id)}"`
+    );
+    const paymentSelect = renderStatusSelect(
+      paymentStatus,
+      PAYMENT_STATUS_OPTIONS,
+      PAYMENT_STATUS_LABELS,
+      `data-order-field="paymentStatus" data-order-id="${escapeAttr(order.id)}"`
+    );
+
+    return `
+      <article class="commerce-card" data-order-card="${escapeAttr(order.id)}">
+        <div class="commerce-card-main">
+          <div class="commerce-card-head">
+            <div>
+              <p>${escapeHtml(formatDateValue(order.createdAt))}</p>
+              <h3>${escapeHtml(formatOrderReference(order))}</h3>
+            </div>
+            <div class="commerce-card-badges">
+              ${makeStatusBadge(ORDER_STATUS_LABELS[status] || status, statusTone(status))}
+              ${makeStatusBadge(paymentMode, statusTone(paymentStatus))}
+            </div>
+          </div>
+          <div class="commerce-card-grid">
+            ${renderCommerceCardMeta(
+              'Client',
+              `${escapeHtml(orderCustomer(order))}
+                <small>${whatsappLink ? `<a href="https://wa.me/${escapeAttr(whatsappLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(whatsapp)}</a>` : '-'}</small>
+                ${email ? `<small>${escapeHtml(email)}</small>` : ''}`
+            )}
+            ${renderCommerceCardMeta(
+              'Article',
+              `${escapeHtml(orderItemsLabel(order))}
+                <small>${escapeHtml(orderQuantityLabel(order))} - ${escapeHtml(formatMoneyValue(orderTotal(order)))}</small>`
+            )}
+            ${renderCommerceCardMeta(
+              'Reception',
+              `${escapeHtml(fulfillment)}
+                ${address ? `<small class="line-clamp">${escapeHtml(address)}</small>` : ''}
+                ${deliveryLocation ? `<a class="commerce-map-link" href="${escapeAttr(deliveryLocation.mapUrl)}" target="_blank" rel="noopener noreferrer">Maps</a>` : ''}`
+            )}
+          </div>
+          <div class="commerce-doc-row">${orderDocumentChips(order)}</div>
         </div>
-        ${email ? `<div class="small">${escapeHtml(email)}</div>` : ''}
-      </td>
-      <td>
-        <strong>${escapeHtml(orderItemsLabel(order))}</strong>
-        <div class="small">${escapeHtml(orderQuantityLabel(order))} - ${escapeHtml(formatMoneyValue(orderTotal(order)))}</div>
-      </td>
-      <td>
-        <strong>${escapeHtml(FULFILLMENT_LABELS[order.fulfillmentMode] || order.fulfillmentMode || '-')}</strong>
-        ${address ? `<div class="small line-clamp">${escapeHtml(address)}</div>` : ''}
-        ${deliveryLocation ? `<a class="commerce-map-link" href="${escapeAttr(deliveryLocation.mapUrl)}" target="_blank" rel="noopener noreferrer">Maps</a>` : ''}
-      </td>
-      <td>
-        <div>${makeStatusBadge(PAYMENT_MODE_LABELS[order.paymentMode] || order.paymentMode || '-', statusTone(paymentStatus))}</div>
-        <div style="margin-top:6px">${renderStatusSelect(paymentStatus, PAYMENT_STATUS_OPTIONS, PAYMENT_STATUS_LABELS, 'data-order-payment-status')}</div>
-      </td>
-      <td>
-        ${renderStatusSelect(status, ORDER_STATUS_OPTIONS, ORDER_STATUS_LABELS, 'data-order-status')}
-        <div class="commerce-doc-row">${orderDocumentChips(order)}</div>
-      </td>
-      <td class="actions"><button class="btn btn-small" data-detail>D&eacute;tail</button></td>`;
-    tr.querySelector('[data-detail]').onclick = () => showOrderDetails(order);
-    tr.querySelector('[data-order-status]').onchange = event => {
-      updateCustomerOrderField(event.target, order.id, 'status', event.target.value);
-    };
-    tr.querySelector('[data-order-payment-status]').onchange = event => {
-      updateCustomerOrderField(event.target, order.id, 'paymentStatus', event.target.value);
-    };
-    tbody.appendChild(tr);
-  });
+        <div class="commerce-card-side">
+          ${renderCommerceControl('Commande', statusSelect)}
+          ${renderCommerceControl('Paiement', paymentSelect)}
+          <button class="btn btn-small" type="button" data-order-detail="${escapeAttr(order.id)}">Detail</button>
+        </div>
+      </article>`;
+  })
+    .join('');
   const wrap = document.createElement('div');
-  wrap.innerHTML = renderCommerceShell(statsHtml, '');
-  wrap.querySelector('.commerce-panel').appendChild(table);
+  wrap.innerHTML = renderCommerceShell(statsHtml, renderCommerceList(cardsHtml));
   $ordersContent.innerHTML = '';
   $ordersContent.appendChild(wrap.firstElementChild);
+  $ordersContent.querySelectorAll('[data-order-detail]').forEach(button => {
+    button.addEventListener('click', () => {
+      const order = allCustomerOrders.find(item => item.id === button.dataset.orderDetail);
+      if (order) showOrderDetails(order);
+    });
+  });
+  $ordersContent.querySelectorAll('[data-order-field]').forEach(select => {
+    select.addEventListener('change', event => {
+      const control = event.target;
+      updateCustomerOrderField(control, control.dataset.orderId, control.dataset.orderField, control.value);
+    });
+  });
   lucide.createIcons();
 }
 
@@ -2719,30 +2752,35 @@ function renderOrderPaymentList() {
     lucide.createIcons();
     return;
   }
-  const rows = items
+  const cardsHtml = items
     .map(payment => `
-      <tr>
-        <td>
-          <strong>${escapeHtml(payment.orderId || '-')}</strong>
-          <div class="small">${escapeHtml(paymentChannelLabel(payment))}</div>
-          ${payment.installmentPlanId ? `<div class="small">Dossier ${escapeHtml(payment.installmentPlanId)}</div>` : ''}
-        </td>
-        <td>${formatMoneyValue(payment.amount)}</td>
-        <td>${makeStatusBadge(PAYMENT_STATUS_LABELS[payment.status] || payment.status || '-', statusTone(payment.status))}</td>
-        <td>
-          <strong>${escapeHtml(payment.providerTransactionId || payment.providerReference || '-')}</strong>
-          <div class="small">${escapeHtml(payment.receiptStatus ? `Recu: ${payment.receiptStatus}` : '')}</div>
-          ${payment.failureReason || payment.receiptError ? `<div class="small" style="color:#be123c">${escapeHtml(payment.failureReason || payment.receiptError)}</div>` : ''}
-        </td>
-        <td>${escapeHtml(formatDateValue(payment.createdAt))}</td>
-      </tr>`)
+      <article class="commerce-card">
+        <div class="commerce-card-main">
+          <div class="commerce-card-head">
+            <div>
+              <p>${escapeHtml(formatDateValue(payment.createdAt))}</p>
+              <h3>${escapeHtml(payment.orderId || payment.installmentPlanId || payment.id || 'Paiement')}</h3>
+            </div>
+            <div class="commerce-card-badges">
+              ${makeStatusBadge(PAYMENT_STATUS_LABELS[payment.status] || payment.status || '-', statusTone(payment.status))}
+            </div>
+          </div>
+          <div class="commerce-card-grid">
+            ${renderCommerceCardMeta('Canal', `${escapeHtml(paymentChannelLabel(payment))}${payment.installmentPlanId ? `<small>Dossier ${escapeHtml(payment.installmentPlanId)}</small>` : ''}`)}
+            ${renderCommerceCardMeta('Montant', `<span class="commerce-money">${escapeHtml(formatMoneyValue(payment.amount))}</span>`)}
+            ${renderCommerceCardMeta(
+              'Transaction',
+              `${escapeHtml(payment.providerTransactionId || payment.providerReference || '-')}
+                ${payment.receiptStatus ? `<small>Recu: ${escapeHtml(payment.receiptStatus)}</small>` : ''}
+                ${payment.failureReason || payment.receiptError ? `<small class="commerce-danger-text">${escapeHtml(payment.failureReason || payment.receiptError)}</small>` : ''}`
+            )}
+          </div>
+        </div>
+      </article>`)
     .join('');
   $paymentsContent.innerHTML = renderCommerceShell(
     statsHtml,
-    `<table class="table commerce-table">
-      <thead><tr><th>Commande / dossier</th><th>Montant</th><th>Statut</th><th>Transaction / recu</th><th>Date</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`
+    renderCommerceList(cardsHtml)
   );
   lucide.createIcons();
 }
@@ -2817,13 +2855,8 @@ function renderInstallmentPlanList() {
     lucide.createIcons();
     return;
   }
-  const table = document.createElement('table');
-  table.className = 'table commerce-table';
-  table.innerHTML = `
-    <thead><tr><th>Dossier</th><th>Client</th><th>Produit cible</th><th>Progression</th><th>Statut</th><th>Date</th><th style="width:180px;text-align:right">Actions</th></tr></thead>
-    <tbody></tbody>`;
-  const tbody = table.querySelector('tbody');
-  items.forEach(plan => {
+  const cardsHtml = items
+    .map(plan => {
     const status = plan.status || 'draft';
     const whatsapp = installmentWhatsapp(plan);
     const whatsappLink = normalizeWhatsappLink(whatsapp);
@@ -2831,52 +2864,76 @@ function renderInstallmentPlanList() {
     const contractDocument = findInstallmentContractDocument(plan);
     const contractIsApproved = contractDocument?.status === 'approved';
     const canActivate = contractIsApproved && !['active', 'completed', 'cancelled'].includes(status);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>
-        <strong>${escapeHtml(formatOrderReference({ id: plan.orderReference || plan.orderId || plan.id }))}</strong>
-        <div class="small">${escapeHtml(plan.id || '-')}</div>
-      </td>
-      <td>
-        <strong>${escapeHtml(installmentCustomer(plan))}</strong>
-        <div class="small">
-          ${whatsappLink ? `<a href="https://wa.me/${escapeAttr(whatsappLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(whatsapp)}</a>` : '-'}
+    const statusSelect = renderStatusSelect(
+      status,
+      INSTALLMENT_STATUS_OPTIONS,
+      INSTALLMENT_STATUS_LABELS,
+      `data-installment-status data-installment-id="${escapeAttr(plan.id)}"`
+    );
+
+    return `
+      <article class="commerce-card">
+        <div class="commerce-card-main">
+          <div class="commerce-card-head">
+            <div>
+              <p>${escapeHtml(formatDateValue(plan.createdAt))}</p>
+              <h3>${escapeHtml(formatOrderReference({ id: plan.orderReference || plan.orderId || plan.id }))}</h3>
+            </div>
+            <div class="commerce-card-badges">
+              ${makeStatusBadge(INSTALLMENT_STATUS_LABELS[status] || status, statusTone(status))}
+              ${makeStatusBadge(installmentContractLabel(contractDocument), statusTone(contractDocument?.status))}
+            </div>
+          </div>
+          <div class="commerce-card-grid">
+            ${renderCommerceCardMeta(
+              'Client',
+              `${escapeHtml(installmentCustomer(plan))}
+                <small>${whatsappLink ? `<a href="https://wa.me/${escapeAttr(whatsappLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(whatsapp)}</a>` : '-'}</small>`
+            )}
+            ${renderCommerceCardMeta(
+              'Produit cible',
+              `${escapeHtml(installmentProductLabel(plan))}
+                <small>${escapeHtml(formatMoneyValue(plan.productTotal))}</small>`
+            )}
+            ${renderCommerceCardMeta(
+              'Solde',
+              `<span class="commerce-money">${escapeHtml(formatMoneyValue(plan.balanceRemaining))}</span>
+                <small>${escapeHtml(formatMoneyValue(plan.amountPaid))} paye</small>`
+            )}
+          </div>
+          <div class="commerce-progress" aria-label="Progression ${escapeAttr(String(progress))}%">
+            <span style="width:${escapeAttr(String(progress))}%"></span>
+          </div>
+          <div class="small">${escapeHtml(String(progress))}% complete${plan.contractReference ? ` - ${escapeHtml(plan.contractReference)}` : ''}</div>
         </div>
-      </td>
-      <td>
-        <strong>${escapeHtml(installmentProductLabel(plan))}</strong>
-        <div class="small">${escapeHtml(formatMoneyValue(plan.productTotal))}</div>
-      </td>
-      <td>
-        <strong>${escapeHtml(String(progress))}%</strong>
-        <div class="small">${formatMoneyValue(plan.amountPaid)} paye - ${formatMoneyValue(plan.balanceRemaining)} restant</div>
-        <div class="small">
-          Contrat: ${makeStatusBadge(installmentContractLabel(contractDocument), statusTone(contractDocument?.status))}
-          ${plan.contractReference ? ` ${escapeHtml(plan.contractReference)}` : ''}
+        <div class="commerce-card-side">
+          ${renderCommerceControl('Statut', statusSelect)}
+          <button class="btn btn-small" type="button" data-open-contract="${escapeAttr(contractDocument?.id || '')}" ${contractDocument ? '' : 'disabled'}>Contrat</button>
+          <button class="btn btn-primary btn-small" type="button" data-activate-installment="${escapeAttr(plan.id)}" ${canActivate ? '' : 'disabled'}>Activer</button>
         </div>
-      </td>
-      <td>${renderStatusSelect(status, INSTALLMENT_STATUS_OPTIONS, INSTALLMENT_STATUS_LABELS, 'data-installment-status')}</td>
-      <td>${escapeHtml(formatDateValue(plan.createdAt))}</td>
-      <td class="actions">
-        <button class="btn btn-small" data-open-contract ${contractDocument ? '' : 'disabled'}>Contrat</button>
-        <button class="btn btn-primary btn-small" data-activate ${canActivate ? '' : 'disabled'}>Activer</button>
-      </td>`;
-    tr.querySelector('[data-installment-status]').onchange = event => {
-      updateInstallmentPlanStatus(event.target, plan.id, event.target.value);
-    };
-    tr.querySelector('[data-open-contract]').onclick = () => {
-      if (contractDocument) openCustomerDocument(contractDocument);
-    };
-    tr.querySelector('[data-activate]').onclick = event => {
-      updateInstallmentPlanStatus(event.currentTarget, plan.id, 'active');
-    };
-    tbody.appendChild(tr);
-  });
+      </article>`;
+  })
+    .join('');
   const wrap = document.createElement('div');
-  wrap.innerHTML = renderCommerceShell(statsHtml, '');
-  wrap.querySelector('.commerce-panel').appendChild(table);
+  wrap.innerHTML = renderCommerceShell(statsHtml, renderCommerceList(cardsHtml));
   $installmentsContent.innerHTML = '';
   $installmentsContent.appendChild(wrap.firstElementChild);
+  $installmentsContent.querySelectorAll('[data-installment-status]').forEach(select => {
+    select.addEventListener('change', event => {
+      updateInstallmentPlanStatus(event.target, event.target.dataset.installmentId, event.target.value);
+    });
+  });
+  $installmentsContent.querySelectorAll('[data-open-contract]').forEach(button => {
+    button.addEventListener('click', () => {
+      const documentItem = allCustomerDocuments.find(item => item.id === button.dataset.openContract);
+      if (documentItem) openCustomerDocument(documentItem);
+    });
+  });
+  $installmentsContent.querySelectorAll('[data-activate-installment]').forEach(button => {
+    button.addEventListener('click', event => {
+      updateInstallmentPlanStatus(event.currentTarget, button.dataset.activateInstallment, 'active');
+    });
+  });
   lucide.createIcons();
 }
 
@@ -3076,13 +3133,8 @@ function renderCustomerDocumentList() {
     lucide.createIcons();
     return;
   }
-  const table = document.createElement('table');
-  table.className = 'table commerce-table';
-  table.innerHTML = `
-    <thead><tr><th>Fichier</th><th>Type</th><th>Client</th><th>Commande</th><th>Taille</th><th>Statut</th><th style="width:110px;text-align:right">Action</th></tr></thead>
-    <tbody></tbody>`;
-  const tbody = table.querySelector('tbody');
-  items.forEach(documentItem => {
+  const cardsHtml = items
+    .map(documentItem => {
     const status = documentItem.status || 'under_review';
     const qrStatus = documentItem.qrVerification?.status || (documentItem.type === 'signed_contract' ? 'not_checked' : '');
     const qrLabel = qrStatus ? CONTRACT_QR_STATUS_LABELS[qrStatus] || qrStatus : '';
@@ -3091,25 +3143,54 @@ function renderCustomerDocumentList() {
       documentItem.type === 'signed_contract'
         ? `<div class="small">QR: ${escapeHtml(qrLabel)}${contractReference ? ` · ${escapeHtml(contractReference)}` : ''}</div>`
         : '';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><strong>${escapeHtml(documentItem.fileName || documentItem.id)}</strong><div class="small">${escapeHtml(formatDateValue(documentItem.createdAt))}</div>${contractMeta}</td>
-      <td>${escapeHtml(DOCUMENT_TYPE_LABELS[documentItem.type] || documentItem.type || '-')}</td>
-      <td>${escapeHtml(documentItem.userId || '-')}</td>
-      <td>${escapeHtml(documentItem.installmentPlanId || documentItem.orderId || '-')}</td>
-      <td>${escapeHtml(formatFileSize(documentItem.size))}</td>
-      <td>${renderStatusSelect(status, DOCUMENT_STATUS_OPTIONS, DOCUMENT_STATUS_LABELS, 'data-document-status')}</td>
-      <td class="actions"><button class="btn btn-small" data-open>Ouvrir</button></td>`;
-    tr.querySelector('[data-open]').onclick = () => openCustomerDocument(documentItem);
-    tr.querySelector('[data-document-status]').onchange = event => {
-      updateCustomerDocumentStatus(event.target, documentItem.id, event.target.value);
-    };
-    tbody.appendChild(tr);
-  });
-  panel.appendChild(table);
+    const statusSelect = renderStatusSelect(
+      status,
+      DOCUMENT_STATUS_OPTIONS,
+      DOCUMENT_STATUS_LABELS,
+      `data-document-status data-document-id="${escapeAttr(documentItem.id)}"`
+    );
+
+    return `
+      <article class="commerce-card">
+        <div class="commerce-card-main">
+          <div class="commerce-card-head">
+            <div>
+              <p>${escapeHtml(formatDateValue(documentItem.createdAt))}</p>
+              <h3>${escapeHtml(documentItem.fileName || documentItem.id)}</h3>
+            </div>
+            <div class="commerce-card-badges">
+              ${makeStatusBadge(DOCUMENT_TYPE_LABELS[documentItem.type] || documentItem.type || '-', 'neutral')}
+              ${makeStatusBadge(DOCUMENT_STATUS_LABELS[status] || status, statusTone(status))}
+            </div>
+          </div>
+          <div class="commerce-card-grid">
+            ${renderCommerceCardMeta('Client', `${escapeHtml(documentCustomerLabel(documentItem))}<small>${escapeHtml(documentItem.userId || '-')}</small>`)}
+            ${renderCommerceCardMeta('Dossier', `${escapeHtml(documentItem.installmentPlanId || documentItem.orderId || '-')}${contractMeta}`)}
+            ${renderCommerceCardMeta('Fichier', `${escapeHtml(formatFileSize(documentItem.size))}<small>${escapeHtml(documentItem.contentType || '')}</small>`)}
+          </div>
+        </div>
+        <div class="commerce-card-side">
+          ${renderCommerceControl('Statut', statusSelect)}
+          <button class="btn btn-small" type="button" data-open-document="${escapeAttr(documentItem.id)}">Ouvrir</button>
+        </div>
+      </article>`;
+  })
+    .join('');
+  panel.innerHTML = renderCommerceList(cardsHtml);
   $documentsContent.innerHTML = '';
   $documentsContent.appendChild(wrap.firstElementChild);
   bindContractTemplatePanel();
+  $documentsContent.querySelectorAll('[data-open-document]').forEach(button => {
+    button.addEventListener('click', () => {
+      const documentItem = allCustomerDocuments.find(item => item.id === button.dataset.openDocument);
+      if (documentItem) openCustomerDocument(documentItem);
+    });
+  });
+  $documentsContent.querySelectorAll('[data-document-status]').forEach(select => {
+    select.addEventListener('change', event => {
+      updateCustomerDocumentStatus(event.target, event.target.dataset.documentId, event.target.value);
+    });
+  });
   lucide.createIcons();
 }
 
@@ -3134,30 +3215,41 @@ function renderCustomerNotificationList() {
     lucide.createIcons();
     return;
   }
-  const table = document.createElement('table');
-  table.className = 'table commerce-table';
-  table.innerHTML = `
-    <thead><tr><th>Message</th><th>Client</th><th>Commande</th><th>Date</th><th style="width:120px;text-align:right">Action</th></tr></thead>
-    <tbody></tbody>`;
-  const tbody = table.querySelector('tbody');
-  items.forEach(notification => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><strong>${escapeHtml(notification.title || notification.type || 'Notification')}</strong><div class="small">${escapeHtml(notification.message || '')}</div></td>
-      <td>${escapeHtml(notification.userId || '-')}</td>
-      <td>${escapeHtml(notification.orderId || '-')}</td>
-      <td>${escapeHtml(formatDateValue(notification.createdAt))}</td>
-      <td class="actions"><button class="btn btn-small" data-read>${notification.read ? 'Non lue' : 'Lue'}</button></td>`;
-    tr.querySelector('[data-read]').onclick = event => {
-      updateCustomerNotificationRead(event.target, notification.id, !notification.read);
-    };
-    tbody.appendChild(tr);
-  });
+  const cardsHtml = items
+    .map(notification => `
+      <article class="commerce-card">
+        <div class="commerce-card-main">
+          <div class="commerce-card-head">
+            <div>
+              <p>${escapeHtml(formatDateValue(notification.createdAt))}</p>
+              <h3>${escapeHtml(notification.title || notification.type || 'Notification')}</h3>
+            </div>
+            <div class="commerce-card-badges">
+              ${makeStatusBadge(notification.read ? 'Lue' : 'Non lue', notification.read ? 'neutral' : 'warning')}
+            </div>
+          </div>
+          <p class="commerce-card-message">${escapeHtml(notification.message || '')}</p>
+          <div class="commerce-card-grid">
+            ${renderCommerceCardMeta('Client', escapeHtml(notification.userId || '-'))}
+            ${renderCommerceCardMeta('Commande', escapeHtml(notification.orderId || '-'))}
+            ${renderCommerceCardMeta('Type', escapeHtml(notification.type || '-'))}
+          </div>
+        </div>
+        <div class="commerce-card-side">
+          <button class="btn btn-small" type="button" data-read-notification="${escapeAttr(notification.id)}">${notification.read ? 'Non lue' : 'Lue'}</button>
+        </div>
+      </article>`)
+    .join('');
   const wrap = document.createElement('div');
-  wrap.innerHTML = renderCommerceShell(statsHtml, '');
-  wrap.querySelector('.commerce-panel').appendChild(table);
+  wrap.innerHTML = renderCommerceShell(statsHtml, renderCommerceList(cardsHtml));
   $notificationsContent.innerHTML = '';
   $notificationsContent.appendChild(wrap.firstElementChild);
+  $notificationsContent.querySelectorAll('[data-read-notification]').forEach(button => {
+    button.addEventListener('click', event => {
+      const notification = allCustomerNotifications.find(item => item.id === button.dataset.readNotification);
+      if (notification) updateCustomerNotificationRead(event.currentTarget, notification.id, !notification.read);
+    });
+  });
   lucide.createIcons();
 }
 
