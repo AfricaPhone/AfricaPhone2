@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { getCartCount, subscribeToCart } from '@/lib/cart';
+import { auth } from '@/lib/firebaseClient';
 
 type NavItem = {
   label: string;
@@ -16,6 +18,10 @@ type IconProps = {
   className?: string;
 };
 
+type NotificationsApiResponse = {
+  unreadCount?: number;
+};
+
 const NAV_ITEMS: NavItem[] = [
   { label: 'Catalogue', href: '/', icon: HomeIcon },
   { label: 'Panier', href: '/panier', icon: CartIcon },
@@ -24,13 +30,74 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Compte', href: '/compte', icon: UserIcon },
 ];
 
+const formatBadgeCount = (count: number) => (count > 9 ? '9+' : String(count));
+
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const [cartCount, setCartCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   useEffect(() => {
     setCartCount(getCartCount());
     return subscribeToCart(() => setCartCount(getCartCount()));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadUnreadNotifications = async (user: User | null = auth.currentUser) => {
+      if (!user) {
+        if (!cancelled) {
+          setNotificationCount(0);
+        }
+        return;
+      }
+
+      try {
+        const idToken = await user.getIdToken();
+        const response = await fetch('/api/notifications', {
+          headers: { Authorization: `Bearer ${idToken}` },
+        });
+        const body = (await response.json().catch(() => null)) as NotificationsApiResponse | null;
+
+        if (!response.ok) {
+          throw new Error('notifications unavailable');
+        }
+
+        if (!cancelled) {
+          const nextCount = typeof body?.unreadCount === 'number' ? body.unreadCount : 0;
+          setNotificationCount(Math.max(0, nextCount));
+        }
+      } catch {
+        if (!cancelled) {
+          setNotificationCount(0);
+        }
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      void loadUnreadNotifications(user);
+    });
+    const handleRefresh = () => {
+      void loadUnreadNotifications();
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'hidden') {
+        void loadUnreadNotifications();
+      }
+    };
+
+    window.addEventListener('focus', handleRefresh);
+    window.addEventListener('africaphone:notifications-updated', handleRefresh);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+      window.removeEventListener('focus', handleRefresh);
+      window.removeEventListener('africaphone:notifications-updated', handleRefresh);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   return (
@@ -42,7 +109,12 @@ export default function MobileBottomNav() {
         {NAV_ITEMS.map(item => {
           const Icon = item.icon;
           const isActive = item.href === '/' ? pathname === '/' : pathname === item.href;
-          const badge = item.label === 'Panier' && cartCount > 0 ? String(cartCount) : item.badge;
+          const badge =
+            item.label === 'Panier' && cartCount > 0
+              ? formatBadgeCount(cartCount)
+              : item.label === 'Notifs' && notificationCount > 0
+                ? formatBadgeCount(notificationCount)
+                : item.badge;
 
           return (
             <Link

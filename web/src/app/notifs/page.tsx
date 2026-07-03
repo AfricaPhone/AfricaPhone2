@@ -7,7 +7,12 @@ import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { type CheckoutDraft, formatCheckoutReference, getCheckoutDraft, getCheckoutHistory } from '@/lib/checkoutDraft';
 import { auth } from '@/lib/firebaseClient';
-import type { CustomerOrderClientView, CustomerOrderStatus, CustomerPaymentStatus } from '@/types/customerOrders';
+import type {
+  CustomerNotification,
+  CustomerNotificationType,
+  CustomerOrderClientView,
+  CustomerOrderStatus,
+} from '@/types/customerOrders';
 
 type OrdersApiResponse = {
   authenticated?: boolean;
@@ -15,10 +20,24 @@ type OrdersApiResponse = {
   message?: string;
 };
 
+type CustomerNotificationClient = Omit<CustomerNotification, 'createdAt'> & {
+  createdAt: string | null;
+};
+
+type NotificationsApiResponse = {
+  authenticated?: boolean;
+  notifications?: CustomerNotificationClient[];
+  unreadCount?: number;
+  message?: string;
+};
+
 type NotificationTone = 'green' | 'orange' | 'rose' | 'slate';
+
+type NotificationSource = 'server' | 'order' | 'local';
 
 type NotificationItem = {
   id: string;
+  notificationId?: string;
   title: string;
   message: string;
   status: string;
@@ -27,12 +46,16 @@ type NotificationItem = {
   actionHref: string;
   actionLabel: string;
   needsAction: boolean;
+  read?: boolean;
+  source: NotificationSource;
 };
 
-const REMOTE_STATUS_NOTIFICATIONS: Record<
-  CustomerOrderStatus,
-  Pick<NotificationItem, 'title' | 'message' | 'status' | 'tone' | 'actionHref' | 'actionLabel' | 'needsAction'>
-> = {
+type NotificationTemplate = Pick<
+  NotificationItem,
+  'title' | 'message' | 'status' | 'tone' | 'actionHref' | 'actionLabel' | 'needsAction'
+>;
+
+const REMOTE_STATUS_NOTIFICATIONS: Record<CustomerOrderStatus, NotificationTemplate> = {
   draft: {
     title: 'Commande a finaliser',
     message: 'Une demande existe mais doit encore etre completee.',
@@ -116,31 +139,77 @@ const REMOTE_STATUS_NOTIFICATIONS: Record<
   },
 };
 
-const PAYMENT_STATUS_NOTIFICATIONS: Partial<
-  Record<CustomerPaymentStatus, Pick<NotificationItem, 'title' | 'message' | 'status' | 'tone' | 'needsAction'>>
-> = {
-  provider_opened: {
-    title: 'Paiement ouvert',
-    message: 'Un paiement en ligne a ete initialise et doit etre finalise.',
-    status: 'Paiement',
-    tone: 'orange',
-    needsAction: true,
-  },
-  succeeded: {
-    title: 'Paiement recu',
-    message: 'AfricaPhone a recu la confirmation du paiement.',
-    status: 'Confirme',
+const SERVER_NOTIFICATION_UI: Record<CustomerNotificationType, Omit<NotificationTemplate, 'title' | 'message'>> = {
+  order_created: {
+    status: 'Commande',
     tone: 'green',
+    actionHref: '/commandes',
+    actionLabel: 'Voir',
     needsAction: false,
   },
-  failed: {
-    title: 'Paiement echoue',
-    message: 'Le paiement n a pas abouti. La commande doit etre verifiee.',
-    status: 'A verifier',
-    tone: 'rose',
+  profile_required: {
+    status: 'Profil',
+    tone: 'orange',
+    actionHref: '/compte',
+    actionLabel: 'Completer',
     needsAction: true,
   },
+  payment_required: {
+    status: 'Paiement',
+    tone: 'orange',
+    actionHref: '/commandes',
+    actionLabel: 'Payer',
+    needsAction: true,
+  },
+  payment_succeeded: {
+    status: 'Paye',
+    tone: 'green',
+    actionHref: '/commandes',
+    actionLabel: 'Voir',
+    needsAction: false,
+  },
+  payment_failed: {
+    status: 'A verifier',
+    tone: 'rose',
+    actionHref: '/commandes',
+    actionLabel: 'Verifier',
+    needsAction: true,
+  },
+  documents_required: {
+    status: 'Document',
+    tone: 'orange',
+    actionHref: '/compte',
+    actionLabel: 'Compte',
+    needsAction: true,
+  },
+  contract_review: {
+    status: 'Contrat',
+    tone: 'orange',
+    actionHref: '/compte',
+    actionLabel: 'Voir',
+    needsAction: true,
+  },
+  ready_for_pickup: {
+    status: 'Retrait',
+    tone: 'green',
+    actionHref: '/commandes',
+    actionLabel: 'Details',
+    needsAction: true,
+  },
+  delivery_update: {
+    status: 'Livraison',
+    tone: 'green',
+    actionHref: '/commandes',
+    actionLabel: 'Suivre',
+    needsAction: false,
+  },
 };
+
+const normalizeText = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
 const uniqueStrings = (values: Array<string | null | undefined>) =>
   Array.from(new Set(values.filter((value): value is string => Boolean(value))));
@@ -189,8 +258,17 @@ const formatDate = (value: string | null) => {
   }).format(date);
 };
 
+const isServerUnread = (item: NotificationItem) => item.source === 'server' && item.read === false;
+
 const sortNotifications = (items: NotificationItem[]) =>
   [...items].sort((a, b) => {
+    const aUnread = isServerUnread(a);
+    const bUnread = isServerUnread(b);
+
+    if (aUnread !== bUnread) {
+      return aUnread ? -1 : 1;
+    }
+
     if (a.needsAction !== b.needsAction) {
       return a.needsAction ? -1 : 1;
     }
@@ -198,41 +276,62 @@ const sortNotifications = (items: NotificationItem[]) =>
     return Date.parse(b.createdAt ?? '') - Date.parse(a.createdAt ?? '');
   });
 
+const resolveServerTemplate = (notification: CustomerNotificationClient) => {
+  const template = SERVER_NOTIFICATION_UI[notification.type] ?? SERVER_NOTIFICATION_UI.order_created;
+  const text = normalizeText(`${notification.title} ${notification.message}`);
+  const isPositiveReview =
+    (notification.type === 'contract_review' || notification.type === 'documents_required') &&
+    (text.includes('valide') || text.includes('approuve'));
+
+  if (!isPositiveReview) {
+    return template;
+  }
+
+  return {
+    ...template,
+    tone: 'green' as const,
+    needsAction: false,
+  };
+};
+
+const buildServerNotification = (notification: CustomerNotificationClient): NotificationItem => {
+  const template = resolveServerTemplate(notification);
+
+  return {
+    id: `server-${notification.id}`,
+    notificationId: notification.id,
+    title: notification.title,
+    message: notification.message,
+    status: notification.read ? 'Lu' : template.status,
+    tone: notification.read ? 'slate' : template.tone,
+    createdAt: notification.createdAt,
+    actionHref: template.actionHref,
+    actionLabel: template.actionLabel,
+    needsAction: template.needsAction,
+    read: notification.read,
+    source: 'server',
+  };
+};
+
 const buildRemoteNotifications = (orders: CustomerOrderClientView[]) =>
-  orders.flatMap(order => {
+  orders.map((order): NotificationItem => {
     const reference = order.localDraftId || order.id;
     const referenceLabel = formatCheckoutReference(reference);
     const statusTemplate = REMOTE_STATUS_NOTIFICATIONS[order.status] ?? REMOTE_STATUS_NOTIFICATIONS.pending_review;
-    const notifications: NotificationItem[] = [
-      {
-        id: `order-${order.id}-${order.status}`,
-        title: statusTemplate.title,
-        message: `${statusTemplate.message} ${referenceLabel}.`,
-        status: statusTemplate.status,
-        tone: statusTemplate.tone,
-        createdAt: order.updatedAt || order.createdAt,
-        actionHref: statusTemplate.actionHref,
-        actionLabel: statusTemplate.actionLabel,
-        needsAction: statusTemplate.needsAction,
-      },
-    ];
 
-    const paymentTemplate = PAYMENT_STATUS_NOTIFICATIONS[order.paymentStatus];
-    if (paymentTemplate) {
-      notifications.push({
-        id: `payment-${order.id}-${order.paymentStatus}`,
-        title: paymentTemplate.title,
-        message: `${paymentTemplate.message} ${referenceLabel}.`,
-        status: paymentTemplate.status,
-        tone: paymentTemplate.tone,
-        createdAt: order.updatedAt || order.createdAt,
-        actionHref: '/commandes',
-        actionLabel: 'Suivre',
-        needsAction: paymentTemplate.needsAction,
-      });
-    }
-
-    return notifications;
+    return {
+      id: `order-${order.id}-${order.status}`,
+      title: statusTemplate.title,
+      message: `${statusTemplate.message} ${referenceLabel}.`,
+      status: statusTemplate.status,
+      tone: statusTemplate.tone,
+      createdAt: order.updatedAt || order.createdAt,
+      actionHref: statusTemplate.actionHref,
+      actionLabel: statusTemplate.actionLabel,
+      needsAction: statusTemplate.needsAction,
+      read: true,
+      source: 'order',
+    };
   });
 
 const buildLocalNotifications = (orders: CheckoutDraft[], remoteOrders: CustomerOrderClientView[]) => {
@@ -256,6 +355,7 @@ const buildLocalNotifications = (orders: CheckoutDraft[], remoteOrders: Customer
           actionHref: '/checkout',
           actionLabel: 'Reprendre',
           needsAction: true,
+          source: 'local',
         };
       }
 
@@ -272,6 +372,7 @@ const buildLocalNotifications = (orders: CheckoutDraft[], remoteOrders: Customer
           actionHref: order.orderSync.profileRequired ? '/compte' : '/commandes',
           actionLabel: order.orderSync.profileRequired ? 'Completer' : 'Voir',
           needsAction: order.orderSync.profileRequired,
+          source: 'local',
         };
       }
 
@@ -285,16 +386,56 @@ const buildLocalNotifications = (orders: CheckoutDraft[], remoteOrders: Customer
         actionHref: '/checkout',
         actionLabel: 'Finaliser',
         needsAction: true,
+        source: 'local',
       };
     });
+};
+
+const fetchOrders = async (idToken: string | null, localOrders: CheckoutDraft[]) => {
+  const response = await fetch(buildOrdersUrl(localOrders), {
+    headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
+  });
+  const body = (await response.json().catch(() => null)) as OrdersApiResponse | null;
+
+  if (!response.ok) {
+    throw new Error(body?.message || 'Chargement des commandes indisponible.');
+  }
+
+  return {
+    authenticated: body?.authenticated === true,
+    orders: Array.isArray(body?.orders) ? body.orders : [],
+  };
+};
+
+const fetchCustomerNotifications = async (idToken: string | null) => {
+  if (!idToken) {
+    return { notifications: [] as CustomerNotificationClient[], unreadCount: 0 };
+  }
+
+  const response = await fetch('/api/notifications', {
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  const body = (await response.json().catch(() => null)) as NotificationsApiResponse | null;
+
+  if (!response.ok) {
+    throw new Error(body?.message || 'Chargement des notifications indisponible.');
+  }
+
+  return {
+    unreadCount: typeof body?.unreadCount === 'number' ? body.unreadCount : 0,
+    notifications: Array.isArray(body?.notifications) ? body.notifications : [],
+  };
 };
 
 export default function NotificationsPage() {
   const [localOrders, setLocalOrders] = useState<CheckoutDraft[]>([]);
   const [remoteOrders, setRemoteOrders] = useState<CustomerOrderClientView[]>([]);
+  const [serverNotifications, setServerNotifications] = useState<CustomerNotificationClient[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [remoteError, setRemoteError] = useState('');
+  const [notificationsError, setNotificationsError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [markingId, setMarkingId] = useState('');
 
   useEffect(() => {
     const latestDraft = getCheckoutDraft();
@@ -307,25 +448,38 @@ export default function NotificationsPage() {
     const unsubscribe = onAuthStateChanged(auth, async user => {
       setLoaded(false);
       setRemoteError('');
+      setNotificationsError('');
 
       try {
         const idToken = user ? await user.getIdToken() : null;
-        const response = await fetch(buildOrdersUrl(nextLocalOrders), {
-          headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
-        });
-        const body = (await response.json().catch(() => null)) as OrdersApiResponse | null;
+        const [ordersResult, notificationsResult] = await Promise.allSettled([
+          fetchOrders(idToken, nextLocalOrders),
+          fetchCustomerNotifications(idToken),
+        ]);
 
-        if (!response.ok) {
-          throw new Error(body?.message || 'Chargement des alertes indisponible.');
+        if (cancelled) {
+          return;
         }
 
-        if (!cancelled) {
-          setRemoteOrders(Array.isArray(body?.orders) ? body.orders : []);
-          setIsAuthenticated(body?.authenticated === true);
+        if (ordersResult.status === 'fulfilled') {
+          setRemoteOrders(ordersResult.value.orders);
+          setIsAuthenticated(ordersResult.value.authenticated || Boolean(user));
+        } else {
+          setRemoteOrders([]);
+          setIsAuthenticated(Boolean(user));
+          setRemoteError('Commandes indisponibles pour le moment.');
+        }
+
+        if (notificationsResult.status === 'fulfilled') {
+          setServerNotifications(notificationsResult.value.notifications);
+        } else {
+          setServerNotifications([]);
+          setNotificationsError('Notifications du compte indisponibles.');
         }
       } catch {
         if (!cancelled) {
           setRemoteOrders([]);
+          setServerNotifications([]);
           setRemoteError('Alertes indisponibles pour le moment.');
           setIsAuthenticated(Boolean(user));
         }
@@ -342,28 +496,74 @@ export default function NotificationsPage() {
     };
   }, []);
 
-  const notifications = useMemo(
-    () => sortNotifications([...buildRemoteNotifications(remoteOrders), ...buildLocalNotifications(localOrders, remoteOrders)]),
-    [localOrders, remoteOrders]
-  );
+  const markNotificationRead = async (notificationId: string) => {
+    const user = auth.currentUser;
+    if (!user) {
+      setNotificationsError('Connectez-vous pour mettre a jour les notifications.');
+      return;
+    }
+
+    setMarkingId(notificationId);
+    setNotificationsError('');
+
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificationId, read: true }),
+      });
+      const body = (await response.json().catch(() => null)) as {
+        notification?: CustomerNotificationClient;
+        message?: string;
+      } | null;
+
+      if (!response.ok || !body?.notification) {
+        throw new Error(body?.message || 'Mise a jour impossible.');
+      }
+
+      setServerNotifications(current =>
+        current.map(notification => (notification.id === body.notification?.id ? body.notification : notification))
+      );
+      window.dispatchEvent(new Event('africaphone:notifications-updated'));
+    } catch {
+      setNotificationsError('Impossible de marquer la notification comme lue.');
+    } finally {
+      setMarkingId('');
+    }
+  };
+
+  const notifications = useMemo(() => {
+    const serverOrderIds = new Set(uniqueStrings(serverNotifications.map(notification => notification.orderId)));
+    const fallbackRemoteOrders = remoteOrders.filter(order => !serverOrderIds.has(order.id));
+
+    return sortNotifications([
+      ...serverNotifications.map(buildServerNotification),
+      ...buildRemoteNotifications(fallbackRemoteOrders),
+      ...buildLocalNotifications(localOrders, remoteOrders),
+    ]);
+  }, [localOrders, remoteOrders, serverNotifications]);
   const stats = useMemo(() => {
-    const actionCount = notifications.filter(item => item.needsAction).length;
+    const unreadCount = serverNotifications.filter(item => item.read !== true).length;
+    const actionCount = notifications.filter(item => item.needsAction && !isServerUnread(item)).length;
     const deliveryCount = notifications.filter(item => item.status === 'Livraison').length;
 
-    return { actionCount, deliveryCount };
-  }, [notifications]);
+    return { unreadCount, actionCount, deliveryCount };
+  }, [notifications, serverNotifications]);
+  const accountStatus = isAuthenticated ? 'Connecte' : 'A connecter';
+  const statusMessage = remoteError || notificationsError || `${remoteOrders.length} demande(s), ${serverNotifications.length} notification(s)`;
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-950">
       <main className="mx-auto flex max-w-6xl flex-col gap-4 px-3 py-4 sm:px-4">
-        <CustomerPageHeader
-          eyebrow="Notifications"
-          title="Alertes client"
-        />
+        <CustomerPageHeader eyebrow="Notifications" title="Alertes client" />
 
         <section className="grid gap-3 sm:grid-cols-3">
-          <StatCard label="Alertes" value={notifications.length.toString()} />
-          <StatCard label="A traiter" value={stats.actionCount.toString()} tone="orange" />
+          <StatCard label="Non lues" value={stats.unreadCount.toString()} tone={stats.unreadCount > 0 ? 'orange' : 'slate'} />
+          <StatCard label="A traiter" value={stats.actionCount.toString()} tone={stats.actionCount > 0 ? 'orange' : 'slate'} />
           <StatCard label="Livraison" value={stats.deliveryCount.toString()} tone="green" />
         </section>
 
@@ -377,7 +577,12 @@ export default function NotificationsPage() {
           <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
             <section className="space-y-3">
               {notifications.map(notification => (
-                <NotificationCard key={notification.id} notification={notification} />
+                <NotificationCard
+                  key={notification.id}
+                  marking={markingId === notification.notificationId}
+                  notification={notification}
+                  onMarkRead={notification.notificationId ? markNotificationRead : undefined}
+                />
               ))}
             </section>
 
@@ -385,16 +590,13 @@ export default function NotificationsPage() {
               <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Suivi</p>
                 <div className="mt-4 space-y-3">
+                  <SmallStatus label="Compte client" value={accountStatus} warning={!isAuthenticated} />
+                  <SmallStatus label="Etat" value={statusMessage} warning={Boolean(remoteError || notificationsError)} />
                   <SmallStatus
-                    label="Compte client"
-                    value={isAuthenticated ? 'Connecte' : 'A connecter'}
+                    label="Notifications"
+                    value={`${stats.unreadCount} non lue(s)`}
+                    warning={stats.unreadCount > 0}
                   />
-                  <SmallStatus
-                    label="Commandes"
-                    value={remoteError || `${remoteOrders.length} demande(s) suivie(s)`}
-                    warning={Boolean(remoteError)}
-                  />
-                  <SmallStatus label="Actions" value={`${stats.actionCount} priorite(s)`} warning={stats.actionCount > 0} />
                 </div>
               </section>
 
@@ -424,7 +626,17 @@ export default function NotificationsPage() {
   );
 }
 
-function NotificationCard({ notification }: { notification: NotificationItem }) {
+function NotificationCard({
+  notification,
+  onMarkRead,
+  marking,
+}: {
+  notification: NotificationItem;
+  onMarkRead?: (notificationId: string) => void;
+  marking: boolean;
+}) {
+  const unread = isServerUnread(notification);
+
   return (
     <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
       <div className="flex items-start gap-3">
@@ -435,17 +647,33 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
               <p className="text-xs font-extrabold uppercase text-slate-500">{formatDate(notification.createdAt)}</p>
               <h2 className="mt-1 text-base font-black text-slate-950">{notification.title}</h2>
             </div>
-            <span className={`rounded-full px-3 py-1.5 text-xs font-extrabold ${pillClass(notification.tone)}`}>
-              {notification.status}
-            </span>
+            <div className="flex flex-wrap gap-2">
+              {unread ? (
+                <span className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-extrabold text-[#F97316]">
+                  Non lue
+                </span>
+              ) : null}
+              <span className={`rounded-full px-3 py-1.5 text-xs font-extrabold ${pillClass(notification.tone)}`}>
+                {notification.status}
+              </span>
+            </div>
           </div>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{notification.message}</p>
-          <Link
-            href={notification.actionHref}
-            className="mt-3 inline-flex rounded-full bg-[#059669] px-4 py-2 text-xs font-extrabold text-white"
-          >
-            {notification.actionLabel}
-          </Link>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link href={notification.actionHref} className="inline-flex rounded-full bg-[#059669] px-4 py-2 text-xs font-extrabold text-white">
+              {notification.actionLabel}
+            </Link>
+            {unread && notification.notificationId && onMarkRead ? (
+              <button
+                type="button"
+                disabled={marking}
+                onClick={() => onMarkRead(notification.notificationId as string)}
+                className="inline-flex rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-700 transition hover:border-[#059669]/40 hover:text-[#059669] disabled:cursor-wait disabled:opacity-60"
+              >
+                {marking ? 'Mise a jour...' : 'Marquer lue'}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
     </article>
@@ -458,7 +686,7 @@ function EmptyNotifications() {
       <p className="text-xs font-extrabold uppercase text-[#059669]">Aucune alerte</p>
       <h2 className="mt-2 text-2xl font-black">Rien a traiter maintenant</h2>
       <p className="mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
-        Les alertes apparaitront apres une demande de commande, un paiement ou une livraison.
+        Les notifications apparaitront apres une commande, un paiement, un document valide ou une livraison.
       </p>
       <Link href="/" className="mt-5 rounded-full bg-[#059669] px-5 py-2.5 text-sm font-extrabold text-white">
         Voir le catalogue
