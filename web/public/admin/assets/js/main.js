@@ -1857,6 +1857,56 @@ async function readAdminDocuments(target) {
   }
 }
 
+async function readAdminOrderPayments(target) {
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(5);
+  }
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/payments', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(body?.message || 'Chargement admin indisponible.');
+    }
+
+    return Array.isArray(body?.payments) ? body.payments : [];
+  } catch (err) {
+    console.error('payments admin api: load failed', err);
+    renderCommerceError(target, 'Paiements indisponibles');
+    return null;
+  }
+}
+
+async function readAdminCustomerNotifications(target) {
+  if (target) {
+    target.innerHTML = '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(5);
+  }
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/notifications', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(body?.message || 'Chargement admin indisponible.');
+    }
+
+    return Array.isArray(body?.notifications) ? body.notifications : [];
+  } catch (err) {
+    console.error('notifications admin api: load failed', err);
+    renderCommerceError(target, 'Notifications indisponibles');
+    return null;
+  }
+}
+
 async function readAdminContractTemplate() {
   try {
     const token = await getAdminApiToken();
@@ -1887,7 +1937,7 @@ async function ensureCustomerOrdersLoaded(force = false) {
 
 async function ensureOrderPaymentsLoaded(force = false) {
   if (!force && allOrderPayments.length > 0) return;
-  const rows = await readCommerceCollection('orderPayments', $paymentsContent);
+  const rows = await readAdminOrderPayments($paymentsContent);
   if (rows) allOrderPayments = rows;
 }
 
@@ -1911,7 +1961,7 @@ async function ensureContractTemplateLoaded(force = false) {
 
 async function ensureCustomerNotificationsLoaded(force = false) {
   if (!force && allCustomerNotifications.length > 0) return;
-  const rows = await readCommerceCollection('customerNotifications', $notificationsContent);
+  const rows = await readAdminCustomerNotifications($notificationsContent);
   if (rows) allCustomerNotifications = rows;
 }
 
@@ -3099,7 +3149,7 @@ function renderCustomerNotificationList() {
       <td>${escapeHtml(formatDateValue(notification.createdAt))}</td>
       <td class="actions"><button class="btn btn-small" data-read>${notification.read ? 'Non lue' : 'Lue'}</button></td>`;
     tr.querySelector('[data-read]').onclick = event => {
-      updateCommerceField(event.target, 'customerNotifications', notification.id, 'read', !notification.read, allCustomerNotifications, renderCustomerNotificationList);
+      updateCustomerNotificationRead(event.target, notification.id, !notification.read);
     };
     tbody.appendChild(tr);
   });
@@ -3109,6 +3159,47 @@ function renderCustomerNotificationList() {
   $notificationsContent.innerHTML = '';
   $notificationsContent.appendChild(wrap.firstElementChild);
   lucide.createIcons();
+}
+
+async function updateCustomerNotificationRead(control, notificationId, read) {
+  const currentItem = allCustomerNotifications.find(item => item.id === notificationId);
+  const previousValue = currentItem ? currentItem.read : null;
+  if (control) {
+    setButtonLoading(control, true);
+  }
+
+  try {
+    const token = await getAdminApiToken();
+    const response = await fetch('/api/admin/notifications', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ notificationId, read }),
+    });
+    const body = await response.json().catch(() => null);
+
+    if (!response.ok || !body?.notification) {
+      throw new Error(body?.message || 'Mise a jour indisponible.');
+    }
+
+    const index = allCustomerNotifications.findIndex(item => item.id === notificationId);
+    if (index > -1) {
+      allCustomerNotifications[index] = body.notification;
+    }
+
+    renderCustomerNotificationList();
+    toast('Mis a jour', 'Notification actualisee.', 'success');
+  } catch (err) {
+    console.error('notifications admin api: update failed', err);
+    if (currentItem && previousValue !== null) currentItem.read = previousValue;
+    toast('Action bloquee', err instanceof Error ? err.message : 'Mise a jour admin indisponible.', 'error');
+  } finally {
+    if (control) {
+      setButtonLoading(control, false);
+    }
+  }
 }
 
 async function updateCommerceField(control, collectionName, id, field, value, cache, renderFn, extra = {}) {
