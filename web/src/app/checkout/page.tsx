@@ -53,8 +53,6 @@ type CheckoutDocumentRefs = {
   representativeIdDocumentId: string;
 };
 
-type CheckoutStepId = 'payment' | 'fulfillment' | 'identity' | 'documents' | 'review';
-
 const CHECKOUT_DOCUMENT_CONFIG: Record<
   CheckoutDocumentField,
   {
@@ -134,25 +132,25 @@ const PAYMENT_MODES: Array<{
     id: 'delivery',
     title: 'Payer a la livraison',
     tag: 'A la livraison',
-    description: 'La demande part sans paiement en ligne. Les frais de livraison restent a confirmer.',
+    description: 'Vous payez au livreur apres confirmation.',
   },
   {
     id: 'kkiapay',
     title: 'Payer maintenant par Kkiapay',
     tag: 'Paiement en ligne',
-    description: 'La commande est creee puis le bouton Kkiapay s affiche sur la confirmation.',
+    description: 'Paiement immediat, puis suivi dans vos commandes.',
   },
   {
     id: 'pickup',
     title: 'Confirmer en boutique',
     tag: 'Boutique',
-    description: 'AfricaPhone confirme le stock avant votre passage en boutique.',
+    description: 'AfricaPhone confirme le stock avant votre passage.',
   },
   {
     id: 'cotisation',
     title: 'Acheter par cotisation',
     tag: 'Contrat',
-    description: 'Contrat signe et piece d identite requis avant activation des versements.',
+    description: 'Compte, piece et contrat signe obligatoires.',
   },
 ];
 
@@ -189,7 +187,6 @@ const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.
 export default function CheckoutPage() {
   const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
-  const [checkoutStep, setCheckoutStep] = useState<CheckoutStepId>('payment');
   const [paymentMode, setPaymentMode] = useState<CheckoutPaymentMode>('delivery');
   const [fulfillmentMode, setFulfillmentMode] = useState<CheckoutFulfillmentMode>('delivery');
   const [profile, setProfile] = useState<CheckoutProfile>(initialProfile);
@@ -318,14 +315,8 @@ export default function CheckoutPage() {
   }, [
     acceptDeliveryFee,
     authUser,
-    contractName,
-    documentFiles.contract,
-    documentFiles.idDocument,
-    documentRefs.contractDocumentId,
-    documentRefs.idDocumentId,
     hasIdentityDocument,
     hasSignedContract,
-    idDocumentName,
     needsCotisationDocuments,
     needsDeliveryFee,
     needsFullProfile,
@@ -333,8 +324,12 @@ export default function CheckoutPage() {
     profile,
   ]);
 
-  const missingRequirements = requirements.filter(requirement => !requirement.done);
-  const canPrepareOrder = items.length > 0 && missingRequirements.length === 0;
+  const checkoutRequirements = useMemo(
+    () => [{ label: 'Au moins un article choisi', done: items.length > 0 }, ...requirements],
+    [items.length, requirements]
+  );
+  const missingRequirements = checkoutRequirements.filter(requirement => !requirement.done);
+  const canPrepareOrder = missingRequirements.length === 0;
   const checkoutCustomerProfile = useMemo(
     () =>
       buildCustomerProfileFromCheckout({
@@ -358,146 +353,7 @@ export default function CheckoutPage() {
     () => getCustomerProfileReadiness(checkoutCustomerProfile),
     [checkoutCustomerProfile]
   );
-
-  const checkoutSteps = useMemo(() => {
-    const steps: Array<{ id: CheckoutStepId; label: string; title: string; helper: string }> = [
-      {
-        id: 'payment',
-        label: 'Paiement',
-        title: 'Choisissez comment vous voulez payer',
-        helper: 'Ce choix determine les informations et validations demandees ensuite.',
-      },
-      {
-        id: 'fulfillment',
-        label: 'Reception',
-        title: 'Choisissez comment recuperer votre article',
-        helper: 'Livraison, retrait en boutique ou retrait par une personne autorisee.',
-      },
-      {
-        id: 'identity',
-        label: 'Identite',
-        title: 'Renseignez les informations client',
-        helper: 'Nous demandons seulement les informations necessaires selon votre paiement et votre reception.',
-      },
-    ];
-
-    if (needsRepresentative || needsCotisationDocuments) {
-      steps.push({
-        id: 'documents',
-        label: 'Documents',
-        title: needsCotisationDocuments ? 'Ajoutez les documents du dossier' : 'Confirmez le representant',
-        helper: needsCotisationDocuments
-          ? 'La cotisation reste bloquee tant que le contrat signe et la piece ne sont pas transmis.'
-          : 'Le representant doit etre identifiable avant le retrait.',
-      });
-    }
-
-    steps.push({
-      id: 'review',
-      label: 'Resume',
-      title: 'Verifiez puis validez la demande',
-      helper: 'Relisez les choix et les informations avant envoi a AfricaPhone.',
-    });
-
-    return steps;
-  }, [needsCotisationDocuments, needsRepresentative]);
-
-  useEffect(() => {
-    if (!checkoutSteps.some(step => step.id === checkoutStep)) {
-      setCheckoutStep('review');
-    }
-  }, [checkoutStep, checkoutSteps]);
-
-  const stepRequirements = useMemo<Record<CheckoutStepId, Array<{ label: string; done: boolean }>>>(() => {
-    const identityRequirements = [
-      { label: 'Nom complet du client', done: profile.fullName.trim().length >= 3 },
-      { label: 'Numero WhatsApp fonctionnel', done: profile.whatsapp.trim().length >= 8 },
-      ...(needsAuthenticatedProfile ? [{ label: 'Compte client connecte', done: Boolean(authUser) }] : []),
-      ...(needsFullProfile
-        ? [
-            { label: 'Email complet et fonctionnel', done: isValidEmail(profile.email) },
-            { label: 'Ville ou quartier', done: profile.city.trim().length >= 2 },
-            { label: 'Adresse complete', done: profile.address.trim().length >= 6 },
-          ]
-        : []),
-      ...(needsDeliveryFee && !needsFullProfile
-        ? [{ label: 'Adresse de livraison', done: profile.address.trim().length >= 6 }]
-        : []),
-    ];
-
-    return {
-      payment: [{ label: 'Mode de paiement choisi', done: Boolean(paymentMode) }],
-      fulfillment: [
-        { label: 'Mode de reception choisi', done: Boolean(fulfillmentMode) },
-        ...(needsDeliveryFee
-          ? [{ label: 'Acceptation des frais de livraison', done: acceptDeliveryFee }]
-          : []),
-      ],
-      identity: identityRequirements,
-      documents: [
-        ...(needsRepresentative
-          ? [
-              { label: 'Nom du representant', done: profile.representativeName.trim().length >= 3 },
-              { label: 'Telephone representant', done: profile.representativePhone.trim().length >= 8 },
-            ]
-          : []),
-        ...(needsCotisationDocuments
-          ? [
-              { label: 'Piece d identite valide', done: hasIdentityDocument },
-              { label: 'Contrat signe importe', done: hasSignedContract },
-            ]
-          : []),
-      ],
-      review: requirements,
-    };
-  }, [
-    acceptDeliveryFee,
-    authUser,
-    fulfillmentMode,
-    hasIdentityDocument,
-    hasSignedContract,
-    needsAuthenticatedProfile,
-    needsCotisationDocuments,
-    needsDeliveryFee,
-    needsFullProfile,
-    needsRepresentative,
-    paymentMode,
-    profile,
-    requirements,
-  ]);
-
-  const currentStepIndex = Math.max(
-    checkoutSteps.findIndex(step => step.id === checkoutStep),
-    0
-  );
-  const currentStep = checkoutSteps[currentStepIndex] ?? checkoutSteps[0];
-  const activeStepRequirements = stepRequirements[currentStep.id] ?? [];
-  const activeStepComplete =
-    activeStepRequirements.every(requirement => requirement.done) &&
-    (currentStep.id !== 'review' || items.length > 0);
-
-  const goToCheckoutStep = (stepId: CheckoutStepId) => {
-    setCheckoutStep(stepId);
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const goToNextStep = () => {
-    if (!activeStepComplete || currentStepIndex >= checkoutSteps.length - 1) {
-      return;
-    }
-
-    goToCheckoutStep(checkoutSteps[currentStepIndex + 1].id);
-  };
-
-  const goToPreviousStep = () => {
-    if (currentStepIndex <= 0) {
-      return;
-    }
-
-    goToCheckoutStep(checkoutSteps[currentStepIndex - 1].id);
-  };
+  const completedRequirementsCount = checkoutRequirements.filter(requirement => requirement.done).length;
 
   const updateProfile =
     (field: keyof CheckoutProfile) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -739,56 +595,25 @@ export default function CheckoutPage() {
           title="Paiement et reception"
         />
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-200/70">
-          <div className="grid grid-cols-5 gap-2">
-            {checkoutSteps.map((step, index) => {
-              const isCurrent = step.id === currentStep.id;
-              const isPast = index < currentStepIndex;
-              return (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => {
-                    if (isPast || isCurrent) {
-                      goToCheckoutStep(step.id);
-                    }
-                  }}
-                  disabled={!isPast && !isCurrent}
-                  className={`min-h-[58px] rounded-2xl border px-2 py-2 text-center transition ${
-                    isCurrent
-                      ? 'border-[#059669] bg-[#ECFDF5] text-[#059669]'
-                      : isPast
-                        ? 'border-slate-200 bg-slate-50 text-slate-700'
-                        : 'border-slate-100 bg-white text-slate-300'
-                  }`}
-                >
-                  <span className="mx-auto flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-black">
-                    {isPast ? 'OK' : index + 1}
-                  </span>
-                  <span className="mt-1 block truncate text-[11px] font-extrabold">{step.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
         <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
           <form onSubmit={handleSubmit} className="space-y-4">
             <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-extrabold uppercase text-[#059669]">
-                    Etape {currentStepIndex + 1} sur {checkoutSteps.length}
+                  <p className="text-xs font-extrabold uppercase text-[#059669]">Parcours simple</p>
+                  <h2 className="mt-1 text-2xl font-black leading-tight">Choisir paiement et reception</h2>
+                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
+                    Remplissez les blocs visibles, puis validez une seule fois. Les documents ne sont demandes que
+                    pour la cotisation ou le retrait par representant.
                   </p>
-                  <h2 className="mt-1 text-2xl font-black leading-tight">{currentStep.title}</h2>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{currentStep.helper}</p>
                 </div>
                 <span className="rounded-full bg-orange-50 px-3 py-2 text-xs font-extrabold text-orange-700">
-                  {currentStep.label}
+                  {canPrepareOrder ? 'Pret' : `${missingRequirements.length} a completer`}
                 </span>
               </div>
 
-              {currentStep.id === 'payment' ? (
+              <section className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-extrabold uppercase text-[#059669]">Paiement</p>
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
                   {PAYMENT_MODES.map(mode => (
                     <ChoiceCard
@@ -803,77 +628,77 @@ export default function CheckoutPage() {
                     />
                   ))}
                 </div>
-              ) : null}
+              </section>
 
-              {currentStep.id === 'fulfillment' ? (
-                <div className="mt-5 space-y-4">
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {FULFILLMENT_MODES.map(mode => (
-                      <button
-                        key={mode.id}
-                        type="button"
-                        aria-pressed={fulfillmentMode === mode.id}
-                        onClick={() => {
-                          setFulfillmentMode(mode.id);
-                        }}
-                        className={`rounded-2xl border px-3 py-4 text-left transition ${
-                          fulfillmentMode === mode.id
-                            ? 'border-[#059669] bg-[#ECFDF5] text-[#059669] ring-2 ring-[#059669]/10'
-                            : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-[#059669]/30'
-                        }`}
-                      >
-                        <span className="block text-sm font-black">{mode.title}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {fulfillmentMode === 'delivery' ? (
-                    <div className="space-y-3">
-                      <label className="flex items-start gap-3 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-slate-700">
-                        <input
-                          type="checkbox"
-                          checked={acceptDeliveryFee}
-                          onChange={event => {
-                            setAcceptDeliveryFee(event.target.checked);
-                          }}
-                          className="mt-1"
-                        />
-                        J accepte que les frais de livraison soient ajoutes selon ma zone.
-                      </label>
-
-                      <div className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] px-4 py-3">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <p className="text-xs font-extrabold uppercase text-[#059669]">Position de livraison</p>
-                          <button
-                            type="button"
-                            onClick={handleCaptureDeliveryLocation}
-                            disabled={isCapturingLocation}
-                            className="rounded-full bg-[#059669] px-4 py-2 text-xs font-extrabold text-white transition enabled:hover:bg-[#047857] disabled:cursor-not-allowed disabled:bg-slate-300"
-                          >
-                            {isCapturingLocation ? 'Recherche...' : 'Utiliser ma position'}
-                          </button>
-                        </div>
-                        {deliveryLocation ? (
-                          <a
-                            href={deliveryLocation.mapUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-3 inline-flex rounded-full bg-white px-3 py-2 text-xs font-extrabold text-[#059669]"
-                          >
-                            Ouvrir la position
-                          </a>
-                        ) : null}
-                        {deliveryLocationMessage ? (
-                          <p className="mt-2 text-xs font-bold leading-5 text-slate-600">{deliveryLocationMessage}</p>
-                        ) : null}
-                      </div>
-                    </div>
-                  ) : null}
+              <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-extrabold uppercase text-[#059669]">Reception</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {FULFILLMENT_MODES.map(mode => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      aria-pressed={fulfillmentMode === mode.id}
+                      onClick={() => {
+                        setFulfillmentMode(mode.id);
+                      }}
+                      className={`rounded-2xl border px-3 py-4 text-left transition ${
+                        fulfillmentMode === mode.id
+                          ? 'border-[#059669] bg-[#ECFDF5] text-[#059669] ring-2 ring-[#059669]/10'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-[#059669]/30'
+                      }`}
+                    >
+                      <span className="block text-sm font-black">{mode.title}</span>
+                    </button>
+                  ))}
                 </div>
-              ) : null}
 
-              {currentStep.id === 'identity' ? (
-                <div className="mt-5 space-y-4">
+                {fulfillmentMode === 'delivery' ? (
+                  <div className="mt-4 space-y-3">
+                    <label className="flex items-start gap-3 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={acceptDeliveryFee}
+                        onChange={event => {
+                          setAcceptDeliveryFee(event.target.checked);
+                        }}
+                        className="mt-1"
+                      />
+                      J accepte que les frais de livraison soient ajoutes selon ma zone.
+                    </label>
+
+                    <div className="rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] px-4 py-3">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-xs font-extrabold uppercase text-[#059669]">Position de livraison</p>
+                        <button
+                          type="button"
+                          onClick={handleCaptureDeliveryLocation}
+                          disabled={isCapturingLocation}
+                          className="rounded-full bg-[#059669] px-4 py-2 text-xs font-extrabold text-white transition enabled:hover:bg-[#047857] disabled:cursor-not-allowed disabled:bg-slate-300"
+                        >
+                          {isCapturingLocation ? 'Recherche...' : 'Utiliser ma position'}
+                        </button>
+                      </div>
+                      {deliveryLocation ? (
+                        <a
+                          href={deliveryLocation.mapUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-flex rounded-full bg-white px-3 py-2 text-xs font-extrabold text-[#059669]"
+                        >
+                          Ouvrir la position
+                        </a>
+                      ) : null}
+                      {deliveryLocationMessage ? (
+                        <p className="mt-2 text-xs font-bold leading-5 text-slate-600">{deliveryLocationMessage}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </section>
+
+              <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-extrabold uppercase text-[#059669]">Client</p>
+                <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-full bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]">
                       {needsFullProfile ? 'Identite complete' : 'Identite simple'}
@@ -904,31 +729,37 @@ export default function CheckoutPage() {
                       placeholder="+229 01..."
                       type="tel"
                     />
-                    <Field
-                      label="Email"
-                      value={profile.email}
-                      onChange={updateProfile('email')}
-                      placeholder="nom@email.com"
-                      type="email"
-                    />
-                    <Field
-                      label="Ville / quartier"
-                      value={profile.city}
-                      onChange={updateProfile('city')}
-                      placeholder="Cotonou, Calavi..."
-                    />
+                    {needsFullProfile ? (
+                      <Field
+                        label="Email"
+                        value={profile.email}
+                        onChange={updateProfile('email')}
+                        placeholder="nom@email.com"
+                        type="email"
+                      />
+                    ) : null}
+                    {needsFullProfile || needsDeliveryFee ? (
+                      <Field
+                        label="Ville / quartier"
+                        value={profile.city}
+                        onChange={updateProfile('city')}
+                        placeholder="Cotonou, Calavi..."
+                      />
+                    ) : null}
                   </div>
 
-                  <label className="block">
-                    <span className="text-xs font-extrabold uppercase text-slate-500">Adresse complete</span>
-                    <textarea
-                      value={profile.address}
-                      onChange={updateProfile('address')}
-                      rows={3}
-                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none transition focus:border-[#059669] focus:bg-white focus:ring-2 focus:ring-[#059669]/10"
-                      placeholder="Maison, rue, repere, zone de livraison..."
-                    />
-                  </label>
+                  {needsFullProfile || needsDeliveryFee ? (
+                    <label className="block">
+                      <span className="text-xs font-extrabold uppercase text-slate-500">Adresse complete</span>
+                      <textarea
+                        value={profile.address}
+                        onChange={updateProfile('address')}
+                        rows={3}
+                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none transition focus:border-[#059669] focus:bg-white focus:ring-2 focus:ring-[#059669]/10"
+                        placeholder="Maison, rue, repere, zone de livraison..."
+                      />
+                    </label>
+                  ) : null}
 
                   {needsAuthenticatedProfile && !authUser ? (
                     <Link
@@ -939,165 +770,132 @@ export default function CheckoutPage() {
                     </Link>
                   ) : null}
                 </div>
-              ) : null}
+              </section>
 
-              {currentStep.id === 'documents' ? (
-                <div className="mt-5 space-y-4">
-                  {needsRepresentative ? (
-                    <section className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                      <p className="text-xs font-extrabold uppercase text-[#059669]">Representant</p>
-                      <h3 className="mt-1 text-lg font-black">Personne autorisee au retrait</h3>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <Field
-                          label="Nom du representant"
-                          value={profile.representativeName}
-                          onChange={updateProfile('representativeName')}
-                          placeholder="Nom complet"
-                        />
-                        <Field
-                          label="Telephone representant"
-                          value={profile.representativePhone}
-                          onChange={updateProfile('representativePhone')}
-                          placeholder="+229 01..."
-                          type="tel"
-                        />
-                      </div>
-                      <div className="mt-3">
-                        <FileField
-                          label="Piece du representant optionnelle"
-                          fileName={representativeIdName}
-                          accept={getCustomerDocumentAccept('representative_identity_card')}
-                          uploadState={documentUploadStates.representativeId}
-                          onChange={handleDocumentFile('representativeId', setRepresentativeIdName)}
-                        />
-                      </div>
-                    </section>
-                  ) : null}
-
-                  {needsCotisationDocuments ? (
-                    <section className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                      <p className="text-xs font-extrabold uppercase text-[#059669]">Cotisation</p>
-                      <h3 className="mt-1 text-lg font-black">Contrat et piece d identite</h3>
-                      <div className="mt-4 rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] p-3">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <p className="text-sm font-bold leading-5 text-slate-700">
-                            Telechargez le PDF, imprimez-le, signez-le puis importez la version signee.
-                          </p>
-                          {contractTemplate?.downloadUrl ? (
-                            <a
-                              href={contractTemplate.downloadUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex h-10 shrink-0 items-center justify-center rounded-2xl bg-[#059669] px-4 text-xs font-extrabold text-white"
-                            >
-                              Telecharger
-                            </a>
-                          ) : (
-                            <span className="rounded-full bg-white px-3 py-2 text-xs font-extrabold text-slate-500">
-                              En attente admin
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <FileField
-                          label="Piece d identite valide"
-                          fileName={idDocumentName}
-                          accept={getCustomerDocumentAccept('identity_card')}
-                          uploadState={documentUploadStates.idDocument}
-                          onChange={handleDocumentFile('idDocument', setIdDocumentName)}
-                        />
-                        <FileField
-                          label="Contrat signe"
-                          fileName={contractName}
-                          accept={getCustomerDocumentAccept('signed_contract')}
-                          uploadState={documentUploadStates.contract}
-                          onChange={handleDocumentFile('contract', setContractName)}
-                        />
-                      </div>
-                    </section>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {currentStep.id === 'review' ? (
-                <div className="mt-5 space-y-4">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <SummaryItem label="Paiement" value={PAYMENT_MODES.find(mode => mode.id === paymentMode)?.title || '-'} />
-                    <SummaryItem label="Reception" value={FULFILLMENT_MODES.find(mode => mode.id === fulfillmentMode)?.title || '-'} />
-                    <SummaryItem label="Client" value={profile.fullName || 'A completer'} />
-                    <SummaryItem label="WhatsApp" value={profile.whatsapp || 'A completer'} />
-                    <SummaryItem label="Total" value={formatPrice(totalPrice)} strong />
-                    <SummaryItem label="Articles" value={`${totalQty} article(s)`} />
+              {needsRepresentative ? (
+                <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="text-xs font-extrabold uppercase text-[#059669]">Representant</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <Field
+                      label="Nom du representant"
+                      value={profile.representativeName}
+                      onChange={updateProfile('representativeName')}
+                      placeholder="Nom complet"
+                    />
+                    <Field
+                      label="Telephone representant"
+                      value={profile.representativePhone}
+                      onChange={updateProfile('representativePhone')}
+                      placeholder="+229 01..."
+                      type="tel"
+                    />
                   </div>
-                  {profile.address ? <SummaryItem label="Adresse" value={profile.address} /> : null}
-                </div>
+                  <div className="mt-3">
+                    <FileField
+                      label="Piece du representant optionnelle"
+                      fileName={representativeIdName}
+                      accept={getCustomerDocumentAccept('representative_identity_card')}
+                      uploadState={documentUploadStates.representativeId}
+                      onChange={handleDocumentFile('representativeId', setRepresentativeIdName)}
+                    />
+                  </div>
+                </section>
               ) : null}
 
-              <div className="mt-5 rounded-2xl bg-slate-50 p-3">
+              {needsCotisationDocuments ? (
+                <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="text-xs font-extrabold uppercase text-[#059669]">Cotisation</p>
+                  <div className="mt-4 rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] p-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm font-bold leading-5 text-slate-700">
+                        Telechargez le contrat, signez-le, puis importez le contrat signe avec la piece d identite.
+                      </p>
+                      {contractTemplate?.downloadUrl ? (
+                        <a
+                          href={contractTemplate.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-10 shrink-0 items-center justify-center rounded-2xl bg-[#059669] px-4 text-xs font-extrabold text-white"
+                        >
+                          Telecharger
+                        </a>
+                      ) : (
+                        <span className="rounded-full bg-white px-3 py-2 text-xs font-extrabold text-slate-500">
+                          En attente admin
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <FileField
+                      label="Piece d identite valide"
+                      fileName={idDocumentName}
+                      accept={getCustomerDocumentAccept('identity_card')}
+                      uploadState={documentUploadStates.idDocument}
+                      onChange={handleDocumentFile('idDocument', setIdDocumentName)}
+                    />
+                    <FileField
+                      label="Contrat signe"
+                      fileName={contractName}
+                      accept={getCustomerDocumentAccept('signed_contract')}
+                      uploadState={documentUploadStates.contract}
+                      onChange={handleDocumentFile('contract', setContractName)}
+                    />
+                  </div>
+                </section>
+              ) : null}
+
+              <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-3">
+                <p className="text-xs font-extrabold uppercase text-[#059669]">Resume</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <SummaryItem label="Paiement" value={PAYMENT_MODES.find(mode => mode.id === paymentMode)?.title || '-'} />
+                  <SummaryItem label="Reception" value={FULFILLMENT_MODES.find(mode => mode.id === fulfillmentMode)?.title || '-'} />
+                  <SummaryItem label="Client" value={profile.fullName || 'A completer'} />
+                  <SummaryItem label="WhatsApp" value={profile.whatsapp || 'A completer'} />
+                  <SummaryItem label="Total" value={formatPrice(totalPrice)} strong />
+                  <SummaryItem label="Articles" value={`${totalQty} article(s)`} />
+                </div>
+                {profile.address ? <div className="mt-3"><SummaryItem label="Adresse" value={profile.address} /></div> : null}
+              </section>
+
+              <div className="mt-4 rounded-2xl bg-slate-50 p-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-extrabold uppercase text-slate-500">A verifier</p>
+                  <p className="text-xs font-extrabold uppercase text-slate-500">A completer</p>
                   <p className="text-xs font-black text-[#059669]">
-                    {activeStepRequirements.filter(requirement => requirement.done).length}/{activeStepRequirements.length || 1}
+                    {completedRequirementsCount}/{checkoutRequirements.length || 1}
                   </p>
                 </div>
                 <div className="mt-3 space-y-2">
-                  {activeStepRequirements.length > 0 ? (
-                    activeStepRequirements.map(requirement => (
+                  {missingRequirements.length > 0 ? (
+                    missingRequirements.map(requirement => (
                       <div key={requirement.label} className="flex items-center gap-2 rounded-2xl bg-white px-3 py-2">
-                        <span
-                          className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-black ${
-                            requirement.done ? 'bg-[#059669] text-white' : 'bg-slate-200 text-slate-500'
-                          }`}
-                        >
-                          {requirement.done ? 'OK' : '!'}
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-[11px] font-black text-slate-500">
+                          !
                         </span>
                         <span className="text-xs font-bold text-slate-600">{requirement.label}</span>
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs font-bold text-slate-500">Aucune condition supplementaire.</p>
+                    <p className="rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold text-[#059669]">
+                      Tout est pret pour envoyer la demande.
+                    </p>
                   )}
                 </div>
               </div>
 
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                {currentStepIndex > 0 ? (
-                  <button
-                    type="button"
-                    onClick={goToPreviousStep}
-                    className="h-12 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-extrabold text-slate-700"
-                  >
-                    Retour
-                  </button>
-                ) : null}
-
-                {currentStep.id === 'review' ? (
-                  <button
-                    type="button"
-                    onClick={handlePrepareOrder}
-                    disabled={!authReady || !canPrepareOrder || isCreatingOrder}
-                    className="h-12 flex-1 rounded-2xl bg-[#F97316] px-5 text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
-                  >
-                    {isCreatingOrder
-                      ? 'Creation de la commande...'
-                      : paymentMode === 'kkiapay'
-                        ? 'Creer la commande et ouvrir le paiement'
-                        : paymentMode === 'cotisation'
-                          ? 'Soumettre le dossier de cotisation'
-                          : 'Envoyer la demande'}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={goToNextStep}
-                    disabled={!activeStepComplete}
-                    className="h-12 flex-1 rounded-2xl bg-[#F97316] px-5 text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
-                  >
-                    Continuer
-                  </button>
-                )}
-              </div>
+              <button
+                type="submit"
+                disabled={!authReady || !canPrepareOrder || isCreatingOrder}
+                className="mt-5 h-12 w-full rounded-2xl bg-[#F97316] px-5 text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                {isCreatingOrder
+                  ? 'Creation de la commande...'
+                  : paymentMode === 'kkiapay'
+                    ? 'Payer maintenant'
+                    : paymentMode === 'cotisation'
+                      ? 'Soumettre la cotisation'
+                      : 'Envoyer la demande'}
+              </button>
 
               {checkoutError ? (
                 <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
