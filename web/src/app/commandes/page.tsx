@@ -8,6 +8,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { PAYMENT_CONFIG } from '@/config/payment';
 import { auth } from '@/lib/firebaseClient';
 import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
+import { downloadPaymentReceipt } from '@/lib/paymentReceipts';
 import {
   type CheckoutDraft,
   clearCheckoutDrafts,
@@ -42,6 +43,7 @@ type DisplayOrderItem = {
 type DisplayOrder = {
   key: string;
   source: 'remote' | 'local';
+  orderId: string | null;
   reference: string;
   createdAt: string | null;
   status: OrderStatusView;
@@ -52,6 +54,7 @@ type DisplayOrder = {
   totalQty: number;
   totalPrice: number;
   deliveryMapUrl: string | null;
+  receiptAvailable: boolean;
 };
 
 type OrdersApiResponse = {
@@ -344,6 +347,7 @@ const mapRemoteOrder = (order: CustomerOrderClientView): DisplayOrder => {
   return {
     key: `remote-${order.id}`,
     source: 'remote',
+    orderId: order.id,
     reference: order.localDraftId || order.id,
     createdAt: order.createdAt,
     status: REMOTE_STATUS_VIEWS[order.status] ?? REMOTE_STATUS_VIEWS.pending_review,
@@ -354,12 +358,14 @@ const mapRemoteOrder = (order: CustomerOrderClientView): DisplayOrder => {
     totalQty,
     totalPrice: order.totals.totalDue ?? order.totals.itemsSubtotal ?? 0,
     deliveryMapUrl: order.delivery.location?.mapUrl ?? null,
+    receiptAvailable: order.paymentMode === 'kkiapay_now' && order.paymentStatus === 'succeeded',
   };
 };
 
 const mapLocalOrder = (order: CheckoutDraft): DisplayOrder => ({
   key: `local-${order.id}`,
   source: 'local',
+  orderId: null,
   reference: order.id,
   createdAt: order.createdAt,
   status: getLocalStatusView(order),
@@ -375,6 +381,7 @@ const mapLocalOrder = (order: CheckoutDraft): DisplayOrder => ({
   totalQty: order.totalQty,
   totalPrice: order.totalPrice,
   deliveryMapUrl: order.fulfillmentMode === 'delivery' ? order.deliveryLocation?.mapUrl ?? null : null,
+  receiptAvailable: false,
 });
 
 const mergeOrders = (remoteOrders: CustomerOrderClientView[], localOrders: CheckoutDraft[], remoteAuthoritative: boolean) => {
@@ -479,7 +486,7 @@ export default function OrdersPage() {
         setInstallmentPaymentState({
           status: 'succeeded',
           planId: pendingPayment.installmentPlanId,
-          message: 'Cotisation confirmee. Le recu sera envoye si la messagerie est configuree.',
+          message: 'Cotisation confirmee. Le recu est disponible dans l application.',
         });
       } catch (error) {
         setInstallmentPaymentState({
@@ -815,6 +822,9 @@ function OrderCard({ order }: { order: DisplayOrder }) {
               Position livraison
             </a>
           ) : null}
+          {order.receiptAvailable && order.orderId ? (
+            <ReceiptDownloadButton target={{ orderId: order.orderId }} />
+          ) : null}
         </div>
       </div>
 
@@ -918,6 +928,15 @@ function InstallmentSection({
                             {PAYMENT_STATUS_LABELS[payment.status] || payment.status}
                           </p>
                           <p className="font-semibold text-slate-500">{formatDate(payment.verifiedAt || payment.createdAt)}</p>
+                          {payment.status === 'succeeded' ? (
+                            <div className="mt-2">
+                              <ReceiptDownloadButton
+                                target={{ paymentId: payment.id }}
+                                label="Recu"
+                                compact
+                              />
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     ))}
@@ -1022,6 +1041,54 @@ function SummaryLine({ label, value, strong = false }: { label: string; value: s
       <span className={`text-right text-xs ${strong ? 'font-black text-[#059669]' : 'font-extrabold text-slate-950'}`}>
         {value}
       </span>
+    </div>
+  );
+}
+
+function ReceiptDownloadButton({
+  target,
+  label = 'Telecharger le recu',
+  compact = false,
+}: {
+  target: Parameters<typeof downloadPaymentReceipt>[0];
+  label?: string;
+  compact?: boolean;
+}) {
+  const [state, setState] = useState<{ busy: boolean; message: string }>({ busy: false, message: '' });
+
+  const handleDownload = async () => {
+    if (state.busy) {
+      return;
+    }
+
+    setState({ busy: true, message: '' });
+
+    try {
+      await downloadPaymentReceipt(target);
+      setState({ busy: false, message: 'Recu telecharge.' });
+    } catch (error) {
+      setState({
+        busy: false,
+        message: error instanceof Error ? error.message : 'Telechargement du recu impossible.',
+      });
+    }
+  };
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={handleDownload}
+        disabled={state.busy}
+        className={
+          compact
+            ? 'rounded-full bg-[#ECFDF5] px-3 py-1.5 text-[11px] font-extrabold text-[#059669] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400'
+            : 'mt-3 flex h-10 w-full items-center justify-center rounded-full bg-[#ECFDF5] text-xs font-extrabold text-[#059669] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400'
+        }
+      >
+        {state.busy ? 'Preparation...' : label}
+      </button>
+      {state.message ? <p className="mt-2 text-[11px] font-bold text-slate-500">{state.message}</p> : null}
     </div>
   );
 }

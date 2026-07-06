@@ -286,7 +286,7 @@ export default function CheckoutPage() {
     const fullProfile = needsFullProfile
       ? [
           { label: 'Compte client connecte', done: Boolean(authUser) },
-          { label: 'Email pour le recu et le suivi', done: isValidEmail(profile.email) },
+          { label: 'Email du compte client', done: isValidEmail(profile.email) },
         ]
       : [];
 
@@ -405,7 +405,7 @@ export default function CheckoutPage() {
       ...(needsAuthenticatedProfile
         ? [
             { label: 'Compte client connecte', done: Boolean(authUser) },
-            { label: 'Email pour le recu et le suivi', done: isValidEmail(profile.email) },
+            { label: 'Email du compte client', done: isValidEmail(profile.email) },
           ]
         : []),
     ];

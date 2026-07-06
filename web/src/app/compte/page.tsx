@@ -601,7 +601,7 @@ export default function AccountPage() {
         setInstallmentPaymentState({
           status: 'succeeded',
           planId: pendingPayment.installmentPlanId,
-          message: 'Cotisation confirmee. Le recu sera envoye si la messagerie est configuree.',
+          message: 'Cotisation confirmee. Le recu est disponible dans l application.',
         });
       } catch (error) {
         setInstallmentPaymentState({

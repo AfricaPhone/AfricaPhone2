@@ -168,6 +168,7 @@ export type CustomerOrderClientView = {
 export type OrderPaymentProvider = 'kkiapay';
 export type OrderPaymentReceiptStatus = 'not_requested' | 'not_configured' | 'sent' | 'failed';
 export type OrderPaymentChannel = 'product_direct_purchase' | 'installment_payment';
+export type OrderPaymentCashierSyncStatus = 'pending' | 'acknowledged';
 
 export type OrderPayment = {
   id: string;
@@ -190,6 +191,13 @@ export type OrderPayment = {
   orderReference?: string | null;
   customerName?: string | null;
   customerWhatsapp?: string | null;
+  cashierSync?: {
+    status: OrderPaymentCashierSyncStatus;
+    acknowledgedAt: FirestoreTimestampLike | null;
+    acknowledgedBy: string | null;
+    externalReference: string | null;
+    note: string | null;
+  } | null;
   createdAt: FirestoreTimestampLike;
   updatedAt: FirestoreTimestampLike;
   verifiedAt: FirestoreTimestampLike | null;

@@ -16,6 +16,7 @@ import {
 } from '@/lib/checkoutDraft';
 import { auth } from '@/lib/firebaseClient';
 import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
+import { downloadPaymentReceipt } from '@/lib/paymentReceipts';
 import { formatPrice } from '@/utils/formatPrice';
 
 type InitiatePaymentResponse = {
@@ -47,6 +48,7 @@ type PostPaymentModalState = {
   kind: 'success' | 'pending';
   title: string;
   body: string;
+  orderId?: string | null;
   transactionId?: string | null;
 };
 
@@ -371,12 +373,13 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
         }
 
         setStatus('succeeded');
-        setMessage('Paiement confirme. Le recu email sera envoye a l adresse du compte.');
+        setMessage('Paiement confirme. Le recu est disponible dans l application.');
         await closeKkiapayWidgetSafely();
         setPostPaymentModal({
           kind: 'success',
           title: 'Merci, paiement confirme',
           body: getPaidOrderNextStepMessage(draft),
+          orderId: pendingPayment.orderId,
           transactionId,
         });
       } catch (error) {
@@ -554,6 +557,28 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
 
 function PostPaymentModal({ state, onClose }: { state: PostPaymentModalState; onClose: () => void }) {
   const isSuccess = state.kind === 'success';
+  const [receiptState, setReceiptState] = useState<{ busy: boolean; message: string }>({
+    busy: false,
+    message: '',
+  });
+
+  const handleReceiptDownload = async () => {
+    if (!state.orderId || receiptState.busy) {
+      return;
+    }
+
+    setReceiptState({ busy: true, message: '' });
+
+    try {
+      await downloadPaymentReceipt({ orderId: state.orderId });
+      setReceiptState({ busy: false, message: 'Recu telecharge.' });
+    } catch (error) {
+      setReceiptState({
+        busy: false,
+        message: error instanceof Error ? error.message : 'Telechargement du recu impossible.',
+      });
+    }
+  };
 
   return (
     <div
@@ -580,6 +605,21 @@ function PostPaymentModal({ state, onClose }: { state: PostPaymentModalState; on
         {state.transactionId ? (
           <p className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
             Transaction Kkiapay : {state.transactionId}
+          </p>
+        ) : null}
+        {isSuccess && state.orderId ? (
+          <button
+            type="button"
+            onClick={handleReceiptDownload}
+            disabled={receiptState.busy}
+            className="mt-4 flex h-12 w-full items-center justify-center rounded-2xl bg-[#059669] text-sm font-extrabold text-white transition enabled:hover:bg-[#047857] disabled:cursor-not-allowed disabled:bg-slate-300"
+          >
+            {receiptState.busy ? 'Preparation du recu...' : 'Telecharger le recu'}
+          </button>
+        ) : null}
+        {receiptState.message ? (
+          <p className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
+            {receiptState.message}
           </p>
         ) : null}
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
