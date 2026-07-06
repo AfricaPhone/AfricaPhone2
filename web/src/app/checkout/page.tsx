@@ -52,6 +52,7 @@ type CheckoutDocumentRefs = {
   contractDocumentId: string;
   representativeIdDocumentId: string;
 };
+type CheckoutStepId = 'payment' | 'reception' | 'client' | 'documents' | 'review';
 
 const CHECKOUT_DOCUMENT_CONFIG: Record<
   CheckoutDocumentField,
@@ -187,6 +188,7 @@ const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.
 export default function CheckoutPage() {
   const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
+  const [checkoutStep, setCheckoutStep] = useState<CheckoutStepId>('payment');
   const [paymentMode, setPaymentMode] = useState<CheckoutPaymentMode>('delivery');
   const [fulfillmentMode, setFulfillmentMode] = useState<CheckoutFulfillmentMode>('delivery');
   const [profile, setProfile] = useState<CheckoutProfile>(initialProfile);
@@ -284,17 +286,12 @@ export default function CheckoutPage() {
     const fullProfile = needsFullProfile
       ? [
           { label: 'Compte client connecte', done: Boolean(authUser) },
-          { label: 'Email complet et fonctionnel', done: isValidEmail(profile.email) },
-          { label: 'Ville ou quartier', done: profile.city.trim().length >= 2 },
-          { label: 'Adresse complete', done: profile.address.trim().length >= 6 },
+          { label: 'Email pour le recu et le suivi', done: isValidEmail(profile.email) },
         ]
       : [];
 
     const delivery = needsDeliveryFee
-      ? [
-          ...(!needsFullProfile ? [{ label: 'Adresse de livraison', done: profile.address.trim().length >= 6 }] : []),
-          { label: 'Acceptation des frais de livraison', done: acceptDeliveryFee },
-        ]
+      ? [{ label: 'Acceptation des frais de livraison', done: acceptDeliveryFee }]
       : [];
 
     const representative = needsRepresentative
@@ -354,6 +351,136 @@ export default function CheckoutPage() {
     [checkoutCustomerProfile]
   );
   const completedRequirementsCount = checkoutRequirements.filter(requirement => requirement.done).length;
+  const checkoutSteps = useMemo(() => {
+    const steps: Array<{ id: CheckoutStepId; label: string; title: string; helper: string }> = [
+      {
+        id: 'payment',
+        label: 'Paiement',
+        title: 'Comment voulez-vous payer ?',
+        helper: 'Choisissez le mode de paiement. Le paiement en ligne ouvre Kkiapay apres validation.',
+      },
+      {
+        id: 'reception',
+        label: 'Reception',
+        title: 'Comment voulez-vous recevoir le produit ?',
+        helper: 'Pour une livraison, le livreur appellera le numero WhatsApp indique.',
+      },
+      {
+        id: 'client',
+        label: 'Client',
+        title: 'Qui paie et qui sera contacte ?',
+        helper: 'Le nom et le WhatsApp sont indispensables. Le lieu de livraison peut rester optionnel.',
+      },
+    ];
+
+    if (needsRepresentative || needsCotisationDocuments) {
+      steps.push({
+        id: 'documents',
+        label: 'Documents',
+        title: needsCotisationDocuments ? 'Documents de cotisation' : 'Representant',
+        helper: needsCotisationDocuments
+          ? 'La cotisation reste bloquee sans piece d identite et contrat signe.'
+          : 'Indiquez la personne autorisee a recuperer le produit.',
+      });
+    }
+
+    steps.push({
+      id: 'review',
+      label: 'Resume',
+      title: 'Verifier puis envoyer',
+      helper: 'Controlez les informations avant creation de la demande.',
+    });
+
+    return steps;
+  }, [needsCotisationDocuments, needsRepresentative]);
+  const currentStepIndex = Math.max(
+    checkoutSteps.findIndex(step => step.id === checkoutStep),
+    0
+  );
+  const currentStep = checkoutSteps[currentStepIndex] ?? checkoutSteps[0];
+  const stepRequirements = useMemo<Record<CheckoutStepId, Array<{ label: string; done: boolean }>>>(() => {
+    const clientRequirements = [
+      { label: 'Nom complet du client', done: profile.fullName.trim().length >= 3 },
+      { label: 'Numero WhatsApp fonctionnel', done: profile.whatsapp.trim().length >= 8 },
+      ...(needsAuthenticatedProfile
+        ? [
+            { label: 'Compte client connecte', done: Boolean(authUser) },
+            { label: 'Email pour le recu et le suivi', done: isValidEmail(profile.email) },
+          ]
+        : []),
+    ];
+
+    const documentRequirements = [
+      ...(needsRepresentative
+        ? [
+            { label: 'Nom du representant', done: profile.representativeName.trim().length >= 3 },
+            { label: 'Telephone representant', done: profile.representativePhone.trim().length >= 8 },
+          ]
+        : []),
+      ...(needsCotisationDocuments
+        ? [
+            { label: 'Piece d identite valide', done: hasIdentityDocument },
+            { label: 'Contrat signe importe', done: hasSignedContract },
+          ]
+        : []),
+    ];
+
+    return {
+      payment: [{ label: 'Au moins un article choisi', done: items.length > 0 }],
+      reception: [
+        { label: 'Mode de reception choisi', done: Boolean(fulfillmentMode) },
+        ...(needsDeliveryFee ? [{ label: 'Acceptation des frais de livraison', done: acceptDeliveryFee }] : []),
+      ],
+      client: clientRequirements,
+      documents: documentRequirements,
+      review: checkoutRequirements,
+    };
+  }, [
+    acceptDeliveryFee,
+    authUser,
+    checkoutRequirements,
+    fulfillmentMode,
+    hasIdentityDocument,
+    hasSignedContract,
+    items.length,
+    needsAuthenticatedProfile,
+    needsCotisationDocuments,
+    needsDeliveryFee,
+    needsRepresentative,
+    profile,
+  ]);
+  const activeStepRequirements = stepRequirements[currentStep.id] ?? [];
+  const activeStepComplete = activeStepRequirements.every(requirement => requirement.done);
+  const activeStepMissingCount = activeStepRequirements.filter(requirement => !requirement.done).length;
+  const progressPercent = Math.round(((currentStepIndex + 1) / checkoutSteps.length) * 100);
+
+  useEffect(() => {
+    if (!checkoutSteps.some(step => step.id === checkoutStep)) {
+      setCheckoutStep('review');
+    }
+  }, [checkoutStep, checkoutSteps]);
+
+  const goToNextStep = () => {
+    if (!activeStepComplete || currentStepIndex >= checkoutSteps.length - 1) {
+      return;
+    }
+
+    setCheckoutStep(checkoutSteps[currentStepIndex + 1].id);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goToPreviousStep = () => {
+    if (currentStepIndex <= 0) {
+      return;
+    }
+
+    setCheckoutStep(checkoutSteps[currentStepIndex - 1].id);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const updateProfile =
     (field: keyof CheckoutProfile) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -600,19 +727,26 @@ export default function CheckoutPage() {
             <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-extrabold uppercase text-[#059669]">Parcours simple</p>
-                  <h2 className="mt-1 text-2xl font-black leading-tight">Choisir paiement et reception</h2>
-                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
-                    Remplissez les blocs visibles, puis validez une seule fois. Les documents ne sont demandes que
-                    pour la cotisation ou le retrait par representant.
+                  <p className="text-xs font-extrabold uppercase text-[#059669]">
+                    Etape {currentStepIndex + 1} sur {checkoutSteps.length}
                   </p>
+                  <h2 className="mt-1 text-2xl font-black leading-tight">{currentStep.title}</h2>
+                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-500">{currentStep.helper}</p>
                 </div>
                 <span className="rounded-full bg-orange-50 px-3 py-2 text-xs font-extrabold text-orange-700">
-                  {canPrepareOrder ? 'Pret' : `${missingRequirements.length} a completer`}
+                  {activeStepComplete ? 'Pret' : `${activeStepMissingCount} a completer`}
                 </span>
               </div>
 
-              <section className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+              <div className="mt-4 h-2 rounded-full bg-slate-100">
+                <div
+                  className="h-2 rounded-full bg-[#059669] transition-all"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+
+              {currentStep.id === 'payment' ? (
+                <section className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-3">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Paiement</p>
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
                   {PAYMENT_MODES.map(mode => (
@@ -628,9 +762,11 @@ export default function CheckoutPage() {
                     />
                   ))}
                 </div>
-              </section>
+                </section>
+              ) : null}
 
-              <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+              {currentStep.id === 'reception' ? (
+                <section className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-3">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Reception</p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   {FULFILLMENT_MODES.map(mode => (
@@ -694,14 +830,16 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 ) : null}
-              </section>
+                </section>
+              ) : null}
 
-              <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+              {currentStep.id === 'client' ? (
+                <section className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-3">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Client</p>
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-full bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]">
-                      {needsFullProfile ? 'Identite complete' : 'Identite simple'}
+                      {needsFullProfile ? 'Identite paiement' : 'Identite simple'}
                     </span>
                     {profileLoadedFromAccount ? (
                       <span className="rounded-full bg-orange-50 px-3 py-2 text-xs font-extrabold text-orange-700">
@@ -731,16 +869,16 @@ export default function CheckoutPage() {
                     />
                     {needsFullProfile ? (
                       <Field
-                        label="Email"
+                        label="Email de suivi"
                         value={profile.email}
                         onChange={updateProfile('email')}
                         placeholder="nom@email.com"
                         type="email"
                       />
                     ) : null}
-                    {needsFullProfile || needsDeliveryFee ? (
+                    {needsDeliveryFee ? (
                       <Field
-                        label="Ville / quartier"
+                        label="Ville / quartier optionnel"
                         value={profile.city}
                         onChange={updateProfile('city')}
                         placeholder="Cotonou, Calavi..."
@@ -748,9 +886,11 @@ export default function CheckoutPage() {
                     ) : null}
                   </div>
 
-                  {needsFullProfile || needsDeliveryFee ? (
+                  {needsDeliveryFee ? (
                     <label className="block">
-                      <span className="text-xs font-extrabold uppercase text-slate-500">Adresse complete</span>
+                      <span className="text-xs font-extrabold uppercase text-slate-500">
+                        Lieu de livraison optionnel
+                      </span>
                       <textarea
                         value={profile.address}
                         onChange={updateProfile('address')}
@@ -770,10 +910,13 @@ export default function CheckoutPage() {
                     </Link>
                   ) : null}
                 </div>
-              </section>
+                </section>
+              ) : null}
 
-              {needsRepresentative ? (
-                <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+              {currentStep.id === 'documents' ? (
+                <div className="mt-5 space-y-4">
+                {needsRepresentative ? (
+                  <section className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
                   <p className="text-xs font-extrabold uppercase text-[#059669]">Representant</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <Field
@@ -799,11 +942,11 @@ export default function CheckoutPage() {
                       onChange={handleDocumentFile('representativeId', setRepresentativeIdName)}
                     />
                   </div>
-                </section>
-              ) : null}
+                  </section>
+                ) : null}
 
-              {needsCotisationDocuments ? (
-                <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                {needsCotisationDocuments ? (
+                  <section className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
                   <p className="text-xs font-extrabold uppercase text-[#059669]">Cotisation</p>
                   <div className="mt-4 rounded-2xl border border-[#059669]/15 bg-[#ECFDF5] p-3">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -842,10 +985,13 @@ export default function CheckoutPage() {
                       onChange={handleDocumentFile('contract', setContractName)}
                     />
                   </div>
-                </section>
+                  </section>
+                ) : null}
+                </div>
               ) : null}
 
-              <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-3">
+              {currentStep.id === 'review' ? (
+                <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-3">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Resume</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <SummaryItem label="Paiement" value={PAYMENT_MODES.find(mode => mode.id === paymentMode)?.title || '-'} />
@@ -856,18 +1002,23 @@ export default function CheckoutPage() {
                   <SummaryItem label="Articles" value={`${totalQty} article(s)`} />
                 </div>
                 {profile.address ? <div className="mt-3"><SummaryItem label="Adresse" value={profile.address} /></div> : null}
-              </section>
+                </section>
+              ) : null}
 
               <div className="mt-4 rounded-2xl bg-slate-50 p-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-extrabold uppercase text-slate-500">A completer</p>
+                  <p className="text-xs font-extrabold uppercase text-slate-500">
+                    {currentStep.id === 'review' ? 'A verifier' : 'Cette etape'}
+                  </p>
                   <p className="text-xs font-black text-[#059669]">
-                    {completedRequirementsCount}/{checkoutRequirements.length || 1}
+                    {currentStep.id === 'review'
+                      ? `${completedRequirementsCount}/${checkoutRequirements.length || 1}`
+                      : `${activeStepRequirements.filter(requirement => requirement.done).length}/${activeStepRequirements.length || 1}`}
                   </p>
                 </div>
                 <div className="mt-3 space-y-2">
-                  {missingRequirements.length > 0 ? (
-                    missingRequirements.map(requirement => (
+                  {(currentStep.id === 'review' ? missingRequirements : activeStepRequirements.filter(requirement => !requirement.done)).length > 0 ? (
+                    (currentStep.id === 'review' ? missingRequirements : activeStepRequirements.filter(requirement => !requirement.done)).map(requirement => (
                       <div key={requirement.label} className="flex items-center gap-2 rounded-2xl bg-white px-3 py-2">
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-[11px] font-black text-slate-500">
                           !
@@ -877,25 +1028,48 @@ export default function CheckoutPage() {
                     ))
                   ) : (
                     <p className="rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold text-[#059669]">
-                      Tout est pret pour envoyer la demande.
+                      {currentStep.id === 'review' ? 'Tout est pret pour envoyer la demande.' : 'Vous pouvez continuer.'}
                     </p>
                   )}
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={!authReady || !canPrepareOrder || isCreatingOrder}
-                className="mt-5 h-12 w-full rounded-2xl bg-[#F97316] px-5 text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
-              >
-                {isCreatingOrder
-                  ? 'Creation de la commande...'
-                  : paymentMode === 'kkiapay'
-                    ? 'Payer maintenant'
-                    : paymentMode === 'cotisation'
-                      ? 'Soumettre la cotisation'
-                      : 'Envoyer la demande'}
-              </button>
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                {currentStepIndex > 0 ? (
+                  <button
+                    type="button"
+                    onClick={goToPreviousStep}
+                    className="h-12 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-extrabold text-slate-700"
+                  >
+                    Retour
+                  </button>
+                ) : null}
+
+                {currentStep.id === 'review' ? (
+                  <button
+                    type="submit"
+                    disabled={!authReady || !canPrepareOrder || isCreatingOrder}
+                    className="h-12 flex-1 rounded-2xl bg-[#F97316] px-5 text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    {isCreatingOrder
+                      ? 'Creation de la commande...'
+                      : paymentMode === 'kkiapay'
+                        ? 'Payer maintenant'
+                        : paymentMode === 'cotisation'
+                          ? 'Soumettre la cotisation'
+                          : 'Envoyer la demande'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={goToNextStep}
+                    disabled={!activeStepComplete}
+                    className="h-12 flex-1 rounded-2xl bg-[#F97316] px-5 text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    Continuer
+                  </button>
+                )}
+              </div>
 
               {checkoutError ? (
                 <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
@@ -951,13 +1125,15 @@ export default function CheckoutPage() {
                     ? 'Verification du compte client...'
                     : needsAuthenticatedProfile && !authUser
                       ? 'Compte client requis avant paiement'
-                      : checkoutProfileReadiness.cotisationReady
-                        ? 'Pret pour cotisation'
-                        : checkoutProfileReadiness.fullReady
-                          ? 'Pret pour paiement en ligne'
-                          : checkoutProfileReadiness.lightReady
-                            ? 'Pret pour paiement a la livraison'
-                            : 'Identite minimale encore incomplete'}
+                      : canPrepareOrder
+                        ? 'Pret pour envoyer'
+                        : needsCotisationDocuments
+                          ? 'Piece, contrat et contact requis'
+                          : needsAuthenticatedProfile
+                            ? 'Compte, email et WhatsApp requis'
+                            : checkoutProfileReadiness.lightReady
+                              ? 'Contact client renseigne'
+                              : 'Nom et WhatsApp requis'}
                 </p>
               </div>
             </section>
