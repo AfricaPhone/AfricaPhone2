@@ -5,20 +5,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useMemo, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { type CheckoutDraft, formatCheckoutReference, getCheckoutDraft, getCheckoutHistory } from '@/lib/checkoutDraft';
 import { auth } from '@/lib/firebaseClient';
-import type {
-  CustomerNotification,
-  CustomerNotificationType,
-  CustomerOrderClientView,
-  CustomerOrderStatus,
-} from '@/types/customerOrders';
-
-type OrdersApiResponse = {
-  authenticated?: boolean;
-  orders?: CustomerOrderClientView[];
-  message?: string;
-};
+import type { CustomerNotification, CustomerNotificationType } from '@/types/customerOrders';
 
 type CustomerNotificationClient = Omit<CustomerNotification, 'createdAt'> & {
   createdAt: string | null;
@@ -33,8 +21,6 @@ type NotificationsApiResponse = {
 
 type NotificationTone = 'green' | 'orange' | 'rose' | 'slate';
 
-type NotificationSource = 'server' | 'order' | 'local';
-
 type NotificationItem = {
   id: string;
   notificationId?: string;
@@ -47,97 +33,12 @@ type NotificationItem = {
   actionLabel: string;
   needsAction: boolean;
   read?: boolean;
-  source: NotificationSource;
 };
 
 type NotificationTemplate = Pick<
   NotificationItem,
   'title' | 'message' | 'status' | 'tone' | 'actionHref' | 'actionLabel' | 'needsAction'
 >;
-
-const REMOTE_STATUS_NOTIFICATIONS: Record<CustomerOrderStatus, NotificationTemplate> = {
-  draft: {
-    title: 'Commande a finaliser',
-    message: 'Une demande existe mais doit encore etre completee.',
-    status: 'Brouillon',
-    tone: 'slate',
-    actionHref: '/checkout',
-    actionLabel: 'Reprendre',
-    needsAction: true,
-  },
-  pending_review: {
-    title: 'Commande en verification',
-    message: 'AfricaPhone verifie le stock, le retrait ou la livraison.',
-    status: 'Suivi',
-    tone: 'green',
-    actionHref: '/commandes',
-    actionLabel: 'Voir',
-    needsAction: false,
-  },
-  profile_required: {
-    title: 'Profil client requis',
-    message: 'Completez le compte avant paiement, cotisation ou retrait par representant.',
-    status: 'Action',
-    tone: 'orange',
-    actionHref: '/compte',
-    actionLabel: 'Completer',
-    needsAction: true,
-  },
-  payment_pending: {
-    title: 'Paiement attendu',
-    message: 'La commande attend une etape de paiement avant traitement.',
-    status: 'Paiement',
-    tone: 'orange',
-    actionHref: '/commandes',
-    actionLabel: 'Verifier',
-    needsAction: true,
-  },
-  paid: {
-    title: 'Paiement confirme',
-    message: 'Le paiement est valide, AfricaPhone prepare la suite.',
-    status: 'Confirme',
-    tone: 'green',
-    actionHref: '/commandes',
-    actionLabel: 'Suivre',
-    needsAction: false,
-  },
-  ready_for_pickup: {
-    title: 'Retrait disponible',
-    message: 'La commande est prete pour le passage en boutique.',
-    status: 'Retrait',
-    tone: 'green',
-    actionHref: '/commandes',
-    actionLabel: 'Details',
-    needsAction: true,
-  },
-  out_for_delivery: {
-    title: 'Livraison en cours',
-    message: 'La commande est avec l equipe de livraison.',
-    status: 'Livraison',
-    tone: 'green',
-    actionHref: '/commandes',
-    actionLabel: 'Suivre',
-    needsAction: false,
-  },
-  delivered: {
-    title: 'Commande livree',
-    message: 'La commande est terminee.',
-    status: 'Terminee',
-    tone: 'slate',
-    actionHref: '/commandes',
-    actionLabel: 'Voir',
-    needsAction: false,
-  },
-  cancelled: {
-    title: 'Commande annulee',
-    message: 'Cette demande ne sera pas traitee.',
-    status: 'Annulee',
-    tone: 'rose',
-    actionHref: '/commandes',
-    actionLabel: 'Voir',
-    needsAction: false,
-  },
-};
 
 const SERVER_NOTIFICATION_UI: Record<CustomerNotificationType, Omit<NotificationTemplate, 'title' | 'message'>> = {
   order_created: {
@@ -211,37 +112,6 @@ const normalizeText = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
 
-const uniqueStrings = (values: Array<string | null | undefined>) =>
-  Array.from(new Set(values.filter((value): value is string => Boolean(value))));
-
-const getUniqueLocalOrders = (orders: CheckoutDraft[]) => {
-  const seen = new Set<string>();
-  return orders.filter(order => {
-    if (seen.has(order.id)) {
-      return false;
-    }
-    seen.add(order.id);
-    return true;
-  });
-};
-
-const buildOrdersUrl = (localOrders: CheckoutDraft[]) => {
-  const params = new URLSearchParams();
-  const orderIds = uniqueStrings(localOrders.map(order => order.orderSync.orderId));
-  const localDraftIds = uniqueStrings(localOrders.map(order => order.id));
-
-  if (orderIds.length > 0) {
-    params.set('orderIds', orderIds.join(','));
-  }
-
-  if (localDraftIds.length > 0) {
-    params.set('localDraftIds', localDraftIds.join(','));
-  }
-
-  const query = params.toString();
-  return query ? `/api/orders?${query}` : '/api/orders';
-};
-
 const formatDate = (value: string | null) => {
   if (!value) {
     return 'Date inconnue';
@@ -258,12 +128,12 @@ const formatDate = (value: string | null) => {
   }).format(date);
 };
 
-const isServerUnread = (item: NotificationItem) => item.source === 'server' && item.read === false;
+const isUnread = (item: NotificationItem) => item.read === false;
 
 const sortNotifications = (items: NotificationItem[]) =>
   [...items].sort((a, b) => {
-    const aUnread = isServerUnread(a);
-    const bUnread = isServerUnread(b);
+    const aUnread = isUnread(a);
+    const bUnread = isUnread(b);
 
     if (aUnread !== bUnread) {
       return aUnread ? -1 : 1;
@@ -309,101 +179,6 @@ const buildServerNotification = (notification: CustomerNotificationClient): Noti
     actionLabel: template.actionLabel,
     needsAction: template.needsAction,
     read: notification.read,
-    source: 'server',
-  };
-};
-
-const buildRemoteNotifications = (orders: CustomerOrderClientView[]) =>
-  orders.map((order): NotificationItem => {
-    const reference = order.localDraftId || order.id;
-    const referenceLabel = formatCheckoutReference(reference);
-    const statusTemplate = REMOTE_STATUS_NOTIFICATIONS[order.status] ?? REMOTE_STATUS_NOTIFICATIONS.pending_review;
-
-    return {
-      id: `order-${order.id}-${order.status}`,
-      title: statusTemplate.title,
-      message: `${statusTemplate.message} ${referenceLabel}.`,
-      status: statusTemplate.status,
-      tone: statusTemplate.tone,
-      createdAt: order.updatedAt || order.createdAt,
-      actionHref: statusTemplate.actionHref,
-      actionLabel: statusTemplate.actionLabel,
-      needsAction: statusTemplate.needsAction,
-      read: true,
-      source: 'order',
-    };
-  });
-
-const buildLocalNotifications = (orders: CheckoutDraft[], remoteOrders: CustomerOrderClientView[]) => {
-  const remoteOrderIds = new Set(remoteOrders.map(order => order.id));
-  const remoteLocalDraftIds = new Set(uniqueStrings(remoteOrders.map(order => order.localDraftId)));
-
-  return orders
-    .filter(order => !order.orderSync.orderId || !remoteOrderIds.has(order.orderSync.orderId))
-    .filter(order => !remoteLocalDraftIds.has(order.id))
-    .map((order): NotificationItem => {
-      const referenceLabel = formatCheckoutReference(order.id);
-
-      if (order.orderSync.status === 'failed') {
-        return {
-          id: `local-failed-${order.id}`,
-          title: 'Commande a reprendre',
-          message: `${referenceLabel} doit etre renvoyee.`,
-          status: 'A verifier',
-          tone: 'rose',
-          createdAt: order.createdAt,
-          actionHref: '/checkout',
-          actionLabel: 'Reprendre',
-          needsAction: true,
-          source: 'local',
-        };
-      }
-
-      if (order.orderSync.status === 'created') {
-        return {
-          id: `local-created-${order.id}`,
-          title: order.orderSync.profileRequired ? 'Profil client requis' : 'Commande envoyee',
-          message: order.orderSync.profileRequired
-            ? `Completez le compte pour continuer ${referenceLabel}.`
-            : `AfricaPhone traite ${referenceLabel}.`,
-          status: order.orderSync.profileRequired ? 'Action' : 'Suivi',
-          tone: order.orderSync.profileRequired ? 'orange' : 'green',
-          createdAt: order.orderSync.createdAt || order.createdAt,
-          actionHref: order.orderSync.profileRequired ? '/compte' : '/commandes',
-          actionLabel: order.orderSync.profileRequired ? 'Completer' : 'Voir',
-          needsAction: order.orderSync.profileRequired,
-          source: 'local',
-        };
-      }
-
-      return {
-        id: `local-draft-${order.id}`,
-        title: 'Demande non finalisee',
-        message: `${referenceLabel} reste a terminer avant envoi.`,
-        status: 'Brouillon',
-        tone: 'slate',
-        createdAt: order.createdAt,
-        actionHref: '/checkout',
-        actionLabel: 'Finaliser',
-        needsAction: true,
-        source: 'local',
-      };
-    });
-};
-
-const fetchOrders = async (idToken: string | null, localOrders: CheckoutDraft[]) => {
-  const response = await fetch(buildOrdersUrl(localOrders), {
-    headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
-  });
-  const body = (await response.json().catch(() => null)) as OrdersApiResponse | null;
-
-  if (!response.ok) {
-    throw new Error(body?.message || 'Chargement des commandes indisponible.');
-  }
-
-  return {
-    authenticated: body?.authenticated === true,
-    orders: Array.isArray(body?.orders) ? body.orders : [],
   };
 };
 
@@ -428,59 +203,33 @@ const fetchCustomerNotifications = async (idToken: string | null) => {
 };
 
 export default function NotificationsPage() {
-  const [localOrders, setLocalOrders] = useState<CheckoutDraft[]>([]);
-  const [remoteOrders, setRemoteOrders] = useState<CustomerOrderClientView[]>([]);
   const [serverNotifications, setServerNotifications] = useState<CustomerNotificationClient[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [remoteError, setRemoteError] = useState('');
   const [notificationsError, setNotificationsError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [markingId, setMarkingId] = useState('');
 
   useEffect(() => {
-    const latestDraft = getCheckoutDraft();
-    const history = getCheckoutHistory();
-    const nextLocalOrders = getUniqueLocalOrders(latestDraft ? [latestDraft, ...history] : history);
     let cancelled = false;
-
-    setLocalOrders(nextLocalOrders);
 
     const unsubscribe = onAuthStateChanged(auth, async user => {
       setLoaded(false);
-      setRemoteError('');
       setNotificationsError('');
+      setIsAuthenticated(Boolean(user));
 
       try {
         const idToken = user ? await user.getIdToken() : null;
-        const [ordersResult, notificationsResult] = await Promise.allSettled([
-          fetchOrders(idToken, nextLocalOrders),
-          fetchCustomerNotifications(idToken),
-        ]);
+        const notificationsResult = await fetchCustomerNotifications(idToken);
 
         if (cancelled) {
           return;
         }
 
-        if (ordersResult.status === 'fulfilled') {
-          setRemoteOrders(ordersResult.value.orders);
-          setIsAuthenticated(ordersResult.value.authenticated || Boolean(user));
-        } else {
-          setRemoteOrders([]);
-          setIsAuthenticated(Boolean(user));
-          setRemoteError('Commandes indisponibles pour le moment.');
-        }
-
-        if (notificationsResult.status === 'fulfilled') {
-          setServerNotifications(notificationsResult.value.notifications);
-        } else {
-          setServerNotifications([]);
-          setNotificationsError('Notifications du compte indisponibles.');
-        }
+        setServerNotifications(notificationsResult.notifications);
       } catch {
         if (!cancelled) {
-          setRemoteOrders([]);
           setServerNotifications([]);
-          setRemoteError('Alertes indisponibles pour le moment.');
+          setNotificationsError('Notifications indisponibles pour le moment.');
           setIsAuthenticated(Boolean(user));
         }
       } finally {
@@ -537,24 +286,17 @@ export default function NotificationsPage() {
   };
 
   const notifications = useMemo(() => {
-    const serverOrderIds = new Set(uniqueStrings(serverNotifications.map(notification => notification.orderId)));
-    const fallbackRemoteOrders = remoteOrders.filter(order => !serverOrderIds.has(order.id));
-
-    return sortNotifications([
-      ...serverNotifications.map(buildServerNotification),
-      ...buildRemoteNotifications(fallbackRemoteOrders),
-      ...buildLocalNotifications(localOrders, remoteOrders),
-    ]);
-  }, [localOrders, remoteOrders, serverNotifications]);
+    return sortNotifications(serverNotifications.map(buildServerNotification));
+  }, [serverNotifications]);
   const stats = useMemo(() => {
     const unreadCount = serverNotifications.filter(item => item.read !== true).length;
-    const actionCount = notifications.filter(item => item.needsAction && !isServerUnread(item)).length;
+    const actionCount = notifications.filter(item => item.needsAction).length;
     const deliveryCount = notifications.filter(item => item.status === 'Livraison').length;
 
     return { unreadCount, actionCount, deliveryCount };
   }, [notifications, serverNotifications]);
   const accountStatus = isAuthenticated ? 'Connecte' : 'A connecter';
-  const statusMessage = remoteError || notificationsError || `${remoteOrders.length} demande(s), ${serverNotifications.length} notification(s)`;
+  const statusMessage = notificationsError || `${serverNotifications.length} notification(s)`;
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-950">
@@ -591,7 +333,7 @@ export default function NotificationsPage() {
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Suivi</p>
                 <div className="mt-4 space-y-3">
                   <SmallStatus label="Compte client" value={accountStatus} warning={!isAuthenticated} />
-                  <SmallStatus label="Etat" value={statusMessage} warning={Boolean(remoteError || notificationsError)} />
+                  <SmallStatus label="Etat" value={statusMessage} warning={Boolean(notificationsError)} />
                   <SmallStatus
                     label="Notifications"
                     value={`${stats.unreadCount} non lue(s)`}
@@ -635,7 +377,7 @@ function NotificationCard({
   onMarkRead?: (notificationId: string) => void;
   marking: boolean;
 }) {
-  const unread = isServerUnread(notification);
+  const unread = isUnread(notification);
 
   return (
     <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
