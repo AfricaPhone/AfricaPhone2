@@ -43,8 +43,36 @@ type VerifyPaymentResponse = {
   message?: string;
 };
 
+type PostPaymentModalState = {
+  kind: 'success' | 'pending';
+  title: string;
+  body: string;
+  transactionId?: string | null;
+};
+
 const getKkiapayTransactionId = (data?: KkiapayListenerData) =>
   (data?.transactionId && String(data.transactionId)) || (data?.flwRef && String(data.flwRef)) || null;
+
+const closeKkiapayWidgetSafely = async () => {
+  try {
+    const instance = await loadKkiapay();
+    instance.closeKkiapayWidget?.();
+  } catch {
+    // The widget may already be closed by Kkiapay.
+  }
+};
+
+const getPaidOrderNextStepMessage = (draft: CheckoutDraft) => {
+  if (draft.fulfillmentMode === 'delivery') {
+    return 'AfricaPhone verifie la disponibilite puis vous contacte pour confirmer la livraison. Gardez votre telephone disponible et conservez la reference de demande.';
+  }
+
+  if (draft.fulfillmentMode === 'representative') {
+    return "AfricaPhone verifie la disponibilite et controle l'identite du representant avant la remise. Gardez son nom et son numero joignables.";
+  }
+
+  return "AfricaPhone verifie la disponibilite. Vous pourrez passer en boutique avec votre reference et une piece d'identite.";
+};
 
 const enforceKkiapayViewport = () => {
   if (typeof window === 'undefined') {
@@ -297,6 +325,7 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
   const [message, setMessage] = useState('');
   const [sandboxMode, setSandboxMode] = useState<boolean | null>(null);
   const [kkiapayReady, setKkiapayReady] = useState(false);
+  const [postPaymentModal, setPostPaymentModal] = useState<PostPaymentModalState | null>(null);
   const orderId = draft.orderSync.orderId;
   const canPay = draft.orderSync.status === 'created' && !draft.orderSync.profileRequired && Boolean(orderId);
 
@@ -343,17 +372,35 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
 
         setStatus('succeeded');
         setMessage('Paiement confirme. Le recu email sera envoye a l adresse du compte.');
+        await closeKkiapayWidgetSafely();
+        setPostPaymentModal({
+          kind: 'success',
+          title: 'Merci, paiement confirme',
+          body: getPaidOrderNextStepMessage(draft),
+          transactionId,
+        });
       } catch (error) {
         setStatus('failed');
         setMessage(error instanceof Error ? error.message : 'Verification Kkiapay impossible.');
       }
     },
-    []
+    [draft]
   );
 
   const handlePaymentFailed = useCallback(() => {
     setStatus('failed');
     setMessage('Le paiement Kkiapay n a pas abouti.');
+  }, []);
+
+  const handlePaymentPending = useCallback(() => {
+    setStatus('opened');
+    setMessage('Paiement en cours de confirmation par Kkiapay.');
+    void closeKkiapayWidgetSafely();
+    setPostPaymentModal({
+      kind: 'pending',
+      title: 'Paiement en verification',
+      body: "Votre validation operateur est en cours. Ne relancez pas le paiement si votre compte a deja ete debite; AfricaPhone controlera la transaction et vous contactera.",
+    });
   }, []);
 
   useEffect(() => {
@@ -368,6 +415,7 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
         moduleInstance = instance;
         instance.addSuccessListener(verifyPayment);
         instance.addFailedListener(handlePaymentFailed);
+        instance.addPendingListener(handlePaymentPending);
         setKkiapayReady(true);
       })
       .catch(() => {
@@ -380,8 +428,9 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
       disposed = true;
       moduleInstance?.removeKkiapayListener?.('success');
       moduleInstance?.removeKkiapayListener?.('failed');
+      moduleInstance?.addPendingListener(() => {});
     };
-  }, [handlePaymentFailed, verifyPayment]);
+  }, [handlePaymentFailed, handlePaymentPending, verifyPayment]);
 
   const startPayment = useCallback(async () => {
     if (!canPay || !orderId || status === 'starting' || status === 'verifying') {
@@ -448,48 +497,113 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
   }, [autoStart, canPay, kkiapayReady, startPayment, status]);
 
   return (
-    <div className="mt-3 rounded-3xl border border-[#059669]/20 bg-[#ECFDF5] p-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-extrabold uppercase text-[#059669]">Paiement en ligne</p>
-          <p className="mt-1 text-sm font-black text-slate-950">Kkiapay</p>
+    <>
+      <div className="mt-3 rounded-3xl border border-[#059669]/20 bg-[#ECFDF5] p-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-extrabold uppercase text-[#059669]">Paiement en ligne</p>
+            <p className="mt-1 text-sm font-black text-slate-950">Kkiapay</p>
+          </div>
+          <span className="rounded-full bg-white px-3 py-2 text-[11px] font-extrabold text-[#059669]">
+            {sandboxMode === true ? 'Mode test' : sandboxMode === false ? 'Mode reel' : 'Pret'}
+          </span>
         </div>
-        <span className="rounded-full bg-white px-3 py-2 text-[11px] font-extrabold text-[#059669]">
-          {sandboxMode === true ? 'Mode test' : sandboxMode === false ? 'Mode reel' : 'Pret'}
-        </span>
+        <p className="mt-3 text-xs font-bold leading-5 text-slate-700">
+          Cliquez sur le bouton ci-dessous pour ouvrir la fenetre Kkiapay. La commande reste en attente tant que le
+          paiement n&apos;est pas confirme.
+        </p>
+        <button
+          type="button"
+          onClick={startPayment}
+          disabled={!canPay || status === 'starting' || status === 'verifying' || status === 'succeeded'}
+          className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
+        >
+          {status === 'starting'
+            ? 'Preparation...'
+            : status === 'verifying'
+              ? 'Verification...'
+              : status === 'succeeded'
+                ? 'Paiement confirme'
+                : 'Payer maintenant par Kkiapay'}
+        </button>
+        {message ? (
+          <p
+            className={`mt-3 rounded-2xl px-3 py-2 text-xs font-bold leading-5 ${
+              status === 'failed' ? 'bg-orange-50 text-orange-700' : 'bg-white text-slate-600'
+            }`}
+          >
+            {message}
+          </p>
+        ) : null}
+        {!canPay ? (
+          <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
+            Compte client complet et commande creee requis avant paiement.
+          </p>
+        ) : null}
       </div>
-      <p className="mt-3 text-xs font-bold leading-5 text-slate-700">
-        Cliquez sur le bouton ci-dessous pour ouvrir la fenetre Kkiapay. La commande reste en attente tant que le
-        paiement n'est pas confirme.
-      </p>
-      <button
-        type="button"
-        onClick={startPayment}
-        disabled={!canPay || status === 'starting' || status === 'verifying' || status === 'succeeded'}
-        className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
-      >
-        {status === 'starting'
-          ? 'Preparation...'
-          : status === 'verifying'
-            ? 'Verification...'
-            : status === 'succeeded'
-              ? 'Paiement confirme'
-              : 'Payer maintenant par Kkiapay'}
-      </button>
-      {message ? (
-        <p
-          className={`mt-3 rounded-2xl px-3 py-2 text-xs font-bold leading-5 ${
-            status === 'failed' ? 'bg-orange-50 text-orange-700' : 'bg-white text-slate-600'
+
+      {postPaymentModal ? (
+        <PostPaymentModal
+          state={postPaymentModal}
+          onClose={() => setPostPaymentModal(null)}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function PostPaymentModal({ state, onClose }: { state: PostPaymentModalState; onClose: () => void }) {
+  const isSuccess = state.kind === 'success';
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="post-payment-title"
+      className="fixed inset-0 z-[100000] flex items-end justify-center bg-slate-950/55 px-3 py-4 backdrop-blur-sm sm:items-center"
+    >
+      <div className="w-full max-w-md rounded-3xl border border-white/70 bg-white p-5 shadow-2xl shadow-slate-950/25">
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl font-black text-white ${
+            isSuccess ? 'bg-[#059669]' : 'bg-[#F97316]'
           }`}
         >
-          {message}
+          {isSuccess ? 'OK' : '!'}
+        </div>
+        <p className="mt-4 text-xs font-extrabold uppercase text-[#059669]">
+          {isSuccess ? 'Paiement valide' : 'Confirmation en cours'}
         </p>
-      ) : null}
-      {!canPay ? (
-        <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
-          Compte client complet et commande creee requis avant paiement.
-        </p>
-      ) : null}
+        <h3 id="post-payment-title" className="mt-1 text-2xl font-black tracking-tight text-slate-950">
+          {state.title}
+        </h3>
+        <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">{state.body}</p>
+        {state.transactionId ? (
+          <p className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
+            Transaction Kkiapay : {state.transactionId}
+          </p>
+        ) : null}
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <Link
+            href="/commandes"
+            className="flex h-12 items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition hover:bg-[#EA580C]"
+          >
+            Voir mes commandes
+          </Link>
+          <Link
+            href="/"
+            className="flex h-12 items-center justify-center rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] text-sm font-extrabold text-[#059669]"
+          >
+            Retour catalogue
+          </Link>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-3 flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white text-sm font-extrabold text-slate-600"
+        >
+          Continuer dans l&apos;application
+        </button>
+      </div>
     </div>
   );
 }
