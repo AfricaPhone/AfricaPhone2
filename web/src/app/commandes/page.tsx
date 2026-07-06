@@ -10,6 +10,7 @@ import { auth } from '@/lib/firebaseClient';
 import { loadKkiapay, type KkiapayListenerData } from '@/lib/kkiapay';
 import {
   type CheckoutDraft,
+  clearCheckoutDrafts,
   FULFILLMENT_MODE_LABELS,
   formatCheckoutReference,
   getCheckoutDraft,
@@ -376,11 +377,12 @@ const mapLocalOrder = (order: CheckoutDraft): DisplayOrder => ({
   deliveryMapUrl: order.fulfillmentMode === 'delivery' ? order.deliveryLocation?.mapUrl ?? null : null,
 });
 
-const mergeOrders = (remoteOrders: CustomerOrderClientView[], localOrders: CheckoutDraft[]) => {
+const mergeOrders = (remoteOrders: CustomerOrderClientView[], localOrders: CheckoutDraft[], remoteAuthoritative: boolean) => {
   const remoteOrderIds = new Set(remoteOrders.map(order => order.id));
   const remoteLocalDraftIds = new Set(uniqueStrings(remoteOrders.map(order => order.localDraftId)));
   const remoteDisplayOrders = remoteOrders.map(mapRemoteOrder);
   const localDisplayOrders = localOrders
+    .filter(order => !(remoteAuthoritative && order.orderSync.status === 'created' && order.orderSync.orderId))
     .filter(order => !order.orderSync.orderId || !remoteOrderIds.has(order.orderSync.orderId))
     .filter(order => !remoteLocalDraftIds.has(order.id))
     .map(mapLocalOrder);
@@ -651,7 +653,15 @@ export default function OrdersPage() {
     }
   };
 
-  const orders = useMemo(() => mergeOrders(remoteOrders, localOrders), [localOrders, remoteOrders]);
+  const orders = useMemo(
+    () => mergeOrders(remoteOrders, localOrders, loaded && !remoteError),
+    [loaded, localOrders, remoteError, remoteOrders]
+  );
+  const hasLocalOnlyOrders = orders.some(order => order.source === 'local');
+  const clearLocalOrderHistory = () => {
+    clearCheckoutDrafts();
+    setLocalOrders([]);
+  };
 
   const stats = useMemo(() => {
     const synced = orders.filter(order => order.source === 'remote').length;
@@ -717,6 +727,15 @@ export default function OrdersPage() {
                   >
                     Finaliser une demande
                   </Link>
+                  {hasLocalOnlyOrders ? (
+                    <button
+                      type="button"
+                      onClick={clearLocalOrderHistory}
+                      className="flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-sm font-extrabold text-slate-600"
+                    >
+                      Effacer le suivi local
+                    </button>
+                  ) : null}
                 </div>
               </section>
 

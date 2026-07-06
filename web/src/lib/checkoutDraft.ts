@@ -163,6 +163,15 @@ export const persistCheckoutDraft = (draft: CheckoutDraft) => {
 export const updateCheckoutDraftOrderSync = (draft: CheckoutDraft, orderSync: CheckoutDraft['orderSync']) =>
   persistCheckoutDraft({ ...draft, orderSync });
 
+export const clearCheckoutDrafts = () => {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.localStorage.removeItem(CHECKOUT_DRAFT_STORAGE_KEY);
+  window.localStorage.removeItem(CHECKOUT_HISTORY_STORAGE_KEY);
+};
+
 const normalizeCheckoutDraft = (draft: CheckoutDraft): CheckoutDraft => {
   if (!draft.orderSync) {
     return {
