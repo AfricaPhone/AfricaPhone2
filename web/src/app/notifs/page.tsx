@@ -211,6 +211,16 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     let cancelled = false;
+    const fallbackTimer = window.setTimeout(() => {
+      if (cancelled) {
+        return;
+      }
+
+      setServerNotifications([]);
+      setNotificationsError('');
+      setIsAuthenticated(Boolean(auth.currentUser));
+      setLoaded(true);
+    }, 6000);
 
     const unsubscribe = onAuthStateChanged(auth, async user => {
       setLoaded(false);
@@ -233,6 +243,7 @@ export default function NotificationsPage() {
           setIsAuthenticated(Boolean(user));
         }
       } finally {
+        window.clearTimeout(fallbackTimer);
         if (!cancelled) {
           setLoaded(true);
         }
@@ -241,6 +252,7 @@ export default function NotificationsPage() {
 
     return () => {
       cancelled = true;
+      window.clearTimeout(fallbackTimer);
       unsubscribe();
     };
   }, []);
