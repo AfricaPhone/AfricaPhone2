@@ -685,6 +685,8 @@ export default function CheckoutPage() {
         message?: string;
       } | null;
 
+      let confirmationPath = '/checkout/confirmation';
+
       if (!response.ok || !responseBody?.orderId) {
         const syncedDraft = updateCheckoutDraftOrderSync(draft, {
           status: 'failed',
@@ -695,6 +697,7 @@ export default function CheckoutPage() {
         });
         upsertCheckoutHistory(syncedDraft);
       } else {
+        const shouldOpenPaymentNow = paymentMode === 'kkiapay' && responseBody.profileRequired !== true;
         const syncedDraft = updateCheckoutDraftOrderSync(draft, {
           status: 'created',
           orderId: responseBody.orderId,
@@ -704,8 +707,9 @@ export default function CheckoutPage() {
         });
         upsertCheckoutHistory(syncedDraft);
         clearCart();
+        confirmationPath = shouldOpenPaymentNow ? '/checkout/confirmation?pay=1' : '/checkout/confirmation';
       }
-      router.push('/checkout/confirmation');
+      router.push(confirmationPath);
     } catch (error) {
       console.error('checkout: order creation failed', error);
       setCheckoutError(

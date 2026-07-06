@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -74,8 +75,10 @@ const enforceKkiapayViewport = () => {
 };
 
 export default function CheckoutConfirmationPage() {
+  const searchParams = useSearchParams();
   const [draft, setDraft] = useState<CheckoutDraft | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const shouldAutoStartPayment = searchParams.get('pay') === '1';
 
   useEffect(() => {
     setDraft(getCheckoutDraft());
@@ -126,6 +129,18 @@ export default function CheckoutConfirmationPage() {
                   </p>
                 ) : null}
               </article>
+
+              {draft.paymentMode === 'kkiapay' ? (
+                <article className="rounded-3xl border border-[#059669]/20 bg-[#ECFDF5] p-4 shadow-sm shadow-[#059669]/10">
+                  <p className="text-xs font-extrabold uppercase text-[#059669]">Paiement maintenant</p>
+                  <h3 className="mt-1 text-xl font-black text-slate-950">Ouverture Kkiapay</h3>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                    Le paiement s ouvre automatiquement apres creation de la demande. Si rien ne s affiche,
+                    utilisez le bouton ci-dessous.
+                  </p>
+                  <KkiapayPaymentPanel draft={draft} autoStart={shouldAutoStartPayment} />
+                </article>
+              ) : null}
 
               <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
                 <p className="text-xs font-extrabold uppercase text-[#059669]">Articles</p>
@@ -218,7 +233,9 @@ export default function CheckoutConfirmationPage() {
                   {NEXT_STEP_MESSAGES[draft.paymentMode]}
                 </p>
                 {draft.paymentMode === 'kkiapay' ? (
-                  <KkiapayPaymentPanel draft={draft} />
+                  <p className="mt-3 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-xs font-bold leading-5 text-[#059669]">
+                    Kkiapay doit s ouvrir automatiquement. Le bouton de secours est place en haut de la page.
+                  </p>
                 ) : (
                   <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-xs font-bold leading-5 text-orange-700">
                     {draft.paymentMode === 'delivery'
@@ -273,11 +290,13 @@ function SummaryItem({ label, value, strong = false }: { label: string; value: s
   );
 }
 
-function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
+function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraft; autoStart?: boolean }) {
   const pendingPaymentRef = useRef<{ orderId: string; paymentId: string } | null>(null);
+  const autoStartRef = useRef(false);
   const [status, setStatus] = useState<'idle' | 'starting' | 'opened' | 'verifying' | 'succeeded' | 'failed'>('idle');
   const [message, setMessage] = useState('');
   const [sandboxMode, setSandboxMode] = useState<boolean | null>(null);
+  const [kkiapayReady, setKkiapayReady] = useState(false);
   const orderId = draft.orderSync.orderId;
   const canPay = draft.orderSync.status === 'created' && !draft.orderSync.profileRequired && Boolean(orderId);
 
@@ -349,6 +368,7 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
         moduleInstance = instance;
         instance.addSuccessListener(verifyPayment);
         instance.addFailedListener(handlePaymentFailed);
+        setKkiapayReady(true);
       })
       .catch(() => {
         if (!disposed) {
@@ -363,7 +383,7 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
     };
   }, [handlePaymentFailed, verifyPayment]);
 
-  const startPayment = async () => {
+  const startPayment = useCallback(async () => {
     if (!canPay || !orderId || status === 'starting' || status === 'verifying') {
       return;
     }
@@ -416,7 +436,16 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
       setStatus('failed');
       setMessage(error instanceof Error ? error.message : 'Impossible de lancer Kkiapay.');
     }
-  };
+  }, [canPay, orderId, status]);
+
+  useEffect(() => {
+    if (!autoStart || autoStartRef.current || !canPay || !kkiapayReady || status !== 'idle') {
+      return;
+    }
+
+    autoStartRef.current = true;
+    startPayment();
+  }, [autoStart, canPay, kkiapayReady, startPayment, status]);
 
   return (
     <div className="mt-3 rounded-3xl border border-[#059669]/20 bg-[#ECFDF5] p-3">
