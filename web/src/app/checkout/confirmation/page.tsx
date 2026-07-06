@@ -277,6 +277,7 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
   const pendingPaymentRef = useRef<{ orderId: string; paymentId: string } | null>(null);
   const [status, setStatus] = useState<'idle' | 'starting' | 'opened' | 'verifying' | 'succeeded' | 'failed'>('idle');
   const [message, setMessage] = useState('');
+  const [sandboxMode, setSandboxMode] = useState<boolean | null>(null);
   const orderId = draft.orderSync.orderId;
   const canPay = draft.orderSync.status === 'created' && !draft.orderSync.profileRequired && Boolean(orderId);
 
@@ -394,6 +395,7 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
       }
 
       pendingPaymentRef.current = { orderId, paymentId: body.paymentId };
+      setSandboxMode(body.sandbox);
       const moduleInstance = await loadKkiapay();
       moduleInstance.openKkiapayWidget({
         amount: body.amount,
@@ -417,15 +419,25 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
   };
 
   return (
-    <div className="mt-3 rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] px-3 py-3">
-      <p className="text-xs font-bold leading-5 text-slate-700">
-        Paiement Kkiapay securise.
+    <div className="mt-3 rounded-3xl border border-[#059669]/20 bg-[#ECFDF5] p-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-extrabold uppercase text-[#059669]">Paiement en ligne</p>
+          <p className="mt-1 text-sm font-black text-slate-950">Kkiapay</p>
+        </div>
+        <span className="rounded-full bg-white px-3 py-2 text-[11px] font-extrabold text-[#059669]">
+          {sandboxMode === true ? 'Mode test' : sandboxMode === false ? 'Mode reel' : 'Pret'}
+        </span>
+      </div>
+      <p className="mt-3 text-xs font-bold leading-5 text-slate-700">
+        Cliquez sur le bouton ci-dessous pour ouvrir la fenetre Kkiapay. La commande reste en attente tant que le
+        paiement n'est pas confirme.
       </p>
       <button
         type="button"
         onClick={startPayment}
         disabled={!canPay || status === 'starting' || status === 'verifying' || status === 'succeeded'}
-        className="mt-3 flex h-11 w-full items-center justify-center rounded-2xl bg-[#059669] text-sm font-extrabold text-white transition enabled:hover:bg-[#047857] disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
       >
         {status === 'starting'
           ? 'Preparation...'
@@ -446,7 +458,7 @@ function KkiapayPaymentPanel({ draft }: { draft: CheckoutDraft }) {
       ) : null}
       {!canPay ? (
         <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
-          Compte client complet requis avant paiement.
+          Compte client complet et commande creee requis avant paiement.
         </p>
       ) : null}
     </div>

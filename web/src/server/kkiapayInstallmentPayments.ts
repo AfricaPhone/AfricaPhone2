@@ -1,6 +1,11 @@
 import { kkiapay } from '@kkiapay-org/nodejs-sdk';
 import { FieldValue, type DocumentData } from 'firebase-admin/firestore';
 import { getAdminDb } from '@/lib/firebaseAdmin';
+import {
+  KkiapayConfigurationError,
+  readKkiapayServerConfig,
+  type KkiapayServerConfig,
+} from './kkiapayConfig';
 import type {
   CustomerDocument,
   CustomerNotification,
@@ -15,13 +20,6 @@ import { sendOrderPaymentReceipt } from './receiptMailer';
 const INSTALLMENT_PLAN_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
 const PAYMENT_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
 const MIN_INSTALLMENT_AMOUNT = 500;
-
-type KkiapayServerConfig = {
-  publicKey: string;
-  privateKey: string;
-  secretKey: string;
-  sandbox: boolean;
-};
 
 type KkiapayVerification = {
   success: boolean;
@@ -62,27 +60,15 @@ const readNested = (value: unknown, path: string): unknown => {
 };
 
 const getKkiapayServerConfig = (): KkiapayServerConfig => {
-  const publicKey = (
-    process.env.KKIAPAY_PUBLIC_KEY ||
-    process.env.KKIA_PUBLIC_KEY ||
-    process.env.NEXT_PUBLIC_KKIAPAY_KEY ||
-    ''
-  ).trim();
-  const privateKey = (process.env.KKIAPAY_PRIVATE_KEY || process.env.KKIA_PRIVATE_KEY || '').trim();
-  const secretKey = (process.env.KKIAPAY_SECRET_KEY || process.env.KKIA_SECRET_KEY || '').trim();
-  const sandbox =
-    process.env.KKIAPAY_SANDBOX === 'true' ||
-    process.env.KKIA_SANDBOX === 'true' ||
-    process.env.NEXT_PUBLIC_KKIAPAY_SANDBOX === 'true';
+  try {
+    return readKkiapayServerConfig();
+  } catch (error) {
+    if (error instanceof KkiapayConfigurationError) {
+      throw new PaymentFlowError(error.message, error.status);
+    }
 
-  if (!publicKey || !privateKey || !secretKey) {
-    throw new PaymentFlowError(
-      'Configuration Kkiapay incomplete. Ajoutez KKIAPAY_PRIVATE_KEY et KKIAPAY_SECRET_KEY cote serveur.',
-      503
-    );
+    throw error;
   }
-
-  return { publicKey, privateKey, secretKey, sandbox };
 };
 
 const getKkiapayClient = (config: KkiapayServerConfig) =>

@@ -126,26 +126,31 @@ const PAYMENT_MODES: Array<{
   id: CheckoutPaymentMode;
   title: string;
   tag: string;
+  description: string;
 }> = [
   {
     id: 'delivery',
     title: 'Payer a la livraison',
-    tag: 'Identite simple',
+    tag: 'A la livraison',
+    description: 'La demande part sans paiement en ligne. Les frais de livraison restent a confirmer.',
   },
   {
     id: 'kkiapay',
-    title: 'Payer maintenant',
-    tag: 'Compte requis',
+    title: 'Payer maintenant par Kkiapay',
+    tag: 'Paiement en ligne',
+    description: 'La commande est creee puis le bouton Kkiapay s affiche sur la confirmation.',
   },
   {
     id: 'pickup',
     title: 'Confirmer en boutique',
     tag: 'Boutique',
+    description: 'AfricaPhone confirme le stock avant votre passage en boutique.',
   },
   {
     id: 'cotisation',
     title: 'Acheter par cotisation',
     tag: 'Contrat',
+    description: 'Contrat signe et piece d identite requis avant activation des versements.',
   },
 ];
 
@@ -587,18 +592,30 @@ export default function CheckoutPage() {
           title="Choix de paiement et retrait"
         />
 
-        <section className="grid gap-3 md:grid-cols-4">
-          {PAYMENT_MODES.map(mode => (
-            <ChoiceCard
-              key={mode.id}
-              active={paymentMode === mode.id}
-              title={mode.title}
-              tag={mode.tag}
-              onClick={() => {
-                setPaymentMode(mode.id);
-              }}
-            />
-          ))}
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-extrabold uppercase text-[#059669]">Etape 1</p>
+              <h2 className="mt-1 text-xl font-black">Choisissez comment payer</h2>
+            </div>
+            <span className="rounded-full bg-orange-50 px-3 py-2 text-xs font-extrabold text-orange-700">
+              Obligatoire
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-4">
+            {PAYMENT_MODES.map(mode => (
+              <ChoiceCard
+                key={mode.id}
+                active={paymentMode === mode.id}
+                title={mode.title}
+                tag={mode.tag}
+                description={mode.description}
+                onClick={() => {
+                  setPaymentMode(mode.id);
+                }}
+              />
+            ))}
+          </div>
         </section>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
@@ -606,11 +623,11 @@ export default function CheckoutPage() {
             <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-extrabold uppercase text-[#059669]">Mode de reception</p>
+                  <p className="text-xs font-extrabold uppercase text-[#059669]">Etape 2</p>
                   <h2 className="mt-1 text-xl font-black">Livraison, boutique ou representant</h2>
                 </div>
                 <span className="rounded-full bg-[#ECFDF5] px-3 py-2 text-xs font-extrabold text-[#059669]">
-                  Etape 1
+                  Reception
                 </span>
               </div>
 
@@ -902,7 +919,13 @@ export default function CheckoutPage() {
                 disabled={!authReady || !canPrepareOrder || isCreatingOrder}
                 className="mt-5 h-12 w-full rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                {isCreatingOrder ? 'Creation de la commande...' : 'Preparer la demande'}
+                {isCreatingOrder
+                  ? 'Creation de la commande...'
+                  : paymentMode === 'kkiapay'
+                    ? 'Creer la commande et ouvrir le paiement'
+                    : paymentMode === 'cotisation'
+                      ? 'Soumettre le dossier de cotisation'
+                      : 'Envoyer la demande'}
               </button>
 
               {checkoutError ? (
@@ -926,7 +949,7 @@ export default function CheckoutPage() {
               ) : (
                 <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
                   {paymentMode === 'kkiapay'
-                    ? 'Kkiapay s ouvrira apres creation.'
+                    ? "Le bouton Kkiapay apparaitra sur l'ecran de confirmation."
                     : 'Pret a envoyer.'}
                 </p>
               )}
@@ -943,11 +966,13 @@ function ChoiceCard({
   active,
   title,
   tag,
+  description,
   onClick,
 }: {
   active: boolean;
   title: string;
   tag: string;
+  description: string;
   onClick: () => void;
 }) {
   return (
@@ -955,14 +980,22 @@ function ChoiceCard({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`rounded-3xl border p-4 text-left shadow-sm transition ${
+      className={`relative rounded-3xl border p-4 text-left shadow-sm transition ${
         active
-          ? 'border-[#059669] bg-[#ECFDF5] shadow-[#059669]/10'
-          : 'border-slate-200 bg-white shadow-slate-200/70 hover:border-[#059669]/30'
+          ? 'border-[#059669] bg-[#ECFDF5] shadow-[#059669]/10 ring-2 ring-[#059669]/10'
+          : 'border-slate-200 bg-slate-50 shadow-slate-200/70 hover:border-[#059669]/30 hover:bg-white'
       }`}
     >
+      <span
+        className={`absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black ${
+          active ? 'bg-[#059669] text-white' : 'bg-white text-slate-400'
+        }`}
+      >
+        {active ? 'OK' : ''}
+      </span>
       <span className={`text-xs font-extrabold uppercase ${active ? 'text-[#059669]' : 'text-slate-500'}`}>{tag}</span>
-      <span className="mt-2 block text-base font-black text-slate-950">{title}</span>
+      <span className="mt-2 block pr-6 text-base font-black leading-5 text-slate-950">{title}</span>
+      <span className="mt-2 block text-xs font-semibold leading-5 text-slate-500">{description}</span>
     </button>
   );
 }
