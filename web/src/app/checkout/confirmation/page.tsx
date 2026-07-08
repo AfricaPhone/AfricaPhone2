@@ -66,14 +66,27 @@ const closeKkiapayWidgetSafely = async () => {
 
 const getPaidOrderNextStepMessage = (draft: CheckoutDraft) => {
   if (draft.fulfillmentMode === 'delivery') {
-    return 'AfricaPhone verifie la disponibilite puis vous contacte pour confirmer la livraison. Gardez votre telephone disponible et conservez la reference de demande.';
+    return 'Paiement confirme. AfricaPhone verifie le stock puis vous contacte sur votre numero pour organiser la livraison. Gardez votre telephone disponible; le lieu exact peut etre confirme avec le livreur si necessaire.';
   }
 
   if (draft.fulfillmentMode === 'representative') {
-    return "AfricaPhone verifie la disponibilite et controle l'identite du representant avant la remise. Gardez son nom et son numero joignables.";
+    const representativeName = draft.profile.representativeName?.trim();
+    const representativePhone = draft.profile.representativePhone?.trim();
+    const representative = representativeName
+      ? `${representativeName}${representativePhone ? ` (${representativePhone})` : ''}`
+      : 'votre representant';
+
+    return `Paiement confirme. Donnez maintenant l'ordre a ${representative} de recuperer le produit chez AfricaPhone. Il doit venir avec sa piece d'identite; AfricaPhone controlera son identite avant toute remise.`;
   }
 
-  return "AfricaPhone verifie la disponibilite. Vous pourrez passer en boutique avec votre reference et une piece d'identite.";
+  return "Paiement confirme. AfricaPhone verifie le stock. Vous pourrez passer en boutique avec votre reference de commande et une piece d'identite.";
+};
+
+const getPendingPaymentInstructionMessage = (draft: CheckoutDraft) => {
+  const phone = draft.profile.whatsapp?.trim();
+  const phonePart = phone ? ` sur le numero ${phone}` : ' sur le numero utilise pour le paiement';
+
+  return `Une demande de validation vient d'etre envoyee${phonePart}. Prenez votre telephone maintenant, ouvrez la notification operateur ou Mobile Money, saisissez votre code secret si demande, puis confirmez. Ne relancez pas le paiement tant que cette validation est en attente.`;
 };
 
 const enforceKkiapayViewport = () => {
@@ -401,10 +414,10 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
     void closeKkiapayWidgetSafely();
     setPostPaymentModal({
       kind: 'pending',
-      title: 'Paiement en verification',
-      body: "Votre validation operateur est en cours. Ne relancez pas le paiement si votre compte a deja ete debite; AfricaPhone controlera la transaction et vous contactera.",
+      title: 'Validez sur votre telephone',
+      body: getPendingPaymentInstructionMessage(draft),
     });
-  }, []);
+  }, [draft]);
 
   useEffect(() => {
     let disposed = false;
@@ -596,7 +609,7 @@ function PostPaymentModal({ state, onClose }: { state: PostPaymentModalState; on
           {isSuccess ? 'OK' : '!'}
         </div>
         <p className="mt-4 text-xs font-extrabold uppercase text-[#059669]">
-          {isSuccess ? 'Paiement valide' : 'Confirmation en cours'}
+          {isSuccess ? 'Paiement valide' : 'Validation sur telephone'}
         </p>
         <h3 id="post-payment-title" className="mt-1 text-2xl font-black tracking-tight text-slate-950">
           {state.title}
@@ -622,26 +635,45 @@ function PostPaymentModal({ state, onClose }: { state: PostPaymentModalState; on
             {receiptState.message}
           </p>
         ) : null}
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <Link
-            href="/commandes"
-            className="flex h-12 items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition hover:bg-[#EA580C]"
-          >
-            Voir mes commandes
-          </Link>
-          <Link
-            href="/"
-            className="flex h-12 items-center justify-center rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] text-sm font-extrabold text-[#059669]"
-          >
-            Retour catalogue
-          </Link>
-        </div>
+        {isSuccess ? (
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-12 items-center justify-center rounded-2xl bg-[#059669] text-sm font-extrabold text-white transition hover:bg-[#047857]"
+            >
+              Retour dans l&apos;application
+            </button>
+            <Link
+              href="/commandes"
+              className="flex h-12 items-center justify-center rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] text-sm font-extrabold text-[#059669]"
+            >
+              Voir mes commandes
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-12 items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition hover:bg-[#EA580C]"
+            >
+              J&apos;ai compris
+            </button>
+            <Link
+              href="/commandes"
+              className="flex h-12 items-center justify-center rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] text-sm font-extrabold text-[#059669]"
+            >
+              Suivre ma demande
+            </Link>
+          </div>
+        )}
         <button
           type="button"
           onClick={onClose}
           className="mt-3 flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white text-sm font-extrabold text-slate-600"
         >
-          Continuer dans l&apos;application
+          Fermer
         </button>
       </div>
     </div>

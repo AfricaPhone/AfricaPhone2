@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { getDownloadURL, ref } from 'firebase/storage';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
+import KkiapayInstructionModal from '@/components/KkiapayInstructionModal';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { PAYMENT_CONFIG } from '@/config/payment';
 import {
@@ -119,6 +120,12 @@ type VerifyInstallmentPaymentResponse = {
     receiptStatus: string;
   };
   message?: string;
+};
+type InstallmentPaymentModalState = {
+  tone: 'pending' | 'success';
+  eyebrow: string;
+  title: string;
+  body: string;
 };
 
 const PROFILE_FILE_CONFIG: Record<
@@ -335,6 +342,12 @@ const paymentTone = (status: CustomerPaymentStatus) => {
 const getKkiapayTransactionId = (data?: KkiapayListenerData) =>
   (data?.transactionId && String(data.transactionId)) || (data?.flwRef && String(data.flwRef)) || null;
 
+const getInstallmentPendingMessage = () =>
+  "Une demande de validation vient d'etre envoyee sur votre telephone. Ouvrez la notification operateur ou Mobile Money, saisissez votre code secret si demande, puis confirmez. Le versement sera ajoute a votre dossier uniquement apres confirmation Kkiapay.";
+
+const getInstallmentSuccessMessage = () =>
+  "Versement confirme. Il est ajoute a votre dossier de cotisation et le recu est disponible dans l'application. Continuez a suivre votre progression jusqu'au solde complet du telephone choisi.";
+
 const enforceKkiapayViewport = () => {
   if (typeof window === 'undefined') {
     return;
@@ -425,6 +438,7 @@ export default function AccountPage() {
     planId: null,
     message: '',
   });
+  const [installmentPaymentModal, setInstallmentPaymentModal] = useState<InstallmentPaymentModalState | null>(null);
   const pendingInstallmentPaymentRef = useRef<{ installmentPlanId: string; paymentId: string } | null>(null);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
   const [selectedProfilePhotoUrl, setSelectedProfilePhotoUrl] = useState('');
@@ -603,6 +617,12 @@ export default function AccountPage() {
           planId: pendingPayment.installmentPlanId,
           message: 'Cotisation confirmee. Le recu est disponible dans l application.',
         });
+        setInstallmentPaymentModal({
+          tone: 'success',
+          eyebrow: 'Versement confirme',
+          title: 'Cotisation enregistree',
+          body: getInstallmentSuccessMessage(),
+        });
       } catch (error) {
         setInstallmentPaymentState({
           status: 'failed',
@@ -622,6 +642,21 @@ export default function AccountPage() {
     }));
   }, []);
 
+  const handleInstallmentPaymentPending = useCallback(() => {
+    const pendingPayment = pendingInstallmentPaymentRef.current;
+    setInstallmentPaymentState({
+      status: 'opened',
+      planId: pendingPayment?.installmentPlanId || null,
+      message: 'Validation demandee sur votre telephone. Confirmez avec votre code secret Mobile Money.',
+    });
+    setInstallmentPaymentModal({
+      tone: 'pending',
+      eyebrow: 'Validation sur telephone',
+      title: 'Validez le versement',
+      body: getInstallmentPendingMessage(),
+    });
+  }, []);
+
   useEffect(() => {
     let disposed = false;
     let moduleInstance: Awaited<ReturnType<typeof loadKkiapay>> | null = null;
@@ -634,6 +669,7 @@ export default function AccountPage() {
         moduleInstance = instance;
         instance.addSuccessListener(verifyInstallmentPayment);
         instance.addFailedListener(handleInstallmentPaymentFailed);
+        instance.addPendingListener(handleInstallmentPaymentPending);
       })
       .catch(() => {
         if (!disposed) {
@@ -648,8 +684,9 @@ export default function AccountPage() {
       disposed = true;
       moduleInstance?.removeKkiapayListener?.('success');
       moduleInstance?.removeKkiapayListener?.('failed');
+      moduleInstance?.addPendingListener(() => {});
     };
-  }, [handleInstallmentPaymentFailed, verifyInstallmentPayment]);
+  }, [handleInstallmentPaymentFailed, handleInstallmentPaymentPending, verifyInstallmentPayment]);
 
   useEffect(() => {
     const selectedPhoto = selectedFiles.photoName;
@@ -911,7 +948,7 @@ export default function AccountPage() {
       setInstallmentPaymentState({
         status: 'opened',
         planId: plan.id,
-        message: 'Finalisez le versement dans la fenetre Kkiapay.',
+        message: 'Validez le versement sur votre telephone des que la demande Mobile Money apparait.',
       });
     } catch (error) {
       setInstallmentPaymentState({
@@ -1243,6 +1280,18 @@ export default function AccountPage() {
           />
         ) : null}
       </main>
+      {installmentPaymentModal ? (
+        <KkiapayInstructionModal
+          tone={installmentPaymentModal.tone}
+          eyebrow={installmentPaymentModal.eyebrow}
+          title={installmentPaymentModal.title}
+          body={installmentPaymentModal.body}
+          primaryLabel={installmentPaymentModal.tone === 'success' ? "Retour dans l'application" : "J'ai compris"}
+          onPrimary={() => setInstallmentPaymentModal(null)}
+          secondaryHref="/compte"
+          secondaryLabel="Voir mon dossier"
+        />
+      ) : null}
       <MobileBottomNav />
     </div>
   );
