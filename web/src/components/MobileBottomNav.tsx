@@ -102,10 +102,10 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-      aria-label="Navigation mobile AfricaPhone"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_32px_-24px_rgba(15,23,42,0.65)] backdrop-blur lg:hidden"
+      aria-label="Navigation principale AfricaPhone"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_32px_-24px_rgba(15,23,42,0.65)] backdrop-blur"
     >
-      <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+      <div className="mx-auto grid max-w-lg grid-cols-5 gap-1">
         {NAV_ITEMS.map(item => {
           const Icon = item.icon;
           const isActive = item.href === '/' ? pathname === '/' : pathname === item.href;

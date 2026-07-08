@@ -38,7 +38,7 @@ export default function HomePageClient() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
       <Header searchQuery={searchQuery} onSubmitSearch={handleSearchSubmit} onClearSearch={handleClearSearch} />
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 overflow-x-hidden px-[0.2rem] pb-16 pt-4 sm:px-4 lg:px-8">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 overflow-x-hidden px-[0.2rem] pb-24 pt-4 sm:px-4 lg:px-8">
         <ProductGridSection enableStaticFallbacks={false} />
       </main>
       <SiteFooter />
