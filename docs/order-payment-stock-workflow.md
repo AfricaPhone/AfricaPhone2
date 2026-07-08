@@ -178,7 +178,7 @@ Doit reserver temporairement le produit avant paiement Kkiapay. La reservation d
 ### Controle caissier
 
 ```http
-GET /api/external/orders/by-reference/{referenceCode}
+GET /api/operations/orders/by-reference/{referenceCode}
 ```
 
 Retour attendu:
@@ -193,17 +193,55 @@ Retour attendu:
 - mode de reception;
 - autorisation ou blocage.
 
+Cette route est deja creee dans le site. Elle doit etre appelee avec:
+
+```http
+Authorization: Bearer ${AFRICAPHONE_OPERATIONS_API_KEY}
+```
+
+ou:
+
+```http
+x-api-key: ${AFRICAPHONE_OPERATIONS_API_KEY}
+```
+
+En environnement transitoire, elle accepte aussi la cle caissier existante si `AFRICAPHONE_OPERATIONS_API_KEY` n est pas encore definie.
+
 ### Accuse caissier
 
 ```http
-POST /api/external/orders/{orderId}/cashier-ack
+POST /api/operations/orders/{orderId}/transition
 ```
 
 Role:
 
-- confirmer que le caissier a controle la demande;
+- faire avancer la demande par statut;
 - stocker son identifiant;
 - autoriser ou refuser la sortie.
+
+Exemple conseiller commercial:
+
+```json
+{
+  "status": "commercial_validated",
+  "actorRole": "commercial_advisor",
+  "actorId": "closer-123",
+  "externalReference": "APP-TIERCE-VENTE-456",
+  "note": "Produit confirme et client informe."
+}
+```
+
+Exemple caissier:
+
+```json
+{
+  "status": "release_authorized",
+  "actorRole": "cashier",
+  "actorId": "cashier-02",
+  "externalReference": "CAISSE-789",
+  "note": "Paiement controle, sortie autorisee."
+}
+```
 
 ## Garde-fou deja prevu dans le site
 
