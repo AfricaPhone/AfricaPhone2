@@ -11,7 +11,10 @@
     "deploy:web": "npm --prefix .. run deploy:web",
     "deploy:form": "firebase deploy --only hosting:contest-form",
     "lint:staged": "npx lint-staged",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "check:deploy-config": "node scripts/check-deployment-config.js",
+    "check:deploy-config:live": "node scripts/check-deployment-config.js --live",
+    "check:deploy-config:sandbox": "node scripts/check-deployment-config.js --sandbox"
   },
   "dependencies": {
     "@algolia/client-search": "^5.41.0",
