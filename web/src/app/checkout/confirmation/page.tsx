@@ -66,7 +66,7 @@ const closeKkiapayWidgetSafely = async () => {
 
 const getPaidOrderNextStepMessage = (draft: CheckoutDraft) => {
   if (draft.fulfillmentMode === 'delivery') {
-    return 'Paiement confirme. AfricaPhone verifie le stock puis vous contacte sur votre numero pour organiser la livraison. Gardez votre telephone disponible; le lieu exact peut etre confirme avec le livreur si necessaire.';
+    return 'Paiement confirme. AfricaPhone controle maintenant votre demande puis vous contacte sur votre numero pour organiser la livraison. Gardez votre telephone disponible; le lieu exact peut etre confirme avec le livreur si necessaire.';
   }
 
   if (draft.fulfillmentMode === 'representative') {
@@ -79,7 +79,7 @@ const getPaidOrderNextStepMessage = (draft: CheckoutDraft) => {
     return `Paiement confirme. Donnez maintenant l'ordre a ${representative} de recuperer le produit chez AfricaPhone. Il doit venir avec sa piece d'identite; AfricaPhone controlera son identite avant toute remise.`;
   }
 
-  return "Paiement confirme. AfricaPhone verifie le stock. Vous pourrez passer en boutique avec votre reference de commande et une piece d'identite.";
+  return "Paiement confirme. AfricaPhone controle maintenant votre demande. Vous pourrez passer en boutique avec votre reference de commande et une piece d'identite des que la remise est autorisee.";
 };
 
 const getPendingPaymentInstructionMessage = (draft: CheckoutDraft) => {

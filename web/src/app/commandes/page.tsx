@@ -196,6 +196,26 @@ const REMOTE_STATUS_VIEWS: Record<CustomerOrderStatus, OrderStatusView> = {
     detail: 'AfricaPhone verifie le stock, la livraison ou le retrait.',
     className: 'bg-[#ECFDF5] text-[#059669]',
   },
+  stock_check_pending: {
+    label: 'Disponibilite en verification',
+    detail: 'AfricaPhone verifie la disponibilite immediate en magasin.',
+    className: 'bg-orange-50 text-orange-700',
+  },
+  stock_reserved: {
+    label: 'Disponibilite confirmee',
+    detail: 'Le produit est reserve pour la suite du traitement.',
+    className: 'bg-[#ECFDF5] text-[#059669]',
+  },
+  manual_review_required: {
+    label: 'Verification conseiller',
+    detail: 'Un conseiller AfricaPhone finalise la verification de votre demande.',
+    className: 'bg-orange-50 text-orange-700',
+  },
+  commercial_validated: {
+    label: 'Demande validee',
+    detail: 'La demande est validee et transmise pour la suite.',
+    className: 'bg-[#ECFDF5] text-[#059669]',
+  },
   profile_required: {
     label: 'Profil requis',
     detail: 'Un compte client complet est requis avant paiement, cotisation ou retrait par representant.',
@@ -209,6 +229,16 @@ const REMOTE_STATUS_VIEWS: Record<CustomerOrderStatus, OrderStatusView> = {
   paid: {
     label: 'Paiement confirme',
     detail: 'Le paiement est confirme, AfricaPhone prepare la suite.',
+    className: 'bg-[#ECFDF5] text-[#059669]',
+  },
+  cashier_control_pending: {
+    label: 'Controle en cours',
+    detail: 'AfricaPhone controle le paiement et le mode de reception avant sortie.',
+    className: 'bg-orange-50 text-orange-700',
+  },
+  release_authorized: {
+    label: 'Sortie autorisee',
+    detail: 'La remise ou la livraison du produit peut etre organisee.',
     className: 'bg-[#ECFDF5] text-[#059669]',
   },
   ready_for_pickup: {
@@ -226,9 +256,19 @@ const REMOTE_STATUS_VIEWS: Record<CustomerOrderStatus, OrderStatusView> = {
     detail: 'La commande est terminee.',
     className: 'bg-slate-100 text-slate-600',
   },
+  fulfilled: {
+    label: 'Terminee',
+    detail: 'La demande est terminee.',
+    className: 'bg-slate-100 text-slate-600',
+  },
   cancelled: {
     label: 'Annulee',
     detail: 'Cette commande a ete annulee.',
+    className: 'bg-rose-50 text-rose-700',
+  },
+  expired: {
+    label: 'Expiree',
+    detail: 'Cette demande n est plus active.',
     className: 'bg-rose-50 text-rose-700',
   },
 };

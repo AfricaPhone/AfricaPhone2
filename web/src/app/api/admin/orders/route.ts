@@ -12,13 +12,21 @@ import type {
 const ORDER_STATUSES = new Set<CustomerOrderStatus>([
   'draft',
   'pending_review',
+  'stock_check_pending',
+  'stock_reserved',
+  'manual_review_required',
+  'commercial_validated',
   'profile_required',
   'payment_pending',
   'paid',
+  'cashier_control_pending',
+  'release_authorized',
   'ready_for_pickup',
   'out_for_delivery',
   'delivered',
+  'fulfilled',
   'cancelled',
+  'expired',
 ]);
 
 const PAYMENT_STATUSES = new Set<CustomerPaymentStatus>([

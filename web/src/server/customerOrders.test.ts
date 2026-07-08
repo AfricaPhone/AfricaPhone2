@@ -96,7 +96,7 @@ describe('customer order creation', () => {
     const order = buildCustomerOrderFromDraft({
       draft: validation.draft,
       orderId: 'order-kkiapay',
-      now: null,
+      now: new Date('2026-06-15T10:02:00.000Z'),
       userId: 'user-1',
     });
 
@@ -106,11 +106,12 @@ describe('customer order creation', () => {
       paymentStatus: 'pending',
       profileRequired: true,
     });
-    expect(order.referenceCode).toMatch(/^AFP-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/);
+    expect(order.referenceCode).toMatch(/^AP-260615-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{2}$/);
     expect(order.referenceCode).not.toContain('2026');
     expect(order.internalVerification).toMatchObject({
-      version: 'order-reference-v1',
+      version: 'order-reference-v2',
       algorithm: 'sha256',
+      referenceCode: order.referenceCode,
     });
     expect(order.internalVerification?.tokenHash).toMatch(/^[a-f0-9]{64}$/);
   });

@@ -90,18 +90,64 @@ const createRandomReferencePart = (length: number) => {
   return Array.from(bytes, byte => REFERENCE_ALPHABET[byte % REFERENCE_ALPHABET.length]).join('');
 };
 
-const buildOrderReferenceCode = () =>
-  `AFP-${createRandomReferencePart(4)}-${createRandomReferencePart(4)}-${createRandomReferencePart(4)}`;
+const toReferenceDate = (value: FirestoreTimestampLike) => {
+  if (value instanceof Date && !Number.isNaN(value.valueOf())) {
+    return value;
+  }
 
-const buildInternalVerification = (orderId: string, now: FirestoreTimestampLike) => {
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    if (!Number.isNaN(date.valueOf())) {
+      return date;
+    }
+  }
+
+  if (typeof value === 'object' && value !== null) {
+    const timestamp = value as { toDate?: () => Date; seconds?: number; _seconds?: number };
+    if (typeof timestamp.toDate === 'function') {
+      const date = timestamp.toDate();
+      if (!Number.isNaN(date.valueOf())) {
+        return date;
+      }
+    }
+
+    const seconds = typeof timestamp.seconds === 'number' ? timestamp.seconds : timestamp._seconds;
+    if (typeof seconds === 'number') {
+      return new Date(seconds * 1000);
+    }
+  }
+
+  return new Date();
+};
+
+const buildReferenceDatePart = (date: Date) => date.toISOString().slice(2, 10).replace(/-/g, '');
+
+const buildReferenceCheckPart = (datePart: string, randomPart: string, orderId: string) =>
+  createHash('sha256')
+    .update(`africaphone-order-reference-v2:${datePart}:${randomPart}:${orderId}`)
+    .digest('base64url')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toUpperCase()
+    .replace(/[01IO]/g, 'A')
+    .slice(0, 2);
+
+const buildOrderReferenceCode = (orderId: string, now: FirestoreTimestampLike) => {
+  const datePart = buildReferenceDatePart(toReferenceDate(now));
+  const randomPart = `${createRandomReferencePart(4)}-${createRandomReferencePart(4)}`;
+  const checkPart = buildReferenceCheckPart(datePart, randomPart, orderId);
+  return `AP-${datePart}-${randomPart}-${checkPart}`;
+};
+
+const buildInternalVerification = (orderId: string, referenceCode: string, now: FirestoreTimestampLike) => {
   const token = `${createRandomReferencePart(8)}-${createRandomReferencePart(8)}-${createRandomReferencePart(8)}`;
   const tokenHash = createHash('sha256')
-    .update(`africaphone-order-verification:${orderId}:${token}`)
+    .update(`africaphone-order-verification:${orderId}:${referenceCode}:${token}`)
     .digest('hex');
 
   return {
-    version: 'order-reference-v1' as const,
+    version: 'order-reference-v2' as const,
     algorithm: 'sha256' as const,
+    referenceCode,
     tokenHash,
     tokenLast4: token.slice(-4),
     generatedAt: now,
@@ -309,10 +355,11 @@ export const buildCustomerOrderFromDraft = (params: {
   const paymentStatus: CustomerPaymentStatus =
     draft.paymentMode === 'kkiapay' || draft.paymentMode === 'cotisation' ? 'pending' : 'not_required';
   const itemsSubtotal = items.reduce((sum, item) => sum + (item.subtotal ?? 0), 0);
+  const referenceCode = buildOrderReferenceCode(orderId, now);
 
   return {
     id: orderId,
-    referenceCode: buildOrderReferenceCode(),
+    referenceCode,
     userId,
     guestId: userId ? null : draft.id,
     status,
@@ -360,7 +407,7 @@ export const buildCustomerOrderFromDraft = (params: {
     },
     source: 'web',
     localDraftId: draft.id,
-    internalVerification: buildInternalVerification(orderId, now),
+    internalVerification: buildInternalVerification(orderId, referenceCode, now),
     createdAt: now,
     updatedAt: now,
   };

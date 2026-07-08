@@ -14,7 +14,8 @@ Champs importants:
 
 - `userId`: identifiant Firebase Auth du client, obligatoire des qu il y a paiement, contrat ou document.
 - `guestId`: identifiant local temporaire possible pour les demandes sans compte.
-- `status`: `draft`, `pending_review`, `profile_required`, `payment_pending`, `paid`, `ready_for_pickup`, `out_for_delivery`, `delivered`, `cancelled`.
+- `referenceCode`: reference visible au client et exploitable par le caissier, format cible `AP-YYMMDD-XXXX-XXXX-CC`.
+- `status`: `draft`, `pending_review`, `stock_check_pending`, `stock_reserved`, `manual_review_required`, `commercial_validated`, `profile_required`, `payment_pending`, `paid`, `cashier_control_pending`, `release_authorized`, `ready_for_pickup`, `out_for_delivery`, `delivered`, `fulfilled`, `cancelled`, `expired`.
 - `paymentMode`: `pay_on_delivery`, `kkiapay_now`, `shop_confirmation`, `installment_plan`.
 - `paymentStatus`: `not_required`, `pending`, `provider_opened`, `succeeded`, `failed`, `cancelled`, `refunded`.
 - `fulfillmentMode`: `delivery`, `shop_pickup`, `representative_pickup`.
@@ -130,9 +131,11 @@ Regles attendues plus tard:
 3. Authentification/profil client Firebase Auth.
 4. Page confirmation basee sur la vraie commande.
 5. Upload documents vers `customer-documents`.
-6. Creation de `orderPayments` puis ouverture Kkiapay.
-7. Webhook Kkiapay qui verifie le paiement et met a jour `orderPayments` + `orders`.
-8. Backoffice client: commandes, paiements, documents, cotisations, notifications.
+6. Verification ou reservation du stock via l application tierce avant paiement direct.
+7. Creation de `orderPayments` puis ouverture Kkiapay uniquement si la disponibilite est confirmee ou si le mode operationnel transitoire l autorise.
+8. Webhook Kkiapay qui verifie le paiement et met a jour `orderPayments` + `orders`.
+9. Controle caissier avant sortie produit.
+10. Backoffice client: commandes, paiements, documents, cotisations, notifications.
 
 ## API locale ajoutee
 
@@ -150,8 +153,10 @@ Statuts actuels:
 
 - paiement livraison ou confirmation boutique: `pending_review`;
 - Kkiapay, cotisation ou representant sans compte: `profile_required`;
-- Kkiapay ou cotisation avec compte Firebase connecte: `pending_review`;
-- paiement Kkiapay/cotisation: `paymentStatus` reste `pending`, mais aucun widget Kkiapay n est ouvert.
+- Kkiapay ou cotisation avec compte Firebase connecte: `pending_review` en mode transitoire, puis `stock_check_pending` quand l API stock sera branchee pour les achats directs;
+- paiement Kkiapay/cotisation: `paymentStatus` reste `pending` apres `POST /api/orders`; l ouverture Kkiapay se fait ensuite par l API de paiement dediee.
+
+Document de circuit complet: `docs/order-payment-stock-workflow.md`.
 
 ## Profil local ajoute
 

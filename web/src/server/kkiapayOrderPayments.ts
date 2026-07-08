@@ -16,6 +16,7 @@ import { sendOrderPaymentReceipt } from './receiptMailer';
 
 const ORDER_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
 const PAYMENT_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
+const PAYMENT_ALLOWED_AFTER_STOCK_STATUSES = new Set(['stock_reserved', 'commercial_validated', 'payment_pending']);
 
 type KkiapayVerification = {
   success: boolean;
@@ -101,6 +102,9 @@ const normalizePayment = (id: string, data: DocumentData): OrderPayment => ({
 
 const buildProviderReference = (orderId: string, paymentId: string) =>
   `AFP-ORDER-${orderId.slice(-8).toUpperCase()}-${paymentId.slice(-8).toUpperCase()}`;
+
+const requireStockReservationBeforePayment = () =>
+  process.env.AFRICAPHONE_REQUIRE_STOCK_RESERVATION_BEFORE_PAYMENT === 'true';
 
 const assertValidOrderId = (orderId: string) => {
   if (!ORDER_ID_PATTERN.test(orderId)) {
@@ -188,8 +192,15 @@ const validateOrderForPayment = (order: CustomerOrder, userId: string) => {
     throw new PaymentFlowError('Cette commande est deja payee.', 409);
   }
 
-  if (order.status === 'cancelled' || order.status === 'delivered') {
+  if (order.status === 'cancelled' || order.status === 'delivered' || order.status === 'fulfilled' || order.status === 'expired') {
     throw new PaymentFlowError('Cette commande ne peut plus etre payee en ligne.', 409);
+  }
+
+  if (requireStockReservationBeforePayment() && !PAYMENT_ALLOWED_AFTER_STOCK_STATUSES.has(order.status)) {
+    throw new PaymentFlowError(
+      'AfricaPhone verifie la disponibilite immediate en magasin avant ouverture du paiement.',
+      409
+    );
   }
 
   const amount = Number(order.totals.totalDue || order.totals.itemsSubtotal || 0);
@@ -418,7 +429,7 @@ export const verifyAndFinalizeKkiapayOrderPayment = async (params: {
     };
     const nextOrder: CustomerOrder = {
       ...order,
-      status: 'paid',
+      status: 'cashier_control_pending',
       paymentStatus: 'succeeded',
       updatedAt: now,
     };
@@ -444,7 +455,7 @@ export const verifyAndFinalizeKkiapayOrderPayment = async (params: {
       nextOrder,
       'payment_succeeded',
       'Paiement confirme',
-      'Votre paiement Kkiapay est confirme. AfricaPhone prepare la suite.'
+      'Votre paiement Kkiapay est confirme. AfricaPhone controle maintenant la demande avant la remise ou la livraison.'
     );
     if (notification) {
       transaction.set(notification.notificationRef, notification.notification);

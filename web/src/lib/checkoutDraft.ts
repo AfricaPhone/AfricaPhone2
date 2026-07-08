@@ -81,6 +81,12 @@ export const formatCheckoutReference = (reference?: string | null) => {
     return 'Demande';
   }
 
+  const controlledReferenceMatch = /^AP-(\d{6})-([A-Z2-9]{4}-[A-Z2-9]{4})-([A-Z2-9]{2})$/i.exec(normalized);
+  if (controlledReferenceMatch) {
+    const [, datePart, randomPart, checkPart] = controlledReferenceMatch;
+    return `Demande ${datePart.slice(4, 6)}/${datePart.slice(2, 4)} #${randomPart.toUpperCase()}-${checkPart.toUpperCase()}`;
+  }
+
   const randomReferenceMatch = /^AFP-([A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4})$/i.exec(normalized);
   if (randomReferenceMatch) {
     return `Demande #${randomReferenceMatch[1].toUpperCase()}`;
@@ -99,6 +105,8 @@ const isBrowser = () => typeof window !== 'undefined';
 
 const REFERENCE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
+const buildReferenceDatePart = (date: Date) => date.toISOString().slice(2, 10).replace(/-/g, '');
+
 const createRandomReferencePart = (length: number) => {
   const bytes = new Uint8Array(length);
   if (isBrowser() && window.crypto?.getRandomValues) {
@@ -112,8 +120,18 @@ const createRandomReferencePart = (length: number) => {
   return Array.from(bytes, byte => REFERENCE_ALPHABET[byte % REFERENCE_ALPHABET.length]).join('');
 };
 
+const buildProvisionalCheckPart = (datePart: string, randomPart: string) => {
+  const total = Array.from(`${datePart}${randomPart}`).reduce((sum, char, index) => {
+    const code = char.charCodeAt(0);
+    return sum + code * (index + 3);
+  }, 0);
+  return `${REFERENCE_ALPHABET[total % REFERENCE_ALPHABET.length]}${REFERENCE_ALPHABET[(total * 7) % REFERENCE_ALPHABET.length]}`;
+};
+
 const createDraftId = () => {
-  return `AFP-${createRandomReferencePart(4)}-${createRandomReferencePart(4)}-${createRandomReferencePart(4)}`;
+  const datePart = buildReferenceDatePart(new Date());
+  const randomPart = `${createRandomReferencePart(4)}-${createRandomReferencePart(4)}`;
+  return `AP-${datePart}-${randomPart}-${buildProvisionalCheckPart(datePart, randomPart)}`;
 };
 
 const isFiniteCoordinate = (value: unknown, min: number, max: number): value is number =>

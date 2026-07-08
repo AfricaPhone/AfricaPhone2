@@ -251,13 +251,21 @@ function makeStatusBadge(value, type = 'neutral') {
 const ORDER_STATUS_LABELS = {
   draft: 'Brouillon',
   pending_review: 'A traiter',
+  stock_check_pending: 'Stock a verifier',
+  stock_reserved: 'Stock reserve',
+  manual_review_required: 'Conseiller requis',
+  commercial_validated: 'Conseiller OK',
   profile_required: 'Profil requis',
   payment_pending: 'Paiement attendu',
   paid: 'Payee',
+  cashier_control_pending: 'Controle caisse',
+  release_authorized: 'Sortie autorisee',
   ready_for_pickup: 'Retrait pret',
   out_for_delivery: 'En livraison',
   delivered: 'Livree',
+  fulfilled: 'Terminee',
   cancelled: 'Annulee',
+  expired: 'Expiree',
 };
 
 const PAYMENT_MODE_LABELS = {
@@ -1989,7 +1997,21 @@ function matchesCommerceSearch(row, term, fields) {
 }
 
 function statusTone(value) {
-  if (['paid', 'delivered', 'succeeded', 'approved', 'completed', 'active', 'ready_for_pickup'].includes(value)) {
+  if (
+    [
+      'paid',
+      'delivered',
+      'fulfilled',
+      'succeeded',
+      'approved',
+      'completed',
+      'active',
+      'ready_for_pickup',
+      'stock_reserved',
+      'commercial_validated',
+      'release_authorized',
+    ].includes(value)
+  ) {
     return 'success';
   }
   if (['cancelled', 'failed', 'rejected', 'expired', 'late'].includes(value)) {
@@ -1998,8 +2020,11 @@ function statusTone(value) {
   if (
     [
       'pending_review',
+      'stock_check_pending',
+      'manual_review_required',
       'profile_required',
       'payment_pending',
+      'cashier_control_pending',
       'pending',
       'provider_opened',
       'uploaded',
@@ -2062,6 +2087,11 @@ function orderQuantityLabel(order) {
 function formatOrderReference(order) {
   const raw = String(order?.referenceCode || order?.localDraftId || order?.guestId || order?.id || '').trim();
   if (!raw) return 'Demande';
+  const controlledRef = /^AP-(\d{6})-([A-Z2-9]{4}-[A-Z2-9]{4})-([A-Z2-9]{2})$/i.exec(raw);
+  if (controlledRef) {
+    const [, datePart, randomPart, checkPart] = controlledRef;
+    return `Demande ${datePart.slice(4, 6)}/${datePart.slice(2, 4)} #${randomPart.toUpperCase()}-${checkPart.toUpperCase()}`;
+  }
   const randomRef = /^AFP-([A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4})$/i.exec(raw);
   if (randomRef) return `Demande #${randomRef[1].toUpperCase()}`;
   const draftMatch = /^AFP-(\d{8})-([A-Z0-9]+)$/i.exec(raw);
@@ -2105,6 +2135,12 @@ function orderActionItems(order) {
   const deliveryLocation = orderDeliveryLocation(order);
 
   if (status === 'pending_review') actions.push('Verifier stock, prix et disponibilite avant confirmation.');
+  if (status === 'stock_check_pending') actions.push('Attendre la reponse stock de l application tierce.');
+  if (status === 'manual_review_required') actions.push('Conseiller commercial requis: confirmer la disponibilite sans alerter le client.');
+  if (status === 'stock_reserved') actions.push('Stock reserve: le paiement ou la sortie peut avancer selon le mode choisi.');
+  if (status === 'commercial_validated') actions.push('Conseiller OK: transmettre au controle caisse.');
+  if (status === 'cashier_control_pending') actions.push('Caissier: controler paiement, reservation et mode de sortie.');
+  if (status === 'release_authorized') actions.push('Sortie autorisee: remettre, livrer ou servir le representant declare.');
   if (status === 'profile_required') actions.push('Demander au client de completer son compte avant paiement ou cotisation.');
   if (status === 'payment_pending') actions.push('Valider la commande puis declencher le paiement en ligne.');
   if (paymentMode === 'pay_on_delivery') actions.push('Confirmer les frais de livraison et le paiement a la reception.');
@@ -2118,7 +2154,16 @@ function orderActionItems(order) {
 }
 
 function renderOrderStats(items) {
-  const pending = items.filter(item => ['pending_review', 'profile_required', 'payment_pending'].includes(item.status)).length;
+  const pending = items.filter(item =>
+    [
+      'pending_review',
+      'stock_check_pending',
+      'manual_review_required',
+      'profile_required',
+      'payment_pending',
+      'cashier_control_pending',
+    ].includes(item.status)
+  ).length;
   const kkiapay = items.filter(item => item.paymentMode === 'kkiapay_now').length;
   const delivery = items.filter(item => item.fulfillmentMode === 'delivery').length;
   const total = items.reduce((sum, item) => sum + orderTotal(item), 0);
@@ -2236,7 +2281,20 @@ function buildAdminTasks() {
     });
 
   allCustomerOrders
-    .filter(order => ['pending_review', 'profile_required', 'payment_pending', 'ready_for_pickup', 'out_for_delivery'].includes(order.status || ''))
+    .filter(order =>
+      [
+        'pending_review',
+        'stock_check_pending',
+        'manual_review_required',
+        'commercial_validated',
+        'profile_required',
+        'payment_pending',
+        'cashier_control_pending',
+        'release_authorized',
+        'ready_for_pickup',
+        'out_for_delivery',
+      ].includes(order.status || '')
+    )
     .forEach(order => {
       const status = order.status || 'pending_review';
       const deliveryLocation = orderDeliveryLocation(order);
@@ -2244,7 +2302,7 @@ function buildAdminTasks() {
       tasks.push({
         id: `order-${order.id}`,
         group: 'orders',
-        priority: ['pending_review', 'profile_required', 'payment_pending'].includes(status) ? 2 : 3,
+        priority: ['pending_review', 'stock_check_pending', 'manual_review_required', 'profile_required', 'payment_pending', 'cashier_control_pending'].includes(status) ? 2 : 3,
         icon: order.fulfillmentMode === 'delivery' ? 'truck' : 'shopping-bag',
         title: needsDeliveryLocation ? 'Localisation a confirmer' : ORDER_STATUS_LABELS[status] || 'Commande a traiter',
         meta: orderCustomer(order),

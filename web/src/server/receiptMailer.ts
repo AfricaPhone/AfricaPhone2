@@ -36,6 +36,12 @@ const formatOrderReference = (order: CustomerOrder) => {
     return 'Commande AfricaPhone';
   }
 
+  const controlledReferenceMatch = /^AP-(\d{6})-([A-Z2-9]{4}-[A-Z2-9]{4})-([A-Z2-9]{2})$/i.exec(raw);
+  if (controlledReferenceMatch) {
+    const [, datePart, randomPart, checkPart] = controlledReferenceMatch;
+    return `Demande ${datePart.slice(4, 6)}/${datePart.slice(2, 4)} #${randomPart.toUpperCase()}-${checkPart.toUpperCase()}`;
+  }
+
   const randomReferenceMatch = /^AFP-([A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4})$/i.exec(raw);
   if (randomReferenceMatch) {
     return `Demande #${randomReferenceMatch[1].toUpperCase()}`;
