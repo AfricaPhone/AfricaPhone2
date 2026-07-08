@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomerPageHeader from '@/components/CustomerPageHeader';
@@ -24,6 +25,8 @@ type InitiatePaymentResponse = {
   providerReference: string;
   amount: number;
   currency: 'XOF';
+  status?: string;
+  reused?: boolean;
   publicKey: string;
   sandbox: boolean;
   customer: {
@@ -45,12 +48,14 @@ type VerifyPaymentResponse = {
 };
 
 type PostPaymentModalState = {
-  kind: 'success' | 'pending';
+  kind: 'success' | 'pending' | 'attention';
   title: string;
   body: string;
   orderId?: string | null;
   transactionId?: string | null;
 };
+
+type PaymentPanelStatus = 'idle' | 'starting' | 'opened' | 'verifying' | 'succeeded' | 'failed' | 'blocked';
 
 const getKkiapayTransactionId = (data?: KkiapayListenerData) =>
   (data?.transactionId && String(data.transactionId)) || (data?.flwRef && String(data.flwRef)) || null;
@@ -336,24 +341,91 @@ function SummaryItem({ label, value, strong = false }: { label: string; value: s
 }
 
 function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraft; autoStart?: boolean }) {
-  const pendingPaymentRef = useRef<{ orderId: string; paymentId: string } | null>(null);
+  const pendingPaymentRef = useRef<{ orderId: string; paymentId: string; providerReference: string } | null>(null);
   const autoStartRef = useRef(false);
-  const [status, setStatus] = useState<'idle' | 'starting' | 'opened' | 'verifying' | 'succeeded' | 'failed'>('idle');
+  const [status, setStatus] = useState<PaymentPanelStatus>('idle');
   const [message, setMessage] = useState('');
   const [sandboxMode, setSandboxMode] = useState<boolean | null>(null);
   const [kkiapayReady, setKkiapayReady] = useState(false);
   const [postPaymentModal, setPostPaymentModal] = useState<PostPaymentModalState | null>(null);
   const orderId = draft.orderSync.orderId;
   const canPay = draft.orderSync.status === 'created' && !draft.orderSync.profileRequired && Boolean(orderId);
+  const paymentLocked = ['starting', 'opened', 'verifying', 'succeeded', 'blocked'].includes(status);
+
+  useEffect(() => {
+    if (!orderId) {
+      return () => {};
+    }
+
+    let disposed = false;
+    const unsubscribe = onAuthStateChanged(auth, async user => {
+      if (!user) {
+        return;
+      }
+
+      try {
+        const token = await user.getIdToken();
+        const params = new URLSearchParams({
+          orderIds: orderId,
+          localDraftIds: draft.id,
+        });
+        const response = await fetch(`/api/orders?${params.toString()}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const body = (await response.json().catch(() => null)) as {
+          orders?: Array<{ id: string; paymentStatus?: string; status?: string }>;
+        } | null;
+        const remoteOrder = body?.orders?.find(order => order.id === orderId);
+
+        if (disposed || !response.ok || !remoteOrder) {
+          return;
+        }
+
+        if (remoteOrder.paymentStatus === 'succeeded') {
+          setStatus('succeeded');
+          setMessage('Paiement deja confirme. Le recu est disponible dans l application.');
+        } else if (remoteOrder.paymentStatus === 'provider_opened') {
+          setMessage('Un paiement Kkiapay est deja ouvert pour cette demande. Reprenez uniquement si vous n avez pas encore valide sur votre telephone.');
+        }
+      } catch {
+        // Le suivi client reste disponible meme si la prelecture echoue.
+      }
+    });
+
+    return () => {
+      disposed = true;
+      unsubscribe();
+    };
+  }, [draft.id, orderId]);
 
   const verifyPayment = useCallback(
     async (data?: KkiapayListenerData) => {
       const pendingPayment = pendingPaymentRef.current;
       const transactionId = getKkiapayTransactionId(data);
+      const eventPartnerId = typeof data?.partnerId === 'string' ? data.partnerId.trim() : '';
 
       if (!pendingPayment || !transactionId) {
-        setStatus('failed');
-        setMessage('Reference Kkiapay manquante. Contactez AfricaPhone avec la capture du paiement.');
+        setStatus('blocked');
+        setMessage('Retour Kkiapay incomplet. Ne relancez pas le paiement; contactez AfricaPhone avec la capture du paiement.');
+        setPostPaymentModal({
+          kind: 'attention',
+          title: 'Paiement a controler',
+          body: 'Kkiapay a renvoye une information incomplete. Ne refaites pas le paiement tant qu AfricaPhone n a pas controle la transaction.',
+        });
+        return;
+      }
+
+      if (eventPartnerId && eventPartnerId !== pendingPayment.providerReference) {
+        setStatus('blocked');
+        setMessage('Retour Kkiapay non rattache a cette demande. Ne relancez pas le paiement; AfricaPhone doit controler la transaction.');
+        setPostPaymentModal({
+          kind: 'attention',
+          title: 'Controle paiement requis',
+          body: 'Kkiapay a signale une transaction qui ne correspond pas a la reference ouverte pour cette demande. Ne payez pas une seconde fois; contactez AfricaPhone avec la capture du paiement.',
+          transactionId,
+        });
         return;
       }
 
@@ -384,7 +456,34 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
         const body = (await response.json().catch(() => null)) as VerifyPaymentResponse | null;
 
         if (!response.ok || body?.payment?.status !== 'succeeded') {
-          throw new Error(body?.message || 'Paiement non confirme par le serveur.');
+          const serverMessage = body?.message || 'Paiement non confirme par le serveur.';
+          if (/deja payee/i.test(serverMessage)) {
+            setStatus('succeeded');
+            setMessage('Paiement deja confirme. Le recu est disponible dans l application.');
+            await closeKkiapayWidgetSafely();
+            setPostPaymentModal({
+              kind: 'success',
+              title: 'Paiement deja confirme',
+              body: getPaidOrderNextStepMessage(draft),
+              orderId: pendingPayment.orderId,
+              transactionId,
+            });
+            return;
+          }
+
+          if (/incoherent|incoherente/i.test(serverMessage)) {
+            setStatus('blocked');
+            setMessage(`${serverMessage} Ne relancez pas le paiement; AfricaPhone doit controler la transaction.`);
+            setPostPaymentModal({
+              kind: 'attention',
+              title: 'Controle paiement requis',
+              body: 'Kkiapay a signale un paiement, mais la reference ne correspond pas parfaitement a cette demande. Ne payez pas une seconde fois; AfricaPhone doit controler la transaction.',
+              transactionId,
+            });
+            return;
+          }
+
+          throw new Error(serverMessage);
         }
 
         setStatus('succeeded');
@@ -408,6 +507,17 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
   const handlePaymentFailed = useCallback(() => {
     setStatus('failed');
     setMessage('Le paiement Kkiapay n a pas abouti.');
+  }, []);
+
+  const handlePaymentInterrupted = useCallback(() => {
+    setStatus(currentStatus => {
+      if (currentStatus === 'succeeded' || currentStatus === 'verifying' || currentStatus === 'blocked') {
+        return currentStatus;
+      }
+
+      return 'failed';
+    });
+    setMessage('La fenetre Kkiapay a ete fermee ou interrompue avant confirmation. Vous pouvez reprendre le meme paiement si rien n a ete debite.');
   }, []);
 
   const handlePaymentPending = useCallback(() => {
@@ -434,6 +544,8 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
         instance.addSuccessListener(verifyPayment);
         instance.addFailedListener(handlePaymentFailed);
         instance.addPendingListener(handlePaymentPending);
+        instance.addPaymentAbortedListener(handlePaymentInterrupted);
+        instance.addKkiapayCloseListener(handlePaymentInterrupted);
         setKkiapayReady(true);
       })
       .catch(() => {
@@ -447,11 +559,13 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
       moduleInstance?.removeKkiapayListener?.('success');
       moduleInstance?.removeKkiapayListener?.('failed');
       moduleInstance?.addPendingListener(() => {});
+      moduleInstance?.addPaymentAbortedListener(() => {});
+      moduleInstance?.addKkiapayCloseListener(() => {});
     };
-  }, [handlePaymentFailed, handlePaymentPending, verifyPayment]);
+  }, [handlePaymentFailed, handlePaymentInterrupted, handlePaymentPending, verifyPayment]);
 
   const startPayment = useCallback(async () => {
-    if (!canPay || !orderId || status === 'starting' || status === 'verifying') {
+    if (!canPay || !orderId || paymentLocked) {
       return;
     }
 
@@ -481,7 +595,7 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
         throw new Error(body?.message || 'Preparation du paiement indisponible.');
       }
 
-      pendingPaymentRef.current = { orderId, paymentId: body.paymentId };
+      pendingPaymentRef.current = { orderId, paymentId: body.paymentId, providerReference: body.providerReference };
       setSandboxMode(body.sandbox);
       const moduleInstance = await loadKkiapay();
       moduleInstance.openKkiapayWidget({
@@ -498,12 +612,23 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
       });
       enforceKkiapayViewport();
       setStatus('opened');
-      setMessage('Finalisez le paiement dans la fenetre Kkiapay.');
+      setMessage(
+        body.reused
+          ? 'Paiement deja prepare. Finalisez cette meme transaction dans la fenetre Kkiapay.'
+          : 'Finalisez le paiement dans la fenetre Kkiapay.'
+      );
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Impossible de lancer Kkiapay.';
+      if (/deja payee/i.test(errorMessage)) {
+        setStatus('succeeded');
+        setMessage('Paiement deja confirme. Le recu est disponible dans l application.');
+        return;
+      }
+
       setStatus('failed');
-      setMessage(error instanceof Error ? error.message : 'Impossible de lancer Kkiapay.');
+      setMessage(errorMessage);
     }
-  }, [canPay, orderId, status]);
+  }, [canPay, orderId, paymentLocked]);
 
   useEffect(() => {
     if (!autoStart || autoStartRef.current || !canPay || !kkiapayReady || status !== 'idle') {
@@ -533,7 +658,7 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
         <button
           type="button"
           onClick={startPayment}
-          disabled={!canPay || status === 'starting' || status === 'verifying' || status === 'succeeded'}
+          disabled={!canPay || paymentLocked}
           className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-[#F97316] text-sm font-extrabold text-white transition enabled:hover:bg-[#EA580C] disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {status === 'starting'
@@ -542,6 +667,10 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
               ? 'Verification...'
               : status === 'succeeded'
                 ? 'Paiement confirme'
+                : status === 'opened'
+                  ? 'Paiement ouvert'
+                  : status === 'blocked'
+                    ? 'Controle AfricaPhone requis'
                 : 'Payer maintenant par Kkiapay'}
         </button>
         {message ? (
@@ -572,6 +701,7 @@ function KkiapayPaymentPanel({ draft, autoStart = false }: { draft: CheckoutDraf
 
 function PostPaymentModal({ state, onClose }: { state: PostPaymentModalState; onClose: () => void }) {
   const isSuccess = state.kind === 'success';
+  const isAttention = state.kind === 'attention';
   const [receiptState, setReceiptState] = useState<{ busy: boolean; message: string }>({
     busy: false,
     message: '',
@@ -611,7 +741,7 @@ function PostPaymentModal({ state, onClose }: { state: PostPaymentModalState; on
           {isSuccess ? 'OK' : '!'}
         </div>
         <p className="mt-4 text-xs font-extrabold uppercase text-[#059669]">
-          {isSuccess ? 'Paiement valide' : 'Validation sur telephone'}
+          {isSuccess ? 'Paiement valide' : isAttention ? 'Controle requis' : 'Validation sur telephone'}
         </p>
         <h3 id="post-payment-title" className="mt-1 text-2xl font-black tracking-tight text-slate-950">
           {state.title}

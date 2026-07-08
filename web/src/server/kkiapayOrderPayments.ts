@@ -17,6 +17,7 @@ import { sendOrderPaymentReceipt } from './receiptMailer';
 const ORDER_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
 const PAYMENT_ID_PATTERN = /^[a-zA-Z0-9_-]{8,128}$/;
 const PAYMENT_ALLOWED_AFTER_STOCK_STATUSES = new Set(['stock_reserved', 'commercial_validated', 'payment_pending']);
+const REUSABLE_PAYMENT_STATUSES = new Set<CustomerPaymentStatus>(['pending', 'provider_opened']);
 
 type KkiapayVerification = {
   success: boolean;
@@ -102,6 +103,46 @@ const normalizePayment = (id: string, data: DocumentData): OrderPayment => ({
 
 const buildProviderReference = (orderId: string, paymentId: string) =>
   `AFP-ORDER-${orderId.slice(-8).toUpperCase()}-${paymentId.slice(-8).toUpperCase()}`;
+
+const timestampToMillis = (value: unknown) => {
+  if (!value) {
+    return 0;
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.valueOf()) ? 0 : value.valueOf();
+  }
+
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    return Number.isNaN(date.valueOf()) ? 0 : date.valueOf();
+  }
+
+  if (typeof value === 'object') {
+    const timestamp = value as { toMillis?: () => number; toDate?: () => Date; seconds?: number; _seconds?: number };
+    if (typeof timestamp.toMillis === 'function') {
+      return timestamp.toMillis();
+    }
+
+    if (typeof timestamp.toDate === 'function') {
+      const date = timestamp.toDate();
+      return Number.isNaN(date.valueOf()) ? 0 : date.valueOf();
+    }
+
+    const seconds = typeof timestamp.seconds === 'number' ? timestamp.seconds : timestamp._seconds;
+    if (typeof seconds === 'number') {
+      return seconds * 1000;
+    }
+  }
+
+  return 0;
+};
+
+const isReusableDirectPayment = (payment: OrderPayment) =>
+  (payment.channel || 'product_direct_purchase') === 'product_direct_purchase' &&
+  payment.provider === 'kkiapay' &&
+  REUSABLE_PAYMENT_STATUSES.has(payment.status) &&
+  Boolean(payment.providerReference);
 
 const requireStockReservationBeforePayment = () =>
   process.env.AFRICAPHONE_REQUIRE_STOCK_RESERVATION_BEFORE_PAYMENT === 'true';
@@ -221,7 +262,6 @@ export const initiateKkiapayOrderPayment = async (params: { orderId: string; use
   const adminDb = getAdminDb();
   const orderRef = adminDb.collection('orders').doc(params.orderId);
   const paymentRef = adminDb.collection('orderPayments').doc();
-  const providerReference = buildProviderReference(params.orderId, paymentRef.id);
 
   const result = await adminDb.runTransaction(async transaction => {
     const orderSnapshot = await transaction.get(orderRef);
@@ -232,6 +272,35 @@ export const initiateKkiapayOrderPayment = async (params: { orderId: string; use
     const order = normalizeOrder(orderSnapshot.id, orderSnapshot.data() ?? {});
     const amount = validateOrderForPayment(order, params.userId);
     const now = FieldValue.serverTimestamp();
+    const existingPaymentsSnapshot = await transaction.get(
+      adminDb.collection('orderPayments').where('orderId', '==', order.id).limit(20)
+    );
+    const reusablePayment = existingPaymentsSnapshot.docs
+      .map(docSnap => normalizePayment(docSnap.id, docSnap.data()))
+      .filter(isReusableDirectPayment)
+      .sort((left, right) => timestampToMillis(right.createdAt) - timestampToMillis(left.createdAt))[0];
+
+    if (reusablePayment) {
+      transaction.update(orderRef, {
+        status: 'payment_pending',
+        paymentStatus: 'provider_opened' satisfies CustomerPaymentStatus,
+        updatedAt: now,
+      });
+      transaction.update(adminDb.collection('orderPayments').doc(reusablePayment.id), {
+        updatedAt: now,
+      });
+
+      return {
+        payment: {
+          ...reusablePayment,
+          updatedAt: now,
+        },
+        order,
+        reused: true,
+      };
+    }
+
+    const providerReference = buildProviderReference(params.orderId, paymentRef.id);
     const payment: OrderPayment = {
       id: paymentRef.id,
       orderId: order.id,
@@ -279,6 +348,7 @@ export const initiateKkiapayOrderPayment = async (params: { orderId: string; use
     return {
       payment,
       order,
+      reused: false,
     };
   });
 
@@ -287,6 +357,8 @@ export const initiateKkiapayOrderPayment = async (params: { orderId: string; use
     providerReference: result.payment.providerReference,
     amount: result.payment.amount,
     currency: result.payment.currency,
+    status: result.payment.status,
+    reused: result.reused,
     publicKey: config.publicKey,
     sandbox: config.sandbox,
     customer: {
