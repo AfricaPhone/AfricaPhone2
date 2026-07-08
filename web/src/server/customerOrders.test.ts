@@ -106,6 +106,13 @@ describe('customer order creation', () => {
       paymentStatus: 'pending',
       profileRequired: true,
     });
+    expect(order.referenceCode).toMatch(/^AFP-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/);
+    expect(order.referenceCode).not.toContain('2026');
+    expect(order.internalVerification).toMatchObject({
+      version: 'order-reference-v1',
+      algorithm: 'sha256',
+    });
+    expect(order.internalVerification?.tokenHash).toMatch(/^[a-f0-9]{64}$/);
   });
 
   it('requires uploaded document ids before creating an installment order', () => {
@@ -249,6 +256,7 @@ describe('customer order creation', () => {
 
     expect(clientOrder).toMatchObject({
       id: 'order-1',
+      referenceCode: order.referenceCode,
       localDraftId: 'AFP-20260615-TEST',
       createdAt: '2026-06-15T10:02:00.000Z',
       delivery: {
@@ -258,5 +266,6 @@ describe('customer order creation', () => {
       },
     });
     expect('userId' in clientOrder).toBe(false);
+    expect('internalVerification' in clientOrder).toBe(false);
   });
 });

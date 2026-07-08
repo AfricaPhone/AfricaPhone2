@@ -26,15 +26,20 @@ const formatDateTime = (value: Date | string | null | undefined) => {
 };
 
 export const formatOrderReference = (order: CustomerOrder) => {
-  const raw = String(order.localDraftId || order.id || '').trim();
+  const raw = String(order.referenceCode || order.localDraftId || order.id || '').trim();
   if (!raw) {
     return 'Commande AfricaPhone';
   }
 
+  const randomReferenceMatch = /^AFP-([A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4})$/i.exec(raw);
+  if (randomReferenceMatch) {
+    return `Demande #${randomReferenceMatch[1].toUpperCase()}`;
+  }
+
   const draftMatch = /^AFP-(\d{8})-([A-Z0-9]+)$/i.exec(raw);
   if (draftMatch) {
-    const [, datePart, suffix] = draftMatch;
-    return `Demande ${datePart.slice(6, 8)}/${datePart.slice(4, 6)} #${suffix.toUpperCase()}`;
+    const [, , suffix] = draftMatch;
+    return `Demande #${suffix.toUpperCase()}`;
   }
 
   return `Commande #${raw.slice(-6).toUpperCase()}`;

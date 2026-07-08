@@ -121,6 +121,7 @@ export type CustomerOrderDelivery = {
 
 export type CustomerOrder = {
   id: string;
+  referenceCode: string | null;
   userId: string | null;
   guestId: string | null;
   status: CustomerOrderStatus;
@@ -141,12 +142,20 @@ export type CustomerOrder = {
   totals: CustomerOrderTotals;
   source: 'web';
   localDraftId: string | null;
+  internalVerification?: {
+    version: 'order-reference-v1';
+    algorithm: 'sha256';
+    tokenHash: string;
+    tokenLast4: string;
+    generatedAt: FirestoreTimestampLike;
+  } | null;
   createdAt: FirestoreTimestampLike;
   updatedAt: FirestoreTimestampLike;
 };
 
 export type CustomerOrderClientView = {
   id: string;
+  referenceCode: string | null;
   status: CustomerOrderStatus;
   paymentMode: CustomerPaymentMode;
   paymentStatus: CustomerPaymentStatus;

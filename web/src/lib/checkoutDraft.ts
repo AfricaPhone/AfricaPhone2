@@ -44,6 +44,7 @@ export type CheckoutDraft = {
   orderSync: {
     status: 'not_attempted' | 'created' | 'failed';
     orderId: string | null;
+    referenceCode?: string | null;
     createdAt: string | null;
     error: string | null;
     profileRequired: boolean;
@@ -80,21 +81,39 @@ export const formatCheckoutReference = (reference?: string | null) => {
     return 'Demande';
   }
 
-  const draftMatch = /^AFP-(\d{8})-([A-Z0-9]+)$/i.exec(normalized);
-  if (draftMatch) {
-    const [, datePart, suffix] = draftMatch;
-    return `Demande ${datePart.slice(6, 8)}/${datePart.slice(4, 6)} #${suffix.toUpperCase()}`;
+  const randomReferenceMatch = /^AFP-([A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4})$/i.exec(normalized);
+  if (randomReferenceMatch) {
+    return `Demande #${randomReferenceMatch[1].toUpperCase()}`;
   }
 
-  return `Demande #${normalized.slice(-6).toUpperCase()}`;
+  const draftMatch = /^AFP-(\d{8})-([A-Z0-9]+)$/i.exec(normalized);
+  if (draftMatch) {
+    const [, , suffix] = draftMatch;
+    return `Demande #${suffix.toUpperCase()}`;
+  }
+
+  return `Demande #${normalized.replace(/^AFP-/i, '').slice(-14).toUpperCase()}`;
 };
 
 const isBrowser = () => typeof window !== 'undefined';
 
+const REFERENCE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+const createRandomReferencePart = (length: number) => {
+  const bytes = new Uint8Array(length);
+  if (isBrowser() && window.crypto?.getRandomValues) {
+    window.crypto.getRandomValues(bytes);
+  } else {
+    for (let index = 0; index < bytes.length; index += 1) {
+      bytes[index] = Math.floor(Math.random() * 256);
+    }
+  }
+
+  return Array.from(bytes, byte => REFERENCE_ALPHABET[byte % REFERENCE_ALPHABET.length]).join('');
+};
+
 const createDraftId = () => {
-  const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const randomPart = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `AFP-${datePart}-${randomPart}`;
+  return `AFP-${createRandomReferencePart(4)}-${createRandomReferencePart(4)}-${createRandomReferencePart(4)}`;
 };
 
 const isFiniteCoordinate = (value: unknown, min: number, max: number): value is number =>
@@ -139,6 +158,7 @@ export const saveCheckoutDraft = (draft: CheckoutDraftInput) => {
     orderSync: draft.orderSync ?? {
       status: 'not_attempted',
       orderId: null,
+      referenceCode: null,
       createdAt: null,
       error: null,
       profileRequired: false,
@@ -180,6 +200,7 @@ const normalizeCheckoutDraft = (draft: CheckoutDraft): CheckoutDraft => {
       orderSync: {
         status: 'not_attempted',
         orderId: null,
+        referenceCode: null,
         createdAt: null,
         error: null,
         profileRequired: false,
@@ -193,6 +214,7 @@ const normalizeCheckoutDraft = (draft: CheckoutDraft): CheckoutDraft => {
     orderSync: {
       status: draft.orderSync.status,
       orderId: draft.orderSync.orderId ?? null,
+      referenceCode: draft.orderSync.referenceCode ?? null,
       createdAt: draft.orderSync.createdAt ?? null,
       error: draft.orderSync.error ?? null,
       profileRequired: draft.orderSync.profileRequired === true,

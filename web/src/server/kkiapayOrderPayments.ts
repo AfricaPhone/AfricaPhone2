@@ -245,7 +245,7 @@ export const initiateKkiapayOrderPayment = async (params: { orderId: string; use
     transaction.set(paymentRef, {
       ...payment,
       channel: 'product_direct_purchase',
-      orderReference: order.localDraftId || order.id,
+      orderReference: order.referenceCode || order.localDraftId || order.id,
       customerName: order.customer.fullName,
       customerWhatsapp: order.customer.whatsapp,
     });

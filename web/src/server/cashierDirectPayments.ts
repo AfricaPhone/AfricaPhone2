@@ -70,7 +70,7 @@ const serializeCashierSync = (payment: OrderPayment) => ({
 const serializeCashierPayment = (payment: OrderPayment, order: CustomerOrder | null) => ({
   id: payment.id,
   orderId: payment.orderId,
-  orderReference: payment.orderReference || order?.localDraftId || payment.orderId,
+  orderReference: payment.orderReference || order?.referenceCode || order?.localDraftId || payment.orderId,
   channel: payment.channel || 'product_direct_purchase',
   provider: payment.provider,
   status: payment.status,

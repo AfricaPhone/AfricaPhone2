@@ -362,7 +362,7 @@ const mapRemoteOrder = (order: CustomerOrderClientView): DisplayOrder => {
     key: `remote-${order.id}`,
     source: 'remote',
     orderId: order.id,
-    reference: order.localDraftId || order.id,
+    reference: order.referenceCode || order.localDraftId || order.id,
     createdAt: order.createdAt,
     status: REMOTE_STATUS_VIEWS[order.status] ?? REMOTE_STATUS_VIEWS.pending_review,
     items,

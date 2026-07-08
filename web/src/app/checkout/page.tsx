@@ -663,6 +663,7 @@ export default function CheckoutPage() {
       });
       const responseBody = (await response.json().catch(() => null)) as {
         orderId?: string;
+        referenceCode?: string | null;
         createdAt?: string;
         profileRequired?: boolean;
         message?: string;
@@ -674,6 +675,7 @@ export default function CheckoutPage() {
         const syncedDraft = updateCheckoutDraftOrderSync(draft, {
           status: 'failed',
           orderId: null,
+          referenceCode: null,
           createdAt: null,
           error: responseBody?.message || 'Creation de commande indisponible.',
           profileRequired: false,
@@ -684,6 +686,7 @@ export default function CheckoutPage() {
         const syncedDraft = updateCheckoutDraftOrderSync(draft, {
           status: 'created',
           orderId: responseBody.orderId,
+          referenceCode: responseBody.referenceCode || null,
           createdAt: responseBody.createdAt || new Date().toISOString(),
           error: null,
           profileRequired: responseBody.profileRequired === true,
@@ -702,6 +705,7 @@ export default function CheckoutPage() {
         const syncedDraft = updateCheckoutDraftOrderSync(draft, {
           status: 'failed',
           orderId: null,
+          referenceCode: null,
           createdAt: null,
           error: 'Creation de commande indisponible.',
           profileRequired: false,

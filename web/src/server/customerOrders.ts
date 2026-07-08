@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import type { CheckoutDraft } from '@/lib/checkoutDraft';
 import type {
   CustomerFulfillmentMode,
@@ -29,6 +29,7 @@ const CHECKOUT_FULFILLMENT_TO_ORDER_FULFILLMENT: Record<CheckoutDraft['fulfillme
 
 const PAYMENT_MODES = new Set<CheckoutDraft['paymentMode']>(['delivery', 'kkiapay', 'pickup', 'cotisation']);
 const FULFILLMENT_MODES = new Set<CheckoutDraft['fulfillmentMode']>(['delivery', 'shop', 'representative']);
+const REFERENCE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 const toCleanString = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 const toNullableString = (value: unknown) => {
@@ -82,6 +83,29 @@ const buildContractReference = (installmentPlanId: string, orderId: string) => {
     .toUpperCase();
 
   return `AFPCT1-${digest}`;
+};
+
+const createRandomReferencePart = (length: number) => {
+  const bytes = randomBytes(length);
+  return Array.from(bytes, byte => REFERENCE_ALPHABET[byte % REFERENCE_ALPHABET.length]).join('');
+};
+
+const buildOrderReferenceCode = () =>
+  `AFP-${createRandomReferencePart(4)}-${createRandomReferencePart(4)}-${createRandomReferencePart(4)}`;
+
+const buildInternalVerification = (orderId: string, now: FirestoreTimestampLike) => {
+  const token = `${createRandomReferencePart(8)}-${createRandomReferencePart(8)}-${createRandomReferencePart(8)}`;
+  const tokenHash = createHash('sha256')
+    .update(`africaphone-order-verification:${orderId}:${token}`)
+    .digest('hex');
+
+  return {
+    version: 'order-reference-v1' as const,
+    algorithm: 'sha256' as const,
+    tokenHash,
+    tokenLast4: token.slice(-4),
+    generatedAt: now,
+  };
 };
 
 const normalizeDeliveryLocation = (value: unknown): CheckoutDraft['deliveryLocation'] => {
@@ -288,6 +312,7 @@ export const buildCustomerOrderFromDraft = (params: {
 
   return {
     id: orderId,
+    referenceCode: buildOrderReferenceCode(),
     userId,
     guestId: userId ? null : draft.id,
     status,
@@ -335,6 +360,7 @@ export const buildCustomerOrderFromDraft = (params: {
     },
     source: 'web',
     localDraftId: draft.id,
+    internalVerification: buildInternalVerification(orderId, now),
     createdAt: now,
     updatedAt: now,
   };
@@ -345,6 +371,7 @@ export const serializeCustomerOrderForClient = (
   fallbackId?: string
 ): CustomerOrderClientView => ({
   id: order.id || fallbackId || '',
+  referenceCode: toNullableString(order.referenceCode),
   status: order.status,
   paymentMode: order.paymentMode,
   paymentStatus: order.paymentStatus,
@@ -386,7 +413,7 @@ export const buildInitialInstallmentPlanFromOrder = (params: {
     id: installmentPlanId,
     orderId: order.id,
     userId: order.userId,
-    orderReference: toNullableString(order.localDraftId),
+    orderReference: toNullableString(order.referenceCode) || toNullableString(order.localDraftId),
     status: 'contract_review',
     customer: order.customer,
     targetMode: selectedProduct ? 'selected_product' : 'open_phone_purchase',

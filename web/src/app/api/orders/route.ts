@@ -191,6 +191,7 @@ export async function POST(request: NextRequest) {
       {
         orderId: orderRef.id,
         installmentPlanId: installmentPlan?.id ?? null,
+        referenceCode: order.referenceCode,
         status: order.status,
         paymentStatus: order.paymentStatus,
         profileRequired: order.status === 'profile_required',

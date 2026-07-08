@@ -144,10 +144,12 @@ export default function CheckoutConfirmationPage() {
           <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
             <section className="space-y-4">
               <article className="rounded-3xl border border-[#059669]/20 bg-[#ECFDF5] p-4 shadow-sm shadow-[#059669]/10">
-                <p className="text-xs font-extrabold uppercase text-[#059669]">Numero provisoire</p>
+                <p className="text-xs font-extrabold uppercase text-[#059669]">
+                  {draft.orderSync.referenceCode ? 'Numero de demande' : 'Numero provisoire'}
+                </p>
                 <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
                   <h2 className="text-2xl font-black tracking-tight text-slate-950">
-                    {formatCheckoutReference(draft.id)}
+                    {formatCheckoutReference(draft.orderSync.referenceCode || draft.id)}
                   </h2>
                   <span
                     className={`rounded-full bg-white px-3 py-2 text-xs font-extrabold ${
