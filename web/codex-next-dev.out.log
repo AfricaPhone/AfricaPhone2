@@ -1,0 +1,144 @@
+
+> web@0.1.0 dev
+> next dev -p 3002
+
+  ▲ Next.js 14.2.33
+  - Local:        http://localhost:3002
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 8.5s
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 16.5s (794 modules)
+ HEAD /checkout 200 in 19025ms
+ GET /checkout 200 in 171ms
+ GET /checkout 200 in 225ms
+ ○ Compiling / ...
+ ✓ Compiled / in 31.6s (847 modules)
+ GET / 200 in 34019ms
+ ✓ Compiled in 2.6s (332 modules)
+ ○ Compiling /panier ...
+ ✓ Compiled /panier in 2.2s (839 modules)
+ GET /panier 200 in 3710ms
+ GET /checkout 200 in 284ms
+ ○ Compiling /commandes ...
+ ✓ Compiled /commandes in 1523ms (845 modules)
+ GET /commandes 200 in 2612ms
+ ○ Compiling /notifs ...
+ ✓ Compiled /notifs in 2.4s (851 modules)
+ GET /notifs 200 in 3838ms
+ ○ Compiling /api/orders ...
+ ✓ Compiled /api/orders in 3.3s (562 modules)
+ ○ Compiling /compte ...
+ ✓ Compiled /compte in 2.3s (892 modules)
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 1721ms
+ GET /compte 200 in 4211ms
+ ○ Compiling /nous-trouver ...
+ ✓ Compiled /nous-trouver in 1681ms (898 modules)
+ GET /nous-trouver 200 in 2155ms
+ ✓ Compiled in 3.8s (823 modules)
+ ✓ Compiled in 2.1s (823 modules)
+ ✓ Compiled in 1129ms (342 modules)
+ ✓ Compiled in 1137ms (342 modules)
+ ✓ Compiled in 2s (342 modules)
+ ✓ Compiled in 913ms (342 modules)
+ ✓ Compiled in 686ms (342 modules)
+ ✓ Compiled in 868ms (342 modules)
+ ✓ Compiled in 942ms (342 modules)
+ ✓ Compiled in 1053ms (342 modules)
+ ✓ Compiled in 1289ms (342 modules)
+ ✓ Compiled in 2.6s (823 modules)
+ ✓ Compiled in 2.7s (823 modules)
+ ✓ Compiled in 3.7s (342 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 2.1s (519 modules)
+ GET / 200 in 2893ms
+ ○ Compiling /panier ...
+ ✓ Compiled /panier in 1210ms (523 modules)
+ GET /panier 200 in 1676ms
+ GET /checkout 200 in 261ms
+ ○ Compiling /checkout/confirmation ...
+ ✓ Compiled /checkout/confirmation in 1731ms (877 modules)
+ GET /checkout/confirmation 200 in 2257ms
+ ○ Compiling /commandes ...
+ ✓ Compiled /commandes in 655ms (534 modules)
+ GET /commandes 200 in 991ms
+ ○ Compiling /api/orders ...
+ ✓ Compiled /api/orders in 545ms (538 modules)
+ ✓ Compiled (573 modules)
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 1792ms
+ GET /notifs 200 in 2098ms
+ ○ Compiling /compte ...
+ ✓ Compiled /compte in 584ms (577 modules)
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 1440ms
+ GET /compte 200 in 1621ms
+ GET / 200 in 203ms
+ ✓ Compiled in 3.1s (874 modules)
+ GET / 200 in 563ms
+ GET / 200 in 614ms
+ ○ Compiling /panier ...
+ ✓ Compiled /panier in 1838ms (531 modules)
+ GET /panier 200 in 2431ms
+ GET /checkout 200 in 961ms
+ ○ Compiling /checkout/confirmation ...
+ ✓ Compiled /checkout/confirmation in 1181ms (538 modules)
+ GET /checkout/confirmation 200 in 2161ms
+ GET /commandes 200 in 178ms
+ ○ Compiling /notifs ...
+ ✓ Compiled /api/orders in 911ms (542 modules)
+ ✓ Compiled (577 modules)
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 3760ms
+ GET /notifs 200 in 4645ms
+ GET /compte 200 in 143ms
+ GET / 200 in 188ms
+ ✓ Compiled in 2.5s (874 modules)
+ GET / 200 in 706ms
+ ✓ Compiled in 1793ms (874 modules)
+ GET / 200 in 641ms
+ GET /checkout 200 in 117ms
+ GET /compte 200 in 132ms
+ GET /commandes 200 in 132ms
+ ○ Compiling /notifs ...
+ ✓ Compiled /notifs in 834ms (531 modules)
+ GET /notifs 200 in 1413ms
+ ○ Compiling /api/orders ...
+ ✓ Compiled /api/orders in 786ms (566 modules)
+ ○ Compiling /panier ...
+ ✓ Compiled /panier in 2.6s (570 modules)
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 2829ms
+ GET /panier 200 in 4620ms
+ GET / 200 in 283ms
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 105ms
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 71ms
+ ✓ Compiled in 3s (909 modules)
+ ✓ Compiled in 2.4s (909 modules)
+ GET / 200 in 1371ms
+ GET / 200 in 1778ms
+ GET / 200 in 220ms
+ ✓ Compiled in 2.9s (874 modules)
+ GET / 200 in 682ms
+ GET / 200 in 158ms
+ GET / 200 in 169ms
+ ✓ Compiled in 2.7s (874 modules)
+ GET / 200 in 712ms
+ GET / 200 in 217ms
+ GET / 200 in 100ms
+ GET /panier 200 in 117ms
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 2.4s (531 modules)
+ GET /checkout 200 in 3522ms
+ GET /commandes 200 in 181ms
+ GET /notifs 200 in 144ms
+ GET /compte 200 in 90ms
+ ○ Compiling /api/orders ...
+ ✓ Compiled /api/orders in 4.6s (562 modules)
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 8872ms
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 256ms
+ GET /api/orders?orderIds=mwM6DPO8A3jWELU43ulN&localDraftIds=AFP-20260620-KXL6 401 in 61ms
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 756ms (531 modules)
+ ○ Compiling /api/orders ...
+ ✓ Compiled /api/orders in 765ms (562 modules)
+ POST /api/orders 401 in 1057ms
+ ○ Compiling /checkout/confirmation ...
+ ✓ Compiled /checkout/confirmation in 927ms (569 modules)
